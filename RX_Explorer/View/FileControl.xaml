@@ -223,6 +223,8 @@
                             KeyDown="AddressBox_KeyDown"
                             QueryIcon="Forward"
                             x:FieldModifier="public"
+                            IsRightTapEnabled="True"
+                            RightTapped="AddressBox_RightTapped"
                             GotFocus="AddressBox_GotFocus"
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"

@@ -2110,7 +2110,9 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
-                                if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveFolder) is FileSystemStorageFolder Folder)
+                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreatedByStorageItemAsync(DriveFolder);
+
+                                if (Folder != null)
                                 {
                                     bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, ItemFilters.Folder);
 

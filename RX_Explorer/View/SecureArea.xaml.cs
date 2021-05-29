@@ -402,7 +402,9 @@ namespace RX_Explorer
 
                     foreach (StorageFile ImportFile in FileList)
                     {
-                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(ImportFile) is FileSystemStorageFile File)
+                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreatedByStorageItemAsync(ImportFile);
+
+                        if (File != null)
                         {
                             NewFileList.Add(File);
                             TotalSize += File.SizeRaw;
@@ -631,7 +633,7 @@ namespace RX_Explorer
 
             if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
             {
-                await ActivateLoading (true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
+                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
 
                 Cancellation = new CancellationTokenSource();
 
@@ -982,7 +984,7 @@ namespace RX_Explorer
                 StorageLocation.Text = Folder.Path;
                 ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = Folder.Path;
 
-                await ActivateLoading(true, DisplayString:  Globalization.GetString("Progress_Tip_Transfering"));
+                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
 
                 try
                 {

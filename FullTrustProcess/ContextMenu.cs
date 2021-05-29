@@ -205,7 +205,9 @@ namespace FullTrustProcess
                                     }
                                 }
 
-                                if (!string.IsNullOrEmpty(Verb) && !VerbFilterHashSet.Contains(Verb.ToLower()))
+                                Verb ??= string.Empty;
+
+                                if (!VerbFilterHashSet.Contains(Verb.ToLower()))
                                 {
                                     try
                                     {
@@ -311,10 +313,28 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
-
-                                if (string.IsNullOrEmpty(Verb))
+                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
                                 {
+                                    if (!string.IsNullOrEmpty(Verb))
+                                    {
+                                        using (SafeResourceId VerbId = new SafeResourceId(Verb))
+                                        {
+                                            Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                                            {
+                                                lpVerb = VerbId,
+                                                lpVerbW = Verb,
+                                                nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                                fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI | Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
+                                                cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                            };
+
+                                            if (ContextObject.InvokeCommand(VerbInvokeCommand).Succeeded)
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+
                                     using (SafeResourceId ResSID = new SafeResourceId(Id))
                                     {
                                         Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
@@ -330,37 +350,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    using (SafeResourceId VerbId = new SafeResourceId(Verb))
-                                    {
-                                        Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
-                                        {
-                                            lpVerb = VerbId,
-                                            lpVerbW = Verb,
-                                            nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                            fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI | Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
-                                            cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
-                                        };
-
-                                        if (ContextObject.InvokeCommand(VerbInvokeCommand).Succeeded)
-                                        {
-                                            return true;
-                                        }
-                                        else
-                                        {
-                                            using (SafeResourceId ResSId = new SafeResourceId(Id))
-                                            {
-                                                Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
-                                                {
-                                                    lpVerb = ResSId,
-                                                    nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                                    fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI | Shell32.CMIC.CMIC_MASK_ASYNCOK,
-                                                    cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
-                                                };
-
-                                                return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;
-                                            }
-                                        }
-                                    }
+                                    return false;
                                 }
                             }
                         }

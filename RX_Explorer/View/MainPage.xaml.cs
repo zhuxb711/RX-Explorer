@@ -133,7 +133,7 @@ namespace RX_Explorer
             });
         }
 
-        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message, bool Closable = true, ButtonBase ActionButton = null)
+        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message, bool Closable = true, ButtonBase ActionButton = null, int DismissAfter = -1)
         {
             InfoTip.Severity = Severity;
             InfoTip.Title = Title;
@@ -147,6 +147,17 @@ namespace RX_Explorer
             }
 
             InfoTip.IsOpen = true;
+
+            if (DismissAfter > 0)
+            {
+                Task.Delay(DismissAfter).ContinueWith((_) =>
+                {
+                    if (InfoTip.Message == Message)
+                    {
+                        InfoTip.IsOpen = false;
+                    }
+                } , TaskScheduler.FromCurrentSynchronizationContext());
+            }
         }
 
         public void HideInfoTip()

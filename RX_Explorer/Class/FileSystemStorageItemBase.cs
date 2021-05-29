@@ -188,43 +188,40 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FileSystemStorageItemBase> CreateFromStorageItemAsync<T>(T Item) where T : IStorageItem
+        public static async Task<FileSystemStorageFolder> CreatedByStorageItemAsync(StorageFolder Folder)
         {
-            switch (Item)
+            if (Folder != null)
             {
-                case StorageFile File:
+                foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                {
+                    ParameterInfo[] Parameters = Info.GetParameters();
+
+                    if (Parameters[0].ParameterType == typeof(StorageFolder))
                     {
-                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                        {
-                            ParameterInfo[] Parameters = Info.GetParameters();
-
-                            if (Parameters[0].ParameterType == typeof(StorageFile))
-                            {
-                                return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
-                            }
-                        }
-
-                        return null;
+                        return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
                     }
-                case StorageFolder Folder:
-                    {
-                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                        {
-                            ParameterInfo[] Parameters = Info.GetParameters();
-
-                            if (Parameters[0].ParameterType == typeof(StorageFolder))
-                            {
-                                return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
-                            }
-                        }
-
-                        return null;
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                }
             }
+
+            return null;
+        }
+
+        public static async Task<FileSystemStorageFile> CreatedByStorageItemAsync(StorageFile File)
+        {
+            if (File != null)
+            {
+                foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                {
+                    ParameterInfo[] Parameters = Info.GetParameters();
+
+                    if (Parameters[0].ParameterType == typeof(StorageFile))
+                    {
+                        return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                    }
+                }
+            }
+
+            return null;
         }
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
@@ -244,7 +241,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return await CreateFromStorageItemAsync(Folder);
+                        return await CreatedByStorageItemAsync(Folder);
                     }
                     else
                     {
@@ -254,11 +251,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return await CreateFromStorageItemAsync(Folder);
+                                    return await CreatedByStorageItemAsync(Folder);
                                 }
                             case StorageFile File:
                                 {
-                                    return await CreateFromStorageItemAsync(File);
+                                    return await CreatedByStorageItemAsync(File);
                                 }
                             default:
                                 {
@@ -299,17 +296,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return await CreatedByStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return await CreatedByStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return await CreatedByStorageItemAsync(NewFile);
                                         }
                                     default:
                                         {
@@ -343,17 +340,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return await CreatedByStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return await CreatedByStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return await CreatedByStorageItemAsync(NewFolder);
                                         }
                                     default:
                                         {
@@ -474,9 +471,9 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ModifiedTime));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
-                        
+
                         LoadForegroundConfiguration();
-                        
+
                         await LoadSyncStatusAsync();
                     }
                     catch (Exception ex)

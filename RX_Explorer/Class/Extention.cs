@@ -1091,11 +1091,11 @@ namespace RX_Explorer.Class
                                 return null;
                             }
 
-                            BitmapImage bitmapImage = new BitmapImage();
+                            BitmapImage Bitmap = new BitmapImage();
 
-                            await bitmapImage.SetSourceAsync(Thumbnail);
+                            await Bitmap.SetSourceAsync(Thumbnail);
 
-                            return bitmapImage;
+                            return Bitmap;
                         }
                     }
                     else
@@ -1114,7 +1114,7 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"));
+                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 5000);
 
                         return null;
                     }

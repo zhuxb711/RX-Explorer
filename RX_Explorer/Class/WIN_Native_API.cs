@@ -872,7 +872,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {

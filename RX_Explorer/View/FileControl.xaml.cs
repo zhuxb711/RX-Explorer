@@ -54,6 +54,7 @@ namespace RX_Explorer
         private int CreateBladeLockResource;
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
+        private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
 
         public ViewModeController ViewModeControl;
 
@@ -147,6 +148,8 @@ namespace RX_Explorer
             InitializeComponent();
 
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
+            AddressBoxRightTapEventHandler = new RightTappedEventHandler(AddressBox_RightTapped);
+            AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
 
             Loaded += FileControl_Loaded;
         }
@@ -576,7 +579,9 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder) is FileSystemStorageFolder DeviceFolder)
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreatedByStorageItemAsync(DriveData.DriveFolder);
+
+                        if (DeviceFolder != null)
                         {
                             bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
@@ -602,7 +607,9 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder) is FileSystemStorageFolder DeviceFolder)
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreatedByStorageItemAsync(DriveData.DriveFolder);
+
+                        if (DeviceFolder != null)
                         {
                             await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
                             {
@@ -1703,6 +1710,12 @@ namespace RX_Explorer
 
         private void AddressBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            if (AddressBox.Tag is bool IsOpen && IsOpen)
+            {
+                AddressBox.Tag = false;
+                return;
+            }
+
             AddressBox.Text = string.Empty;
             AddressButtonContainer.Visibility = Visibility.Visible;
             BlockKeyboardShortCutInput = false;
@@ -2600,6 +2613,11 @@ namespace RX_Explorer
                 SearchSuggestionList.Remove(Item);
                 SQLite.Current.DeleteSearchHistory(Item.Text);
             }
+        }
+
+        private void AddressBox_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            AddressBox.Tag = true;
         }
     }
 }
