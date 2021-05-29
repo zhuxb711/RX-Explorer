@@ -280,14 +280,14 @@ namespace RX_Explorer.Class
                                     }).Wait();
                                 }
                             }
-                            catch (FileNotFoundException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (InvalidOperationException)
+                            catch (AggregateException Ae) when (Ae.InnerException is InvalidOperationException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
@@ -321,21 +321,21 @@ namespace RX_Explorer.Class
                                     }).Wait();
                                 }
                             }
-                            catch (FileNotFoundException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (FileCaputureException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileCaputureException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (InvalidOperationException)
+                            catch (AggregateException Ae) when (Ae.InnerException is InvalidOperationException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
@@ -369,21 +369,21 @@ namespace RX_Explorer.Class
                                     }).Wait();
                                 }
                             }
-                            catch (FileNotFoundException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteItemError_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (FileCaputureException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileCaputureException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (InvalidOperationException)
+                            catch (AggregateException Ae) when (Ae.InnerException is InvalidOperationException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
@@ -445,6 +445,27 @@ namespace RX_Explorer.Class
                                             }
                                     }
                                 }
+                            }
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UndoFailForNotExist_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (AggregateException Ae) when (Ae.InnerException is FileCaputureException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (AggregateException Ae) when (Ae.InnerException is InvalidOperationException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedUndo_Content"));
+                                }).AsTask().Wait();
                             }
                             catch (Exception ex)
                             {
@@ -530,14 +551,14 @@ namespace RX_Explorer.Class
                                         }
                                 }
                             }
-                            catch (UnauthorizedAccessException)
+                            catch (AggregateException Ae) when (Ae.InnerException is UnauthorizedAccessException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (FileNotFoundException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
@@ -584,14 +605,14 @@ namespace RX_Explorer.Class
                                     throw new Exception(Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"));
                                 }
                             }
-                            catch (UnauthorizedAccessException)
+                            catch (AggregateException Ae) when (Ae.InnerException is UnauthorizedAccessException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"));
                                 }).AsTask().Wait();
                             }
-                            catch (FileNotFoundException)
+                            catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
                             {
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {

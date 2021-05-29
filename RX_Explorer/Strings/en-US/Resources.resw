@@ -1654,14 +1654,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>This folder has been added to the home page, can not be added repeatedly</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to create folder, it may be that you do not have access to this folder</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</value>
+    <value>RX does not have permission to delete this item</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX does not have permission to paste. Do you want to launch Windows Explorer?</value>
+    <value>RX does not have permission to paste</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Go back</value>
@@ -1785,22 +1784,19 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>There is already an ongoing task, please wait for it to complete</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to create the Zip file here, it may be that you do not have access to this file</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have sufficient permissions to create new files in this folder</value>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX does not have permission to rename. Do you want to launch Windows Explorer?</value>
+    <value>RX does not have permission to rename</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
-    <value>Since some files/folders no longer exist, the undo operation could not be completed completely</value>
+    <value>An error occurred while deleting the file, the undo operation could not be completed</value>
   </data>
   <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
     <value>WIFI transmission has an unexpected error：\r</value>
@@ -2186,9 +2182,6 @@ Invalid names include
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Run terminal as administrator</value>
-  </data>
-  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX has no right to rename this file. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Cannot access clipboard, copy/cut operation failed</value>
@@ -3227,5 +3220,11 @@ Invalid names include
   </data>
   <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
     <value>Cannot set this window to the top most</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedUndo_Content" xml:space="preserve">
+    <value>RX does not have permission to undo this item, the undo operation could not be completed </value>
+  </data>
+  <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
+    <value>Since some files/folders no longer exist, the undo operation could not be completed</value>
   </data>
 </root>

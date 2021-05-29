@@ -1952,17 +1952,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">此文件夹已经添加到主界面了，不能重复添加哦</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r您是否希望启动Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder</source>
+          <target state="translated">RX无权在此创建文件夹，可能是您无权访问此文件夹</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权将文件粘贴至此处，您是否希望启动Windows Explorer?</target>
+          <source>RX does not have permission to paste</source>
+          <target state="translated">RX无权将文件粘贴至此处</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权重命名此文件夹，您是否希望启动Windows Explorer?</target>
+          <source>RX does not have permission to rename</source>
+          <target state="translated">RX无权重命名此文件夹</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2124,22 +2123,19 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">已存在正在进行中的任务，请等待其完成</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r您是否希望启动Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX无权在此处创建Zip文件，可能是您无权访问此文件</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX没有足够的权限在此文件夹新建文件\r\r您是否希望启动Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have sufficient permissions to create new files in this folder</source>
+          <target state="translated">RX没有足够的权限在此文件夹新建文件</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r您是否希望启动Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
+          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">由于部分文件/文件夹已不存在，因此撤销操作未能完全完成</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2270,8 +2266,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">删除日期</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权限删除此对象，您是否希望启动Windows Explorer?</target>
+          <source>RX does not have permission to delete this item</source>
+          <target state="translated">RX无权限删除此对象</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
           <source>The item is already occupied by another application, this operation cannot be performed</source>
@@ -2688,10 +2684,6 @@ Invalid names include
         <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
           <source>Run terminal as administrator</source>
           <target state="translated">以管理员身份运行终端</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
-          <source>RX has no right to rename this file. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权重命名该文件，您是否希望启动Windows Explorer?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
@@ -4144,6 +4136,14 @@ Invalid names include
         <trans-unit id="QueueDialog_SetTopMostFailed_Content" translate="yes" xml:space="preserve">
           <source>Cannot set this window to the top most</source>
           <target state="translated">无法将此窗口设置为最顶部</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedUndo_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to undo this item, the undo operation could not be completed </source>
+          <target state="translated">RX无权撤销此对象，撤销操作未能完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
+          <target state="translated">部分文件/文件夹不存在，撤销操作未能完成</target>
         </trans-unit>
       </group>
     </body>

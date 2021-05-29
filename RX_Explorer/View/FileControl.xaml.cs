@@ -937,7 +937,7 @@ namespace RX_Explorer
 
                             await LoadExceptionDialog.ShowAsync();
                         }
-                        catch (InvalidOperationException)
+                        catch (Exception)
                         {
                             QueueContentDialog UnauthorizeDialog = new QueueContentDialog
                             {
@@ -947,25 +947,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
-                            if (await UnauthorizeDialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                await Launcher.LaunchFolderPathAsync(CurrentPresenter.CurrentFolder.Path);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedRename_StartExplorer_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                            };
-
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFolderPathAsync(CurrentPresenter.CurrentFolder.Path);
-                            }
+                            await UnauthorizeDialog.ShowAsync();
                         }
                     }
                 }
@@ -997,10 +979,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderPathAsync(CurrentPresenter.CurrentFolder.Path);
-                    }
+                    await dialog.ShowAsync();
                 }
             }
             else

@@ -1478,14 +1478,13 @@
     <value>Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour copier, voulez-vous lancer l'Explorateur Windows?</value>
+    <value>RX n'a pas la permission pour copier</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier, voulez-vous lancer l'Explorateur Windows?</value>
+    <value>RX n'a pas la permission pour renommer ce dossier</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Retour</value>
@@ -1609,16 +1608,13 @@
     <value>Il a déjà une tâche en cours, veuillez attendre la fin de cette dernière</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier</value>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Comme certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être menée à bien complètement</value>
@@ -1720,7 +1716,7 @@
     <value>Date de recyclage</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous lancer l'Explorateur Windows?</value>
+    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis</value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>L'élément est déjà occupé par une autre application, cette opération ne peut pas être effectuée</value>
@@ -2029,9 +2025,6 @@ Les noms non valides incluent
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Exécutez le terminal en tant qu'administrateur</value>
-  </data>
-  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX n'a pas le droit de renommer ce fichier. Voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</value>
@@ -3122,5 +3115,11 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
     <value>Impossible de définir cette fenêtre au maximum</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedUndo_Content" xml:space="preserve">
+    <value>RX n'a pas la permission d'annuler cet élément, l'opération d'annulation n'a pas pu être terminée</value>
+  </data>
+  <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
+    <value>Étant donné que certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être terminée</value>
   </data>
 </root>

@@ -2042,17 +2042,16 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Esta carpeta se ha añadido a la página principal y no se puede volver a añadir.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para crear la carpeta. Es posible que no tengas acceso a esta carpeta.\r\r¿Deseas ejecutar Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder</source>
+          <target state="translated">RX no tiene permiso para crear la carpeta. Es posible que no tengas acceso a esta carpeta</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para eliminar este ítem. ¿Deseas ejecutar Windows Explorer?</target>
+          <source>RX does not have permission to delete this item</source>
+          <target state="translated">RX no tiene permiso para eliminar este ítem</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para pegar. ¿Deseas ejecutar Windows Explorer?</target>
+          <source>RX does not have permission to paste</source>
+          <target state="translated">RX no tiene permiso para pegar</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2214,26 +2213,23 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Ya hay una tarea en curso; por favor, espera a que termine.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para crear el archivo Zip aquí. Es posible que no tengas acceso a este archivo.\r\r¿Deseas ejecutar Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX no tiene permiso para crear el archivo Zip aquí. Es posible que no tengas acceso a este archivo</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene suficientes permisos para crear nuevos archivos en esta carpeta.\r\r¿Deseas ejecutar Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have sufficient permissions to create new files in this folder</source>
+          <target state="translated">RX no tiene suficientes permisos para crear nuevos archivos en esta carpeta</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para descomprimir el archivo Zip aquí. Es posible que no tengas acceso a este archivo.\r\r¿Deseas ejecutar Windows Explorer?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX no tiene permiso para descomprimir el archivo Zip aquí. Es posible que no tengas acceso a este archivo</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para renombrar. ¿Deseas ejecutar Windows Explorer?</target>
+          <source>RX does not have permission to rename</source>
+          <target state="translated">RX no tiene permiso para renombrar</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
+          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">Algunos archivos o carpetas ya no existen; la operación de deshacer no se ha podido completar del todo.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2747,10 +2743,6 @@ Las denominaciones no válidas son:
         <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
           <source>Run terminal as administrator</source>
           <target state="translated">Ejecutar terminal como administrador</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
-          <source>RX has no right to rename this file. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX no tiene permiso para renombrar este archivo. ¿Deseas ejecutar Windows Explorer?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
@@ -4142,6 +4134,14 @@ Las denominaciones no válidas son:
         <trans-unit id="QueueDialog_SetTopMostFailed_Content" translate="yes" xml:space="preserve">
           <source>Cannot set this window to the top most</source>
           <target state="translated">No se puede establecer esta ventana en la parte superior más</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedUndo_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to undo this item, the undo operation could not be completed </source>
+          <target state="translated">RX no tiene permiso para deshacer este elemento, la operación de deshacer no se pudo completar</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
+          <target state="translated">Dado que algunos archivos / carpetas ya no existen, la operación de deshacer no se pudo completar</target>
         </trans-unit>
       </group>
     </body>

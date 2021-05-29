@@ -2042,17 +2042,16 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Dieser Ordner wurde schon zur Startseite hinzugefügt und kann nicht nochmal hinzugefügt werden.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat keine Berehtigung den Ordner zu erstellen. Es kann möglich sein, dass Sie keinen Zugang zu diesem Ordner haben.\r\rMöchten Sie den Windows Explorer öffnen?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder</source>
+          <target state="translated">RX hat keine Berehtigung den Ordner zu erstellen. Es kann möglich sein, dass Sie keinen Zugang zu diesem Ordner haben</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat keine Berechtigung dieses Objekt zu löschen. Möchten Sie den Windows Explorer öffnen?</target>
+          <source>RX does not have permission to delete this item</source>
+          <target state="translated">RX hat keine Berechtigung dieses Objekt zu löschen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat keine Berechtigung einzufügen. Möchten Sie den Windows Explorer öffnen?</target>
+          <source>RX does not have permission to paste</source>
+          <target state="translated">RX hat keine Berechtigung einzufügen.</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2214,26 +2213,23 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Es wird bereits eine Aufgabe ausgeführt. Bitte warten sie bis sie abgeschlossen wurde.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat keine Berechtigung die ZIP-Datei hier zu erstellen. Es könnte sein, dass Sie keine Zugang zu dieser Datei haben.\r\rMöchten Sie den Windows Explorer starten?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX hat keine Berechtigung die ZIP-Datei hier zu erstellen. Es könnte sein, dass Sie keine Zugang zu dieser Datei haben</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX verfügt nicht über ausreichende Berechtigungen zum Erstellen neuer Dateien in diesem Ordner.\r\rMöchten Sie den Windows Explorer starten?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have sufficient permissions to create new files in this folder</source>
+          <target state="translated">RX verfügt nicht über ausreichende Berechtigungen zum Erstellen neuer Dateien in diesem Ordner</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben.\r\rMöchten Sie den Windows Explorer starten?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file</source>
+          <target state="translated">RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX ist nicht zum Umbenennen berechtigt. Möchten Sie den Windows Explorer starten?</target>
+          <source>RX does not have permission to rename</source>
+          <target state="translated">RX ist nicht zum Umbenennen berechtigt</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
-          <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
+          <source>An error occurred while deleting the file, the undo operation could not be completed</source>
           <target state="translated">Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte nicht alles vollständig rückgängig gemacht werden.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
@@ -2751,10 +2747,6 @@ Inkorrekte Namen sind
         <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
           <source>Run terminal as administrator</source>
           <target state="translated">Eingabeaufforderung als Administrator ausführen</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
-          <source>RX has no right to rename this file. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX hat keine Rechte diese Datei umzubenennen. Möchten sie den Windows Explorer starten?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
@@ -4142,6 +4134,14 @@ Inkorrekte Namen sind
         <trans-unit id="QueueDialog_SetTopMostFailed_Content" translate="yes" xml:space="preserve">
           <source>Cannot set this window to the top most</source>
           <target state="translated">Dieses Fenster kann nicht ganz nach oben gesetzt werden</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedUndo_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to undo this item, the undo operation could not be completed </source>
+          <target state="translated">RX hat keine Berechtigung zum Rückgängigmachen dieses Elements, der Rückgängig-Vorgang konnte nicht abgeschlossen werden</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
+          <target state="translated">Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte der Rückgängig-Vorgang nicht abgeschlossen werden</target>
         </trans-unit>
       </group>
     </body>

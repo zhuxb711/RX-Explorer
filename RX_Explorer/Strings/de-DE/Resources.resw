@@ -1546,14 +1546,13 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Dieser Ordner wurde schon zur Startseite hinzugefügt und kann nicht nochmal hinzugefügt werden.</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX hat keine Berehtigung den Ordner zu erstellen. Es kann möglich sein, dass Sie keinen Zugang zu diesem Ordner haben.\r\rMöchten Sie den Windows Explorer öffnen?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX hat keine Berehtigung den Ordner zu erstellen. Es kann möglich sein, dass Sie keinen Zugang zu diesem Ordner haben</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX hat keine Berechtigung dieses Objekt zu löschen. Möchten Sie den Windows Explorer öffnen?</value>
+    <value>RX hat keine Berechtigung dieses Objekt zu löschen</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX hat keine Berechtigung einzufügen. Möchten Sie den Windows Explorer öffnen?</value>
+    <value>RX hat keine Berechtigung einzufügen.</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Zurück gehen</value>
@@ -1677,19 +1676,16 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Es wird bereits eine Aufgabe ausgeführt. Bitte warten sie bis sie abgeschlossen wurde.</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX hat keine Berechtigung die ZIP-Datei hier zu erstellen. Es könnte sein, dass Sie keine Zugang zu dieser Datei haben.\r\rMöchten Sie den Windows Explorer starten?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX hat keine Berechtigung die ZIP-Datei hier zu erstellen. Es könnte sein, dass Sie keine Zugang zu dieser Datei haben</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX verfügt nicht über ausreichende Berechtigungen zum Erstellen neuer Dateien in diesem Ordner.\r\rMöchten Sie den Windows Explorer starten?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX verfügt nicht über ausreichende Berechtigungen zum Erstellen neuer Dateien in diesem Ordner</value>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben.\r\rMöchten Sie den Windows Explorer starten?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX hat hier keine Berechtigung zum Dekomprimieren der Zip-Datei. Es kann sein, dass Sie keinen Zugang zu dieser Datei haben</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX ist nicht zum Umbenennen berechtigt. Möchten Sie den Windows Explorer starten?</value>
+    <value>RX ist nicht zum Umbenennen berechtigt</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte nicht alles vollständig rückgängig gemacht werden.</value>
@@ -2078,9 +2074,6 @@ Inkorrekte Namen sind
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Eingabeaufforderung als Administrator ausführen</value>
-  </data>
-  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX hat keine Rechte diese Datei umzubenennen. Möchten sie den Windows Explorer starten?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Auf Zwischenablage kann nicht zugegriffen werden. Kopier-/Ausschneidevorgang fehlgeschlagen</value>
@@ -3122,5 +3115,11 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
     <value>Dieses Fenster kann nicht ganz nach oben gesetzt werden</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedUndo_Content" xml:space="preserve">
+    <value>RX hat keine Berechtigung zum Rückgängigmachen dieses Elements, der Rückgängig-Vorgang konnte nicht abgeschlossen werden</value>
+  </data>
+  <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
+    <value>Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte der Rückgängig-Vorgang nicht abgeschlossen werden</value>
   </data>
 </root>

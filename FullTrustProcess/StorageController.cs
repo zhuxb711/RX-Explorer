@@ -22,7 +22,7 @@ namespace FullTrustProcess
         /// </summary>
         /// <param name="path">Path of the file.</param>
         /// <returns>Processes locking the file</returns>
-        public static List<Process> GetLockingProcesses(string path)
+        public static IReadOnlyList<Process> GetLockingProcesses(string path)
         {
             StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());
 
@@ -105,7 +105,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool CheckOccupied(string Path)
+        public static bool CheckCaptured(string Path)
         {
             if (File.Exists(Path))
             {
@@ -113,20 +113,49 @@ namespace FullTrustProcess
                 {
                     using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.FILE_GENERIC_READ, FileShare.None, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
                     {
-                        if (Handle.IsInvalid)
+                        if (Handle.IsNull || Handle.IsInvalid)
                         {
                             return true;
                         }
                         else
                         {
+                            if (System.IO.Path.GetExtension(Path).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                            {
+                                Process[] RunningProcess = Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(Path));
+
+                                try
+                                {
+                                    if (RunningProcess.Length > 0)
+                                    {
+                                        return true;
+                                    }
+                                }
+                                finally
+                                {
+                                    Array.ForEach(RunningProcess, (Pro) => Pro.Dispose());
+                                }
+                            }
+
                             return false;
                         }
                     }
                 }
                 catch
                 {
-                    return true;
+                    return false;
                 }
+            }
+            else if (Directory.Exists(Path))
+            {
+                foreach (string SubFilePath in Helper.GetAllSubFiles(Path))
+                {
+                    if (CheckCaptured(SubFilePath))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
             else
             {

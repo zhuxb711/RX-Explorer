@@ -539,9 +539,9 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
-                                if (StorageController.CheckOccupied(ExecutePath))
+                                if (StorageController.CheckCaptured(ExecutePath))
                                 {
-                                    Value.Add("Error_Occupied", "FileLoadException");
+                                    Value.Add("Error_Capture", "FileLoadException");
                                 }
                                 else
                                 {
@@ -1238,19 +1238,19 @@ namespace FullTrustProcess
 
                             if (File.Exists(Path))
                             {
-                                if (StorageController.CheckOccupied(Path))
+                                if (StorageController.CheckCaptured(Path))
                                 {
-                                    List<Process> LockingProcesses = StorageController.GetLockingProcesses(Path);
+                                    IReadOnlyList<Process> LockingProcesses = StorageController.GetLockingProcesses(Path);
 
                                     try
                                     {
-                                        LockingProcesses.ForEach((Process) =>
+                                        foreach (Process Pro in LockingProcesses)
                                         {
-                                            if (ForceClose || !Process.CloseMainWindow())
+                                            if (ForceClose || !Pro.CloseMainWindow())
                                             {
-                                                Process.Kill();
+                                                Pro.Kill();
                                             }
-                                        });
+                                        }
 
                                         Value.Add("Success", string.Empty);
                                     }
@@ -1261,22 +1261,22 @@ namespace FullTrustProcess
                                     }
                                     finally
                                     {
-                                        LockingProcesses.ForEach((Process) =>
+                                        foreach (Process Pro in LockingProcesses)
                                         {
                                             try
                                             {
                                                 if (!ForceClose)
                                                 {
-                                                    Process.WaitForExit();
+                                                    Pro.WaitForExit();
                                                 }
 
-                                                Process.Dispose();
+                                                Pro.Dispose();
                                             }
                                             catch
                                             {
                                                 Debug.WriteLine("Process is no longer running");
                                             }
-                                        });
+                                        }
                                     }
                                 }
                                 else
@@ -1406,7 +1406,7 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (SourcePathList.Any((Item) => StorageController.CheckOccupied(Item)))
+                                if (SourcePathList.Any((Item) => StorageController.CheckCaptured(Item)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
@@ -1451,11 +1451,18 @@ namespace FullTrustProcess
                                             }
                                         }))
                                         {
-                                            Value.Add("Success", string.Empty);
-
-                                            if (OperationRecordList.Count > 0)
+                                            if (SourcePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                             {
-                                                Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
+                                                Value.Add("Success", string.Empty);
+
+                                                if (OperationRecordList.Count > 0)
+                                                {
+                                                    Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error_Capture", "An error occurred while moving the folder");
                                             }
                                         }
                                         else
@@ -1512,13 +1519,13 @@ namespace FullTrustProcess
                             {
                                 if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (ExecutePathList.Any((Item) => StorageController.CheckOccupied(Item)))
+                                    if (ExecutePathList.Any((Item) => StorageController.CheckCaptured(Item)))
                                     {
                                         Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                     }
                                     else
                                     {
-                                        if (ExecutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
+                                        if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
                                         {
                                             if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -1550,11 +1557,18 @@ namespace FullTrustProcess
                                                 }
                                             }))
                                             {
-                                                Value.Add("Success", string.Empty);
-
-                                                if (OperationRecordList.Count > 0)
+                                                if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                 {
-                                                    Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
+                                                    Value.Add("Success", string.Empty);
+
+                                                    if (OperationRecordList.Count > 0)
+                                                    {
+                                                        Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                                 }
                                             }
                                             else

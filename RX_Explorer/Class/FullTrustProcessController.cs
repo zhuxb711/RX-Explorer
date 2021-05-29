@@ -1576,7 +1576,7 @@ namespace RX_Explorer.Class
                         {
                             return Convert.ToString(NewName);
                         }
-                        else if (Response.Message.TryGetValue("Error_Occupied", out object ErrorMessage1))
+                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
 

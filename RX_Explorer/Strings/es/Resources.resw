@@ -1546,14 +1546,13 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Esta carpeta se ha añadido a la página principal y no se puede volver a añadir.</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX no tiene permiso para crear la carpeta. Es posible que no tengas acceso a esta carpeta.\r\r¿Deseas ejecutar Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX no tiene permiso para crear la carpeta. Es posible que no tengas acceso a esta carpeta</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX no tiene permiso para eliminar este ítem. ¿Deseas ejecutar Windows Explorer?</value>
+    <value>RX no tiene permiso para eliminar este ítem</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX no tiene permiso para pegar. ¿Deseas ejecutar Windows Explorer?</value>
+    <value>RX no tiene permiso para pegar</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Atrás</value>
@@ -1677,19 +1676,16 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Ya hay una tarea en curso; por favor, espera a que termine.</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX no tiene permiso para crear el archivo Zip aquí. Es posible que no tengas acceso a este archivo.\r\r¿Deseas ejecutar Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX no tiene permiso para crear el archivo Zip aquí. Es posible que no tengas acceso a este archivo</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX no tiene suficientes permisos para crear nuevos archivos en esta carpeta.\r\r¿Deseas ejecutar Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX no tiene suficientes permisos para crear nuevos archivos en esta carpeta</value>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX no tiene permiso para descomprimir el archivo Zip aquí. Es posible que no tengas acceso a este archivo.\r\r¿Deseas ejecutar Windows Explorer?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX no tiene permiso para descomprimir el archivo Zip aquí. Es posible que no tengas acceso a este archivo</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX no tiene permiso para renombrar. ¿Deseas ejecutar Windows Explorer?</value>
+    <value>RX no tiene permiso para renombrar</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Algunos archivos o carpetas ya no existen; la operación de deshacer no se ha podido completar del todo.</value>
@@ -2075,9 +2071,6 @@ Las denominaciones no válidas son:
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Ejecutar terminal como administrador</value>
-  </data>
-  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX no tiene permiso para renombrar este archivo. ¿Deseas ejecutar Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>No se ha podido acceder al portapapeles; la operación copiar/pegar ha fallado.</value>
@@ -3122,5 +3115,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
     <value>No se puede establecer esta ventana en la parte superior más</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedUndo_Content" xml:space="preserve">
+    <value>RX no tiene permiso para deshacer este elemento, la operación de deshacer no se pudo completar</value>
+  </data>
+  <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
+    <value>Dado que algunos archivos / carpetas ya no existen, la operación de deshacer no se pudo completar</value>
   </data>
 </root>
