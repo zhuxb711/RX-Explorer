@@ -613,14 +613,8 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>基本</value>
   </data>
-  <data name="SettingCleanup.Content" xml:space="preserve">
-    <value>重置并初始化</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>文件夹打开方式</value>
-  </data>
-  <data name="SettingLike.Text" xml:space="preserve">
-    <value>给App点赞</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
@@ -666,9 +660,6 @@
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>隐私</value>
-  </data>
-  <data name="SettingSystemInfo.Content" xml:space="preserve">
-    <value>系统信息</value>
   </data>
   <data name="SettingUpdateLogButton.Content" xml:space="preserve">
     <value>查看更新日志</value>
@@ -1700,9 +1691,6 @@
     <value>🎉您可以通过购买此应用来支持开发者🎉\r\r如果您不想购买此应用，您可以点击"稍后"按钮\r如果您愿意购买此应用，您可以点击"购买"按钮\r\r提示: 购买本应用可以解锁文件加密功能"安全域"</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>购买本应用 (赞助)</value>
-  </data>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>创建剪辑片段时失败,无法编辑此视频</value>
   </data>
@@ -2068,9 +2056,6 @@
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>无法下载必应图片</value>
   </data>
-  <data name="ExportLog.Content" xml:space="preserve">
-    <value>导出错误日志</value>
-  </data>
   <data name="Common_Dialog_SwitchButton" xml:space="preserve">
     <value>切换</value>
   </data>
@@ -2223,9 +2208,6 @@
   </data>
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>编码错误</value>
-  </data>
-  <data name="SettingConfiguration.Content" xml:space="preserve">
-    <value>导入或导出配置文件</value>
   </data>
   <data name="SettingConfiguration_Export.Content" xml:space="preserve">
     <value>导出</value>
@@ -3121,5 +3103,47 @@
   </data>
   <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
     <value>部分文件/文件夹不存在，撤销操作未能完成</value>
+  </data>
+  <data name="SettingKeyboardGuideContent.Text" xml:space="preserve">
+    <value>包含此应用程序支持的所有键盘快捷键的指南</value>
+  </data>
+  <data name="SettingKeyboardGuideTitle.Text" xml:space="preserve">
+    <value>键盘快捷键指南</value>
+  </data>
+  <data name="SettingLogContent.Text" xml:space="preserve">
+    <value>导出日志文件供开发者分析相关问题</value>
+  </data>
+  <data name="SettingLogTitle.Text" xml:space="preserve">
+    <value>日志文件</value>
+  </data>
+  <data name="SettingPurchaseAppContent.Text" xml:space="preserve">
+    <value>购买此应用程序以解锁所有功能并支持开发</value>
+  </data>
+  <data name="SettingPurchaseAppTitle.Text" xml:space="preserve">
+    <value>购买此应用程序</value>
+  </data>
+  <data name="SettingReviewAppContent.Text" xml:space="preserve">
+    <value>在Microsoft Store中留下您对此应用的评论</value>
+  </data>
+  <data name="SettingReviewAppTitle.Text" xml:space="preserve">
+    <value>编写评价</value>
+  </data>
+  <data name="SettingSystemInfoContent.Text" xml:space="preserve">
+    <value>查看软硬件系统信息</value>
+  </data>
+  <data name="SettingSystemInfoTitle.Text" xml:space="preserve">
+    <value>系统信息</value>
+  </data>
+  <data name="ShortcutKeyGuideTitle" xml:space="preserve">
+    <value>键盘快捷键指南</value>
+  </data>
+  <data name="SettingInitAppContent.Text" xml:space="preserve">
+    <value>删除所有数据并重置为初始状态</value>
+  </data>
+  <data name="SettingInitAppTitle.Text" xml:space="preserve">
+    <value>重置应用程序</value>
+  </data>
+  <data name="SettingManageConfigTitle.Text" xml:space="preserve">
+    <value>管理配置文件</value>
   </data>
 </root>

@@ -545,27 +545,6 @@ namespace RX_Explorer
             };
         }
 
-        protected override async void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            if (e.NavigationMode == NavigationMode.Back)
-            {
-                try
-                {
-                    await Task.Run(() => SpinWait.SpinUntil(() => Interlocked.Exchange(ref NavigateLockResource, 1) == 0));
-
-                    Dispose();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
-                }
-                finally
-                {
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
-                }
-            }
-        }
-
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
@@ -1769,7 +1748,7 @@ namespace RX_Explorer
         {
             AddressExtentionList.Clear();
 
-            if ((sender.Target as Button).Content is FrameworkElement DropDownElement)
+            if ((sender.Target as Button)?.Content is FrameworkElement DropDownElement)
             {
                 Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
 
@@ -1967,33 +1946,6 @@ namespace RX_Explorer
                     await Dialog.ShowAsync();
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            AddressButtonList.Clear();
-
-            FolderTree.RootNodes.Clear();
-
-            foreach (FilePresenter Presenter in BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>())
-            {
-                Presenter.Dispose();
-            }
-
-            BladeViewer.Items.Clear();
-
-            Frame.Navigated -= Frame_Navigated;
-            CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
-            CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
-
-            GoBackRecord.IsEnabled = false;
-            GoForwardRecord.IsEnabled = false;
-            GoParentFolder.IsEnabled = false;
-
-            ViewModeControl?.Dispose();
-            ViewModeControl = null;
-
-            TaskBarController.SetText(null);
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
@@ -2597,6 +2549,33 @@ namespace RX_Explorer
         private void AddressBox_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             AddressBox.Tag = true;
+        }
+
+        public void Dispose()
+        {
+            AddressButtonList.Clear();
+
+            FolderTree.RootNodes.Clear();
+
+            foreach (FilePresenter Presenter in BladeViewer.Items.Cast<BladeItem>().Select((Blade) => Blade.Content).Cast<FilePresenter>())
+            {
+                Presenter.Dispose();
+            }
+
+            BladeViewer.Items.Clear();
+
+            Frame.Navigated -= Frame_Navigated;
+            CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
+            CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
+
+            GoBackRecord.IsEnabled = false;
+            GoForwardRecord.IsEnabled = false;
+            GoParentFolder.IsEnabled = false;
+
+            ViewModeControl?.Dispose();
+            ViewModeControl = null;
+
+            TaskBarController.SetText(null);
         }
     }
 }

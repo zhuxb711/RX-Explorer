@@ -313,7 +313,7 @@ namespace RX_Explorer
 
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
-                    Purchase.Visibility = Visibility.Collapsed;
+                    PurchaseApp.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
@@ -965,23 +965,6 @@ namespace RX_Explorer
             }
         }
 
-        private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            LikeSymbol.Foreground = new SolidColorBrush(Colors.Yellow);
-            LikeText.Foreground = new SolidColorBrush(Colors.Yellow);
-        }
-
-        private void Like_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            LikeSymbol.Foreground = new SolidColorBrush(Colors.White);
-            LikeText.Foreground = new SolidColorBrush(Colors.White);
-        }
-
-        private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            await SystemInformation.LaunchStoreForReviewAsync();
-        }
-
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
             ResetDialog Dialog = new ResetDialog();
@@ -1279,100 +1262,18 @@ namespace RX_Explorer
             LuminosityTip.IsOpen = true;
         }
 
-        private async void Purchase_Click(object sender, RoutedEventArgs e)
-        {
-            switch (await MSStoreHelper.Current.PurchaseAsync())
-            {
-                case StorePurchaseStatus.Succeeded:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                case StorePurchaseStatus.AlreadyPurchased:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                case StorePurchaseStatus.NotPurchased:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                default:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-            }
-        }
-
         private async void UpdateLogLink_Click(object sender, RoutedEventArgs e)
         {
-            string Text = string.Empty;
-
-            switch (Globalization.CurrentLanguage)
+            string Text = Globalization.CurrentLanguage switch
             {
-                case LanguageEnum.Chinese_Simplified:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-                case LanguageEnum.Chinese_Traditional:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-                case LanguageEnum.English:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-                case LanguageEnum.French:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-                case LanguageEnum.Spanish:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-                case LanguageEnum.German:
-                    {
-                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"));
-                        Text = await FileIO.ReadTextAsync(UpdateFile);
-                        break;
-                    }
-            }
+                LanguageEnum.Chinese_Simplified => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"))),
+                LanguageEnum.English => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"))),
+                LanguageEnum.French => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"))),
+                LanguageEnum.Chinese_Traditional => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"))),
+                LanguageEnum.Spanish => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"))),
+                LanguageEnum.German => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"))),
+                _ => throw new Exception("Unsupported language")
+            };
 
             await new WhatIsNew(Text).ShowAsync();
         }
@@ -2498,7 +2399,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync();
+                await Dialog.ShowAsync();
             }
         }
 
@@ -3071,6 +2972,68 @@ namespace RX_Explorer
 
             RightPanel.Visibility = Visibility.Collapsed;
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void ReviewButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SystemInformation.LaunchStoreForReviewAsync();
+        }
+
+        private async void ShortcutGuide_Click(object sender, RoutedEventArgs e)
+        {
+            KeyboardShortcutGuideDialog Dialog = new KeyboardShortcutGuideDialog();
+            await Dialog.ShowAsync();
+        }
+
+        private async void PurchaseApp_Click(object sender, RoutedEventArgs e)
+        {
+            switch (await MSStoreHelper.Current.PurchaseAsync())
+            {
+                case StorePurchaseStatus.Succeeded:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                case StorePurchaseStatus.AlreadyPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                case StorePurchaseStatus.NotPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                default:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+            }
         }
     }
 }

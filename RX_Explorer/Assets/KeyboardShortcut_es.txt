@@ -1,0 +1,29 @@
+﻿Tecla de acceso directo|Requisitos previos|Descripción
+---|---|---
+F2|Cualquier archivo o carpeta seleccionado | Cambiar nombre
+F5|Ninguno|Actualizar
+Enter|Seleccionar solo un archivo o carpeta|Usar el programa asociado para abrir el archivo o entrar en la carpeta
+Back|Ninguno|Navegar a la carpeta anterior
+Space|Quicklook se está ejecutando y se ha seleccionado cualquier archivo o carpeta|Use Quicklook para ver información relacionada
+Delete|Seleccione cualquier archivo o carpeta|Eliminar archivo
+Ctrl + L|Ninguno|Activar la barra de direcciones
+Ctrl + V|Ninguno|Pegar
+Ctrl + A|Ninguno|Seleccionar todos los archivos y carpetas
+Ctrl + C|Seleccionar cualquier archivo o carpeta|Copiar archivo
+Ctrl + X|Seleccionar cualquier archivo o carpeta|Cortar archivo
+Ctrl + D|Seleccionar cualquier archivo o carpeta|Eliminar archivo
+Ctrl + F|Ninguno|Activar el cuadro de búsqueda
+Ctrl + Z|El registro correspondiente existe|Deshacer la operación anterior
+Ctrl + T|Deseleccionar o solo seleccionar una carpeta|Abrir la carpeta especificada en una nueva pestaña. Si no se selecciona ninguna carpeta, solo se creará una nueva pestaña
+Ctrl + Q|Seleccionar solo una carpeta|Abrir la carpeta especificada en una nueva ventana
+Ctrl + B|Seleccionar solo una carpeta|Abrir la carpeta especificada en una nueva ventana dividida verticalmente
+Ctrl + E|Ninguno|Vaciar la papelera de reciclaje
+Ctrl + R|Seleccionar cualquier archivo o carpeta|Restaurar todos los elementos seleccionados en la papelera de reciclaje
+Ctrl + Rueda del mouse|ninguno|cambiar el modo de visualización del archivo
+Shift + E|Ninguno|Use el Explorador de Windows para abrir la carpeta actual
+Shift + T|Ninguno|Inicie el terminal correspondiente de acuerdo con la configuración en la configuración
+Alt + Izquierda|Ninguno|Navegar a la carpeta anterior
+Alt + Derecha|Ninguno|Navegar a la siguiente carpeta
+Alt + Enter|Seleccionar solo un archivo o carpeta|Iniciar la ventana de propiedades
+Ctrl + Shift + N|Ninguno|Crear nueva carpeta
+Ctrl + Shift + C|Ninguno|Copiar la ruta del elemento seleccionado. Si no se selecciona ningún elemento, copie la ruta de la carpeta actual

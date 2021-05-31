@@ -66,6 +66,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                     return false;
                 }
             }

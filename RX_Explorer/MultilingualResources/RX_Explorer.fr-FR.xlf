@@ -808,17 +808,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Basic</source>
           <target state="translated">Basique</target>
         </trans-unit>
-        <trans-unit id="SettingCleanup.Content" translate="yes" xml:space="preserve">
-          <source>Restore and initialize</source>
-          <target state="translated">Réinitialiser</target>
-        </trans-unit>
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Méthode d'ouverture de dossier</target>
-        </trans-unit>
-        <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
-          <source>Rate the app</source>
-          <target state="translated">Évaluez l'application</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -879,10 +871,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated">Vie privée</target>
-        </trans-unit>
-        <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
-          <source>System Information</source>
-          <target state="translated">Informations système</target>
         </trans-unit>
         <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
           <source>View update log</source>
@@ -2245,10 +2233,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">🎉Vous pouvez aider les développeurs à poursuivre le développement en achetant cette application. 🎉\r\rSi vous ne le souhaitez pas, vous pouvez cliquer sur "Plus tard" pour annuler \rSi vous souhaitez acheter, vous pouvez cliquer sur "Acheter" pour l'acheter. application\r\rConseils: L'achat peut déverrouiller la fonction unique de sécurité des fichiers: "Zone de sécurité"</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
-          <source>Purchase this app (Sponsor)</source>
-          <target state="translated">Achetez cette application (Parrainer)</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_EditErrorWhenOpen_Content" translate="yes" xml:space="preserve">
           <source>Failed to create clip, unable to edit this video</source>
           <target state="translated">Impossible de créer le clip, impossible de modifier cette vidéo</target>
@@ -2741,10 +2725,6 @@ Les noms non valides incluent
           <source>Unable to download Bing image</source>
           <target state="translated">Impossible de télécharger l'image Bing</target>
         </trans-unit>
-        <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
-          <source>Export error log</source>
-          <target state="translated">Exporter le journal des erreurs</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_SwitchButton" translate="yes" xml:space="preserve">
           <source>Switch</source>
           <target state="translated">Changer</target>
@@ -2948,10 +2928,6 @@ Les noms non valides incluent
         <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
           <source>Encoding error</source>
           <target state="translated">Erreur d'encodage</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
-          <source>Import or export configuration</source>
-          <target state="translated">Importer ou exporter la configuration</target>
         </trans-unit>
         <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
           <source>Export</source>
@@ -4144,6 +4120,62 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
           <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
           <target state="translated">Étant donné que certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être terminée</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Contains guidance for all keyboard shortcuts supported by this app</source>
+          <target state="translated">Contient des conseils pour tous les raccourcis clavier pris en charge par cette application</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">Guide des raccourcis clavier</target>
+        </trans-unit>
+        <trans-unit id="SettingLogContent.Text" translate="yes" xml:space="preserve">
+          <source>Export the log files for developers to analyze related issues</source>
+          <target state="translated">Exportez les fichiers journaux pour que les développeurs analysent les problèmes associés</target>
+        </trans-unit>
+        <trans-unit id="SettingLogTitle.Text" translate="yes" xml:space="preserve">
+          <source>Log file</source>
+          <target state="translated">Fichier journal</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application to unlock all features and support development</source>
+          <target state="translated">Achetez cette application pour déverrouiller toutes les fonctionnalités et soutenir le développement</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application</source>
+          <target state="translated">Achetez cette application</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Leave your review of this app in the Microsoft Store</source>
+          <target state="translated">Laissez votre avis sur cette application dans le Microsoft Store</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Review this application</source>
+          <target state="translated">Évaluez cette application</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoContent.Text" translate="yes" xml:space="preserve">
+          <source>View software and hardware system information</source>
+          <target state="translated">Afficher les informations du système logiciel et matériel</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoTitle.Text" translate="yes" xml:space="preserve">
+          <source>System information</source>
+          <target state="translated">Informations système</target>
+        </trans-unit>
+        <trans-unit id="ShortcutKeyGuideTitle" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">Guide des raccourcis clavier</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Delete all data and reset to the initial state</source>
+          <target state="translated">Supprimer toutes les données et réinitialiser à l'état initial</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Reset the application</source>
+          <target state="translated">Réinitialiser l'application</target>
+        </trans-unit>
+        <trans-unit id="SettingManageConfigTitle.Text" translate="yes" xml:space="preserve">
+          <source>Manage configuration files</source>
+          <target state="translated">Gérer les fichiers de configuration</target>
         </trans-unit>
       </group>
     </body>

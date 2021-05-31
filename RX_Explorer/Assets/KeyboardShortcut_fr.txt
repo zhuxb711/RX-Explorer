@@ -1,0 +1,29 @@
+﻿Touche de raccourci|Prérequis|Description
+---|---|---
+F2|Tout fichier ou dossier sélectionné|Renommer
+F5|Aucun|Actualiser
+Enter|Sélectionner un seul fichier ou dossier|Utiliser le programme associé pour ouvrir le fichier ou entrer dans le dossier
+Back|Aucun|Naviguer vers le dossier précédent
+Space|Quicklook est en cours d'exécution et un fichier ou un dossier a été sélectionné|Utilisez Quicklook pour afficher les informations associées
+Delete|Sélectionner n'importe quel fichier ou dossier|Supprimer le fichier
+Ctrl + L|Aucun|Activer la barre d'adresse
+Ctrl + V|Aucun|Coller
+Ctrl + A|Aucun|Sélectionner tous les fichiers et dossiers
+Ctrl + C|Sélectionner n'importe quel fichier ou dossier|Copier le fichier
+Ctrl + X|Sélectionner n'importe quel fichier ou dossier|Couper le fichier
+Ctrl + D|Sélectionnez n'importe quel fichier ou dossier | Supprimer le fichier
+Ctrl + F|Aucun|Activer le champ de recherche
+Ctrl + Z|L'enregistrement correspondant existe|Annuler l'opération précédente
+Ctrl + T|Désélectionner ou sélectionner uniquement un dossier|Ouvrir le dossier spécifié dans un nouvel onglet. Si aucun dossier n'est sélectionné, seule une nouvelle page à onglet sera créée
+Ctrl + Q|Sélectionner un seul dossier|Ouvrir le dossier spécifié dans une nouvelle fenêtre
+Ctrl + B|Sélectionner un seul dossier|Ouvrir le dossier spécifié dans une nouvelle fenêtre fractionnée verticale
+Ctrl + E|Aucun|Vider la corbeille
+Ctrl + R|Sélectionner n'importe quel fichier ou dossier|Restaurer tous les éléments sélectionnés dans la corbeille
+Ctrl + Mouse Wheel|aucun|changer le mode d'affichage du fichier
+Shift + E|Aucun|Utiliser l'explorateur Windows pour ouvrir le dossier actuel
+Shift + T|Aucun|Démarrer le terminal correspondant selon la configuration dans les paramètres
+Alt + Left|Aucun|Naviguer vers le dossier précédent
+Alt + Right|Aucun|Naviguer vers le dossier suivant
+Alt + Enter|Sélectionner un seul fichier ou dossier|Lancer la fenêtre des propriétés
+Ctrl + Shift + N|Aucun|Créer un nouveau dossier
+Ctrl + Shift + C|Aucun|Copier le chemin de l'élément sélectionné. Si aucun élément n'est sélectionné, copiez le chemin du dossier courant

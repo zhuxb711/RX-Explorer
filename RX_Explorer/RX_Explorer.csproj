@@ -212,6 +212,9 @@
     <Compile Include="Dialog\DecompressDialog.xaml.cs">
       <DependentUpon>DecompressDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\KeyboardShortcutGuideDialog.xaml.cs">
+      <DependentUpon>KeyboardShortcutGuideDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
@@ -417,6 +420,12 @@
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />
     <Content Include="Assets\DocumentIcon.ico" />
+    <Content Include="Assets\KeyboardShortcut_cn_s.txt" />
+    <Content Include="Assets\KeyboardShortcut_cn_t.txt" />
+    <Content Include="Assets\KeyboardShortcut_de.txt" />
+    <Content Include="Assets\KeyboardShortcut_en.txt" />
+    <Content Include="Assets\KeyboardShortcut_es.txt" />
+    <Content Include="Assets\KeyboardShortcut_fr.txt" />
     <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />
@@ -569,6 +578,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\FeedBackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\KeyboardShortcutGuideDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

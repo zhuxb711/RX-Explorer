@@ -23,7 +23,7 @@
                 <control:ColorPicker ColorSpectrumShape="Box"
                                      IsAlphaEnabled="True"
                                      Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
-                                     x:Name="AcrylicColorPicker"/>
+                                     x:Name="AcrylicColorPicker" />
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>
 
@@ -82,7 +82,7 @@
                           x:Uid="SettingPagePreventFallbackTip"
                           Target="{x:Bind PreventFallBackQuestion}"
                           Title="Acrylic省电模式"
-                          Subtitle="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担"/>
+                          Subtitle="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担" />
 
         <muxc:TeachingTip x:Name="WIN_E_Tip"
                           IsLightDismissEnabled="True"
@@ -95,18 +95,18 @@
                     <TextBlock Text="1. 如何手动开启Win+E? 教程链接:"
                                x:Uid="SettingPageWinEQuestionLine1"
                                TextWrapping="WrapWholeWords"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                     <HyperlinkButton Content="点击这里前往"
                                      Margin="15,0,0,0"
                                      x:Uid="SettingPageWinEQuestionAction1"
                                      VerticalAlignment="Center"
-                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues/27#issuecomment-692418152"/>
+                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues/27#issuecomment-692418152" />
                 </StackPanel>
                 <StackPanel>
                     <TextBlock Text="2. 如何手动还原Win+E? 还原文件:"
                                x:Uid="SettingPageWinEQuestionLine2"
                                TextWrapping="WrapWholeWords"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center" />
                     <HyperlinkButton Content="点击这里导出"
                                      Margin="15,0,0,0"
                                      x:Uid="SettingPageWinEQuestionAction2"
@@ -230,7 +230,7 @@
                         <CheckBox Content="隐藏受保护的系统文件(推荐)"
                                   Margin="20,0,0,0"
                                   x:Uid="SettingHideProtectedSystemItems"
-                                  Name="HideProtectedSystemItems"/>
+                                  Name="HideProtectedSystemItems" />
                     </StackPanel>
 
                     <ComboBox Margin="0,20,0,0"
@@ -325,7 +325,7 @@
                                   Name="ContextMenuExtSwitch"
                                   Toggled="ContextMenuExtSwitch_Toggled"
                                   OnContent="启用"
-                                  OffContent="禁用"/>
+                                  OffContent="禁用" />
 
                     <ToggleSwitch Header="弹出删除确认提示框"
                                   Margin="0,20,0,0"
@@ -358,7 +358,7 @@
                                 </Viewbox>
                                 <TextBlock Text="绕过回收站并永久删除"
                                            Margin="5,0,0,0"
-                                           x:Uid="AvoidRecycleBin"/>
+                                           x:Uid="AvoidRecycleBin" />
                             </StackPanel>
                         </CheckBox>
                     </StackPanel>
@@ -368,7 +368,7 @@
                               MinWidth="150"
                               x:Uid="SettingPageSearchEngineConfig"
                               Name="SearchEngineConfig"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <ComboBox Header="图标加载模式"
                               Margin="0,20,0,0"
@@ -696,24 +696,24 @@
                     <TextBlock Text="启动时"
                                FontSize="22"
                                Margin="0,30,0,0"
-                               x:Uid="SettingStartup"/>
+                               x:Uid="SettingStartup" />
 
                     <StackPanel Margin="0,10,0,0">
                         <RadioButton Content="打开新标签页"
                                      Margin="0,5,0,0"
                                      x:Uid="SettingStartupWithNewTab"
                                      Name="StartupWithNewTab"
-                                     Checked="StartupWithNewTab_Checked"/>
+                                     Checked="StartupWithNewTab_Checked" />
                         <RadioButton Content="恢复上次打开的标签页"
                                      Margin="0,5,0,0"
                                      x:Uid="SettingStartupWithLastTab"
                                      Name="StartupWithLastTab"
-                                     Checked="StartupWithLastTab_Checked"/>
+                                     Checked="StartupWithLastTab_Checked" />
                         <RadioButton Content="打开一个或多个指定标签页"
                                      Margin="0,5,0,0"
                                      x:Uid="SettingStartupWithSpecificTab"
                                      Name="StartupSpecificTab"
-                                     Checked="StartupSpecificTab_Checked"/>
+                                     Checked="StartupSpecificTab_Checked" />
                         <ListView MinWidth="250"
                                   Margin="29,5,0,0"
                                   Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
@@ -723,8 +723,8 @@
                             <ListView.Header>
                                 <Grid Padding="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="25"/>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="25" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="指定文件夹"
                                                x:Uid="SpecificTabListViewHeader"
@@ -756,14 +756,14 @@
                                 <DataTemplate>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="60" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding}"
                                                    ToolTipService.ToolTip="{Binding}"
                                                    IsTextSelectionEnabled="True"
                                                    TextTrimming="CharacterEllipsis"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center" />
                                         <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                                 Style="{ThemeResource ButtonRevealStyle}"
                                                 Content="删除"
@@ -771,53 +771,12 @@
                                                 Grid.Column="1"
                                                 HorizontalAlignment="Stretch"
                                                 Name="DeleteSpecificTabButton"
-                                                Click="DeleteSpecificTabButton_Click"/>
+                                                Click="DeleteSpecificTabButton_Click" />
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>
-
-                    <TextBlock Text="恢复"
-                               x:Uid="SettingRecovery"
-                               FontSize="22"
-                               Margin="0,30,0,0" />
-                    <Button Margin="0,20,0,0"
-                            Content="重置并初始化"
-                            x:Uid="SettingCleanup"
-                            Style="{ThemeResource ButtonRevealStyle}"
-                            Name="ClearUp"
-                            Click="ClearUp_Click" />
-                    <Button Margin="0,20,0,0"
-                            Style="{ThemeResource ButtonRevealStyle}"
-                            Content="导入或导出配置文件"
-                            x:Uid="SettingConfiguration">
-                        <Button.Flyout>
-                            <Flyout>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Button Content="导出"
-                                            x:Uid="SettingConfiguration_Export"
-                                            Name="ExportConfiguration"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="0,0,5,0"
-                                            MinWidth="80"
-                                            Click="ExportConfiguration_Click"/>
-                                    <Button Content="导入"
-                                            Name="ImportConfiguration"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="5,0,0,0"
-                                            x:Uid="SettingConfiguration_Import"
-                                            MinWidth="80"
-                                            Grid.Column="1"
-                                            Click="ImportConfiguration_Click"/>
-                                </Grid>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
                     <TextBlock Text="版本"
                                x:Uid="SettingVersion"
                                FontSize="22"
@@ -847,47 +806,204 @@
                                      NavigateUri="https://github.com/zhuxb711/RX-Explorer/blob/master/README.md"
                                      Content="用户隐私声明"
                                      Name="PrivacyPolicy" />
+                    <TextBlock Text="恢复"
+                               x:Uid="SettingRecovery"
+                               FontSize="22"
+                               Margin="0,30,0,0" />
+                    <StackPanel Margin="0,20,0,0"
+                                HorizontalAlignment="Left">
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Click="ClearUp_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE7BA;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="初始化应用程序"
+                                               x:Uid="SettingInitAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingInitAppContent"
+                                               Text="删除所有数据并恢复成初始状态" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Name="ConfigManagerButton">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE148;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="管理配置文件"
+                                               x:Uid="SettingManageConfigTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingManageConfigContent"
+                                               Text="执行保存或恢复配置文件操作" />
+                                </StackPanel>
+                            </StackPanel>
+                            <Button.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style TargetType="FlyoutPresenter">
+                                            <Setter Property="Background"
+                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="导出"
+                                                x:Uid="SettingConfiguration_Export"
+                                                Name="ExportConfiguration"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0,0,5,0"
+                                                MinWidth="80"
+                                                Click="ExportConfiguration_Click" />
+                                        <Button Content="导入"
+                                                Name="ImportConfiguration"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="5,0,0,0"
+                                                x:Uid="SettingConfiguration_Import"
+                                                MinWidth="80"
+                                                Grid.Column="1"
+                                                Click="ImportConfiguration_Click" />
+                                    </Grid>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </StackPanel>
                     <TextBlock Margin="0,30,0,0"
                                x:Uid="SettingOther"
                                Text="其他"
                                FontSize="22" />
-                    <Border Margin="0,20,0,0"
-                            Name="Like"
-                            PointerExited="Like_PointerExited"
-                            PointerEntered="Like_PointerEntered"
-                            PointerPressed="Like_PointerPressed"
-                            HorizontalAlignment="Left"
-                            Background="Transparent">
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Symbol="Like"
-                                        Name="LikeSymbol"
-                                        VerticalAlignment="Bottom" />
-                            <TextBlock Margin="5,0,0,0"
-                                       x:Uid="SettingLike"
-                                       Name="LikeText"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       Text="给App点赞" />
-                        </StackPanel>
-                    </Border>
-                    <Button Style="{ThemeResource ButtonRevealStyle}"
-                            Margin="0,20,0,0"
-                            x:Uid="SettingSystemInfo"
-                            Content="系统信息"
-                            Name="SystemInfoButton"
-                            Click="SystemInfoButton_Click" />
-                    <Button Style="{ThemeResource ButtonRevealStyle}"
-                            Margin="0,20,0,0"
-                            x:Uid="ExportLog"
-                            Name="ExportLog"
-                            Content="导出错误日志"
-                            Click="ExportLog_Click" />
-                    <Button Style="{ThemeResource ButtonRevealStyle}"
-                            x:Name="Purchase"
-                            Margin="0,20,0,0"
-                            Content="购买本应用(赞助)"
-                            x:Uid="SettingPurchase"
-                            Click="Purchase_Click" />
+                    <StackPanel Margin="0,20,0,0"
+                                HorizontalAlignment="Left">
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Name="PurchaseApp"
+                                Click="PurchaseApp_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE14D;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="购买本应用"
+                                               x:Uid="SettingPurchaseAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingPurchaseAppContent"
+                                               Text="购买此应用以解锁全部功能并支持开发" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE134;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="编写评价"
+                                               x:Uid="SettingReviewAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingReviewAppContent"
+                                               Text="在微软应用商店中留下您对本应用的评价吧" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Click="SystemInfoButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE946;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="系统信息"
+                                               x:Uid="SettingSystemInfoTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingSystemInfoContent"
+                                               Text="查看软硬件系统信息" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Click="ShortcutGuide_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE816;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="键盘快捷键指南"
+                                               x:Uid="SettingKeyboardGuideTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingKeyboardGuideContent"
+                                               Text="包含所有受本应用支持的键盘快捷键说明" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Click="ExportLog_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE9F9;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="日志文件"
+                                               x:Uid="SettingLogTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               Text="导出错误日志文件以供开发者分析相关问题" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                     <TextBlock Margin="0,30,0,0"
                                x:Uid="SettingAbout"
                                Text="关于"
@@ -914,8 +1030,8 @@
                             Name="RightPanel"
                             x:Load="False">
                     <TextBlock FontSize="20"
-                                   Text="反馈建议清单"
-                                   x:Uid="FeedBackListHeader"/>
+                               Text="反馈建议清单"
+                               x:Uid="FeedBackListHeader" />
                     <StackPanel Margin="0,50,0,50"
                                 Name="EmptyFeedBackArea">
                         <TextBlock Text="无任何反馈或建议"
@@ -1024,7 +1140,7 @@
                               Checked="FeedBackHideButton_Checked"
                               Unchecked="FeedBackHideButton_Unchecked">
                     <Viewbox>
-                        <SymbolIcon Symbol="Pin"/>
+                        <SymbolIcon Symbol="Pin" />
                     </Viewbox>
                 </ToggleButton>
             </Grid>

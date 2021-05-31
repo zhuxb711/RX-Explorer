@@ -628,14 +628,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Grundlegend</value>
   </data>
-  <data name="SettingCleanup.Content" xml:space="preserve">
-    <value>Wiederherstellen und Initialisieren</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Ordneröffnungsmethode</value>
-  </data>
-  <data name="SettingLike.Text" xml:space="preserve">
-    <value>Diese App bewerten</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Andere</value>
@@ -681,12 +675,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>Privatsphäre</value>
-  </data>
-  <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>Diese App kaufen (Sponsor)</value>
-  </data>
-  <data name="SettingSystemInfo.Content" xml:space="preserve">
-    <value>Systeminformationen</value>
   </data>
   <data name="SettingUpdateLogButton.Content" xml:space="preserve">
     <value>Updateprotokoll anzeigen</value>
@@ -2117,9 +2105,6 @@ Inkorrekte Namen sind
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Bin-Foto konnte nicht heruntergeladen werden</value>
   </data>
-  <data name="ExportLog.Content" xml:space="preserve">
-    <value>Fehlerverlauf speichern</value>
-  </data>
   <data name="Common_Dialog_SwitchButton" xml:space="preserve">
     <value>Wechseln</value>
   </data>
@@ -2257,9 +2242,6 @@ Inkorrekte Namen sind
   </data>
   <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
     <value>Die Kodierung ist inkorrekt. Bitte geben sie die Kodierung erneut ein.</value>
-  </data>
-  <data name="SettingConfiguration.Content" xml:space="preserve">
-    <value>Konfiguration importieren oder exportieren</value>
   </data>
   <data name="SettingConfiguration_Export.Content" xml:space="preserve">
     <value>Export</value>
@@ -3121,5 +3103,47 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
     <value>Da einige Dateien/Ordner nicht mehr vorhanden sind, konnte der Rückgängig-Vorgang nicht abgeschlossen werden</value>
+  </data>
+  <data name="SettingKeyboardGuideContent.Text" xml:space="preserve">
+    <value>Enthält Anleitungen für alle Tastaturkürzel, die von dieser App unterstützt werden</value>
+  </data>
+  <data name="SettingKeyboardGuideTitle.Text" xml:space="preserve">
+    <value>Anleitung für Tastaturkürzel</value>
+  </data>
+  <data name="SettingLogContent.Text" xml:space="preserve">
+    <value>Exportieren Sie die Protokolldateien für Entwickler, um verwandte Probleme zu analysieren</value>
+  </data>
+  <data name="SettingLogTitle.Text" xml:space="preserve">
+    <value>Logdatei</value>
+  </data>
+  <data name="SettingPurchaseAppContent.Text" xml:space="preserve">
+    <value>Kaufen Sie diese Anwendung, um alle Funktionen freizuschalten und die Entwicklung zu unterstützen</value>
+  </data>
+  <data name="SettingPurchaseAppTitle.Text" xml:space="preserve">
+    <value>Diese Anwendung kaufen</value>
+  </data>
+  <data name="SettingReviewAppContent.Text" xml:space="preserve">
+    <value>Hinterlassen Sie Ihre Bewertung dieser App im Microsoft Store</value>
+  </data>
+  <data name="SettingReviewAppTitle.Text" xml:space="preserve">
+    <value>Bewerten Sie diese Anwendung</value>
+  </data>
+  <data name="SettingSystemInfoContent.Text" xml:space="preserve">
+    <value>Informationen zum Software- und Hardwaresystem anzeigen</value>
+  </data>
+  <data name="SettingSystemInfoTitle.Text" xml:space="preserve">
+    <value>System Information</value>
+  </data>
+  <data name="ShortcutKeyGuideTitle" xml:space="preserve">
+    <value>Anleitung für Tastaturkürzel</value>
+  </data>
+  <data name="SettingInitAppContent.Text" xml:space="preserve">
+    <value>Alle Daten löschen und in den Ausgangszustand zurücksetzen</value>
+  </data>
+  <data name="SettingInitAppTitle.Text" xml:space="preserve">
+    <value>Setzen Sie die Anwendung zurück</value>
+  </data>
+  <data name="SettingManageConfigTitle.Text" xml:space="preserve">
+    <value>Konfigurationsdateien verwalten</value>
   </data>
 </root>

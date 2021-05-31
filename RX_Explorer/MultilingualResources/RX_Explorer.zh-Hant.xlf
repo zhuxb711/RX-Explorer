@@ -820,17 +820,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Basic</source>
           <target state="translated" state-qualifier="tm-suggestion">基本</target>
         </trans-unit>
-        <trans-unit id="SettingCleanup.Content" translate="yes" xml:space="preserve">
-          <source>Restore and initialize</source>
-          <target state="translated">復原並重置</target>
-        </trans-unit>
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">資料夾開啟方式</target>
-        </trans-unit>
-        <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
-          <source>Rate the app</source>
-          <target state="translated" state-qualifier="tm-suggestion">為應用程式評分</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -891,14 +883,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated" state-qualifier="tm-suggestion">隱私權</target>
-        </trans-unit>
-        <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
-          <source>Purchase this app (Sponsor)</source>
-          <target state="translated">購買此程式（贊助）</target>
-        </trans-unit>
-        <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
-          <source>System Information</source>
-          <target state="translated" state-qualifier="tm-suggestion">系統資訊</target>
         </trans-unit>
         <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
           <source>View update log</source>
@@ -2741,10 +2725,6 @@ Invalid names include
           <source>Unable to download Bing image</source>
           <target state="translated">無法下載必應圖像</target>
         </trans-unit>
-        <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
-          <source>Export error log</source>
-          <target state="translated">導出錯誤日誌</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_SwitchButton" translate="yes" xml:space="preserve">
           <source>Switch</source>
           <target state="translated">交換</target>
@@ -2948,10 +2928,6 @@ Invalid names include
         <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
           <source>Encoding error</source>
           <target state="translated">編碼錯誤</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
-          <source>Import or export configuration</source>
-          <target state="translated">導入或導出配置</target>
         </trans-unit>
         <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
           <source>Export</source>
@@ -4144,6 +4120,62 @@ Invalid names include
         <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
           <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
           <target state="translated">由於某些文件/文件夾不再存在，無法完成撤消操作</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Contains guidance for all keyboard shortcuts supported by this app</source>
+          <target state="translated">包含此應用程序支持的所有鍵盤快捷鍵的指南</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">鍵盤快捷鍵指南</target>
+        </trans-unit>
+        <trans-unit id="SettingLogContent.Text" translate="yes" xml:space="preserve">
+          <source>Export the log files for developers to analyze related issues</source>
+          <target state="translated">導出日誌文件供開發者分析相關問題</target>
+        </trans-unit>
+        <trans-unit id="SettingLogTitle.Text" translate="yes" xml:space="preserve">
+          <source>Log file</source>
+          <target state="translated">日誌文件</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application to unlock all features and support development</source>
+          <target state="translated">購買此應用程序以解鎖所有功能並支持開發</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application</source>
+          <target state="translated">購買此應用程序</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Leave your review of this app in the Microsoft Store</source>
+          <target state="translated">在 Microsoft Store 中留下您對此應用的評論</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Review this application</source>
+          <target state="translated">評價此應用程序</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoContent.Text" translate="yes" xml:space="preserve">
+          <source>View software and hardware system information</source>
+          <target state="translated">查看軟硬件系統信息</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoTitle.Text" translate="yes" xml:space="preserve">
+          <source>System information</source>
+          <target state="translated">系統信息</target>
+        </trans-unit>
+        <trans-unit id="ShortcutKeyGuideTitle" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">鍵盤快捷鍵指南</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Delete all data and reset to the initial state</source>
+          <target state="translated">刪除所有數據並重置為初始狀態</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Reset the application</source>
+          <target state="translated">重置應用程序</target>
+        </trans-unit>
+        <trans-unit id="SettingManageConfigTitle.Text" translate="yes" xml:space="preserve">
+          <source>Manage configuration files</source>
+          <target state="translated">管理配置文件</target>
         </trans-unit>
       </group>
     </body>

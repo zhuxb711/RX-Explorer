@@ -106,6 +106,12 @@
                         <DropDownButton.Flyout>
                             <Flyout x:Name="AspFlyout"
                                     Placement="BottomEdgeAlignedLeft">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="Background"
+                                                Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
                                 <ListView x:Name="AspList"
                                           IsItemClickEnabled="True"
                                           ItemClick="AspList_ItemClick"

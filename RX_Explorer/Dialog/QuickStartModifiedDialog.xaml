@@ -162,6 +162,12 @@
                         <Button.Flyout>
                             <Flyout Placement="Top"
                                     x:Name="PickAppFlyout">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="Background"
+                                                Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
                                 <StackPanel MaxWidth="230">
                                     <TextBlock Text="您要选择哪一种应用?"
                                                TextWrapping="WrapWholeWords"

@@ -736,14 +736,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basic</value>
   </data>
-  <data name="SettingCleanup.Content" xml:space="preserve">
-    <value>Restore and initialize</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Folder open method</value>
-  </data>
-  <data name="SettingLike.Text" xml:space="preserve">
-    <value>Rate the app</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
@@ -789,12 +783,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>Privacy</value>
-  </data>
-  <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>Purchase this app (Sponsor)</value>
-  </data>
-  <data name="SettingSystemInfo.Content" xml:space="preserve">
-    <value>System Information</value>
   </data>
   <data name="SettingUpdateLogButton.Content" xml:space="preserve">
     <value>View update log</value>
@@ -2225,9 +2213,6 @@ Invalid names include
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Unable to download Bing image</value>
   </data>
-  <data name="ExportLog.Content" xml:space="preserve">
-    <value>Export error log</value>
-  </data>
   <data name="Common_Dialog_SwitchButton" xml:space="preserve">
     <value>Switch</value>
   </data>
@@ -2368,9 +2353,6 @@ Invalid names include
   </data>
   <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
     <value>Enter the name of encoding or codepage</value>
-  </data>
-  <data name="SettingConfiguration.Content" xml:space="preserve">
-    <value>Import or export configuration</value>
   </data>
   <data name="SettingConfiguration_Export.Content" xml:space="preserve">
     <value>Export</value>
@@ -3226,5 +3208,47 @@ Invalid names include
   </data>
   <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
     <value>Since some files/folders no longer exist, the undo operation could not be completed</value>
+  </data>
+  <data name="SettingKeyboardGuideContent.Text" xml:space="preserve">
+    <value>Contains guidance for all keyboard shortcuts supported by this app</value>
+  </data>
+  <data name="SettingKeyboardGuideTitle.Text" xml:space="preserve">
+    <value>Keyboard shortcut guide</value>
+  </data>
+  <data name="SettingLogContent.Text" xml:space="preserve">
+    <value>Export the log files for developers to analyze related issues</value>
+  </data>
+  <data name="SettingLogTitle.Text" xml:space="preserve">
+    <value>Log file</value>
+  </data>
+  <data name="SettingPurchaseAppContent.Text" xml:space="preserve">
+    <value>Purchase this application to unlock all features and support development</value>
+  </data>
+  <data name="SettingPurchaseAppTitle.Text" xml:space="preserve">
+    <value>Purchase this application</value>
+  </data>
+  <data name="SettingReviewAppContent.Text" xml:space="preserve">
+    <value>Leave your review of this app in the Microsoft Store</value>
+  </data>
+  <data name="SettingReviewAppTitle.Text" xml:space="preserve">
+    <value>Review this application</value>
+  </data>
+  <data name="SettingSystemInfoContent.Text" xml:space="preserve">
+    <value>View software and hardware system information</value>
+  </data>
+  <data name="SettingSystemInfoTitle.Text" xml:space="preserve">
+    <value>System information</value>
+  </data>
+  <data name="ShortcutKeyGuideTitle" xml:space="preserve">
+    <value>Keyboard shortcut guide</value>
+  </data>
+  <data name="SettingInitAppContent.Text" xml:space="preserve">
+    <value>Delete all data and reset to the initial state</value>
+  </data>
+  <data name="SettingInitAppTitle.Text" xml:space="preserve">
+    <value>Reset the application</value>
+  </data>
+  <data name="SettingManageConfigTitle.Text" xml:space="preserve">
+    <value>Manage configuration files</value>
   </data>
 </root>

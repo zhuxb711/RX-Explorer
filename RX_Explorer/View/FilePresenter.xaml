@@ -2068,7 +2068,6 @@
         <local:Home HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Name="RootFolderControl"
-                    x:FieldModifier="public"
-                    EnterActionRequested="RootFolderControl_EnterActionRequested" />
+                    x:FieldModifier="public" />
     </Grid>
 </Page>

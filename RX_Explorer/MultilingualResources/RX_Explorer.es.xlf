@@ -828,17 +828,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Basic</source>
           <target state="translated">Básico</target>
         </trans-unit>
-        <trans-unit id="SettingCleanup.Content" translate="yes" xml:space="preserve">
-          <source>Restore and initialize</source>
-          <target state="translated">Restablecer y reiniciar</target>
-        </trans-unit>
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Método para abrir carpetas</target>
-        </trans-unit>
-        <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
-          <source>Rate the app</source>
-          <target state="translated">Valorar aplicación</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -899,14 +891,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated">Privacidad</target>
-        </trans-unit>
-        <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
-          <source>Purchase this app (Sponsor)</source>
-          <target state="translated">Comprar esta aplicación (patrocinador)</target>
-        </trans-unit>
-        <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
-          <source>System Information</source>
-          <target state="translated">Información del sistema</target>
         </trans-unit>
         <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
           <source>View update log</source>
@@ -2800,10 +2784,6 @@ Las denominaciones no válidas son:
           <source>Unable to download Bing image</source>
           <target state="translated">No se ha podido descargar la imagen Bing.</target>
         </trans-unit>
-        <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
-          <source>Export error log</source>
-          <target state="translated">Exportar registro de errores</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_SwitchButton" translate="yes" xml:space="preserve">
           <source>Switch</source>
           <target state="translated">Cambiar</target>
@@ -2987,10 +2967,6 @@ Las denominaciones no válidas son:
         <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
           <source>The encoding is incorrect, please re-enter the encoding</source>
           <target state="translated">La codificación es incorrecta; vuelve a introducirla.</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
-          <source>Import or export configuration</source>
-          <target state="translated">Configuración de importación o exportación</target>
         </trans-unit>
         <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
           <source>Export</source>
@@ -4142,6 +4118,62 @@ Las denominaciones no válidas son:
         <trans-unit id="QueueDialog_UndoFailForNotExist_Content" translate="yes" xml:space="preserve">
           <source>Since some files/folders no longer exist, the undo operation could not be completed</source>
           <target state="translated">Dado que algunos archivos / carpetas ya no existen, la operación de deshacer no se pudo completar</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Contains guidance for all keyboard shortcuts supported by this app</source>
+          <target state="translated">Contiene orientación para todos los atajos de teclado compatibles con esta aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingKeyboardGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">Guía de atajos de teclado</target>
+        </trans-unit>
+        <trans-unit id="SettingLogContent.Text" translate="yes" xml:space="preserve">
+          <source>Export the log files for developers to analyze related issues</source>
+          <target state="translated">Exporte los archivos de registro para que los desarrolladores analicen problemas relacionados</target>
+        </trans-unit>
+        <trans-unit id="SettingLogTitle.Text" translate="yes" xml:space="preserve">
+          <source>Log file</source>
+          <target state="translated">Archivo de registro</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application to unlock all features and support development</source>
+          <target state="translated">Compre esta aplicación para desbloquear todas las funciones y apoyar el desarrollo</target>
+        </trans-unit>
+        <trans-unit id="SettingPurchaseAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Purchase this application</source>
+          <target state="translated">Compra esta aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Leave your review of this app in the Microsoft Store</source>
+          <target state="translated">Deje su reseña de esta aplicación en Microsoft Store</target>
+        </trans-unit>
+        <trans-unit id="SettingReviewAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Review this application</source>
+          <target state="translated">Puntúa esta aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoContent.Text" translate="yes" xml:space="preserve">
+          <source>View software and hardware system information</source>
+          <target state="translated">Ver información del sistema de software y hardware</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfoTitle.Text" translate="yes" xml:space="preserve">
+          <source>System information</source>
+          <target state="translated">Información del sistema</target>
+        </trans-unit>
+        <trans-unit id="ShortcutKeyGuideTitle" translate="yes" xml:space="preserve">
+          <source>Keyboard shortcut guide</source>
+          <target state="translated">Guía de atajos de teclado</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppContent.Text" translate="yes" xml:space="preserve">
+          <source>Delete all data and reset to the initial state</source>
+          <target state="translated">Eliminar todos los datos y restablecer al estado inicial</target>
+        </trans-unit>
+        <trans-unit id="SettingInitAppTitle.Text" translate="yes" xml:space="preserve">
+          <source>Reset the application</source>
+          <target state="translated">Restablecer la aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingManageConfigTitle.Text" translate="yes" xml:space="preserve">
+          <source>Manage configuration files</source>
+          <target state="translated">Administrar archivos de configuración</target>
         </trans-unit>
       </group>
     </body>

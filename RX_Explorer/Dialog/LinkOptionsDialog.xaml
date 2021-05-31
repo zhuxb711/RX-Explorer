@@ -40,6 +40,12 @@
                         VerticalAlignment="Bottom">
                     <Button.Flyout>
                         <Flyout>
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="Background"
+                                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
                             <StackPanel>
                                 <TextBlock Text="需要选择文件还是文件夹?"
                                            x:Uid="LinkOptionsDialog_Browser_Flyout_Text"/>

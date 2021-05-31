@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -155,93 +156,18 @@ namespace RX_Explorer
 
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
-            SystemInformation.Instance.TrackAppUse(e);
-
-            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-            TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-
-            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-
-            if (Window.Current.Content is Frame frame)
-            {
-                if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
-                {
-                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments))
-                    {
-                        await TabContainer.CreateNewTabAsync(e.Arguments);
-                    }
-                    else
-                    {
-                        await TabContainer.CreateNewTabAsync();
-                    }
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments))
-                {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new List<string[]> { new string[] { e.Arguments } });
-                    Window.Current.Content = extendedSplash;
-                }
-                else
-                {
-                    StartupMode Mode = StartupModeController.GetStartupMode();
-
-                    switch (Mode)
-                    {
-                        case StartupMode.CreateNewTab:
-                            {
-                                ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                                Window.Current.Content = extendedSplash;
-                                break;
-                            }
-                        case StartupMode.LastOpenedTab:
-                            {
-                                List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync(Mode).ToListAsync();
-
-                                StartupModeController.Clear(StartupMode.LastOpenedTab);
-
-                                if (LastOpenedPathArray.Count == 0)
-                                {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                                    Window.Current.Content = extendedSplash;
-                                }
-                                else
-                                {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, LastOpenedPathArray);
-                                    Window.Current.Content = extendedSplash;
-                                }
-
-                                break;
-                            }
-                        case StartupMode.SpecificTab:
-                            {
-                                string[] SpecificPathArray = await StartupModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
-
-                                if (SpecificPathArray.Length == 0)
-                                {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                                    Window.Current.Content = extendedSplash;
-                                }
-                                else
-                                {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, SpecificPathArray);
-                                    Window.Current.Content = extendedSplash;
-                                }
-
-                                break;
-                            }
-                    }
-                }
-            }
-
-            Window.Current.Activate();
+            await OnLaunchOrOnActivate(e);
         }
 
         protected override async void OnActivated(IActivatedEventArgs args)
         {
+            await OnLaunchOrOnActivate(args);
+        }
+
+        private async Task OnLaunchOrOnActivate(IActivatedEventArgs args)
+        {
+            SystemInformation.Instance.TrackAppUse(args);
+
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
@@ -251,6 +177,37 @@ namespace RX_Explorer
 
             switch (args)
             {
+                case LaunchActivatedEventArgs LaunchArgs:
+                    {
+                        if (Window.Current.Content is Frame frame)
+                        {
+                            if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                            {
+                                if (!string.IsNullOrWhiteSpace(LaunchArgs.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(LaunchArgs.Arguments))
+                                {
+                                    await TabContainer.CreateNewTabAsync(LaunchArgs.Arguments);
+                                }
+                                else
+                                {
+                                    await TabContainer.CreateNewTabAsync();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (string.IsNullOrWhiteSpace(LaunchArgs.Arguments) || !await FileSystemStorageItemBase.CheckExistAsync(LaunchArgs.Arguments))
+                            {
+                                await LaunchWithStartupMode(LaunchArgs);
+                            }
+                            else
+                            {
+                                ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, new List<string[]> { new string[] { LaunchArgs.Arguments } });
+                                Window.Current.Content = extendedSplash;
+                            }
+                        }
+
+                        break;
+                    }
                 case CommandLineActivatedEventArgs CmdArgs:
                     {
                         string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -286,8 +243,7 @@ namespace RX_Explorer
                             {
                                 if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                                 {
-                                    ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
-                                    Window.Current.Content = extendedSplash;
+                                    await LaunchWithStartupMode(CmdArgs);
                                 }
                                 else
                                 {
@@ -297,8 +253,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
-                                Window.Current.Content = extendedSplash;
+                                await LaunchWithStartupMode(CmdArgs);
                             }
                         }
 
@@ -325,11 +280,63 @@ namespace RX_Explorer
                     {
                         ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                         Window.Current.Content = extendedSplash;
+
                         break;
                     }
             }
 
             Window.Current.Activate();
+        }
+
+        private async Task LaunchWithStartupMode(IActivatedEventArgs LaunchArgs)
+        {
+            StartupMode Mode = StartupModeController.GetStartupMode();
+
+            switch (Mode)
+            {
+                case StartupMode.CreateNewTab:
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
+                        Window.Current.Content = extendedSplash;
+                        break;
+                    }
+                case StartupMode.LastOpenedTab:
+                    {
+                        List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync(Mode).ToListAsync();
+
+                        StartupModeController.Clear(StartupMode.LastOpenedTab);
+
+                        if (LastOpenedPathArray.Count == 0)
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
+                            Window.Current.Content = extendedSplash;
+                        }
+                        else
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, LastOpenedPathArray);
+                            Window.Current.Content = extendedSplash;
+                        }
+
+                        break;
+                    }
+                case StartupMode.SpecificTab:
+                    {
+                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+
+                        if (SpecificPathArray.Length == 0)
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
+                            Window.Current.Content = extendedSplash;
+                        }
+                        else
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
+                            Window.Current.Content = extendedSplash;
+                        }
+
+                        break;
+                    }
+            }
         }
 
         protected override async void OnFileActivated(FileActivatedEventArgs args)

@@ -532,47 +532,16 @@ namespace RX_Explorer
         {
             if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
             {
-                string Text = string.Empty;
-
-                switch (Globalization.CurrentLanguage)
+                string Text = Globalization.CurrentLanguage switch
                 {
-                    case LanguageEnum.Chinese_Simplified:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                    case LanguageEnum.Chinese_Traditional:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                    case LanguageEnum.English:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                    case LanguageEnum.French:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                    case LanguageEnum.Spanish:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                    case LanguageEnum.German:
-                        {
-                            StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"));
-                            Text = await FileIO.ReadTextAsync(UpdateFile);
-                            break;
-                        }
-                }
+                    LanguageEnum.Chinese_Simplified => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"))),
+                    LanguageEnum.English => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"))),
+                    LanguageEnum.French => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"))),
+                    LanguageEnum.Chinese_Traditional => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"))),
+                    LanguageEnum.Spanish => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"))),
+                    LanguageEnum.German => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"))),
+                    _ => throw new Exception("Unsupported language")
+                };
 
                 await new WhatIsNew(Text).ShowAsync();
             }

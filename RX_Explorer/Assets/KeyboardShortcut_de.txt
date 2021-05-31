@@ -1,0 +1,29 @@
+﻿Tastenkombination|Voraussetzungen|Beschreibung
+---|---|---
+F2|Beliebige Datei oder Ordner ausgewählt|Umbenennen
+F5|Keine|Aktualisieren
+Enter|Nur eine Datei oder einen Ordner auswählen|Verwenden Sie das zugehörige Programm, um die Datei zu öffnen oder geben Sie den Ordner ein
+Back|Keine|Zum vorherigen Ordner navigieren
+Space|Quicklook wird ausgeführt und eine Datei oder ein Ordner wurde ausgewählt|Verwenden Sie Quicklook, um verwandte Informationen anzuzeigen
+Delete|Beliebige Datei oder Ordner auswählen|Datei löschen
+Ctrl + L|Keine|Adressleiste aktivieren
+Ctrl + V|Keine|Einfügen
+Ctrl + A|Keine|Alle Dateien und Ordner auswählen
+Ctrl + C|Beliebige Datei oder Ordner auswählen|Datei kopieren
+Ctrl + X|Beliebige Datei oder Ordner auswählen|Datei ausschneiden
+Ctrl + D|Beliebige Datei oder Ordner auswählen|Datei löschen
+Ctrl + F|Keine|Aktiviere das Suchfeld
+Ctrl + Z|Der entsprechende Datensatz ist vorhanden|Rückgängig machen des vorherigen Vorgangs
+Ctrl + T|Abwählen oder nur einen Ordner auswählen|Öffnen Sie den angegebenen Ordner in einem neuen Tab. Wenn kein Ordner ausgewählt ist, wird nur eine neue Registerkarte erstellt
+Ctrl + Q|Nur einen Ordner auswählen|Angegebenen Ordner in einem neuen Fenster öffnen
+Ctrl + B|Nur einen Ordner auswählen|Angegebenen Ordner in einem neuen vertikalen geteilten Fenster öffnen split
+Ctrl + E|Keine|Papierkorb leeren
+Ctrl + R|Beliebige Datei oder Ordner auswählen|Alle im Papierkorb ausgewählten Elemente wiederherstellen
+Ctrl + Mausrad|keine|Dateianzeigemodus ändern
+Shift + E |Keine|Verwenden Sie den Windows Explorer, um den aktuellen Ordner zu öffnen
+Shift + T|Keine|Starte das entsprechende Terminal entsprechend der Konfiguration in den Einstellungen
+Alt + Links|Keine|Navigiere zum vorherigen Ordner
+Alt + Rechts|Keine|Navigiere zum nächsten Ordner
+Alt + Enter|Wählen Sie nur eine Datei oder einen Ordner aus|Starten Sie das Eigenschaftenfenster
+Ctrl + Shift + N|Keine|Neuen Ordner erstellen
+Ctrl + Shift + C|Keine|Kopiert den Pfad des ausgewählten Elements. Wenn kein Element ausgewählt ist, kopieren Sie den Pfad des aktuellen Ordners

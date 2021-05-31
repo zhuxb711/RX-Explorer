@@ -613,14 +613,8 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basique</value>
   </data>
-  <data name="SettingCleanup.Content" xml:space="preserve">
-    <value>Réinitialiser</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Méthode d'ouverture de dossier</value>
-  </data>
-  <data name="SettingLike.Text" xml:space="preserve">
-    <value>Évaluez l'application</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Autre</value>
@@ -666,9 +660,6 @@
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>Vie privée</value>
-  </data>
-  <data name="SettingSystemInfo.Content" xml:space="preserve">
-    <value>Informations système</value>
   </data>
   <data name="SettingUpdateLogButton.Content" xml:space="preserve">
     <value>Voir le journal des mises à jour</value>
@@ -1700,9 +1691,6 @@
     <value>🎉Vous pouvez aider les développeurs à poursuivre le développement en achetant cette application. 🎉\r\rSi vous ne le souhaitez pas, vous pouvez cliquer sur "Plus tard" pour annuler \rSi vous souhaitez acheter, vous pouvez cliquer sur "Acheter" pour l'acheter. application\r\rConseils: L'achat peut déverrouiller la fonction unique de sécurité des fichiers: "Zone de sécurité"</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>Achetez cette application (Parrainer)</value>
-  </data>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>Impossible de créer le clip, impossible de modifier cette vidéo</value>
   </data>
@@ -2068,9 +2056,6 @@ Les noms non valides incluent
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Impossible de télécharger l'image Bing</value>
   </data>
-  <data name="ExportLog.Content" xml:space="preserve">
-    <value>Exporter le journal des erreurs</value>
-  </data>
   <data name="Common_Dialog_SwitchButton" xml:space="preserve">
     <value>Changer</value>
   </data>
@@ -2223,9 +2208,6 @@ Les noms non valides incluent
   </data>
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>Erreur d'encodage</value>
-  </data>
-  <data name="SettingConfiguration.Content" xml:space="preserve">
-    <value>Importer ou exporter la configuration</value>
   </data>
   <data name="SettingConfiguration_Export.Content" xml:space="preserve">
     <value>Exporter</value>
@@ -3121,5 +3103,47 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_UndoFailForNotExist_Content" xml:space="preserve">
     <value>Étant donné que certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être terminée</value>
+  </data>
+  <data name="SettingKeyboardGuideContent.Text" xml:space="preserve">
+    <value>Contient des conseils pour tous les raccourcis clavier pris en charge par cette application</value>
+  </data>
+  <data name="SettingKeyboardGuideTitle.Text" xml:space="preserve">
+    <value>Guide des raccourcis clavier</value>
+  </data>
+  <data name="SettingLogContent.Text" xml:space="preserve">
+    <value>Exportez les fichiers journaux pour que les développeurs analysent les problèmes associés</value>
+  </data>
+  <data name="SettingLogTitle.Text" xml:space="preserve">
+    <value>Fichier journal</value>
+  </data>
+  <data name="SettingPurchaseAppContent.Text" xml:space="preserve">
+    <value>Achetez cette application pour déverrouiller toutes les fonctionnalités et soutenir le développement</value>
+  </data>
+  <data name="SettingPurchaseAppTitle.Text" xml:space="preserve">
+    <value>Achetez cette application</value>
+  </data>
+  <data name="SettingReviewAppContent.Text" xml:space="preserve">
+    <value>Laissez votre avis sur cette application dans le Microsoft Store</value>
+  </data>
+  <data name="SettingReviewAppTitle.Text" xml:space="preserve">
+    <value>Évaluez cette application</value>
+  </data>
+  <data name="SettingSystemInfoContent.Text" xml:space="preserve">
+    <value>Afficher les informations du système logiciel et matériel</value>
+  </data>
+  <data name="SettingSystemInfoTitle.Text" xml:space="preserve">
+    <value>Informations système</value>
+  </data>
+  <data name="ShortcutKeyGuideTitle" xml:space="preserve">
+    <value>Guide des raccourcis clavier</value>
+  </data>
+  <data name="SettingInitAppContent.Text" xml:space="preserve">
+    <value>Supprimer toutes les données et réinitialiser à l'état initial</value>
+  </data>
+  <data name="SettingInitAppTitle.Text" xml:space="preserve">
+    <value>Réinitialiser l'application</value>
+  </data>
+  <data name="SettingManageConfigTitle.Text" xml:space="preserve">
+    <value>Gérer les fichiers de configuration</value>
   </data>
 </root>

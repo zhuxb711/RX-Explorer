@@ -1,0 +1,29 @@
+﻿Shortcut key|Prerequisites|Description
+---|---|---
+F2|Any file or folder selected|Rename
+F5|None|Refresh
+Enter|Select only one file or folder|Use the associated program to open the file or enter the folder
+Back|None|Navigate to the previous folder
+Space|Quicklook is running and any file or folder has been selected|Use Quicklook to view related information
+Delete|Select any file or folder|Delete file
+Ctrl + L|None|Activate the address bar
+Ctrl + V|None|Paste
+Ctrl + A|None|Select all files and folders
+Ctrl + C|Select any file or folder|Copy file
+Ctrl + X|Select any file or folder|Cut file
+Ctrl + D|Select any file or folder|Delete file
+Ctrl + F|None|Activate the search box
+Ctrl + Z|The corresponding record exists|Undo the previous operation
+Ctrl + T|Unselect or only select a folder|Open the specified folder in a new tab. If no folder is selected, only a new tab page will be created
+Ctrl + Q|Select only one folder|Open the specified folder in a new window
+Ctrl + B|Select only one folder|Open the specified folder in a new vertical split window
+Ctrl + E|None|Empty the recycle bin
+Ctrl + R|Select any file or folder|Restore all items selected in recycle bin
+Ctrl + Mouse Wheel|none|change file display mode
+Shift + E|None|Use the Windows Explorer to open the current folder
+Shift + T|None|Start the corresponding terminal according to the configuration in the settings
+Alt + Left|None|Navigate to the previous folder
+Alt + Right|None|Navigate to the next folder
+Alt + Enter|Select only one file or folder|Launch the properties window
+Ctrl + Shift + N|None|Create new folder
+Ctrl + Shift + C|None|Copy the path of the selected item. If no item is selected, copy the path of the current folder

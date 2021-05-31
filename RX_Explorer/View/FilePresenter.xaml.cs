@@ -296,6 +296,7 @@ namespace RX_Explorer
             Window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
 
             Loaded += FilePresenter_Loaded;
+            RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
@@ -472,7 +473,7 @@ namespace RX_Explorer
                                 Paste_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
+                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
                                 ItemPresenter.SelectAll();
                                 break;
@@ -491,18 +492,18 @@ namespace RX_Explorer
                                 Clipboard.SetContent(Package);
                                 break;
                             }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
                             {
                                 Copy_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
                             {
                                 Cut_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Delete:
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.Delete when SelectedItems.Count > 0:
+                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
                             {
                                 Delete_Click(null, null);
                                 break;
@@ -524,7 +525,7 @@ namespace RX_Explorer
                             }
                         case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
                             {
-                                _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                                 break;
                             }
                         case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
@@ -532,7 +533,7 @@ namespace RX_Explorer
                                 OpenInTerminal_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count <= 1:
                             {
                                 CloseAllFlyout();
 
@@ -547,7 +548,7 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count == 1:
                             {
                                 OpenFolderInNewWindow_Click(null, null);
                                 break;
@@ -562,9 +563,9 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
+                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder:
                             {
-                                await Container.CreateNewBladeAsync(SelectedItem.Path);
+                                await Container.CreateNewBladeAsync(Folder.Path);
                                 break;
                             }
                         default:
@@ -4585,47 +4586,6 @@ namespace RX_Explorer
             }
         }
 
-        public void Dispose()
-        {
-            FileCollection.Clear();
-
-            AreaWatcher?.Dispose();
-            WiFiProvider?.Dispose();
-            SelectionExtention?.Dispose();
-            DelayRenameCancel?.Dispose();
-            DelayEnterCancel?.Dispose();
-            DelaySelectionCancel?.Dispose();
-            DelayDragCancel?.Dispose();
-            EnterLock?.Dispose();
-            CollectionChangeLock?.Dispose();
-
-            AreaWatcher = null;
-            WiFiProvider = null;
-            SelectionExtention = null;
-            DelayRenameCancel = null;
-            DelayEnterCancel = null;
-            DelaySelectionCancel = null;
-            DelayDragCancel = null;
-            EnterLock = null;
-            CollectionChangeLock = null;
-
-            RecordIndex = 0;
-            GoAndBackRecord.Clear();
-
-            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
-            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
-
-            CoreWindow Window = CoreWindow.GetForCurrentThread();
-            Window.KeyDown -= FilePresenter_KeyDown;
-            Window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
-
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
-            SortCollectionGenerator.SortStateChanged -= Current_SortStateChanged;
-            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
-            ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
-        }
-
         private void GroupMenuFlyout_Opening(object sender, object e)
         {
             PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
@@ -4932,6 +4892,48 @@ namespace RX_Explorer
                         }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            FileCollection.Clear();
+
+            AreaWatcher?.Dispose();
+            WiFiProvider?.Dispose();
+            SelectionExtention?.Dispose();
+            DelayRenameCancel?.Dispose();
+            DelayEnterCancel?.Dispose();
+            DelaySelectionCancel?.Dispose();
+            DelayDragCancel?.Dispose();
+            EnterLock?.Dispose();
+            CollectionChangeLock?.Dispose();
+
+            AreaWatcher = null;
+            WiFiProvider = null;
+            SelectionExtention = null;
+            DelayRenameCancel = null;
+            DelayEnterCancel = null;
+            DelaySelectionCancel = null;
+            DelayDragCancel = null;
+            EnterLock = null;
+            CollectionChangeLock = null;
+
+            RecordIndex = 0;
+            GoAndBackRecord.Clear();
+
+            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
+            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
+            RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
+
+            CoreWindow Window = CoreWindow.GetForCurrentThread();
+            Window.KeyDown -= FilePresenter_KeyDown;
+            Window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
+            SortCollectionGenerator.SortStateChanged -= Current_SortStateChanged;
+            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
+            ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
         }
     }
 }
