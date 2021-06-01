@@ -186,45 +186,6 @@
   <data name="PurchaseTip.Title" xml:space="preserve">
     <value>購買支持這個程式!</value>
   </data>
-  <data name="FeedBackAddButton.Text" xml:space="preserve">
-    <value>提交我的回饋</value>
-  </data>
-  <data name="FeedBackAgainstText.Text" xml:space="preserve">
-    <value>不同意</value>
-  </data>
-  <data name="FeedBackAgreeText.Text" xml:space="preserve">
-    <value>同意</value>
-  </data>
-  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
-    <value>提交</value>
-  </data>
-  <data name="FeedBackDialog.Title" xml:space="preserve">
-    <value>投票</value>
-  </data>
-  <data name="FeedBackDialogContent.Header" xml:space="preserve">
-    <value>建議與回饋</value>
-  </data>
-  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
-    <value>請輸入內容</value>
-  </data>
-  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
-    <value>標題</value>
-  </data>
-  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
-    <value>請輸入標題</value>
-  </data>
-  <data name="FeedBackEditButton.Label" xml:space="preserve">
-    <value>編輯</value>
-  </data>
-  <data name="FeedBackListHeader.Text" xml:space="preserve">
-    <value>回饋列表</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
   </data>
@@ -661,17 +622,8 @@
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>模式</value>
   </data>
-  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
-    <value>用戶隱私聲明</value>
-  </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>復原</value>
-  </data>
-  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
-    <value>隱私權</value>
-  </data>
-  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
-    <value>檢式更新日誌</value>
   </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>版本</value>
@@ -895,17 +847,8 @@
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>檔案類型</value>
   </data>
-  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>在Github上提交問題</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>讀取可能會延遲</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
-    <value>不同意</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
-    <value>同意</value>
   </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>我知道了</value>
@@ -1766,9 +1709,6 @@
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>復原以下檔案時發生錯誤：</value>
   </data>
-  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
-    <value>翻譯</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>此位置已經有同名的檔案,是否自動重新命名?</value>
   </data>
@@ -1795,9 +1735,6 @@
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>移動檔案時發生錯誤，移動失敗</value>
-  </data>
-  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>在Github上提交問題</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>無法取得剪貼簿的內容</value>
@@ -2232,15 +2169,6 @@
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>關閉此選項卡</value>
-  </data>
-  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
-    <value>每次詢問</value>
-  </data>
-  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
-    <value>一律使用內置搜索引擎</value>
-  </data>
-  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
-    <value>一律使用Everything搜索引擎</value>
   </data>
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>搜索引擎配置</value>
@@ -3145,5 +3073,32 @@
   </data>
   <data name="SettingManageConfigTitle.Text" xml:space="preserve">
     <value>管理配置文件</value>
+  </data>
+  <data name="SettingGoGithubContent.Text" xml:space="preserve">
+    <value>貢獻代碼以幫助改進此應用程序</value>
+  </data>
+  <data name="SettingGoGithubTitle.Text" xml:space="preserve">
+    <value>轉到Github上</value>
+  </data>
+  <data name="SettingUpdateLogContent.Text" xml:space="preserve">
+    <value>查看最新更新內容和以往更新歷史</value>
+  </data>
+  <data name="SettingUpdateLogTitle.Text" xml:space="preserve">
+    <value>更新歷史</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>有可用的更新</value>
+  </data>
+  <data name="UpdateLatest" xml:space="preserve">
+    <value>已經是最新版本</value>
+  </data>
+  <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
+    <value>每次詢問</value>
+  </data>
+  <data name="SearchEngineConfig_UseBuildInAsDefault" xml:space="preserve">
+    <value>始終使用內置搜索引擎</value>
+  </data>
+  <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
+    <value>始終使用Everything搜索引擎</value>
   </data>
 </root>

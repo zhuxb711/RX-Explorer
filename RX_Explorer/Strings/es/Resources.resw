@@ -186,45 +186,6 @@
   <data name="PurchaseTip.Title" xml:space="preserve">
     <value>Comprar esta aplicación</value>
   </data>
-  <data name="FeedBackAddButton.Text" xml:space="preserve">
-    <value>Añadir mis comentarios</value>
-  </data>
-  <data name="FeedBackAgainstText.Text" xml:space="preserve">
-    <value>Contra</value>
-  </data>
-  <data name="FeedBackAgreeText.Text" xml:space="preserve">
-    <value>De acuerdo</value>
-  </data>
-  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
-    <value>Eliminar</value>
-  </data>
-  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancelar</value>
-  </data>
-  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Enviar</value>
-  </data>
-  <data name="FeedBackDialog.Title" xml:space="preserve">
-    <value>Votar</value>
-  </data>
-  <data name="FeedBackDialogContent.Header" xml:space="preserve">
-    <value>Comentarios y sugerencias</value>
-  </data>
-  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
-    <value>Introduce el texto.</value>
-  </data>
-  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
-    <value>Título</value>
-  </data>
-  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
-    <value>Introduce un título</value>
-  </data>
-  <data name="FeedBackEditButton.Label" xml:space="preserve">
-    <value>Editar</value>
-  </data>
-  <data name="FeedBackListHeader.Text" xml:space="preserve">
-    <value>Lista de comentarios</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Atrás</value>
   </data>
@@ -667,17 +628,8 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>Modo</value>
   </data>
-  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
-    <value>Declaración de privacidad del usuario</value>
-  </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>Recuperación</value>
-  </data>
-  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
-    <value>Privacidad</value>
-  </data>
-  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
-    <value>Ver registro de actualización</value>
   </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>Versión</value>
@@ -929,17 +881,8 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>Tipo de archivo</value>
   </data>
-  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>Enviar un problema a Github</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Puede que la carga se esté demorando.</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
-    <value>contra</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
-    <value>de acuerdo</value>
   </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Vale</value>
@@ -1818,9 +1761,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>Se ha producido un error al restablecer los siguientes archivos:</value>
   </data>
-  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
-    <value>Traducir</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Ya existe un archivo con el mismo nombre; ¿deseas renombrarlo automáticamente?</value>
   </data>
@@ -1847,9 +1787,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>Se ha producido un error al mover el archivo; la operación ha fallado.</value>
-  </data>
-  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>Enviar problema a Github</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>No se han podido obtener los contenidos del portapapeles.</value>
@@ -2263,15 +2200,6 @@ Las denominaciones no válidas son:
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Cerrar esta ventana</value>
-  </data>
-  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
-    <value>Preguntar cada vez</value>
-  </data>
-  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
-    <value>Usar siempre motor de búsqueda integrado</value>
-  </data>
-  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
-    <value>Usar siempre motor de búsqueda Everything</value>
   </data>
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>Configuración de motor de búsqueda</value>
@@ -3145,5 +3073,32 @@ Las denominaciones no válidas son:
   </data>
   <data name="SettingManageConfigTitle.Text" xml:space="preserve">
     <value>Administrar archivos de configuración</value>
+  </data>
+  <data name="SettingGoGithubContent.Text" xml:space="preserve">
+    <value>Contribuya con código para ayudar a mejorar esta aplicación</value>
+  </data>
+  <data name="SettingGoGithubTitle.Text" xml:space="preserve">
+    <value>Ir a Github</value>
+  </data>
+  <data name="SettingUpdateLogContent.Text" xml:space="preserve">
+    <value>Ver el contenido de actualización más reciente y el historial de actualizaciones anterior</value>
+  </data>
+  <data name="SettingUpdateLogTitle.Text" xml:space="preserve">
+    <value>Historial de actualizaciones</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>Actualización disponible</value>
+  </data>
+  <data name="UpdateLatest" xml:space="preserve">
+    <value>Ya es la última versión</value>
+  </data>
+  <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
+    <value>Pregunta cuando quieras</value>
+  </data>
+  <data name="SearchEngineConfig_UseBuildInAsDefault" xml:space="preserve">
+    <value>Utilice siempre el motor de búsqueda integrado</value>
+  </data>
+  <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
+    <value>Utilice siempre el motor de búsqueda de "Everything"</value>
   </data>
 </root>

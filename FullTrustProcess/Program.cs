@@ -960,7 +960,7 @@ namespace FullTrustProcess
                             if (!string.IsNullOrEmpty(AliasLocation))
                             {
                                 StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.GenerateUniqueName);
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
                                 using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
                                 using (StreamReader Reader = new StreamReader(FileStream))

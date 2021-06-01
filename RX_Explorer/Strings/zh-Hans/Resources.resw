@@ -177,45 +177,6 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>已用空间</value>
   </data>
-  <data name="FeedBackAddButton.Text" xml:space="preserve">
-    <value>添加我的反馈</value>
-  </data>
-  <data name="FeedBackAgainstText.Text" xml:space="preserve">
-    <value>反对</value>
-  </data>
-  <data name="FeedBackAgreeText.Text" xml:space="preserve">
-    <value>支持</value>
-  </data>
-  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
-    <value>删除</value>
-  </data>
-  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
-    <value>提交</value>
-  </data>
-  <data name="FeedBackDialog.Title" xml:space="preserve">
-    <value>参与投票</value>
-  </data>
-  <data name="FeedBackDialogContent.Header" xml:space="preserve">
-    <value>建议和反馈</value>
-  </data>
-  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
-    <value>请输入正文</value>
-  </data>
-  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
-    <value>标题</value>
-  </data>
-  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
-    <value>请输入标题</value>
-  </data>
-  <data name="FeedBackEditButton.Label" xml:space="preserve">
-    <value>编辑</value>
-  </data>
-  <data name="FeedBackListHeader.Text" xml:space="preserve">
-    <value>反馈建议清单</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
   </data>
@@ -652,17 +613,8 @@
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>模式</value>
   </data>
-  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
-    <value>用户隐私声明</value>
-  </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>恢复</value>
-  </data>
-  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
-    <value>隐私</value>
-  </data>
-  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
-    <value>查看更新日志</value>
   </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>版本</value>
@@ -886,17 +838,8 @@
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>文件类型</value>
   </data>
-  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>在Github提交issue</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>加载可能存在延迟</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
-    <value>反对</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
-    <value>支持</value>
   </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>知道了</value>
@@ -1763,9 +1706,6 @@
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>在还原以下文件时出现错误:</value>
   </data>
-  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
-    <value>翻译</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>已存在同名文件，是否自动重命名?</value>
   </data>
@@ -1792,9 +1732,6 @@
   </data>
   <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
     <value>删除文件时出现错误，删除操作已失败</value>
-  </data>
-  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>在Github上提交Issue</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>无法获取剪贴板的内容</value>
@@ -2232,15 +2169,6 @@
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>关闭此标签页</value>
-  </data>
-  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
-    <value>每次询问</value>
-  </data>
-  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
-    <value>始终使用内置搜索引擎</value>
-  </data>
-  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
-    <value>始终使用Everything搜索引擎</value>
   </data>
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>搜索引擎配置</value>
@@ -3145,5 +3073,32 @@
   </data>
   <data name="SettingManageConfigTitle.Text" xml:space="preserve">
     <value>管理配置文件</value>
+  </data>
+  <data name="SettingGoGithubContent.Text" xml:space="preserve">
+    <value>贡献代码来帮助改进本应用</value>
+  </data>
+  <data name="SettingGoGithubTitle.Text" xml:space="preserve">
+    <value>前往Github</value>
+  </data>
+  <data name="SettingUpdateLogContent.Text" xml:space="preserve">
+    <value>查看最近更新内容和以前的更新记录</value>
+  </data>
+  <data name="SettingUpdateLogTitle.Text" xml:space="preserve">
+    <value>更新历史</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>有更新可用</value>
+  </data>
+  <data name="UpdateLatest" xml:space="preserve">
+    <value>已经是最新版本</value>
+  </data>
+  <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
+    <value>每次询问</value>
+  </data>
+  <data name="SearchEngineConfig_UseBuildInAsDefault" xml:space="preserve">
+    <value>始终使用内置搜索引擎</value>
+  </data>
+  <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
+    <value>始终使用Everything搜索引擎</value>
   </data>
 </root>

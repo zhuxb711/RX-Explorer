@@ -116,7 +116,6 @@
     <Capability Name="internetClientServer"/>
     <Capability Name="privateNetworkClientServer" />
     <uap:Capability Name="removableStorage"/>
-    <uap:Capability Name="userAccountInformation"/>
     <DeviceCapability Name="bluetooth"/>
     <DeviceCapability Name="6AC27878-A6FA-4155-BA85-F98F491D4F33"/>
     <DeviceCapability Name="BA0C718F-4DED-49B7-BDD3-FABE28661211"/>

@@ -238,58 +238,6 @@
           <source>Purchase this app</source>
           <target state="translated">Comprar esta aplicación</target>
         </trans-unit>
-        <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
-          <source>Add my feedback</source>
-          <target state="translated">Añadir mis comentarios</target>
-        </trans-unit>
-        <trans-unit id="FeedBackAgainstText.Text" translate="yes" xml:space="preserve">
-          <source>Against</source>
-          <target state="translated">Contra</target>
-        </trans-unit>
-        <trans-unit id="FeedBackAgreeText.Text" translate="yes" xml:space="preserve">
-          <source>Agree</source>
-          <target state="translated">De acuerdo</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDeleteButton.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">Eliminar</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Cancelar</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Submit</source>
-          <target state="translated">Enviar</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.Title" translate="yes" xml:space="preserve">
-          <source>Vote</source>
-          <target state="translated">Votar</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogContent.Header" translate="yes" xml:space="preserve">
-          <source>Feedback and suggestion</source>
-          <target state="translated">Comentarios y sugerencias</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogContent.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter the text</source>
-          <target state="translated">Introduce el texto.</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogTitle.Header" translate="yes" xml:space="preserve">
-          <source>Title</source>
-          <target state="translated">Título</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogTitle.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter a title</source>
-          <target state="translated">Introduce un título</target>
-        </trans-unit>
-        <trans-unit id="FeedBackEditButton.Label" translate="yes" xml:space="preserve">
-          <source>Edit</source>
-          <target state="translated">Editar</target>
-        </trans-unit>
-        <trans-unit id="FeedBackListHeader.Text" translate="yes" xml:space="preserve">
-          <source>Feedback list</source>
-          <target state="translated">Lista de comentarios</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated">Atrás</target>
@@ -880,21 +828,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Mode</source>
           <target state="translated">Modo</target>
         </trans-unit>
-        <trans-unit id="SettingPrivacyPolicyLink.Content" translate="yes" xml:space="preserve">
-          <source>User Privacy Statement</source>
-          <target state="translated">Declaración de privacidad del usuario</target>
-        </trans-unit>
         <trans-unit id="SettingRecovery.Text" translate="yes" xml:space="preserve">
           <source>Recovery</source>
           <target state="translated">Recuperación</target>
-        </trans-unit>
-        <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
-          <source>Privacy</source>
-          <target state="translated">Privacidad</target>
-        </trans-unit>
-        <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
-          <source>View update log</source>
-          <target state="translated">Ver registro de actualización</target>
         </trans-unit>
         <trans-unit id="SettingVersion.Text" translate="yes" xml:space="preserve">
           <source>Version</source>
@@ -1229,21 +1165,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>File type</source>
           <target state="translated">Tipo de archivo</target>
         </trans-unit>
-        <trans-unit id="SubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
-          <source>Submit an issue on Github</source>
-          <target state="translated">Enviar un problema a Github</target>
-        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">Puede que la carga se esté demorando.</target>
-        </trans-unit>
-        <trans-unit id="FeedBackItem_SupportDescription_Negative" translate="yes" xml:space="preserve">
-          <source>against</source>
-          <target state="translated">contra</target>
-        </trans-unit>
-        <trans-unit id="FeedBackItem_SupportDescription_Positive" translate="yes" xml:space="preserve">
-          <source>agree</source>
-          <target state="translated">de acuerdo</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
           <source>Got it</source>
@@ -2402,10 +2326,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>An error occurred while restoring the following files:</source>
           <target state="translated">Se ha producido un error al restablecer los siguientes archivos:</target>
         </trans-unit>
-        <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
-          <source>Translate</source>
-          <target state="translated">Traducir</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
           <target state="translated">Ya existe un archivo con el mismo nombre; ¿deseas renombrarlo automáticamente?</target>
@@ -2441,10 +2361,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
           <source>An error occurred while moving the file, the move operation failed</source>
           <target state="translated">Se ha producido un error al mover el archivo; la operación ha fallado.</target>
-        </trans-unit>
-        <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
-          <source>Submit issue on Github</source>
-          <target state="translated">Enviar problema a Github</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
           <source>Failed to get the contents of the clipboard</source>
@@ -2999,18 +2915,6 @@ Las denominaciones no válidas son:
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
           <target state="translated">Cerrar esta ventana</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_AlwaysPopup" translate="yes" xml:space="preserve">
-          <source>Ask every time</source>
-          <target state="translated">Preguntar cada vez</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_UseBuildInAsDefault" translate="yes" xml:space="preserve">
-          <source>Always use the built-in search engine</source>
-          <target state="translated">Usar siempre motor de búsqueda integrado</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_UseEverythingAsDefault" translate="yes" xml:space="preserve">
-          <source>Always use the Everything search engine</source>
-          <target state="translated">Usar siempre motor de búsqueda Everything</target>
         </trans-unit>
         <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
           <source>Search engine configuration</source>
@@ -4174,6 +4078,42 @@ Las denominaciones no válidas son:
         <trans-unit id="SettingManageConfigTitle.Text" translate="yes" xml:space="preserve">
           <source>Manage configuration files</source>
           <target state="translated">Administrar archivos de configuración</target>
+        </trans-unit>
+        <trans-unit id="SettingGoGithubContent.Text" translate="yes" xml:space="preserve">
+          <source>Contribute code to help improve this application</source>
+          <target state="translated">Contribuya con código para ayudar a mejorar esta aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingGoGithubTitle.Text" translate="yes" xml:space="preserve">
+          <source>Go to Github</source>
+          <target state="translated">Ir a Github</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogContent.Text" translate="yes" xml:space="preserve">
+          <source>View the latest update content and previous update history</source>
+          <target state="translated">Ver el contenido de actualización más reciente y el historial de actualizaciones anterior</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogTitle.Text" translate="yes" xml:space="preserve">
+          <source>Update history</source>
+          <target state="translated">Historial de actualizaciones</target>
+        </trans-unit>
+        <trans-unit id="UpdateAvailable" translate="yes" xml:space="preserve">
+          <source>Update available</source>
+          <target state="translated">Actualización disponible</target>
+        </trans-unit>
+        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+          <source>Already the latest version</source>
+          <target state="translated">Ya es la última versión</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_AlwaysPopup" translate="yes" xml:space="preserve">
+          <source>Ask every time</source>
+          <target state="translated">Pregunta cuando quieras</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_UseBuildInAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the built-in search engine</source>
+          <target state="translated">Utilice siempre el motor de búsqueda integrado</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_UseEverythingAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the Everything search engine</source>
+          <target state="translated">Utilice siempre el motor de búsqueda de "Everything"</target>
         </trans-unit>
       </group>
     </body>

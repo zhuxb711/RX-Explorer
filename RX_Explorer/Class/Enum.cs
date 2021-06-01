@@ -351,29 +351,6 @@ namespace RX_Explorer.Class
     }
 
     /// <summary>
-    /// 反馈更新的类型
-    /// </summary>
-    public enum FeedBackUpdateType
-    {
-        /// <summary>
-        /// 新增支持
-        /// </summary>
-        AddLike = 0,
-        /// <summary>
-        /// 删除支持
-        /// </summary>
-        DelLike = 1,
-        /// <summary>
-        /// 新增反对
-        /// </summary>
-        AddDislike = 2,
-        /// <summary>
-        /// 删除反对
-        /// </summary>
-        DelDislike = 4
-    }
-
-    /// <summary>
     /// 背景图片类型的枚举
     /// </summary>
     public enum BackgroundBrushType

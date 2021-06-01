@@ -477,8 +477,6 @@ namespace RX_Explorer
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
-                await GetUserInfoAsync();
-
                 await ShowReleaseLogDialogAsync();
 
                 await RegisterBackgroundTaskAsync();
@@ -544,41 +542,6 @@ namespace RX_Explorer
                 };
 
                 await new WhatIsNew(Text).ShowAsync();
-            }
-        }
-
-        private async Task GetUserInfoAsync()
-        {
-            if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
-            {
-                string UserName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
-                string UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
-                if (string.IsNullOrEmpty(UserID))
-                {
-                    HardwareToken Token = HardwareIdentification.GetPackageSpecificToken(null);
-                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                    IBuffer hashedData = md5.HashData(Token.Id);
-                    UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                }
-
-                if (string.IsNullOrEmpty(UserName))
-                {
-                    UserName = UserID.Substring(0, 10);
-                }
-
-                ApplicationData.Current.LocalSettings.Values["SystemUserName"] = UserName;
-                ApplicationData.Current.LocalSettings.Values["SystemUserID"] = UserID;
-            }
-            else
-            {
-                HardwareToken Token = HardwareIdentification.GetPackageSpecificToken(null);
-                HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                IBuffer hashedData = md5.HashData(Token.Id);
-                string UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                string UserName = UserID.Substring(0, 10);
-
-                ApplicationData.Current.LocalSettings.Values["SystemUserName"] = UserName;
-                ApplicationData.Current.LocalSettings.Values["SystemUserID"] = UserID;
             }
         }
 

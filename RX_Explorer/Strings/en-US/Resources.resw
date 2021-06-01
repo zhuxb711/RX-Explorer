@@ -291,45 +291,6 @@
   <data name="PurchaseTip.Title" xml:space="preserve">
     <value>Purchase this app</value>
   </data>
-  <data name="FeedBackAddButton.Text" xml:space="preserve">
-    <value>Add my feedback</value>
-  </data>
-  <data name="FeedBackAgainstText.Text" xml:space="preserve">
-    <value>Against</value>
-  </data>
-  <data name="FeedBackAgreeText.Text" xml:space="preserve">
-    <value>Agree</value>
-  </data>
-  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Submit</value>
-  </data>
-  <data name="FeedBackDialog.Title" xml:space="preserve">
-    <value>Vote</value>
-  </data>
-  <data name="FeedBackDialogContent.Header" xml:space="preserve">
-    <value>Feedback and suggestion</value>
-  </data>
-  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
-    <value>Please enter the text</value>
-  </data>
-  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
-    <value>Title</value>
-  </data>
-  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
-    <value>Please enter a title</value>
-  </data>
-  <data name="FeedBackEditButton.Label" xml:space="preserve">
-    <value>Edit</value>
-  </data>
-  <data name="FeedBackListHeader.Text" xml:space="preserve">
-    <value>Feedback list</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Back</value>
   </data>
@@ -775,17 +736,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>Mode</value>
   </data>
-  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
-    <value>User Privacy Statement</value>
-  </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>Recovery</value>
-  </data>
-  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
-    <value>Privacy</value>
-  </data>
-  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
-    <value>View update log</value>
   </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>Version</value>
@@ -1037,17 +989,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>File type</value>
   </data>
-  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>Submit an issue on Github</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>There may be a delay in loading</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
-    <value>against</value>
-  </data>
-  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
-    <value>agree</value>
   </data>
   <data name="Common_Dialog_CloseButton" xml:space="preserve">
     <value>Got it</value>
@@ -1926,9 +1869,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>An error occurred while restoring the following files:</value>
   </data>
-  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
-    <value>Translate</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>A file with the same name already exists, whether to rename it automatically?</value>
   </data>
@@ -1955,9 +1895,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>An error occurred while moving the file, the move operation failed</value>
-  </data>
-  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
-    <value>Submit issue on Github</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Failed to get the contents of the clipboard</value>
@@ -2378,13 +2315,13 @@ Invalid names include
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Close this tab</value>
   </data>
-  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
+  <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
     <value>Ask every time</value>
   </data>
-  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
+  <data name="SearchEngineConfig_UseBuildInAsDefault" xml:space="preserve">
     <value>Always use the built-in search engine</value>
   </data>
-  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
+  <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Always use the Everything search engine</value>
   </data>
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
@@ -3250,5 +3187,23 @@ Invalid names include
   </data>
   <data name="SettingManageConfigTitle.Text" xml:space="preserve">
     <value>Manage configuration files</value>
+  </data>
+  <data name="SettingGoGithubContent.Text" xml:space="preserve">
+    <value>Contribute code to help improve this application</value>
+  </data>
+  <data name="SettingGoGithubTitle.Text" xml:space="preserve">
+    <value>Go to Github</value>
+  </data>
+  <data name="SettingUpdateLogContent.Text" xml:space="preserve">
+    <value>View the latest update content and previous update history</value>
+  </data>
+  <data name="SettingUpdateLogTitle.Text" xml:space="preserve">
+    <value>Update history</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>Update available</value>
+  </data>
+  <data name="UpdateLatest" xml:space="preserve">
+    <value>Already the latest version</value>
   </data>
 </root>

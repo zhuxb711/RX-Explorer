@@ -10,6 +10,10 @@
                         Title="{x:Bind Cls:Globalization.GetString('ShortcutKeyGuideTitle')}"
                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CloseButton')}">
 
+    <Cls:QueueContentDialog.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>
+    </Cls:QueueContentDialog.Resources>
+    
     <Grid>
         <ScrollViewer VerticalScrollMode="Enabled"
                       IsVerticalScrollChainingEnabled="True"

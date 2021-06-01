@@ -226,58 +226,6 @@
           <source>Used space</source>
           <target state="translated">已用空间</target>
         </trans-unit>
-        <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
-          <source>Add my feedback</source>
-          <target state="translated">添加我的反馈</target>
-        </trans-unit>
-        <trans-unit id="FeedBackAgainstText.Text" translate="yes" xml:space="preserve">
-          <source>Against</source>
-          <target state="translated">反对</target>
-        </trans-unit>
-        <trans-unit id="FeedBackAgreeText.Text" translate="yes" xml:space="preserve">
-          <source>Agree</source>
-          <target state="translated">支持</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDeleteButton.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">删除</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">取消</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Submit</source>
-          <target state="translated">提交</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialog.Title" translate="yes" xml:space="preserve">
-          <source>Vote</source>
-          <target state="translated">参与投票</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogContent.Header" translate="yes" xml:space="preserve">
-          <source>Feedback and suggestion</source>
-          <target state="translated">建议和反馈</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogContent.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter the text</source>
-          <target state="translated">请输入正文</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogTitle.Header" translate="yes" xml:space="preserve">
-          <source>Title</source>
-          <target state="translated">标题</target>
-        </trans-unit>
-        <trans-unit id="FeedBackDialogTitle.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter a title</source>
-          <target state="translated">请输入标题</target>
-        </trans-unit>
-        <trans-unit id="FeedBackEditButton.Label" translate="yes" xml:space="preserve">
-          <source>Edit</source>
-          <target state="translated">编辑</target>
-        </trans-unit>
-        <trans-unit id="FeedBackListHeader.Text" translate="yes" xml:space="preserve">
-          <source>Feedback list</source>
-          <target state="translated">反馈建议清单</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated">返回</target>
@@ -860,21 +808,9 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Mode</source>
           <target state="translated">模式</target>
         </trans-unit>
-        <trans-unit id="SettingPrivacyPolicyLink.Content" translate="yes" xml:space="preserve">
-          <source>User Privacy Statement</source>
-          <target state="translated">用户隐私声明</target>
-        </trans-unit>
         <trans-unit id="SettingRecovery.Text" translate="yes" xml:space="preserve">
           <source>Recovery</source>
           <target state="translated">恢复</target>
-        </trans-unit>
-        <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
-          <source>Privacy</source>
-          <target state="translated">隐私</target>
-        </trans-unit>
-        <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
-          <source>View update log</source>
-          <target state="translated">查看更新日志</target>
         </trans-unit>
         <trans-unit id="SettingVersion.Text" translate="yes" xml:space="preserve">
           <source>Version</source>
@@ -1172,21 +1108,9 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>File type</source>
           <target state="translated">文件类型</target>
         </trans-unit>
-        <trans-unit id="SubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
-          <source>Submit an issue on Github</source>
-          <target state="translated">在Github提交issue</target>
-        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">加载可能存在延迟</target>
-        </trans-unit>
-        <trans-unit id="FeedBackItem_SupportDescription_Negative" translate="yes" xml:space="preserve">
-          <source>against</source>
-          <target state="translated">反对</target>
-        </trans-unit>
-        <trans-unit id="FeedBackItem_SupportDescription_Positive" translate="yes" xml:space="preserve">
-          <source>agree</source>
-          <target state="translated">支持</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
           <source>Got it</source>
@@ -2329,10 +2253,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>An error occurred while restoring the following files:</source>
           <target state="translated">在还原以下文件时出现错误:</target>
         </trans-unit>
-        <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
-          <source>Translate</source>
-          <target state="translated">翻译</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
           <target state="translated">已存在同名文件，是否自动重命名?</target>
@@ -2368,10 +2288,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
           <source>An error occurred while deleting the file, the delete operation failed</source>
           <target state="translated">删除文件时出现错误，删除操作已失败</target>
-        </trans-unit>
-        <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
-          <source>Submit issue on Github</source>
-          <target state="translated">在Github上提交Issue</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
           <source>Failed to get the contents of the clipboard</source>
@@ -2960,18 +2876,6 @@ Invalid names include
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
           <target state="translated">关闭此标签页</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_AlwaysPopup" translate="yes" xml:space="preserve">
-          <source>Ask every time</source>
-          <target state="translated">每次询问</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_UseBuildInAsDefault" translate="yes" xml:space="preserve">
-          <source>Always use the built-in search engine</source>
-          <target state="translated">始终使用内置搜索引擎</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineConfi_UseEverythingAsDefault" translate="yes" xml:space="preserve">
-          <source>Always use the Everything search engine</source>
-          <target state="translated">始终使用Everything搜索引擎</target>
         </trans-unit>
         <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
           <source>Search engine configuration</source>
@@ -4176,6 +4080,42 @@ Invalid names include
         <trans-unit id="SettingManageConfigTitle.Text" translate="yes" xml:space="preserve">
           <source>Manage configuration files</source>
           <target state="translated">管理配置文件</target>
+        </trans-unit>
+        <trans-unit id="SettingGoGithubContent.Text" translate="yes" xml:space="preserve">
+          <source>Contribute code to help improve this application</source>
+          <target state="translated">贡献代码来帮助改进本应用</target>
+        </trans-unit>
+        <trans-unit id="SettingGoGithubTitle.Text" translate="yes" xml:space="preserve">
+          <source>Go to Github</source>
+          <target state="translated">前往Github</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogContent.Text" translate="yes" xml:space="preserve">
+          <source>View the latest update content and previous update history</source>
+          <target state="translated">查看最近更新内容和以前的更新记录</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogTitle.Text" translate="yes" xml:space="preserve">
+          <source>Update history</source>
+          <target state="translated">更新历史</target>
+        </trans-unit>
+        <trans-unit id="UpdateAvailable" translate="yes" xml:space="preserve">
+          <source>Update available</source>
+          <target state="translated">有更新可用</target>
+        </trans-unit>
+        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+          <source>Already the latest version</source>
+          <target state="translated">已经是最新版本</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_AlwaysPopup" translate="yes" xml:space="preserve">
+          <source>Ask every time</source>
+          <target state="translated">每次询问</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_UseBuildInAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the built-in search engine</source>
+          <target state="translated">始终使用内置搜索引擎</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfig_UseEverythingAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the Everything search engine</source>
+          <target state="translated">始终使用Everything搜索引擎</target>
         </trans-unit>
       </group>
     </body>

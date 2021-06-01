@@ -1,5 +1,4 @@
-﻿using Google.Cloud.Translation.V2;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using RX_Explorer.Interface;
@@ -733,68 +732,6 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// 使用GoogleAPI自动检测语言并将文字翻译为对应语言
-        /// </summary>
-        /// <param name="Text">要翻译的内容</param>
-        /// <returns></returns>
-        public static Task<string> TranslateAsync(this string Text)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    string APIKey = SecureAccessProvider.GetGoogleTranslateAccessKey(Package.Current);
-
-                    using (TranslationClient Client = TranslationClient.CreateFromApiKey(APIKey, TranslationModel.ServiceDefault))
-                    {
-                        Detection DetectResult = Client.DetectLanguage(Text);
-
-                        string CurrentLanguage = string.Empty;
-
-                        switch (Globalization.CurrentLanguage)
-                        {
-                            case LanguageEnum.English:
-                                {
-                                    CurrentLanguage = LanguageCodes.English;
-                                    break;
-                                }
-
-                            case LanguageEnum.Chinese_Simplified:
-                                {
-                                    CurrentLanguage = LanguageCodes.ChineseSimplified;
-                                    break;
-                                }
-                            case LanguageEnum.Chinese_Traditional:
-                                {
-                                    CurrentLanguage = LanguageCodes.ChineseTraditional;
-                                    break;
-                                }
-                            case LanguageEnum.French:
-                                {
-                                    CurrentLanguage = LanguageCodes.French;
-                                    break;
-                                }
-                        }
-
-                        if (DetectResult.Language.StartsWith(CurrentLanguage))
-                        {
-                            return Text;
-                        }
-                        else
-                        {
-                            TranslationResult TranslateResult = Client.TranslateText(Text, CurrentLanguage, DetectResult.Language);
-                            return TranslateResult.TranslatedText;
-                        }
-                    }
-                }
-                catch
-                {
-                    return Text;
-                }
-            });
         }
 
         /// <summary>
