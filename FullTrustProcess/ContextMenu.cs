@@ -62,16 +62,23 @@ namespace FullTrustProcess
                         {
                             Shell32.IContextMenu ContextObject = GetContextMenuObject(PathArray);
 
-                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                            if (ContextObject != null)
                             {
-                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                                using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                                 {
-                                    return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                                    if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                                    {
+                                        return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                                    }
+                                    else
+                                    {
+                                        return Array.Empty<ContextMenuPackage>();
+                                    }
                                 }
-                                else
-                                {
-                                    return Array.Empty<ContextMenuPackage>();
-                                }
+                            }
+                            else
+                            {
+                                return Array.Empty<ContextMenuPackage>();
                             }
                         }
                         else

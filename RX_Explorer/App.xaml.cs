@@ -4,6 +4,8 @@ using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -12,6 +14,7 @@ using Windows.ApplicationModel.Core;
 using Windows.System;
 using Windows.System.Power;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -96,13 +99,13 @@ namespace RX_Explorer
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
         }
 
-        private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+        private async void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
             SQLite.Current.Dispose();
 
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
             {
-                LogTracer.LeadToBlueScreen(ex);
+                await LeadToBlueScreen(ex);
             }
         }
 
@@ -146,12 +149,11 @@ namespace RX_Explorer
             IsInBackgroundMode = true;
         }
 
-        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            SQLite.Current.Dispose();
-
-            LogTracer.LeadToBlueScreen(e.Exception);
             e.Handled = true;
+            SQLite.Current.Dispose();
+            await LeadToBlueScreen(e.Exception);
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
@@ -365,6 +367,88 @@ namespace RX_Explorer
 
                 Window.Current.Activate();
             }
+        }
+
+        private static async Task LeadToBlueScreen(Exception Ex, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
+        {
+            if (Ex == null)
+            {
+                throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
+            }
+
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                string[] MessageSplit;
+
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(Ex.Message))
+                    {
+                        MessageSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch
+                {
+                    MessageSplit = Array.Empty<string>();
+                }
+
+                string[] StackTraceSplit;
+
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                    {
+                        StackTraceSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch
+                {
+                    StackTraceSplit = Array.Empty<string>();
+                }
+
+                StringBuilder Builder = new StringBuilder()
+                                        .AppendLine($"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
+                                        .AppendLine()
+                                        .AppendLine("The following is the error message:")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine($"Exception: {Ex}")
+                                        .AppendLine()
+                                        .AppendLine("Message:")
+                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine()
+                                        .AppendLine("StackTrace:")
+                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine()
+                                        .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerMemberName: {MemberName}")
+                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
+                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine();
+
+                if (Window.Current.Content is Frame rootFrame)
+                {
+                    rootFrame.Navigate(typeof(BlueScreen), Builder.ToString());
+                }
+                else
+                {
+                    Frame Frame = new Frame();
+
+                    Window.Current.Content = Frame;
+
+                    Frame.Navigate(typeof(BlueScreen), Builder.ToString());
+                }
+            });
+
+            LogTracer.Log(Ex, "UnhandleException");
         }
     }
 }

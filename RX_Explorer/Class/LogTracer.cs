@@ -36,99 +36,9 @@ namespace RX_Explorer.Class
 
         private static readonly AutoResetEvent Locker = new AutoResetEvent(false);
 
-        private static bool ExitSignal;
-
         static LogTracer()
         {
             BackgroundProcessThread.Start();
-        }
-
-        /// <summary>
-        /// 请求进入蓝屏状态
-        /// </summary>
-        /// <param name="Ex">错误内容</param>
-        public static async void LeadToBlueScreen(Exception Ex, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
-        {
-            if (Ex == null)
-            {
-                throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
-            }
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                string[] MessageSplit;
-
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(Ex.Message))
-                    {
-                        MessageSplit = Array.Empty<string>();
-                    }
-                    else
-                    {
-                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                    }
-                }
-                catch
-                {
-                    MessageSplit = Array.Empty<string>();
-                }
-
-                string[] StackTraceSplit;
-
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
-                    {
-                        StackTraceSplit = Array.Empty<string>();
-                    }
-                    else
-                    {
-                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                    }
-                }
-                catch
-                {
-                    StackTraceSplit = Array.Empty<string>();
-                }
-
-                StringBuilder Builder = new StringBuilder()
-                                        .AppendLine($"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
-                                        .AppendLine()
-                                        .AppendLine("The following is the error message:")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine($"Exception: {Ex}")
-                                        .AppendLine()
-                                        .AppendLine("Message:")
-                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
-                                        .AppendLine()
-                                        .AppendLine("StackTrace:")
-                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
-                                        .AppendLine()
-                                        .AppendLine("Extra info: ")
-                                        .AppendLine($"        CallerMemberName: {MemberName}")
-                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
-                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
-                                        .AppendLine("------------------------------------")
-                                        .AppendLine();
-
-                if (Window.Current.Content is Frame rootFrame)
-                {
-                    rootFrame.Navigate(typeof(BlueScreen), Builder.ToString());
-                }
-                else
-                {
-                    Frame Frame = new Frame();
-
-                    Window.Current.Content = Frame;
-
-                    Frame.Navigate(typeof(BlueScreen), Builder.ToString());
-                }
-            });
-
-            ExitSignal = true;
-
-            Log(Ex, "UnhandleException");
         }
 
         public static async Task ExportLogAsync(StorageFile ExportFile)
@@ -313,9 +223,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async void LogProcessThread()
+        private static void LogProcessThread()
         {
-            while (!ExitSignal)
+            while (true)
             {
                 try
                 {
@@ -324,22 +234,21 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist) is FileSystemStorageFile File)
+                    StorageFile LogFile = ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.OpenIfExists).AsTask().Result;
+                    
+                    using (FileStream LogFileStream = LogFile.LockAndBlockAccess())
                     {
-                        using (FileStream LogFileStream = await File.GetFileStreamFromFileAsync(AccessMode.Exclusive))
+                        LogFileStream.Seek(0, SeekOrigin.End);
+
+                        using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
                         {
-                            LogFileStream.Seek(0, SeekOrigin.End);
-
-                            using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                            while (LogQueue.TryDequeue(out string LogItem))
                             {
-                                while (LogQueue.TryDequeue(out string LogItem))
-                                {
-                                    Writer.WriteLine(LogItem);
-                                    Debug.WriteLine(LogItem);
-                                }
-
-                                Writer.Flush();
+                                Writer.WriteLine(LogItem);
+                                Debug.WriteLine(LogItem);
                             }
+
+                            Writer.Flush();
                         }
                     }
                 }

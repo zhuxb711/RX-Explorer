@@ -347,34 +347,27 @@ namespace RX_Explorer
         {
             Loaded -= TabViewContainer_Loaded;
 
-            try
+            if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
-                if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
-                {
-                    await CreateNewTabAsync();
-                }
-                else
-                {
-                    await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
-                }
+                await CreateNewTabAsync();
+            }
+            else
+            {
+                await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
+            }
 
-                List<Task> LoadTaskList = new List<Task>(3)
+            List<Task> LoadTaskList = new List<Task>(3)
                 {
                     CommonAccessCollection.LoadQuickStartItemsAsync(),
                     CommonAccessCollection.LoadDriveAsync()
                 };
 
-                if (SettingControl.LibraryExpanderIsExpand)
-                {
-                    LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
-                }
-
-                await Task.WhenAll(LoadTaskList).ConfigureAwait(false);
-            }
-            catch (Exception ex)
+            if (SettingControl.LibraryExpanderIsExpand)
             {
-                LogTracer.LeadToBlueScreen(ex);
+                LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
+
+            await Task.WhenAll(LoadTaskList).ConfigureAwait(false);
         }
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)

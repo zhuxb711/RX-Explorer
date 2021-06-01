@@ -14,9 +14,7 @@
         <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>
     </local:QueueContentDialog.Resources>
     <Grid>
-        <ScrollViewer VerticalScrollMode="Enabled"
-                      IsVerticalScrollChainingEnabled="True"
-                      VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer VerticalScrollMode="Enabled">
             <control:MarkdownTextBlock x:Name="MarkDown"
                                        Header5FontSize="14"
                                        Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
