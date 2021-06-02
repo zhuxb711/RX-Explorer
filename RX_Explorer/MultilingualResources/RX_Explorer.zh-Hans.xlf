@@ -4117,6 +4117,18 @@ Invalid names include
           <source>Always use the Everything search engine</source>
           <target state="translated">始终使用Everything搜索引擎</target>
         </trans-unit>
+        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+          <source>Navigation view layout</source>
+          <target state="translated">导航视图布局</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OffContent" translate="yes" xml:space="preserve">
+          <source>Top</source>
+          <target state="translated">顶端</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OnContent" translate="yes" xml:space="preserve">
+          <source>Left</source>
+          <target state="translated">左侧</target>
+        </trans-unit>
       </group>
     </body>
   </file>

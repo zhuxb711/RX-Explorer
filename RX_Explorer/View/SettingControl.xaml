@@ -147,6 +147,14 @@
                               x:Uid="SettingTreeViewDetach" />
 
                 <ToggleSwitch Margin="0,20,0,0"
+                              Header="导航视图布局"
+                              OnContent="左侧"
+                              OffContent="顶端"
+                              x:Uid="SettingNavLayout"
+                              Name="NavigationViewLayout"
+                              Toggled="NavigationViewLayout_Toggled"/>
+
+                <ToggleSwitch Margin="0,20,0,0"
                               Header="显示隐藏文件/文件夹"
                               x:Uid="SettingDisplayHiddenItem"
                               OnContent="启用"
@@ -979,6 +987,29 @@
                                            FontSize="12"
                                            x:Uid="SettingLogContent"
                                            Text="导出错误日志文件以供开发者分析相关问题" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Name="CopyQQ"
+                            x:Load="False"
+                            Visibility="Collapsed"
+                            Click="CopyQQ_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Height="30"
+                                     Width="30"
+                                     VerticalAlignment="Center">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Foreground="{ThemeResource SystemAccentColor}"
+                                          Glyph="&#xE136;" />
+                            </Viewbox>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="QQ交流群"/>
+                                <TextBlock Foreground="Gray"
+                                           FontSize="12"
+                                           Text="点击复制: 937294538" />
                             </StackPanel>
                         </StackPanel>
                     </Button>

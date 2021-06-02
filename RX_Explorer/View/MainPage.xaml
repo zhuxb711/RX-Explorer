@@ -135,10 +135,8 @@
         <muxc:TeachingTip x:Name="BluetoothAudioSelectionTip"
                           Title="选择蓝牙音频源"
                           x:Uid="BluetoothAudioSelectionTip"
-                          PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
-                          Closed="BluetoothAudioSelectionTip_Closed"
-                          Target="{x:Bind BluetoothAudio}">
+                          Closed="BluetoothAudioSelectionTip_Closed">
             <Grid MinHeight="50">
                 <StackPanel x:Name="BluetoothAudioArea"
                             Loaded="BluetoothAudioArea_Loaded">
@@ -217,10 +215,8 @@
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
-                          PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
-                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
-                          Target="{x:Bind QuickStartNav}">
+                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
             <StackPanel>
                 <TextBlock Text="应用"
                            Margin="5"
@@ -308,24 +304,31 @@
                 </GridView>
             </StackPanel>
         </muxc:TeachingTip>
+
+        <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
+                         Color="Transparent" />
+
+        <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
+                      BackgroundSource="Backdrop"
+                      TintColor="Gray"
+                      TintOpacity="0.1" />
+
+        <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
+                      BackgroundSource="Backdrop"
+                      TintColor="Gray"
+                      TintOpacity="0.1" />
+
     </Page.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <Border Grid.RowSpan="2"
-                Name="CompositorAcrylicBackground"
+        <Border Name="CompositorAcrylicBackground"
                 Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}" />
 
-        <Border Grid.RowSpan="2"
-                Name="NormalAcrylicBackground"
+        <Border Name="NormalAcrylicBackground"
                 Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
                 Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
 
-        <Grid Grid.RowSpan="2">
+        <Grid>
             <Grid.Background>
                 <media:AcrylicBrush x:Name="BackgroundBlur"
                                     x:FieldModifier="public"
@@ -333,26 +336,18 @@
             </Grid.Background>
         </Grid>
 
-        <Border x:Name="TitleBar"
-                Background="Transparent"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch">
-            <TextBlock x:Uid="AppName"
-                       Margin="10,0,0,0"
-                       VerticalAlignment="Center"
-                       Text="RX文件管理器"
-                       FontSize="13"
-                       Name="AppName" />
-        </Border>
-
         <muxc:NavigationView Grid.Row="1"
                              Name="NavView"
+                             IsTitleBarAutoPaddingEnabled="True"
                              PaneDisplayMode="Top"
                              IsPaneOpen="False"
-                             BackRequested="NavView_BackRequested"
                              x:FieldModifier="public"
+                             SelectionFollowsFocus="Disabled"
+                             BackRequested="NavView_BackRequested"
                              ItemInvoked="NavView_ItemInvoked"
-                             SelectionFollowsFocus="Disabled">
+                             PaneClosing="NavView_PaneClosing"
+                             PaneOpening="NavView_PaneOpening"
+                             Loaded="NavView_Loaded">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                                          IsSelected="True">
@@ -370,7 +365,8 @@
                                          Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                                          SelectsOnInvoked="False">
                     <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="AllApps" />
+                        <SymbolIcon Symbol="AllApps"
+                                    x:Name="QuickStartIcon"/>
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
@@ -393,7 +389,8 @@
                     </StackPanel>
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE702;" />
+                                  Glyph="&#xE702;"
+                                  x:Name="BluetoothAudioIcon"/>
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
@@ -419,5 +416,23 @@
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>
+
+        <Border x:Name="TitleBar"
+                Height="32"
+                Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top">
+            <TextBlock x:Uid="AppName"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Text="RX文件管理器"
+                       FontSize="13"
+                       Name="AppName"
+                       Margin="10,0,0,0">
+                <TextBlock.TranslationTransition>
+                    <Vector3Transition />
+                </TextBlock.TranslationTransition>
+            </TextBlock>
+        </Border>
     </Grid>
 </Page>

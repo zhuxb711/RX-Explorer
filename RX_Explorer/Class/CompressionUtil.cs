@@ -827,7 +827,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                string[] PathList = (Reader.Entry.Key?.Split("/")) ?? Array.Empty<string>();
+                                string[] PathList = (Reader.Entry.Key?.Replace("/", @"\")?.Split(@"\")) ?? Array.Empty<string>();
 
                                 string LastFolder = DestPath;
 

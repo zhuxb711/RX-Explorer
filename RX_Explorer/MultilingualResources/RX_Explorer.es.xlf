@@ -4115,6 +4115,18 @@ Las denominaciones no válidas son:
           <source>Always use the Everything search engine</source>
           <target state="translated">Utilice siempre el motor de búsqueda de "Everything"</target>
         </trans-unit>
+        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+          <source>Navigation view layout</source>
+          <target state="translated">Diseño de la vista de navegación</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OffContent" translate="yes" xml:space="preserve">
+          <source>Top</source>
+          <target state="translated">Cima</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OnContent" translate="yes" xml:space="preserve">
+          <source>Left</source>
+          <target state="translated">Izquierdo</target>
+        </trans-unit>
       </group>
     </body>
   </file>

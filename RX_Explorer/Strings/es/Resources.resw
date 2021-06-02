@@ -3101,4 +3101,13 @@ Las denominaciones no válidas son:
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Utilice siempre el motor de búsqueda de "Everything"</value>
   </data>
+  <data name="SettingNavLayout.Header" xml:space="preserve">
+    <value>Diseño de la vista de navegación</value>
+  </data>
+  <data name="SettingNavLayout.OffContent" xml:space="preserve">
+    <value>Cima</value>
+  </data>
+  <data name="SettingNavLayout.OnContent" xml:space="preserve">
+    <value>Izquierdo</value>
+  </data>
 </root>

@@ -3101,4 +3101,13 @@ Les noms non valides incluent
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Utilisez toujours le moteur de recherche "Everything"</value>
   </data>
+  <data name="SettingNavLayout.Header" xml:space="preserve">
+    <value>Disposition de la vue de navigation</value>
+  </data>
+  <data name="SettingNavLayout.OffContent" xml:space="preserve">
+    <value>Haut</value>
+  </data>
+  <data name="SettingNavLayout.OnContent" xml:space="preserve">
+    <value>La gauche</value>
+  </data>
 </root>

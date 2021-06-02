@@ -3101,4 +3101,13 @@ Inkorrekte Namen sind
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Verwenden Sie immer die Suchmaschine "Everything"</value>
   </data>
+  <data name="SettingNavLayout.Header" xml:space="preserve">
+    <value>Layout der Navigationsansicht</value>
+  </data>
+  <data name="SettingNavLayout.OffContent" xml:space="preserve">
+    <value>Oben</value>
+  </data>
+  <data name="SettingNavLayout.OnContent" xml:space="preserve">
+    <value>Links</value>
+  </data>
 </root>

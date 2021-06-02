@@ -3206,4 +3206,13 @@ Invalid names include
   <data name="UpdateLatest" xml:space="preserve">
     <value>Already the latest version</value>
   </data>
+  <data name="SettingNavLayout.Header" xml:space="preserve">
+    <value>Navigation view layout</value>
+  </data>
+  <data name="SettingNavLayout.OffContent" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="SettingNavLayout.OnContent" xml:space="preserve">
+    <value>Left</value>
+  </data>
 </root>

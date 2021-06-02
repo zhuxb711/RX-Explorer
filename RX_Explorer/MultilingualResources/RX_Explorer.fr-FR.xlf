@@ -4117,6 +4117,18 @@ Les noms non valides incluent
           <source>Always use the Everything search engine</source>
           <target state="translated">Utilisez toujours le moteur de recherche "Everything"</target>
         </trans-unit>
+        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+          <source>Navigation view layout</source>
+          <target state="translated">Disposition de la vue de navigation</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OffContent" translate="yes" xml:space="preserve">
+          <source>Top</source>
+          <target state="translated">Haut</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayout.OnContent" translate="yes" xml:space="preserve">
+          <source>Left</source>
+          <target state="translated">La gauche</target>
+        </trans-unit>
       </group>
     </body>
   </file>

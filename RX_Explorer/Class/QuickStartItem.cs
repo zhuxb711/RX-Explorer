@@ -43,16 +43,16 @@ namespace RX_Explorer.Class
         /// <param name="Protocol">协议</param>
         /// <param name="RelativePath">图标位置</param>
         /// <param name="DisplayName">显示名称</param>
-        public void Update(BitmapImage Image, string Protocol, string RelativePath, string DisplayName)
+        public void Update(BitmapImage Image, string Protocol, string IconPath, string DisplayName)
         {
             this.Image = Image;
             this.Protocol = Protocol;
 
             this.DisplayName = DisplayName;
 
-            if (RelativePath != null)
+            if (IconPath != null)
             {
-                this.IconPath = RelativePath;
+                this.IconPath = IconPath;
             }
 
             OnPropertyChanged(nameof(DisplayName));
@@ -85,7 +85,30 @@ namespace RX_Explorer.Class
         public QuickStartItem()
         {
             Type = QuickStartType.AddButton;
-            Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage.png"));
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
+
+            if (AppThemeController.Current.Theme == Windows.UI.Xaml.ElementTheme.Dark)
+            {
+                Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Light.png"));
+            }
+            else
+            {
+                Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Dark.png"));
+            }
+        }
+
+        private void Current_ThemeChanged(object sender, Windows.UI.Xaml.ElementTheme e)
+        {
+            if (e == Windows.UI.Xaml.ElementTheme.Dark)
+            {
+                Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Light.png"));
+            }
+            else
+            {
+                Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Dark.png"));
+            }
+
+            OnPropertyChanged(nameof(Image));
         }
     }
 }

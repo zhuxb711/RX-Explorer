@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -30,6 +31,7 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
+using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
@@ -135,6 +137,25 @@ namespace RX_Explorer
             private set
             {
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = value;
+            }
+        }
+
+        public static NavigationViewPaneDisplayMode LayoutMode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["NavigationViewLayout"] is string Layout)
+                {
+                    return Enum.Parse<NavigationViewPaneDisplayMode>(Layout);
+                }
+                else
+                {
+                    return NavigationViewPaneDisplayMode.Top;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["NavigationViewLayout"] = Enum.GetName(typeof(NavigationViewPaneDisplayMode), value);
             }
         }
 
@@ -258,6 +279,14 @@ namespace RX_Explorer
             ApplicationData.Current.DataChanged += Current_DataChanged;
             PictureGirdView.ItemsSource = PictureList;
             Version.Text = $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
+
+            if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
+            {
+                if (FindName(nameof(CopyQQ)) is Button Btn)
+                {
+                    Btn.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         private async void SettingControl_Loading(FrameworkElement sender, object args)
@@ -680,6 +709,7 @@ namespace RX_Explorer
                 EnableQuicklook.IsOn = IsQuicklookEnable;
                 DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
                 HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
+                NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
 
                 if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
                 {
@@ -814,6 +844,31 @@ namespace RX_Explorer
                 HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
 
                 _ = Interlocked.Exchange(ref LocalSettingLock, 0);
+            }
+        }
+
+        private void NavigationViewLayout_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (NavigationViewLayout.IsOn)
+                {
+                    LayoutMode = NavigationViewPaneDisplayMode.LeftCompact;
+                    MainPage.ThisPage.NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
+                }
+                else
+                {
+                    LayoutMode = NavigationViewPaneDisplayMode.Top;
+                    MainPage.ThisPage.NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Top;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An error was threw in {nameof(NavigationViewLayout_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -1842,7 +1897,7 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs args)
         {
             try
             {
@@ -2774,6 +2829,13 @@ namespace RX_Explorer
             {
                 await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
             }
+        }
+
+        private void CopyQQ_Click(object sender, RoutedEventArgs e)
+        {
+            DataPackage Package = new DataPackage();
+            Package.SetText("937294538");
+            Clipboard.SetContent(Package);
         }
     }
 }

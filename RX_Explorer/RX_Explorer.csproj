@@ -307,7 +307,6 @@
     <Compile Include="Class\LogTracer.cs" />
     <Compile Include="Class\ProgramPickerItem.cs" />
     <Compile Include="Class\Extention.cs" />
-    <Compile Include="Class\AnnouncementItem.cs" />
     <Compile Include="Class\FileSystemStorageItemBase.cs" />
     <Compile Include="Class\FilterItem.cs" />
     <Compile Include="Class\GeneralTransformer.cs" />
@@ -411,7 +410,8 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\AddImage.png" />
+    <Content Include="Assets\AddImage_Dark.png" />
+    <Content Include="Assets\AddImage_Light.png" />
     <Content Include="Assets\AlphaPNG.png" />
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />

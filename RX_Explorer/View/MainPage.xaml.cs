@@ -19,14 +19,10 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Media.Audio;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Power;
-using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
@@ -45,6 +41,7 @@ using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
 using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
+using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 
 namespace RX_Explorer
 {
@@ -65,6 +62,11 @@ namespace RX_Explorer
             InitializeComponent();
 
             ThisPage = this;
+
+            CoreApplicationViewTitleBar SystemBar = CoreApplication.GetCurrentView().TitleBar;
+            TitleBar.Margin = new Thickness(TitleBar.Margin.Left, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
+            SystemBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
+
             Window.Current.SetTitleBar(TitleBar);
             Application.Current.FocusVisualKind = FocusVisualKind.Reveal;
             Loaded += MainPage_Loaded;
@@ -101,6 +103,9 @@ namespace RX_Explorer
                 }
             }
 
+            NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
+            NavView.PaneDisplayMode = SettingControl.LayoutMode;
+
             this.ActivatePathArray = ActivatePathArray;
 
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
@@ -108,6 +113,33 @@ namespace RX_Explorer
                 EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter);
                 EntranceEffectProvider.PrepareEntranceEffect();
             }
+        }
+
+        private void OnPaneDisplayModeChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (sender is NavigationView View)
+            {
+                if (View.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
+                {
+                    if (View.IsPaneOpen)
+                    {
+                        AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+                    }
+                    else
+                    {
+                        AppName.Translation = new System.Numerics.Vector3(42, 0, 0);
+                    }
+                }
+                else
+                {
+                    AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+                }
+            }
+        }
+
+        private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
+        {
+            TitleBar.Margin = new Thickness(TitleBar.Margin.Left, TitleBar.Margin.Top, sender.SystemOverlayRightInset, TitleBar.Margin.Bottom);
         }
 
         private async void FullTrustProcessController_CurrentBusyStatus(object sender, bool IsBusy)
@@ -156,7 +188,7 @@ namespace RX_Explorer
                     {
                         InfoTip.IsOpen = false;
                     }
-                } , TaskScheduler.FromCurrentSynchronizationContext());
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -806,6 +838,17 @@ namespace RX_Explorer
                     {
                         if (!QuickStartTip.IsOpen)
                         {
+                            if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
+                            {
+                                QuickStartTip.Target = QuickStartIcon;
+                                QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Right;
+                            }
+                            else
+                            {
+                                QuickStartTip.Target = QuickStartNav;
+                                QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
+                            }
+
                             QuickStartTip.IsOpen = true;
                         }
                     }
@@ -815,6 +858,17 @@ namespace RX_Explorer
                         {
                             if (!BluetoothAudioQuestionTip.IsOpen)
                             {
+                                if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
+                                {
+                                    BluetoothAudioSelectionTip.Target = BluetoothAudioIcon;
+                                    BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.Right;
+                                }
+                                else
+                                {
+                                    BluetoothAudioSelectionTip.Target = BluetoothAudio;
+                                    BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
+                                }
+
                                 BluetoothAudioSelectionTip.IsOpen = true;
                             }
                         }
@@ -1274,6 +1328,30 @@ namespace RX_Explorer
         private void InfoTip_Closed(InfoBar sender, InfoBarClosedEventArgs args)
         {
             sender.ActionButton = null;
+        }
+
+        private void NavView_PaneClosing(NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewPaneClosingEventArgs args)
+        {
+            if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
+            {
+                AppName.Translation = new System.Numerics.Vector3(42, 0, 0);
+            }
+        }
+
+        private void NavView_PaneOpening(NavigationView sender, object args)
+        {
+            if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
+            {
+                AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
+            }
+        }
+
+        private void NavView_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (NavView.FindChildOfName<ScrollViewer>("FooterItemsScrollViewer") is ScrollViewer Viewer)
+            {
+                Viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            }
         }
     }
 }

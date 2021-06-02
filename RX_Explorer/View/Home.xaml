@@ -203,27 +203,30 @@
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:LibraryFolder">
-                                <StackPanel Orientation="Horizontal"
-                                            Padding="5">
+                                <Grid Padding="5"
+                                      Width="250">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
                                     <Image Height="50"
                                            Width="50"
                                            Source="{x:Bind Thumbnail}"
                                            Stretch="Uniform" />
                                     <StackPanel Orientation="Vertical"
-                                                Padding="5,2,0,2">
+                                                Padding="5,2,0,2"
+                                                Grid.Column="1">
                                         <TextBlock FontSize="14"
-                                                   Width="190"
                                                    HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind Name}"
                                                    ToolTipService.ToolTip="{x:Bind Name}" />
-                                        <TextBlock Width="190"
-                                                   FontSize="12"
+                                        <TextBlock FontSize="12"
                                                    HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind DisplayType}" />
                                     </StackPanel>
-                                </StackPanel>
+                                </Grid>
                             </DataTemplate>
                         </GridView.ItemTemplate>
                         <GridView.ItemsPanel>
@@ -281,33 +284,38 @@
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:DriveDataBase">
-                                <StackPanel Orientation="Horizontal"
-                                            Padding="5">
+                                <Grid Padding="5"
+                                      Width="250">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
                                     <Image Height="50"
                                            Width="50"
                                            Source="{x:Bind Thumbnail}"
                                            Stretch="Uniform" />
                                     <StackPanel Orientation="Vertical"
-                                                Padding="5,0,0,0">
+                                                Padding="5,0,0,0"
+                                                Grid.Column="1">
                                         <TextBlock FontSize="14"
-                                                   Width="190"
+                                                   HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind DisplayName}"
                                                    ToolTipService.ToolTip="{x:Bind DisplayName}" />
                                         <muxc:ProgressBar x:Name="Pro"
-                                                          Width="190"
+                                                          HorizontalAlignment="Stretch"
                                                           Height="12"
                                                           Margin="0,2,0,0"
                                                           Foreground="{x:Bind ProgressBarForeground, Mode=OneWay}"
                                                           Maximum="1"
                                                           Minimum="0"
                                                           Value="{x:Bind Percent}"/>
-                                        <TextBlock Width="190"
-                                                   FontSize="13"
+                                        <TextBlock FontSize="13"
+                                                   HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind DriveSpaceDescription}" />
                                     </StackPanel>
-                                </StackPanel>
+                                </Grid>
                             </DataTemplate>
                         </GridView.ItemTemplate>
                         <GridView.ItemsPanel>

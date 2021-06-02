@@ -3101,4 +3101,13 @@
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>始终使用Everything搜索引擎</value>
   </data>
+  <data name="SettingNavLayout.Header" xml:space="preserve">
+    <value>导航视图布局</value>
+  </data>
+  <data name="SettingNavLayout.OffContent" xml:space="preserve">
+    <value>顶端</value>
+  </data>
+  <data name="SettingNavLayout.OnContent" xml:space="preserve">
+    <value>左侧</value>
+  </data>
 </root>
