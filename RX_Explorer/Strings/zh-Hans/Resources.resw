@@ -3110,4 +3110,19 @@
   <data name="SettingNavLayout.OnContent" xml:space="preserve">
     <value>左侧</value>
   </data>
+  <data name="TaskList_Task_Status_NeedAttention" xml:space="preserve">
+    <value>需要注意</value>
+  </data>
+  <data name="NameCollision" xml:space="preserve">
+    <value>存在名称相同的文件或文件夹</value>
+  </data>
+  <data name="NameCollision_Rename" xml:space="preserve">
+    <value>保存副本</value>
+  </data>
+  <data name="NameCollision_MoreOption" xml:space="preserve">
+    <value>更多选项</value>
+  </data>
+  <data name="NameCollision_Override" xml:space="preserve">
+    <value>覆盖文件</value>
+  </data>
 </root>

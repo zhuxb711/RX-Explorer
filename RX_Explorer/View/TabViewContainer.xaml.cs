@@ -849,7 +849,7 @@ namespace RX_Explorer
         {
             if (((Button)sender).DataContext is OperationListBaseModel Model)
             {
-                Model.UpdateStatus(OperationStatus.Cancel);
+                Model.UpdateStatus(OperationStatus.Cancelled);
             }
         }
 

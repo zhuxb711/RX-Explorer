@@ -1,4 +1,53 @@
 ﻿*****
+###Was ist neu in Ver.6.6.3.0
+
+#####Funktionsupdate
+
+>######Neue Tastenkombinationen hinzugefügt
+
+>######Anleitung für Tastaturkürzel hinzugefügt
+
+>######Der Schalter "Navigationsansicht-Layout" wurde hinzugefügt
+
+>######Wenn es nun einen Dateinamenkonflikt gibt, wird eine Eingabeaufforderung angezeigt, um den Benutzer zu fragen
+
+>######Der Scheduling-Mechanismus von Hilfsprozessen wurde angepasst und einige Dateioperationsparameter aktualisiert
+
+#####UI-Update
+
+>#####Jetzt können Sie Dateien basierend auf der Farbe des Tags filtern
+
+>######Die Meldung, dass das Thumbnail nicht geladen werden kann, verschwindet automatisch nach 5s
+
+>######Die Benutzeroberfläche von "Wiederherstellen" und "Andere" auf der Einstellungsseite wurde neu gestaltet
+
+>######"Feedback-Liste" entfernt
+
+>######Breite der Aufgabenliste beim Expandieren angepasst
+
+#####Fehlerbehebung
+
+>######Performance-Problem der Suche behoben
+
+>######Leistungsproblem bei der Suche auf der Netzwerkfestplatte behoben
+
+>######Ein Problem behoben, das bei der Suche zu einem Absturz führen kann
+
+>######Problem behoben, dass der Menüpunkt ohne Verb nicht im Kontextmenü angezeigt wurde displayed
+
+>######Problem behoben, dass der Pfad im Adressfeld nicht über das Kontextmenü kopiert werden kann
+
+>######Problem behoben, dass die Einstellungen in "Beim Start" beim Starten der Anwendung über Win+E nicht befolgt werden
+
+>######Das Problem der falschen Triggerbedingung einiger Tastenkombinationen wurde behoben
+
+>######Problem behoben, dass die Aufgabenliste immer noch den Status "Erledigt" meldet, auch wenn der Ordner in einigen Fällen nicht gelöscht oder verschoben werden kann
+
+>######Problem behoben, dass sich die Farbe des Hinzufügen-Buttons des Schnellstarts nicht mit dem Thema ändert.
+
+>######Einige Probleme beim Dekomprimieren von .rar-Dateien behoben
+
+*****
 ###Was ist neu in Ver.6.5.9.0
 
 #####Funktionsaktualisierung

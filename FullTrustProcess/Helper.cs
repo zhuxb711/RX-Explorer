@@ -94,9 +94,14 @@ namespace FullTrustProcess
                                                         Size = 260;
                                                         StringBuilder ProcessImageName = new StringBuilder((int)Size);
 
-                                                        Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size);
-
-                                                        Info = new WindowInformation(ProcessImageName.ToString(), PID, State, hWnd);
+                                                        if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size))
+                                                        {
+                                                            Info = new WindowInformation(ProcessImageName.ToString(), PID, State, hWnd);
+                                                        }
+                                                        else
+                                                        {
+                                                            Info = new WindowInformation(string.Empty, PID, State, hWnd);
+                                                        }
 
                                                         return false;
                                                     }

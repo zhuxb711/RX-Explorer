@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -689,30 +690,30 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task MoveAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, false, ProgressHandler);
+                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, false, ProgressHandler);
             }
         }
 
-        public virtual Task MoveAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual Task MoveAsync(FileSystemStorageFolder Directory, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return MoveAsync(Directory.Path, ProgressHandler);
+            return MoveAsync(Directory.Path, Option, ProgressHandler);
         }
 
-        public virtual async Task CopyAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, false, ProgressHandler);
+                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, false, ProgressHandler);
             }
         }
 
-        public virtual Task CopyAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null)
+        public virtual Task CopyAsync(FileSystemStorageFolder Directory, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return CopyAsync(Directory.Path, ProgressHandler);
+            return CopyAsync(Directory.Path, Option, ProgressHandler);
         }
 
         public async virtual Task<string> RenameAsync(string DesireName)

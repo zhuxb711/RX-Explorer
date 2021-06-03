@@ -1,4 +1,53 @@
 ﻿*****
+###What's new in Ver.6.6.3.0
+
+#####Feature update
+
+>#####Added some new shortcut keys
+
+>#####Added a keyboard shortcut guide
+
+>#####Added the "Navigation View Layout" switch
+
+>#####Now if there is a file name conflict, a prompt will pop up to ask the user
+
+>#####Adjusted the scheduling mechanism of auxiliary processes and updated some file operation parameters
+
+#####UI update
+
+>#####Now you can filter files based on the color of the tag
+
+>#####The prompt that the thumbnail cannot be loaded will automatically disappear after 5s
+
+>#####Redesigned the UI of "Restore" and "Other" in the settings page
+
+>#####Removed "Feedback List"
+
+>#####Adjusted the width of the task list when expanding
+
+#####Bug fix
+
+>#####Fixed the performance problem of the search
+
+>#####Fixed the performance problem when searching on network disk
+
+>#####Fixed a problem that may cause a crash when searching
+
+>#####Fixed the problem that the menu item lacking Verb would not be displayed in the context menu
+
+>#####Fixed the problem that the path in the address box cannot be copied through the context menu
+
+>#####Fixed the problem that the settings in "On Startup" will not be followed when the application is started via Win+E
+
+>#####Fixed the problem of incorrect trigger condition of some shortcut keys
+
+>#####Fixed the problem that the task list still reports the status as "Completed" even if the folder cannot be deleted or moved in some cases
+
+>#####Fixed the problem that the color of the add button of the quick start does not change with the theme.
+
+>#####Fixed some problems when decompressing .rar files
+
+*****
 ###What's new in Ver.6.5.9.0
 
 #####Feature update

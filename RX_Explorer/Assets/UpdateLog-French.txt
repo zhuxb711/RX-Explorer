@@ -1,4 +1,53 @@
 ﻿*****
+###Quoi de neuf dans la version 6.6.3.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de nouvelles touches de raccourci
+
+>#####Ajout d'un guide de raccourcis clavier
+
+>#####Ajout du commutateur « Disposition de la vue de navigation »
+
+>#####Maintenant, s'il y a un conflit de nom de fichier, une invite apparaîtra pour demander à l'utilisateur
+
+>#####Ajustement du mécanisme de planification des processus auxiliaires et mise à jour de certains paramètres d'exploitation des fichiers
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Maintenant, vous pouvez filtrer les fichiers en fonction de la couleur de la balise
+
+>######L'invite indiquant que la vignette ne peut pas être chargée disparaîtra automatiquement après 5 s
+
+>#####Refonte de l'interface utilisateur de "Restaurer" et "Autre" dans la page des paramètres
+
+>#####Suppression de la "Liste de commentaires"
+
+>#####Ajustement de la largeur de la liste des tâches lors de l'expansion
+
+#####Correction d'un bug
+
+>#####Correction du problème de performance de la recherche
+
+>#####Correction du problème de performances lors de la recherche sur le disque réseau
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de la recherche
+
+>#####Correction du problème selon lequel l'élément de menu dépourvu de Verb ne s'affichait pas dans le menu contextuel
+
+>#####Correction du problème selon lequel le chemin dans la zone d'adresse ne peut pas être copié via le menu contextuel
+
+>#####Correction du problème selon lequel les paramètres dans "Au démarrage" ne seront pas suivis lorsque l'application est lancée via Win + E
+
+>#####Correction du problème de condition de déclenchement incorrecte de certaines touches de raccourci
+
+>#####Correction du problème selon lequel la liste des tâches signale toujours le statut « Terminé » même si le dossier ne peut pas être supprimé ou déplacé dans certains cas
+
+>#####Correction du problème selon lequel la couleur du bouton d'ajout du démarrage rapide ne change pas avec le thème.
+
+>#####Correction de certains problèmes lors de la décompression des fichiers .rar
+
+*****
 ###Quoi de neuf dans la version 6.5.9.0
 
 #####Mise à jour des fonctionnalités

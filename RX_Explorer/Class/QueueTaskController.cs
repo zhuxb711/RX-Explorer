@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -191,7 +192,7 @@ namespace RX_Explorer.Class
                     while (OpeartionQueue.TryDequeue(out OperationListBaseModel Model))
                     {
                     Retry:
-                        if (Model.Status != OperationStatus.Cancel)
+                        if (Model.Status != OperationStatus.Cancelled)
                         {
                             if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
                             {
@@ -269,9 +270,43 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
+                                CollisionOptions Option = CollisionOptions.None;
+
+                                if (Model.FromPath.All((Item) => Path.GetDirectoryName(Item).Equals(Model.ToPath, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    Option = CollisionOptions.RenameOnCollision;
+                                }
+                                else if (Model.FromPath.Select((SourcePath) => Path.Combine(Model.ToPath, Path.GetFileName(SourcePath)))
+                                                       .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
+                                {
+                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        Model.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                    }).AsTask().Wait();
+
+                                    switch (Model.WaitForButtonAction())
+                                    {
+                                        case 0:
+                                            {
+                                                Option = CollisionOptions.OverrideOnCollision;
+                                                break;
+                                            }
+                                        case 1:
+                                            {
+                                                Option = CollisionOptions.RenameOnCollision;
+                                                break;
+                                            }
+                                    }
+                                }
+
+                                if (Model.Status == OperationStatus.Cancelled)
+                                {
+                                    return;
+                                }
+
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
                                 {
-                                    Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
+                                    Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
@@ -310,9 +345,39 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
+                                CollisionOptions Option = CollisionOptions.None;
+
+                                if (Model.FromPath.Select((SourcePath) => Path.Combine(Model.ToPath, Path.GetFileName(SourcePath)))
+                                                  .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
+                                {
+                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        Model.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
+                                    }).AsTask().Wait();
+
+                                    switch (Model.WaitForButtonAction())
+                                    {
+                                        case 0:
+                                            {
+                                                Option = CollisionOptions.OverrideOnCollision;
+                                                break;
+                                            }
+                                        case 1:
+                                            {
+                                                Option = CollisionOptions.RenameOnCollision;
+                                                break;
+                                            }
+                                    }
+                                }
+
+                                if (Model.Status == OperationStatus.Cancelled)
+                                {
+                                    return;
+                                }
+
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
                                 {
-                                    Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
+                                    Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
@@ -424,7 +489,7 @@ namespace RX_Explorer.Class
                                             }
                                         case OperationKind.Move:
                                             {
-                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, true, (s, e) =>
+                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, IsUndoOperation: true, ProgressHandler: (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -638,7 +703,7 @@ namespace RX_Explorer.Class
                     if (Model.Status != OperationStatus.Error)
                     {
                         Model.UpdateProgress(100);
-                        Model.UpdateStatus(OperationStatus.Complete);
+                        Model.UpdateStatus(OperationStatus.Completed);
                     }
                 }).AsTask().Wait();
             }

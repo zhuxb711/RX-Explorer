@@ -820,7 +820,7 @@ namespace RX_Explorer
                         await SettingControl.Hide();
                     }
 
-                    string InvokeString = args.InvokedItem.ToString();
+                    string InvokeString = Convert.ToString(args.InvokedItem);
 
                     if (InvokeString == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                     {

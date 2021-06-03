@@ -99,15 +99,15 @@ namespace RX_Explorer.Class
 
                         StorageItemQueryResult Query = Drive.DriveFolder.CreateItemQueryWithOptions(Options);
 
-                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 25)
+                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
                         {
-                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25).AsTask(CancelToken);
+                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 50).AsTask(CancelToken);
 
                             if (ReadOnlyItemList.Count > 0)
                             {
                                 foreach (IStorageItem Item in IsRegexExpresstion
-                                                              ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                              : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                              ? ReadOnlyItemList.AsParallel().Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                                              : ReadOnlyItemList.AsParallel().Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
                                 {
                                     if (CancelToken.IsCancellationRequested)
                                     {

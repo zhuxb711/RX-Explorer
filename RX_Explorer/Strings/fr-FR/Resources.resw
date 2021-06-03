@@ -3110,4 +3110,19 @@ Les noms non valides incluent
   <data name="SettingNavLayout.OnContent" xml:space="preserve">
     <value>La gauche</value>
   </data>
+  <data name="TaskList_Task_Status_NeedAttention" xml:space="preserve">
+    <value>Besoin d'attention</value>
+  </data>
+  <data name="NameCollision" xml:space="preserve">
+    <value>Un fichier ou dossier portant le même nom existe dans le dossier cible</value>
+  </data>
+  <data name="NameCollision_Rename" xml:space="preserve">
+    <value>Sauvegarder une copie</value>
+  </data>
+  <data name="NameCollision_MoreOption" xml:space="preserve">
+    <value>Plus d'options</value>
+  </data>
+  <data name="NameCollision_Override" xml:space="preserve">
+    <value>Remplacer les fichiers</value>
+  </data>
 </root>

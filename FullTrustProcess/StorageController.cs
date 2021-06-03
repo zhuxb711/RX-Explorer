@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -127,7 +127,25 @@ namespace FullTrustProcess
                                 {
                                     if (RunningProcess.Length > 0)
                                     {
-                                        return true;
+                                        foreach (Process Pro in RunningProcess)
+                                        {
+                                            using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, Convert.ToUInt32(Pro.Id)))
+                                            {
+                                                if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
+                                                {
+                                                    uint Size = 260;
+                                                    StringBuilder ProcessImageName = new StringBuilder((int)Size);
+
+                                                    if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size))
+                                                    {
+                                                        if (Path.Equals(ProcessImageName.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                        {
+                                                            return true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 finally
@@ -295,6 +313,10 @@ namespace FullTrustProcess
                                 | ShellFileOperations.OperationFlags.Silent
                                 | ShellFileOperations.OperationFlags.RequireElevation
                                 | ShellFileOperations.OperationFlags.RenameOnCollision
+                                | ShellFileOperations.OperationFlags.NoErrorUI
+                                | ShellFileOperations.OperationFlags.EarlyFailure
+                                | ShellFileOperations.OperationFlags.ShowElevationPrompt
+                                | ShellFileOperations.OperationFlags.PreserveFileExtensions
                 })
                 {
                     Operation.PostRenameItem += PostRenameEvent;
@@ -321,19 +343,23 @@ namespace FullTrustProcess
         {
             try
             {
+                ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.Silent
+                                                           | ShellFileOperations.OperationFlags.NoConfirmation
+                                                           | ShellFileOperations.OperationFlags.RequireElevation
+                                                           | ShellFileOperations.OperationFlags.NoErrorUI
+                                                           | ShellFileOperations.OperationFlags.EarlyFailure
+                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt;
+
+                if (!PermanentDelete)
+                {
+                    Flags |= ShellFileOperations.OperationFlags.AddUndoRecord;
+                    Flags |= ShellFileOperations.OperationFlags.RecycleOnDelete;
+                    Flags |= ShellFileOperations.OperationFlags.WantNukeWarning;
+                }
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = PermanentDelete
-                                ? ShellFileOperations.OperationFlags.Silent
-                                | ShellFileOperations.OperationFlags.NoConfirmation
-                                | ShellFileOperations.OperationFlags.RequireElevation
-
-                                : ShellFileOperations.OperationFlags.Silent
-                                | ShellFileOperations.OperationFlags.AddUndoRecord
-                                | ShellFileOperations.OperationFlags.NoConfirmation
-                                | ShellFileOperations.OperationFlags.RecycleOnDelete
-                                | ShellFileOperations.OperationFlags.RequireElevation
-                                | ShellFileOperations.OperationFlags.WantNukeWarning
+                    Options = Flags
                 })
                 {
                     Operation.UpdateProgress += Progress;
@@ -361,7 +387,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
+        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
         {
             try
             {
@@ -370,14 +396,32 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
+                ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
+                                                           | ShellFileOperations.OperationFlags.NoConfirmMkDir
+                                                           | ShellFileOperations.OperationFlags.Silent
+                                                           | ShellFileOperations.OperationFlags.RequireElevation
+                                                           | ShellFileOperations.OperationFlags.NoErrorUI
+                                                           | ShellFileOperations.OperationFlags.EarlyFailure
+                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt;
+
+                switch (Option)
+                {
+                    case CollisionOptions.RenameOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.RenameOnCollision;
+                            Flags |= ShellFileOperations.OperationFlags.PreserveFileExtensions;
+                            break;
+                        }
+                    case CollisionOptions.OverrideOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            break;
+                        }
+                }
 
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord
-                              | ShellFileOperations.OperationFlags.NoConfirmMkDir
-                              | ShellFileOperations.OperationFlags.Silent
-                              | ShellFileOperations.OperationFlags.RenameOnCollision
-                              | ShellFileOperations.OperationFlags.RequireElevation
+                    Options = Flags
                 })
                 {
                     Operation.UpdateProgress += Progress;
@@ -402,12 +446,11 @@ namespace FullTrustProcess
             }
             catch
             {
-                var temp = new Win32Exception(Marshal.GetLastWin32Error());
                 return false;
             }
         }
 
-        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
+        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
         {
             try
             {
@@ -416,13 +459,32 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
+                ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
+                                                           | ShellFileOperations.OperationFlags.NoConfirmMkDir
+                                                           | ShellFileOperations.OperationFlags.Silent
+                                                           | ShellFileOperations.OperationFlags.RequireElevation
+                                                           | ShellFileOperations.OperationFlags.NoErrorUI
+                                                           | ShellFileOperations.OperationFlags.EarlyFailure
+                                                           | ShellFileOperations.OperationFlags.ShowElevationPrompt;
+
+                switch (Option)
+                {
+                    case CollisionOptions.RenameOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.RenameOnCollision;
+                            Flags |= ShellFileOperations.OperationFlags.PreserveFileExtensions;
+                            break;
+                        }
+                    case CollisionOptions.OverrideOnCollision:
+                        {
+                            Flags |= ShellFileOperations.OperationFlags.NoConfirmation;
+                            break;
+                        }
+                }
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord
-                                | ShellFileOperations.OperationFlags.NoConfirmMkDir
-                                | ShellFileOperations.OperationFlags.Silent
-                                | ShellFileOperations.OperationFlags.RequireElevation
-                                | ShellFileOperations.OperationFlags.RenameOnCollision
+                    Options = Flags
                 })
                 {
                     Operation.UpdateProgress += Progress;

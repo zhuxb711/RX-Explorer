@@ -1,5 +1,12 @@
 ﻿namespace ShareClassLibrary
 {
+    public enum CollisionOptions
+    {
+        None,
+        RenameOnCollision,
+        OverrideOnCollision
+    }
+
     public enum ModifyAttributeAction
     {
         Add,

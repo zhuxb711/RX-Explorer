@@ -4129,6 +4129,26 @@ Invalid names include
           <source>Left</source>
           <target state="translated">左侧</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_NeedAttention" translate="yes" xml:space="preserve">
+          <source>Need attention</source>
+          <target state="translated">需要注意</target>
+        </trans-unit>
+        <trans-unit id="NameCollision" translate="yes" xml:space="preserve">
+          <source>A file or folder with the same name exists in the target folder</source>
+          <target state="translated">存在名称相同的文件或文件夹</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Rename" translate="yes" xml:space="preserve">
+          <source>Save a copy</source>
+          <target state="translated">保存副本</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
+          <source>More options</source>
+          <target state="translated">更多选项</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
+          <source>Override files</source>
+          <target state="translated">覆盖文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

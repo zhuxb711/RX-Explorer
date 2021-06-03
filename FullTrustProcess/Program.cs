@@ -1300,6 +1300,7 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(args.Request.Message["CollisionOptions"]));
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1310,7 +1311,7 @@ namespace FullTrustProcess
                             {
                                 if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                 {
-                                    if (StorageController.Copy(SourcePathList, DestinationPath, (s, e) =>
+                                    if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                     {
                                         lock (Locker)
                                         {
@@ -1398,6 +1399,7 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(args.Request.Message["CollisionOptions"]));
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1414,7 +1416,7 @@ namespace FullTrustProcess
                                 {
                                     if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                     {
-                                        if (StorageController.Move(SourcePathList, DestinationPath, (s, e) =>
+                                        if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
                                             lock (Locker)
                                             {

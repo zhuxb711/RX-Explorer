@@ -4127,6 +4127,26 @@ Las denominaciones no válidas son:
           <source>Left</source>
           <target state="translated">Izquierdo</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_NeedAttention" translate="yes" xml:space="preserve">
+          <source>Need attention</source>
+          <target state="translated">Necesita atención</target>
+        </trans-unit>
+        <trans-unit id="NameCollision" translate="yes" xml:space="preserve">
+          <source>A file or folder with the same name exists in the target folder</source>
+          <target state="translated">Existe un archivo o carpeta con el mismo nombre en la carpeta de destino</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Rename" translate="yes" xml:space="preserve">
+          <source>Save a copy</source>
+          <target state="translated">Guardar una copia</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
+          <source>More options</source>
+          <target state="translated">Mas opciones</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
+          <source>Override files</source>
+          <target state="translated">Anular archivos</target>
+        </trans-unit>
       </group>
     </body>
   </file>

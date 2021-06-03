@@ -109,14 +109,6 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_RemoveTopMostWindow = "Execute_RemoveTopMostWindow";
 
-        private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
-        {
-            IsBackground = true,
-            Priority = ThreadPriority.Normal
-        };
-
-        private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
-
         public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
@@ -133,15 +125,9 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return AvailableControllerNum < CurrentRunningControllerNum;
+                return AllControllerList.Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
             }
         }
-
-        private PipeLineController PipeController;
-
-        private static readonly ConcurrentQueue<FullTrustProcessController> AvailableControllerQueue = new ConcurrentQueue<FullTrustProcessController>();
-
-        private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
         public static int AvailableControllerNum
         {
@@ -150,6 +136,20 @@ namespace RX_Explorer.Class
                 return AvailableControllerQueue.Count;
             }
         }
+
+        private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
+        {
+            IsBackground = true,
+            Priority = ThreadPriority.Normal
+        };
+
+        private PipeLineController PipeController;
+
+        private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
+
+        private static readonly ConcurrentBag<FullTrustProcessController> AvailableControllerQueue = new ConcurrentBag<FullTrustProcessController>();
+
+        private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
         private static volatile int CurrentRunningControllerNum;
 
@@ -162,6 +162,8 @@ namespace RX_Explorer.Class
         public static event EventHandler FullTrustProcessExitedUnexpected;
 
         public static readonly AutoResetEvent ResizeLocker = new AutoResetEvent(true);
+
+        private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
 
         static FullTrustProcessController()
         {
@@ -182,6 +184,8 @@ namespace RX_Explorer.Class
             {
                 CurrentProcessId = CurrentProcess.Id;
             }
+
+            AllControllerList.Add(this);
         }
 
         private static void Current_Resuming(object sender, object e)
@@ -197,16 +201,15 @@ namespace RX_Explorer.Class
             Dispose();
         }
 
-        private static async void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
+        private static async void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController Controller)
         {
-            if (e.IsDisposed)
+            if (Controller.IsDisposed)
             {
-                FullTrustProcessController Controller = await CreateAsync();
-                AvailableControllerQueue.Enqueue(Controller);
+                AvailableControllerQueue.Add(await CreateAsync());
             }
             else
             {
-                AvailableControllerQueue.Enqueue(e);
+                AvailableControllerQueue.Add(Controller);
             }
         }
 
@@ -223,7 +226,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        if (AvailableControllerQueue.TryDequeue(out FullTrustProcessController Controller))
+                        if (AvailableControllerQueue.TryTake(out FullTrustProcessController Controller))
                         {
                             if (Controller.IsDisposed)
                             {
@@ -276,7 +279,7 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)
                 {
-                    if (AvailableControllerQueue.TryDequeue(out FullTrustProcessController Controller))
+                    if (AvailableControllerQueue.TryTake(out FullTrustProcessController Controller))
                     {
                         Controller.Dispose();
                     }
@@ -291,7 +294,7 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllerQueue.Enqueue(CreateAsync().Result);
+                    AvailableControllerQueue.Add(CreateAsync().Result);
                 }
             }
             catch (Exception ex)
@@ -2402,7 +2405,7 @@ namespace RX_Explorer.Class
             return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2445,7 +2448,8 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Move},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() }
+                        {"Guid", PipeController.GUID.ToString() },
+                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option) }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
@@ -2505,7 +2509,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(string SourcePath, string Destination, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2517,7 +2521,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { SourcePath }, Destination, IsUndoOperation, ProgressHandler);
+            return MoveAsync(new string[1] { SourcePath }, Destination, Option, IsUndoOperation, ProgressHandler);
         }
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
@@ -2570,7 +2574,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2613,7 +2617,8 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Copy},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() }
+                        {"Guid", PipeController.GUID.ToString() },
+                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option) }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
@@ -2668,7 +2673,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(string SourcePath, string Destination, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task CopyAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2680,7 +2685,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { SourcePath }, Destination, IsUndoOperation, ProgressHandler);
+            return CopyAsync(new string[1] { SourcePath }, Destination, Option, IsUndoOperation, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)
@@ -2871,10 +2876,6 @@ namespace RX_Explorer.Class
                     IsDisposed = true;
                     IsConnected = false;
 
-                    GC.SuppressFinalize(this);
-
-                    Interlocked.Decrement(ref CurrentRunningControllerNum);
-
                     if (Connection != null)
                     {
                         Connection.RequestReceived -= Connection_RequestReceived;
@@ -2895,6 +2896,12 @@ namespace RX_Explorer.Class
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
+                }
+                finally
+                {
+                    AllControllerList.Remove(this);
+                    GC.SuppressFinalize(this);
+                    Interlocked.Decrement(ref CurrentRunningControllerNum);
                 }
             }
         }

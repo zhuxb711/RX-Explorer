@@ -4127,6 +4127,26 @@ Inkorrekte Namen sind
           <source>Left</source>
           <target state="translated">Links</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_NeedAttention" translate="yes" xml:space="preserve">
+          <source>Need attention</source>
+          <target state="translated">Braucht Aufmerksamkeit</target>
+        </trans-unit>
+        <trans-unit id="NameCollision" translate="yes" xml:space="preserve">
+          <source>A file or folder with the same name exists in the target folder</source>
+          <target state="translated">Im Zielordner existiert eine Datei oder ein Ordner mit demselben Namen name</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Rename" translate="yes" xml:space="preserve">
+          <source>Save a copy</source>
+          <target state="translated">Speichere eine Kopie</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
+          <source>More options</source>
+          <target state="translated">Mehr Optionen</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
+          <source>Override files</source>
+          <target state="translated">Dateien überschreiben</target>
+        </trans-unit>
       </group>
     </body>
   </file>

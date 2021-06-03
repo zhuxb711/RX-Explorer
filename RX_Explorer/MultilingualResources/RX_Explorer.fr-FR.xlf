@@ -4129,6 +4129,26 @@ Les noms non valides incluent
           <source>Left</source>
           <target state="translated">La gauche</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_NeedAttention" translate="yes" xml:space="preserve">
+          <source>Need attention</source>
+          <target state="translated">Besoin d'attention</target>
+        </trans-unit>
+        <trans-unit id="NameCollision" translate="yes" xml:space="preserve">
+          <source>A file or folder with the same name exists in the target folder</source>
+          <target state="translated">Un fichier ou dossier portant le même nom existe dans le dossier cible</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Rename" translate="yes" xml:space="preserve">
+          <source>Save a copy</source>
+          <target state="translated">Sauvegarder une copie</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_MoreOption" translate="yes" xml:space="preserve">
+          <source>More options</source>
+          <target state="translated">Plus d'options</target>
+        </trans-unit>
+        <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
+          <source>Override files</source>
+          <target state="translated">Remplacer les fichiers</target>
+        </trans-unit>
       </group>
     </body>
   </file>

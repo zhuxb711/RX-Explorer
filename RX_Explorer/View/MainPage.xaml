@@ -339,7 +339,6 @@
         <muxc:NavigationView Grid.Row="1"
                              Name="NavView"
                              IsTitleBarAutoPaddingEnabled="True"
-                             PaneDisplayMode="Top"
                              IsPaneOpen="False"
                              x:FieldModifier="public"
                              SelectionFollowsFocus="Disabled"
@@ -397,12 +396,12 @@
             <muxc:NavigationView.Content>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <muxc:InfoBar IsOpen="False" 
+                    <muxc:InfoBar IsOpen="False"
                                   x:Name="InfoTip"
-                                  Closed="InfoTip_Closed"/>
+                                  Closed="InfoTip_Closed" />
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"
@@ -412,7 +411,7 @@
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"
                                           x:Load="False"
-                                          Grid.Row="1"/>
+                                          Grid.Row="1" />
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

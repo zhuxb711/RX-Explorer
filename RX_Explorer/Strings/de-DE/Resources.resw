@@ -3110,4 +3110,19 @@ Inkorrekte Namen sind
   <data name="SettingNavLayout.OnContent" xml:space="preserve">
     <value>Links</value>
   </data>
+  <data name="TaskList_Task_Status_NeedAttention" xml:space="preserve">
+    <value>Braucht Aufmerksamkeit</value>
+  </data>
+  <data name="NameCollision" xml:space="preserve">
+    <value>Im Zielordner existiert eine Datei oder ein Ordner mit demselben Namen name</value>
+  </data>
+  <data name="NameCollision_Rename" xml:space="preserve">
+    <value>Speichere eine Kopie</value>
+  </data>
+  <data name="NameCollision_MoreOption" xml:space="preserve">
+    <value>Mehr Optionen</value>
+  </data>
+  <data name="NameCollision_Override" xml:space="preserve">
+    <value>Dateien überschreiben</value>
+  </data>
 </root>

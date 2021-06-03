@@ -1,4 +1,53 @@
 ﻿*****
+###Novedades de la versión 6.6.3.0
+
+#####Actualización de funciones
+
+>#####Se agregaron algunas teclas de atajo nuevas
+
+>#####Se agregó una guía de atajos de teclado
+
+>#####Se agregó el interruptor "Diseño de vista de navegación"
+
+>#####Ahora, si hay un conflicto de nombre de archivo, aparecerá un mensaje para preguntarle al usuario
+
+>#####Se ajustó el mecanismo de programación de procesos auxiliares y se actualizaron algunos parámetros de operación de archivos
+
+#####Actualización de la interfaz de usuario
+
+>#####Ahora puedes filtrar archivos según el color de la etiqueta
+
+>#####El mensaje de que la miniatura no se puede cargar desaparecerá automáticamente después de 5 s
+
+>#####Se rediseñó la interfaz de usuario de "Restaurar" y "Otro" en la página de configuración
+
+>#####Eliminada "Lista de comentarios"
+
+>#####Ajustó el ancho de la lista de tareas al expandir
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de rendimiento de la búsqueda
+
+>#####Se solucionó el problema de rendimiento al buscar en el disco de red
+
+>#####Se solucionó un problema que podía causar un bloqueo al buscar
+
+>#####Se solucionó el problema de que el elemento del menú que carecía de Verbo no se mostraba en el menú contextual
+
+>#####Se solucionó el problema de que la ruta en el cuadro de dirección no se puede copiar a través del menú contextual
+
+>#####Se solucionó el problema de que la configuración en "Al inicio" no se seguiría cuando la aplicación se inicia a través de Win + E
+
+>#####Se solucionó el problema de la condición de activación incorrecta de algunas teclas de método abreviado
+
+>#####Se solucionó el problema de que la lista de tareas aún informa el estado como "Completado" incluso si la carpeta no se puede eliminar o mover en algunos casos
+
+>#####Se solucionó el problema de que el color del botón Agregar del inicio rápido no cambia con el tema.
+
+>#####Se corrigieron algunos problemas al descomprimir archivos .rar
+
+*****
 ###Novedades de la versión 6.5.9.0
 
 #####Actualización de funciones

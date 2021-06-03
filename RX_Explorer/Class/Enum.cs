@@ -44,8 +44,9 @@ namespace RX_Explorer.Class
         Preparing,
         Processing,
         Error,
-        Complete,
-        Cancel
+        Completed,
+        Cancelled,
+        NeedAttention
     }
 
     public enum Version
