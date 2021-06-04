@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Windows.System.UserProfile;
 
 namespace RX_Explorer.Class
 {
@@ -177,27 +177,36 @@ namespace RX_Explorer.Class
                     {
                         DateTimeOffset TodayTime = DateTimeOffset.Now.Date;
                         DateTimeOffset YesterdayTime = DateTimeOffset.Now.AddDays(-1).Date;
-                        DateTimeOffset EarlierThisWeekTime = DateTimeOffset.Now.AddDays(-(int)DateTimeOffset.Now.DayOfWeek).Date;
-                        DateTimeOffset LastWeekTime = DateTimeOffset.Now.AddDays(-((int)DateTimeOffset.Now.DayOfWeek + 7)).Date;
-                        DateTimeOffset EarlierThisMonthTime = DateTimeOffset.Now.AddDays(-DateTimeOffset.Now.Day).Date;
-                        DateTimeOffset LastMonth = DateTimeOffset.Now.AddDays(-DateTimeOffset.Now.Day).AddMonths(-1).Date;
-                        DateTimeOffset EarlierThisYearTime = DateTimeOffset.Now.AddMonths(-DateTimeOffset.Now.Month).Date;
+                        DateTimeOffset EarlierThisWeekTime = DateTimeOffset.Now.AddDays(-((int)DateTimeOffset.Now.DayOfWeek - (int)GlobalizationPreferences.WeekStartsOn)).Date;
+                        DateTimeOffset LastWeekTime = EarlierThisWeekTime.AddDays(-7).Date;
+                        DateTimeOffset EarlierThisMonthTime = DateTimeOffset.Now.AddDays(-DateTimeOffset.Now.Day + 1).Date;
+                        DateTimeOffset LastMonth = EarlierThisMonthTime.AddMonths(-1).Date;
+                        DateTimeOffset EarlierThisYearTime = EarlierThisMonthTime.AddMonths(-DateTimeOffset.Now.Month + 1).Date;
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Today"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= TodayTime)));
+                        List<T> TodayCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= TodayTime).ToList();
+                        List<T> YesterdayCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= YesterdayTime && Item.ModifiedTimeRaw < TodayTime).ToList();
+                        List<T> EarlierThisWeekCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisWeekTime).Except(TodayCollection.Concat(YesterdayCollection)).ToList();
+                        List<T> LastWeekCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastWeekTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection)).ToList();
+                        List<T> EarlierThisMonthCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisMonthTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection)).ToList();
+                        List<T> LastMonthCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastMonth).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection)).ToList();
+                        List<T> EarlierThisYearCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisYearTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection).Concat(LastMonthCollection)).ToList();
+                        List<T> LongTimeAgoCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw < EarlierThisYearTime).ToList();
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Yesterday"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= YesterdayTime && Item.ModifiedTimeRaw < TodayTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Today"), TodayCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisWeek"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisWeekTime && Item.ModifiedTimeRaw < YesterdayTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Yesterday"), YesterdayCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LastWeek"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastWeekTime && Item.ModifiedTimeRaw < EarlierThisWeekTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisWeek"), EarlierThisWeekCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisMonth"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisMonthTime && Item.ModifiedTimeRaw < LastWeekTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LastWeek"), LastWeekCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LastMonth"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastMonth && Item.ModifiedTimeRaw < EarlierThisMonthTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisMonth"), EarlierThisMonthCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisYear"), InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisYearTime && Item.ModifiedTimeRaw < LastMonth)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LastMonth"), LastMonthCollection));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LongTimeAgo"), InputCollection.Where((Item) => Item.ModifiedTimeRaw < EarlierThisYearTime)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_EarlierThisYear"), EarlierThisYearCollection));
+
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_LongTimeAgo"), LongTimeAgoCollection));
 
                         break;
                     }

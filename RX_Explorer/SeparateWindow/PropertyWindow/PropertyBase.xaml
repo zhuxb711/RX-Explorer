@@ -539,12 +539,6 @@
                             <Button.Flyout>
                                 <Flyout Placement="BottomEdgeAlignedLeft"
                                         x:Name="UnlockFlyout">
-                                    <Flyout.FlyoutPresenterStyle>
-                                        <Style TargetType="FlyoutPresenter">
-                                            <Setter Property="Background"
-                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                        </Style>
-                                    </Flyout.FlyoutPresenterStyle>
                                     <StackPanel MaxWidth="320">
                                         <TextBlock Text="您要如何解除占用?"
                                                    x:Uid="Properties_Tools_UnlockFlyout_Text1" />

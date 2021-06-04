@@ -309,14 +309,12 @@ namespace FullTrustProcess
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
                     Options = ShellFileOperations.OperationFlags.AddUndoRecord
-                                | ShellFileOperations.OperationFlags.NoConfirmMkDir
-                                | ShellFileOperations.OperationFlags.Silent
-                                | ShellFileOperations.OperationFlags.RequireElevation
-                                | ShellFileOperations.OperationFlags.RenameOnCollision
-                                | ShellFileOperations.OperationFlags.NoErrorUI
-                                | ShellFileOperations.OperationFlags.EarlyFailure
-                                | ShellFileOperations.OperationFlags.ShowElevationPrompt
-                                | ShellFileOperations.OperationFlags.PreserveFileExtensions
+                              | ShellFileOperations.OperationFlags.Silent
+                              | ShellFileOperations.OperationFlags.RequireElevation
+                              | ShellFileOperations.OperationFlags.RenameOnCollision
+                              | ShellFileOperations.OperationFlags.NoErrorUI
+                              | ShellFileOperations.OperationFlags.EarlyFailure
+                              | ShellFileOperations.OperationFlags.ShowElevationPrompt
                 })
                 {
                     Operation.PostRenameItem += PostRenameEvent;

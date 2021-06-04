@@ -1,4 +1,15 @@
 ﻿*****
+###What's new in Ver.6.6.4.0
+
+#####Bug fix
+
+>#####Fixed the problem that grouping by "Modified Time" may be incorrect
+
+>#####Fixed the problem of not being able to rename
+
+>#####Fixed some UI issues when switching from a grouped folder to an ungrouped folder
+
+*****
 ###What's new in Ver.6.6.3.0
 
 #####Feature update

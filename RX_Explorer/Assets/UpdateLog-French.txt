@@ -1,4 +1,15 @@
 ﻿*****
+###Quoi de neuf dans la version 6.6.4.0
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le regroupement par « Heure de modification » peut être incorrect
+
+>#####Correction du problème de l'impossibilité de renommer
+
+>#####Correction de certains problèmes d'interface utilisateur lors du passage d'un dossier groupé à un dossier non groupé
+
+*****
 ###Quoi de neuf dans la version 6.6.3.0
 
 #####Mise à jour des fonctionnalités

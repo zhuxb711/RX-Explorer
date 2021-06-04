@@ -829,6 +829,7 @@ namespace RX_Explorer
                     Container.ViewModeComboBox.IsEnabled = false;
                     RootFolderControl.Visibility = Visibility.Visible;
                     FileCollection.Clear();
+                    GroupCollection.Clear();
                 }
                 else
                 {

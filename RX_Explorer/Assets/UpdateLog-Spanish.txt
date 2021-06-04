@@ -1,4 +1,15 @@
 ﻿*****
+###Novedades de la versión 6.6.4.0
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la agrupación por "Hora de modificación" puede ser incorrecta
+
+>#####Se solucionó el problema de no poder cambiar el nombre
+
+>#####Se corrigieron algunos problemas de la interfaz de usuario al cambiar de una carpeta agrupada a una carpeta no agrupada
+
+*****
 ###Novedades de la versión 6.6.3.0
 
 #####Actualización de funciones
