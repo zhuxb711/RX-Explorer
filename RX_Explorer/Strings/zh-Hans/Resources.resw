@@ -147,9 +147,6 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>正在保存...</value>
   </data>
-  <data name="CustomFontColor.Header" xml:space="preserve">
-    <value>自定义字体颜色</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Acrylic背景</value>
   </data>
@@ -3124,5 +3121,8 @@
   </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>覆盖文件</value>
+  </data>
+  <data name="ThemeColor.Header" xml:space="preserve">
+    <value>主题颜色</value>
   </data>
 </root>

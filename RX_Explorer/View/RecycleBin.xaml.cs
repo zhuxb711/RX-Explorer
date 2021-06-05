@@ -177,7 +177,7 @@ namespace RX_Explorer.View
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
+                        await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
             }

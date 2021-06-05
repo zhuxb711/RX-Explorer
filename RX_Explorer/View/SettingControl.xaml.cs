@@ -314,8 +314,8 @@ namespace RX_Explorer
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
 
-                CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
-                CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
+                ThemeColor.Items.Add(Globalization.GetString("Font_Color_White"));
+                ThemeColor.Items.Add(Globalization.GetString("Font_Color_Black"));
 
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_None_Text"));
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_OnlyFile_Text"));
@@ -512,15 +512,15 @@ namespace RX_Explorer
                 {
                     IsAnimating = true;
 
-                    Visibility = Visibility.Visible;
-
                     if (AnimationController.Current.IsEnableAnimation)
                     {
                         Scroll.ChangeView(null, 0, null, true);
 
                         ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
-                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 300, false);
                     }
+
+                    Visibility = Visibility.Visible;
 
                     if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
                     {
@@ -566,7 +566,7 @@ namespace RX_Explorer
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 300, true);
                         ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
                     }
 
@@ -1114,7 +1114,7 @@ namespace RX_Explorer
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
-                            CustomFontColor.IsEnabled = false;
+                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1137,7 +1137,7 @@ namespace RX_Explorer
                             PictureMode.IsChecked = null;
                             PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
-                            CustomFontColor.IsEnabled = false;
+                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1168,7 +1168,7 @@ namespace RX_Explorer
                             SolidColor_White.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
-                            CustomFontColor.IsEnabled = true;
+                            ThemeColor.IsEnabled = true;
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                             {
@@ -1502,7 +1502,7 @@ namespace RX_Explorer
                             {
                                 float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
+                                if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1514,10 +1514,10 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        CustomFontColor.SelectedIndex = 0;
+                                        ThemeColor.SelectedIndex = 0;
                                     }
                                 }
-                                else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
+                                else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1529,7 +1529,7 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        CustomFontColor.SelectedIndex = 1;
+                                        ThemeColor.SelectedIndex = 1;
                                     }
                                 }
                             }
@@ -1590,7 +1590,7 @@ namespace RX_Explorer
                             {
                                 float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
+                                if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1602,10 +1602,10 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        CustomFontColor.SelectedIndex = 0;
+                                        ThemeColor.SelectedIndex = 0;
                                     }
                                 }
-                                else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
+                                else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1617,7 +1617,7 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        CustomFontColor.SelectedIndex = 1;
+                                        ThemeColor.SelectedIndex = 1;
                                     }
                                 }
                             }

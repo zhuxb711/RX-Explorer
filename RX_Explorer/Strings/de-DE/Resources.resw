@@ -147,9 +147,6 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Speichern</value>
   </data>
-  <data name="CustomFontColor.Header" xml:space="preserve">
-    <value>Schriftfarbe</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Acryl Hintergrund</value>
   </data>
@@ -3124,5 +3121,8 @@ Inkorrekte Namen sind
   </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Dateien überschreiben</value>
+  </data>
+  <data name="ThemeColor.Header" xml:space="preserve">
+    <value>Themenfarbe</value>
   </data>
 </root>

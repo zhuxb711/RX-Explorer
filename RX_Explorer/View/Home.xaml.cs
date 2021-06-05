@@ -343,7 +343,7 @@ namespace RX_Explorer
 
                 if (Folder != null)
                 {
-                    await Folder.LoadMorePropertiesAsync();
+                    await Folder.LoadAsync();
 
                     AppWindow NewWindow = await AppWindow.TryCreateAsync();
                     NewWindow.RequestSize(new Size(420, 600));

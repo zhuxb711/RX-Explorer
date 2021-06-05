@@ -341,6 +341,7 @@
                              IsTitleBarAutoPaddingEnabled="True"
                              IsPaneOpen="False"
                              x:FieldModifier="public"
+                             PaneDisplayMode="Top"
                              SelectionFollowsFocus="Disabled"
                              BackRequested="NavView_BackRequested"
                              ItemInvoked="NavView_ItemInvoked"
@@ -399,6 +400,11 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Grid.ChildrenTransitions>
+                        <TransitionCollection>
+                            <AddDeleteThemeTransition />
+                        </TransitionCollection>
+                    </Grid.ChildrenTransitions>
                     <muxc:InfoBar IsOpen="False"
                                   x:Name="InfoTip"
                                   Closed="InfoTip_Closed" />
@@ -410,7 +416,6 @@
                     <local:SettingControl x:Name="SettingControl"
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"
-                                          x:Load="False"
                                           Grid.Row="1" />
                 </Grid>
             </muxc:NavigationView.Content>

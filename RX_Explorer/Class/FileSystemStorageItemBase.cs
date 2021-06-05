@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
@@ -58,20 +59,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush BackgroundColor
-        {
-            get
-            {
-                return backgroundColor ??= new SolidColorBrush(Colors.Transparent);
-            }
-            private set
-            {
-                backgroundColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
-            }
-        }
+        public SolidColorBrush BackgroundColor { get; private set; }
 
-        private SolidColorBrush backgroundColor;
+        private bool ThubmnalModeChanged;
 
         public void SetColorAsSpecific(Color Color)
         {
@@ -132,6 +122,8 @@ namespace RX_Explorer.Class
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
+
+        private ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
@@ -427,21 +419,55 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public async Task LoadMorePropertiesAsync()
+
+        public void SetThumbnailMode(ThumbnailMode Mode)
         {
-            if (!CheckIfPropertiesLoaded())
+            if (Mode != ThumbnailMode)
+            {
+                ThumbnailMode = Mode;
+                ThubmnalModeChanged = true;
+            }
+        }
+
+        public async Task LoadAsync()
+        {
+            if (CheckIfPropertiesLoaded())
+            {
+                if (ThubmnalModeChanged)
+                {
+                    ThubmnalModeChanged = false;
+
+                    if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                    {
+                        try
+                        {
+                            await LoadThumbnailAsync(ThumbnailMode);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                        }
+                        finally
+                        {
+                            OnPropertyChanged(nameof(Thumbnail));
+                        }
+                    }
+                }
+            }
+            else
             {
                 async void LocalLoadFunction()
                 {
                     try
                     {
-                        if (LoadMorePropertiesWithFullTrustProcess())
+                        if (FullTrustProcessIsNeeded())
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
                                 if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                                 {
-                                    await LoadMorePropertiesCoreAsync(Exclusive.Controller, false);
+                                    await LoadPropertiesAsync(false, Exclusive.Controller);
+                                    await LoadThumbnailAsync(ThumbnailMode);
                                 }
 
                                 if (CheckIfNeedLoadThumbnailOverlay())
@@ -454,7 +480,8 @@ namespace RX_Explorer.Class
                         {
                             if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                             {
-                                await LoadMorePropertiesCoreAsync(false);
+                                await LoadPropertiesAsync(false);
+                                await LoadThumbnailAsync(ThumbnailMode);
                             }
 
                             if (CheckIfNeedLoadThumbnailOverlay())
@@ -466,20 +493,22 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        OnPropertyChanged(nameof(Name));
-                        OnPropertyChanged(nameof(Size));
-                        OnPropertyChanged(nameof(DisplayType));
-                        OnPropertyChanged(nameof(ModifiedTime));
-                        OnPropertyChanged(nameof(Thumbnail));
-                        OnPropertyChanged(nameof(ThumbnailOverlay));
-
                         LoadForegroundConfiguration();
 
                         await LoadSyncStatusAsync();
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                    }
+                    finally
+                    {
+                        OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(Size));
+                        OnPropertyChanged(nameof(DisplayType));
+                        OnPropertyChanged(nameof(ModifiedTime));
+                        OnPropertyChanged(nameof(Thumbnail));
+                        OnPropertyChanged(nameof(ThumbnailOverlay));
                     }
                 };
 
@@ -640,18 +669,20 @@ namespace RX_Explorer.Class
 
         protected abstract bool CheckIfNeedLoadThumbnailOverlay();
 
-        protected abstract bool CheckIfPropertiesLoaded();
-
         //Use this overload if subclass has no need for FullTrustProcessController.
         //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture false.
-        protected abstract Task LoadMorePropertiesCoreAsync(bool ForceUpdate);
+        protected abstract Task LoadPropertiesAsync(bool ForceUpdate);
 
         //Use this overload to share common FullTrustProcessController. FileSystemStorageItemBase will create a common FullTrustProcessController for you.
         //Subclass who want to use FullTrustProcessController should override this method.
-        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture true.
-        protected abstract Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
+        //Make sure override FullTrustProcessIsNeeded() and reture true.
+        protected abstract Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller);
 
-        protected abstract bool LoadMorePropertiesWithFullTrustProcess();
+        protected abstract bool FullTrustProcessIsNeeded();
+
+        protected abstract bool CheckIfPropertiesLoaded();
+
+        protected abstract Task LoadThumbnailAsync(ThumbnailMode Mode);
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
@@ -661,16 +692,16 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    if (LoadMorePropertiesWithFullTrustProcess())
+                    if (FullTrustProcessIsNeeded())
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await LoadMorePropertiesCoreAsync(Exclusive.Controller, true);
+                            await LoadPropertiesAsync(true, Exclusive.Controller);
                         }
                     }
                     else
                     {
-                        await LoadMorePropertiesCoreAsync(true);
+                        await LoadPropertiesAsync(true);
                     }
 
                     OnPropertyChanged(nameof(Size));

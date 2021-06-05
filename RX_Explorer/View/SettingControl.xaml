@@ -366,12 +366,12 @@
                               Name="ExceptAnimation" />
                 </StackPanel>
 
-                <ComboBox Header="自定义字体颜色"
+                <ComboBox Header="主题颜色"
                           Margin="0,20,0,0"
                           MinWidth="120"
                           SelectedIndex="{x:Bind local:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
-                          x:Uid="CustomFontColor"
-                          Name="CustomFontColor"
+                          x:Uid="ThemeColor"
+                          Name="ThemeColor"
                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                 <ComboBox Header="模式"

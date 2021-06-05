@@ -715,6 +715,16 @@ namespace RX_Explorer
                 throw new ArgumentNullException(nameof(Tab), "Argument could not be null");
             }
 
+            TabCollection.Remove(Tab);
+
+            if (Tab.Content is Frame BaseFrame)
+            {
+                while (BaseFrame.CanGoBack)
+                {
+                    BaseFrame.GoBack();
+                }
+            }
+
             if (Tab.Tag is FileControl Control)
             {
                 Control.Dispose();
@@ -724,8 +734,6 @@ namespace RX_Explorer
             Tab.PointerPressed -= Item_PointerPressed;
             Tab.DoubleTapped -= Item_DoubleTapped;
             Tab.Content = null;
-
-            TabCollection.Remove(Tab);
 
             FullTrustProcessController.RequestResizeController(TabCollection.Count);
 

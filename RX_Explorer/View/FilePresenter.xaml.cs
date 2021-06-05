@@ -26,6 +26,7 @@ using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -3101,10 +3102,28 @@ namespace RX_Explorer
 
         private async void ViewControl_DragOver(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
+                e.Handled = true;
+
+                if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
+                {
+                    double XOffset = e.GetPosition(Container.BladeViewer).X;
+                    double HorizontalRightScrollThreshold = Viewer.ActualWidth - 50;
+                    double HorizontalLeftScrollThreshold = 50;
+
+                    if (XOffset > HorizontalRightScrollThreshold)
+                    {
+                        Viewer.ChangeView(Viewer.HorizontalOffset + XOffset - HorizontalRightScrollThreshold, null, null, false);
+                    }
+                    else if (XOffset < HorizontalLeftScrollThreshold)
+                    {
+                        Viewer.ChangeView(Viewer.HorizontalOffset + XOffset - HorizontalLeftScrollThreshold, null, null, false);
+                    }
+                }
+
                 Container.CurrentPresenter = this;
 
                 if (await e.DataView.CheckIfContainsAvailableDataAsync())
@@ -3282,7 +3301,23 @@ namespace RX_Explorer
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
+                        switch (Container.ViewModeControl.ViewModeIndex)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                                {
+                                    Item.SetThumbnailMode(ThumbnailMode.ListView);
+                                    break;
+                                }
+                            default:
+                                {
+                                    Item.SetThumbnailMode(ThumbnailMode.SingleItem);
+                                    break;
+                                }
+                        }
+
+                        await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
             }
@@ -3301,7 +3336,7 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1800).ContinueWith((task, input) =>
+                Task.Delay(2000).ContinueWith((task, input) =>
                 {
                     try
                     {
@@ -3355,6 +3390,22 @@ namespace RX_Explorer
             try
             {
                 e.Handled = true;
+
+                if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
+                {
+                    double XOffset = e.GetPosition(Container.BladeViewer).X;
+                    double HorizontalRightScrollThreshold = Viewer.ActualWidth - 50;
+                    double HorizontalLeftScrollThreshold = 50;
+
+                    if (XOffset > HorizontalRightScrollThreshold)
+                    {
+                        Viewer.ChangeView(Viewer.HorizontalOffset + XOffset - HorizontalRightScrollThreshold, null, null, false);
+                    }
+                    else if (XOffset < HorizontalLeftScrollThreshold)
+                    {
+                        Viewer.ChangeView(Viewer.HorizontalOffset + XOffset - HorizontalLeftScrollThreshold, null, null, false);
+                    }
+                }
 
                 switch ((sender as SelectorItem)?.Content)
                 {

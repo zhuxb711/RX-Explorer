@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -20,10 +21,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             RawData = await GetRawDataAsync(Controller);
+        }
 
+        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
                 using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
@@ -35,7 +39,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        protected override bool FullTrustProcessIsNeeded()
         {
             return true;
         }

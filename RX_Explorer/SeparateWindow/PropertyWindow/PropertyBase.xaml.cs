@@ -1236,7 +1236,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 if (Pointer.Properties.IsLeftButtonPressed)
                 {
-                    double XOffset = Math.Max(Pointer.Position.X, 0);
+                    double XOffset = Pointer.Position.X;
                     double HorizontalRightScrollThreshold = LocationScrollViewer.ActualWidth - 30;
                     double HorizontalLeftScrollThreshold = 30;
 

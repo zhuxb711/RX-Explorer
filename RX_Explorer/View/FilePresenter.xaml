@@ -13,6 +13,8 @@
       Background="Transparent">
 
     <Page.Resources>
+        <SolidColorBrush x:Key="TransparentColorBrush"
+                         Color="Transparent"/>
         <CollectionViewSource x:Name="ListCollectionVS"
                               IsSourceGrouped="False" />
 
@@ -936,9 +938,9 @@
         <DataTemplate x:Name="GridViewTileDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5"
+            <Grid Padding="5,4,5,5"
                   Width="220"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay}">
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="60" />
@@ -1014,7 +1016,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay}">
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />
                     <RowDefinition Height="Auto" />
@@ -1066,7 +1068,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay}">
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="140" />
                     <RowDefinition Height="Auto" />
@@ -1118,7 +1120,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay}">
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="80" />
                     <RowDefinition Height="Auto" />
@@ -1170,7 +1172,7 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
-                  Background="{x:Bind BackgroundColor, Mode=OneWay}"
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}"
                   Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -1241,8 +1243,8 @@
 
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
-            <Grid Padding="0,3"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay}">
+            <Grid Margin="2,2.5,2,2"
+                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1936,6 +1938,8 @@
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment"
                                         Value="Stretch" />
+                                <Setter Property="VerticalContentAlignment"
+                                        Value="Stretch" />
                                 <Setter Property="Padding"
                                         Value="0" />
                                 <Setter Property="UseSystemFocusVisuals"
@@ -1992,6 +1996,8 @@
                             <Style TargetType="GridViewItem">
                                 <Setter Property="UseSystemFocusVisuals"
                                         Value="False" />
+                                <Setter Property="VerticalContentAlignment"
+                                        Value="Stretch" />
                             </Style>
                         </GridView.ItemContainerStyle>
                         <GridView.GroupStyle>

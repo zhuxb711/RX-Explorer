@@ -186,10 +186,6 @@
           <source>Saving</source>
           <target state="translated">Sauvegarde en cours</target>
         </trans-unit>
-        <trans-unit id="CustomFontColor.Header" translate="yes" xml:space="preserve">
-          <source>Custom font color</source>
-          <target state="translated">Couleur de police personnalisée</target>
-        </trans-unit>
         <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
           <source>Acrylic Background</source>
           <target state="translated">Arrière-plan acrylique</target>
@@ -4148,6 +4144,10 @@ Les noms non valides incluent
         <trans-unit id="NameCollision_Override" translate="yes" xml:space="preserve">
           <source>Override files</source>
           <target state="translated">Remplacer les fichiers</target>
+        </trans-unit>
+        <trans-unit id="ThemeColor.Header" translate="yes" xml:space="preserve">
+          <source>Theme color</source>
+          <target state="translated">Couleur du thème</target>
         </trans-unit>
       </group>
     </body>

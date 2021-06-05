@@ -502,9 +502,13 @@ namespace RX_Explorer.Class
                         {
                             return $"{SizeRaw / 1125899906842624d:##.##} PB";
                         }
+                    case 6:
+                        {
+                            return $"{SizeRaw / 1152921504606846976d:##.##} EB";
+                        }
                     default:
                         {
-                            throw new ArgumentOutOfRangeException($"{nameof(SizeRaw)} is too large");
+                            throw new ArgumentOutOfRangeException(nameof(SizeRaw), $"Argument is too large");
                         }
                 }
             }

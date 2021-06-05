@@ -147,9 +147,6 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Sauvegarde en cours</value>
   </data>
-  <data name="CustomFontColor.Header" xml:space="preserve">
-    <value>Couleur de police personnalisée</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Arrière-plan acrylique</value>
   </data>
@@ -3124,5 +3121,8 @@ Les noms non valides incluent
   </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Remplacer les fichiers</value>
+  </data>
+  <data name="ThemeColor.Header" xml:space="preserve">
+    <value>Couleur du thème</value>
   </data>
 </root>

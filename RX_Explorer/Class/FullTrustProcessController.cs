@@ -133,7 +133,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return AvailableControllerQueue.Count;
+                return AvailableControllers.Count;
             }
         }
 
@@ -147,7 +147,7 @@ namespace RX_Explorer.Class
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
-        private static readonly ConcurrentBag<FullTrustProcessController> AvailableControllerQueue = new ConcurrentBag<FullTrustProcessController>();
+        private static readonly ConcurrentBag<FullTrustProcessController> AvailableControllers = new ConcurrentBag<FullTrustProcessController>();
 
         private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
@@ -191,7 +191,7 @@ namespace RX_Explorer.Class
         private static void Current_Resuming(object sender, object e)
         {
             LogTracer.Log("RX-Explorer is resuming, recover all instance");
-            AvailableControllerQueue.Clear();
+            AvailableControllers.Clear();
             RequestResizeController(LastRequestedControllerNum);
         }
 
@@ -205,11 +205,11 @@ namespace RX_Explorer.Class
         {
             if (Controller.IsDisposed)
             {
-                AvailableControllerQueue.Add(await CreateAsync());
+                AvailableControllers.Add(await CreateAsync());
             }
             else
             {
-                AvailableControllerQueue.Add(Controller);
+                AvailableControllers.Add(Controller);
             }
         }
 
@@ -226,7 +226,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        if (AvailableControllerQueue.TryTake(out FullTrustProcessController Controller))
+                        if (AvailableControllers.TryTake(out FullTrustProcessController Controller))
                         {
                             if (Controller.IsDisposed)
                             {
@@ -243,11 +243,11 @@ namespace RX_Explorer.Class
                         {
                             if (CurrentRunningControllerNum > 0)
                             {
-                                if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 3000))
+                                if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
                                 {
                                     CurrentBusyStatus?.Invoke(null, true);
 
-                                    SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                                    SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty);
 
                                     CurrentBusyStatus?.Invoke(null, false);
                                 }
@@ -279,13 +279,13 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)
                 {
-                    if (AvailableControllerQueue.TryTake(out FullTrustProcessController Controller))
+                    if (AvailableControllers.TryTake(out FullTrustProcessController Controller))
                     {
                         Controller.Dispose();
                     }
                     else
                     {
-                        if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 3000))
+                        if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
                         {
                             break;
                         }
@@ -294,7 +294,7 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllerQueue.Add(CreateAsync().Result);
+                    AvailableControllers.Add(CreateAsync().Result);
                 }
             }
             catch (Exception ex)

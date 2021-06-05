@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -62,7 +63,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        protected override bool FullTrustProcessIsNeeded()
         {
             return true;
         }
@@ -72,20 +73,20 @@ namespace RX_Explorer.Class
             return true;
         }
 
-        protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             RawData = await GetRawDataAsync(Controller);
+        }
 
-            if (!string.IsNullOrEmpty(RawData.UrlTargetPath))
+        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        {
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                if (RawData.IconData.Length != 0)
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                 {
-                    using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
-                    {
-                        BitmapImage Image = new BitmapImage();
-                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                        Thumbnail = Image;
-                    }
+                    BitmapImage Image = new BitmapImage();
+                    await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                    Thumbnail = Image;
                 }
             }
         }

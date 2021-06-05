@@ -440,25 +440,23 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(bool ForceUpdate)
         {
-            if (await GetStorageItemAsync() is StorageFolder Folder)
+            if (ForceUpdate)
             {
-                Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
-
-                if (ForceUpdate)
+                if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
                 }
             }
         }
 
-        protected override Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
-            return LoadMorePropertiesCoreAsync(ForceUpdate);
+            return LoadPropertiesAsync(ForceUpdate);
         }
 
-        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        protected override bool FullTrustProcessIsNeeded()
         {
             return false;
         }
@@ -484,6 +482,14 @@ namespace RX_Explorer.Class
         protected override bool CheckIfNeedLoadThumbnailOverlay()
         {
             return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
+        }
+
+        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        {
+            if (await GetStorageItemAsync() is StorageFolder Folder)
+            {
+                Thumbnail = await Folder.GetThumbnailBitmapAsync(Mode);
+            }
         }
     }
 }

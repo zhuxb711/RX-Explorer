@@ -147,9 +147,6 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Guardando</value>
   </data>
-  <data name="CustomFontColor.Header" xml:space="preserve">
-    <value>Color de fuente personalizado</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Fondo Acrílico</value>
   </data>
@@ -3124,5 +3121,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Anular archivos</value>
+  </data>
+  <data name="ThemeColor.Header" xml:space="preserve">
+    <value>Color del tema</value>
   </data>
 </root>

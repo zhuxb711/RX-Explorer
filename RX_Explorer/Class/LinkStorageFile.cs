@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -158,27 +159,17 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        protected override bool FullTrustProcessIsNeeded()
         {
             return true;
         }
 
-        protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             RawData = await GetRawDataAsync(Controller);
 
-            if (RawData != null && !string.IsNullOrEmpty(RawData.LinkTargetPath))
+            if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
             {
-                if (RawData.IconData.Length != 0)
-                {
-                    using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
-                    {
-                        BitmapImage Image = new BitmapImage();
-                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                        Thumbnail = Image;
-                    }
-                }
-
                 if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
                 {
                     LinkType = ShellLinkType.Normal;
@@ -186,6 +177,19 @@ namespace RX_Explorer.Class
                 else
                 {
                     LinkType = ShellLinkType.UWP;
+                }
+            }
+        }
+
+        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        {
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
+            {
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                {
+                    BitmapImage Image = new BitmapImage();
+                    await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                    Thumbnail = Image;
                 }
             }
         }

@@ -212,10 +212,7 @@ namespace RX_Explorer
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (FindName(nameof(SettingControl)) is SettingControl Control)
-                {
-                    await Control.Initialize();
-                }
+                await SettingControl.Initialize();
             });
         }
 
@@ -497,7 +494,12 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
-                Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
+                TabViewContainer TabContainer = new TabViewContainer();
+                Nav.Content = TabContainer;
+                while (!TabContainer.IsLoaded)
+                {
+                    await Task.Delay(300);
+                }
 
                 if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
@@ -808,17 +810,11 @@ namespace RX_Explorer
                 {
                     NavView.IsBackEnabled = true;
 
-                    if (FindName(nameof(SettingControl)) is SettingControl Control)
-                    {
-                        await Control.Show();
-                    }
+                    await SettingControl.Show();
                 }
                 else
                 {
-                    if (SettingControl != null)
-                    {
-                        await SettingControl.Hide();
-                    }
+                    await SettingControl.Hide();
 
                     string InvokeString = Convert.ToString(args.InvokedItem);
 

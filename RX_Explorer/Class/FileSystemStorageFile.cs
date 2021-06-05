@@ -1,15 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using NetworkAccess;
-using RX_Explorer.Interface;
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -134,21 +126,33 @@ namespace RX_Explorer.Class
 
         public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(FileAccessMode Mode)
         {
-            return await FileRandomAccessStream.OpenAsync(Path, Mode);
+            if (StorageItem is StorageFile File)
+            {
+                return await File.OpenAsync(Mode);
+            }
+            else
+            {
+                return await FileRandomAccessStream.OpenAsync(Path, Mode);
+            }
         }
 
         public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
         {
-            return await FileRandomAccessStream.OpenTransactedWriteAsync(Path);
+            if (StorageItem is StorageFile File)
+            {
+                return await File.OpenTransactedWriteAsync();
+            }
+            else
+            {
+                return await FileRandomAccessStream.OpenTransactedWriteAsync(Path);
+            }
         }
 
-        protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(bool ForceUpdate)
         {
-            if (await GetStorageItemAsync() is StorageFile File)
+            if (ForceUpdate)
             {
-                Thumbnail = await File.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
-
-                if (ForceUpdate)
+                if (await GetStorageItemAsync() is StorageFile File)
                 {
                     ModifiedTimeRaw = await File.GetModifiedTimeAsync();
                     SizeRaw = await File.GetSizeRawDataAsync();
@@ -156,12 +160,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
-            return LoadMorePropertiesCoreAsync(ForceUpdate);
+            return LoadPropertiesAsync(ForceUpdate);
         }
 
-        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        protected override bool FullTrustProcessIsNeeded()
         {
             return false;
         }
@@ -187,6 +191,14 @@ namespace RX_Explorer.Class
         protected override bool CheckIfNeedLoadThumbnailOverlay()
         {
             return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
+        }
+
+        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        {
+            if (await GetStorageItemAsync() is StorageFile File)
+            {
+                Thumbnail = await File.GetThumbnailBitmapAsync(Mode);
+            }
         }
     }
 }
