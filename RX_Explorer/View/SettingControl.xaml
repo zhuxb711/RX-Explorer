@@ -152,7 +152,7 @@
                               OffContent="顶端"
                               x:Uid="SettingNavLayout"
                               Name="NavigationViewLayout"
-                              Toggled="NavigationViewLayout_Toggled"/>
+                              Toggled="NavigationViewLayout_Toggled" />
 
                 <ToggleSwitch Margin="0,20,0,0"
                               Header="显示隐藏文件/文件夹"
@@ -743,7 +743,7 @@
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
                                            Text="{x:Bind local:Globalization.GetString('UpdateLatest')}"
-                                           Name="VersionTip"/>
+                                           Name="VersionTip" />
                             </StackPanel>
                         </StackPanel>
                     </Button>
@@ -761,7 +761,7 @@
                             </Viewbox>
                             <StackPanel Margin="10,0,0,0">
                                 <TextBlock Text="前往Github"
-                                           x:Uid="SettingGoGithubTitle"/>
+                                           x:Uid="SettingGoGithubTitle" />
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
                                            x:Uid="SettingGoGithubContent"
@@ -783,7 +783,7 @@
                             </Viewbox>
                             <StackPanel Margin="10,0,0,0">
                                 <TextBlock Text="更新历史"
-                                           x:Uid="SettingUpdateLogTitle"/>
+                                           x:Uid="SettingUpdateLogTitle" />
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
                                            x:Uid="SettingUpdateLogContent"
@@ -1006,7 +1006,7 @@
                                           Glyph="&#xE136;" />
                             </Viewbox>
                             <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="QQ交流群"/>
+                                <TextBlock Text="QQ交流群" />
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
                                            Text="点击复制: 937294538" />
@@ -1024,16 +1024,12 @@
                            x:Uid="ThankTranslate"
                            Name="ThankTranslate" />
                 <TextBlock Text="• Yann Lacroix (French)"
-                           FontSize="14"
                            Margin="5,5,0,0" />
                 <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))"
-                           FontSize="14"
                            Margin="5,5,0,0" />
                 <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
-                           FontSize="14"
                            Margin="5,5,0,0" />
                 <TextBlock Text="• Jonas Gunkel (German)"
-                           FontSize="14"
                            Margin="5,5,0,0" />
             </StackPanel>
         </ScrollViewer>

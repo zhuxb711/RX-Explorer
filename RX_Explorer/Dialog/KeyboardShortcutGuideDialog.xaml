@@ -13,7 +13,7 @@
     <Cls:QueueContentDialog.Resources>
         <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>
     </Cls:QueueContentDialog.Resources>
-    
+
     <Grid>
         <ScrollViewer VerticalScrollMode="Enabled"
                       IsVerticalScrollChainingEnabled="True"

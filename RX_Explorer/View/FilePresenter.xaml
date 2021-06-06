@@ -14,7 +14,7 @@
 
     <Page.Resources>
         <SolidColorBrush x:Key="TransparentColorBrush"
-                         Color="Transparent"/>
+                         Color="Transparent" />
         <CollectionViewSource x:Name="ListCollectionVS"
                               IsSourceGrouped="False" />
 
@@ -353,7 +353,7 @@
                               x:Uid="SendTo"
                               Icon="Send">
                     <AppBarButton.Flyout>
-                        <MenuFlyout Opening="SendToFlyout_Opening"/>
+                        <MenuFlyout Opening="SendToFlyout_Opening" />
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -720,7 +720,7 @@
                               x:Uid="SendTo"
                               Icon="Send">
                     <AppBarButton.Flyout>
-                        <MenuFlyout Opening="SendToFlyout_Opening"/>
+                        <MenuFlyout Opening="SendToFlyout_Opening" />
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -942,7 +942,7 @@
                   Width="220"
                   Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="60" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
@@ -980,7 +980,6 @@
                             Margin="5,0,0,0">
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               FontSize="14"
                                x:Phase="0"
                                HorizontalTextAlignment="Left"
                                HorizontalAlignment="Stretch"
@@ -990,7 +989,6 @@
                     <TextBox HorizontalAlignment="Stretch"
                              VerticalAlignment="Center"
                              x:Name="NameEditBox"
-                             FontSize="14"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
                              x:Load="False" />
@@ -1040,8 +1038,8 @@
                       MaxWidth="240"
                       HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Padding="8,0"
                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1092,8 +1090,8 @@
                       MaxWidth="180"
                       HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Padding="8,0"
                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1144,8 +1142,8 @@
                       Margin="0,3,0,0"
                       MaxWidth="120">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Padding="8,0"
                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1159,7 +1157,6 @@
                     </Border>
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               FontSize="14"
                                Grid.Column="1"
                                x:Phase="0"
                                HorizontalTextAlignment="Center"
@@ -1210,7 +1207,6 @@
                        Stretch="Uniform" />
                 <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Left"
-                           FontSize="14"
                            Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
@@ -1221,7 +1217,6 @@
                 <TextBox VerticalAlignment="Center"
                          HorizontalAlignment="Stretch"
                          x:Name="NameEditBox"
-                         FontSize="14"
                          Grid.Column="2"
                          IsSpellCheckEnabled="False"
                          Visibility="Collapsed"
@@ -1280,7 +1275,6 @@
                            Stretch="Uniform" />
                     <TextBlock VerticalAlignment="Center"
                                HorizontalAlignment="Left"
-                               FontSize="14"
                                Grid.Column="1"
                                x:Phase="0"
                                Text="{x:Bind Name, Mode=OneWay}"
@@ -1295,13 +1289,12 @@
                         <Viewbox MaxWidth="15"
                                  VerticalAlignment="Center">
                             <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}"/>
+                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                         </Viewbox>
                     </Border>
                     <TextBox VerticalAlignment="Center"
                              HorizontalAlignment="Stretch"
                              x:Name="NameEditBox"
-                             FontSize="14"
                              Grid.Column="1"
                              Grid.ColumnSpan="2"
                              IsSpellCheckEnabled="False"
@@ -1309,7 +1302,6 @@
                              x:Load="False" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
                            Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind ModifiedTime, Mode=OneWay}"
@@ -1319,7 +1311,6 @@
                            TextTrimming="CharacterEllipsis"
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
                            Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
@@ -1329,7 +1320,6 @@
                            TextTrimming="CharacterEllipsis"
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
                            Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind Size,Mode=OneWay}"
@@ -1391,7 +1381,6 @@
                                                        FontSize="18" />
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
-                                                       FontSize="14"
                                                        Text="{x:Bind Description}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -1428,7 +1417,6 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="名称"
-                                                           FontSize="14"
                                                            x:Uid="SearchName"
                                                            TextTrimming="CharacterEllipsis"
                                                            RelativePanel.LeftOf="SortIndicator1"
@@ -1535,7 +1523,7 @@
                                                                          VerticalAlignment="Center">
                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xF127;"
-                                                                              Foreground="Orange"/>
+                                                                              Foreground="Orange" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
                                                                            Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
@@ -1551,7 +1539,7 @@
                                                                               Foreground="#22B324" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}"/>
+                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
                                                             </StackPanel>
                                                         </CheckBox>
                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
@@ -1623,7 +1611,6 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="修改日期"
-                                                           FontSize="14"
                                                            x:Uid="SearchModified"
                                                            TextTrimming="CharacterEllipsis"
                                                            RelativePanel.LeftOf="SortIndicator2"
@@ -1752,7 +1739,6 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="类型"
-                                                           FontSize="14"
                                                            x:Uid="SearchType"
                                                            TextTrimming="CharacterEllipsis"
                                                            RelativePanel.LeftOf="SortIndicator3"
@@ -1822,7 +1808,6 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="大小"
-                                                           FontSize="14"
                                                            x:Uid="SearchSize"
                                                            TextTrimming="CharacterEllipsis"
                                                            RelativePanel.LeftOf="SortIndicator4"
@@ -1958,7 +1943,6 @@
                                                FontSize="18" />
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
-                                               FontSize="14"
                                                Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -2009,7 +1993,6 @@
                                                        FontSize="18" />
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
-                                                       FontSize="14"
                                                        Text="{x:Bind Description}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -2028,7 +2011,6 @@
                                                FontSize="18" />
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
-                                               FontSize="14"
                                                Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -2054,10 +2036,12 @@
                         VerticalAlignment="Bottom">
                 <TextBlock x:Name="StatusTips"
                            x:FieldModifier="public"
-                           FontSize="14"
-                           Margin="5,0,0,0"
+                           Padding="5,0,0,0"
                            TextTrimming="CharacterEllipsis"
-                           VerticalAlignment="Center" />
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           IsDoubleTapEnabled="True"
+                           DoubleTapped="StatusTips_DoubleTapped" />
                 <Border Height="3"
                         Margin="0,2,0,0"
                         HorizontalAlignment="Stretch"
@@ -2074,6 +2058,7 @@
         <local:Home HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Name="RootFolderControl"
-                    x:FieldModifier="public" />
+                    x:FieldModifier="public"
+                    Visibility="Collapsed" />
     </Grid>
 </Page>

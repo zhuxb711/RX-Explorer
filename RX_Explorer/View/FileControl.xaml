@@ -14,7 +14,7 @@
 
     <Page.Resources>
         <Cls:SpliterConverter x:Key="Converter" />
-        <Cls:InverseBooleanConverter x:Key="InverseConverter"/>
+        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
@@ -47,7 +47,6 @@
                             <TextBlock Text="{x:Bind DisplayName}"
                                        Margin="5,0,0,0"
                                        Width="175"
-                                       FontSize="14"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTipService.ToolTip="{x:Bind DisplayName}" />
@@ -65,11 +64,11 @@
                 <AppBarButton Icon="Copy"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                               x:Name="FolderCopy"
-                              Click="FolderCopy_Click"/>
+                              Click="FolderCopy_Click" />
                 <AppBarButton Icon="Cut"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
                               x:Name="FolderCut"
-                              Click="FolderCut_Click"/>
+                              Click="FolderCut_Click" />
                 <AppBarButton Icon="Delete"
                               x:Name="FolderDelete"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
@@ -123,10 +122,10 @@
                           x:Name="EverythingTip">
             <StackPanel>
                 <TextBlock Text="{x:Bind Cls:Globalization.GetString('EverythingQuestionSubtitle')}"
-                           TextWrapping="Wrap"/>
+                           TextWrapping="Wrap" />
                 <HyperlinkButton Content="{x:Bind Cls:Globalization.GetString('EverythingQuestionDownloadLink')}"
                                  Margin="0,5,0,0"
-                                 NavigateUri="https://www.voidtools.com/zh-cn/downloads/"/>
+                                 NavigateUri="https://www.voidtools.com/zh-cn/downloads/" />
             </StackPanel>
         </muxc:TeachingTip>
     </Page.Resources>
@@ -364,8 +363,8 @@
                       x:Name="ViewModeComboBox"
                       IsEnabled="False"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
-                      VerticalAlignment="Stretch"/>
-            
+                      VerticalAlignment="Stretch" />
+
             <AutoSuggestBox QueryIcon="Find"
                             Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             PlaceholderText="搜索..."
@@ -422,7 +421,7 @@
                                          x:Uid="SearchInDefaultEngine"
                                          GroupName="SearchEngine"
                                          Name="SearchInDefaultEngine"
-                                         Checked="SearchEngineChoiceSave_Checked"/>
+                                         Checked="SearchEngineChoiceSave_Checked" />
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInDefaultEngine.IsChecked, Mode=OneWay}">
                                 <Line X1="10"
@@ -438,7 +437,7 @@
                                               IsChecked="True"
                                               x:Name="BuiltInEngineIgnoreCase"
                                               Checked="SeachEngineOptionSave_Checked"
-                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
@@ -447,10 +446,10 @@
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
-                                              FontSize="13" 
+                                              FontSize="13"
                                               x:Uid="SearchEngineAllSubFolders"
                                               Checked="SeachEngineOptionSave_Checked"
-                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -459,14 +458,14 @@
                                              x:Uid="SearchInEverythingEngine"
                                              Name="SearchInEverythingEngine"
                                              Content="使用Everything搜索引擎 (较快)"
-                                             Checked="SearchEngineChoiceSave_Checked"/>
+                                             Checked="SearchEngineChoiceSave_Checked" />
                                 <Viewbox Margin="10,8,0,0"
                                          Height="15"
                                          Visibility="{x:Bind SearchInEverythingEngine.IsEnabled, Converter={StaticResource InverseConverter}, Mode=OneWay}"
                                          VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xE9CE;"
                                               Name="EverythingQuestion"
-                                              Tapped="EverythingQuestion_Tapped"/>
+                                              Tapped="EverythingQuestion_Tapped" />
                                 </Viewbox>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal"
@@ -498,7 +497,7 @@
                                               x:Name="EverythingEngineSearchGloble"
                                               FontSize="13"
                                               Checked="SeachEngineOptionSave_Checked"
-                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <ComboBox IsEditable="True"
                                               Header="搜索结果限制"
                                               x:Uid="SearchEngineLimitResult"
@@ -543,7 +542,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TreeViewGridCol"
                                   x:FieldModifier="public"
-                                  Width="2*"/>
+                                  Width="2*" />
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
@@ -556,7 +555,7 @@
                                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                 SizeChanged="BladeViewer_SizeChanged"
                                 BladeClosed="BladeViewer_BladeClosed"
-                                ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.BladeViewTransitions, Mode=OneWay}"/>
+                                ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.BladeViewTransitions, Mode=OneWay}" />
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"
@@ -572,6 +571,14 @@
                            AllowFocusOnInteraction="False"
                            Padding="0,0,5,0"
                            RightTapped="FolderTree_RightTapped">
+                <muxc:TreeView.ItemContainerStyle>
+                    <Style TargetType="muxc:TreeViewItem">
+                        <Setter Property="UseSystemFocusVisuals"
+                                Value="False" />
+                        <Setter Property="VerticalContentAlignment"
+                                Value="Stretch" />
+                    </Style>
+                </muxc:TreeView.ItemContainerStyle>
                 <muxc:TreeView.Resources>
                     <RevealBackgroundBrush  x:Key="TreeViewItemBackgroundSelected"
                                             Color="{ThemeResource SystemAccentColor}"
@@ -579,24 +586,24 @@
                 </muxc:TreeView.Resources>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal"
-                                    Height="35">
-                            <Viewbox Height="24"
-                                     Margin="0,4,0,0"
-                                     VerticalAlignment="Center">
+                        <RelativePanel>
+                            <Viewbox Height="20"
+                                     Name="Icon"
+                                     Margin="0,3,0,0"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     RelativePanel.AlignLeftWithPanel="True">
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"
-                                          Name="Icon" />
+                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"/>
                             </Viewbox>
                             <TextBlock Text="{Binding Content.DisplayName, Mode=OneWay}"
-                                       HorizontalTextAlignment="Left"
-                                       HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Center"
-                                       MinWidth="150"
                                        Margin="5,0,0,0"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
                                        Style="{ThemeResource BodyTextBlockStyle}"
-                                       FontSize="15" />
-                        </StackPanel>
+                                       RelativePanel.AlignRightWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       RelativePanel.RightOf="Icon"/>
+                        </RelativePanel>
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>
             </muxc:TreeView>
@@ -607,7 +614,7 @@
                                    Grid.Column="1"
                                    PointerCaptureLost="GridSplitter_PointerCaptureLost"
                                    PointerPressed="GridSplitter_PointerPressed"
-                                   PointerReleased="GridSplitter_PointerReleased"/>
+                                   PointerReleased="GridSplitter_PointerReleased" />
         </Grid>
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"

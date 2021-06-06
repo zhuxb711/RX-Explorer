@@ -34,7 +34,7 @@
                               x:Name="OpenLibrary">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Enter"
-                                             IsEnabled="False"/>
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Name="RemovePin"
@@ -62,7 +62,7 @@
                               Click="Refresh_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="F5"
-                                             IsEnabled="False"/>
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Icon="Add"
@@ -172,7 +172,7 @@
                                            x:Uid="LibraryExpander"
                                            x:Name="LibraryExpanderLabel"
                                            RelativePanel.AlignLeftWithPanel="True"
-                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                 <Border Background="Gray"
                                         Margin="15,0,0,0"
                                         Height="2"
@@ -206,8 +206,8 @@
                                 <Grid Padding="5"
                                       Width="250">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Image Height="50"
                                            Width="50"
@@ -216,8 +216,7 @@
                                     <StackPanel Orientation="Vertical"
                                                 Padding="5,2,0,2"
                                                 Grid.Column="1">
-                                        <TextBlock FontSize="14"
-                                                   HorizontalAlignment="Left"
+                                        <TextBlock HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind Name}"
                                                    ToolTipService.ToolTip="{x:Bind Name}" />
@@ -256,13 +255,13 @@
                                            x:Uid="DeviceExpander"
                                            x:Name="DeviceExpanderLabel"
                                            RelativePanel.AlignLeftWithPanel="True"
-                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
                                 <Border Background="Gray"
                                         Margin="15,0,0,0"
                                         Height="2"
                                         RelativePanel.RightOf="DeviceExpanderLabel"
                                         RelativePanel.AlignRightWithPanel="True"
-                                        RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
                             </RelativePanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
@@ -287,8 +286,8 @@
                                 <Grid Padding="5"
                                       Width="250">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Image Height="50"
                                            Width="50"
@@ -297,8 +296,7 @@
                                     <StackPanel Orientation="Vertical"
                                                 Padding="5,0,0,0"
                                                 Grid.Column="1">
-                                        <TextBlock FontSize="14"
-                                                   HorizontalAlignment="Left"
+                                        <TextBlock HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind DisplayName}"
                                                    ToolTipService.ToolTip="{x:Bind DisplayName}" />
@@ -309,7 +307,7 @@
                                                           Foreground="{x:Bind ProgressBarForeground, Mode=OneWay}"
                                                           Maximum="1"
                                                           Minimum="0"
-                                                          Value="{x:Bind Percent}"/>
+                                                          Value="{x:Bind Percent}" />
                                         <TextBlock FontSize="13"
                                                    HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"

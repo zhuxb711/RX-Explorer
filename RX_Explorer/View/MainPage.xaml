@@ -131,7 +131,7 @@
                           Target="{x:Bind BluetoothAudioQuestion}"
                           x:Uid="BluetoothAudioQuestionTip"
                           Title="蓝牙音频播放"
-                          Subtitle="此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。"/>
+                          Subtitle="此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。" />
         <muxc:TeachingTip x:Name="BluetoothAudioSelectionTip"
                           Title="选择蓝牙音频源"
                           x:Uid="BluetoothAudioSelectionTip"
@@ -142,7 +142,6 @@
                             Loaded="BluetoothAudioArea_Loaded">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="正在搜索"
-                                   FontSize="14"
                                    Name="StatusText" />
                         <muxc:ProgressRing IsActive="True"
                                            Margin="8,3,0,0"
@@ -211,7 +210,7 @@
                            Visibility="Collapsed"
                            Name="VerisonIncorrectTip"
                            x:Uid="BluetoothVerisonIncorrectTip"
-                           Text="此功能需要Win10 2004以上版本"/>
+                           Text="此功能需要Win10 2004以上版本" />
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
@@ -332,7 +331,7 @@
             <Grid.Background>
                 <media:AcrylicBrush x:Name="BackgroundBlur"
                                     x:FieldModifier="public"
-                                    TintColor="Black"/>
+                                    TintColor="Black" />
             </Grid.Background>
         </Grid>
 
@@ -366,7 +365,7 @@
                                          SelectsOnInvoked="False">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="AllApps"
-                                    x:Name="QuickStartIcon"/>
+                                    x:Name="QuickStartIcon" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
@@ -390,7 +389,7 @@
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE702;"
-                                  x:Name="BluetoothAudioIcon"/>
+                                  x:Name="BluetoothAudioIcon" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>

@@ -135,14 +135,12 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Text="Type:"
-                                       FontSize="14"
                                        Grid.Row="1"
                                        x:Uid="Properties_General_Type"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="TypeLabel" />
                             <TextBlock Text="Open with:"
-                                       FontSize="14"
                                        x:Uid="Properties_General_OpenWith"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
@@ -154,7 +152,6 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Grid.Row="4"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        x:Uid="Properties_General_Location"
                                        TextTrimming="CharacterEllipsis"
@@ -163,26 +160,22 @@
                             <TextBlock Grid.Row="5"
                                        x:Uid="Properties_General_Size"
                                        TextTrimming="CharacterEllipsis"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Text="Size:"
                                        Name="SizeLabel" />
                             <TextBlock Grid.Row="6"
-                                       FontSize="14"
                                        TextTrimming="CharacterEllipsis"
                                        x:Uid="Properties_General_Contains"
                                        VerticalAlignment="Center"
                                        Text="Contains:"
                                        Name="ContainsLabel" />
                             <TextBlock Grid.Row="8"
-                                       FontSize="14"
                                        TextTrimming="CharacterEllipsis"
                                        x:Uid="Properties_General_CreatedTime"
                                        VerticalAlignment="Center"
                                        Text="Created:"
                                        Name="CreatedLabel" />
                             <TextBlock Grid.Row="9"
-                                       FontSize="14"
                                        x:Uid="Properties_General_ModifiedTime"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
@@ -193,7 +186,6 @@
                                        IsTextSelectionEnabled="True"
                                        Grid.Row="1"
                                        Grid.Column="1"
-                                       FontSize="14"
                                        Padding="2,0,0,0"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis" />
@@ -209,7 +201,6 @@
                                            Name="OpenWithContent"
                                            IsTextSelectionEnabled="True"
                                            RelativePanel.AlignVerticalCenterWithPanel="True"
-                                           FontSize="14"
                                            Margin="8,0"
                                            ToolTipService.ToolTip="{x:Bind OpenWithContent.Text,Mode=OneWay}"
                                            TextTrimming="CharacterEllipsis" />
@@ -231,20 +222,17 @@
                                           HorizontalScrollBarVisibility="Hidden"
                                           Name="LocationScrollViewer">
                                 <TextBlock Name="LocationContent"
-                                           FontSize="14"
                                            VerticalAlignment="Center"
                                            ToolTipService.ToolTip="{x:Bind LocationContent.Text, Mode=OneWay}"
                                            IsTextSelectionEnabled="True" />
                             </ScrollViewer>
                             <TextBlock Name="SizeContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Grid.Row="5"
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Name="ContainsContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Grid.Row="6"
                                        Grid.Column="1"
@@ -256,14 +244,12 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Name="CreatedContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Grid.Row="8"
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Name="ModifiedContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Grid.Row="9"
                                        Grid.Column="1"
@@ -331,7 +317,6 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Text="URL:"
-                                       FontSize="14"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="1"
                                        VerticalAlignment="Center" />
@@ -365,14 +350,12 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Text="Target type:"
-                                       FontSize="14"
                                        x:Uid="Properties_Shortcut_TargetType"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="1"
                                        VerticalAlignment="Center"
                                        Name="ShortcutTargetTypeLabel" />
                             <TextBlock Name="ShortcutTargetTypeContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        Grid.Row="1"
                                        Grid.Column="1"
@@ -380,14 +363,12 @@
                                        ToolTipService.ToolTip="{x:Bind ShortcutTargetTypeContent.Text, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="Target location:"
-                                       FontSize="14"
                                        x:Uid="Properties_Shortcut_TargetLocation"
                                        Grid.Row="2"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="ShortcutTargetLocationLabel" />
                             <TextBlock Name="ShortcutTargetLocationContent"
-                                       FontSize="14"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="2"
@@ -395,7 +376,6 @@
                                        Padding="2,0,0,0"
                                        ToolTipService.ToolTip="{x:Bind ShortcutTargetLocationContent.Text, Mode=OneWay}" />
                             <TextBlock Text="Target"
-                                       FontSize="14"
                                        x:Uid="Properties_Shortcut_Target"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="3"
@@ -411,7 +391,6 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Text="Start in:"
-                                       FontSize="14"
                                        Grid.Row="5"
                                        x:Uid="Properties_Shortcut_StartIn"
                                        TextTrimming="CharacterEllipsis"
@@ -422,7 +401,6 @@
                                      Grid.Column="1"
                                      Name="ShortcutStartInContent" />
                             <TextBlock Text="Shortcut key:"
-                                       FontSize="14"
                                        x:Uid="Properties_Shortcut_Key"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="6"
@@ -437,7 +415,6 @@
                             <TextBlock Text="Run:"
                                        x:Uid="Properties_Shortcut_Run"
                                        TextTrimming="CharacterEllipsis"
-                                       FontSize="14"
                                        Grid.Row="7"
                                        VerticalAlignment="Center"
                                        Name="ShortcutWindowStateLabel" />
@@ -447,7 +424,6 @@
                                       VerticalAlignment="Center"
                                       Name="ShortcutWindowsStateContent" />
                             <TextBlock Text="Comment:"
-                                       FontSize="14"
                                        Grid.Row="8"
                                        x:Uid="Properties_Shortcut_Comment"
                                        TextTrimming="CharacterEllipsis"

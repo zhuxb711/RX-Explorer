@@ -161,7 +161,6 @@
                             Background="{StaticResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="名称"
-                                   FontSize="14"
                                    x:Uid="SearchName"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
@@ -175,7 +174,6 @@
                             Background="{StaticResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="路径"
-                                   FontSize="14"
                                    x:Uid="SearchPath"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
@@ -189,7 +187,6 @@
                             Background="{StaticResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="修改日期"
-                                   FontSize="14"
                                    x:Uid="SearchModified"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
@@ -203,7 +200,6 @@
                             Background="{StaticResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="类型"
-                                   FontSize="14"
                                    x:Uid="SearchType"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
@@ -217,7 +213,6 @@
                             Background="{StaticResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="大小"
-                                   FontSize="14"
                                    x:Uid="SearchSize"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
@@ -267,7 +262,6 @@
                                    Stretch="Uniform" />
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
-                                       FontSize="14"
                                        Grid.Column="1"
                                        Text="{x:Bind Name}"
                                        x:Phase="0"
@@ -275,7 +269,6 @@
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
-                                   FontSize="14"
                                    Text="{x:Bind Path}"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
@@ -283,7 +276,6 @@
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="1" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontSize="14"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind ModifiedTime, Mode=OneWay}"
@@ -291,7 +283,6 @@
                                    Grid.Column="2"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontSize="14"
                                    Padding="10,0,0,0"
                                    x:Phase="1"
                                    Text="{x:Bind DisplayType, Mode=OneWay}"
@@ -299,7 +290,6 @@
                                    Grid.Column="3"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontSize="14"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind Size}"
                                    x:Phase="0"

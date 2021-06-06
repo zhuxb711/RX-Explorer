@@ -1944,17 +1944,14 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                        await dialog.ShowAsync();
-
-                    }
+                    await dialog.ShowAsync();
                 }
             }
         }
@@ -1991,11 +1988,11 @@ namespace RX_Explorer
             }
             else if (e.OriginalSource is Grid)
             {
-                if (Path.GetPathRoot(CurrentFolder?.Path) == CurrentFolder?.Path)
+                if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    MainPage.ThisPage.NavView_BackRequested(null, null);
+                    await DisplayItemsInFolder(RootStorageFolder.Instance);
                 }
-                else
+                else if (Container.GoParentFolder.IsEnabled)
                 {
                     Container.GoParentFolder_Click(null, null);
                 }
@@ -4943,6 +4940,18 @@ namespace RX_Explorer
                             break;
                         }
                 }
+            }
+        }
+
+        private async void StatusTips_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                await DisplayItemsInFolder(RootStorageFolder.Instance);
+            }
+            else if (Container.GoParentFolder.IsEnabled)
+            {
+                Container.GoParentFolder_Click(null, null);
             }
         }
 
