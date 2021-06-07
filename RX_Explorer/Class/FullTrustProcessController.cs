@@ -147,7 +147,7 @@ namespace RX_Explorer.Class
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
-        private static readonly ConcurrentBag<FullTrustProcessController> AvailableControllers = new ConcurrentBag<FullTrustProcessController>();
+        private static readonly ConcurrentQueue<FullTrustProcessController> AvailableControllers = new ConcurrentQueue<FullTrustProcessController>();
 
         private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
@@ -205,11 +205,11 @@ namespace RX_Explorer.Class
         {
             if (Controller.IsDisposed)
             {
-                AvailableControllers.Add(await CreateAsync());
+                AvailableControllers.Enqueue(await CreateAsync());
             }
             else
             {
-                AvailableControllers.Add(Controller);
+                AvailableControllers.Enqueue(Controller);
             }
         }
 
@@ -226,7 +226,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        if (AvailableControllers.TryTake(out FullTrustProcessController Controller))
+                        if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
                             if (Controller.IsDisposed)
                             {
@@ -279,7 +279,7 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)
                 {
-                    if (AvailableControllers.TryTake(out FullTrustProcessController Controller))
+                    if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                     {
                         Controller.Dispose();
                     }
@@ -294,7 +294,7 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllers.Add(CreateAsync().Result);
+                    AvailableControllers.Enqueue(CreateAsync().Result);
                 }
             }
             catch (Exception ex)

@@ -126,8 +126,7 @@
             <Image Width="110"
                    Height="110"
                    Name="Icon"
-                   Stretch="Uniform"
-                   Source="ms-appx:///Assets/AddImage.png" />
+                   Stretch="Uniform" />
             <StackPanel Margin="10,0,0,0"
                         VerticalAlignment="Center">
                 <TextBox HorizontalAlignment="Left"

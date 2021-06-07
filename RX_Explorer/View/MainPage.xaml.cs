@@ -494,9 +494,9 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
-                TabViewContainer TabContainer = new TabViewContainer();
-                Nav.Content = TabContainer;
-                while (!TabContainer.IsLoaded)
+                Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+
+                while (!(TabViewContainer.ThisPage?.IsLoaded).GetValueOrDefault())
                 {
                     await Task.Delay(300);
                 }
@@ -889,7 +889,7 @@ namespace RX_Explorer
         {
             try
             {
-                if ((SettingControl?.IsOpened).GetValueOrDefault() || (SettingControl?.IsAnimating).GetValueOrDefault())
+                if (SettingControl.IsOpened || SettingControl.IsAnimating)
                 {
                     if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                     {
@@ -905,7 +905,7 @@ namespace RX_Explorer
                         Item.IsSelected = true;
                     }
 
-                    await SettingControl.Hide().ConfigureAwait(false);
+                    await SettingControl.Hide();
                 }
                 else
                 {

@@ -58,21 +58,6 @@ namespace FullTrustProcess
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
                     AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
-
-                    try
-                    {
-                        //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                        string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
-
-                        if (Directory.Exists(TempFolderPath))
-                        {
-                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Load menu in advance threw an exception, message: {ex.Message}");
-                    }
                 }
                 else
                 {
@@ -902,7 +887,7 @@ namespace FullTrustProcess
                                                 ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                             }
 
-                                            using (Image IconImage = Link.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                            using (Image IconImage = Link.GetImage(new Size(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
                                             using (MemoryStream IconStream = new MemoryStream())
                                             using (Bitmap TempBitmap = new Bitmap(IconImage))
                                             {

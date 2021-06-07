@@ -69,6 +69,15 @@ namespace RX_Explorer.Dialog
 
             this.Type = Type;
 
+            if (AppThemeController.Current.Theme == ElementTheme.Dark)
+            {
+                Icon.Source = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Light.png"));
+            }
+            else
+            {
+                Icon.Source = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Dark.png"));
+            }
+
             switch (Type)
             {
                 case QuickStartType.Application:

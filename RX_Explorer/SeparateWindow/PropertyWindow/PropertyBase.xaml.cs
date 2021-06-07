@@ -221,7 +221,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
             }
 
-            if (StorageItemName.Text != StorageItem.DisplayName)
+            if (StorageItemName.Text != StorageItem.Name)
             {
                 await StorageItem.RenameAsync(StorageItemName.Text).ConfigureAwait(false);
             }
@@ -371,7 +371,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     BasicPropertiesDictionary.Add(Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), OfflineAvailabilityStatusMap[Convert.ToUInt32(AvailabilityStatus)]);
                 }
-                else if(BasicResult.TryGetValue("System.FilePlaceholderStatus", out object PlaceholderStatus))
+                else if (BasicResult.TryGetValue("System.FilePlaceholderStatus", out object PlaceholderStatus))
                 {
                     BasicPropertiesDictionary.Add(Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), OfflineAvailabilityStatusMap[Convert.ToUInt32(PlaceholderStatus)]);
                 }
@@ -747,7 +747,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (StorageItem is FileSystemStorageFolder Folder)
             {
-                StorageItemName.Text = StorageItem.DisplayName;
+                StorageItemName.Text = StorageItem.Name;
                 SizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                 ContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                 ReadonlyAttribute.IsThreeState = true;
@@ -964,7 +964,21 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            await Window.CloseAsync();
+            if (Interlocked.Exchange(ref ConfirmButtonLockResource, 1) == 0)
+            {
+                try
+                {
+                    await Window.CloseAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref ConfirmButtonLockResource, 0);
+                }
+            }
         }
 
         private async Task<string> CalculateFolderSize(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
@@ -995,7 +1009,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void ShortcutKeyContent_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void ShortcutKeyContent_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             switch (e.Key)
             {

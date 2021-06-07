@@ -32,7 +32,7 @@
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
-               OpenPaneLength="380"
+               OpenPaneLength="350"
                x:FieldModifier="public"
                PaneBackground="{ThemeResource TaskListAcrylicBrush}">
         <Grid>

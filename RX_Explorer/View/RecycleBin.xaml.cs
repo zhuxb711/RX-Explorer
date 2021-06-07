@@ -185,7 +185,7 @@ namespace RX_Explorer.View
 
         private void ListViewControl_Holding(object sender, HoldingRoutedEventArgs e)
         {
-            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            if (e.HoldingState == HoldingState.Started)
             {
                 if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
                 {
@@ -635,7 +635,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                await Task.Delay(1000);
+                await Task.Delay(500);
                 LoadingControl.IsLoading = false;
             }
         }

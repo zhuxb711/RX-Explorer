@@ -3108,8 +3108,9 @@ namespace RX_Explorer
                 if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
                 {
                     double XOffset = e.GetPosition(Container.BladeViewer).X;
-                    double HorizontalRightScrollThreshold = Viewer.ActualWidth - 50;
-                    double HorizontalLeftScrollThreshold = 50;
+                    double ScrollThreshold = Math.Min((Viewer.ActualWidth - 200) / 2, 100);
+                    double HorizontalRightScrollThreshold = Viewer.ActualWidth - ScrollThreshold;
+                    double HorizontalLeftScrollThreshold = ScrollThreshold;
 
                     if (XOffset > HorizontalRightScrollThreshold)
                     {
