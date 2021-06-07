@@ -1,9 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
+    public class NavigationRecordDataTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate NormalTemplate { get; set; }
+        public DataTemplate RootTemplate { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object Item)
+        {
+            if (Item is AddressNavigationRecord Record && RootStorageFolder.Instance.Path.Equals(Record.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                return RootTemplate;
+            }
+            else
+            {
+                return NormalTemplate;
+            }
+        }
+    }
+
     public class RatingControlDataTemplateSelector : DataTemplateSelector
     {
         public DataTemplate Label { get; set; }

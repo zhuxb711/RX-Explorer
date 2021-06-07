@@ -10,7 +10,7 @@
       xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
-      Background="Transparent">
+      Background="{StaticResource ElementAcrylicBrush}">
 
     <Page.Resources>
         <ItemsPanelTemplate x:Name="VerticalPanel">
@@ -27,7 +27,7 @@
                       FallbackColor="{ThemeResource SystemAccentColor}" />
     </Page.Resources>
     
-    <Grid Background="{StaticResource ElementAcrylicBrush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*" />
@@ -98,7 +98,7 @@
                                  MinWidth="30" 
                                  MinHeight="25"
                                  Height="28"
-                                 Padding="5,4"
+                                 Padding="5,3"
                                  IsSpellCheckEnabled="False"
                                  KeyDown="TextBoxControl_KeyDown"
                                  LostFocus="TextBoxControl_LostFocus"

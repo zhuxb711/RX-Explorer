@@ -399,11 +399,6 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Grid.ChildrenTransitions>
-                        <TransitionCollection>
-                            <AddDeleteThemeTransition />
-                        </TransitionCollection>
-                    </Grid.ChildrenTransitions>
                     <muxc:InfoBar IsOpen="False"
                                   x:Name="InfoTip"
                                   Closed="InfoTip_Closed" />

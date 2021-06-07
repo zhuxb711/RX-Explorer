@@ -4332,7 +4332,11 @@ namespace RX_Explorer
         private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
             Container.BlockKeyboardShortCutInput = false;
-            sender.Target.Visibility = Visibility.Collapsed;
+
+            if (sender.Target is FrameworkElement Element)
+            {
+                Element.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void FilterFlyout_Opened(object sender, object e)

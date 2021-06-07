@@ -191,10 +191,10 @@ namespace FullTrustProcess
                             IntPtr VerbWHandle = IntPtr.Zero;
                             IntPtr VerbAHandle = IntPtr.Zero;
 
+                            string Verb = null;
+
                             try
                             {
-                                string Verb = null;
-
                                 VerbWHandle = Marshal.AllocCoTaskMem(BufferSize);
 
                                 if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
@@ -211,70 +211,11 @@ namespace FullTrustProcess
                                         Verb = Marshal.PtrToStringAnsi(VerbAHandle);
                                     }
                                 }
-
-                                Verb ??= string.Empty;
-
-                                if (!VerbFilterHashSet.Contains(Verb.ToLower()))
-                                {
-                                    try
-                                    {
-                                        string Name = Marshal.PtrToStringUni(DataHandle);
-
-                                        if (!string.IsNullOrEmpty(Name) && !NameFilterHashSet.Contains(Name))
-                                        {
-                                            ContextMenuPackage Package = new ContextMenuPackage
-                                            {
-                                                Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
-                                                Id = Convert.ToInt32(Info.wID),
-                                                Verb = Verb,
-                                                IncludeExtensionItem = IncludeExtensionItem,
-                                                RelatedPath = RelatedPath
-                                            };
-
-                                            if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
-                                            {
-                                                using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
-                                                {
-                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
-
-                                                    try
-                                                    {
-                                                        using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
-                                                        using (MemoryStream Stream = new MemoryStream())
-                                                        {
-                                                            ArgbBitmap.Save(Stream, ImageFormat.Png);
-
-                                                            Package.IconData = Stream.ToArray();
-                                                        }
-                                                    }
-                                                    finally
-                                                    {
-                                                        OriginBitmap.UnlockBits(OriginData);
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Package.IconData = Array.Empty<byte>();
-                                            }
-
-                                            if (Info.hSubMenu != HMENU.NULL)
-                                            {
-                                                Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
-                                            }
-                                            else
-                                            {
-                                                Package.SubMenus = Array.Empty<ContextMenuPackage>();
-                                            }
-
-                                            MenuItems.Add(Package);
-                                        }
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-                                }
+                            }
+                            catch (AccessViolationException)
+                            {
+                                Verb = null;
+                                Debug.WriteLine("Could not get verb from context menu item");
                             }
                             finally
                             {
@@ -286,6 +227,70 @@ namespace FullTrustProcess
                                 if (VerbWHandle != IntPtr.Zero)
                                 {
                                     Marshal.FreeCoTaskMem(VerbWHandle);
+                                }
+                            }
+
+                            Verb ??= string.Empty;
+
+                            if (!VerbFilterHashSet.Contains(Verb.ToLower()))
+                            {
+                                try
+                                {
+                                    string Name = Marshal.PtrToStringUni(DataHandle);
+
+                                    if (!string.IsNullOrEmpty(Name) && !NameFilterHashSet.Contains(Name))
+                                    {
+                                        ContextMenuPackage Package = new ContextMenuPackage
+                                        {
+                                            Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
+                                            Id = Convert.ToInt32(Info.wID),
+                                            Verb = Verb,
+                                            IncludeExtensionItem = IncludeExtensionItem,
+                                            RelatedPath = RelatedPath
+                                        };
+
+                                        if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
+                                        {
+                                            using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
+                                            {
+                                                BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+
+                                                try
+                                                {
+                                                    using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
+                                                    using (MemoryStream Stream = new MemoryStream())
+                                                    {
+                                                        ArgbBitmap.Save(Stream, ImageFormat.Png);
+
+                                                        Package.IconData = Stream.ToArray();
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    OriginBitmap.UnlockBits(OriginData);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Package.IconData = Array.Empty<byte>();
+                                        }
+
+                                        if (Info.hSubMenu != HMENU.NULL)
+                                        {
+                                            Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
+                                        }
+                                        else
+                                        {
+                                            Package.SubMenus = Array.Empty<ContextMenuPackage>();
+                                        }
+
+                                        MenuItems.Add(Package);
+                                    }
+                                }
+                                catch
+                                {
+                                    continue;
                                 }
                             }
                         }

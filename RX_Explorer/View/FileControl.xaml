@@ -15,6 +15,58 @@
     <Page.Resources>
         <Cls:SpliterConverter x:Key="Converter" />
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:NavigationRecordDataTemplateSelector x:Key="NavTemplateSelector"
+                                                  NormalTemplate="{StaticResource NormalRecordTemplate}"
+                                                  RootTemplate="{StaticResource RootRecordTemplate}"/>
+
+        <DataTemplate x:Key="NormalRecordTemplate"
+                      x:DataType="Cls:AddressNavigationRecord">
+            <RelativePanel>
+                <Viewbox Height="28"
+                         RelativePanel.AlignLeftWithPanel="True"
+                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                         Margin="0,2,0,0"
+                         Name="Icon">
+                    <FontIcon Glyph="&#xED41;" />
+                </Viewbox>
+                <StackPanel Margin="5,0,0,0"
+                            RelativePanel.AlignRightWithPanel="True"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            RelativePanel.RightOf="Icon">
+                    <TextBlock Text="{x:Bind DisplayName}"
+                               ToolTipService.ToolTip="{x:Bind DisplayName}"
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{x:Bind Path}"
+                               ToolTipService.ToolTip="{x:Bind Path}"
+                               FontSize="12"
+                               TextWrapping="NoWrap"
+                               Foreground="Gray"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </RelativePanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="RootRecordTemplate"
+                      x:DataType="Cls:AddressNavigationRecord">
+            <RelativePanel>
+                <Viewbox Height="28"
+                         RelativePanel.AlignLeftWithPanel="True"
+                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                         Margin="0,2,0,0"
+                         Name="Icon">
+                    <FontIcon Glyph="&#xED41;" />
+                </Viewbox>
+                <TextBlock Text="{x:Bind DisplayName}"
+                           ToolTipService.ToolTip="{x:Bind DisplayName}"
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="5,0,0,0"
+                           RelativePanel.AlignRightWithPanel="True"
+                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                           RelativePanel.RightOf="Icon" />
+            </RelativePanel>
+        </DataTemplate>
 
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
@@ -25,10 +77,12 @@
                             Value="0" />
                     <Setter Property="Background"
                             Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                    <Setter Property="Padding" 
+                            Value="0"/>
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="400"
-                      Width="220"
+                      Width="240"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       Name="AddressExtensionSubFolderList"
@@ -38,24 +92,55 @@
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:AddressBlock">
-                        <StackPanel Orientation="Horizontal">
+                        <RelativePanel>
                             <Viewbox Width="18"
                                      Height="18"
+                                     RelativePanel.AlignLeftWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     Name="Icon"
                                      Margin="0,2,0,0">
                                 <FontIcon Glyph="&#xED41;" />
                             </Viewbox>
                             <TextBlock Text="{x:Bind DisplayName}"
+                                       ToolTipService.ToolTip="{x:Bind DisplayName}"
                                        Margin="5,0,0,0"
-                                       Width="175"
+                                       RelativePanel.AlignRightWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       RelativePanel.RightOf="Icon"
                                        TextWrapping="NoWrap"
-                                       TextTrimming="CharacterEllipsis"
-                                       ToolTipService.ToolTip="{x:Bind DisplayName}" />
-                        </StackPanel>
+                                       TextTrimming="CharacterEllipsis" />
+                        </RelativePanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </Flyout>
 
+        <Flyout x:Name="AddressHistoryFlyout"
+                Placement="BottomEdgeAlignedLeft"
+                Closing="AddressHistoryFlyout_Closing">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="CornerRadius"
+                            Value="0" />
+                    <Setter Property="Background"
+                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                    <Setter Property="Padding" 
+                            Value="0"/>
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <ListView MaxHeight="500"
+                      MaxWidth="400"
+                      MinWidth="250"
+                      SelectionMode="None"
+                      IsItemClickEnabled="True"
+                      ItemClick="AddressNavigationHistoryFlyoutList_ItemClick"
+                      Name="AddressNavigationHistoryFlyoutList"
+                      ItemsSource="{x:Bind NavigationRecordList}"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ItemTemplateSelector="{StaticResource NavTemplateSelector}"/>
+        </Flyout>
+        
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"

@@ -55,12 +55,18 @@ namespace RX_Explorer
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
         private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
+        private readonly PointerEventHandler GoBackButtonPressedHandler;
+        private readonly PointerEventHandler GoBackButtonReleasedHandler;
+        private readonly PointerEventHandler GoForwardButtonPressedHandler;
+        private readonly PointerEventHandler GoForwardButtonReleasedHandler;
 
         public ViewModeController ViewModeControl;
 
         private readonly Color AccentColor = (Color)Application.Current.Resources["SystemAccentColor"];
 
         private CancellationTokenSource DelayEnterCancel;
+        private CancellationTokenSource DelayGoBackHoldCancel;
+        private CancellationTokenSource DelayGoForwardHoldCancel;
 
         public bool BlockKeyboardShortCutInput;
 
@@ -115,6 +121,7 @@ namespace RX_Explorer
         private readonly DisposableObservableCollection<AddressBlock> AddressExtentionList = new DisposableObservableCollection<AddressBlock>();
         private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
         private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
+        private readonly ObservableCollection<AddressNavigationRecord> NavigationRecordList = new ObservableCollection<AddressNavigationRecord>();
 
         private WeakReference<TabViewItem> WeakToTabViewItem;
         public TabViewItem CurrentTabItem
@@ -149,7 +156,10 @@ namespace RX_Explorer
 
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
             AddressBoxRightTapEventHandler = new RightTappedEventHandler(AddressBox_RightTapped);
-            AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
+            GoBackButtonPressedHandler = new PointerEventHandler(GoBackRecord_PointerPressed);
+            GoBackButtonReleasedHandler = new PointerEventHandler(GoBackRecord_PointerReleased);
+            GoForwardButtonPressedHandler = new PointerEventHandler(GoForwardRecord_PointerPressed);
+            GoForwardButtonReleasedHandler = new PointerEventHandler(GoForwardRecord_PointerReleased);
 
             Loaded += FileControl_Loaded;
         }
@@ -503,6 +513,11 @@ namespace RX_Explorer
                         Frame.Navigated += Frame_Navigated;
                         CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
                         CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
+                        AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
+                        GoBackRecord.AddHandler(PointerPressedEvent, GoBackButtonPressedHandler, true);
+                        GoBackRecord.AddHandler(PointerReleasedEvent, GoBackButtonReleasedHandler, true);
+                        GoForwardRecord.AddHandler(PointerPressedEvent, GoForwardButtonPressedHandler, true);
+                        GoForwardRecord.AddHandler(PointerReleasedEvent, GoForwardButtonReleasedHandler, true);
 
                         CurrentTabItem = Parameters.Item1;
                         CurrentTabItem.Tag = this;
@@ -1758,10 +1773,7 @@ namespace RX_Explorer
 
         private async void AddressExtensionSubFolderList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                AddressExtentionFlyout.Hide();
-            });
+            AddressExtentionFlyout.Hide();
 
             try
             {
@@ -2551,6 +2563,101 @@ namespace RX_Explorer
             AddressBox.Tag = true;
         }
 
+        private void GoForwardRecord_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            DelayGoForwardHoldCancel?.Cancel();
+            DelayGoForwardHoldCancel?.Dispose();
+            DelayGoForwardHoldCancel = new CancellationTokenSource();
+
+            Task.Delay(700).ContinueWith((task, input) =>
+            {
+                try
+                {
+                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    {
+                        NavigationRecordList.Clear();
+                        NavigationRecordList.AddRange(CurrentPresenter.GoAndBackRecord.Skip(CurrentPresenter.RecordIndex + 1)
+                                                                                      .Select((Item) => new AddressNavigationRecord(Item.Item1)));
+
+                        FlyoutBase.SetAttachedFlyout(GoForwardRecord, AddressHistoryFlyout);
+                        FlyoutBase.ShowAttachedFlyout(GoForwardRecord);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
+                }
+            }, DelayGoForwardHoldCancel, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void GoForwardRecord_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            DelayGoForwardHoldCancel?.Cancel();
+        }
+
+
+        private void GoBackRecord_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            DelayGoBackHoldCancel?.Cancel();
+            DelayGoBackHoldCancel?.Dispose();
+            DelayGoBackHoldCancel = new CancellationTokenSource();
+
+            Task.Delay(700).ContinueWith((task, input) =>
+            {
+                try
+                {
+                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    {
+                        NavigationRecordList.Clear();
+                        NavigationRecordList.AddRange(CurrentPresenter.GoAndBackRecord.Take(CurrentPresenter.RecordIndex)
+                                                                                      .Select((Item) => new AddressNavigationRecord(Item.Item1))
+                                                                                      .Reverse());
+
+                        FlyoutBase.SetAttachedFlyout(GoBackRecord, AddressHistoryFlyout);
+                        FlyoutBase.ShowAttachedFlyout(GoBackRecord);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
+                }
+            }, DelayGoBackHoldCancel, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void GoBackRecord_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            DelayGoBackHoldCancel?.Cancel();
+        }
+
+        private async void AddressNavigationHistoryFlyoutList_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            AddressHistoryFlyout.Hide();
+
+            try
+            {
+                if (e.ClickedItem is AddressNavigationRecord Record)
+                {
+                    await CurrentPresenter.DisplayItemsInFolder(Record.Path);
+                }
+            }
+            catch
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
+        }
+
+        private void AddressHistoryFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        {
+            NavigationRecordList.Clear();
+        }
+
         public void Dispose()
         {
             AddressButtonList.Clear();
@@ -2567,6 +2674,11 @@ namespace RX_Explorer
             Frame.Navigated -= Frame_Navigated;
             CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
             CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
+            AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
+            GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
+            GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);
+            GoForwardRecord.RemoveHandler(PointerPressedEvent, GoForwardButtonPressedHandler);
+            GoForwardRecord.RemoveHandler(PointerReleasedEvent, GoForwardButtonReleasedHandler);
 
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;
@@ -2574,6 +2686,14 @@ namespace RX_Explorer
 
             ViewModeControl?.Dispose();
             ViewModeControl = null;
+
+            DelayEnterCancel?.Dispose();
+            DelayGoBackHoldCancel?.Dispose();
+            DelayGoForwardHoldCancel?.Dispose();
+
+            DelayEnterCancel = null;
+            DelayGoBackHoldCancel = null;
+            DelayGoForwardHoldCancel = null;
 
             TaskBarController.SetText(null);
         }

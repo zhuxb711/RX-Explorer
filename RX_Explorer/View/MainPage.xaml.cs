@@ -496,11 +496,6 @@ namespace RX_Explorer
 
                 Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
 
-                while (!(TabViewContainer.ThisPage?.IsLoaded).GetValueOrDefault())
-                {
-                    await Task.Delay(300);
-                }
-
                 if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
