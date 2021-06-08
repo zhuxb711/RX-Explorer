@@ -183,38 +183,54 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageFolder> CreatedByStorageItemAsync(StorageFolder Folder)
         {
-            if (Folder != null)
+            try
             {
-                foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                if (Folder != null)
                 {
-                    ParameterInfo[] Parameters = Info.GetParameters();
-
-                    if (Parameters[0].ParameterType == typeof(StorageFolder))
+                    foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                     {
-                        return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                        ParameterInfo[] Parameters = Info.GetParameters();
+
+                        if (Parameters[0].ParameterType == typeof(StorageFolder))
+                        {
+                            return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                        }
                     }
                 }
-            }
 
-            return null;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(CreatedByStorageItemAsync)} threw an exception");
+                return null;
+            }
         }
 
         public static async Task<FileSystemStorageFile> CreatedByStorageItemAsync(StorageFile File)
         {
-            if (File != null)
+            try
             {
-                foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                if (File != null)
                 {
-                    ParameterInfo[] Parameters = Info.GetParameters();
-
-                    if (Parameters[0].ParameterType == typeof(StorageFile))
+                    foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                     {
-                        return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                        ParameterInfo[] Parameters = Info.GetParameters();
+
+                        if (Parameters[0].ParameterType == typeof(StorageFile))
+                        {
+                            return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                        }
                     }
                 }
-            }
 
-            return null;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(CreatedByStorageItemAsync)} threw an exception");
+                return null;
+            }
         }
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)

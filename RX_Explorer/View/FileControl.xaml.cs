@@ -2637,7 +2637,16 @@ namespace RX_Explorer
             {
                 if (e.ClickedItem is AddressNavigationRecord Record)
                 {
-                    await CurrentPresenter.DisplayItemsInFolder(Record.Path);
+                    if (AddressHistoryFlyout.Target == GoBackRecord)
+                    {
+                        CurrentPresenter.RecordIndex -= NavigationRecordList.IndexOf(Record) + 1;
+                    }
+                    else if(AddressHistoryFlyout.Target == GoForwardRecord)
+                    {
+                        CurrentPresenter.RecordIndex += NavigationRecordList.IndexOf(Record) + 1;
+                    }
+
+                    await CurrentPresenter.DisplayItemsInFolder(Record.Path, SkipNavigationRecord: true);
                 }
             }
             catch
@@ -2651,11 +2660,6 @@ namespace RX_Explorer
 
                 await Dialog.ShowAsync();
             }
-        }
-
-        private void AddressHistoryFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
-        {
-            NavigationRecordList.Clear();
         }
 
         public void Dispose()

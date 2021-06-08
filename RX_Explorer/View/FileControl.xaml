@@ -116,8 +116,7 @@
         </Flyout>
 
         <Flyout x:Name="AddressHistoryFlyout"
-                Placement="BottomEdgeAlignedLeft"
-                Closing="AddressHistoryFlyout_Closing">
+                Placement="BottomEdgeAlignedLeft">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="CornerRadius"

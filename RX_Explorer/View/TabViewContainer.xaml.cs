@@ -269,12 +269,11 @@ namespace RX_Explorer
                     TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
                 }
 
-                TabViewControl.SelectedItem = TabCollection.LastOrDefault();
+                TabViewControl.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Add(await CreateNewTabCoreAsync());
             }
         }
 
@@ -288,7 +287,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Add(await CreateNewTabCoreAsync());
             }
         }
 
@@ -304,7 +302,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Insert(Index, await CreateNewTabCoreAsync());
             }
         }
 

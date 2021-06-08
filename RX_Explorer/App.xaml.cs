@@ -261,7 +261,6 @@ namespace RX_Explorer
 
                         break;
                     }
-
                 case ProtocolActivatedEventArgs ProtocalArgs:
                     {
                         if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
@@ -277,7 +276,6 @@ namespace RX_Explorer
 
                         break;
                     }
-
                 case not ToastNotificationActivatedEventArgs:
                     {
                         ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
@@ -338,34 +336,6 @@ namespace RX_Explorer
 
                         break;
                     }
-            }
-        }
-
-        protected override async void OnFileActivated(FileActivatedEventArgs args)
-        {
-            if (args.Verb == "USBArrival")
-            {
-                ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-
-                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-
-                if (Window.Current.Content is Frame mainPageFrame)
-                {
-                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer Container)
-                    {
-                        await Container.CreateNewTabAsync(args.Files.Select((File) => File.Path).ToArray());
-                    }
-                }
-                else
-                {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, new List<string[]> { args.Files.Select((File) => File.Path).ToArray() });
-                    Window.Current.Content = extendedSplash;
-                }
-
-                Window.Current.Activate();
             }
         }
 

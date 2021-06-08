@@ -657,8 +657,9 @@
                                  x:Uid="SettingStartupWithSpecificTab"
                                  Name="StartupSpecificTab"
                                  Checked="StartupSpecificTab_Checked" />
-                    <ListView MinWidth="250"
+                    <ListView Width="400"
                               Margin="29,5,0,0"
+                              HorizontalAlignment="Left"
                               Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
                               x:Name="SpecificTabListView"
                               SelectionMode="None"
@@ -676,8 +677,6 @@
                                         Style="{ThemeResource ButtonRevealStyle}"
                                         VerticalAlignment="Center"
                                         Padding="5"
-                                        Height="25"
-                                        Width="25"
                                         Grid.Column="1"
                                         Name="AddSpecificTab"
                                         Click="AddSpecificTab_Click">
@@ -692,7 +691,7 @@
                                 <Setter Property="HorizontalContentAlignment"
                                         Value="Stretch" />
                                 <Setter Property="Padding"
-                                        Value="10,0,0,0" />
+                                        Value="0" />
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
@@ -700,13 +699,14 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding}"
                                                ToolTipService.ToolTip="{Binding}"
                                                IsTextSelectionEnabled="True"
                                                TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
+                                               VerticalAlignment="Center"
+                                               Padding="0,0,5,0"/>
                                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Style="{ThemeResource ButtonRevealStyle}"
                                             Content="删除"

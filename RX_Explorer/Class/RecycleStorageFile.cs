@@ -18,6 +18,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override string DisplayName
+        {
+            get
+            {
+                return Name;
+            }
+        }
+
         public override string Type
         {
             get
