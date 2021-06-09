@@ -1062,13 +1062,13 @@ namespace RX_Explorer.Class
                 else
                 {
                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
-                    return new List<FileSystemStorageItemBase>();
+                    return new List<FileSystemStorageItemBase>(0);
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
-                return new List<FileSystemStorageItemBase>();
+                return new List<FileSystemStorageItemBase>(0);
             }
             finally
             {

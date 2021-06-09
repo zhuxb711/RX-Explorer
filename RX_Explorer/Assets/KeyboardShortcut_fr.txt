@@ -16,7 +16,7 @@ Ctrl + F|Aucun|Activer le champ de recherche
 Ctrl + Z|L'enregistrement correspondant existe|Annuler l'opération précédente
 Ctrl + T|Désélectionner ou sélectionner uniquement un dossier|Ouvrir le dossier spécifié dans un nouvel onglet. Si aucun dossier n'est sélectionné, seule une nouvelle page à onglet sera créée
 Ctrl + Q|Sélectionner un seul dossier|Ouvrir le dossier spécifié dans une nouvelle fenêtre
-Ctrl + B|Sélectionner un seul dossier|Ouvrir le dossier spécifié dans une nouvelle fenêtre fractionnée verticale
+Ctrl + B|Aucun|Si un seul dossier est sélectionné, le dossier spécifié sera ouvert dans une nouvelle fenêtre fractionnée verticale. Dans d'autres cas, le dossier actuel sera ouvert dans une nouvelle fenêtre fractionnée verticale
 Ctrl + E|Aucun|Vider la corbeille
 Ctrl + R|Sélectionner n'importe quel fichier ou dossier|Restaurer tous les éléments sélectionnés dans la corbeille
 Ctrl + Mouse Wheel|aucun|changer le mode d'affichage du fichier

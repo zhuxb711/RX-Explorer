@@ -187,7 +187,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Debug.WriteLine($"Could not reject the USB device, PNP_VETO reason: {Enum.GetName(typeof(CfgMgr32.PNP_VETO_TYPE), Result)}");
+                                LogTracer.Log($"Could not reject the USB device, PNP_VETO reason: {Enum.GetName(typeof(CfgMgr32.PNP_VETO_TYPE), Result)}");
                             }
 
                             Thread.Sleep(300);
@@ -199,7 +199,7 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Could not reject the USB device, exception was threw, reason: {ex.Message}");
+                LogTracer.Log(ex, $"Could not reject the USB device, exception was threw, reason: {ex.Message}");
                 return false;
             }
         }

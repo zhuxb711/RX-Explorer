@@ -1588,9 +1588,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Algunas de las carpetas fijadas ya no se pueden encontrar y se eliminará automáticamente.\r\rIncluyendo: \r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>Esta operación solo permite renombrar al mismo tiempo un objeto.</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Se ha producido un problema durante el reinicio automático; por favor, reiniciar RX Explorer manualmente.</value>
   </data>
@@ -3124,5 +3121,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="ThemeColor.Header" xml:space="preserve">
     <value>Color del tema</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>Ubique esta carpeta en el árbol de directorios</value>
   </data>
 </root>

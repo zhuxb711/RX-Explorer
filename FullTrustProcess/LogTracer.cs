@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 
-namespace RX_Explorer.Class
+namespace FullTrustProcess
 {
-    /// <summary>
-    /// 提供对错误的捕获和记录，以及蓝屏的导向
-    /// </summary>
     public static class LogTracer
     {
         private static readonly string UniqueName = $"Log_GeneratedTime[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
@@ -34,88 +27,6 @@ namespace RX_Explorer.Class
         static LogTracer()
         {
             BackgroundProcessThread.Start();
-        }
-
-        public static async Task ExportLogAsync(StorageFile ExportFile)
-        {
-            try
-            {
-                if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
-                {
-                    await InnerFile.CopyAndReplaceAsync(ExportFile);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error was threw in {nameof(ExportLogAsync)}, message: {ex.Message}");
-            }
-        }
-
-        public static async Task<bool> CheckHasAnyLogAvailableAsync()
-        {
-            try
-            {
-                foreach (StorageFile LogFile in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
-                                                let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                                where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _)
-                                                select File)
-                {
-                    BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
-
-                    if (Properties.Size > 0)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error was threw in {nameof(CheckHasAnyLogAvailableAsync)}, message: {ex.Message}");
-                return false;
-            }
-        }
-
-        public static async Task ExportAllLogAsync(StorageFile ExportFile)
-        {
-            try
-            {
-                using (Stream ExportStream = await ExportFile.OpenStreamForWriteAsync().ConfigureAwait(false))
-                {
-                    foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
-                                                                        let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                                                        where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
-                                                                        let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
-                                                                        orderby LogDate ascending
-                                                                        select (LogDate, File))
-                    {
-                        BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
-
-                        if (Properties.Size > 0)
-                        {
-                            using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
-                            {
-                                Writer.WriteLine();
-                                Writer.WriteLine("*************************");
-                                Writer.WriteLine($"LogDate: {LogDate:G}");
-                                Writer.WriteLine("*************************");
-                            }
-
-                            using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                            {
-                                await LogFileStream.CopyToAsync(ExportStream).ConfigureAwait(false);
-                            }
-
-                            ExportStream.Seek(0, SeekOrigin.End);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error was threw in {nameof(ExportAllLogAsync)}, message: {ex.Message}");
-            }
         }
 
         /// <summary>
@@ -143,7 +54,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        MessageSplit = Ex.Message.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -161,7 +72,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        StackTraceSplit = Ex.StackTrace.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -173,7 +84,7 @@ namespace RX_Explorer.Class
                                         .AppendLine("------------------------------------")
                                         .AppendLine($"AdditionalComment: {AdditionalComment ?? "<Empty>"}")
                                         .AppendLine($"------------------------------------")
-                                        .AppendLine($"Source: RX-Explorer")
+                                        .AppendLine($"Source: FullTrustProcess")
                                         .AppendLine()
                                         .AppendLine($"Exception: {Ex}")
                                         .AppendLine()
@@ -231,9 +142,7 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    StorageFile LogFile = ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.OpenIfExists).AsTask().Result;
-
-                    using (FileStream LogFileStream = LogFile.LockAndBlockAccess())
+                    using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);
 

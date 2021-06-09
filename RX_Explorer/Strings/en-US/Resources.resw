@@ -1699,9 +1699,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>This operation allows only one object to be renamed at a time</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>There was a problem during the automatic restart, please restart the RX Explorer manually</value>
   </data>
@@ -3229,5 +3226,8 @@ Invalid names include
   </data>
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Override files</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>Locate this folder in directory tree</value>
   </data>
 </root>

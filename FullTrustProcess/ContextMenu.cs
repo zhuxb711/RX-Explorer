@@ -155,9 +155,9 @@ namespace FullTrustProcess
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Debug.WriteLine("Exception was threw when getting the context menu COM object");
+                LogTracer.Log(ex, "Exception was threw when getting the context menu COM object");
                 return null;
             }
         }
@@ -212,10 +212,10 @@ namespace FullTrustProcess
                                     }
                                 }
                             }
-                            catch (AccessViolationException)
+                            catch (AccessViolationException AVE)
                             {
                                 Verb = null;
-                                Debug.WriteLine("Could not get verb from context menu item");
+                                LogTracer.Log(AVE, "Could not get verb from context menu item");
                             }
                             finally
                             {
@@ -296,9 +296,9 @@ namespace FullTrustProcess
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("Exception was threw when fetching the context menu item");
+                    LogTracer.Log(ex, "Exception was threw when fetching the context menu item");
                 }
                 finally
                 {
@@ -371,9 +371,9 @@ namespace FullTrustProcess
                             return false;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine("Exception was threw when invoke the context menu item");
+                        LogTracer.Log(ex, "Exception was threw when invoke the context menu item");
                         return false;
                     }
                 });

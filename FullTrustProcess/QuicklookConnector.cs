@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
 
@@ -26,8 +27,9 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(CheckQuicklookIsAvaliable)}");
                 return false;
             }
         }
@@ -53,8 +55,9 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SendMessage)}");
                 return false;
             }
         }

@@ -2096,10 +2096,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Algunas de las carpetas fijadas ya no se pueden encontrar y se eliminará automáticamente.\r\rIncluyendo: \r</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_RenameNumError_Content" translate="yes" xml:space="preserve">
-          <source>This operation allows only one object to be renamed at a time</source>
-          <target state="translated">Esta operación solo permite renombrar al mismo tiempo un objeto.</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
           <target state="translated">Se ha producido un problema durante el reinicio automático; por favor, reiniciar RX Explorer manualmente.</target>
@@ -4146,6 +4142,10 @@ Las denominaciones no válidas son:
         <trans-unit id="ThemeColor.Header" translate="yes" xml:space="preserve">
           <source>Theme color</source>
           <target state="translated">Color del tema</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Locate this folder in directory tree</source>
+          <target state="translated">Ubique esta carpeta en el árbol de directorios</target>
         </trans-unit>
       </group>
     </body>

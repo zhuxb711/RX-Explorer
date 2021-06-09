@@ -769,7 +769,11 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (!RenameItem.Name.Equals(dialog.DesireName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, dialog.DesireName)))
+                    string OriginName = RenameItem.Name;
+                    string NewName = dialog.DesireNameMap[OriginName];
+
+                    if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                        && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, NewName)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -785,7 +789,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    await RenameItem.RenameAsync(dialog.DesireName);
+                    await RenameItem.RenameAsync(NewName);
                 }
             }
         }

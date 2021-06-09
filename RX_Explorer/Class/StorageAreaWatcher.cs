@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         private IntPtr WatchPtr = IntPtr.Zero;
 
-        private readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
 
         public string CurrentLocation { get; private set; }
 
@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
                 CurrentLocation = Path;
 
                 StopWatchDirectory();
-                
+
                 WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Path, Added, Removed, Renamed, Modified);
             }
         }
@@ -57,7 +57,9 @@ namespace RX_Explorer.Class
                             {
                                 PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
 
-                                if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
+                                FileSystemStorageItemBase OldItem = CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase));
+
+                                if (OldItem != null)
                                 {
                                     if (ModifiedItem.GetType() == OldItem.GetType())
                                     {
@@ -145,12 +147,7 @@ namespace RX_Explorer.Class
                                 {
                                     if ((Item is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
                                     {
-                                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OlderItem)
-                                        {
-                                            CurrentCollection.Remove(OlderItem);
-                                        }
-
-                                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
+                                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase) || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
                                         {
                                             CurrentCollection.Remove(ExistItem);
                                         }
@@ -214,7 +211,9 @@ namespace RX_Explorer.Class
                     {
                         if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                         {
-                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                            FileSystemStorageItemBase Item = CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase));
+
+                            if (Item != null)
                             {
                                 CurrentCollection.Remove(Item);
 
@@ -318,6 +317,7 @@ namespace RX_Explorer.Class
             }
 
             Locker.Dispose();
+            Locker = null;
 
             CurrentCollection = null;
             TreeView = null;

@@ -46,8 +46,9 @@ namespace FullTrustProcess
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GetMIMEFromPath)}");
                 return "unknown/unknown";
             }
             finally

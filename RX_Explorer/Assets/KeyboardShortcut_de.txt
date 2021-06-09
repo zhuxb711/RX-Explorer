@@ -16,7 +16,7 @@ Ctrl + F|Keine|Aktiviere das Suchfeld
 Ctrl + Z|Der entsprechende Datensatz ist vorhanden|Rückgängig machen des vorherigen Vorgangs
 Ctrl + T|Abwählen oder nur einen Ordner auswählen|Öffnen Sie den angegebenen Ordner in einem neuen Tab. Wenn kein Ordner ausgewählt ist, wird nur eine neue Registerkarte erstellt
 Ctrl + Q|Nur einen Ordner auswählen|Angegebenen Ordner in einem neuen Fenster öffnen
-Ctrl + B|Nur einen Ordner auswählen|Angegebenen Ordner in einem neuen vertikalen geteilten Fenster öffnen split
+Ctrl + B|Keine|Wenn nur ein Ordner ausgewählt ist, wird der angegebene Ordner in einem neuen vertikalen geteilten Fenster geöffnet. In anderen Fällen wird der aktuelle Ordner in einem neuen vertikalen geteilten Fenster geöffnet
 Ctrl + E|Keine|Papierkorb leeren
 Ctrl + R|Beliebige Datei oder Ordner auswählen|Alle im Papierkorb ausgewählten Elemente wiederherstellen
 Ctrl + Mausrad|keine|Dateianzeigemodus ändern

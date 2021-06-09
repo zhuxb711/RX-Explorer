@@ -69,8 +69,9 @@ namespace FullTrustProcess
 
                 return JsonSerializer.Serialize(RecycleItemList);
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GenerateRecycleItemsByJson)}");
                 return string.Empty;
             }
         }
@@ -82,8 +83,9 @@ namespace FullTrustProcess
                 RecycleBin.Empty(false);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(EmptyRecycleBin)}");
                 return false;
             }
         }
@@ -145,8 +147,9 @@ namespace FullTrustProcess
 
                 return !HasError;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Restore)}");
                 return false;
             }
             finally
@@ -184,8 +187,9 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
                 return false;
             }
         }

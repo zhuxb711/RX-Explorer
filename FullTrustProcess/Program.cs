@@ -58,6 +58,21 @@ namespace FullTrustProcess
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
                     AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
+
+                    try
+                    {
+                        //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
+                        string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
+
+                        if (Directory.Exists(TempFolderPath))
+                        {
+                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
+                    }
                 }
                 else
                 {
@@ -68,7 +83,7 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"FullTrustProcess threw an exception, message: {ex.Message}");
+                LogTracer.Log(ex, $"FullTrustProcess threw an exception, message: {ex.Message}");
             }
             finally
             {
@@ -80,9 +95,9 @@ namespace FullTrustProcess
                 {
                     PipeServers.Values.ToList().ForEach((Item) => Item.Dispose());
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("Error when dispose PipeLine");
+                    LogTracer.Log(ex, "Error when dispose PipeLine");
                 }
 
                 PipeServers.Clear();
@@ -1241,7 +1256,7 @@ namespace FullTrustProcess
                                     }
                                     catch (Exception ex)
                                     {
-                                        Debug.WriteLine($"Kill process failed, reason: {ex.Message}");
+                                        LogTracer.Log(ex, $"Kill process failed, reason: {ex.Message}");
                                         Value.Add("Error_Failure", "Unoccupied failed");
                                     }
                                     finally
@@ -1257,9 +1272,9 @@ namespace FullTrustProcess
 
                                                 Pro.Dispose();
                                             }
-                                            catch
+                                            catch (Exception ex)
                                             {
-                                                Debug.WriteLine("Process is no longer running");
+                                                LogTracer.Log(ex, "Process is no longer running");
                                             }
                                         }
                                     }
@@ -1312,9 +1327,9 @@ namespace FullTrustProcess
                                                     }
                                                 }
                                             }
-                                            catch
+                                            catch (Exception ex)
                                             {
-                                                Debug.WriteLine("Could not send progress data");
+                                                LogTracer.Log(ex, "Could not send progress data");
                                             }
                                         }
                                     },
@@ -1367,9 +1382,9 @@ namespace FullTrustProcess
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
-                                    Debug.WriteLine("Could not send stop signal");
+                                    LogTracer.Log(ex, "Could not send stop signal");
                                 }
                             }
 
@@ -1417,9 +1432,9 @@ namespace FullTrustProcess
                                                         }
                                                     }
                                                 }
-                                                catch
+                                                catch (Exception ex)
                                                 {
-                                                    Debug.WriteLine("Could not send progress data");
+                                                    LogTracer.Log(ex, "Could not send progress data");
                                                 }
                                             }
                                         },
@@ -1480,9 +1495,9 @@ namespace FullTrustProcess
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
-                                    Debug.WriteLine("Could not send progress data");
+                                    LogTracer.Log(ex, "Could not send progress data");
                                 }
                             }
 
@@ -1530,9 +1545,9 @@ namespace FullTrustProcess
                                                             }
                                                         }
                                                     }
-                                                    catch
+                                                    catch (Exception ex)
                                                     {
-                                                        Debug.WriteLine("Could not send progress data");
+                                                        LogTracer.Log(ex, "Could not send progress data");
                                                     }
                                                 }
                                             },
@@ -1591,9 +1606,9 @@ namespace FullTrustProcess
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
-                                    Debug.WriteLine("Could not send stop signal");
+                                    LogTracer.Log(ex, "Could not send stop signal");
                                 }
                             }
 
@@ -1785,9 +1800,9 @@ namespace FullTrustProcess
                                     ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
                                 }
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                Debug.WriteLine("GetProcess from id failed");
+                                LogTracer.Log(ex, "GetProcess from id failed");
                             }
 
                             await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
@@ -1924,6 +1939,8 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Connection_RequestReceived)}");
+
                 ValueSet Value = new ValueSet
                 {
                     {"Error", ex.Message}
@@ -1937,9 +1954,9 @@ namespace FullTrustProcess
                 {
                     Deferral.Complete();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"Exception was threw when complete the deferral");
+                    LogTracer.Log(ex, $"Exception was threw when complete the deferral");
                 }
             }
         }
@@ -1971,17 +1988,17 @@ namespace FullTrustProcess
                     }
                     else
                     {
-                        Debug.WriteLine("Error: Could not switch to window because MainWindowHandle is always invalid");
+                        LogTracer.Log("Error: Could not switch to window because MainWindowHandle is always invalid");
                     }
                 }
                 else
                 {
-                    Debug.WriteLine("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
+                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Error: {nameof(SetWindowsZPosition)} threw an error, message: {e.Message}");
+                LogTracer.Log(ex, $"Error: {nameof(SetWindowsZPosition)} threw an error, message: {ex.Message}");
             }
         }
 
@@ -1996,7 +2013,7 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{nameof(AliveCheck)} threw an exception, message: {ex.Message}");
+                LogTracer.Log(ex, $"{nameof(AliveCheck)} threw an exception, message: {ex.Message}");
             }
         }
     }

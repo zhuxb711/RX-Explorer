@@ -16,7 +16,7 @@ Ctrl + F|None|Activate the search box
 Ctrl + Z|The corresponding record exists|Undo the previous operation
 Ctrl + T|Unselect or only select a folder|Open the specified folder in a new tab. If no folder is selected, only a new tab page will be created
 Ctrl + Q|Select only one folder|Open the specified folder in a new window
-Ctrl + B|Select only one folder|Open the specified folder in a new vertical split window
+Ctrl + B|None|If only one folder is selected, the specified folder will be opened in a new vertical split window. In other cases, the current folder will be opened in a new vertical split window
 Ctrl + E|None|Empty the recycle bin
 Ctrl + R|Select any file or folder|Restore all items selected in recycle bin
 Ctrl + Mouse Wheel|none|change file display mode

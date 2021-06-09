@@ -16,7 +16,7 @@ Ctrl + F|Ninguno|Activar el cuadro de búsqueda
 Ctrl + Z|El registro correspondiente existe|Deshacer la operación anterior
 Ctrl + T|Deseleccionar o solo seleccionar una carpeta|Abrir la carpeta especificada en una nueva pestaña. Si no se selecciona ninguna carpeta, solo se creará una nueva pestaña
 Ctrl + Q|Seleccionar solo una carpeta|Abrir la carpeta especificada en una nueva ventana
-Ctrl + B|Seleccionar solo una carpeta|Abrir la carpeta especificada en una nueva ventana dividida verticalmente
+Ctrl + B|Ninguno|Si solo se selecciona una carpeta, la carpeta especificada se abrirá en una nueva ventana dividida verticalmente. En otros casos, la carpeta actual se abrirá en una nueva ventana dividida verticalmente
 Ctrl + E|Ninguno|Vaciar la papelera de reciclaje
 Ctrl + R|Seleccionar cualquier archivo o carpeta|Restaurar todos los elementos seleccionados en la papelera de reciclaje
 Ctrl + Rueda del mouse|ninguno|cambiar el modo de visualización del archivo

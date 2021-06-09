@@ -1542,9 +1542,6 @@
     <value>某些釘選的資料夾已不存在，將被自動刪除\r\r包括：\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>此操作一次只能重新命名一個對象</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>自動重啟過程中出現問題，請手動重啟RX 檔案總管</value>
   </data>
@@ -3124,5 +3121,8 @@
   </data>
   <data name="ThemeColor.Header" xml:space="preserve">
     <value>主題色</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>在目錄樹中找到此文件夾</value>
   </data>
 </root>

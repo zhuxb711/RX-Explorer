@@ -467,7 +467,7 @@ namespace RX_Explorer.Class
                         LogTracer.Log(ex, "An exception was threw when trying show flyout");
                     }
 
-                    _ = Interlocked.Exchange(ref ContextMenuLockResource, 0);
+                    Interlocked.Exchange(ref ContextMenuLockResource, 0);
                 }
             }
         }
@@ -691,7 +691,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(200);
+                                await Task.Delay(300);
                             }
                         }
 
@@ -728,7 +728,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(200);
+                                await Task.Delay(300);
                             }
                         }
 

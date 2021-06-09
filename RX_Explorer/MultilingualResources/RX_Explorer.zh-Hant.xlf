@@ -2035,10 +2035,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">某些釘選的資料夾已不存在，將被自動刪除\r\r包括：\r</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_RenameNumError_Content" translate="yes" xml:space="preserve">
-          <source>This operation allows only one object to be renamed at a time</source>
-          <target state="translated">此操作一次只能重新命名一個對象</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
           <target state="translated">自動重啟過程中出現問題，請手動重啟RX 檔案總管</target>
@@ -4148,6 +4144,10 @@ Invalid names include
         <trans-unit id="ThemeColor.Header" translate="yes" xml:space="preserve">
           <source>Theme color</source>
           <target state="translated">主題色</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
+          <source>Locate this folder in directory tree</source>
+          <target state="translated">在目錄樹中找到此文件夾</target>
         </trans-unit>
       </group>
     </body>

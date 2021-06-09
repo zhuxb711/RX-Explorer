@@ -564,9 +564,17 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder:
+                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                await Container.CreateNewBladeAsync(Folder.Path);
+                                if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                {
+                                    await Container.CreateNewBladeAsync(Folder.Path);
+                                }
+                                else
+                                {
+                                    await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                }
+
                                 break;
                             }
                         default:
@@ -1446,70 +1454,88 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+
+            if (SelectedItemsCopy.Count > 0)
             {
-                if (SelectedItems.Count > 1)
+                RenameDialog dialog = new RenameDialog(SelectedItemsCopy);
+
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    try
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_RenameNumError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync();
-                }
-                else
-                {
-                    FileSystemStorageItemBase RenameItem = SelectedItem;
-
-                    RenameDialog dialog = new RenameDialog(RenameItem);
-
-                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
-                    {
-                        if (!RenameItem.Name.Equals(dialog.DesireName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, dialog.DesireName)))
+                        if (SelectedItemsCopy.Count == 1)
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                            string OriginName = SelectedItemsCopy[0].Name;
+                            string NewName = dialog.DesireNameMap[OriginName];
 
-                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                            if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                                && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NewName)))
                             {
-                                return;
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                                {
+                                    return;
+                                }
+                            }
+
+                            await SelectedItemsCopy[0].RenameAsync(NewName);
+
+                            FileSystemStorageItemBase TargetItem = null;
+
+                            for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                            {
+                                TargetItem = FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase));
+
+                                if (TargetItem == null)
+                                {
+                                    await Task.Delay(500);
+                                }
+                                else
+                                {
+                                    SelectedItem = TargetItem;
+                                    ItemPresenter.ScrollIntoView(TargetItem);
+                                    break;
+                                }
                             }
                         }
-
-                        try
+                        else
                         {
-                            await RenameItem.RenameAsync(dialog.DesireName);
-                        }
-                        catch (FileLoadException)
-                        {
-                            QueueContentDialog LoadExceptionDialog = new QueueContentDialog
+                            foreach (FileSystemStorageItemBase OriginItem in SelectedItemsCopy)
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                            };
-
-                            _ = await LoadExceptionDialog.ShowAsync();
+                                await OriginItem.RenameAsync(dialog.DesireNameMap[OriginItem.Name]);
+                            }
                         }
-                        catch (Exception)
+                    }
+                    catch (FileLoadException)
+                    {
+                        QueueContentDialog LoadExceptionDialog = new QueueContentDialog
                         {
-                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
 
-                            await UnauthorizeDialog.ShowAsync();
-                        }
+                        _ = await LoadExceptionDialog.ShowAsync();
+                    }
+                    catch (Exception)
+                    {
+                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        await UnauthorizeDialog.ShowAsync();
                     }
                 }
             }
@@ -1699,33 +1725,8 @@ namespace RX_Explorer
                             {
                                 SelectionExtention.Disable();
 
-                                DelayDragCancel?.Cancel();
-                                DelayDragCancel?.Dispose();
-                                DelayDragCancel = new CancellationTokenSource();
-
-                                Task.Delay(300).ContinueWith((task, input) =>
+                                if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                 {
-                                    if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
-                                    {
-                                        _ = Item.StartDragAsync(Point);
-                                    }
-                                }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
-                            }
-                            else
-                            {
-                                if (PointerInfo.Properties.IsLeftButtonPressed)
-                                {
-                                    SelectedItem = Item;
-                                }
-
-                                if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
-                                {
-                                    SelectionExtention.Enable();
-                                }
-                                else
-                                {
-                                    SelectionExtention.Disable();
-
                                     DelayDragCancel?.Cancel();
                                     DelayDragCancel?.Dispose();
                                     DelayDragCancel = new CancellationTokenSource();
@@ -1737,6 +1738,37 @@ namespace RX_Explorer
                                             _ = Item.StartDragAsync(Point);
                                         }
                                     }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                }
+                            }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    SelectedItem = Item;
+                                }
+
+                                if (e.OriginalSource is Grid || e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                {
+                                    SelectionExtention.Enable();
+                                }
+                                else
+                                {
+                                    SelectionExtention.Disable();
+
+                                    if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                    {
+                                        DelayDragCancel?.Cancel();
+                                        DelayDragCancel?.Dispose();
+                                        DelayDragCancel = new CancellationTokenSource();
+
+                                        Task.Delay(300).ContinueWith((task, input) =>
+                                        {
+                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                            {
+                                                _ = Item.StartDragAsync(Point);
+                                            }
+                                        }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                    }
                                 }
                             }
                         }
@@ -2302,17 +2334,22 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
-                    while (true)
+                    FileSystemStorageItemBase TargetItem = null;
+
+                    for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
                     {
-                        if (FileCollection.FirstOrDefault((Item) => Item == NewFolder) is FileSystemStorageItemBase NewItem)
+                        TargetItem = FileCollection.FirstOrDefault((Item) => Item == NewFolder);
+
+                        if (TargetItem == null)
                         {
-                            ItemPresenter.UpdateLayout();
+                            await Task.Delay(500);
+                        }
+                        else
+                        {
+                            SelectedItem = TargetItem;
+                            ItemPresenter.ScrollIntoView(TargetItem);
 
-                            ItemPresenter.ScrollIntoView(NewItem);
-
-                            SelectedItem = NewItem;
-
-                            if ((ItemPresenter.ContainerFromItem(NewItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
+                            if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
                             {
                                 if (Element.FindName("NameLabel") is TextBlock NameLabel)
                                 {
@@ -2324,7 +2361,7 @@ namespace RX_Explorer
                                     EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                     EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
                                     EditBox.LostFocus += EditBox_LostFocus;
-                                    EditBox.Text = NewItem.Name;
+                                    EditBox.Text = TargetItem.Name;
                                     EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
                                     EditBox.SelectAll();
@@ -2334,10 +2371,6 @@ namespace RX_Explorer
                             }
 
                             break;
-                        }
-                        else
-                        {
-                            await Task.Delay(500);
                         }
                     }
                 }
@@ -2369,6 +2402,15 @@ namespace RX_Explorer
 
         private async void EmptyFlyout_Opening(object sender, object e)
         {
+            if (SettingControl.IsDetachTreeViewAndPresenter)
+            {
+                ExpandToCurrentFolder.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                ExpandToCurrentFolder.Visibility = Visibility.Visible;
+            }
+
             try
             {
                 DataPackageView Package = Clipboard.GetContent();
@@ -3810,7 +3852,7 @@ namespace RX_Explorer
         {
             TextBlock NameLabel = (TextBlock)sender;
 
-            if ((e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed || e.Pointer.PointerDeviceType != PointerDeviceType.Mouse) && SettingControl.IsDoubleClickEnable)
+            if (e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && SettingControl.IsDoubleClickEnable)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
@@ -3908,7 +3950,25 @@ namespace RX_Explorer
 
                     try
                     {
-                        await CurrentEditItem.RenameAsync(NameEditBox.Text);
+                        string NewName = await CurrentEditItem.RenameAsync(NameEditBox.Text);
+
+                        FileSystemStorageItemBase TargetItem = null;
+
+                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                        {
+                            TargetItem = FileCollection.FirstOrDefault((Item) => Item.Name.Equals(NewName, StringComparison.OrdinalIgnoreCase));
+
+                            if (TargetItem == null)
+                            {
+                                await Task.Delay(500);
+                            }
+                            else
+                            {
+                                SelectedItem = TargetItem;
+                                ItemPresenter.ScrollIntoView(TargetItem);
+                                break;
+                            }
+                        }
                     }
                     catch (FileLoadException)
                     {
@@ -4957,6 +5017,19 @@ namespace RX_Explorer
             else if (Container.GoParentFolder.IsEnabled)
             {
                 Container.GoParentFolder_Click(null, null);
+            }
+        }
+
+        private async void ExpandToCurrentFolder_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            TreeViewNode RootNode = Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase));
+
+            if (RootNode != null)
+            {
+                TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty));
+                Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
             }
         }
 

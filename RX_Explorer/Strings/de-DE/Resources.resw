@@ -1588,9 +1588,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Einige der fixierten Ordner können nicht mehr gefunden werden und werden automatisch entfernt.\r\rEinschließlich：\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>Diese Aufgabe erlaubt es immer nur ein Objekt umzubenennen.</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Es ist ein Problem während des automatischen Neustarts aufgetreten. Bitte starten Sie RX-Explorer manuell neu.</value>
   </data>
@@ -3124,5 +3121,8 @@ Inkorrekte Namen sind
   </data>
   <data name="ThemeColor.Header" xml:space="preserve">
     <value>Themenfarbe</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>Suchen Sie diesen Ordner im Verzeichnisbaum</value>
   </data>
 </root>

@@ -166,6 +166,7 @@
                 <AppBarButton Icon="NewFolder"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Name="CreateFolder"
+                              MinWidth="250"
                               Click="CreateFolder_Click" />
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
                               x:Name="OpenFolderInNewWindow"
@@ -177,6 +178,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
                               x:Name="OpenFolderInNewTab"
+                              MinWidth="250"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -185,6 +187,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               x:Name="OpenFolderInVerticalSplitView"
+                              MinWidth="250"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -195,6 +198,7 @@
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="FolderAttribute"
+                              MinWidth="250"
                               Click="FolderAttribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

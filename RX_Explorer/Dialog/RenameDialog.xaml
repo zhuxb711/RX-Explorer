@@ -25,21 +25,22 @@
                               Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
     </local:QueueContentDialog.Resources>
     <Grid>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical"
+                    Width="300">
             <TextBox  Name="RenameText"
                       TextChanged="RenameText_TextChanged"
                       BeforeTextChanging="RenameText_BeforeTextChanging"
-                      FontSize="15"
-                      Width="300" />
+                      FontSize="15" />
             <TextBlock Text="预览"
                        x:Uid="RenamePreview"
                        FontSize="18"
                        Margin="0,10,0,0" />
-            <TextBlock Name="Preview"
-                       FontSize="15"
-                       Width="300"
-                       Margin="0,5,0,0"
-                       TextWrapping="Wrap" />
+            <ScrollViewer Margin="0,5,0,0"
+                          MaxHeight="150"
+                          HorizontalScrollMode="Disabled">
+                <TextBlock Name="Preview"
+                           TextWrapping="Wrap" />
+            </ScrollViewer>
         </StackPanel>
     </Grid>
 </local:QueueContentDialog>

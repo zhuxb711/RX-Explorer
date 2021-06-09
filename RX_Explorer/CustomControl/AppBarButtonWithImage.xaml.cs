@@ -4,7 +4,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.CustomControl
 {
-    public sealed partial class AppBarButtonWithImage : AppBarButton
+    public partial class AppBarButtonWithImage : AppBarButton
     {
         public BitmapImage ImageIcon
         {

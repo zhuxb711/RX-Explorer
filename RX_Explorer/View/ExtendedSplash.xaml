@@ -43,7 +43,6 @@
             </StackPanel>
             
             <StackPanel Name="LoadingBingArea"
-                        Width="200"
                         Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">

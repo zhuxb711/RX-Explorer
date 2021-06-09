@@ -61,10 +61,10 @@ namespace FullTrustProcess
                                     {
                                         LockProcesses.Add(Process.GetProcessById(Convert.ToInt32(ProcessInfo[i].Process.dwProcessId)));
                                     }
-                                    catch
+                                    catch(Exception ex)
                                     {
                                         // catch the error -- in case the process is no longer running
-                                        Debug.WriteLine("Process is no longer running");
+                                        LogTracer.Log(ex, "Process is no longer running");
                                     }
                                 }
 
@@ -72,24 +72,24 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Debug.WriteLine("Could not list processes locking resource");
+                                LogTracer.Log("Could not list processes locking resource");
                                 return new List<Process>(0);
                             }
                         }
                         else if (Error != Win32Error.ERROR_SUCCESS)
                         {
-                            Debug.WriteLine("Could not list processes locking resource. Failed to get size of result.");
+                            LogTracer.Log("Could not list processes locking resource. Failed to get size of result.");
                             return new List<Process>(0);
                         }
                         else
                         {
-                            Debug.WriteLine("Unknown error");
+                            LogTracer.Log("Unknown error");
                             return new List<Process>(0);
                         }
                     }
                     else
                     {
-                        Debug.WriteLine("Could not register resource");
+                        LogTracer.Log("Could not register resource");
                         return new List<Process>(0);
                     }
                 }
@@ -100,7 +100,7 @@ namespace FullTrustProcess
             }
             else
             {
-                Debug.WriteLine("Could not begin restart session. Unable to determine file locker.");
+                LogTracer.Log("Could not begin restart session. Unable to determine file locker.");
                 return new List<Process>(0);
             }
         }

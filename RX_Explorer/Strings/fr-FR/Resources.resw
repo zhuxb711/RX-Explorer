@@ -1523,9 +1523,6 @@
     <value>Certains des dossiers fixes ne sont plus trouvés et seront automatiquement supprimés\r\rDont：\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>Cette opération ne permet de renommer qu'un objet à la fois</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</value>
   </data>
@@ -3124,5 +3121,8 @@ Les noms non valides incluent
   </data>
   <data name="ThemeColor.Header" xml:space="preserve">
     <value>Couleur du thème</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>Localisez ce dossier dans l'arborescence des répertoires</value>
   </data>
 </root>

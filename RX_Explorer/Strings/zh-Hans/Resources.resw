@@ -1523,9 +1523,6 @@
     <value>部分固定的文件夹已无法找到，将自动移除\r\r包括：\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
-    <value>此操作一次仅允许重命名一个对象</value>
-  </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
     <value>自动重新启动过程中出现问题，请手动重启RX文件管理器</value>
   </data>
@@ -3124,5 +3121,8 @@
   </data>
   <data name="ThemeColor.Header" xml:space="preserve">
     <value>主题颜色</value>
+  </data>
+  <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
+    <value>在目录树中定位此文件夹</value>
   </data>
 </root>

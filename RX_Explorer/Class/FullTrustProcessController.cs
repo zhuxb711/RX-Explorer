@@ -192,6 +192,7 @@ namespace RX_Explorer.Class
         {
             LogTracer.Log("RX-Explorer is resuming, recover all instance");
             AvailableControllers.Clear();
+            AllControllerList.Clear();
             RequestResizeController(LastRequestedControllerNum);
         }
 
@@ -205,7 +206,12 @@ namespace RX_Explorer.Class
         {
             if (Controller.IsDisposed)
             {
-                AvailableControllers.Enqueue(await CreateAsync());
+                FullTrustProcessController NewController = await CreateAsync();
+
+                if (NewController != null)
+                {
+                    AvailableControllers.Enqueue(NewController);
+                }
             }
             else
             {
@@ -230,14 +236,19 @@ namespace RX_Explorer.Class
                         {
                             if (Controller.IsDisposed)
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().Result, ExtendedExecutionController.TryCreateExtendedExecution().Result));
+                                FullTrustProcessController NewController = CreateAsync().Result;
+
+                                if (NewController != null)
+                                {
+                                    CompletionSource.SetResult(new ExclusiveUsage(NewController, ExtendedExecutionController.TryCreateExtendedExecution().Result));
+                                    break;
+                                }
                             }
                             else
                             {
                                 CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.TryCreateExtendedExecution().Result));
+                                break;
                             }
-
-                            break;
                         }
                         else
                         {
@@ -294,7 +305,16 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllers.Enqueue(CreateAsync().Result);
+                    FullTrustProcessController NewController = CreateAsync().Result;
+
+                    if (NewController != null)
+                    {
+                        AvailableControllers.Enqueue(NewController);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Could not create a new controller");
+                    }
                 }
             }
             catch (Exception ex)
@@ -324,10 +344,18 @@ namespace RX_Explorer.Class
 
         private static async Task<FullTrustProcessController> CreateAsync()
         {
-            FullTrustProcessController Controller = new FullTrustProcessController();
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-            await Controller.ConnectRemoteAsync().ConfigureAwait(false);
-            return Controller;
+            try
+            {
+                FullTrustProcessController Controller = new FullTrustProcessController();
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                await Controller.ConnectRemoteAsync();
+                return Controller;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not create FullTrustProcess properly");
+                return null;
+            }
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)

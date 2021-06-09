@@ -159,6 +159,33 @@ namespace RX_Explorer.Class
         }
     }
 
+    public sealed class NullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if ((value is string v && string.IsNullOrEmpty(v)) || value == null)
+            {
+                return Visibility.Collapsed;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if ((value is string v && string.IsNullOrEmpty(v)) || value == null)
+            {
+                return Visibility.Collapsed;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+    }
+
     public sealed class FolderStateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

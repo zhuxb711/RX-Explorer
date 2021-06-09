@@ -60,8 +60,9 @@ namespace FullTrustProcess
 
                 return Association;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GetAllAssociation)}");
                 return Association;
             }
             finally
@@ -81,7 +82,7 @@ namespace FullTrustProcess
                 if (Result == HRESULT.S_OK)
                 {
                     string ExePath = Builder.ToString();
-                    
+
                     if (System.IO.Path.IsPathRooted(ExePath))
                     {
                         return ExePath;
