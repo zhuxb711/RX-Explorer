@@ -96,15 +96,28 @@
                                x:Uid="TaskListPanelTitle"
                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                RelativePanel.AlignLeftWithPanel="True" />
-                    <Button RelativePanel.AlignRightWithPanel="True"
+                    <Button RelativePanel.LeftOf="ClearTaskListPanel"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             Width="24"
                             Height="24"
                             Padding="2"
                             Name="PinTaskListPanel"
                             Click="PinTaskListPanel_Click"
-                            Style="{ThemeResource ButtonRevealStyle}"
                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" />
+                    <Button RelativePanel.AlignRightWithPanel="True"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            Width="24"
+                            Height="24"
+                            Padding="2"
+                            x:Uid="ClearTaskListPanel"
+                            Name="ClearTaskListPanel"
+                            Click="ClearTaskListPanel_Click"
+                            Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                        <Viewbox>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xE107;" />
+                        </Viewbox>
+                    </Button>
                 </RelativePanel>
                 <ListView Grid.Row="1"
                           Margin="0,5,0,0"

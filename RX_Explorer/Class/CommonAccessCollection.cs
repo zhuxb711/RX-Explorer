@@ -134,192 +134,93 @@ namespace RX_Explorer.Class
                             LibraryFolderList.Clear();
                         }
 
-                        if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
+                        try
                         {
+                            IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                            UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                     ? UserDataPaths.GetForUser(CurrentUser)
+                                                     : UserDataPaths.GetDefault();
                             try
                             {
-                                IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                         ? UserDataPaths.GetForUser(CurrentUser)
-                                                         : UserDataPaths.GetDefault();
-                                try
+                                if (!string.IsNullOrEmpty(DataPath.Downloads))
                                 {
-                                    if (!string.IsNullOrEmpty(DataPath.Downloads))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Downloads, LibraryType.Downloads);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Desktop))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Desktop, LibraryType.Desktop);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Videos))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Videos, LibraryType.Videos);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Pictures))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Pictures, LibraryType.Pictures);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Documents))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Documents, LibraryType.Document);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Music))
-                                    {
-                                        SQLite.Current.SetLibraryPath(DataPath.Music, LibraryType.Music);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
-                                    {
-                                        SQLite.Current.SetLibraryPath(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive);
-                                    }
+                                    SQLite.Current.SetLibraryPath(DataPath.Downloads, LibraryType.Downloads);
                                 }
-                                catch (Exception ex)
+
+                                if (!string.IsNullOrEmpty(DataPath.Desktop))
                                 {
-                                    LogTracer.Log(ex, "An error was threw when getting library folder (In initialize)");
+                                    SQLite.Current.SetLibraryPath(DataPath.Desktop, LibraryType.Desktop);
+                                }
+
+                                if (!string.IsNullOrEmpty(DataPath.Videos))
+                                {
+                                    SQLite.Current.SetLibraryPath(DataPath.Videos, LibraryType.Videos);
+                                }
+
+                                if (!string.IsNullOrEmpty(DataPath.Pictures))
+                                {
+                                    SQLite.Current.SetLibraryPath(DataPath.Pictures, LibraryType.Pictures);
+                                }
+
+                                if (!string.IsNullOrEmpty(DataPath.Documents))
+                                {
+                                    SQLite.Current.SetLibraryPath(DataPath.Documents, LibraryType.Document);
+                                }
+
+                                if (!string.IsNullOrEmpty(DataPath.Music))
+                                {
+                                    SQLite.Current.SetLibraryPath(DataPath.Music, LibraryType.Music);
+                                }
+
+                                if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
+                                {
+                                    SQLite.Current.SetLibraryPath(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
-
-                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                                if (!string.IsNullOrEmpty(DesktopPath))
-                                {
-                                    SQLite.Current.SetLibraryPath(DesktopPath, LibraryType.Desktop);
-                                }
-
-                                string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                                if (!string.IsNullOrEmpty(VideoPath))
-                                {
-                                    SQLite.Current.SetLibraryPath(VideoPath, LibraryType.Videos);
-                                }
-
-                                string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                                if (!string.IsNullOrEmpty(PicturesPath))
-                                {
-                                    SQLite.Current.SetLibraryPath(PicturesPath, LibraryType.Pictures);
-                                }
-
-                                string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                                if (!string.IsNullOrEmpty(DocumentsPath))
-                                {
-                                    SQLite.Current.SetLibraryPath(DocumentsPath, LibraryType.Document);
-                                }
-
-                                string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                                if (!string.IsNullOrEmpty(MusicPath))
-                                {
-                                    SQLite.Current.SetLibraryPath(MusicPath, LibraryType.Music);
-                                }
-
-                                string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
-                                if (!string.IsNullOrEmpty(OneDrivePath))
-                                {
-                                    SQLite.Current.SetLibraryPath(OneDrivePath, LibraryType.OneDrive);
-                                }
-                            }
-                            finally
-                            {
-                                ApplicationData.Current.LocalSettings.Values["IsLibraryInitialized"] = true;
+                                LogTracer.Log(ex, "An error was threw when getting library folder (In initialize)");
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            try
+                            LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
+
+                            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                            if (!string.IsNullOrEmpty(DesktopPath))
                             {
-                                IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                         ? UserDataPaths.GetForUser(CurrentUser)
-                                                         : UserDataPaths.GetDefault();
-                                try
-                                {
-                                    if (!string.IsNullOrEmpty(DataPath.Downloads))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Downloads, LibraryType.Downloads);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Desktop))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Desktop, LibraryType.Desktop);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Videos))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Videos, LibraryType.Videos);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Pictures))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Pictures, LibraryType.Pictures);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Documents))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Documents, LibraryType.Document);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(DataPath.Music))
-                                    {
-                                        SQLite.Current.UpdateLibrary(DataPath.Music, LibraryType.Music);
-                                    }
-
-                                    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
-                                    {
-                                        SQLite.Current.UpdateLibrary(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "An error was threw when getting library folder (Not in initialize)");
-                                }
+                                SQLite.Current.SetLibraryPath(DesktopPath, LibraryType.Desktop);
                             }
-                            catch (Exception ex)
+
+                            string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                            if (!string.IsNullOrEmpty(VideoPath))
                             {
-                                LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)");
+                                SQLite.Current.SetLibraryPath(VideoPath, LibraryType.Videos);
+                            }
 
-                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                                if (!string.IsNullOrEmpty(DesktopPath))
-                                {
-                                    SQLite.Current.UpdateLibrary(DesktopPath, LibraryType.Desktop);
-                                }
+                            string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                            if (!string.IsNullOrEmpty(PicturesPath))
+                            {
+                                SQLite.Current.SetLibraryPath(PicturesPath, LibraryType.Pictures);
+                            }
 
-                                string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                                if (!string.IsNullOrEmpty(VideoPath))
-                                {
-                                    SQLite.Current.UpdateLibrary(VideoPath, LibraryType.Videos);
-                                }
+                            string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                            if (!string.IsNullOrEmpty(DocumentsPath))
+                            {
+                                SQLite.Current.SetLibraryPath(DocumentsPath, LibraryType.Document);
+                            }
 
-                                string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                                if (!string.IsNullOrEmpty(PicturesPath))
-                                {
-                                    SQLite.Current.UpdateLibrary(PicturesPath, LibraryType.Pictures);
-                                }
+                            string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                            if (!string.IsNullOrEmpty(MusicPath))
+                            {
+                                SQLite.Current.SetLibraryPath(MusicPath, LibraryType.Music);
+                            }
 
-                                string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                                if (!string.IsNullOrEmpty(DocumentsPath))
-                                {
-                                    SQLite.Current.UpdateLibrary(DocumentsPath, LibraryType.Document);
-                                }
-
-                                string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                                if (!string.IsNullOrEmpty(MusicPath))
-                                {
-                                    SQLite.Current.UpdateLibrary(MusicPath, LibraryType.Music);
-                                }
-
-                                string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
-                                if (!string.IsNullOrEmpty(OneDrivePath))
-                                {
-                                    SQLite.Current.UpdateLibrary(OneDrivePath, LibraryType.OneDrive);
-                                }
+                            string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+                            if (!string.IsNullOrEmpty(OneDrivePath))
+                            {
+                                SQLite.Current.SetLibraryPath(OneDrivePath, LibraryType.OneDrive);
                             }
                         }
 

@@ -1,4 +1,59 @@
 ﻿*****
+###Novedades de la versión 6.6.7.0
+
+#####Actualización de funciones
+
+>#####Se agregó un botón "Borrar todas las tareas completadas" a la "Lista de tareas"
+
+>#####Ahora puedes cambiar el nombre de varios archivos o carpetas al mismo tiempo
+
+>#####Cuando se complete el cambio de nombre, la lista se desplazará para mostrar que el archivo y seleccionarlo al mismo tiempo
+
+>#####Se agregó el menú contextual "Ubique esta carpeta en el árbol de directorios"
+
+>#####Se agregó "Historial de navegación", que se puede activar presionando prolongadamente el "Botón de avance" o el "Botón de retroceso"
+
+#####Actualización de la interfaz de usuario
+
+>#####Al cambiar a "Iconos grandes", "Iconos medianos" e "Iconos pequeños", las imágenes de vista previa se mostrarán si están disponibles
+
+>#####Al arrastrar un archivo entre ventanas divididas verticalmente, se desplazará a la siguiente ventana cuando el mouse esté cerca del borde
+
+>#####El reproductor multimedia incorporado ahora tiene un fondo acrílico
+
+>#####Haga doble clic en la barra de estado inferior para volver al directorio principal
+
+>#####Se ajustó el ámbito de aplicación de Ctrl + B
+
+#####Arreglo del fallo
+
+>#####Se corrigió un bloqueo cuando se ejecutaba en una unidad con capacidad de nivel EB
+
+>#####Se solucionó el problema de que los efectos de animación se podían perder al abrir la página de configuración por primera vez
+
+>#####Se solucionó el problema de que el visor de medios incorporado no se cerrará correctamente si el visor está reproduciendo en la pestaña de cierre
+
+>#####Se solucionó el problema de que faltaban algunos elementos del menú contextual
+
+>#####Se solucionó el problema de posibles conflictos de bases de datos en "Biblioteca" en algunos casos
+
+>#####Se solucionó el problema de que la barra de título podía ocultar parte del contenido en el modo de pantalla completa
+
+>#####Se solucionó el problema de alineación de algunos elementos del menú contextual
+
+>#####Se solucionó el problema de que el mensaje "Obteniendo el fondo de pantalla de Bing" podía bloquearse durante el inicio
+
+>#####Se corrigieron algunos problemas al usar la pantalla táctil
+
+>#####Se solucionó el problema que podía causar un bloqueo cuando se inserta un dispositivo USB
+
+>#####Se solucionó el problema de que el título de la ventana era incorrecto al abrir la ventana de propiedades desde la papelera de reciclaje
+
+>#####Se solucionó el problema de visualización incorrecta de parte del contenido en la ventana de propiedades de la carpeta
+
+>#####Se corrigieron algunos problemas de la interfaz de usuario en la página de configuración
+
+*****
 ###Novedades de la versión 6.6.4.0
 
 #####Arreglo del fallo

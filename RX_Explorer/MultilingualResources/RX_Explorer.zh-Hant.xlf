@@ -2766,8 +2766,8 @@ Invalid names include
           <target state="translated">Everything搜索引擎</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
-          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
-          <target state="translated">Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything或安裝Everything服務\r 2.購買此軟件以解鎖此功能</target>
+          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>
+          <target state="translated">Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything\r 2.購買此軟件以解鎖此功能</target>
         </trans-unit>
         <trans-unit id="BitlockerPasswordDialog_PasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Please enter Bitlocker password to unlock the drive</source>
@@ -4148,6 +4148,10 @@ Invalid names include
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
           <source>Locate this folder in directory tree</source>
           <target state="translated">在目錄樹中找到此文件夾</target>
+        </trans-unit>
+        <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Clear all completed tasks</source>
+          <target state="translated">清除所有已完成的任務</target>
         </trans-unit>
       </group>
     </body>

@@ -1,4 +1,59 @@
 ﻿*****
+###What's new in Ver.6.6.7.0
+
+#####Feature update
+
+>#####Added a "Clear All Completed Tasks" button to "Task List"
+
+>#####Now you can rename multiple files or folders at the same time
+
+>#####When the renaming is complete, the list will be scrolled to show that the file and select it at the same time
+
+>#####Added "Locate this folder in the directory tree" context menu
+
+>#####Added "Navigation History", which can be activated by long pressing the "Forward Button" or the "Back Buton"
+
+#####UI update
+
+>#####When switching to "Large Icons", "Medium Icons" and "Small Icons", the preview images will be displayed if available
+
+>#####When dragging a file between vertically split windows, it will scroll to the next window when the mouse is close to the edge
+
+>#####The built-in media player now has an acrylic background
+
+>#####Double-click the bottom status bar to return to the parent directory
+
+>#####Adjusted the scope of application of Ctrl+B
+
+#####Bug fix
+
+>#####Fixed a crash when running on a drive with EB-level capacity
+
+>#####Fixed the issue that animation effects may be lost when opening the settings page for the first time
+
+>#####Fixed the problem that the built-in media viewer will not be closed properly if the viewer is playing in the closing tab
+
+>#####Fixed the problem of missing some context menu items
+
+>#####Fixed the problem of possible database conflicts in "Library" in some cases
+
+>#####Fixed the problem that the title bar may obscure part of the content in full screen mode
+
+>#####Fixed the alignment problem of some context menu items
+
+>#####Fixed the problem that the prompt "Getting Bing wallpaper" may be blocked during startup
+
+>#####Fixed some problems when using the touch screen
+
+>#####Fixed the problem that may cause a crash when a USB device is inserted
+
+>#####Fixed the problem that the window title was incorrect when opening the properties window from the recycle bin
+
+>#####Fixed the problem of incorrect display of part of the content in the properties window of the folder
+
+>#####Fixed some UI issues on the settings page
+
+*****
 ###What's new in Ver.6.6.4.0
 
 #####Bug fix

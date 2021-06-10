@@ -1,4 +1,59 @@
 ﻿*****
+###Quoi de neuf dans la version 6.6.7.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout d'un bouton "Effacer toutes les tâches terminées" à la "Liste des tâches"
+
+>#####Maintenant, vous pouvez renommer plusieurs fichiers ou dossiers en même temps
+
+>#####Une fois le changement de nom terminé, la liste défile pour montrer que le fichier et le sélectionner en même temps
+
+>#####Ajout du menu contextuel "Localiser ce dossier dans l'arborescence des répertoires"
+
+>#####Ajout de "l'historique de navigation", qui peut être activé en appuyant longuement sur le "bouton avant" ou le "bouton retour"
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Lors du passage à "Grandes icônes", "Moyennes icônes" et "Petites icônes", les images d'aperçu seront affichées si disponibles
+
+>#####Lorsque vous faites glisser un fichier entre des fenêtres divisées verticalement, il défile jusqu'à la fenêtre suivante lorsque la souris est proche du bord
+
+>#####Le lecteur multimédia intégré a maintenant un fond acrylique
+
+>#####Double-cliquez sur la barre d'état inférieure pour revenir au répertoire parent
+
+>#####Ajustement du champ d'application de Ctrl+B
+
+#####Correction d'un bug
+
+>#####Correction d'un plantage lors de l'exécution sur un lecteur avec une capacité de niveau EB
+
+>#####Correction du problème de perte des effets d'animation lors de la première ouverture de la page des paramètres
+
+>#####Correction du problème selon lequel la visionneuse multimédia intégrée ne se ferme pas correctement si la visionneuse est en cours de lecture dans l'onglet de fermeture
+
+>#####Correction du problème de manque de certains éléments du menu contextuel
+
+>#####Correction du problème des conflits de base de données possibles dans "Bibliothèque" dans certains cas
+
+>#####Correction du problème selon lequel la barre de titre pouvait masquer une partie du contenu en mode plein écran
+
+>#####Correction du problème d'alignement de certains éléments du menu contextuel
+
+>#####Correction du problème selon lequel l'invite "Obtenir le fond d'écran Bing" pouvait être bloquée au démarrage
+
+>#####Correction de certains problèmes lors de l'utilisation de l'écran tactile
+
+>#####Correction du problème pouvant provoquer un plantage lors de l'insertion d'un périphérique USB
+
+>#####Correction du problème selon lequel le titre de la fenêtre était incorrect lors de l'ouverture de la fenêtre des propriétés à partir de la corbeille
+
+>######Correction du problème d'affichage incorrect d'une partie du contenu dans la fenêtre des propriétés du dossier
+
+>#####Correction de certains problèmes d'interface utilisateur sur la page des paramètres
+
+*****
 ###Quoi de neuf dans la version 6.6.4.0
 
 #####Correction d'un bug

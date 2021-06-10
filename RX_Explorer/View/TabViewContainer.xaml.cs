@@ -865,5 +865,13 @@ namespace RX_Explorer
                 QueueTaskController.ListItemSource.Remove(Model);
             }
         }
+
+        private void ClearTaskListPanel_Click(object sender, RoutedEventArgs e)
+        {
+            foreach(OperationListBaseModel Model in QueueTaskController.ListItemSource.Where((Item)=>Item.Status == OperationStatus.Cancelled || Item.Status == OperationStatus.Completed || Item.Status == OperationStatus.Error).ToArray())
+            {
+                QueueTaskController.ListItemSource.Remove(Model);
+            }
+        }
     }
 }

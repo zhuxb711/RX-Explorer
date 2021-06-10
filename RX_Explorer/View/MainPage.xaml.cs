@@ -64,11 +64,13 @@ namespace RX_Explorer
             ThisPage = this;
 
             CoreApplicationViewTitleBar SystemBar = CoreApplication.GetCurrentView().TitleBar;
-            TitleBar.Margin = new Thickness(TitleBar.Margin.Left, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
+            TitleBar.Margin = new Thickness(SystemBar.SystemOverlayLeftInset, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
             SystemBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
+            SystemBar.IsVisibleChanged += SystemBar_IsVisibleChanged;
 
             Window.Current.SetTitleBar(TitleBar);
             Application.Current.FocusVisualKind = FocusVisualKind.Reveal;
+
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
             Window.Current.Activated += MainPage_Activated;
@@ -115,6 +117,20 @@ namespace RX_Explorer
             }
         }
 
+        private void SystemBar_IsVisibleChanged(CoreApplicationViewTitleBar sender, object args)
+        {
+            if (sender.IsVisible)
+            {
+                Window.Current.SetTitleBar(TitleBar);
+                TitleBar.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Window.Current.SetTitleBar(null);
+                TitleBar.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void OnPaneDisplayModeChanged(DependencyObject sender, DependencyProperty dp)
         {
             if (sender is NavigationView View)
@@ -139,7 +155,8 @@ namespace RX_Explorer
 
         private void TitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
         {
-            TitleBar.Margin = new Thickness(TitleBar.Margin.Left, TitleBar.Margin.Top, sender.SystemOverlayRightInset, TitleBar.Margin.Bottom);
+            TitleBar.Height = sender.Height;
+            TitleBar.Margin = new Thickness(sender.SystemOverlayLeftInset, TitleBar.Margin.Top, sender.SystemOverlayRightInset, TitleBar.Margin.Bottom);
         }
 
         private async void FullTrustProcessController_CurrentBusyStatus(object sender, bool IsBusy)

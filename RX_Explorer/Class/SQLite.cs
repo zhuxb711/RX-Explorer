@@ -602,19 +602,9 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public void SetLibraryPath(string Path, LibraryType Type)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into Library Values (@Path,@Type)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path,@Type)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-                Command.ExecuteNonQuery();
-            }
-        }
-
-        public void UpdateLibrary(string NewPath, LibraryType Type)
-        {
-            using (SqliteCommand Command = new SqliteCommand("Update Library Set Path=@NewPath Where Type=@Type", Connection))
-            {
-                Command.Parameters.AddWithValue("@NewPath", NewPath);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
                 Command.ExecuteNonQuery();
             }

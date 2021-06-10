@@ -1,4 +1,59 @@
 ﻿*****
+###Was ist neu in Ver.6.6.7.0
+
+#####Funktionsupdate
+
+>#####Schaltfläche "Alle erledigten Aufgaben löschen" zur "Aufgabenliste" hinzugefügt
+
+>#####Jetzt können Sie mehrere Dateien oder Ordner gleichzeitig umbenennen
+
+>#####Wenn die Umbenennung abgeschlossen ist, wird die Liste gescrollt, um die Datei anzuzeigen und sie gleichzeitig auszuwählen
+
+>#####Kontextmenü "Diesen Ordner im Verzeichnisbaum suchen" hinzugefügt
+
+>#####"Navigationsverlauf" hinzugefügt, der durch langes Drücken der "Vorwärts-Taste" oder der "Zurück-Taste" aktiviert werden kann
+
+#####UI-Update
+
+>#####Beim Umschalten auf "Große Symbole", "Mittelgroße Symbole" und "Kleine Symbole" werden die Vorschaubilder angezeigt, sofern verfügbar if
+
+>#####Beim Ziehen einer Datei zwischen vertikal geteilten Fenstern wird zum nächsten Fenster gescrollt, wenn sich die Maus nahe am Rand befindet
+
+>#####Der integrierte Mediaplayer hat jetzt einen Acrylhintergrund
+
+>#####Doppelklicken Sie auf die untere Statusleiste, um zum übergeordneten Verzeichnis zurückzukehren
+
+>##### Anwendungsbereich von Strg+B . angepasst
+
+#####Fehlerbehebung
+
+>#####Absturz beim Ausführen auf einem Laufwerk mit EB-Level-Kapazität behoben
+
+>#####Das Problem, dass Animationseffekte verloren gehen können, wenn die Einstellungsseite zum ersten Mal geöffnet wird, wurde behoben.
+
+>#####Das Problem wurde behoben, dass der integrierte Media Viewer nicht richtig geschlossen wird, wenn der Viewer im schließenden Tab abgespielt wird
+
+>#####Das Problem, dass einige Kontextmenüelemente fehlen, wurde behoben
+
+>#####Das Problem möglicher Datenbankkonflikte in der "Bibliothek" wurde in einigen Fällen behoben
+
+>#####Das Problem wurde behoben, dass die Titelleiste im Vollbildmodus einen Teil des Inhalts verdecken kann
+
+>#####Das Ausrichtungsproblem einiger Kontextmenüelemente wurde behoben
+
+>#####Das Problem wurde behoben, dass die Eingabeaufforderung "Bing-Hintergrundbild abrufen" während des Startvorgangs möglicherweise blockiert wird
+
+>#####Einige Probleme bei der Verwendung des Touchscreens behoben
+
+>#####Problem behoben, das beim Einstecken eines USB-Geräts zu einem Absturz führen kann
+
+>#####Problem behoben, dass der Fenstertitel beim Öffnen des Eigenschaftenfensters aus dem Papierkorb falsch war
+
+>#####Das Problem der falschen Anzeige eines Teils des Inhalts im Eigenschaftenfenster des Ordners wurde behoben
+
+>#####Einige Probleme mit der Benutzeroberfläche auf der Einstellungsseite behoben
+
+*****
 ###Was ist neu in Ver.6.6.4.0
 
 #####Fehlerbehebung

@@ -47,6 +47,8 @@ namespace FullTrustProcess
         {
             try
             {
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
                 Connection = new AppServiceConnection
                 {
                     AppServiceName = "CommunicateService",
@@ -101,6 +103,14 @@ namespace FullTrustProcess
                 }
 
                 PipeServers.Clear();
+            }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception Ex)
+            {
+                LogTracer.Log(Ex, "UnhandledException");
             }
         }
 

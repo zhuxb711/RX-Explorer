@@ -426,7 +426,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        return Result.AsReadOnly();
+                        return Result;
                     }
                     else
                     {

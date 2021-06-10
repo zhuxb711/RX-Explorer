@@ -2766,8 +2766,8 @@ Les noms non valides incluent
           <target state="translated">Moteur de recherche Everything</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
-          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
-          <target state="translated">La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything ou installer le service Everything \r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</target>
+          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>
+          <target state="translated">La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything\r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</target>
         </trans-unit>
         <trans-unit id="BitlockerPasswordDialog_PasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Please enter Bitlocker password to unlock the drive</source>
@@ -4148,6 +4148,10 @@ Les noms non valides incluent
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
           <source>Locate this folder in directory tree</source>
           <target state="translated">Localisez ce dossier dans l'arborescence des répertoires</target>
+        </trans-unit>
+        <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Clear all completed tasks</source>
+          <target state="translated">Effacer toutes les tâches terminées</target>
         </trans-unit>
       </group>
     </body>

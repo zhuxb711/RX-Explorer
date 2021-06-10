@@ -2087,7 +2087,7 @@
     <value>Everything搜索引擎</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
-    <value>Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything或安裝Everything服務\r 2.購買此軟件以解鎖此功能</value>
+    <value>Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything\r 2.購買此軟件以解鎖此功能</value>
   </data>
   <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>請輸入Bitlocker密碼來解鎖驅動器</value>
@@ -3124,5 +3124,8 @@
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
     <value>在目錄樹中找到此文件夾</value>
+  </data>
+  <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
+    <value>清除所有已完成的任務</value>
   </data>
 </root>

@@ -2809,8 +2809,8 @@ Inkorrekte Namen sind
           <target state="translated">Entsperren</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
-          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
-          <target state="translated">Die Everything-Suchmaschine bringt extrem schnelle Suchergebnisse. Wenn sie Everything verwenden möchten müssen Sie \r 1. Everything installieren und ausführen oder den Everything-Service installieren\r 2. Diese Software kaufen um diese Funktion zu entsperren</target>
+          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>
+          <target state="translated">Die Everything-Suchmaschine bringt extrem schnelle Suchergebnisse. Wenn sie Everything verwenden möchten müssen Sie \r 1. Everything installieren und ausführen\r 2. Diese Software kaufen um diese Funktion zu entsperren</target>
         </trans-unit>
         <trans-unit id="EverythingQuestion.Title" translate="yes" xml:space="preserve">
           <source>Everything Search Engine</source>
@@ -4146,6 +4146,10 @@ Inkorrekte Namen sind
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
           <source>Locate this folder in directory tree</source>
           <target state="translated">Suchen Sie diesen Ordner im Verzeichnisbaum</target>
+        </trans-unit>
+        <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Clear all completed tasks</source>
+          <target state="translated">Alle erledigten Aufgaben löschen</target>
         </trans-unit>
       </group>
     </body>

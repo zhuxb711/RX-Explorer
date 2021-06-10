@@ -2118,7 +2118,7 @@ Las denominaciones no válidas son:
     <value>Desbloquear</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
-    <value>Everything puede proporcionar una experiencia de búsqueda extremadamente rápida. Si deseas usar Everything, debes \r  1. Instalar y ejecutar Everything o instalar el servicio Everything\r  2. Comprar el programa para desbloquear esta función.</value>
+    <value>Everything puede proporcionar una experiencia de búsqueda extremadamente rápida. Si deseas usar Everything, debes \r  1. Instalar y ejecutar Everything\r  2. Comprar el programa para desbloquear esta función.</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Motor de búsqueda Everything</value>
@@ -3124,5 +3124,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
     <value>Ubique esta carpeta en el árbol de directorios</value>
+  </data>
+  <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Borrar todas las tareas completadas</value>
   </data>
 </root>

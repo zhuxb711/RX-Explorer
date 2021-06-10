@@ -2805,8 +2805,8 @@ Las denominaciones no válidas son:
           <target state="translated">Desbloquear</target>
         </trans-unit>
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
-          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
-          <target state="translated">Everything puede proporcionar una experiencia de búsqueda extremadamente rápida. Si deseas usar Everything, debes \r  1. Instalar y ejecutar Everything o instalar el servicio Everything\r  2. Comprar el programa para desbloquear esta función.</target>
+          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</source>
+          <target state="translated">Everything puede proporcionar una experiencia de búsqueda extremadamente rápida. Si deseas usar Everything, debes \r  1. Instalar y ejecutar Everything\r  2. Comprar el programa para desbloquear esta función.</target>
         </trans-unit>
         <trans-unit id="EverythingQuestion.Title" translate="yes" xml:space="preserve">
           <source>Everything Search Engine</source>
@@ -4146,6 +4146,10 @@ Las denominaciones no válidas son:
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
           <source>Locate this folder in directory tree</source>
           <target state="translated">Ubique esta carpeta en el árbol de directorios</target>
+        </trans-unit>
+        <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Clear all completed tasks</source>
+          <target state="translated">Borrar todas las tareas completadas</target>
         </trans-unit>
       </group>
     </body>

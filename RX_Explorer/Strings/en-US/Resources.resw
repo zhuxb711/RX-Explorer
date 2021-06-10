@@ -2232,7 +2232,7 @@ Invalid names include
     <value>Unlock</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
-    <value>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</value>
+    <value>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything\r  2. Purchase this software to unlock this feature</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Everything Search Engine</value>
@@ -3229,5 +3229,8 @@ Invalid names include
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
     <value>Locate this folder in directory tree</value>
+  </data>
+  <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Clear all completed tasks</value>
   </data>
 </root>

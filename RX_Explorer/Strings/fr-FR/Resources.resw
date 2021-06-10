@@ -2087,7 +2087,7 @@ Les noms non valides incluent
     <value>Moteur de recherche Everything</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
-    <value>La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything ou installer le service Everything \r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</value>
+    <value>La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything\r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</value>
   </data>
   <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</value>
@@ -3124,5 +3124,8 @@ Les noms non valides incluent
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
     <value>Localisez ce dossier dans l'arborescence des répertoires</value>
+  </data>
+  <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Effacer toutes les tâches terminées</value>
   </data>
 </root>
