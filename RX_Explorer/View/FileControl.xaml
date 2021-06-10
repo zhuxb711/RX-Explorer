@@ -674,7 +674,7 @@
                 </muxc:TreeView.Resources>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
-                        <RelativePanel>
+                        <RelativePanel Padding="0,5">
                             <Viewbox Height="20"
                                      Name="Icon"
                                      Margin="0,3,0,0"

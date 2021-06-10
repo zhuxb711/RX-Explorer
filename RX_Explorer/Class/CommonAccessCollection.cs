@@ -143,40 +143,44 @@ namespace RX_Explorer.Class
                                                      : UserDataPaths.GetDefault();
                             try
                             {
+                                List<(LibraryType, string)> Array = new List<(LibraryType, string)>();
+
                                 if (!string.IsNullOrEmpty(DataPath.Downloads))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Downloads, LibraryType.Downloads);
+                                    Array.Add((LibraryType.Downloads, DataPath.Downloads));
                                 }
 
                                 if (!string.IsNullOrEmpty(DataPath.Desktop))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Desktop, LibraryType.Desktop);
+                                    Array.Add((LibraryType.Desktop, DataPath.Desktop));
                                 }
 
                                 if (!string.IsNullOrEmpty(DataPath.Videos))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Videos, LibraryType.Videos);
+                                    Array.Add((LibraryType.Videos, DataPath.Videos));
                                 }
 
                                 if (!string.IsNullOrEmpty(DataPath.Pictures))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Pictures, LibraryType.Pictures);
+                                    Array.Add((LibraryType.Pictures, DataPath.Pictures));
                                 }
 
                                 if (!string.IsNullOrEmpty(DataPath.Documents))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Documents, LibraryType.Document);
+                                    Array.Add((LibraryType.Document, DataPath.Documents));
                                 }
 
                                 if (!string.IsNullOrEmpty(DataPath.Music))
                                 {
-                                    SQLite.Current.SetLibraryPath(DataPath.Music, LibraryType.Music);
+                                    Array.Add((LibraryType.Music, DataPath.Music));
                                 }
 
                                 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
                                 {
-                                    SQLite.Current.SetLibraryPath(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive);
+                                    Array.Add((LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive")));
                                 }
+
+                                SQLite.Current.UpdateLibraryPath(Array);
                             }
                             catch (Exception ex)
                             {
@@ -187,41 +191,45 @@ namespace RX_Explorer.Class
                         {
                             LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
 
+                            List<(LibraryType, string)> Array = new List<(LibraryType, string)>();
+
                             string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                             if (!string.IsNullOrEmpty(DesktopPath))
                             {
-                                SQLite.Current.SetLibraryPath(DesktopPath, LibraryType.Desktop);
+                                Array.Add((LibraryType.Desktop, DesktopPath));
                             }
 
                             string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                             if (!string.IsNullOrEmpty(VideoPath))
                             {
-                                SQLite.Current.SetLibraryPath(VideoPath, LibraryType.Videos);
+                                Array.Add((LibraryType.Videos, VideoPath));
                             }
 
                             string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
                             if (!string.IsNullOrEmpty(PicturesPath))
                             {
-                                SQLite.Current.SetLibraryPath(PicturesPath, LibraryType.Pictures);
+                                Array.Add((LibraryType.Pictures, PicturesPath));
                             }
 
                             string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                             if (!string.IsNullOrEmpty(DocumentsPath))
                             {
-                                SQLite.Current.SetLibraryPath(DocumentsPath, LibraryType.Document);
+                                Array.Add((LibraryType.Document, DocumentsPath));
                             }
 
                             string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
                             if (!string.IsNullOrEmpty(MusicPath))
                             {
-                                SQLite.Current.SetLibraryPath(MusicPath, LibraryType.Music);
+                                Array.Add((LibraryType.Music, MusicPath));
                             }
 
                             string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
                             if (!string.IsNullOrEmpty(OneDrivePath))
                             {
-                                SQLite.Current.SetLibraryPath(OneDrivePath, LibraryType.OneDrive);
+                                Array.Add((LibraryType.OneDrive, OneDrivePath));
                             }
+
+                            SQLite.Current.UpdateLibraryPath(Array);
                         }
 
                         Queue<string> ErrorList = new Queue<string>();

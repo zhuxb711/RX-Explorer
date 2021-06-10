@@ -97,7 +97,7 @@ namespace RX_Explorer.Dialog
 
                 foreach (TerminalProfile Profile in TerminalList)
                 {
-                    SQLite.Current.SetOrModifyTerminalProfile(Profile);
+                    SQLite.Current.SetTerminalProfile(Profile);
                 }
             }
 

@@ -53,6 +53,13 @@ namespace RX_Explorer.Class
         /// </summary>
         private void InitializeDatabase()
         {
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand InitCommand = new SqliteCommand
+            {
+                Connection = Connection,
+                Transaction = Transaction
+            };
+
             StringBuilder Builder = new StringBuilder();
 
             Builder.Append("Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));")
@@ -65,33 +72,100 @@ namespace RX_Explorer.Class
                    .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size')), GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending')), Primary Key(Path));")
                    .Append("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));");
 
+            InitCommand.CommandText = Builder.ToString();
+            InitCommand.ExecuteNonQuery();
+
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
             {
-                Builder.Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');")
-                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');")
-                       .Append($"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');")
-                       .Append($"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');");
+                Builder.Clear();
+
+                string UserCustomString = Enum.GetName(typeof(LibraryType), LibraryType.UserCustom);
+
+                foreach (string LType in Enum.GetNames(typeof(LibraryType)))
+                {
+                    if (LType != UserCustomString)
+                    {
+                        Builder.Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{LType}');");
+                    }
+                }
+
+                foreach (int Index in Enumerable.Range(1, 15))
+                {
+                    Builder.Append($"Insert Or Replace Into BackgroundPicture Values ('ms-appx:///CustomImage/Picture{Index}.jpg');");
+                }
+
+                Builder.Append($"Insert Or Replace Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');")
+                       .Append($"Insert Or Replace Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');");
+
+                InitCommand.CommandText = Builder.ToString();
+                InitCommand.ExecuteNonQuery();
+
+                InitCommand.CommandText = "Insert Or Replace Into QuickStart Values (@Name,@Path,@Protocal,@Type)";
+
+                IReadOnlyList<(string, string, string, QuickStartType)> DefaultQuickStartList = new List<(string, string, string, QuickStartType)>
+                {
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), "ms-appx:///QuickStartImage/Photos.png", "ms-photos:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), "ms-appx:///QuickStartImage/Weather.png", "msnweather:", QuickStartType.Application),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite),
+                    (Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite)
+                };
+
+                foreach ((string Name, string FullPath, string Protocal, QuickStartType Type) in DefaultQuickStartList)
+                {
+                    InitCommand.Parameters.Clear();
+                    InitCommand.Parameters.AddWithValue("@Name", Name);
+                    InitCommand.Parameters.AddWithValue("@Path", FullPath);
+                    InitCommand.Parameters.AddWithValue("@Protocal", Protocal);
+                    InitCommand.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    InitCommand.ExecuteNonQuery();
+                }
 
                 ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
             }
 
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand CreateTable = new SqliteCommand(Builder.ToString(), Connection, Transaction);
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("RefreshQuickStart"))
+            {
+                ApplicationData.Current.LocalSettings.Values.Remove("RefreshQuickStart");
 
-            CreateTable.ExecuteNonQuery();
+                IReadOnlyList<(string, string, QuickStartType)> UpdateArray = new List<(string, string, QuickStartType)>
+                {
+                    ("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Photos.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application),
+                    ("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application),
+                    ("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite),
+                    ("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite),
+                    ("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite)
+                };
+
+                foreach ((string FullPath, string NewName, QuickStartType Type) in UpdateArray)
+                {
+                    InitCommand.Parameters.Clear();
+
+                    InitCommand.CommandText = "Select Count(*) From QuickStart Where FullPath = @FullPath";
+                    InitCommand.Parameters.AddWithValue("@FullPath", FullPath);
+
+                    if (Convert.ToInt32(InitCommand.ExecuteScalar()) > 0)
+                    {
+                        InitCommand.Parameters.Clear();
+
+                        InitCommand.CommandText = "Update QuickStart Set Name = @NewName Where FullPath = @FullPath And Type = @Type";
+                        InitCommand.Parameters.AddWithValue("@FullPath", FullPath);
+                        InitCommand.Parameters.AddWithValue("@NewName", NewName);
+                        InitCommand.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                        InitCommand.ExecuteNonQuery();
+                    }
+                }
+            }
 
             Transaction.Commit();
         }
@@ -207,12 +281,18 @@ namespace RX_Explorer.Class
 
         public TerminalProfile GetTerminalProfileByName(string Name)
         {
-            using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection);
-
-            Command.Parameters.AddWithValue("@Name", Name);
-
-            using (SqliteDataReader Reader = Command.ExecuteReader())
+            if (string.IsNullOrEmpty(Name))
             {
+                return null;
+            }
+            else
+            {
+                using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection);
+
+                Command.Parameters.AddWithValue("@Name", Name);
+
+                using SqliteDataReader Reader = Command.ExecuteReader();
+
                 if (Reader.Read())
                 {
                     return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3]));
@@ -238,7 +318,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetOrModifyTerminalProfile(TerminalProfile Profile)
+        public void SetTerminalProfile(TerminalProfile Profile)
         {
             if (Profile == null)
             {
@@ -246,18 +326,9 @@ namespace RX_Explorer.Class
             }
 
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-
-            using SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection, Transaction);
+            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)", Connection, Transaction);
 
             Command.Parameters.AddWithValue("@Name", Profile.Name);
-
-            int Count = Convert.ToInt32(Command.ExecuteScalar());
-
-            Command.CommandText = Count > 0 ?
-                "Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name" :
-                "Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)";
-
-
             Command.Parameters.AddWithValue("@Path", Profile.Path);
             Command.Parameters.AddWithValue("@Argument", Profile.Argument);
             Command.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
@@ -268,27 +339,15 @@ namespace RX_Explorer.Class
 
         public void SetProgramPickerRecord(params AssociationPackage[] Packages)
         {
-            using var Transaction = Connection.BeginTransaction();
-            using var Command = Connection.CreateCommand();
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded)", Connection, Transaction);
 
-            Command.CommandText = $"Insert Or Ignore Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded);";
-
-            var ExtensionPara = Command.CreateParameter();
-            ExtensionPara.ParameterName = "@Extension";
-            var ExerPathPara = Command.CreateParameter();
-            ExerPathPara.ParameterName = "@ExecutablePath";
-            var IsRecommandedPara = Command.CreateParameter();
-            IsRecommandedPara.ParameterName = "@IsRecommanded";
-
-            Command.Parameters.Add(ExtensionPara);
-            Command.Parameters.Add(ExerPathPara);
-            Command.Parameters.Add(IsRecommandedPara);
-
-            foreach (var package in Packages)
+            foreach (AssociationPackage Pack in Packages)
             {
-                ExtensionPara.Value = package.Extension.ToLower();
-                ExerPathPara.Value = package.ExecutablePath;
-                IsRecommandedPara.Value = package.IsRecommanded.ToString();
+                Command.Parameters.Clear();
+                Command.Parameters.AddWithValue("@Extension", Pack.Extension);
+                Command.Parameters.AddWithValue("@ExecutablePath", Pack.ExecutablePath);
+                Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Pack.IsRecommanded));
                 Command.ExecuteNonQuery();
             }
 
@@ -299,35 +358,21 @@ namespace RX_Explorer.Class
         {
             string DefaultPath = GetDefaultProgramPickerRecord(Extension);
 
-            using var Transaction = Connection.BeginTransaction();
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
 
-            using var Command = Connection.CreateCommand();
-            Command.CommandText = "Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;";
-
-            var fileTypePara = new SqliteParameter("@FileType", Extension.ToLower());
-
-            Command.Parameters.Add(fileTypePara);
+            Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
             Command.ExecuteNonQuery();
-
 
             Command.CommandText = $"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);";
 
-            var ExerPathPara = Command.CreateParameter();
-            ExerPathPara.ParameterName = "@ExecutablePath";
-            var IsDefaultPara = Command.CreateParameter();
-            IsDefaultPara.ParameterName = "@IsDefault";
-            var IsRecommandedPara = Command.CreateParameter();
-            IsRecommandedPara.ParameterName = "@IsRecommanded";
-
-            Command.Parameters.Add(ExerPathPara);
-            Command.Parameters.Add(IsDefaultPara);
-            Command.Parameters.Add(IsRecommandedPara);
-
-            foreach (var association in AssociationList)
+            foreach (AssociationPackage Package in AssociationList)
             {
-                ExerPathPara.Value = association.ExecutablePath;
-                IsDefaultPara.Value = association.ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase).ToString();
-                IsRecommandedPara.Value = association.IsRecommanded.ToString();
+                Command.Parameters.Clear();
+                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
+                Command.Parameters.AddWithValue("@ExecutablePath", Package.ExecutablePath);
+                Command.Parameters.AddWithValue("@IsDefault", Convert.ToString(Package.ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase)));
+                Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Package.IsRecommanded));
                 Command.ExecuteNonQuery();
             }
 
@@ -346,7 +391,6 @@ namespace RX_Explorer.Class
         public void SetDefaultProgramPickerRecord(string Extension, string Path)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-
             using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
 
             Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
@@ -595,19 +639,28 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        /// <summary>
-        /// 保存在文件夹和库区域显示的文件夹路径
-        /// </summary>
-        /// <param name="Path">文件夹路径</param>
-        /// <returns></returns>
-        public void SetLibraryPath(string Path, LibraryType Type)
+        public void UpdateLibraryPath(IEnumerable<(LibraryType, string)> InputArray)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path,@Type)", Connection))
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand("Update Or Ignore Library Set Path = @Path Where Type = @Type", Connection, Transaction);
+
+            foreach ((LibraryType Type, string Path) in InputArray)
             {
+                Command.Parameters.Clear();
                 Command.Parameters.AddWithValue("@Path", Path);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
                 Command.ExecuteNonQuery();
             }
+
+            Transaction.Commit();
+        }
+
+        public void SetLibraryPath(LibraryType Type, string Path)
+        {
+            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path,@Type)", Connection);
+            Command.Parameters.AddWithValue("@Path", Path);
+            Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+            Command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -656,65 +709,32 @@ namespace RX_Explorer.Class
         public void UpdateQuickStartItem(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where Name=@OldName", Connection, Transaction);
 
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where Name=@OldName", Connection, Transaction))
+            Command.Parameters.AddWithValue("@OldName", OldName);
+
+            if (Convert.ToInt32(Command.ExecuteScalar()) == 0)
             {
-                Command.Parameters.AddWithValue("@OldName", OldName);
-
-                if (Convert.ToInt32(Command.ExecuteScalar()) == 0)
-                {
-                    return;
-                }
+                return;
             }
+
+            Command.Parameters.Clear();
 
             if (FullPath != null)
             {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection, Transaction))
-                {
-                    Command.Parameters.AddWithValue("@OldName", OldName);
-                    Command.Parameters.AddWithValue("@Path", FullPath);
-                    Command.Parameters.AddWithValue("@NewName", NewName);
-                    Command.Parameters.AddWithValue("@Protocal", Protocal);
-                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    Command.ExecuteNonQuery();
-                }
+                Command.CommandText = "Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type";
+                Command.Parameters.AddWithValue("@Path", FullPath);
             }
             else
             {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection, Transaction))
-                {
-                    Command.Parameters.AddWithValue("@OldName", OldName);
-                    Command.Parameters.AddWithValue("@NewName", NewName);
-                    Command.Parameters.AddWithValue("@Protocal", Protocal);
-                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    Command.ExecuteNonQuery();
-                }
+                Command.CommandText = "Update QuickStart Set Name = @NewName, Protocal = @Protocal Where Name = @OldName And Type = @Type";
             }
 
-            Transaction.Commit();
-        }
-
-        public void UpdateQuickStartItem(string FullPath, string NewName, QuickStartType Type)
-        {
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where FullPath=@FullPath", Connection, Transaction))
-            {
-                Command.Parameters.AddWithValue("@FullPath", FullPath);
-
-                if (Convert.ToInt32(Command.ExecuteScalar()) == 0)
-                {
-                    return;
-                }
-            }
-
-            using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type", Connection, Transaction))
-            {
-                Command.Parameters.AddWithValue("@FullPath", FullPath);
-                Command.Parameters.AddWithValue("@NewName", NewName);
-                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                Command.ExecuteNonQuery();
-            }
+            Command.Parameters.AddWithValue("@OldName", OldName);
+            Command.Parameters.AddWithValue("@NewName", NewName);
+            Command.Parameters.AddWithValue("@Protocal", Protocal);
+            Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+            Command.ExecuteNonQuery();
 
             Transaction.Commit();
         }

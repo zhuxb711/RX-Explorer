@@ -566,7 +566,7 @@ namespace RX_Explorer
 
             foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
             {
-                SQLite.Current.SetLibraryPath(Item.Folder.Path, Item.Type);
+                SQLite.Current.SetLibraryPath(Item.Type, Item.Folder.Path);
             }
         }
 
@@ -595,7 +595,7 @@ namespace RX_Explorer
                 else
                 {
                     CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
-                    SQLite.Current.SetLibraryPath(Folder.Path, LibraryType.UserCustom);
+                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
                 }
             }
