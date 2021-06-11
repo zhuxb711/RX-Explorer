@@ -1,4 +1,15 @@
 ﻿*****
+###Was ist neu in Ver.6.6.8.0
+
+#####Leistungsverbesserung
+
+>#####Die Leistung der Datenbankinitialisierung wurde verbessert und die Startgeschwindigkeit leicht erhöht
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass der Standard-Dateiordner in "Bibliothek" nicht gelöscht werden konnte
+
+*****
 ###Was ist neu in Ver.6.6.7.0
 
 #####Funktionsupdate

@@ -1,4 +1,15 @@
 ﻿*****
+###What's new in Ver.6.6.8.0
+
+#####Performance improvement
+
+>#####Improved the performance of database initialization and slightly increased the speed of startup
+
+#####Bug fix
+
+>#####Fixed the problem that the default file folder in "Library" could not be deleted
+
+*****
 ###What's new in Ver.6.6.7.0
 
 #####Feature update

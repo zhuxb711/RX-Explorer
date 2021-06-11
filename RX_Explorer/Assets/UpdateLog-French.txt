@@ -1,4 +1,15 @@
 ﻿*****
+###Quoi de neuf dans la version 6.6.8.0
+
+#####Amélioration des performances
+
+>#####Amélioré les performances d'initialisation de la base de données et légèrement augmenté la vitesse de démarrage
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le dossier de fichiers par défaut dans "Bibliothèque" ne pouvait pas être supprimé
+
+*****
 ###Quoi de neuf dans la version 6.6.7.0
 
 #####Mise à jour des fonctionnalités

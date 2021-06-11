@@ -1,4 +1,15 @@
 ﻿*****
+###Novedades de la versión 6.6.8.0
+
+#####Mejora del rendimiento
+
+>#####Mejoró el rendimiento de la inicialización de la base de datos y aumentó ligeramente la velocidad de inicio
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la carpeta de archivos predeterminada en "Biblioteca" no se podía eliminar
+
+*****
 ###Novedades de la versión 6.6.7.0
 
 #####Actualización de funciones
