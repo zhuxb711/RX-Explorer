@@ -3128,4 +3128,11 @@ Las denominaciones no válidas son:
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Borrar todas las tareas completadas</value>
   </data>
+  <data name="VerticalSplitQuestionSubtitle" xml:space="preserve">
+    <value>La vista dividida vertical le permite ver y manipular varias carpetas al mismo tiempo sin cambiar de pestaña. \r\rNota: compre esta aplicación para desbloquear esta función</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="VerticalSplitQuestionTitle" xml:space="preserve">
+    <value>Vista dividida vertical</value>
+  </data>
 </root>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace RX_Explorer.Class
 
         public void StopWatchDirectory()
         {
-            if (WatchPtr != IntPtr.Zero)
+            if (WatchPtr.CheckIfValidPtr())
             {
                 WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
             }
@@ -311,7 +312,7 @@ namespace RX_Explorer.Class
         {
             GC.SuppressFinalize(this);
 
-            if (WatchPtr != IntPtr.Zero)
+            if (WatchPtr.CheckIfValidPtr())
             {
                 WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
             }

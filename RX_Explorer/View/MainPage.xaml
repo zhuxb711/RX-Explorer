@@ -124,8 +124,8 @@
                           Title="购买本应用"
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="False"
-                          ActionButtonContent="准奏"
-                          CloseButtonContent="跪安" />
+                          ActionButtonContent="购买"
+                          CloseButtonContent="稍后" />
         <muxc:TeachingTip x:Name="BluetoothAudioQuestionTip"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind BluetoothAudioQuestion}"

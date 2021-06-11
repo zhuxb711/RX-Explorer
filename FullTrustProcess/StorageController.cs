@@ -517,7 +517,7 @@ namespace FullTrustProcess
 
             IntPtr Result = Shell32.SHGetFileInfo(Path, 0, ref Shfi, Shell32.SHFILEINFO.Size, Shell32.SHGFI.SHGFI_OVERLAYINDEX | Shell32.SHGFI.SHGFI_ICON | Shell32.SHGFI.SHGFI_SYSICONINDEX | Shell32.SHGFI.SHGFI_ICONLOCATION);
 
-            if (Result != IntPtr.Zero && Result != new IntPtr(-1))
+            if (Result.CheckIfValidPtr())
             {
                 User32.DestroyIcon(Shfi.hIcon);
 

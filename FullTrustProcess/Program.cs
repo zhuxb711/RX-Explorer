@@ -1980,17 +1980,30 @@ namespace FullTrustProcess
                     User32.SetWindowPos(Info.Handle, new IntPtr(1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
                 }
 
-                if (OtherProcess.WaitForInputIdle(5000))
-                {
-                    IntPtr InvalidHandle = new IntPtr(-1);
+                bool IsTimeout = false;
 
-                    for (int i = 0; i < 10 && (OtherProcess.MainWindowHandle == IntPtr.Zero || OtherProcess.MainWindowHandle == InvalidHandle); i++)
+                try
+                {
+                    IsTimeout = OtherProcess.WaitForInputIdle(5000);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    LogTracer.Log(ex, "Error: WaitForInputIdle threw an exception.");
+                }
+
+                if (IsTimeout)
+                {
+                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
+                }
+                else
+                {
+                    for (int i = 0; i < 10 && !OtherProcess.MainWindowHandle.CheckIfValidPtr(); i++)
                     {
                         Thread.Sleep(500);
                         OtherProcess.Refresh();
                     }
 
-                    if (OtherProcess.MainWindowHandle != IntPtr.Zero && OtherProcess.MainWindowHandle != InvalidHandle)
+                    if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
                     {
                         User32.ShowWindow(OtherProcess.MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
                         User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(0), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
@@ -2000,10 +2013,6 @@ namespace FullTrustProcess
                     {
                         LogTracer.Log("Error: Could not switch to window because MainWindowHandle is always invalid");
                     }
-                }
-                else
-                {
-                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
                 }
             }
             catch (Exception ex)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,14 +25,18 @@ namespace RX_Explorer.Class
         };
 
         public static ObservableCollection<OperationListBaseModel> ListItemSource { get; } = new ObservableCollection<OperationListBaseModel>();
+        public static event ProgressChangedEventHandler ProgressChanged;
 
-        private static volatile int RunningTaskCounter = 0;
+        private static volatile int RunningTaskCount;
+        private static int ProgressChangedLockResource;
+        private static volatile int OperationExistsSinceLastExecution;
+        private static volatile int MaxOperationAddedSinceLastExecution;
 
         public static bool IsAnyTaskRunningInController
         {
             get
             {
-                return RunningTaskCounter > 0;
+                return RunningTaskCount > 0;
             }
         }
 
@@ -164,6 +169,12 @@ namespace RX_Explorer.Class
 
         private static void EnqueueModelCore(OperationListBaseModel Model)
         {
+            if (!IsAnyTaskRunningInController && QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
+            {
+                MaxOperationAddedSinceLastExecution = 0;
+                OperationExistsSinceLastExecution = ListItemSource.Count;
+            }
+
             ListItemSource.Insert(0, Model);
             OpeartionQueue.Enqueue(Model);
 
@@ -232,7 +243,7 @@ namespace RX_Explorer.Class
 
         private static void ExecuteSubTaskCore(OperationListBaseModel Model)
         {
-            Interlocked.Increment(ref RunningTaskCounter);
+            Interlocked.Increment(ref RunningTaskCount);
 
             try
             {
@@ -247,6 +258,7 @@ namespace RX_Explorer.Class
                 {
                     Model.UpdateStatus(OperationStatus.Processing);
                     Model.UpdateProgress(0);
+                    ProgressChangedCore();
                 }).AsTask().Wait();
 
                 switch (Model)
@@ -311,6 +323,7 @@ namespace RX_Explorer.Class
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             Model.UpdateProgress(e.ProgressPercentage);
+                                            ProgressChangedCore();
                                         }).AsTask().Wait();
                                     }).Wait();
                                 }
@@ -382,6 +395,7 @@ namespace RX_Explorer.Class
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             Model.UpdateProgress(e.ProgressPercentage);
+                                            ProgressChangedCore();
                                         }).AsTask().Wait();
                                     }).Wait();
                                 }
@@ -430,6 +444,7 @@ namespace RX_Explorer.Class
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             Model.UpdateProgress(e.ProgressPercentage);
+                                            ProgressChangedCore();
                                         }).AsTask().Wait();
                                     }).Wait();
                                 }
@@ -482,6 +497,7 @@ namespace RX_Explorer.Class
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
                                                         Model.UpdateProgress(e.ProgressPercentage);
+                                                        ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
 
@@ -494,6 +510,7 @@ namespace RX_Explorer.Class
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
                                                         Model.UpdateProgress(e.ProgressPercentage);
+                                                        ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
 
@@ -559,6 +576,7 @@ namespace RX_Explorer.Class
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
                                                     Model.UpdateProgress(e.ProgressPercentage);
+                                                    ProgressChangedCore();
                                                 }).AsTask().Wait();
                                             }).Wait();
 
@@ -571,6 +589,7 @@ namespace RX_Explorer.Class
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
                                                     Model.UpdateProgress(e.ProgressPercentage);
+                                                    ProgressChangedCore();
                                                 }).AsTask().Wait();
                                             }).Wait();
 
@@ -585,6 +604,7 @@ namespace RX_Explorer.Class
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
                                                         Model.UpdateProgress(e.ProgressPercentage);
+                                                        ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
                                             }
@@ -604,6 +624,7 @@ namespace RX_Explorer.Class
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
                                                         Model.UpdateProgress(e.ProgressPercentage);
+                                                        ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
                                             }
@@ -662,6 +683,7 @@ namespace RX_Explorer.Class
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             Model.UpdateProgress(e.ProgressPercentage);
+                                            ProgressChangedCore();
                                         }).AsTask().Wait();
                                     }).Wait();
                                 }
@@ -703,6 +725,7 @@ namespace RX_Explorer.Class
                     if (Model.Status != OperationStatus.Error)
                     {
                         Model.UpdateProgress(100);
+                        ProgressChangedCore();
                         Model.UpdateStatus(OperationStatus.Completed);
                     }
                 }).AsTask().Wait();
@@ -713,13 +736,55 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                Interlocked.Decrement(ref RunningTaskCounter);
+                Interlocked.Decrement(ref RunningTaskCount);
+            }
+        }
+
+        private static void ProgressChangedCore()
+        {
+            if (Interlocked.Exchange(ref ProgressChangedLockResource, 1) == 0)
+            {
+                try
+                {
+                    OperationListBaseModel[] Models = ListItemSource.Where((Model) => Model.Status != OperationStatus.Error && Model.Status != OperationStatus.Cancelled && Model.Status != OperationStatus.Completed).ToArray();
+
+                    if (Models.Length > 0)
+                    {
+                        float CurrentValue = 0;
+
+                        foreach (OperationListBaseModel Model in Models)
+                        {
+                            CurrentValue += Model.Progress;
+                        }
+
+                        if (Models.Length < MaxOperationAddedSinceLastExecution)
+                        {
+                            CurrentValue += (MaxOperationAddedSinceLastExecution - Models.Length) * 100;
+                        }
+
+                        ProgressChanged?.Invoke(null, new ProgressChangedEventArgs((int)Math.Ceiling(CurrentValue / MaxOperationAddedSinceLastExecution), null));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not update the progress of TaskList");
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref ProgressChangedLockResource, 0);
+                }
             }
         }
 
         static QueueTaskController()
         {
             QueueProcessThread.Start();
+            ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
+        }
+
+        private static void ListItemSource_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            MaxOperationAddedSinceLastExecution = Math.Max(MaxOperationAddedSinceLastExecution, ListItemSource.Count - OperationExistsSinceLastExecution);
         }
     }
 }

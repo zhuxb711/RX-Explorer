@@ -4153,6 +4153,15 @@ Les noms non valides incluent
           <source>Clear all completed tasks</source>
           <target state="translated">Effacer toutes les tâches terminées</target>
         </trans-unit>
+        <trans-unit id="VerticalSplitQuestionSubtitle" translate="yes" xml:space="preserve">
+          <source>The vertical split view allows you to view and manipulate multiple folders at the same time without switching tabs. \r\rNote: Purchase this app to unlock this feature</source>
+          <target state="translated">La vue fractionnée verticale vous permet d'afficher et de manipuler plusieurs dossiers en même temps sans changer d'onglet. \r\rRemarque: Achetez cette application pour déverrouiller cette fonctionnalité</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="VerticalSplitQuestionTitle" translate="yes" xml:space="preserve">
+          <source>Vertical Split View</source>
+          <target state="translated">Vue fractionnée verticale</target>
+        </trans-unit>
       </group>
     </body>
   </file>

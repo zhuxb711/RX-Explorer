@@ -3128,4 +3128,11 @@
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>清除所有已完成的任務</value>
   </data>
+  <data name="VerticalSplitQuestionSubtitle" xml:space="preserve">
+    <value>垂直拆分視圖允許您同時查看和操作多個文件夾，而無需切換選項卡。 \r\r注意：購買此應用程序以解鎖此功能</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="VerticalSplitQuestionTitle" xml:space="preserve">
+    <value>垂直拆分視圖</value>
+  </data>
 </root>

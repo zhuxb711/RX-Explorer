@@ -3128,4 +3128,11 @@ Les noms non valides incluent
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Effacer toutes les tâches terminées</value>
   </data>
+  <data name="VerticalSplitQuestionSubtitle" xml:space="preserve">
+    <value>La vue fractionnée verticale vous permet d'afficher et de manipuler plusieurs dossiers en même temps sans changer d'onglet. \r\rRemarque: Achetez cette application pour déverrouiller cette fonctionnalité</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="VerticalSplitQuestionTitle" xml:space="preserve">
+    <value>Vue fractionnée verticale</value>
+  </data>
 </root>

@@ -3128,4 +3128,11 @@ Inkorrekte Namen sind
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Alle erledigten Aufgaben löschen</value>
   </data>
+  <data name="VerticalSplitQuestionSubtitle" xml:space="preserve">
+    <value>Mit der vertikalen geteilten Ansicht können Sie mehrere Ordner gleichzeitig anzeigen und bearbeiten, ohne die Registerkarten zu wechseln. \r\rHinweis: Kaufen Sie diese App, um diese Funktion freizuschalten</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="VerticalSplitQuestionTitle" xml:space="preserve">
+    <value>Vertikal geteilte Ansicht</value>
+  </data>
 </root>

@@ -716,6 +716,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               MinWidth="250"
                               MaxWidth="350"
+                              Visibility="Collapsed"
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>

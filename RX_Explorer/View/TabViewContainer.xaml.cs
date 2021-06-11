@@ -47,6 +47,7 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
+            QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
             {
@@ -90,6 +91,21 @@ namespace RX_Explorer
                         Glyph = "\uE840"
                     }
                 };
+            }
+        }
+
+        private async void QueueTaskController_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            TaskListProgress.Value = e.ProgressPercentage;
+
+            if (e.ProgressPercentage >= 100)
+            {
+                await Task.Delay(800);
+                TaskListProgress.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                TaskListProgress.Visibility = Visibility.Visible;
             }
         }
 
@@ -868,7 +884,7 @@ namespace RX_Explorer
 
         private void ClearTaskListPanel_Click(object sender, RoutedEventArgs e)
         {
-            foreach(OperationListBaseModel Model in QueueTaskController.ListItemSource.Where((Item)=>Item.Status == OperationStatus.Cancelled || Item.Status == OperationStatus.Completed || Item.Status == OperationStatus.Error).ToArray())
+            foreach (OperationListBaseModel Model in QueueTaskController.ListItemSource.Where((Item) => Item.Status == OperationStatus.Cancelled || Item.Status == OperationStatus.Completed || Item.Status == OperationStatus.Error).ToArray())
             {
                 QueueTaskController.ListItemSource.Remove(Model);
             }

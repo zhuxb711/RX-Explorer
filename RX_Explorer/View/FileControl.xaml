@@ -216,6 +216,20 @@
                                  NavigateUri="https://www.voidtools.com/zh-cn/downloads/" />
             </StackPanel>
         </muxc:TeachingTip>
+
+        <muxc:TeachingTip Title="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionTitle')}"
+                          Target="{x:Bind VerticalSplitViewButton}"
+                          PreferredPlacement="BottomLeft"
+                          x:Name="VerticalSplitTip"
+                          HeroContentPlacement="Bottom"
+                          Subtitle="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionSubtitle')}"
+                          ActionButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/ActionButtonContent')}"
+                          CloseButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/CloseButtonContent')}"
+                          ActionButtonClick="VerticalSplitTip_ActionButtonClick">
+            <muxc:TeachingTip.HeroContent>
+                <Image Source="ms-appx:///Assets/VerticalSplitHero.png"/>
+            </muxc:TeachingTip.HeroContent>
+        </muxc:TeachingTip>
     </Page.Resources>
     <Grid Padding="1,2,1,0">
         <Grid.RowDefinitions>
@@ -423,19 +437,19 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-            <Button Grid.Column="8"
-                    HorizontalAlignment="Stretch"
+            
+            <Button HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     CornerRadius="0"
-                    Margin="3,0"
                     Padding="2,0,0,0"
+                    Grid.Column="8"
+                    Margin="3,0"
                     BorderBrush="{ThemeResource TextControlBorderBrush}"
                     Style="{ThemeResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                     Click="VerticalSplitViewButton_Click"
                     x:Name="VerticalSplitViewButton"
                     x:Uid="VerticalSplitViewButton"
-                    x:FieldModifier="public"
                     ToolTipService.ToolTip="创建新的垂直拆分视图">
                 <Viewbox>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"

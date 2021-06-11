@@ -968,11 +968,16 @@ namespace RX_Explorer
             AreaWatcher.StopWatchDirectory();
         }
 
-        private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
+        private async void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
             if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
             {
                 Parent.Header = CurrentFolder?.DisplayName;
+            }
+
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            {
+                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
             }
         }
 
@@ -1633,7 +1638,6 @@ namespace RX_Explorer
                     case ".bmp":
                     case ".jpg":
                     case ".heic":
-                    case ".gif":
                     case ".tiff":
                         {
                             FileEdit.IsEnabled = true;

@@ -11,6 +11,81 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Storyboard x:Name="ScaleUpAnimation"
+                    AutoReverse="False">
+            <DoubleAnimation Duration="0:0:0.1"
+                             BeginTime="0:0:0.2"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListIcon"
+                             Storyboard.TargetProperty="Height"
+                             From="15"
+                             To="20" />
+            <DoubleAnimation Duration="0:0:0.1"
+                             BeginTime="0:0:0.2"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListPanelTitle"
+                             Storyboard.TargetProperty="FontSize"
+                             From="12"
+                             To="14" />
+            <DoubleAnimation Duration="0:0:0.3"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListProgress"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1"
+                             To="0" />
+            <DoubleAnimation Duration="0:0:0.2"
+                             BeginTime="0:0:0.1"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListProgress"
+                             Storyboard.TargetProperty="Height"
+                             From="4"
+                             To="0" />
+            <DoubleAnimation Duration="0:0:0.2"
+                             BeginTime="0:0:0.1"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListSpliter"
+                             Storyboard.TargetProperty="Height"
+                             From="3"
+                             To="0" />
+        </Storyboard>
+
+        <Storyboard x:Name="ScaleDownAnimation"
+                    AutoReverse="False">
+            <DoubleAnimation Duration="0:0:0.3"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListIcon"
+                             Storyboard.TargetProperty="Height"
+                             From="20"
+                             To="15" />
+            <DoubleAnimation Duration="0:0:0.3"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListPanelTitle"
+                             Storyboard.TargetProperty="FontSize"
+                             From="14"
+                             To="12" />
+            <DoubleAnimation Duration="0:0:0.1"
+                             EnableDependentAnimation="True"
+                             BeginTime="0:0:0.2"
+                             Storyboard.TargetName="TaskListProgress"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0"
+                             To="1" />
+            <DoubleAnimation Duration="0:0:0.2"
+                             BeginTime="0:0:0.1"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListProgress"
+                             Storyboard.TargetProperty="Height"
+                             From="0"
+                             To="4" />
+            <DoubleAnimation Duration="0:0:0.2"
+                             BeginTime="0:0:0.1"
+                             EnableDependentAnimation="True"
+                             Storyboard.TargetName="TaskListSpliter"
+                             Storyboard.TargetProperty="Height"
+                             From="0"
+                             To="3" />
+        </Storyboard>
+
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
 
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
@@ -65,18 +140,30 @@
                 <muxc:TabView.TabStripFooter>
                     <Button HorizontalAlignment="Right"
                             VerticalAlignment="Bottom"
+                            VerticalContentAlignment="Center"
                             Background="Transparent"
-                            Height="32"
                             Name="TaskListPanelButton"
+                            Padding="5,3"
                             Click="TaskListPanelButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox>
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="&#xEE92;" />
-                            </Viewbox>
-                            <TextBlock Text="任务列表"
-                                       x:Uid="TaskListPanelTitle"
-                                       Margin="5,0,0,0" />
+                        <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xEE92;" />
+                                </Viewbox>
+                                <TextBlock Text="任务列表"
+                                           x:Uid="TaskListPanelTitle"
+                                           VerticalAlignment="Center"
+                                           Margin="5,0,2,0" />
+                            </StackPanel>
+                            <muxc:ProgressBar Minimum="0"
+                                              Maximum="100"
+                                              Height="4"
+                                              Value="0"
+                                              Margin="0,4,0,0"
+                                              Name="TaskListProgress"
+                                              Visibility="Collapsed"
+                                              HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Button>
                 </muxc:TabView.TabStripFooter>

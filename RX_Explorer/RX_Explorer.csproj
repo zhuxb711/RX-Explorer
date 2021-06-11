@@ -457,6 +457,7 @@
     <Content Include="Assets\UpdateLog-French.txt" />
     <Content Include="Assets\UpdateLog-German.txt" />
     <Content Include="Assets\UpdateLog-Spanish.txt" />
+    <Content Include="Assets\VerticalSplitHero.png" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />

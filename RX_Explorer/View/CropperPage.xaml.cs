@@ -179,7 +179,6 @@ namespace RX_Explorer
             Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".png" });
             Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg" });
             Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".bmp" });
-            Picker.FileTypeChoices.Add($"GIF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".gif" });
             Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".tiff" });
 
             StorageFile File = await Picker.PickSaveFileAsync();
@@ -202,9 +201,6 @@ namespace RX_Explorer
                             break;
                         case ".bmp":
                             await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
-                            break;
-                        case ".gif":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
                             break;
                         case ".tiff":
                             await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
@@ -319,9 +315,6 @@ namespace RX_Explorer
                         break;
                     case ".bmp":
                         await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
-                        break;
-                    case ".gif":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
                         break;
                     case ".tiff":
                         await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);

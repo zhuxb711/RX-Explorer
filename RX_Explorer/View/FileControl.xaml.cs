@@ -17,6 +17,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
@@ -2476,7 +2477,14 @@ namespace RX_Explorer
 
         private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
         {
-            await CreateNewBladeAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            {
+                await CreateNewBladeAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+            }
+            else
+            {
+                VerticalSplitTip.IsOpen = true;
+            }
         }
 
         private void AddressButton_DragEnter(object sender, DragEventArgs e)
@@ -2645,7 +2653,7 @@ namespace RX_Explorer
                     {
                         CurrentPresenter.RecordIndex -= NavigationRecordList.IndexOf(Record) + 1;
                     }
-                    else if(AddressHistoryFlyout.Target == GoForwardRecord)
+                    else if (AddressHistoryFlyout.Target == GoForwardRecord)
                     {
                         CurrentPresenter.RecordIndex += NavigationRecordList.IndexOf(Record) + 1;
                     }
@@ -2663,6 +2671,60 @@ namespace RX_Explorer
                 };
 
                 await Dialog.ShowAsync();
+            }
+        }
+
+        private async void VerticalSplitTip_ActionButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
+        {
+            sender.IsOpen = false;
+
+            switch (await MSStoreHelper.Current.PurchaseAsync())
+            {
+                case StorePurchaseStatus.Succeeded:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                case StorePurchaseStatus.AlreadyPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                case StorePurchaseStatus.NotPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
+                default:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                        break;
+                    }
             }
         }
 

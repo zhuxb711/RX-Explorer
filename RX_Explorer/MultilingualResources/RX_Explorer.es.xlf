@@ -4151,6 +4151,15 @@ Las denominaciones no válidas son:
           <source>Clear all completed tasks</source>
           <target state="translated">Borrar todas las tareas completadas</target>
         </trans-unit>
+        <trans-unit id="VerticalSplitQuestionSubtitle" translate="yes" xml:space="preserve">
+          <source>The vertical split view allows you to view and manipulate multiple folders at the same time without switching tabs. \r\rNote: Purchase this app to unlock this feature</source>
+          <target state="translated">La vista dividida vertical le permite ver y manipular varias carpetas al mismo tiempo sin cambiar de pestaña. \r\rNota: compre esta aplicación para desbloquear esta función</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="VerticalSplitQuestionTitle" translate="yes" xml:space="preserve">
+          <source>Vertical Split View</source>
+          <target state="translated">Vista dividida vertical</target>
+        </trans-unit>
       </group>
     </body>
   </file>

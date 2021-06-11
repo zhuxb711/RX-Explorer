@@ -4151,6 +4151,15 @@ Inkorrekte Namen sind
           <source>Clear all completed tasks</source>
           <target state="translated">Alle erledigten Aufgaben löschen</target>
         </trans-unit>
+        <trans-unit id="VerticalSplitQuestionSubtitle" translate="yes" xml:space="preserve">
+          <source>The vertical split view allows you to view and manipulate multiple folders at the same time without switching tabs. \r\rNote: Purchase this app to unlock this feature</source>
+          <target state="translated">Mit der vertikalen geteilten Ansicht können Sie mehrere Ordner gleichzeitig anzeigen und bearbeiten, ohne die Registerkarten zu wechseln. \r\rHinweis: Kaufen Sie diese App, um diese Funktion freizuschalten</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="VerticalSplitQuestionTitle" translate="yes" xml:space="preserve">
+          <source>Vertical Split View</source>
+          <target state="translated">Vertikal geteilte Ansicht</target>
+        </trans-unit>
       </group>
     </body>
   </file>

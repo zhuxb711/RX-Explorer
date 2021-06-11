@@ -120,7 +120,6 @@ namespace RX_Explorer.Dialog
                         case ".png":
                         case ".bmp":
                         case ".heic":
-                        case ".gif":
                         case ".tiff":
                         case ".mkv":
                         case ".mp4":
@@ -168,7 +167,6 @@ namespace RX_Explorer.Dialog
                         case ".png":
                         case ".bmp":
                         case ".heic":
-                        case ".gif":
                         case ".tiff":
                         case ".mkv":
                         case ".mp4":

@@ -3233,4 +3233,11 @@ Invalid names include
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Clear all completed tasks</value>
   </data>
+  <data name="VerticalSplitQuestionSubtitle" xml:space="preserve">
+    <value>The vertical split view allows you to view and manipulate multiple folders at the same time without switching tabs. \r\rNote: Purchase this app to unlock this feature</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="VerticalSplitQuestionTitle" xml:space="preserve">
+    <value>Vertical Split View</value>
+  </data>
 </root>

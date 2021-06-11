@@ -4153,6 +4153,15 @@ Invalid names include
           <source>Clear all completed tasks</source>
           <target state="translated">清除所有已完成的任务</target>
         </trans-unit>
+        <trans-unit id="VerticalSplitQuestionSubtitle" translate="yes" xml:space="preserve">
+          <source>The vertical split view allows you to view and manipulate multiple folders at the same time without switching tabs. \r\rNote: Purchase this app to unlock this feature</source>
+          <target state="translated">垂直拆分视图允许您同时查看和操作多个文件夹，而无需切换标签页。\r\r注意：购买此应用程序以解锁此功能</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="VerticalSplitQuestionTitle" translate="yes" xml:space="preserve">
+          <source>Vertical Split View</source>
+          <target state="translated">垂直拆分视图</target>
+        </trans-unit>
       </group>
     </body>
   </file>

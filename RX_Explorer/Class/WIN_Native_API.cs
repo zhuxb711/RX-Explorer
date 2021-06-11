@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using ShareClassLibrary;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -143,8 +144,6 @@ namespace RX_Explorer.Class
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool RemoveDirectoryFromApp(string lpPathName);
-
-        private static readonly IntPtr INVALID_HANDLE = new IntPtr(-1);
 
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
@@ -331,34 +330,34 @@ namespace RX_Explorer.Class
 
                                 IntPtr Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
-                                {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
-                                    NewPath = string.Empty;
-                                    return false;
-                                }
-                                else
+                                if (Handle.CheckIfValidPtr())
                                 {
                                     CloseHandle(Handle);
                                     NewPath = UniquePath;
                                     return true;
+                                }
+                                else
+                                {
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    NewPath = string.Empty;
+                                    return false;
                                 }
                             }
                             else
                             {
                                 IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
-                                {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
-                                    NewPath = string.Empty;
-                                    return false;
-                                }
-                                else
+                                if (Handle.CheckIfValidPtr())
                                 {
                                     CloseHandle(Handle);
                                     NewPath = Path;
                                     return true;
+                                }
+                                else
+                                {
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    NewPath = string.Empty;
+                                    return false;
                                 }
                             }
                         }
@@ -366,34 +365,34 @@ namespace RX_Explorer.Class
                         {
                             IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
-                            {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
-                                NewPath = string.Empty;
-                                return false;
-                            }
-                            else
+                            if (Handle.CheckIfValidPtr())
                             {
                                 CloseHandle(Handle);
                                 NewPath = Path;
                                 return true;
+                            }
+                            else
+                            {
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                NewPath = string.Empty;
+                                return false;
                             }
                         }
                     case CreateOption.ReplaceExisting:
                         {
                             IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
-                            {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
-                                NewPath = string.Empty;
-                                return false;
-                            }
-                            else
+                            if (Handle.CheckIfValidPtr())
                             {
                                 CloseHandle(Handle);
                                 NewPath = Path;
                                 return true;
+                            }
+                            else
+                            {
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                NewPath = string.Empty;
+                                return false;
                             }
                         }
                     default:
@@ -467,7 +466,7 @@ namespace RX_Explorer.Class
             {
                 IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-                if (hDir == IntPtr.Zero || hDir == INVALID_HANDLE)
+                if (!hDir.CheckIfValidPtr())
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
@@ -584,7 +583,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     do
                     {
@@ -643,7 +642,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     return true;
                 }
@@ -674,7 +673,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden))
                     {
@@ -707,7 +706,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                     {
@@ -741,7 +740,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     ulong TotalSize = 0;
 
@@ -791,7 +790,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                     {
@@ -830,7 +829,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     uint FolderCount = 0;
                     uint FileCount = 0;
@@ -892,7 +891,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (SearchPtr != IntPtr.Zero && SearchPtr != INVALID_HANDLE)
+                    if (SearchPtr.CheckIfValidPtr())
                     {
                         do
                         {
@@ -975,7 +974,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    return Ptr != INVALID_HANDLE;
+                    return Ptr.CheckIfValidPtr();
                 }
                 finally
                 {
@@ -995,7 +994,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if (Ptr != INVALID_HANDLE)
+                if (Ptr.CheckIfValidPtr())
                 {
                     List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
 
@@ -1089,7 +1088,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (Ptr != INVALID_HANDLE)
+                    if (Ptr.CheckIfValidPtr())
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
@@ -1164,7 +1163,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        if (Ptr != INVALID_HANDLE)
+                        if (Ptr.CheckIfValidPtr())
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
@@ -1235,7 +1234,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (Ptr != INVALID_HANDLE)
+                    if (Ptr.CheckIfValidPtr())
                     {
                         return Data;
                     }

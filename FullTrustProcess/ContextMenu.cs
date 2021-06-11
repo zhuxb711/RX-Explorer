@@ -219,12 +219,12 @@ namespace FullTrustProcess
                             }
                             finally
                             {
-                                if (VerbAHandle != IntPtr.Zero)
+                                if (VerbAHandle.CheckIfValidPtr())
                                 {
                                     Marshal.FreeCoTaskMem(VerbAHandle);
                                 }
 
-                                if (VerbWHandle != IntPtr.Zero)
+                                if (VerbWHandle.CheckIfValidPtr())
                                 {
                                     Marshal.FreeCoTaskMem(VerbWHandle);
                                 }
