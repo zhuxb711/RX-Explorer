@@ -938,30 +938,72 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                                                            .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)).Distinct().ToArray();
-
                             string AliasLocation = null;
 
-                            if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
+                            try
                             {
-                                AliasLocation = Location;
-                            }
-                            else
-                            {
-                                string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-                                if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
+                                using (Process Pro = Process.Start(new ProcessStartInfo
                                 {
-                                    string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
-
-                                    if (Directory.Exists(WindowsAppsPath))
+                                    FileName = "powershell.exe",
+                                    Arguments = "-Command \"Get-Command RX-Explorer | Format-List -Property Source\"",
+                                    CreateNoWindow = true,
+                                    RedirectStandardOutput = true,
+                                    UseShellExecute = false
+                                }))
+                                {
+                                    try
                                     {
-                                        string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
+                                        string OutputString = Pro.StandardOutput.ReadToEnd();
 
-                                        if (File.Exists(RXPath))
+                                        if (!string.IsNullOrWhiteSpace(OutputString))
                                         {
-                                            AliasLocation = RXPath;
+                                            string Path = OutputString.Replace(Environment.NewLine, string.Empty).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+                                            if (File.Exists(Path))
+                                            {
+                                                AliasLocation = Path;
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        if (!Pro.WaitForExit(1000))
+                                        {
+                                            Pro.Kill();
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not get alias location by Powershell");
+                            }
+
+                            if (string.IsNullOrEmpty(AliasLocation))
+                            {
+                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                                                            .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)).Distinct().ToArray();
+
+                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
+                                {
+                                    AliasLocation = Location;
+                                }
+                                else
+                                {
+                                    string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                                    if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
+                                    {
+                                        string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
+
+                                        if (Directory.Exists(WindowsAppsPath))
+                                        {
+                                            string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
+
+                                            if (File.Exists(RXPath))
+                                            {
+                                                AliasLocation = RXPath;
+                                            }
                                         }
                                     }
                                 }

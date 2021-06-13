@@ -417,6 +417,14 @@
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />
     <Content Include="Assets\DocumentIcon.ico" />
+    <Content Include="Assets\Github-Intro1.png" />
+    <Content Include="Assets\Github-Intro2.png" />
+    <Content Include="Assets\Github-Intro3.png" />
+    <Content Include="Assets\Github-Intro4.png" />
+    <Content Include="Assets\Github-Intro5.png" />
+    <Content Include="Assets\Github-Intro6.png" />
+    <Content Include="Assets\Github-Intro7.png" />
+    <Content Include="Assets\Github-Intro8.png" />
     <Content Include="Assets\KeyboardShortcut_cn_s.txt" />
     <Content Include="Assets\KeyboardShortcut_cn_t.txt" />
     <Content Include="Assets\KeyboardShortcut_de.txt" />
@@ -425,10 +433,6 @@
     <Content Include="Assets\KeyboardShortcut_fr.txt" />
     <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon.png" />
-    <Content Include="Assets\Github-Intro1.png" />
-    <Content Include="Assets\Github-Intro2.png" />
-    <Content Include="Assets\Github-Intro3.png" />
-    <Content Include="Assets\Github-Intro4.png" />
     <Content Include="Assets\IntroFile-Chinese_S.txt" />
     <Content Include="Assets\IntroFile-Chinese_T.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
@@ -768,7 +772,7 @@
       <Version>5.0.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.9.0</Version>
+      <Version>3.10.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

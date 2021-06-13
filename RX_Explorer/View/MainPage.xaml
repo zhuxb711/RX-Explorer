@@ -134,6 +134,7 @@
                           Subtitle="此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。" />
         <muxc:TeachingTip x:Name="BluetoothAudioSelectionTip"
                           Title="选择蓝牙音频源"
+                          ShouldConstrainToRootBounds="False"
                           x:Uid="BluetoothAudioSelectionTip"
                           IsLightDismissEnabled="True"
                           Closed="BluetoothAudioSelectionTip_Closed">
@@ -214,6 +215,7 @@
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
+                          ShouldConstrainToRootBounds="False"
                           IsLightDismissEnabled="True"
                           Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
             <StackPanel>

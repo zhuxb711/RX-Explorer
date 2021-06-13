@@ -826,20 +826,21 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    await SettingControl.Hide();
-
                     string InvokeString = Convert.ToString(args.InvokedItem);
 
                     if (InvokeString == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                     {
+                        await SettingControl.Hide();
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                     {
+                        await SettingControl.Hide();
                         Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
                     {
+                        await SettingControl.Hide();
                         Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_QuickStart_Label"))
