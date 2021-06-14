@@ -341,7 +341,7 @@ namespace RX_Explorer
             if (SItem is FileSystemStorageFolder SFolder)
             {
                 SecureFolder = SFolder;
-                SecureCollection.AddRange((await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase))).Cast<FileSystemStorageFile>());
+                SecureCollection.AddRange((await SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase))).Cast<FileSystemStorageFile>());
 
                 if (SecureCollection.Count == 0)
                 {
@@ -395,7 +395,7 @@ namespace RX_Explorer
 
                     foreach (StorageFile ImportFile in FileList)
                     {
-                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreatedByStorageItemAsync(ImportFile);
+                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreateByStorageItemAsync(ImportFile);
 
                         if (File != null)
                         {

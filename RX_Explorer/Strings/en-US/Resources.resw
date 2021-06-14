@@ -3240,4 +3240,7 @@ Invalid names include
   <data name="VerticalSplitQuestionTitle" xml:space="preserve">
     <value>Vertical Split View</value>
   </data>
+  <data name="QuickAccessDisplayName" xml:space="preserve">
+    <value>Quick Access</value>
+  </data>
 </root>

@@ -3135,4 +3135,7 @@ Les noms non valides incluent
   <data name="VerticalSplitQuestionTitle" xml:space="preserve">
     <value>Vue fractionnée verticale</value>
   </data>
+  <data name="QuickAccessDisplayName" xml:space="preserve">
+    <value>Accès rapide</value>
+  </data>
 </root>

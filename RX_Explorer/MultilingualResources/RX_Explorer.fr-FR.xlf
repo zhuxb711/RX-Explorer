@@ -4162,6 +4162,10 @@ Les noms non valides incluent
           <source>Vertical Split View</source>
           <target state="translated">Vue fractionnée verticale</target>
         </trans-unit>
+        <trans-unit id="QuickAccessDisplayName" translate="yes" xml:space="preserve">
+          <source>Quick Access</source>
+          <target state="translated">Accès rapide</target>
+        </trans-unit>
       </group>
     </body>
   </file>

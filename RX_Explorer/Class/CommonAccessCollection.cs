@@ -517,7 +517,7 @@ namespace RX_Explorer.Class
 
             public static async Task<DriveChangeDeferredEventArgs> CreateAsync(DriveDataBase Data)
             {
-                return new DriveChangeDeferredEventArgs(await FileSystemStorageItemBase.CreatedByStorageItemAsync(Data.DriveFolder));
+                return new DriveChangeDeferredEventArgs(await FileSystemStorageItemBase.CreateByStorageItemAsync(Data.DriveFolder));
             }
 
             private DriveChangeDeferredEventArgs(FileSystemStorageFolder StorageItem)

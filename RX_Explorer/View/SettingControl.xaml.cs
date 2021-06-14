@@ -999,7 +999,7 @@ namespace RX_Explorer
                     {
                         try
                         {
-                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File))
+                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File))
                             {
                                 string DecryptedFilePath = Path.Combine(Dialog.ExportFolder.Path, Path.GetRandomFileName());
 
@@ -1846,11 +1846,11 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
-                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreatedByStorageItemAsync(DriveFolder);
+                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveFolder);
 
                                 if (Folder != null)
                                 {
-                                    bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, ItemFilters.Folder);
+                                    bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
                                     TreeViewNode RootNode = new TreeViewNode
                                     {

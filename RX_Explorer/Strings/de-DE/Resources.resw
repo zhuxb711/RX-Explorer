@@ -3135,4 +3135,7 @@ Inkorrekte Namen sind
   <data name="VerticalSplitQuestionTitle" xml:space="preserve">
     <value>Vertikal geteilte Ansicht</value>
   </data>
+  <data name="QuickAccessDisplayName" xml:space="preserve">
+    <value>Schneller Zugang</value>
+  </data>
 </root>

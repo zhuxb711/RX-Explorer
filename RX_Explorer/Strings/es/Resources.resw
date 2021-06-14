@@ -3135,4 +3135,7 @@ Las denominaciones no válidas son:
   <data name="VerticalSplitQuestionTitle" xml:space="preserve">
     <value>Vista dividida vertical</value>
   </data>
+  <data name="QuickAccessDisplayName" xml:space="preserve">
+    <value>Acceso rapido</value>
+  </data>
 </root>

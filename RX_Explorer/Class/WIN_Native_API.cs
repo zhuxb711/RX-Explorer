@@ -572,7 +572,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, ItemFilters Filter)
+        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -595,7 +595,7 @@ namespace RX_Explorer.Class
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-                                    if (Filter.HasFlag(ItemFilters.Folder))
+                                    if (Filter.HasFlag(BasicFilters.Folder))
                                     {
                                         return true;
                                     }
@@ -604,7 +604,7 @@ namespace RX_Explorer.Class
                                         return false;
                                     }
                                 }
-                                else if (Filter.HasFlag(ItemFilters.File))
+                                else if (Filter.HasFlag(BasicFilters.File))
                                 {
                                     return true;
                                 }
@@ -983,7 +983,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -1013,7 +1013,7 @@ namespace RX_Explorer.Class
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-                                    if (Filter.HasFlag(ItemFilters.Folder))
+                                    if (Filter.HasFlag(BasicFilters.Folder))
                                     {
                                         string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
@@ -1029,7 +1029,7 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (Filter.HasFlag(ItemFilters.File))
+                                    if (Filter.HasFlag(BasicFilters.File))
                                     {
                                         string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 

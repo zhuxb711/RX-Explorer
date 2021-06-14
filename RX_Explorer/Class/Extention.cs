@@ -562,19 +562,19 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CanTraceToRootNode(this TreeViewNode Node, TreeViewNode RootNode)
+        public static bool CanTraceToRootNode(this TreeViewNode Node, params TreeViewNode[] RootNodes)
         {
             if (Node == null)
             {
                 throw new ArgumentNullException(nameof(Node), "Argument could not be null");
             }
 
-            if (RootNode == null)
+            if (RootNodes == null || RootNodes.Length == 0)
             {
                 return false;
             }
 
-            if (Node == RootNode)
+            if (RootNodes.Contains(Node))
             {
                 return true;
             }
@@ -582,7 +582,7 @@ namespace RX_Explorer.Class
             {
                 if (Node.Parent != null && Node.Depth != 0)
                 {
-                    return Node.Parent.CanTraceToRootNode(RootNode);
+                    return Node.Parent.CanTraceToRootNode(RootNodes);
                 }
                 else
                 {
@@ -602,7 +602,7 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder)).Select((Item) => Item.Path).ToList();
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
                     List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                     List<string> AddList = FolderList.Except(PathList).ToList();
                     List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -616,7 +616,7 @@ namespace RX_Explorer.Class
                                 Node.Children.Add(new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder),
                                     IsExpanded = false
                                 });
                             }
@@ -638,7 +638,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
                 }
             }
         }

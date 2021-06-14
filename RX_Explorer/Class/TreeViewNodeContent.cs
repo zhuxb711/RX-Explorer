@@ -9,12 +9,13 @@ namespace RX_Explorer.Class
     {
         private StorageFolder InnerFolder;
         private string InnerPath;
+        private string DisplayNameOverride;
 
         public string DisplayName
         {
             get
             {
-                return InnerFolder != null ? InnerFolder.DisplayName : System.IO.Path.GetFileName(Path);
+                return DisplayNameOverride ?? (InnerFolder != null ? InnerFolder.DisplayName : System.IO.Path.GetFileName(Path));
             }
         }
 
@@ -67,7 +68,7 @@ namespace RX_Explorer.Class
             InnerFolder = Folder ?? throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
         }
 
-        public TreeViewNodeContent(string Path)
+        public TreeViewNodeContent(string Path, string DisplayNameOverride = null)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -75,6 +76,7 @@ namespace RX_Explorer.Class
             }
 
             InnerPath = Path;
+            this.DisplayNameOverride = DisplayNameOverride;
         }
     }
 }

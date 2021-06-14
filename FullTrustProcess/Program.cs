@@ -981,8 +981,12 @@ namespace FullTrustProcess
 
                             if (string.IsNullOrEmpty(AliasLocation))
                             {
-                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
-                                                            .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)).Distinct().ToArray();
+                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User)
+                                                                           .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                                                                           .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine)
+                                                                                              .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
+                                                                           .Distinct()
+                                                                           .ToArray();
 
                                 if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
                                 {

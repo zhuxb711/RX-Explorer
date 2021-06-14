@@ -4160,6 +4160,10 @@ Inkorrekte Namen sind
           <source>Vertical Split View</source>
           <target state="translated">Vertikal geteilte Ansicht</target>
         </trans-unit>
+        <trans-unit id="QuickAccessDisplayName" translate="yes" xml:space="preserve">
+          <source>Quick Access</source>
+          <target state="translated">Schneller Zugang</target>
+        </trans-unit>
       </group>
     </body>
   </file>

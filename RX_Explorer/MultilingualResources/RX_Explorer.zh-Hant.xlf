@@ -4162,6 +4162,10 @@ Invalid names include
           <source>Vertical Split View</source>
           <target state="translated">垂直拆分視圖</target>
         </trans-unit>
+        <trans-unit id="QuickAccessDisplayName" translate="yes" xml:space="preserve">
+          <source>Quick Access</source>
+          <target state="translated">快速訪問</target>
+        </trans-unit>
       </group>
     </body>
   </file>

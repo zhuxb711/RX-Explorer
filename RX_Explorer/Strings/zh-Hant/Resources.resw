@@ -3135,4 +3135,7 @@
   <data name="VerticalSplitQuestionTitle" xml:space="preserve">
     <value>垂直拆分視圖</value>
   </data>
+  <data name="QuickAccessDisplayName" xml:space="preserve">
+    <value>快速訪問</value>
+  </data>
 </root>

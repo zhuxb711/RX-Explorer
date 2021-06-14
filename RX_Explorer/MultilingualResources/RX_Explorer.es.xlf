@@ -4160,6 +4160,10 @@ Las denominaciones no válidas son:
           <source>Vertical Split View</source>
           <target state="translated">Vista dividida vertical</target>
         </trans-unit>
+        <trans-unit id="QuickAccessDisplayName" translate="yes" xml:space="preserve">
+          <source>Quick Access</source>
+          <target state="translated">Acceso rapido</target>
+        </trans-unit>
       </group>
     </body>
   </file>

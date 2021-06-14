@@ -181,7 +181,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FileSystemStorageFolder> CreatedByStorageItemAsync(StorageFolder Folder)
+        public static async Task<FileSystemStorageFolder> CreateByStorageItemAsync(StorageFolder Folder)
         {
             try
             {
@@ -202,12 +202,12 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CreatedByStorageItemAsync)} threw an exception");
+                LogTracer.Log(ex, $"{nameof(CreateByStorageItemAsync)} threw an exception");
                 return null;
             }
         }
 
-        public static async Task<FileSystemStorageFile> CreatedByStorageItemAsync(StorageFile File)
+        public static async Task<FileSystemStorageFile> CreateByStorageItemAsync(StorageFile File)
         {
             try
             {
@@ -228,7 +228,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CreatedByStorageItemAsync)} threw an exception");
+                LogTracer.Log(ex, $"{nameof(CreateByStorageItemAsync)} threw an exception");
                 return null;
             }
         }
@@ -250,7 +250,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return await CreatedByStorageItemAsync(Folder);
+                        return await CreateByStorageItemAsync(Folder);
                     }
                     else
                     {
@@ -260,11 +260,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return await CreatedByStorageItemAsync(Folder);
+                                    return await CreateByStorageItemAsync(Folder);
                                 }
                             case StorageFile File:
                                 {
-                                    return await CreatedByStorageItemAsync(File);
+                                    return await CreateByStorageItemAsync(File);
                                 }
                             default:
                                 {
@@ -305,17 +305,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreatedByStorageItemAsync(NewFile);
+                                            return await CreateByStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreatedByStorageItemAsync(NewFile);
+                                            return await CreateByStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreatedByStorageItemAsync(NewFile);
+                                            return await CreateByStorageItemAsync(NewFile);
                                         }
                                     default:
                                         {
@@ -349,17 +349,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreatedByStorageItemAsync(NewFolder);
+                                            return await CreateByStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreatedByStorageItemAsync(NewFolder);
+                                            return await CreateByStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreatedByStorageItemAsync(NewFolder);
+                                            return await CreateByStorageItemAsync(NewFolder);
                                         }
                                     default:
                                         {

@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -123,12 +123,12 @@ namespace RX_Explorer.Class
                 {
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
-                        if (Filter.HasFlag(ItemFilters.File))
+                        if (Filter.HasFlag(BasicFilters.File))
                         {
                             return (await Folder.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 1)).Any();
                         }
 
-                        if (Filter.HasFlag(ItemFilters.Folder))
+                        if (Filter.HasFlag(BasicFilters.Folder))
                         {
                             return (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Any();
                         }
@@ -323,12 +323,12 @@ namespace RX_Explorer.Class
                                 {
                                     case StorageFolder SubFolder:
                                         {
-                                            yield return await CreatedByStorageItemAsync(SubFolder);
+                                            yield return await CreateByStorageItemAsync(SubFolder);
                                             break;
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            yield return await CreatedByStorageItemAsync(SubFile);
+                                            yield return await CreateByStorageItemAsync(SubFile);
                                             break;
                                         }
                                 }
@@ -343,7 +343,7 @@ namespace RX_Explorer.Class
                                         yield break;
                                     }
 
-                                    FileSystemStorageFolder FSubFolder = await CreatedByStorageItemAsync(Item);
+                                    FileSystemStorageFolder FSubFolder = await CreateByStorageItemAsync(Item);
 
                                     await foreach (FileSystemStorageItemBase FSubItem in FSubFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken))
                                     {
@@ -366,7 +366,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -398,7 +398,7 @@ namespace RX_Explorer.Class
 
                             if (ReadOnlyItemList.Count > 0)
                             {
-                                foreach (IStorageItem Item in ReadOnlyItemList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(ItemFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(ItemFilters.File))))
+                                foreach (IStorageItem Item in ReadOnlyItemList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(BasicFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(BasicFilters.File))))
                                 {
                                     if (Result.Count >= MaxNumLimit)
                                     {
@@ -416,7 +416,7 @@ namespace RX_Explorer.Class
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(await CreatedByStorageItemAsync(SubFile));
+                                        Result.Add(await CreateByStorageItemAsync(SubFile));
                                     }
                                 }
                             }

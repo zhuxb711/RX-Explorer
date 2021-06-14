@@ -339,7 +339,7 @@ namespace RX_Explorer
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreatedByStorageItemAsync(Library.Folder);
+                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(Library.Folder);
 
                 if (Folder != null)
                 {

@@ -64,12 +64,12 @@ namespace RX_Explorer.Class
             return Task.FromResult(((uint)0, (uint)0));
         }
 
-        public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             return Task.FromResult<IReadOnlyList<FileSystemStorageItemBase>>(new List<FileSystemStorageItemBase>(0));
         }
 
-        public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             return Task.FromResult(false);
         }
@@ -118,12 +118,12 @@ namespace RX_Explorer.Class
                                     {
                                         case StorageFolder SubFolder:
                                             {
-                                                yield return await CreatedByStorageItemAsync(SubFolder);
+                                                yield return await CreateByStorageItemAsync(SubFolder);
                                                 break;
                                             }
                                         case StorageFile SubFile:
                                             {
-                                                yield return await CreatedByStorageItemAsync(SubFile);
+                                                yield return await CreateByStorageItemAsync(SubFile);
                                                 break;
                                             }
                                     }
@@ -138,7 +138,7 @@ namespace RX_Explorer.Class
                                             yield break;
                                         }
 
-                                        FileSystemStorageFolder FSubFolder = await CreatedByStorageItemAsync(Item);
+                                        FileSystemStorageFolder FSubFolder = await CreateByStorageItemAsync(Item);
 
                                         await foreach (FileSystemStorageItemBase FSubItem in FSubFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken))
                                         {
