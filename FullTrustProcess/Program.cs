@@ -408,10 +408,18 @@ namespace FullTrustProcess
                         }
                     case "Execute_CheckIfEverythingAvailable":
                         {
-                            await args.Request.SendResponseAsync(new ValueSet
+                            ValueSet Value = new ValueSet();
+
+                            if (EverythingConnector.IsAvailable)
                             {
-                                {"Success", EverythingConnector.Current.IsAvailable }
-                            });
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", $"Everything is not available, ErrorCode: {Enum.GetName(typeof(EverythingConnector.StateCode), EverythingConnector.GetLastErrorCode())}");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
 
                             break;
                         }
@@ -425,9 +433,9 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet();
 
-                            if (EverythingConnector.Current.IsAvailable)
+                            if (EverythingConnector.IsAvailable)
                             {
-                                IEnumerable<string> SearchResult = EverythingConnector.Current.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase, MaxCount);
+                                IEnumerable<string> SearchResult = EverythingConnector.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase, MaxCount);
 
                                 if (SearchResult.Any())
                                 {
@@ -435,7 +443,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    EverythingConnector.StateCode Code = EverythingConnector.Current.GetLastErrorCode();
+                                    EverythingConnector.StateCode Code = EverythingConnector.GetLastErrorCode();
 
                                     if (Code == EverythingConnector.StateCode.OK)
                                     {
@@ -2043,17 +2051,28 @@ namespace FullTrustProcess
                 }
                 else
                 {
-                    for (int i = 0; i < 10 && !OtherProcess.MainWindowHandle.CheckIfValidPtr(); i++)
+                    IntPtr MainWindowHandle = IntPtr.Zero;
+
+                    for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
                     {
-                        Thread.Sleep(500);
                         OtherProcess.Refresh();
+
+                        if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
+                        {
+                            MainWindowHandle = OtherProcess.MainWindowHandle;
+                            break;
+                        }
+                        else
+                        {
+                            Thread.Sleep(500);
+                        }
                     }
 
-                    if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
+                    if (MainWindowHandle != IntPtr.Zero)
                     {
-                        User32.ShowWindow(OtherProcess.MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                        User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(0), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        User32.SetForegroundWindow(OtherProcess.MainWindowHandle);
+                        User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
+                        User32.SetWindowPos(MainWindowHandle, new IntPtr(0), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        User32.SetForegroundWindow(MainWindowHandle);
                     }
                     else
                     {

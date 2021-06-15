@@ -2328,10 +2328,7 @@ Las denominaciones no válidas son:
     <value>Parcialmente disponible sin conexión</value>
   </data>
   <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
-    <value>Completo</value>
-  </data>
-  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
-    <value>Completo fijado</value>
+    <value>Disponible sin conexión</value>
   </data>
   <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
     <value>Excluido</value>
@@ -3137,5 +3134,20 @@ Las denominaciones no válidas son:
   </data>
   <data name="QuickAccessDisplayName" xml:space="preserve">
     <value>Acceso rapido</value>
+  </data>
+  <data name="CloseTabOnRight.Label" xml:space="preserve">
+    <value>Cerrar la pestaña de la derecha</value>
+  </data>
+  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
+    <value>Consiguelo ahora</value>
+  </data>
+  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
+    <value>Innecesario</value>
+  </data>
+  <data name="DiscountTip.Title" xml:space="preserve">
+    <value>Descuento de aniversario</value>
+  </data>
+  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
+    <value>¡Obtén el descuento de aniversario ahora! Compra la versión oficial con un 50% de descuento y desbloquea nuevas funciones</value>
   </data>
 </root>

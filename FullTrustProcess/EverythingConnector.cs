@@ -211,7 +211,7 @@ namespace FullTrustProcess
             InvalidCallError
         }
 
-        public bool IsAvailable
+        public static bool IsAvailable
         {
             get
             {
@@ -219,26 +219,12 @@ namespace FullTrustProcess
             }
         }
 
-        private static EverythingConnector Instance;
-        public static EverythingConnector Current
-        {
-            get
-            {
-                return Instance ??= new EverythingConnector();
-            }
-        }
-
-        private EverythingConnector()
-        {
-
-        }
-
-        public StateCode GetLastErrorCode()
+        public static StateCode GetLastErrorCode()
         {
             return Everything_GetLastError();
         }
 
-        public IEnumerable<string> Search(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        public static IEnumerable<string> Search(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
         {
             if (string.IsNullOrWhiteSpace(SearchWord) || !IsAvailable)
             {

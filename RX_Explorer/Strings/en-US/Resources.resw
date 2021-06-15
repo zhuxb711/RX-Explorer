@@ -2454,10 +2454,7 @@ Invalid names include
     <value>Partially Available Offline</value>
   </data>
   <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
-    <value>Complete</value>
-  </data>
-  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
-    <value>Complete Pinned</value>
+    <value>Available Offline</value>
   </data>
   <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
     <value>Excluded</value>
@@ -3242,5 +3239,20 @@ Invalid names include
   </data>
   <data name="QuickAccessDisplayName" xml:space="preserve">
     <value>Quick Access</value>
+  </data>
+  <data name="CloseTabOnRight.Label" xml:space="preserve">
+    <value>Close the tab on the right</value>
+  </data>
+  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
+    <value>Get it now</value>
+  </data>
+  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
+    <value>Not needed</value>
+  </data>
+  <data name="DiscountTip.Title" xml:space="preserve">
+    <value>Anniversary Discount</value>
+  </data>
+  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
+    <value>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</value>
   </data>
 </root>

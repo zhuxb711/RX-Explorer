@@ -889,5 +889,18 @@ namespace RX_Explorer
                 QueueTaskController.ListItemSource.Remove(Model);
             }
         }
+
+        private async void CloseTabOnRight_Click(object sender, RoutedEventArgs e)
+        {
+            if (TabViewControl.SelectedItem is TabViewItem Item)
+            {
+                int CurrentIndex = TabCollection.IndexOf(Item);
+
+                foreach (TabViewItem RemoveItem in TabCollection.Skip(CurrentIndex + 1).Reverse().ToArray())
+                {
+                    await CleanUpAndRemoveTabItem(RemoveItem);
+                }
+            }
+        }
     }
 }

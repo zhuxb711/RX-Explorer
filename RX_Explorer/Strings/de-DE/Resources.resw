@@ -2328,10 +2328,7 @@ Inkorrekte Namen sind
     <value>Teilweise offline verfügbar</value>
   </data>
   <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
-    <value>Vollständig</value>
-  </data>
-  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
-    <value>Komplett gepinnt</value>
+    <value>Offline verfügbar</value>
   </data>
   <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
     <value>Ausgeschlossen</value>
@@ -3137,5 +3134,20 @@ Inkorrekte Namen sind
   </data>
   <data name="QuickAccessDisplayName" xml:space="preserve">
     <value>Schneller Zugang</value>
+  </data>
+  <data name="CloseTabOnRight.Label" xml:space="preserve">
+    <value>Schließen Sie die Registerkarte rechts</value>
+  </data>
+  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
+    <value>Hol es dir jetzt</value>
+  </data>
+  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
+    <value>Nicht benötigt</value>
+  </data>
+  <data name="DiscountTip.Title" xml:space="preserve">
+    <value>Jubiläumsrabatt</value>
+  </data>
+  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
+    <value>Jetzt Jubiläumsrabatt sichern! Kaufen Sie die offizielle Version mit 50% Rabatt und schalten Sie neue Funktionen frei</value>
   </data>
 </root>

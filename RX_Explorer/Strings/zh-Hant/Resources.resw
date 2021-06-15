@@ -2328,10 +2328,7 @@
     <value>離線部分可用</value>
   </data>
   <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
-    <value>完全</value>
-  </data>
-  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
-    <value>完全固定</value>
+    <value>可離線使用</value>
   </data>
   <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
     <value>排除在外</value>
@@ -3137,5 +3134,20 @@
   </data>
   <data name="QuickAccessDisplayName" xml:space="preserve">
     <value>快速訪問</value>
+  </data>
+  <data name="CloseTabOnRight.Label" xml:space="preserve">
+    <value>關閉右側的選項卡</value>
+  </data>
+  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
+    <value>立即獲取</value>
+  </data>
+  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
+    <value>不需要</value>
+  </data>
+  <data name="DiscountTip.Title" xml:space="preserve">
+    <value>週年優惠</value>
+  </data>
+  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
+    <value>立即獲得周年紀念折扣！以50%的折扣購買正式版並解鎖新功能</value>
   </data>
 </root>

@@ -83,7 +83,7 @@ namespace RX_Explorer
             if (e.Parameter is FileSystemStorageFile Parameters)
             {
                 FileNameDisplay.Text = Parameters.Name;
-                await InitializeAsync(Parameters).ConfigureAwait(false);
+                await InitializeAsync(Parameters);
             }
         }
 
@@ -128,15 +128,17 @@ namespace RX_Explorer
 
                 await JumpToPageIndexAsync(0);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not open .pdf file");
+
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 };
-                _ = await Dialog.ShowAsync();
+                await Dialog.ShowAsync();
 
                 Frame.GoBack();
             }

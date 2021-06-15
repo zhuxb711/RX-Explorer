@@ -41,19 +41,31 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 2, Globalization.GetString("OfflineAvailabilityText3") }
         };
 
+        /*
+        * | System.FilePlaceholderStatus       | Value    | Description                                                                                                        |
+        * | ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+        * | PS_NONE                            | 0        | None of the other states apply at this time                                                                        |
+        * | PS_MARKED_FOR_OFFLINE_AVAILABILITY | 1        | May already be or eventually will be available offline                                                             |
+        * | PS_FULL_PRIMARY_STREAM_AVAILABLE   | 2        | The primary stream has been made fully available                                                                   |
+        * | PS_CREATE_FILE_ACCESSIBLE          | 4        | The file is accessible through a call to the CreateFile function, without requesting the opening of reparse points |
+        * | PS_CLOUDFILE_PLACEHOLDER           | 8        | The file is a cloud file placeholder                                                                               |
+        * | PS_DEFAULT                         | 7        | A bitmask value for default flags                                                                                  | 
+        * | PS_ALL                             | 15       | A bitmask value for all valid PLACEHOLDER_STATES flags                                                             |
+        */
         private static readonly Dictionary<uint, string> OfflineAvailabilityStatusMap = new Dictionary<uint, string>(10)
         {
             { 0, Globalization.GetString("OfflineAvailabilityStatusText1") },
             { 1, Globalization.GetString("OfflineAvailabilityStatusText2") },
             { 2, Globalization.GetString("OfflineAvailabilityStatusText3") },
-            { 3, Globalization.GetString("OfflineAvailabilityStatusText4") },
+            { 3, Globalization.GetString("OfflineAvailabilityStatusText3") },
             { 4, Globalization.GetString("OfflineAvailabilityStatusText5") },
             { 5, Globalization.GetString("OfflineAvailabilityStatusText6") },
             { 6, Globalization.GetString("OfflineAvailabilityStatusText8") },
+            { 7, Globalization.GetString("OfflineAvailabilityStatusText3") },
             { 8, Globalization.GetString("OfflineAvailabilityStatusText1") },
             { 9, Globalization.GetString("OfflineAvailabilityStatusText7") },
             { 14, Globalization.GetString("OfflineAvailabilityStatusText3") },
-            { 15, Globalization.GetString("OfflineAvailabilityStatusText4") },
+            { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
         private CancellationTokenSource FolderCancellation;

@@ -202,21 +202,9 @@ namespace RX_Explorer.Class
             Dispose();
         }
 
-        private static async void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController Controller)
+        private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController Controller)
         {
-            if (Controller.IsDisposed)
-            {
-                FullTrustProcessController NewController = await CreateAsync();
-
-                if (NewController != null)
-                {
-                    AvailableControllers.Enqueue(NewController);
-                }
-            }
-            else
-            {
-                AvailableControllers.Enqueue(Controller);
-            }
+            AvailableControllers.Enqueue(Controller);
         }
 
         private static void DispatcherMethod()
@@ -236,7 +224,21 @@ namespace RX_Explorer.Class
                         {
                             if (Controller.IsDisposed)
                             {
-                                FullTrustProcessController NewController = CreateAsync().Result;
+                                FullTrustProcessController NewController = null;
+
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    NewController = CreateAsync().Result;
+
+                                    if (NewController == null)
+                                    {
+                                        LogTracer.Log($"Dispatcher fould a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {i + 1} times");
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
 
                                 if (NewController != null)
                                 {
@@ -429,22 +431,25 @@ namespace RX_Explorer.Class
 
                 for (int Count = 0; Count < 3; Count++)
                 {
-                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    if (Connection != null)
                     {
-                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
-                        {
-                            return IsConnected = true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object Error))
-                            {
-                                LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count} times");
-                            }
+                        AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
 
-                            await Task.Delay(500).ConfigureAwait(false);
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
+                            {
+                                return IsConnected = true;
+                            }
+                            else
+                            {
+                                if (Response.Message.TryGetValue("Error", out object Error))
+                                {
+                                    LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count + 1} times");
+                                }
+
+                                await Task.Delay(500).ConfigureAwait(false);
+                            }
                         }
                     }
                 }
@@ -812,9 +817,9 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.TryGetValue("Success", out object IsAvailable))
+                        if (Response.Message.ContainsKey("Success"))
                         {
-                            return Convert.ToBoolean(IsAvailable);
+                            return true;
                         }
                         else
                         {

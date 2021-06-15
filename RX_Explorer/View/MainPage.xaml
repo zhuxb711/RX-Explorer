@@ -126,6 +126,14 @@
                           IsLightDismissEnabled="False"
                           ActionButtonContent="购买"
                           CloseButtonContent="稍后" />
+        <muxc:TeachingTip x:Name="DiscountTip"
+                          x:Uid="DiscountTip"
+                          Grid.Row="1"
+                          Title="周年优惠"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="False"
+                          ActionButtonContent="购买"
+                          CloseButtonContent="稍后" />
         <muxc:TeachingTip x:Name="BluetoothAudioQuestionTip"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind BluetoothAudioQuestion}"

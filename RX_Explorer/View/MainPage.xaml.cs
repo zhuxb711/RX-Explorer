@@ -9,6 +9,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -524,51 +525,55 @@ namespace RX_Explorer
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 await ShowReleaseLogDialogAsync();
-
                 await RegisterBackgroundTaskAsync();
 
                 switch (SystemInformation.Instance.LaunchCount)
                 {
-                    case 5:
-                    case 20:
+                    case 15:
                     case 25:
-                    case 30:
+                    case 35:
                         {
                             await PurchaseApplicationAsync();
                             break;
                         }
-                    case 10:
+                    case 5:
                         {
                             await PinApplicationToTaskBarAsync();
                             break;
                         }
-                    case 15:
+                    case 10:
                         {
                             RequestRateApplication();
                             break;
                         }
                 }
 
-                if (!Package.Current.IsDevelopmentMode)
-                {
-                    if (await MSStoreHelper.Current.CheckHasUpdateAsync())
-                    {
-                        Button ActionButton = new Button
-                        {
-                            Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                        };
-                        ActionButton.Click += async (s, e) =>
-                        {
-                            await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                        };
-
-                        ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
-                    }
-                }
+                await ShowUpdateTipsIfNeeded();
+                await PopDiscountPurchaseApplicationAsync();
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
+            }
+        }
+
+        private async Task ShowUpdateTipsIfNeeded()
+        {
+            if (!Package.Current.IsDevelopmentMode)
+            {
+                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                {
+                    Button ActionButton = new Button
+                    {
+                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                    };
+                    ActionButton.Click += async (s, e) =>
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
+                    };
+
+                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                }
             }
         }
 
@@ -750,6 +755,87 @@ namespace RX_Explorer
             RateTip.IsOpen = true;
         }
 
+        private async Task PopDiscountPurchaseApplicationAsync()
+        {
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DoNotShowDiscountTip_20210621_20210705"))
+            {
+                DateTimeOffset DiscountStartTime = DateTimeOffset.ParseExact("2021-06-21 00-00-00", "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                DateTimeOffset DiscountEndTime = DateTimeOffset.ParseExact("2021-07-05 00-00-00", "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                DateTimeOffset UTCTime = DateTimeOffset.UtcNow;
+
+                if (UTCTime > DiscountStartTime && UTCTime < DiscountEndTime)
+                {
+                    if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                    {
+                        DiscountTip.ActionButtonClick += async (s, e) =>
+                        {
+                            s.IsOpen = false;
+
+                            switch (await MSStoreHelper.Current.PurchaseAsync())
+                            {
+                                case StorePurchaseStatus.Succeeded:
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await QueueContenDialog.ShowAsync();
+                                        break;
+                                    }
+                                case StorePurchaseStatus.AlreadyPurchased:
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await QueueContenDialog.ShowAsync();
+                                        break;
+                                    }
+                                case StorePurchaseStatus.NotPurchased:
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await QueueContenDialog.ShowAsync();
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await QueueContenDialog.ShowAsync();
+                                        break;
+                                    }
+                            }
+                        };
+
+                        DiscountTip.CloseButtonClick += (s, e) =>
+                        {
+                            ApplicationData.Current.LocalSettings.Values["DoNotShowDiscountTip_20210621_20210705"] = true;
+                        };
+
+                        DiscountTip.Subtitle = Globalization.GetString("TeachingTip_DiscountTip_Subtitle");
+                        DiscountTip.IsOpen = true;
+                    }
+                }
+            }
+        }
+
         private async Task PurchaseApplicationAsync()
         {
             if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
@@ -769,7 +855,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await QueueContenDialog.ShowAsync();
+                                await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         case StorePurchaseStatus.AlreadyPurchased:
@@ -780,7 +866,8 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+
+                                await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         case StorePurchaseStatus.NotPurchased:
@@ -791,7 +878,8 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+
+                                await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         default:
@@ -802,7 +890,8 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+
+                                await QueueContenDialog.ShowAsync();
                                 break;
                             }
                     }
@@ -810,7 +899,6 @@ namespace RX_Explorer
 
                 PurchaseTip.Subtitle = Globalization.GetString("TeachingTip_PurchaseTip_Subtitle");
                 PurchaseTip.IsOpen = true;
-                ApplicationData.Current.LocalSettings.Values["IsDonated"] = false;
             }
         }
 

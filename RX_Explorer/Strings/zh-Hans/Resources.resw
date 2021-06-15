@@ -2328,10 +2328,7 @@
     <value>脱机部分可用</value>
   </data>
   <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
-    <value>完全</value>
-  </data>
-  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
-    <value>完全固定</value>
+    <value>脱机可用</value>
   </data>
   <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
     <value>排除在外</value>
@@ -3137,5 +3134,20 @@
   </data>
   <data name="QuickAccessDisplayName" xml:space="preserve">
     <value>快速访问</value>
+  </data>
+  <data name="CloseTabOnRight.Label" xml:space="preserve">
+    <value>关闭右侧标签页</value>
+  </data>
+  <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
+    <value>立即获取</value>
+  </data>
+  <data name="DiscountTip.CloseButtonContent" xml:space="preserve">
+    <value>不必了</value>
+  </data>
+  <data name="DiscountTip.Title" xml:space="preserve">
+    <value>周年优惠</value>
+  </data>
+  <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
+    <value>立即获得周年纪念折扣！以50%的折扣购买正式版并解锁新功能 </value>
   </data>
 </root>

@@ -169,10 +169,10 @@ namespace RX_Explorer
 
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
-
             try
             {
+                await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
+
                 ToastContentBuilder Builder = new ToastContentBuilder()
                                           .SetToastScenario(ToastScenario.Reminder)
                                           .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_1"))

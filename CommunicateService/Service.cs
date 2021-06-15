@@ -80,14 +80,12 @@ namespace CommunicateService
 
             try
             {
-                AppServiceConnection ServerConnection;
-
                 SpinWait Spin = new SpinWait();
-                Stopwatch Watch = new Stopwatch();
+                DateTimeOffset StartTime = DateTimeOffset.Now;
 
-                Watch.Start();
+                AppServiceConnection ServerConnection = null;
 
-                while (!PairedConnections.TryGetValue(sender, out ServerConnection) && Watch.ElapsedMilliseconds < 5000)
+                while (!PairedConnections.TryGetValue(sender, out ServerConnection) && (DateTimeOffset.Now - StartTime).TotalMilliseconds < 5000)
                 {
                     if (Spin.NextSpinWillYield)
                     {
@@ -98,8 +96,6 @@ namespace CommunicateService
                         Spin.SpinOnce();
                     }
                 }
-
-                Watch.Stop();
 
                 if (ServerConnection != null)
                 {
@@ -124,11 +120,11 @@ namespace CommunicateService
                     await args.Request.SendResponseAsync(Value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 ValueSet Value = new ValueSet
                 {
-                    { "Error", "Some exceptions were threw while transmitting the message" }
+                    { "Error", $"Some exceptions were threw while transmitting the message, exception: {ex}, message: {ex.Message}" }
                 };
 
                 await args.Request.SendResponseAsync(Value);

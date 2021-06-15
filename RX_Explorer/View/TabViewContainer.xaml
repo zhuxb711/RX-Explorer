@@ -21,6 +21,11 @@
                               x:Name="CloseThisTab"
                               Click="CloseThisTab_Click" />
                 <AppBarButton Icon="ClosePane"
+                              Label="关闭右侧的标签页"
+                              x:Uid="CloseTabOnRight"
+                              x:Name="CloseTabOnRight"
+                              Click="CloseTabOnRight_Click"/>
+                <AppBarButton Icon="ClosePane"
                               x:Uid="CloseButThis"
                               Label="关闭除此之外的标签页"
                               x:Name="CloseButThis"
