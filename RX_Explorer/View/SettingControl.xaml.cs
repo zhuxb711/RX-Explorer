@@ -1580,44 +1580,47 @@ namespace RX_Explorer
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                         PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
 
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (e.RemovedItems.Count > 0)
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
+                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
 
-                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                             {
-                                float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
 
-                                if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
+                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                                    float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                     {
-                                        ThemeColor.SelectedIndex = 0;
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            ThemeColor.SelectedIndex = 0;
+                                        }
                                     }
-                                }
-                                else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
 
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        ThemeColor.SelectedIndex = 1;
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            ThemeColor.SelectedIndex = 1;
+                                        }
                                     }
                                 }
                             }

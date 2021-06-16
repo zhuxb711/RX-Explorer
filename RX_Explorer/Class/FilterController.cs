@@ -930,22 +930,22 @@ namespace RX_Explorer.Class
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Orange))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == OrangeColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == OrangeColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Green))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == GreenColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == GreenColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Purple))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == PurpleColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == PurpleColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Blue))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == BlueColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == BlueColor));
                 }
             }
 

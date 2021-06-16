@@ -308,7 +308,7 @@ namespace RX_Explorer
 
         public async Task CreateNewTabAsync(int InsertIndex, params string[] PathArray)
         {
-            int Index = InsertIndex > 0 ? (InsertIndex <= TabCollection.Count ? InsertIndex : TabCollection.Count) : 0;
+            int Index = Math.Min(Math.Max(0, InsertIndex), TabCollection.Count);
 
             try
             {
@@ -429,7 +429,14 @@ namespace RX_Explorer
             }
             else
             {
-                Item.Header = Path.GetFileName(ValidPathArray.Last());
+                string HeaderText = Path.GetFileName(ValidPathArray.Last());
+
+                if (string.IsNullOrEmpty(HeaderText))
+                {
+                    HeaderText = $"<{Globalization.GetString("UnknownText")}>";
+                }
+
+                Item.Header = HeaderText;
             }
 
             BaseFrame.Tag = ValidPathArray.ToArray();

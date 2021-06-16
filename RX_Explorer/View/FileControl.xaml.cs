@@ -232,7 +232,7 @@ namespace RX_Explorer
             }
         }
 
-        private void FileControl_Loaded(object sender, RoutedEventArgs e)
+        private async void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
             {
@@ -241,6 +241,11 @@ namespace RX_Explorer
             else
             {
                 TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+            }
+
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            {
+                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
             }
         }
 
@@ -605,9 +610,16 @@ namespace RX_Explorer
                     }
                 }
 
-                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
-                    await CreateNewBladeAsync(TargetPath);
+                    foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                    {
+                        await CreateNewBladeAsync(TargetPath);
+                    }
+                }
+                else
+                {
+                    await CreateNewBladeAsync(InitFolderPathArray.First());
                 }
 
                 foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
@@ -721,9 +733,16 @@ namespace RX_Explorer
             {
                 if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content && CurrentPresenter != null)
                 {
-                    if (CurrentPresenter != null && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                    if (CurrentPresenter != null)
                     {
-                        await CurrentPresenter.DisplayItemsInFolder(Content.Path);
+                        if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                        {
+                            Node.IsExpanded = !Node.IsExpanded;
+                        }
+                        else
+                        {
+                            await CurrentPresenter.DisplayItemsInFolder(Content.Path);
+                        }
                     }
                 }
             }
@@ -744,7 +763,115 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
+            {
+                bool ExecuteDelete = false;
+
+                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
+                {
+                    if (DeleteConfirm)
+                    {
+                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            ExecuteDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+                else
+                {
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                {
+                    PermanentDelete |= IsAvoidRecycleBin;
+                }
+
+                if (ExecuteDelete)
+                {
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting"));
+
+                    try
+                    {
+                        await Item.DeleteAsync(PermanentDelete);
+
+                        await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
+
+                        foreach (TreeViewNode RootNode in FolderTree.RootNodes)
+                        {
+                            await RootNode.UpdateAllSubNodeAsync();
+                        }
+                    }
+                    catch (FileCaputureException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await dialog.ShowAsync();
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+
+                        await Dialog.ShowAsync();
+
+                        await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            await Launcher.LaunchFolderPathAsync(System.IO.Path.GetDirectoryName(Item.Path));
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+
+                    await LoadingActivation(false);
+                }
+            }
+            else
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -754,115 +881,6 @@ namespace RX_Explorer
                 };
 
                 await dialog.ShowAsync();
-
-                return;
-            }
-
-            //We should take the path of what we want to delete first. Or we might delete some items incorrectly
-            FileSystemStorageFolder ToBeDeleteFolder = CurrentPresenter.CurrentFolder;
-
-            bool ExecuteDelete = false;
-
-            if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
-            {
-                if (DeleteConfirm)
-                {
-                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
-
-                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        ExecuteDelete = true;
-                    }
-                }
-                else
-                {
-                    ExecuteDelete = true;
-                }
-            }
-            else
-            {
-                DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
-
-                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    ExecuteDelete = true;
-                }
-            }
-
-            bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
-
-            if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
-            {
-                PermanentDelete |= IsAvoidRecycleBin;
-            }
-
-            if (ExecuteDelete)
-            {
-                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting"));
-
-                try
-                {
-                    await ToBeDeleteFolder.DeleteAsync(PermanentDelete);
-
-                    await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(ToBeDeleteFolder.Path));
-
-                    foreach (TreeViewNode RootNode in FolderTree.RootNodes)
-                    {
-                        await RootNode.UpdateAllSubNodeAsync();
-                    }
-                }
-                catch (FileCaputureException)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
-                }
-                catch (FileNotFoundException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                    };
-
-                    await Dialog.ShowAsync();
-
-                    await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
-                }
-                catch (InvalidOperationException)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
-                    }
-                }
-                catch (Exception)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-
-                await LoadingActivation(false);
             }
         }
 
@@ -879,36 +897,41 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        if (FolderTree.RootNodes.Contains(Node))
+                        if (Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath"))
                         {
-                            FolderCopy.IsEnabled = false;
-                            FolderCut.IsEnabled = false;
-                            FolderDelete.IsEnabled = false;
-                            FolderRename.IsEnabled = false;
+                            FolderTree.ContextFlyout = null;
                         }
                         else
                         {
-                            FolderCopy.IsEnabled = true;
-                            FolderCut.IsEnabled = true;
-                            FolderDelete.IsEnabled = true;
-                            FolderRename.IsEnabled = true;
+                            if (FolderTree.RootNodes.Contains(Node))
+                            {
+                                FolderCopy.IsEnabled = false;
+                                FolderCut.IsEnabled = false;
+                                FolderDelete.IsEnabled = false;
+                                FolderRename.IsEnabled = false;
+                            }
+                            else
+                            {
+                                FolderCopy.IsEnabled = true;
+                                FolderCut.IsEnabled = true;
+                                FolderDelete.IsEnabled = true;
+                                FolderRename.IsEnabled = true;
+                            }
+
+                            FolderTree.ContextFlyout = RightTabFlyout;
                         }
 
-                        FolderTree.ContextFlyout = RightTabFlyout;
                         FolderTree.SelectedNode = Node;
-
-                        if (Node.Content is TreeViewNodeContent Content)
-                        {
-                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
-                        }
                     }
                     else
                     {
                         FolderTree.ContextFlyout = null;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
+
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1003,9 +1026,11 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
             {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentPresenter.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) == null)
+                if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is not FileSystemStorageFolder)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1033,25 +1058,33 @@ namespace RX_Explorer
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                await dialog.ShowAsync();
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
-                return;
-            }
-
-            if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
             {
-                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
+                if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    await dialog.ShowAsync();
+                    if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
+                    {
+                        await new DeviceInfoDialog(Info).ShowAsync();
+                    }
+                    else
+                    {
+                        AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                        NewWindow.RequestSize(new Size(420, 600));
+                        NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                        NewWindow.PersistedStateId = "Properties";
+                        NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                        NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                        NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                        NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                        NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                        ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
+                        WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                        await NewWindow.TryShowAsync();
+                    }
                 }
                 else
                 {
@@ -1065,7 +1098,7 @@ namespace RX_Explorer
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
                     WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
                     await NewWindow.TryShowAsync();
@@ -1073,20 +1106,14 @@ namespace RX_Explorer
             }
             else
             {
-                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 600));
-                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                await NewWindow.TryShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -1965,56 +1992,70 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        if (FolderTree.RootNodes.Contains(Node))
+                        if (Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath"))
                         {
-                            FolderDelete.IsEnabled = false;
-                            FolderRename.IsEnabled = false;
+                            FolderTree.ContextFlyout = null;
                         }
                         else
                         {
-                            FolderDelete.IsEnabled = true;
-                            FolderRename.IsEnabled = true;
+                            if (FolderTree.RootNodes.Contains(Node))
+                            {
+                                FolderCopy.IsEnabled = false;
+                                FolderCut.IsEnabled = false;
+                                FolderDelete.IsEnabled = false;
+                                FolderRename.IsEnabled = false;
+                            }
+                            else
+                            {
+                                FolderCopy.IsEnabled = true;
+                                FolderCut.IsEnabled = true;
+                                FolderDelete.IsEnabled = true;
+                                FolderRename.IsEnabled = true;
+                            }
+
+                            FolderTree.ContextFlyout = RightTabFlyout;
                         }
 
-                        FolderTree.ContextFlyout = RightTabFlyout;
-
-                        if (Node.Content is TreeViewNodeContent Content)
-                        {
-                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
-                        }
+                        FolderTree.SelectedNode = Node;
                     }
                     else
                     {
                         FolderTree.ContextFlyout = null;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
+
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
             }
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentPresenter.CurrentFolder != null)
+            RightTabFlyout.Hide();
+
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
             {
                 try
                 {
-                    RightTabFlyout.Hide();
-
                     Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Move));
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Folder }.GetAsDataPackageAsync(DataPackageOperation.Move));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex);
+
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2023,22 +2064,37 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
+            }
+            else
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
             }
         }
 
         private async void FolderCopy_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentPresenter.CurrentFolder != null)
+            RightTabFlyout.Hide();
+
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
             {
                 try
                 {
-                    RightTabFlyout.Hide();
-
                     Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Copy));
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Item }.GetAsDataPackageAsync(DataPackageOperation.Copy));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex);
+
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2048,21 +2104,58 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
+            else
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
+            }
         }
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentPresenter.CurrentFolder != null)
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
             {
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CurrentPresenter.CurrentFolder.Path)}"));
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Path)}"));
+            }
+            else
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
             }
         }
 
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentPresenter.CurrentFolder != null)
+            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
+
+            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(null, CurrentPresenter.CurrentFolder.Path);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(Path);
+            }
+            else
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
             }
         }
 

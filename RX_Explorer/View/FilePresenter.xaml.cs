@@ -315,9 +315,9 @@ namespace RX_Explorer
                     GroupAsc.IsEnabled = false;
                     GroupDesc.IsEnabled = false;
 
-                    GroupCollection.Clear();
-
                     IsGroupedEnable = false;
+
+                    GroupCollection.Clear();
                 }
                 else
                 {
@@ -566,13 +566,16 @@ namespace RX_Explorer
                             }
                         case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
-                                    await Container.CreateNewBladeAsync(Folder.Path);
-                                }
-                                else
-                                {
-                                    await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                    if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                    {
+                                        await Container.CreateNewBladeAsync(Folder.Path);
+                                    }
+                                    else
+                                    {
+                                        await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                    }
                                 }
 
                                 break;
@@ -869,6 +872,7 @@ namespace RX_Explorer
                     }
 
                     FileCollection.Clear();
+                    GroupCollection.Clear();
 
                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(FolderPath);
 
@@ -882,9 +886,7 @@ namespace RX_Explorer
 
                         if (Config.GroupTarget != GroupTarget.None)
                         {
-                            GroupCollection.Clear();
-
-                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
+                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                             {
                                 GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                             }
@@ -893,7 +895,6 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            GroupCollection.Clear();
                             IsGroupedEnable = false;
                         }
 
@@ -3628,6 +3629,7 @@ namespace RX_Explorer
             if (e.HoldingState == HoldingState.Started)
             {
                 e.Handled = true;
+                Container.BlockKeyboardShortCutInput = true;
 
                 if (ItemPresenter is GridView)
                 {
@@ -3648,14 +3650,14 @@ namespace RX_Explorer
                                         await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
-                                case FileSystemStorageFile:
-                                    {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
-                                        break;
-                                    }
                                 case FileSystemStorageFolder:
                                     {
                                         await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
+                                        break;
+                                    }
+                                case FileSystemStorageFile:
+                                    {
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                             }
@@ -3695,14 +3697,14 @@ namespace RX_Explorer
                                                     await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
-                                            case FileSystemStorageFile:
-                                                {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
-                                                    break;
-                                                }
                                             case FileSystemStorageFolder:
                                                 {
                                                     await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    break;
+                                                }
+                                            case FileSystemStorageFile:
+                                                {
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                         }
@@ -3720,14 +3722,14 @@ namespace RX_Explorer
                                                         await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
-                                                case FileSystemStorageFile:
-                                                    {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
-                                                        break;
-                                                    }
                                                 case FileSystemStorageFolder:
                                                     {
                                                         await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        break;
+                                                    }
+                                                case FileSystemStorageFile:
+                                                    {
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                             }
@@ -3748,6 +3750,8 @@ namespace RX_Explorer
                         }
                     }
                 }
+
+                Container.BlockKeyboardShortCutInput = false;
             }
         }
 
@@ -4412,17 +4416,16 @@ namespace RX_Explorer
         {
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
+            FileCollection.Clear();
+            GroupCollection.Clear();
+
             if (IsGroupedEnable)
             {
-                GroupCollection.Clear();
-
                 foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {
                     GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                 }
             }
-
-            FileCollection.Clear();
 
             foreach (FileSystemStorageItemBase Item in args.FilterCollection)
             {
@@ -4691,7 +4694,15 @@ namespace RX_Explorer
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                await Container.CreateNewBladeAsync(Folder.Path);
+                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                {
+                                    await Container.CreateNewBladeAsync(Folder.Path);
+                                }
+                                else
+                                {
+                                    await TabViewContainer.ThisPage.CreateNewTabAsync(Folder.Path);
+                                }
+
                                 break;
                             }
                         case FileSystemStorageFile File:
@@ -5040,6 +5051,7 @@ namespace RX_Explorer
         public void Dispose()
         {
             FileCollection.Clear();
+            GroupCollection.Clear();
 
             AreaWatcher?.Dispose();
             WiFiProvider?.Dispose();
