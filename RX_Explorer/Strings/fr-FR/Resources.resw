@@ -2159,7 +2159,7 @@ Les noms non valides incluent
     <value>Créer une nouvelle vue fractionnée verticale</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Fermez tout l'onglet mais ceci</value>
+    <value>Fermez tous les onglets sauf celui-ci</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Fermer cet onglet</value>
@@ -3136,7 +3136,7 @@ Les noms non valides incluent
     <value>Accès rapide</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Fermez l'onglet à droite</value>
+    <value>Fermez tous les onglets à droite</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Obtenez le maintenant</value>

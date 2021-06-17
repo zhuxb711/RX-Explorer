@@ -1426,6 +1426,7 @@
                                                        FontSize="18" />
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
+                                                       FontSize="14"
                                                        Text="{x:Bind Description}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -1458,7 +1459,7 @@
                                                 Height="35"
                                                 RelativePanel.LeftOf="NameFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="名称"
@@ -1483,7 +1484,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1652,7 +1653,7 @@
                                                 Click="ListHeaderModifiedTime_Click"
                                                 RelativePanel.LeftOf="ModTimeFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="修改日期"
@@ -1677,7 +1678,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1780,7 +1781,7 @@
                                                 Click="ListHeaderType_Click"
                                                 RelativePanel.LeftOf="TypeFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="类型"
@@ -1805,7 +1806,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1826,8 +1827,10 @@
                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                         </Style>
                                                     </Flyout.FlyoutPresenterStyle>
-                                                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
-                                                                  MaxHeight="400"
+                                                    <ScrollViewer VerticalScrollMode="Enabled"
+                                                                  HorizontalScrollMode="Disabled"
+                                                                  VerticalScrollBarVisibility="Auto"
+                                                                  MaxHeight="350"
                                                                   MinWidth="200"
                                                                   Content="{x:Bind Filter.TypeCheckBoxPanel,Mode=OneWay}" />
                                                 </Flyout>
@@ -1849,7 +1852,7 @@
                                                 RelativePanel.AlignLeftWithPanel="True"
                                                 Height="35"
                                                 Click="ListHeaderSize_Click"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="大小"
@@ -1874,7 +1877,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1954,7 +1957,7 @@
                                             Grid.Column="4"
                                             IsDoubleTapEnabled="True"
                                             DoubleTapped="ListHeader_DoubleTapped"
-                                            Background="{StaticResource ElementAcrylicBrush}"
+                                            Background="{ThemeResource ElementAcrylicBrush}"
                                             Style="{StaticResource ListHeaderButtonStyle}" />
                                 </Grid>
                             </DataTemplate>
@@ -1988,6 +1991,7 @@
                                                FontSize="18" />
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
+                                               FontSize="14"
                                                Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -2097,7 +2101,7 @@
                             DefaultLabelPosition="Right"
                             Name="BottomCommandBar"
                             Opening="BottomCommandBar_Opening"
-                            Background="{StaticResource ElementAcrylicBrush}" />
+                            Background="{ThemeResource ElementAcrylicBrush}" />
             </StackPanel>
         </Grid>
         <local:Home HorizontalAlignment="Stretch"

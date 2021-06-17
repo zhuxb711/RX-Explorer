@@ -685,11 +685,6 @@
                                 Value="Stretch" />
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
-                <muxc:TreeView.Resources>
-                    <RevealBackgroundBrush  x:Key="TreeViewItemBackgroundSelected"
-                                            Color="{ThemeResource SystemAccentColor}"
-                                            FallbackColor="{ThemeResource SystemAccentColor}" />
-                </muxc:TreeView.Resources>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
                         <RelativePanel Padding="0,5">
@@ -727,9 +722,9 @@
                           x:FieldModifier="public"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="Black"
-                                    TintOpacity="0.65"
-                                    BlurAmount="4" />
+                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                    TintOpacity="0.6"
+                                    BlurAmount="3" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"

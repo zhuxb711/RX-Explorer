@@ -2190,7 +2190,7 @@ Las denominaciones no válidas son:
     <value>Crear una vista dividida vertical nueva</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Cerrar todas las pestañas excepto esta</value>
+    <value>Cierre todas las pestañas excepto esta</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Cerrar esta ventana</value>
@@ -3136,7 +3136,7 @@ Las denominaciones no válidas son:
     <value>Acceso rapido</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Cerrar la pestaña de la derecha</value>
+    <value>Cerrar todas las pestañas de la derecha</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Consiguelo ahora</value>

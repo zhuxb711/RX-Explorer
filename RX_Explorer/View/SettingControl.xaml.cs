@@ -1114,7 +1114,6 @@ namespace RX_Explorer
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
-                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1137,7 +1136,6 @@ namespace RX_Explorer
                             PictureMode.IsChecked = null;
                             PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
-                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1168,7 +1166,6 @@ namespace RX_Explorer
                             SolidColor_White.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
-                            ThemeColor.IsEnabled = true;
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                             {
@@ -2013,7 +2010,7 @@ namespace RX_Explorer
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }
@@ -2652,7 +2649,7 @@ namespace RX_Explorer
 
                             if (!IsDetachTreeViewAndPresenter)
                             {
-                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     await RootNode.UpdateAllSubNodeAsync();
                                 }
@@ -2691,7 +2688,7 @@ namespace RX_Explorer
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }

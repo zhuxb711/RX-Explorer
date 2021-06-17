@@ -1,4 +1,43 @@
 ﻿*****
+###Was ist neu in Ver.6.7.1.0
+
+#####Funktionsupdate
+
+>#####Der Mechanismus bei aktiviertem Win+E wurde optimiert und die Erfolgsquote verbessert
+
+>#####Wenn die Aufgabenliste ausgeblendet ist, wird ein kleiner Fortschrittsbalken angezeigt, der den Gesamtfortschritt aller Aufgaben anzeigt
+
+>#####"Schnellzugriff" wurde standardmäßig im Verzeichnisbaum erstellt
+
+>#####Option "Alle Tabs rechts schließen" im Rechtsklick-Menü der Tabs hinzugefügt
+
+#####UI-Update
+
+>#####"Vertical Split View" beendet Beta und erfordert jetzt eine Zahlung zum Freischalten
+
+>#####Wenn Sie mit der rechten Maustaste auf den Verzeichnisbaum klicken, wird nicht mehr automatisch in den entsprechenden Ordner gesprungen
+
+>#####Die UI-Farbe und der Anzeigeeffekt wurden optimiert, wenn das einfarbige Thema verwendet oder das Acryl ausgeschaltet wurde
+
+#####Fehlerbehebung
+
+>#####Das Problem, dass "Quick Start" auf einigen kleinen Bildschirmen nicht angezeigt werden konnte, wurde behoben
+
+>#####Problem behoben, dass einige Anwendungen beim Start nicht nach oben angepasst werden können
+
+>#####Das Problem wurde behoben, dass, obwohl der integrierte Viewer keine GIF-Dateien unterstützt, die GIF-Datei in einigen Fällen immer noch über den integrierten Viewer geöffnet werden kann
+
+>#####Das Problem wurde behoben, das zu einem Absturz führen konnte, wenn die Filterung in einem Ordner verwendet wurde, der kein Farbetikett hat
+
+>#####Das Problem wurde behoben, dass beim Aufrufen der Einstellungsseite die Aufforderung zum Ändern des Themas möglicherweise erneut angezeigt wurde.
+
+>#####Problem behoben, das beim Öffnen des Stammverzeichnisses in einer neuen Registerkarte zu einem Absturz führte
+
+>#####Es wurde ein Problem behoben, das beim Öffnen des Eigenschaftenfensters zu einem Absturz führen konnte
+
+>#####Probleme im Zusammenhang mit der Planung von Hilfsprozessen behoben
+
+*****
 ###Was ist neu in Ver.6.6.8.0
 
 #####Leistungsverbesserung

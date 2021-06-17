@@ -2862,7 +2862,7 @@ Invalid names include
           <target state="translated">創建新的垂直拆分視圖</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tab but this</source>
+          <source>Close all tabs but this</source>
           <target state="translated">關閉除此以外所有選項卡</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
@@ -4163,8 +4163,8 @@ Invalid names include
           <target state="translated">快速訪問</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close the tab on the right</source>
-          <target state="translated">關閉右側的選項卡</target>
+          <source>Close all tabs on the right</source>
+          <target state="translated">關閉右側的所有選項卡</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>

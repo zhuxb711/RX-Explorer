@@ -2862,8 +2862,8 @@ Les noms non valides incluent
           <target state="translated">Créer une nouvelle vue fractionnée verticale</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tab but this</source>
-          <target state="translated">Fermez tout l'onglet mais ceci</target>
+          <source>Close all tabs but this</source>
+          <target state="translated">Fermez tous les onglets sauf celui-ci</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
@@ -4163,8 +4163,8 @@ Les noms non valides incluent
           <target state="translated">Accès rapide</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close the tab on the right</source>
-          <target state="translated">Fermez l'onglet à droite</target>
+          <source>Close all tabs on the right</source>
+          <target state="translated">Fermez tous les onglets à droite</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>

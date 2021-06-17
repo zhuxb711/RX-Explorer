@@ -3136,7 +3136,7 @@
     <value>快速访问</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>关闭右侧标签页</value>
+    <value>关闭右侧所有的标签页</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>立即获取</value>

@@ -158,7 +158,7 @@
                             VerticalAlignment="Stretch"
                             x:Name="ListHeaderName"
                             Click="ListHeaderName_Click"
-                            Background="{StaticResource ElementAcrylicBrush}"
+                            Background="{ThemeResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="名称"
                                    x:Uid="SearchName"
@@ -171,7 +171,7 @@
                             Grid.Column="1"
                             x:Name="ListHeaderPath"
                             Click="ListHeaderPath_Click"
-                            Background="{StaticResource ElementAcrylicBrush}"
+                            Background="{ThemeResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="路径"
                                    x:Uid="SearchPath"
@@ -184,7 +184,7 @@
                             Grid.Column="2"
                             x:Name="ListHeaderModifyDate"
                             Click="ListHeaderModifyDate_Click"
-                            Background="{StaticResource ElementAcrylicBrush}"
+                            Background="{ThemeResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="修改日期"
                                    x:Uid="SearchModified"
@@ -197,7 +197,7 @@
                             Grid.Column="3"
                             x:Name="ListHeaderType"
                             Click="ListHeaderType_Click"
-                            Background="{StaticResource ElementAcrylicBrush}"
+                            Background="{ThemeResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="类型"
                                    x:Uid="SearchType"
@@ -210,7 +210,7 @@
                             Grid.Column="4"
                             x:Name="ListHeaderSize"
                             Click="ListHeaderSize_Click"
-                            Background="{StaticResource ElementAcrylicBrush}"
+                            Background="{ThemeResource ElementAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <TextBlock Text="大小"
                                    x:Uid="SearchSize"

@@ -1210,7 +1210,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }
@@ -1225,7 +1225,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }
@@ -1240,7 +1240,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }

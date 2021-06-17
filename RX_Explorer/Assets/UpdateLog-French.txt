@@ -1,4 +1,43 @@
 ﻿*****
+###Quoi de neuf dans la version 6.7.1.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Optimisation du mécanisme lorsque Win+E est activé et amélioration du taux de réussite
+
+>#####Lorsque la liste des tâches est masquée, une petite barre de progression s'affiche pour indiquer la progression totale de toutes les tâches
+
+>#####"Quick Access" a été créé par défaut dans l'arborescence des répertoires
+
+>#####Ajout de l'option "Fermer tous les onglets à droite" dans le menu contextuel des onglets
+
+#####Mise à jour de l'interface utilisateur
+
+>#####"Vertical Split View" termine la version bêta et nécessite désormais un paiement pour déverrouiller
+
+>#####Lorsque vous faites un clic droit sur l'arborescence des répertoires, il ne sautera plus automatiquement vers le dossier correspondant
+
+>#####Optimisation de la couleur de l'interface utilisateur et de l'effet d'affichage lors de l'utilisation du thème de couleur unie ou de la désactivation de l'acrylique
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel "Démarrage rapide" ne pouvait pas apparaître sur certains petits écrans
+
+>#####Correction du problème selon lequel certaines applications ne peuvent pas être ajustées vers le haut lorsqu'elles sont lancées
+
+>#####Correction du problème selon lequel, bien que la visionneuse intégrée ne prenne pas en charge les fichiers GIF, le fichier GIF peut toujours être ouvert via la visionneuse intégrée dans certains cas
+
+>#####Correction du problème pouvant provoquer un plantage lors de l'utilisation du filtrage dans un dossier qui n'a pas de balise de couleur
+
+>#####Correction du problème selon lequel l'invite demandant de modifier le thème peut réapparaître lors de l'accès à la page des paramètres
+
+>#####Correction du problème qui provoquait un plantage lors de l'ouverture du répertoire racine dans une nouvelle page à onglet
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de l'ouverture de la fenêtre des propriétés
+
+>#####Correction des problèmes liés à la planification des processus auxiliaires
+
+*****
 ###Quoi de neuf dans la version 6.6.8.0
 
 #####Amélioration des performances
@@ -60,7 +99,7 @@
 
 >#####Correction du problème selon lequel le titre de la fenêtre était incorrect lors de l'ouverture de la fenêtre des propriétés à partir de la corbeille
 
->######Correction du problème d'affichage incorrect d'une partie du contenu dans la fenêtre des propriétés du dossier
+>#####Correction du problème d'affichage incorrect d'une partie du contenu dans la fenêtre des propriétés du dossier
 
 >#####Correction de certains problèmes d'interface utilisateur sur la page des paramètres
 
@@ -94,7 +133,7 @@
 
 >#####Maintenant, vous pouvez filtrer les fichiers en fonction de la couleur de la balise
 
->######L'invite indiquant que la vignette ne peut pas être chargée disparaîtra automatiquement après 5 s
+>#####L'invite indiquant que la vignette ne peut pas être chargée disparaîtra automatiquement après 5 s
 
 >#####Refonte de l'interface utilisateur de "Restaurer" et "Autre" dans la page des paramètres
 

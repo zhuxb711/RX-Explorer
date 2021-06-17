@@ -2901,8 +2901,8 @@ Las denominaciones no válidas son:
           <target state="translated">Crear una vista dividida vertical nueva</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tab but this</source>
-          <target state="translated">Cerrar todas las pestañas excepto esta</target>
+          <source>Close all tabs but this</source>
+          <target state="translated">Cierre todas las pestañas excepto esta</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
@@ -4161,8 +4161,8 @@ Las denominaciones no válidas son:
           <target state="translated">Acceso rapido</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close the tab on the right</source>
-          <target state="translated">Cerrar la pestaña de la derecha</target>
+          <source>Close all tabs on the right</source>
+          <target state="translated">Cerrar todas las pestañas de la derecha</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>

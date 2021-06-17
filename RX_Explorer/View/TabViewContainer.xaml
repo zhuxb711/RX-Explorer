@@ -38,8 +38,13 @@
                PanePlacement="Right"
                Name="TaskListPanel"
                OpenPaneLength="350"
-               x:FieldModifier="public"
-               PaneBackground="{ThemeResource TaskListAcrylicBrush}">
+               x:FieldModifier="public">
+        <SplitView.PaneBackground>
+            <AcrylicBrush BackgroundSource="Backdrop"
+                          TintColor="Gray"
+                          TintOpacity="0.1"
+                          FallbackColor="{ThemeResource SystemAltMediumHighColor}" />
+        </SplitView.PaneBackground>
         <Grid>
             <muxc:TabView TabWidthMode="Equal"
                           Name="TabViewControl"
@@ -61,11 +66,6 @@
                 <muxc:TabView.Resources>
                     <SolidColorBrush x:Key="TabViewBackground"
                                      Color="Transparent" />
-                    <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
-                                  BackgroundSource="Backdrop"
-                                  TintLuminosityOpacity="0.5"
-                                  TintColor="{ThemeResource SystemAltMediumColor}"
-                                  FallbackColor="{ThemeResource SystemAccentColor}" />
                 </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
                     <Button HorizontalAlignment="Right"

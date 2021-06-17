@@ -1,4 +1,43 @@
 ﻿*****
+###Novedades de la versión 6.7.1.0
+
+#####Actualización de funciones
+
+>#####Optimizó el mecanismo cuando Win + E está habilitado y mejoró la tasa de éxito
+
+>#####Cuando la lista de tareas está oculta, se mostrará una pequeña barra de progreso para indicar el progreso total de todas las tareas.
+
+>#####"Acceso rápido" se creó por defecto en el árbol del directorio
+
+>#####Se agregó la opción "Cerrar todas las pestañas a la derecha" en el menú de pestañas del botón derecho
+
+#####Actualización de la interfaz de usuario
+
+>#####"Vertical Split View" finaliza la versión beta y ahora requiere pago para desbloquear
+
+>#####Cuando haces clic derecho en el árbol de directorios, ya no saltará automáticamente a la carpeta correspondiente.
+
+>#####Optimizó el color de la interfaz de usuario y el efecto de visualización al usar el tema de color sólido o apagar el Acrílico
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que "Inicio rápido" no podía aparecer en algunas pantallas pequeñas
+
+>#####Se solucionó el problema de que algunas aplicaciones no se pueden ajustar en la parte superior cuando se inician
+
+>#####Se solucionó el problema de que, aunque el visor integrado no admite archivos GIF, el archivo GIF aún se puede abrir a través del visor integrado en algunos casos
+
+>#####Se solucionó el problema que podía causar un bloqueo al usar el filtrado en una carpeta que no tiene una etiqueta de color
+
+>#####Se solucionó el problema de que la solicitud de cambio del tema puede aparecer nuevamente al ingresar a la página de configuración
+
+>#####Se solucionó el problema que causaría un bloqueo al abrir el directorio raíz en una página de nueva pestaña
+
+>#####Se solucionó un problema que podía causar un bloqueo al abrir la ventana de propiedades
+
+>#####Se corrigieron los problemas relacionados con la programación del proceso auxiliar
+
+*****
 ###Novedades de la versión 6.6.8.0
 
 #####Mejora del rendimiento

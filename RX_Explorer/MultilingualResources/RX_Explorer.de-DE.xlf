@@ -2905,8 +2905,8 @@ Inkorrekte Namen sind
           <target state="translated">In horizontaler Geteiltansicht öffnen</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tab but this</source>
-          <target state="translated">Alle Tabs außer diesen schließen</target>
+          <source>Close all tabs but this</source>
+          <target state="translated">Schließe alle Tabs außer diesem</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
@@ -4161,8 +4161,8 @@ Inkorrekte Namen sind
           <target state="translated">Schneller Zugang</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close the tab on the right</source>
-          <target state="translated">Schließen Sie die Registerkarte rechts</target>
+          <source>Close all tabs on the right</source>
+          <target state="translated">Alle Tabs rechts schließen</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>

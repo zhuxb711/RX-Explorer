@@ -2307,7 +2307,7 @@ Invalid names include
     <value>Create a new vertical split view</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Close all tab but this</value>
+    <value>Close all tabs but this</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Close this tab</value>
@@ -3241,7 +3241,7 @@ Invalid names include
     <value>Quick Access</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Close the tab on the right</value>
+    <value>Close all tabs on the right</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Get it now</value>

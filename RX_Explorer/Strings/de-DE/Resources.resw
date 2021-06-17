@@ -2193,7 +2193,7 @@ Inkorrekte Namen sind
     <value>In horizontaler Geteiltansicht öffnen</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Alle Tabs außer diesen schließen</value>
+    <value>Schließe alle Tabs außer diesem</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Diesen Tab schließen</value>
@@ -3136,7 +3136,7 @@ Inkorrekte Namen sind
     <value>Schneller Zugang</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Schließen Sie die Registerkarte rechts</value>
+    <value>Alle Tabs rechts schließen</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Hol es dir jetzt</value>

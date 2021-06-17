@@ -812,7 +812,7 @@ namespace RX_Explorer
 
                         await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
 
-                        foreach (TreeViewNode RootNode in FolderTree.RootNodes)
+                        foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
                             await RootNode.UpdateAllSubNodeAsync();
                         }

@@ -1,4 +1,43 @@
 ﻿*****
+###What's new in Ver.6.7.1.0
+
+#####Feature update
+
+>#####Optimized the mechanism when Win+E is enabled and improved the success rate
+
+>#####When the task list is hidden, a small progress bar will be displayed to indicate the total progress of all tasks
+
+>#####"Quick Access" was created by default in the directory tree
+
+>#####Added "Close all tabs on the right" option in right-click menu of tabs
+
+#####UI update
+
+>#####"Vertical Split View" ends beta and now requires payment to unlock
+
+>#####When you right-click the directory tree, it will no longer automatically jump to the corresponding folder
+
+>#####Optimized the UI color and display effect when using the solid color theme or turning off the Acrylic
+
+#####Bug fix
+
+>#####Fixed the problem that "Quick Start" could not pop up on some small screens
+
+>#####Fixed the problem that some applications cannot be adjusted to the top when they are launched
+
+>#####Fixed the problem that although the built-in viewer does not support GIF files, the GIF file can still be opened through the built-in viewer in some cases
+
+>#####Fixed the problem that may cause a crash when using filtering in a folder that does not have a color tag
+
+>#####Fixed the problem that the prompt ask for change the theme may pop up again when entering the settings page
+
+>#####Fixed the problem that would cause a crash when opening root directory in a new tab page
+
+>#####Fixed a problem that may cause a crash when opening the properties window
+
+>#####Fixed the problems related to auxiliary process scheduling
+
+*****
 ###What's new in Ver.6.6.8.0
 
 #####Performance improvement
@@ -2280,9 +2319,9 @@
 
 #####Bug fix
 
->######Resolved an issue that could prevent normal blue screen entry
+>#####Resolved an issue that could prevent normal blue screen entry
 
->######Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
+>#####Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
 
 *****
 ###What's new in Ver.4.3.5.0
@@ -2745,13 +2784,13 @@
 
 >#####Using C # 8.0 features -<asynchronous streaming traversal>- improves data acquisition speed in some scenarios
 
->######Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
+>#####Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
 
 #####Bug fix
 
->######Solved the problem that users may not display correctly after importing background images
+>#####Solved the problem that users may not display correctly after importing background images
 
->######Fixed the problem of scrolling animation of picture list when switching between different background modes
+>#####Fixed the problem of scrolling animation of picture list when switching between different background modes
 
 *****
 ###What's new in Ver.3.6.0.0
@@ -2762,13 +2801,13 @@
 
 #####Bug fix
 
->######Resolved an issue that could cause RX to crash when returning directly to the main interface
+>#####Resolved an issue that could cause RX to crash when returning directly to the main interface
 
 >#####Performance improvements
 
->######Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
+>#####Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
 
->######Improved the way to get feedback data, reduce network usage, and improve interface response speed
+>#####Improved the way to get feedback data, reduce network usage, and improve interface response speed
 
 *****
 ###What's new in Ver.3.5.7.0

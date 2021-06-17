@@ -219,16 +219,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string ConvertTimsSpanToString(this TimeSpan Span)
+        public static string ConvertTimeSpanToString(this TimeSpan Span)
         {
             if (Span == TimeSpan.MaxValue || Span == TimeSpan.MinValue)
             {
                 return "--:--:--";
             }
 
-            int Hour = 0;
-            int Minute = 0;
-            int Second = Convert.ToInt32(Span.TotalSeconds);
+            double Hour = 0;
+            double Minute = 0;
+            double Second = Math.Max(Span.TotalSeconds, 0);
 
             if (Second >= 60)
             {
@@ -241,7 +241,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
+            return string.Format("{0:###00}:{1:00}:{2:00}", Hour, Minute, Second);
         }
 
         public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)

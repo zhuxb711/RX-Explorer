@@ -6,6 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -276,8 +277,9 @@
                          IsLoading="False"
                          Grid.RowSpan="2">
             <control:Loading.Background>
-                <SolidColorBrush Color="Black"
-                                 Opacity="0.9" />
+                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                    TintOpacity="0.6"
+                                    BlurAmount="3" />
             </control:Loading.Background>
             <StackPanel Padding="12"
                         Width="230">
