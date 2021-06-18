@@ -1121,7 +1121,7 @@ namespace RX_Explorer
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                             BackgroundController.Current.TintOpacity = 0.6;
                             BackgroundController.Current.TintLuminosityOpacity = -1;
-                            BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
+                            BackgroundController.Current.AcrylicColor = Colors.SlateGray;
 
                             AppThemeController.Current.Theme = ElementTheme.Dark;
 

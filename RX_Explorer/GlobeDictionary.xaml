@@ -38,18 +38,16 @@
 
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
-                          TintColor="Gray"
-                          TintOpacity="0.1"
+                          TintColor="LightGray"
+                          TintOpacity="0.5"
                           FallbackColor="{StaticResource SystemAccentColorLight1}" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
     <AcrylicBrush x:Key="DialogAcrylicBrush"
-                  BackgroundSource="Backdrop"
-                  TintOpacity="0.1"
-                  TintLuminosityOpacity="0.5"
-                  TintColor="Gray"
-                  FallbackColor="{ThemeResource SystemAltMediumHighColor}" />
+                  TintColor="{ThemeResource SystemAltHighColor}"
+                  TintOpacity="0.6"
+                  FallbackColor="{ThemeResource SystemAltMediumColor}"/>
 
     <x:Double x:Key="ContentDialogMaxWidth">550</x:Double>
     <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>

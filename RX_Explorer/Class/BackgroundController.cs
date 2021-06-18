@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
                             AcrylicBackgroundBrush = new AcrylicBrush
                             {
                                 BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.LightSlateGray,
+                                TintColor = Colors.SlateGray,
                                 TintOpacity = 0.4,
                                 FallbackColor = Colors.DimGray
                             };
@@ -188,7 +188,7 @@ namespace RX_Explorer.Class
                             AcrylicBackgroundBrush = new AcrylicBrush
                             {
                                 BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.LightSlateGray,
+                                TintColor = Colors.SlateGray,
                                 TintOpacity = 0.4,
                                 FallbackColor = Colors.DimGray
                             };
@@ -215,7 +215,7 @@ namespace RX_Explorer.Class
                                     AcrylicBackgroundBrush = new AcrylicBrush
                                     {
                                         BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.LightSlateGray,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
                                         TintOpacity = 1 - TintOpacity,
                                         TintLuminosityOpacity = 1 - TintLuminosity,
                                         FallbackColor = Colors.DimGray
@@ -226,7 +226,7 @@ namespace RX_Explorer.Class
                                     AcrylicBackgroundBrush = new AcrylicBrush
                                     {
                                         BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.LightSlateGray,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
                                         TintOpacity = 1 - TintOpacity,
                                         FallbackColor = Colors.DimGray
                                     };
@@ -237,7 +237,7 @@ namespace RX_Explorer.Class
                                 AcrylicBackgroundBrush = new AcrylicBrush
                                 {
                                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                    TintColor = Colors.LightSlateGray,
+                                    TintColor = Colors.SlateGray,
                                     TintOpacity = 0.4,
                                     FallbackColor = Colors.DimGray
                                 };
@@ -262,7 +262,7 @@ namespace RX_Explorer.Class
                 AcrylicBackgroundBrush = new AcrylicBrush
                 {
                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                    TintColor = Colors.LightSlateGray,
+                    TintColor = Colors.SlateGray,
                     TintOpacity = 0.4,
                     FallbackColor = Colors.DimGray
                 };
@@ -597,12 +597,12 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            return Colors.DimGray;
+                            return Colors.SlateGray;
                         }
                     }
                     else
                     {
-                        return Colors.DimGray;
+                        return Colors.SlateGray;
                     }
                 }
                 else
