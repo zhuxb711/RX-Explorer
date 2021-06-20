@@ -610,16 +610,9 @@ namespace RX_Explorer
                     }
                 }
 
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
                 {
-                    foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
-                    {
-                        await CreateNewBladeAsync(TargetPath);
-                    }
-                }
-                else
-                {
-                    await CreateNewBladeAsync(InitFolderPathArray.First());
+                    await CreateNewBladeAsync(TargetPath);
                 }
 
                 foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))

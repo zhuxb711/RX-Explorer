@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.6.7.2.0
+
+#####Feature update
+
+>#####Now the built-in media player can continue to play media content when minimized
+
+>#####Now you can open the folder in a new tab by Ctrl + Double-clicking
+
+#####UI update
+
+>#####Adjusted the color of some acrylic materials
+
+#####Bug fix
+
+>#####Fixed the problem that the homepage loading was too slow at startup
+
+*****
 ###What's new in Ver.6.7.1.0
 
 #####Feature update

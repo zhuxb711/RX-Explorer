@@ -1,4 +1,21 @@
 ﻿*****
+###Novedades de la versión 6.7.2.0
+
+#####Actualización de funciones
+
+>#####Ahora el reproductor multimedia incorporado puede continuar reproduciendo contenido multimedia cuando está minimizado
+
+>#####Ahora puedes abrir la carpeta en una nueva pestaña presionando Ctrl + doble clic
+
+#####Actualización de la interfaz de usuario
+
+>#####Ajustó el color de algunos materiales acrílicos
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la carga de la página de inicio era demasiado lenta al inicio
+
+*****
 ###Novedades de la versión 6.7.1.0
 
 #####Actualización de funciones

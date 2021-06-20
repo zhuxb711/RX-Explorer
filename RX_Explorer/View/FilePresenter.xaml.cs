@@ -1999,9 +1999,11 @@ namespace RX_Explorer
 
             DelayRenameCancel?.Cancel();
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if (CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+
+                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                 {
                     AppWindow NewWindow = await AppWindow.TryCreateAsync();
                     NewWindow.RequestSize(new Size(420, 600));
@@ -2013,14 +2015,18 @@ namespace RX_Explorer
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, ReFile));
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
                     WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
                     await NewWindow.TryShowAsync();
                 }
+                else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
+                {
+                    await TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path);
+                }
                 else
                 {
-                    await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
+                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                 }
             }
             else if (e.OriginalSource is Grid)

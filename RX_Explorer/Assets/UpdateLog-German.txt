@@ -1,4 +1,21 @@
 ﻿*****
+###Was ist neu in Ver.6.7.2.0
+
+#####Funktionsupdate
+
+>#####Der eingebaute Mediaplayer kann jetzt weiter Medieninhalte abspielen, wenn er minimiert ist
+
+>#####Jetzt können Sie den Ordner in einem neuen Tab mit Strg + Doppelklick öffnen
+
+#####UI-Update
+
+>#####Die Farbe einiger Acrylmaterialien wurde angepasst
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass das Laden der Homepage beim Start zu langsam war
+
+*****
 ###Was ist neu in Ver.6.7.1.0
 
 #####Funktionsupdate
