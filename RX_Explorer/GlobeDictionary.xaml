@@ -19,8 +19,8 @@
 
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
-                          TintColor="Gray"
-                          TintOpacity="0.1"
+                          TintColor="Black"
+                          TintOpacity="0.3"
                           FallbackColor="{StaticResource SystemAccentColorDark1}" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
@@ -38,11 +38,14 @@
 
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
-                          TintColor="LightGray"
-                          TintOpacity="0.5"
+                          TintColor="White"
+                          TintOpacity="0.3"
                           FallbackColor="{StaticResource SystemAccentColorLight1}" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
+
+    <SolidColorBrush x:Key="TabViewBackground"
+                     Color="Transparent" />
 
     <AcrylicBrush x:Key="DialogAcrylicBrush"
                   TintColor="{ThemeResource SystemAltHighColor}"

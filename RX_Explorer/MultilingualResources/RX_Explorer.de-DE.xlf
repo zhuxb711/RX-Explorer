@@ -298,38 +298,6 @@
           <source>Merge</source>
           <target state="translated">Zusammenführen</target>
         </trans-unit>
-        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Abbrechen</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">Bestätigen</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
-          <source>Create new file</source>
-          <target state="translated">Neue Datei erstellen</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
-          <source>File name</source>
-          <target state="translated">Dateiname</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter file name</source>
-          <target state="translated">Dateinamen eingeben</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The file type you specified does not meet the specifications. Please re-enter</source>
-          <target state="translated">Der angegebene Dateityp entspricht nicht den Spezifikationen. Bitte erneut versuchen.</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
-          <source>Malformed</source>
-          <target state="translated">Fehlerhaft</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter or select a type</source>
-          <target state="translated">Typ eingeben oder auswählen</target>
-        </trans-unit>
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
           <target state="translated">Öffnen</target>
@@ -1149,18 +1117,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Language</source>
           <target state="translated">Sprache</target>
         </trans-unit>
-        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
-          <target state="translated">Sie können den Dateityp, den Sie erstellen möchten, manuell eingeben oder den vom RX Explorer vordefinierten Typ auswählen. Der RX Explorer kann jedoch nur die korrekte Erstellung vordefinierter Typen garantieren. Es kann nicht garantiert werden, dass die manuell eingegebenen Typen korrekt erstellt werden können.</target>
-        </trans-unit>
-        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
-          <source>Explanation</source>
-          <target state="translated">Erklärung</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
-          <source>File type</source>
-          <target state="translated">Dateityp</target>
-        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">Es kann zu einer Verzögerung beim Laden kommen</target>
@@ -1601,10 +1557,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">Erstellen</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
-          <source>Create file</source>
-          <target state="translated">Datei erstellen</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
           <source>Create folder</source>
@@ -4179,6 +4131,10 @@ Inkorrekte Namen sind
         <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
           <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
           <target state="translated">Jetzt Jubiläumsrabatt sichern! Kaufen Sie die offizielle Version mit 50% Rabatt und schalten Sie neue Funktionen frei</target>
+        </trans-unit>
+        <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
+          <source>New file</source>
+          <target state="translated">Neue Datei</target>
         </trans-unit>
       </group>
     </body>

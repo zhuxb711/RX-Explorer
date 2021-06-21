@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task CreateZipFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateZipFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -67,6 +67,8 @@ namespace RX_Explorer.Class
                         Zip.BeginUpdate();
                         Zip.CommitUpdate();
                     }
+
+                    return File;
                 }
                 catch (Exception ex)
                 {
@@ -80,7 +82,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task CreateRtfFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateRtfFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -113,6 +115,8 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+
+                    return File;
                 }
                 catch (Exception ex)
                 {
@@ -126,7 +130,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task CreateExcelFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateExcelFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -152,6 +156,8 @@ namespace RX_Explorer.Class
                     {
                         CreateExcelParts(Document);
                     }
+
+                    return File;
                 }
                 catch (Exception ex)
                 {

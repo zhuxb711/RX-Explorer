@@ -225,30 +225,6 @@
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>合併</value>
   </data>
-  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
-    <value>確認</value>
-  </data>
-  <data name="NewFileDialog.Title" xml:space="preserve">
-    <value>新增檔案</value>
-  </data>
-  <data name="NewFileDialogFileName.Header" xml:space="preserve">
-    <value>檔案名稱</value>
-  </data>
-  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>輸入檔案名稱</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
-    <value>您指定的檔案類型不符合規定。 請重新輸入</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
-    <value>格式不正確</value>
-  </data>
-  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
-    <value>輸入或選擇一種類型</value>
-  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>開啟</value>
   </data>
@@ -835,15 +811,6 @@
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>語言</value>
   </data>
-  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>您可以手動輸入需要新增的檔案類型，也可以選擇RX 檔案總管預定義的檔案類型。 但是RX 檔案總管預只能保證正確新增預定義的類型。它不能保證您手動輸入的類型是否可以正確新增。</value>
-  </data>
-  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
-    <value>說明</value>
-  </data>
-  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
-    <value>檔案類型</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>讀取可能會延遲</value>
   </data>
@@ -1179,9 +1146,6 @@
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>新增</value>
-  </data>
-  <data name="Operate_Text_CreateFile" xml:space="preserve">
-    <value>新增檔案</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>新增資料夾</value>
@@ -3149,5 +3113,8 @@
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>立即獲得周年紀念折扣！以50%的折扣購買正式版並解鎖新功能</value>
+  </data>
+  <data name="NewFile_Admin_Name" xml:space="preserve">
+    <value>新建文件</value>
   </data>
 </root>

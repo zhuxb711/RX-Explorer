@@ -438,26 +438,14 @@ namespace RX_Explorer
                                                                 {
                                                                     try
                                                                     {
-                                                                        Uri NewUri = new Uri(Uri);
+                                                                        BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri(Uri));
 
-                                                                        StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(NewUri);
-
-                                                                        BitmapImage Bitmap = new BitmapImage()
+                                                                        if (!PictureList.Contains(Picture))
                                                                         {
-                                                                            DecodePixelHeight = 90,
-                                                                            DecodePixelWidth = 160
-                                                                        };
-
-                                                                        using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
-                                                                        {
-                                                                            await Bitmap.SetSourceAsync(Stream);
+                                                                            PictureList.Add(Picture);
+                                                                            PictureGirdView.UpdateLayout();
+                                                                            PictureGirdView.SelectedItem = Picture;
                                                                         }
-
-                                                                        BackgroundPicture Picture = new BackgroundPicture(Bitmap, NewUri);
-
-                                                                        PictureList.Add(Picture);
-                                                                        PictureGirdView.UpdateLayout();
-                                                                        PictureGirdView.SelectedItem = Picture;
                                                                     }
                                                                     catch (Exception ex)
                                                                     {
@@ -1225,10 +1213,6 @@ namespace RX_Explorer
             {
                 LogTracer.Log(ex, $"Error in {nameof(UIMode_SelectionChanged)}");
             }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
         }
 
         private void AcrylicColor_Click(object sender, RoutedEventArgs e)
@@ -1382,22 +1366,14 @@ namespace RX_Explorer
                 {
                     foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
                     {
-                        BitmapImage Bitmap = new BitmapImage
-                        {
-                            DecodePixelHeight = 90,
-                            DecodePixelWidth = 160
-                        };
-
                         try
                         {
-                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(ImageUri);
+                            BackgroundPicture Picture = await BackgroundPicture.CreateAsync(ImageUri);
 
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            if (!PictureList.Contains(Picture))
                             {
-                                await Bitmap.SetSourceAsync(Stream);
+                                PictureList.Add(Picture);
                             }
-
-                            PictureList.Add(new BackgroundPicture(Bitmap, ImageUri));
                         }
                         catch (Exception ex)
                         {
@@ -1658,21 +1634,9 @@ namespace RX_Explorer
             if (await Picker.PickSingleFileAsync() is StorageFile File)
             {
                 StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
-
                 StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
 
-                BitmapImage Bitmap = new BitmapImage()
-                {
-                    DecodePixelHeight = 90,
-                    DecodePixelWidth = 160
-                };
-
-                using (IRandomAccessStream Stream = await CopyedFile.OpenAsync(FileAccessMode.Read))
-                {
-                    await Bitmap.SetSourceAsync(Stream);
-                }
-
-                BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
 
                 PictureList.Add(Picture);
                 PictureGirdView.UpdateLayout();
@@ -1793,7 +1757,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_WhiteTheme);
             }
             catch (Exception ex)
             {
@@ -1809,7 +1773,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: "#1E1E1E".ToColor());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_BlackTheme);
             }
             catch (Exception ex)
             {

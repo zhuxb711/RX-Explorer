@@ -780,17 +780,9 @@
                               MinWidth="250"
                               MaxWidth="350">
                     <AppBarButton.Flyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Icon="Page2"
-                                            MinWidth="160"
-                                            Text="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
-                                            Name="CreateFile"
-                                            Click="CreateFile_Click" />
-                            <MenuFlyoutItem Icon="NewFolder"
-                                            Text="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
-                                            MinWidth="160"
-                                            Click="CreateFolder_Click" />
-                        </MenuFlyout>
+                        <MenuFlyout x:Name="CreatNewFlyout"
+                                    Opening="CreatNewFlyout_Opening"
+                                    Closed="CreatNewFlyout_Closed"/>
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Icon="Sort"

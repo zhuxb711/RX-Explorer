@@ -342,30 +342,6 @@
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Merge</value>
   </data>
-  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
-  <data name="NewFileDialog.Title" xml:space="preserve">
-    <value>Create new file</value>
-  </data>
-  <data name="NewFileDialogFileName.Header" xml:space="preserve">
-    <value>File name</value>
-  </data>
-  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>Enter file name</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
-    <value>The file type you specified does not meet the specifications. Please re-enter</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
-    <value>Malformed</value>
-  </data>
-  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
-    <value>Enter or select a type</value>
-  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
   </data>
@@ -980,15 +956,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</value>
-  </data>
-  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
-    <value>Explanation</value>
-  </data>
-  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
-    <value>File type</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>There may be a delay in loading</value>
   </data>
@@ -1324,9 +1291,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Create</value>
-  </data>
-  <data name="Operate_Text_CreateFile" xml:space="preserve">
-    <value>Create file</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Create folder</value>
@@ -3254,5 +3218,8 @@ Invalid names include
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</value>
+  </data>
+  <data name="NewFile_Admin_Name" xml:space="preserve">
+    <value>New file</value>
   </data>
 </root>

@@ -9,17 +9,17 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对背景图片选择的UI支持
     /// </summary>
-    public sealed class BackgroundPicture
+    public sealed class BackgroundPicture : IEquatable<BackgroundPicture>
     {
         /// <summary>
         /// 背景图片
         /// </summary>
-        public BitmapImage Thumbnail { get; private set; }
+        public BitmapImage Thumbnail { get; }
 
         /// <summary>
         /// 图片Uri
         /// </summary>
-        public Uri PictureUri { get; private set; }
+        public Uri PictureUri { get; }
 
         public async Task<BitmapImage> GetFullSizeBitmapImageAsync()
         {
@@ -43,12 +43,97 @@ namespace RX_Explorer.Class
             }
         }
 
+        public bool Equals(BackgroundPicture other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return other.PictureUri.AbsoluteUri.Equals(PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        public static bool operator ==(BackgroundPicture left, BackgroundPicture right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        public static bool operator !=(BackgroundPicture left, BackgroundPicture right)
+        {
+            if (left is null)
+            {
+                return right is object;
+            }
+            else
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return !left.PictureUri.AbsoluteUri.Equals(right.PictureUri.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as BackgroundPicture);
+        }
+
+        public override int GetHashCode()
+        {
+            return PictureUri.GetHashCode();
+        }
+
+        public static async Task<BackgroundPicture> CreateAsync(Uri PictureUri)
+        {
+            StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureUri);
+
+            BitmapImage Bitmap = new BitmapImage()
+            {
+                DecodePixelHeight = 90,
+                DecodePixelWidth = 160
+            };
+
+            using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
+            {
+                await Bitmap.SetSourceAsync(Stream);
+            }
+
+            return new BackgroundPicture(Bitmap, PictureUri);
+        }
+
         /// <summary>
         /// 初始化BackgroundPicture
         /// </summary>
         /// <param name="Picture">图片</param>
         /// <param name="PictureUri">图片Uri</param>
-        public BackgroundPicture(BitmapImage Thumbnail, Uri PictureUri)
+        private BackgroundPicture(BitmapImage Thumbnail, Uri PictureUri)
         {
             this.Thumbnail = Thumbnail;
             this.PictureUri = PictureUri;

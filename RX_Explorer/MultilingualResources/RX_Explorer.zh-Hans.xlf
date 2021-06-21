@@ -278,38 +278,6 @@
           <source>Merge</source>
           <target state="translated">合并</target>
         </trans-unit>
-        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">取消</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">确定</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
-          <source>Create new file</source>
-          <target state="translated">新建文件</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
-          <source>File name</source>
-          <target state="translated">文件名</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter file name</source>
-          <target state="translated">输入新建文件名</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The file type you specified does not meet the specifications. Please re-enter</source>
-          <target state="translated">您所指定的文件类型不符合规范，请重新输入</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
-          <source>Malformed</source>
-          <target state="translated">格式不正确</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter or select a type</source>
-          <target state="translated">输入或选择一种类型</target>
-        </trans-unit>
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
           <target state="translated">打开</target>
@@ -1092,18 +1060,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Language</source>
           <target state="translated">语言</target>
         </trans-unit>
-        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
-          <target state="translated">您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。</target>
-        </trans-unit>
-        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
-          <source>Explanation</source>
-          <target state="translated">说明</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
-          <source>File type</source>
-          <target state="translated">文件类型</target>
-        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">加载可能存在延迟</target>
@@ -1544,10 +1500,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">新建</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
-          <source>Create file</source>
-          <target state="translated">新建文件</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
           <source>Create folder</source>
@@ -4181,6 +4133,10 @@ Invalid names include
         <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
           <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
           <target state="translated">立即获得周年纪念折扣！以50%的折扣购买正式版并解锁新功能 </target>
+        </trans-unit>
+        <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
+          <source>New file</source>
+          <target state="translated">新建文件</target>
         </trans-unit>
       </group>
     </body>

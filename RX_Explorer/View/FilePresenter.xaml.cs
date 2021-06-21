@@ -3055,27 +3055,39 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            NewFileDialog Dialog = new NewFileDialog();
-
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if (sender is MenuFlyoutItem Item)
             {
                 try
                 {
-                    switch (Path.GetExtension(Dialog.NewFileName))
+                    string NewFileName = Item.Name switch
+                    {
+                        "TxtItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.txt",
+                        "CompressItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.zip",
+                        "RtfItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.rtf",
+                        "LinkItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.lnk",
+                        "DocItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.docx",
+                        "PPTItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.pptx",
+                        "XLSItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.xlsx",
+                        _ => throw new NotSupportedException()
+                    };
+
+                    FileSystemStorageItemBase NewFile = null;
+
+                    switch (Path.GetExtension(NewFileName))
                     {
                         case ".zip":
                             {
-                                await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, Dialog.NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, Dialog.NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, Dialog.NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, NewFileName);
                                 break;
                             }
                         case ".lnk":
@@ -3086,7 +3098,7 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
                                         {
                                             throw new UnauthorizedAccessException();
                                         }
@@ -3097,13 +3109,60 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
+                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+                                {
+                                    NewFile = File;
+                                }
+                                else
                                 {
                                     throw new UnauthorizedAccessException();
                                 }
 
                                 break;
                             }
+                    }
+
+                    if (NewFile != null)
+                    {
+                        FileSystemStorageItemBase TargetItem = null;
+
+                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
+                        {
+                            TargetItem = FileCollection.FirstOrDefault((Item) => Item == NewFile);
+
+                            if (TargetItem == null)
+                            {
+                                await Task.Delay(500);
+                            }
+                            else
+                            {
+                                SelectedItem = TargetItem;
+                                ItemPresenter.ScrollIntoView(TargetItem);
+
+                                if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
+                                {
+                                    if (Element.FindName("NameLabel") is TextBlock NameLabel)
+                                    {
+                                        NameLabel.Visibility = Visibility.Collapsed;
+                                    }
+
+                                    if (Element.FindName("NameEditBox") is TextBox EditBox)
+                                    {
+                                        EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
+                                        EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
+                                        EditBox.LostFocus += EditBox_LostFocus;
+                                        EditBox.Text = TargetItem.Name;
+                                        EditBox.Visibility = Visibility.Visible;
+                                        EditBox.Focus(FocusState.Programmatic);
+                                        EditBox.SelectAll();
+                                    }
+
+                                    Container.BlockKeyboardShortCutInput = true;
+                                }
+
+                                break;
+                            }
+                        }
                     }
                 }
                 catch (Exception)
@@ -5052,6 +5111,108 @@ namespace RX_Explorer
                 TreeViewNode TargetNode = await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty));
                 Container.FolderTree.SelectNodeAndScrollToVertical(TargetNode);
             }
+        }
+
+        private void CreatNewFlyout_Opening(object sender, object e)
+        {
+            CreatNewFlyout.Items.Clear();
+
+            MenuFlyoutItem FolderItem = new MenuFlyoutItem
+            {
+                Name = "FolderItem",
+                Icon = new SymbolIcon(Symbol.NewFolder),
+                Text = Globalization.GetString("Operate_Text_CreateFolder"),
+                MinWidth = 160
+            };
+            FolderItem.Click += CreateFolder_Click;
+            CreatNewFlyout.Items.Add(FolderItem);
+
+            MenuFlyoutItem TxtItem = new MenuFlyoutItem
+            {
+                Name = "TxtItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
+                MinWidth = 160
+            };
+            TxtItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(TxtItem);
+
+            MenuFlyoutItem CompressItem = new MenuFlyoutItem
+            {
+                Name = "CompressItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
+                MinWidth = 160
+            };
+            CompressItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(CompressItem);
+
+            MenuFlyoutItem RtfItem = new MenuFlyoutItem
+            {
+                Name = "RtfItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
+                MinWidth = 160
+            };
+            RtfItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(RtfItem);
+
+            MenuFlyoutItem LinkItem = new MenuFlyoutItem
+            {
+                Name = "LinkItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
+                MinWidth = 160
+            };
+            LinkItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(LinkItem);
+
+            MenuFlyoutItem DocItem = new MenuFlyoutItem
+            {
+                Name = "DocItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = "Microsoft Word (.docx)",
+                MinWidth = 160
+            };
+            DocItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(DocItem);
+
+            MenuFlyoutItem PPTItem = new MenuFlyoutItem
+            {
+                Name = "PPTItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = "Microsoft PowerPoint (.pptx)",
+                MinWidth = 160
+            };
+            PPTItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(PPTItem);
+
+            MenuFlyoutItem XLSItem = new MenuFlyoutItem
+            {
+                Name = "XLSItem",
+                Icon = new FontIcon { Glyph = "\uE9F9" },
+                Text = "Microsoft Excel (.xlsx)",
+                MinWidth = 160
+            };
+            XLSItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(XLSItem);
+        }
+
+        private void CreatNewFlyout_Closed(object sender, object e)
+        {
+            foreach (MenuFlyoutItem Item in CreatNewFlyout.Items)
+            {
+                if (Item.Name == "FolderItem")
+                {
+                    Item.Click -= CreateFolder_Click;
+                }
+                else
+                {
+                    Item.Click -= CreateFile_Click;
+                }
+            }
+
+            CreatNewFlyout.Items.Clear();
         }
 
         public void Dispose()

@@ -231,30 +231,6 @@
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Fusionar</value>
   </data>
-  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancelar</value>
-  </data>
-  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirmar</value>
-  </data>
-  <data name="NewFileDialog.Title" xml:space="preserve">
-    <value>Crear archivo nuevo</value>
-  </data>
-  <data name="NewFileDialogFileName.Header" xml:space="preserve">
-    <value>Nombre de archivo</value>
-  </data>
-  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>Introducir nombre de archivo</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
-    <value>El tipo de archivo especificado no cumple las especificaciones. Vuelve a introducirlo.</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
-    <value>Malformado</value>
-  </data>
-  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
-    <value>Introduce o elige un tipo.</value>
-  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Abrir</value>
   </data>
@@ -869,15 +845,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Idioma</value>
   </data>
-  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>Puedes introducir manualmente el tipo de archivo que deseas crear o seleccionar el tipo predefinido por RX Explorer. Sin embargo, RX Explorer solo puede garantizar que se creen correctamente tipos predefinidos; no garantiza que los tipos introducidos manualmente se creen correctamente.</value>
-  </data>
-  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
-    <value>Explicación</value>
-  </data>
-  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
-    <value>Tipo de archivo</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Puede que la carga se esté demorando.</value>
   </data>
@@ -1213,9 +1180,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Crear</value>
-  </data>
-  <data name="Operate_Text_CreateFile" xml:space="preserve">
-    <value>Crear archivo</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Crear carpeta</value>
@@ -3149,5 +3113,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>¡Obtén el descuento de aniversario ahora! Compra la versión oficial con un 50% de descuento y desbloquea nuevas funciones</value>
+  </data>
+  <data name="NewFile_Admin_Name" xml:space="preserve">
+    <value>Archivo nuevo</value>
   </data>
 </root>
