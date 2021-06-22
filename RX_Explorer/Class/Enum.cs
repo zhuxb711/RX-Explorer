@@ -35,7 +35,8 @@ namespace RX_Explorer.Class
     {
         Copy,
         Move,
-        Delete
+        Delete,
+        Rename
     }
 
     public enum OperationStatus

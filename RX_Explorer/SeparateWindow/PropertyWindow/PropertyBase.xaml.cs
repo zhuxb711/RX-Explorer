@@ -788,7 +788,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{ nameof(CalculateFolderAndFileCount)} and { nameof(CalculateFolderSize)} threw an exception");
+                    LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
                 }
                 finally
                 {

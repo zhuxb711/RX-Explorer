@@ -1001,7 +1001,10 @@ namespace RX_Explorer
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
 
-                                        await DecryptedFile.RenameAsync(SLEStream.FileName);
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        {
+                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.FileName, true);
+                                        }
                                     }
                                 }
                             }

@@ -505,7 +505,7 @@ namespace RX_Explorer.Class
                                             }
                                         case OperationKind.Move:
                                             {
-                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, IsUndoOperation: true, ProgressHandler: (s, e) =>
+                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, SkipOperationRecord: true, ProgressHandler: (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -522,6 +522,12 @@ namespace RX_Explorer.Class
                                                 {
                                                     throw new Exception();
                                                 }
+
+                                                break;
+                                            }
+                                        case OperationKind.Rename:
+                                            {
+                                                Exclusive.Controller.RenameAsync(Model.FromPath.FirstOrDefault(), Path.GetFileName(Model.ToPath), true).Wait();
 
                                                 break;
                                             }

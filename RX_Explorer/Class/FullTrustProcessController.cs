@@ -1589,7 +1589,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<string> RenameAsync(string Path, string DesireName)
+        public async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false)
         {
             try
             {
@@ -1600,8 +1600,8 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Rename},
-                        {"ExecutePath",Path },
-                        {"DesireName",DesireName}
+                        {"ExecutePath", Path},
+                        {"DesireName", DesireName}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1610,24 +1610,33 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Success", out object NewName))
                         {
-                            return Convert.ToString(NewName);
+                            string NewNameString = Convert.ToString(NewName);
+
+                            if (!SkipOperationRecord)
+                            {
+                                OperationRecorder.Current.Push($"{Path}||Rename||{System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewNameString)}");
+                            }
+
+                            return NewNameString;
                         }
                         else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
-
                             throw new FileLoadException();
                         }
                         else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
-
                             throw new InvalidOperationException();
                         }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage3))
+                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
-
+                            throw new InvalidOperationException();
+                        }
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
                             throw new InvalidOperationException();
                         }
                         else
@@ -2377,11 +2386,11 @@ namespace RX_Explorer.Class
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (MessageTask.Result.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
                         {
-                            if (!PermanentDelete && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!PermanentDelete)
                             {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -2399,9 +2408,14 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
+                            throw new InvalidOperationException("Fail to delete item");
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage5))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
                             throw new Exception();
                         }
                         else
@@ -2438,7 +2452,7 @@ namespace RX_Explorer.Class
             return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2491,11 +2505,11 @@ namespace RX_Explorer.Class
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (MessageTask.Result.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
                         {
-                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!SkipOperationRecord)
                             {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -2513,9 +2527,14 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
+                            throw new InvalidOperationException();
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage5))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
                             throw new Exception();
                         }
                         else
@@ -2542,7 +2561,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2554,7 +2573,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { SourcePath }, Destination, Option, IsUndoOperation, ProgressHandler);
+            return MoveAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
         }
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
@@ -2607,7 +2626,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2660,11 +2679,11 @@ namespace RX_Explorer.Class
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (MessageTask.Result.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
                         {
-                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!SkipOperationRecord)
                             {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -2677,10 +2696,15 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
                             throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage3))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
                             throw new InvalidOperationException();
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
+                            throw new Exception();
                         }
                         else
                         {
@@ -2706,7 +2730,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task CopyAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2718,7 +2742,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { SourcePath }, Destination, Option, IsUndoOperation, ProgressHandler);
+            return CopyAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)

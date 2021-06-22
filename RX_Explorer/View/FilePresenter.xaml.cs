@@ -519,7 +519,7 @@ namespace RX_Explorer
                                 CreateFolder_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
+                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.IsNotEmpty:
                             {
                                 await Ctrl_Z_Click().ConfigureAwait(false);
                                 break;
@@ -1180,7 +1180,7 @@ namespace RX_Explorer
 
         private async Task Ctrl_Z_Click()
         {
-            if (OperationRecorder.Current.Count > 0)
+            if (OperationRecorder.Current.IsNotEmpty)
             {
                 try
                 {
@@ -1237,6 +1237,21 @@ namespace RX_Explorer
                                     case "Copy":
                                         {
                                             QueueTaskController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                            {
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                    {
+                                                        await RootNode.UpdateAllSubNodeAsync();
+                                                    }
+                                                }
+                                            });
+
+                                            break;
+                                        }
+                                    case "Rename":
+                                        {
+                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Rename, SplitGroup.Select((Item) => Item[2]).FirstOrDefault(), SplitGroup.Select((Item) => Item[0]).FirstOrDefault(), OnCompleted: async (s, e) =>
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
@@ -2440,7 +2455,7 @@ namespace RX_Explorer
                 Paste.IsEnabled = false;
             }
 
-            if (OperationRecorder.Current.Count > 0)
+            if (OperationRecorder.Current.IsNotEmpty)
             {
                 Undo.IsEnabled = true;
             }
@@ -4304,7 +4319,7 @@ namespace RX_Explorer
                     {
                         Icon = new SymbolIcon(Symbol.Undo),
                         Label = Globalization.GetString("Operate_Text_Undo"),
-                        IsEnabled = OperationRecorder.Current.Count > 0
+                        IsEnabled = OperationRecorder.Current.IsNotEmpty
                     };
                     UndoButton.Click += Undo_Click;
                     BottomCommandBar.PrimaryCommands.Add(UndoButton);

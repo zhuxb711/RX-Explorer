@@ -668,7 +668,10 @@ namespace RX_Explorer
                                     ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                 });
 
-                                await DecryptedFile.RenameAsync(SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}");
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}", true);
+                                }
                             }
 
                             SecureCollection.Remove(OriginFile);
@@ -789,7 +792,10 @@ namespace RX_Explorer
                         }
                     }
 
-                    await RenameItem.RenameAsync(NewName);
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
+                    }
                 }
             }
         }

@@ -88,6 +88,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContextMenu.cs" />
+    <Compile Include="ElevationCopyData.cs" />
+    <Compile Include="ElevationDataBase.cs" />
+    <Compile Include="ElevationDeleteData.cs" />
+    <Compile Include="ElevationMoveData.cs" />
+    <Compile Include="ElevationRenameData.cs" />
     <Compile Include="EverythingConnector.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
