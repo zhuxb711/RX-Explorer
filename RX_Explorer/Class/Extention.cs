@@ -781,15 +781,13 @@ namespace RX_Explorer.Class
 
             try
             {
-                string IV = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current);
-
                 using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
                     KeySize = 128,
                     Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
                     Mode = CipherMode.CBC,
                     Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes(IV)
+                    IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
                 })
                 {
                     using (MemoryStream EncryptStream = new MemoryStream())

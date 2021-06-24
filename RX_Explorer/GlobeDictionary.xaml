@@ -43,7 +43,7 @@
                           FallbackColor="{StaticResource SystemAccentColorLight1}" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
-
+    
     <SolidColorBrush x:Key="TabViewBackground"
                      Color="Transparent" />
 

@@ -3120,17 +3120,13 @@ namespace RX_Explorer
                                     }
                                 }
 
-                                break;
+                                return;
                             }
                         default:
                             {
                                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
                                 {
                                     NewFile = File;
-                                }
-                                else
-                                {
-                                    throw new UnauthorizedAccessException();
                                 }
 
                                 break;
@@ -3178,6 +3174,10 @@ namespace RX_Explorer
                                 break;
                             }
                         }
+                    }
+                    else
+                    {
+                        throw new UnauthorizedAccessException();
                     }
                 }
                 catch (Exception)

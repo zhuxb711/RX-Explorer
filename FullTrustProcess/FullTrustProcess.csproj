@@ -97,7 +97,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="LogTracer.cs" />
-    <Compile Include="MIMEHelper.cs" />
+    <Compile Include="NamedPipeController.cs" />
     <Compile Include="RemoteDataObject.cs" />
     <Compile Include="StorageController.cs" />
     <Compile Include="Program.cs" />
@@ -161,6 +161,9 @@
       <Version>3.3.10</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
+      <Version>3.3.10</Version>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.UserEnv">
       <Version>3.3.10</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">

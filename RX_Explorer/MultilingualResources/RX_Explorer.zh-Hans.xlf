@@ -4138,6 +4138,10 @@ Invalid names include
           <source>New file</source>
           <target state="translated">新建文件</target>
         </trans-unit>
+        <trans-unit id="SettingManageConfigContent.Text" translate="yes" xml:space="preserve">
+          <source>Perform save or restore configuration operations</source>
+          <target state="translated">执行保存或恢复配置操作</target>
+        </trans-unit>
       </group>
     </body>
   </file>

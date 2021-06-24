@@ -4136,6 +4136,10 @@ Inkorrekte Namen sind
           <source>New file</source>
           <target state="translated">Neue Datei</target>
         </trans-unit>
+        <trans-unit id="SettingManageConfigContent.Text" translate="yes" xml:space="preserve">
+          <source>Perform save or restore configuration operations</source>
+          <target state="translated">Durchführen von Konfigurationsvorgängen zum Speichern oder Wiederherstellen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

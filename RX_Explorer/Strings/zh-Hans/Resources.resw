@@ -3117,4 +3117,7 @@
   <data name="NewFile_Admin_Name" xml:space="preserve">
     <value>新建文件</value>
   </data>
+  <data name="SettingManageConfigContent.Text" xml:space="preserve">
+    <value>执行保存或恢复配置操作</value>
+  </data>
 </root>

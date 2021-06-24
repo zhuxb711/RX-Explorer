@@ -158,8 +158,9 @@ namespace FullTrustProcess
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(CheckCaptured)}");
                     return false;
                 }
             }
@@ -253,8 +254,9 @@ namespace FullTrustProcess
 
                 return InheritedAllow && !InheritedDeny;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(CheckPermission)}");
                 return false;
             }
         }
@@ -331,8 +333,9 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Rename)}");
                 return false;
             }
         }
@@ -393,9 +396,14 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 
@@ -470,9 +478,14 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Copy)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 
@@ -547,9 +560,14 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Move)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 

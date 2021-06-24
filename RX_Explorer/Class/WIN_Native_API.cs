@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using ShareClassLibrary;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -145,6 +145,30 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool RemoveDirectoryFromApp(string lpPathName);
 
+        [DllImport("api-ms-win-core-namedpipe-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern SafePipeHandle CreateNamedPipe(string lpName,
+                                                             PIPE_ACCESS dwOpenMode,
+                                                             PIPE_TYPE dwPipeMode,
+                                                             uint nMaxInstances,
+                                                             uint nOutBufferSize,
+                                                             uint nInBufferSize,
+                                                             uint nDefaultTimeOut,
+                                                             SECURITY_ATTRIBUTES securityAttributes);
+        [DllImport("api-ms-win-security-sddl-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ConvertStringSecurityDescriptorToSecurityDescriptor(string StringSecurityDescriptor, SDDL_REVISION StringSDRevision, out IntPtr SecurityDescriptor, out uint SecurityDescriptorSize);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class SECURITY_ATTRIBUTES
+        {
+            public int nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>();
+
+            public IntPtr pSecurityDescriptor;
+
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool bInheritHandle;
+        }
+
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
         const uint FILE_LIST_DIRECTORY = 0x1;
@@ -165,6 +189,12 @@ namespace RX_Explorer.Class
         const uint FILE_NOTIFY_CHANGE_SIZE = 0x8;
         const uint FILE_NOTIFY_CHANGE_ATTRIBUTES = 0x4;
 
+        private enum SDDL_REVISION
+        {
+            /// <summary>SDDL revision 1.</summary>
+            SDDL_REVISION_1 = 1
+        }
+
         private enum StateChangeType
         {
             Unknown_Action = 0,
@@ -173,6 +203,35 @@ namespace RX_Explorer.Class
             Modified_Action = 3,
             Rename_Action_OldName = 4,
             Rename_Action_NewName = 5
+        }
+
+        [Flags]
+        public enum PIPE_TYPE : uint
+        {
+            PIPE_WAIT = 0x00000000,
+            PIPE_NOWAIT = 0x00000001,
+            PIPE_READMODE_BYTE = 0x00000000,
+            PIPE_READMODE_MESSAGE = 0x00000002,
+            PIPE_TYPE_BYTE = 0x00000000,
+            PIPE_TYPE_MESSAGE = 0x00000004,
+            PIPE_ACCEPT_REMOTE_CLIENTS = 0x00000000,
+            PIPE_REJECT_REMOTE_CLIENTS = 0x00000008,
+            PIPE_CLIENT_END = 0x00000000,
+            PIPE_SERVER_END = 0x00000001,
+        }
+
+        [Flags]
+        public enum PIPE_ACCESS : uint
+        {
+            PIPE_ACCESS_DUPLEX = 0x00000003,
+            PIPE_ACCESS_INBOUND = 0x00000001,
+            PIPE_ACCESS_OUTBOUND = 0x00000002,
+            FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000,
+            FILE_FLAG_WRITE_THROUGH = 0x80000000,
+            FILE_FLAG_OVERLAPPED = 0x40000000,
+            WRITE_DAC = 0x00040000,
+            WRITE_OWNER = 0x00080000,
+            ACCESS_SYSTEM_SECURITY = 0x01000000
         }
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
@@ -1256,19 +1315,35 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static SafePipeHandle GetHandleFromNamedPipe(string PipeName)
+        public static SafePipeHandle CreateHandleForNamedPipe(string PipeName)
         {
-            IntPtr Handle = CreateFileFromApp(@$"\\.\pipe\{PipeName}", GENERIC_READ | GENERIC_WRITE, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+            SECURITY_ATTRIBUTES SA = new SECURITY_ATTRIBUTES();
 
-            SafePipeHandle SPipeHandle = new SafePipeHandle(Handle, true);
-
-            if (SPipeHandle.IsInvalid)
+            if (ConvertStringSecurityDescriptorToSecurityDescriptor("D:(A;;GA;;;WD)(A;;GA;;;AC)S:(ML;;;;;LW)", SDDL_REVISION.SDDL_REVISION_1, out SA.pSecurityDescriptor, out _))
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                SafePipeHandle SPipeHandle = CreateNamedPipe(@$"\\.\pipe\local\{PipeName}", PIPE_ACCESS.PIPE_ACCESS_DUPLEX
+                                                                                            | PIPE_ACCESS.WRITE_DAC
+                                                                                            | PIPE_ACCESS.WRITE_OWNER
+                                                                                            | PIPE_ACCESS.FILE_FLAG_WRITE_THROUGH,
+
+                                                                                            PIPE_TYPE.PIPE_TYPE_BYTE
+                                                                                            | PIPE_TYPE.PIPE_WAIT
+                                                                                            | PIPE_TYPE.PIPE_READMODE_BYTE,
+
+                                                                                            1, 1024, 1024, 500, SA);
+
+                if (SPipeHandle.IsInvalid)
+                {
+                    return new SafePipeHandle(new IntPtr(-1), true);
+                }
+                else
+                {
+                    return SPipeHandle;
+                }
             }
             else
             {
-                return SPipeHandle;
+                return new SafePipeHandle(new IntPtr(-1), true);
             }
         }
     }

@@ -10,7 +10,13 @@
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
-    
+
+    <Page.Resources>
+        <AcrylicBrush x:Key="TextControlBackgroundFocused"
+                      TintColor="{ThemeResource SystemAltHighColor}"
+                      TintOpacity="0.6" />
+    </Page.Resources>
+
     <Grid Padding="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -25,7 +31,7 @@
             <AppBarButton Icon="Save"
                           x:Uid="TextViewerSave"
                           Label="保存"
-                          Click="Save_Click"/>
+                          Click="Save_Click" />
             <AppBarButton Icon="Cancel"
                           x:Uid="TextViewerCancel"
                           Label="放弃"

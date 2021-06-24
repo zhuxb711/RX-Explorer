@@ -35,8 +35,6 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_Get_RecycleBinItems = "Execute_Get_RecycleBinItems";
 
-        private const string ExeuteType_RequestCreateNewPipe = "Execute_RequestCreateNewPipe";
-
         private const string ExecuteType_InterceptWinE = "Execute_Intercept_Win_E";
 
         private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
@@ -115,8 +113,6 @@ namespace RX_Explorer.Class
 
         private bool IsConnected;
 
-        private AppServiceConnection Connection;
-
         private bool IsDisposed;
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
@@ -129,7 +125,23 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static int AvailableControllerNum
+        public static int InUseControllersNum
+        {
+            get
+            {
+                return CurrentRunningControllerNum - AvailableControllers.Count;
+            }
+        }
+
+        public static int AllControllersNum
+        {
+            get
+            {
+                return CurrentRunningControllerNum;
+            }
+        }
+
+        public static int AvailableControllersNum
         {
             get
             {
@@ -143,7 +155,9 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.Normal
         };
 
-        private PipeLineController PipeController;
+        private readonly NamedPipeController PipeController;
+
+        private readonly AppServiceConnection Connection;
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
@@ -176,8 +190,6 @@ namespace RX_Explorer.Class
         {
             Interlocked.Increment(ref CurrentRunningControllerNum);
 
-            PipeController = new PipeLineController(this);
-
             Application.Current.Suspending += Current_Suspending;
 
             using (Process CurrentProcess = Process.GetCurrentProcess())
@@ -186,6 +198,20 @@ namespace RX_Explorer.Class
             }
 
             AllControllerList.Add(this);
+
+            if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
+            {
+                PipeController = new NamedPipeController();
+            }
+
+            Connection = new AppServiceConnection
+            {
+                AppServiceName = "CommunicateService",
+                PackageFamilyName = Package.Current.Id.FamilyName
+            };
+
+            Connection.RequestReceived += Connection_RequestReceived;
+            Connection.ServiceClosed += Connection_ServiceClosed;
         }
 
         private static void Current_Resuming(object sender, object e)
@@ -290,7 +316,7 @@ namespace RX_Explorer.Class
 
                 RequestedTarget += DynamicBackupProcessNum;
 
-                while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)
+                while (CurrentRunningControllerNum > RequestedTarget && AvailableControllers.Count > DynamicBackupProcessNum)
                 {
                     if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                     {
@@ -396,72 +422,65 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Connection == null || !IsConnected)
+                if (!IsConnected)
                 {
-                    if (Connection != null)
-                    {
-                        Connection.RequestReceived -= Connection_RequestReceived;
-                        Connection.Dispose();
-                        Connection = null;
-                    }
-
-                    Connection = new AppServiceConnection
-                    {
-                        AppServiceName = "CommunicateService",
-                        PackageFamilyName = Package.Current.Id.FamilyName
-                    };
-
-                    Connection.RequestReceived += Connection_RequestReceived;
-                    Connection.ServiceClosed += Connection_ServiceClosed;
-
                     AppServiceConnectionStatus Status = await Connection.OpenAsync();
 
                     if (Status == AppServiceConnectionStatus.Success)
                     {
                         //Do not remove this delay, leave some time for "Identity" call from AppService
-                        await Task.Delay(500).ConfigureAwait(false);
+                        await Task.Delay(1000);
                     }
                     else
                     {
                         Dispose();
                         LogTracer.Log($"Connect to AppService failed, reason: \"{Enum.GetName(typeof(AppServiceResponseStatus), Status)}\". Dispose this instance");
-                        return IsConnected = false;
+                        return false;
                     }
                 }
 
                 for (int Count = 0; Count < 3; Count++)
                 {
-                    if (Connection != null)
+                    ValueSet Value = new ValueSet
                     {
-                        AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+                        { "ExecuteType", ExecuteType_Test_Connection },
+                        { "ProcessId", CurrentProcessId },
+                    };
 
-                        if (Response.Status == AppServiceResponseStatus.Success)
+                    if (PipeController != null)
+                    {
+                        Value.Add("PipeId", PipeController.PipeUniqueId);
+                    }
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
                         {
-                            if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
+                            return IsConnected = true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object Error))
                             {
-                                return IsConnected = true;
+                                LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count + 1} times");
                             }
-                            else
-                            {
-                                if (Response.Message.TryGetValue("Error", out object Error))
-                                {
-                                    LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count + 1} times");
-                                }
 
-                                await Task.Delay(500).ConfigureAwait(false);
-                            }
+                            await Task.Delay(1000);
                         }
                     }
                 }
 
                 Dispose();
                 LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
-                return IsConnected = false;
+                return false;
             }
             catch (Exception ex)
             {
+                Dispose();
                 LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectRemoteAsync)}");
-                return IsConnected = false;
+                return false;
             }
         }
 
@@ -1873,37 +1892,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RequestCreateNewPipeLineAsync(Guid CurrentProcessID)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExeuteType_RequestCreateNewPipe},
-                        {"Guid",CurrentProcessID.ToString() },
-                    };
-
-                    await Connection.SendMessageAsync(Value);
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(RequestCreateNewPipeLineAsync)}: Failed to connect AppService");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(RequestCreateNewPipeLineAsync)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
         /// <summary>
         /// 启动指定路径的程序，并传递指定的参数
         /// </summary>
@@ -2361,59 +2349,60 @@ namespace RX_Explorer.Class
 
                 if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
-                    Task ProgressTask;
-
-                    if (await PipeController.CreateNewNamedPipeAsync())
+                    void PipeController_OnDataReceived(object sender, string Data)
                     {
-                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
-                    else
+
+                    if (PipeController != null)
                     {
-                        ProgressTask = Task.CompletedTask;
+                        PipeController.OnDataReceived += PipeController_OnDataReceived;
                     }
 
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Delete},
                         {"ExecutePath", JsonSerializer.Serialize(Source)},
-                        {"PermanentDelete", PermanentDelete},
-                        {"Guid", PipeController.GUID.ToString() }
+                        {"PermanentDelete", PermanentDelete}
                     };
 
-                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value).AsTask();
 
-                    await Task.WhenAll(MessageTask, ProgressTask);
-
-                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
+                    if (PipeController != null)
                     {
-                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
+                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
+                    }
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Record))
                         {
                             if (!PermanentDelete)
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
+                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
+                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
                             throw new InvalidOperationException("Fail to delete item");
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
+                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
+                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
                             throw new InvalidOperationException("Fail to delete item");
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage5))
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
                             throw new Exception();
@@ -2426,7 +2415,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         throw new NoResponseException();
                     }
                 }
@@ -2479,15 +2468,14 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    Task ProgressTask;
-
-                    if (await PipeController.CreateNewNamedPipeAsync())
+                    void PipeController_OnDataReceived(object sender, string Data)
                     {
-                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
-                    else
+
+                    if (PipeController != null)
                     {
-                        ProgressTask = Task.CompletedTask;
+                        PipeController.OnDataReceived += PipeController_OnDataReceived;
                     }
 
                     ValueSet Value = new ValueSet
@@ -2495,44 +2483,46 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Move},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() },
                         {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option) }
                     };
 
-                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    await Task.WhenAll(MessageTask, ProgressTask);
-
-                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
+                    if (PipeController != null)
                     {
-                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
+                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
+                    }
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Record))
                         {
                             if (!SkipOperationRecord)
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
+                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
+                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
                             throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
+                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
+                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
                             throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage5))
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
                             throw new Exception();
@@ -2545,7 +2535,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(MoveAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(MoveAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         throw new NoResponseException();
                     }
                 }
@@ -2639,13 +2629,13 @@ namespace RX_Explorer.Class
 
                 if (await ConnectRemoteAsync())
                 {
-                    List<string> MessageList = new List<string>();
+                    List<string> ItemList = new List<string>();
 
                     foreach (string SourcePath in Source)
                     {
                         if (await FileSystemStorageItemBase.CheckExistAsync(SourcePath))
                         {
-                            MessageList.Add(SourcePath);
+                            ItemList.Add(SourcePath);
                         }
                         else
                         {
@@ -2653,55 +2643,56 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    Task ProgressTask;
-
-                    if (await PipeController.CreateNewNamedPipeAsync())
+                    void PipeController_OnDataReceived(object sender, string Data)
                     {
-                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
-                    else
+
+                    if (PipeController != null)
                     {
-                        ProgressTask = Task.CompletedTask;
+                        PipeController.OnDataReceived += PipeController_OnDataReceived;
                     }
 
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Copy},
-                        {"SourcePath", JsonSerializer.Serialize(MessageList)},
+                        {"SourcePath", JsonSerializer.Serialize(ItemList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() },
-                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option) }
+                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option)}
                     };
 
-                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    await Task.WhenAll(MessageTask, ProgressTask);
-
-                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
+                    if (PipeController != null)
                     {
-                        if (MessageTask.Result.Message.TryGetValue("Success", out object Record))
+                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
+                    }
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Record))
                         {
                             if (!SkipOperationRecord)
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                             }
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
+                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
+                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
                             throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
+                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
                             throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
                             throw new Exception();
@@ -2714,7 +2705,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CopyAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(CopyAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         throw new NoResponseException();
                     }
                 }
@@ -2937,15 +2928,12 @@ namespace RX_Explorer.Class
                     {
                         Connection.RequestReceived -= Connection_RequestReceived;
                         Connection.ServiceClosed -= Connection_ServiceClosed;
-
                         Connection.Dispose();
-                        Connection = null;
                     }
 
                     if (PipeController != null)
                     {
                         PipeController.Dispose();
-                        PipeController = null;
                     }
 
                     Application.Current.Suspending -= Current_Suspending;

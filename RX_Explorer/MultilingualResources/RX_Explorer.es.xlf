@@ -4136,6 +4136,10 @@ Las denominaciones no válidas son:
           <source>New file</source>
           <target state="translated">Archivo nuevo</target>
         </trans-unit>
+        <trans-unit id="SettingManageConfigContent.Text" translate="yes" xml:space="preserve">
+          <source>Perform save or restore configuration operations</source>
+          <target state="translated">Realizar operaciones de guardado o restauración de la configuración</target>
+        </trans-unit>
       </group>
     </body>
   </file>

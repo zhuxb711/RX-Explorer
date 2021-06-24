@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -200,6 +201,8 @@ namespace RX_Explorer.Class
 
                 try
                 {
+                    List<Task> RunningTask = new List<Task>();
+
                     while (OpeartionQueue.TryDequeue(out OperationListBaseModel Model))
                     {
                     Retry:
@@ -207,7 +210,9 @@ namespace RX_Explorer.Class
                         {
                             if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
                             {
-                                if (FullTrustProcessController.AvailableControllerNum < FullTrustProcessController.DynamicBackupProcessNum)
+                                if (FullTrustProcessController.AllControllersNum
+                                    - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), FullTrustProcessController.InUseControllersNum)
+                                    < FullTrustProcessController.DynamicBackupProcessNum)
                                 {
                                     Thread.Sleep(1000);
                                     goto Retry;
@@ -216,16 +221,7 @@ namespace RX_Explorer.Class
 
                             if (AllowParalledExecution)
                             {
-                                Thread SubThread = new Thread(() =>
-                                {
-                                    ExecuteSubTaskCore(Model);
-                                })
-                                {
-                                    IsBackground = true,
-                                    Priority = ThreadPriority.Normal
-                                };
-
-                                SubThread.Start();
+                                RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
                             }
                             else
                             {
