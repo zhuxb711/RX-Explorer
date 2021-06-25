@@ -1442,13 +1442,5 @@ namespace RX_Explorer
                 AppName.Translation = new System.Numerics.Vector3(0, 0, 0);
             }
         }
-
-        private void NavView_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (NavView.FindChildOfName<ScrollViewer>("FooterItemsScrollViewer") is ScrollViewer Viewer)
-            {
-                Viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            }
-        }
     }
 }

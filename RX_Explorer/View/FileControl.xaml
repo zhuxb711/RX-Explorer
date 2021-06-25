@@ -142,7 +142,8 @@
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
-                               x:Name="RightTabFlyout">
+                               x:Name="RightTabFlyout"
+                               AlwaysExpanded="True">
             <muxc:CommandBarFlyout.PrimaryCommands>
                 <AppBarButton Icon="Copy"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -317,8 +318,7 @@
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}"
-                            ItemsSource="{x:Bind AddressSuggestionList}"
+            <AutoSuggestBox ItemsSource="{x:Bind AddressSuggestionList}"
                             Grid.Column="4"
                             Grid.ColumnSpan="2"
                             Margin="3,0,0,0"
@@ -403,6 +403,7 @@
                                     VerticalContentAlignment="Center"
                                     AllowDrop="True"
                                     CornerRadius="0"
+                                    BorderThickness="0"
                                     Drop="AddressButton_Drop"
                                     DragEnter="AddressButton_DragEnter"
                                     DragLeave="AddressButton_DragLeave"
@@ -416,6 +417,7 @@
                                     HorizontalContentAlignment="Center"
                                     Padding="0,4"
                                     CornerRadius="0"
+                                    BorderThickness="0"
                                     Name="AddressExtention"
                                     Click="AddressExtention_Click">
                                 <Button.Content>
@@ -472,7 +474,6 @@
                       VerticalAlignment="Stretch" />
 
             <AutoSuggestBox QueryIcon="Find"
-                            Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
                             x:FieldModifier="public"
@@ -682,15 +683,16 @@
                         <Setter Property="UseSystemFocusVisuals"
                                 Value="False" />
                         <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
+                                Value="Center" />
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
                         <RelativePanel Padding="0,5">
                             <Viewbox Height="20"
+                                     Width="20"
                                      Name="Icon"
-                                     Margin="0,3,0,0"
+                                     Margin="0,2,0,0"
                                      RelativePanel.AlignVerticalCenterWithPanel="True"
                                      RelativePanel.AlignLeftWithPanel="True">
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"

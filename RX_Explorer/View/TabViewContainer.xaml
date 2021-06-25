@@ -13,7 +13,9 @@
     <Page.Resources>
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
 
-        <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
+        <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
+                               Placement="RightEdgeAlignedTop"
+                               AlwaysExpanded="True">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"

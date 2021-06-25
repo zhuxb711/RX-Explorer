@@ -41,6 +41,7 @@
         <Cls:SyncStatusToolTipConverter x:Key="SyncStatusToolTipConverter" />
 
         <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -160,6 +161,7 @@
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                Closed="CommandBarFlyout_Closed"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="FileStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -431,6 +433,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               AlwaysExpanded="True"
                                Closed="CommandBarFlyout_Closed"
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="MixedStandardBar">
@@ -584,6 +587,7 @@
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
                                Placement="RightEdgeAlignedTop"
+                               AlwaysExpanded="True"
                                Closed="CommandBarFlyout_Closed">
             <AppBarElementContainer x:Name="FolderStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -760,6 +764,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Opening="EmptyFlyout_Opening">
             <AppBarButton Icon="Paste"

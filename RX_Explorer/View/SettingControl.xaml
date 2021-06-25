@@ -119,6 +119,7 @@
         </muxc:TeachingTip>
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
+                               AlwaysExpanded="True"
                                x:Name="PictureFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Delete"

@@ -12,6 +12,7 @@
 
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="AppFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
@@ -28,6 +29,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="WebFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
@@ -44,6 +46,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
@@ -55,6 +58,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
@@ -265,6 +269,7 @@
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid MaximumRowsOrColumns="3"
                                            Orientation="Horizontal"
+                                           AllowDrop="True"
                                            HorizontalAlignment="Stretch" />
                         </ItemsPanelTemplate>
                     </GridView.ItemsPanel>
@@ -345,18 +350,15 @@
             </Grid.Background>
         </Grid>
 
-        <muxc:NavigationView Grid.Row="1"
-                             Name="NavView"
-                             IsTitleBarAutoPaddingEnabled="True"
-                             IsPaneOpen="False"
+        <muxc:NavigationView Name="NavView"
                              x:FieldModifier="public"
                              PaneDisplayMode="Top"
+                             IsTitleBarAutoPaddingEnabled="True"
                              SelectionFollowsFocus="Disabled"
                              BackRequested="NavView_BackRequested"
                              ItemInvoked="NavView_ItemInvoked"
                              PaneClosing="NavView_PaneClosing"
-                             PaneOpening="NavView_PaneOpening"
-                             Loaded="NavView_Loaded">
+                             PaneOpening="NavView_PaneOpening">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                                          IsSelected="True">
