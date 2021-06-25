@@ -89,7 +89,7 @@ namespace FullTrustProcess
                     {
                         using (Process CurrentProcess = Process.GetCurrentProcess())
                         {
-                            string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{CurrentProcess.Id}");
+                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{CurrentProcess.Id}");
 
                             try
                             {
@@ -805,7 +805,7 @@ namespace FullTrustProcess
                                         {
                                             AdminProcess.WaitForExit();
 
-                                            string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{AdminProcess.Id}");
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
 
                                             if (File.Exists(TempFilePath))
                                             {
@@ -1647,7 +1647,7 @@ namespace FullTrustProcess
                                     {
                                         AdminProcess.WaitForExit();
 
-                                        string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{AdminProcess.Id}");
+                                        string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
 
                                         if (File.Exists(TempFilePath))
                                         {
@@ -1758,7 +1758,7 @@ namespace FullTrustProcess
                                         {
                                             AdminProcess.WaitForExit();
 
-                                            string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{AdminProcess.Id}");
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
 
                                             if (File.Exists(TempFilePath))
                                             {
@@ -1866,7 +1866,7 @@ namespace FullTrustProcess
                                         {
                                             AdminProcess.WaitForExit();
 
-                                            string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{AdminProcess.Id}");
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
 
                                             if (File.Exists(TempFilePath))
                                             {
@@ -2353,7 +2353,7 @@ namespace FullTrustProcess
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
-                string TempFilePath = Path.Combine(Path.GetDirectoryName(CurrentProcess.MainModule.FileName), $"Template_{CurrentProcess.Id}");
+                string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{CurrentProcess.Id}");
 
                 using (StreamWriter Writer = File.CreateText(TempFilePath))
                 {

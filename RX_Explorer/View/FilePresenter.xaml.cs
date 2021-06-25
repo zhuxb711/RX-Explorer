@@ -1410,6 +1410,7 @@ namespace RX_Explorer
                 string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
@@ -1437,15 +1438,13 @@ namespace RX_Explorer
                     }
                 }
 
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
-
-                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
-                {
-                    PermanentDelete |= IsAvoidRecycleBin;
-                }
-
                 if (ExecuteDelete)
                 {
+                    if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                    {
+                        PermanentDelete |= IsAvoidRecycleBin;
+                    }
+
                     foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
                                                                                                              .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
                     {

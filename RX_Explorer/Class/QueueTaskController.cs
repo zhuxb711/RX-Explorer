@@ -727,9 +727,11 @@ namespace RX_Explorer.Class
                     if (Model.Status != OperationStatus.Error)
                     {
                         Model.UpdateProgress(100);
-                        ProgressChangedCore();
                         Model.UpdateStatus(OperationStatus.Completed);
                     }
+
+                    ProgressChangedCore();
+
                 }).AsTask().Wait();
             }
             catch (Exception ex)
@@ -765,6 +767,10 @@ namespace RX_Explorer.Class
                         }
 
                         ProgressChanged?.Invoke(null, new ProgressChangedEventArgs((int)Math.Ceiling(CurrentValue / MaxOperationAddedSinceLastExecution), null));
+                    }
+                    else
+                    {
+                        ProgressChanged?.Invoke(null, new ProgressChangedEventArgs(100, null));
                     }
                 }
                 catch (Exception ex)

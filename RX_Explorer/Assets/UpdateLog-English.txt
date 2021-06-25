@@ -1,4 +1,33 @@
 ﻿*****
+###What's new in Ver.6.7.4.0
+
+#####Feature update
+
+>#####Undo task now supports "Rename" operation
+
+>#####It is now supported to request administrator permissions to perform certain operations if necessary
+
+>#####Improved the communication mechanism with auxiliary processes
+
+#####UI update
+
+>#####Optimized the display effect in "Recommended" mode
+
+>#####Enhanced the contrast of some controls in "Solid Color" mode
+
+>#####Now you can create various types of files directly in the right-click menu
+
+#####Bug fix
+
+>#####Fixed the problem of duplicate pictures in the list in "Picture Background" mode in some cases
+
+>#####Fixed the scheduling problem of "Task List" when quickly creating tasks, which may cause all tasks to be executed concurrently in some cases
+
+>#####Fixed the problem of deleting to the recycle bin when clicking the "Delete" button while pressing "Shift"
+
+>#####Fixed some translation problems
+
+*****
 ###What's new in Ver.6.7.2.0
 
 #####Feature update

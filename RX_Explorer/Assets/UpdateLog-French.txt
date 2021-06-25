@@ -1,4 +1,33 @@
 ﻿*****
+###Quoi de neuf dans la version 6.7.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####La tâche d'annulation prend désormais en charge l'opération "Renommer"
+
+>#####Il est désormais possible de demander des autorisations d'administrateur pour effectuer certaines opérations si nécessaire
+
+>#####Amélioration du mécanisme de communication avec les processus auxiliaires
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Optimisation de l'effet d'affichage en mode "Recommandé"
+
+>#####Amélioration du contraste de certains contrôles en mode « Couleur unie »
+
+>#####Maintenant, vous pouvez créer différents types de fichiers directement dans le menu contextuel
+
+#####Correction d'un bug
+
+>#####Correction du problème des images en double dans la liste en mode "Fond d'image" dans certains cas
+
+>#####Correction du problème de planification de la « Liste des tâches » lors de la création rapide de tâches, ce qui peut entraîner l'exécution simultanée de toutes les tâches dans certains cas
+
+>#####Correction du problème de suppression dans la corbeille en cliquant sur le bouton "Supprimer" tout en appuyant sur "Shift"
+
+>#####Correction de quelques problèmes de traduction
+
+*****
 ###Quoi de neuf dans la version 6.7.2.0
 
 #####Mise à jour des fonctionnalités

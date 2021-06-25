@@ -1,4 +1,33 @@
 ﻿*****
+###Was ist neu in Ver.6.7.4.0
+
+#####Funktionsupdate
+
+>#####Aufgabe rückgängig machen unterstützt jetzt den Vorgang "Umbenennen"
+
+>#####Es wird jetzt unterstützt, bei Bedarf Administratorberechtigungen anzufordern, um bestimmte Vorgänge auszuführen
+
+>#####Verbesserter Kommunikationsmechanismus mit Hilfsprozessen
+
+#####UI-Update
+
+>#####Darstellungseffekt im "empfohlenen" Modus optimiert
+
+>#####Kontrast einiger Bedienelemente im "Solid Color"-Modus verbessert
+
+>#####Jetzt können Sie verschiedene Dateitypen direkt im Rechtsklick-Menü erstellen
+
+#####Fehlerbehebung
+
+>#####Das Problem der doppelten Bilder in der Liste im Modus "Bildhintergrund" wurde in einigen Fällen behoben
+
+>#####Das Planungsproblem der "Aufgabenliste" beim schnellen Erstellen von Aufgaben wurde behoben, wodurch in einigen Fällen alle Aufgaben gleichzeitig ausgeführt werden können
+
+>#####Problem beim Löschen in den Papierkorb behoben, wenn beim Drücken der Umschalttaste auf die Schaltfläche "Löschen" geklickt wurde
+
+>#####Einige Übersetzungsprobleme behoben
+
+*****
 ###Was ist neu in Ver.6.7.2.0
 
 #####Funktionsupdate

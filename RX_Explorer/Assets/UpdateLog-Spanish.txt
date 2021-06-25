@@ -1,4 +1,33 @@
 ﻿*****
+###Novedades de la versión 6.7.4.0
+
+#####Actualización de funciones
+
+>#####La tarea de deshacer ahora admite la operación "Cambiar nombre"
+
+>#####Ahora se admite solicitar permisos de administrador para realizar ciertas operaciones si es necesario
+
+>#####Se mejoró el mecanismo de comunicación con procesos auxiliares
+
+#####Actualización de la interfaz de usuario
+
+>#####Optimizó el efecto de visualización en el modo "Recomendado"
+
+>#####Se mejoró el contraste de algunos controles en el modo "Color sólido"
+
+>#####Ahora puedes crear varios tipos de archivos directamente en el menú contextual
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de las imágenes duplicadas en la lista en el modo "Imagen de fondo" en algunos casos
+
+>#####Se corrigió el problema de programación de la "Lista de tareas" al crear tareas rápidamente, lo que puede hacer que todas las tareas se ejecuten al mismo tiempo en algunos casos
+
+>#####Se solucionó el problema de eliminar a la papelera de reciclaje al hacer clic en el botón "Eliminar" mientras se presiona "Shift"
+
+>#####Se corrigieron algunos problemas de traducción
+
+*****
 ###Novedades de la versión 6.7.2.0
 
 #####Actualización de funciones
