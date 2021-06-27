@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -418,37 +419,34 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private async static void HardDeviceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            switch (e.Action)
             {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        if (DriveAdded != null)
                         {
-                            if (DriveAdded != null)
+                            foreach (DriveDataBase Drive in e.NewItems)
                             {
-                                foreach (DriveDataBase Drive in e.NewItems)
-                                {
-                                    await DriveAdded.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
-                                }
+                                await DriveAdded.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
                             }
-                            break;
                         }
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        break;
+                    }
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        if (DriveRemoved != null)
                         {
-                            if (DriveRemoved != null)
+                            foreach (DriveDataBase Drive in e.OldItems)
                             {
-                                foreach (DriveDataBase Drive in e.OldItems)
-                                {
-                                    await DriveRemoved.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
-                                }
+                                await DriveRemoved.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
                             }
+                        }
 
-                            break;
-                        }
-                }
-            });
+                        break;
+                    }
+            }
         }
 
         private async static Task<IReadOnlyList<StorageFolder>> GetWslDriveAsync()

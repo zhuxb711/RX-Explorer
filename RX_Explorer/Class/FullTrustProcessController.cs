@@ -422,6 +422,11 @@ namespace RX_Explorer.Class
         {
             try
             {
+                if (IsDisposed)
+                {
+                    return false;
+                }
+
                 if (!IsConnected)
                 {
                     AppServiceConnectionStatus Status = await Connection.OpenAsync();
@@ -472,16 +477,15 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                Dispose();
                 LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
-                return false;
             }
             catch (Exception ex)
             {
-                Dispose();
                 LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectRemoteAsync)}");
-                return false;
             }
+
+            Dispose();
+            return false;
         }
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)

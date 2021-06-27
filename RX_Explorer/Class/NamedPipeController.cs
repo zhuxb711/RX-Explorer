@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
 {
     public sealed class NamedPipeController : IDisposable
     {
-        private readonly NamedPipeServerStream ClientStream;
+        private readonly NamedPipeServerStream ServerStream;
         private readonly Thread ProcessThread;
 
         private bool ExitSignal = false;
@@ -22,11 +22,11 @@ namespace RX_Explorer.Class
 
         private void ThreadProcess()
         {
-            ClientStream.WaitForConnection();
+            ServerStream.WaitForConnection();
 
-            using (StreamReader Reader = new StreamReader(ClientStream, new UTF8Encoding(false), false, 1024, true))
+            using (StreamReader Reader = new StreamReader(ServerStream, new UTF8Encoding(false), false, 1024, true))
             {
-                while (!ExitSignal)
+                while (!ExitSignal && ServerStream.IsConnected)
                 {
                     try
                     {
@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
 
             if (!Handle.IsInvalid && !Handle.IsClosed)
             {
-                ClientStream = new NamedPipeServerStream(PipeDirection.InOut, false, false, Handle);
+                ServerStream = new NamedPipeServerStream(PipeDirection.InOut, false, false, Handle);
 
                 ProcessThread = new Thread(ThreadProcess)
                 {
@@ -73,7 +73,7 @@ namespace RX_Explorer.Class
             GC.SuppressFinalize(this);
 
             ExitSignal = true;
-            ClientStream?.Dispose();
+            ServerStream?.Dispose();
         }
 
         ~NamedPipeController()

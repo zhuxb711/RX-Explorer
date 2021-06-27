@@ -165,18 +165,30 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
         {
+            EventDeferral Deferral = args.GetDeferral();
+
             try
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    FolderTree.RootNodes.Remove(Node);
-                }
+                    try
+                    {
+                        if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                        {
+                            FolderTree.RootNodes.Remove(Node);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw in DriveRemoved");
+                    }
+                });
             }
-            catch (Exception ex)
+            finally
             {
-                LogTracer.Log(ex, "An exception was threw in DriveRemoved");
+                Deferral.Complete();
             }
         }
 
@@ -184,52 +196,55 @@ namespace RX_Explorer
         {
             EventDeferral Deferral = args.GetDeferral();
 
-            try
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
+                try
                 {
-                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
+                    if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                     {
-                        bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                        TreeViewNode RootNode;
-
-                        if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
+                        if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            RootNode = new TreeViewNode
+                            bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                            TreeViewNode RootNode;
+
+                            if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                             {
-                                Content = new TreeViewNodeContent(Folder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                                RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(Folder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
+                            }
+                            else
+                            {
+                                RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
+                            }
+
+                            FolderTree.RootNodes.Add(RootNode);
                         }
-                        else
+
+                        if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
                         {
-                            RootNode = new TreeViewNode
-                            {
-                                Content = new TreeViewNodeContent(args.StorageItem.Path),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                            FolderTree.SelectNodeAndScrollToVertical(Node);
                         }
-
-                        FolderTree.RootNodes.Add(RootNode);
-                    }
-
-                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                    {
-                        FolderTree.SelectNodeAndScrollToVertical(Node);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in DriveAdded");
-            }
-            finally
-            {
-                Deferral.Complete();
-            }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw in DriveAdded");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
+            });
         }
 
         private async void FileControl_Loaded(object sender, RoutedEventArgs e)
@@ -517,8 +532,6 @@ namespace RX_Explorer
                     if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, string[]> Parameters)
                     {
                         Frame.Navigated += Frame_Navigated;
-                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
-                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
                         AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
                         GoBackRecord.AddHandler(PointerPressedEvent, GoBackButtonPressedHandler, true);
                         GoBackRecord.AddHandler(PointerReleasedEvent, GoBackButtonReleasedHandler, true);
@@ -538,7 +551,10 @@ namespace RX_Explorer
                         };
                         ViewModeComboBox.SetBinding(Selector.SelectedIndexProperty, SelectedIndexBinding);
 
-                        await Initialize(Parameters.Item2).ConfigureAwait(false);
+                        await Initialize(Parameters.Item2);
+
+                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
+                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
                     }
                 }
                 catch (Exception ex)
@@ -573,6 +589,11 @@ namespace RX_Explorer
         {
             if (InitFolderPathArray.Length > 0)
             {
+                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                {
+                    await CreateNewBladeAsync(TargetPath);
+                }
+
                 if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                 {
                     TreeViewNode RootNode = new TreeViewNode
@@ -587,7 +608,7 @@ namespace RX_Explorer
 
                 DriveDataBase[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Path)).ToArray();
 
-                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType != DriveType.Network))
+                foreach (DriveDataBase DriveData in Drives.OrderBy((Dr) => (int)Dr.DriveType))
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -595,46 +616,35 @@ namespace RX_Explorer
 
                         if (DeviceFolder != null)
                         {
-                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                            TreeViewNode RootNode = new TreeViewNode
+                            if (DriveData.DriveType == DriveType.Network)
                             {
-                                Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                                await Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
+                                {
+                                    TreeViewNode RootNode = new TreeViewNode
+                                    {
+                                        Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                        IsExpanded = false,
+                                        HasUnrealizedChildren = task.Result
+                                    };
 
-                            FolderTree.RootNodes.Add(RootNode);
-                            FolderTree.UpdateLayout();
-                        }
-                    }
-                }
-
-                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
-                {
-                    await CreateNewBladeAsync(TargetPath);
-                }
-
-                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
-                {
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveData.DriveFolder);
-
-                        if (DeviceFolder != null)
-                        {
-                            await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)).ContinueWith((task) =>
+                                    FolderTree.RootNodes.Add(RootNode);
+                                    FolderTree.UpdateLayout();
+                                }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+                            else
                             {
+                                bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(DriveData.DriveFolder),
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = task.Result
+                                    HasUnrealizedChildren = HasAnyFolder
                                 };
 
                                 FolderTree.RootNodes.Add(RootNode);
                                 FolderTree.UpdateLayout();
-                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
                         }
                     }
                 }
