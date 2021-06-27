@@ -211,19 +211,29 @@ namespace RX_Explorer.Class
                             {
                                 foreach (string DicKey in new string[] { "Dark", "Light" })
                                 {
-                                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary LightDictionary)
+                                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
                                     {
-                                        if (LightDictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
+                                        if (Dictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
                                         {
                                             ElementBrushInstance.AlwaysUseFallback = true;
                                         }
 
-                                        if (LightDictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush) && TreeViewBrush is AcrylicBrush TreeViewBrushSInstance)
+                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
                                         {
-                                            TreeViewBrushSInstance.AlwaysUseFallback = true;
+                                            TreeViewBrushInstance1.AlwaysUseFallback = true;
                                         }
 
-                                        if (LightDictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
+                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
+                                        {
+                                            TreeViewBrushInstance2.AlwaysUseFallback = true;
+                                        }
+
+                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
+                                        {
+                                            TreeViewBrushInstance3.AlwaysUseFallback = true;
+                                        }
+
+                                        if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
                                         {
                                             TabViewBrushInstance.AlwaysUseFallback = true;
                                         }
@@ -710,9 +720,19 @@ namespace RX_Explorer.Class
                             ElementBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
                         }
 
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush) && TreeViewBrush is AcrylicBrush TreeViewBrushSInstance)
+                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
                         {
-                            TreeViewBrushSInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
+                            TreeViewBrushInstance1.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
+                        }
+
+                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
+                        {
+                            TreeViewBrushInstance2.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
+                        }
+
+                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
+                        {
+                            TreeViewBrushInstance3.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
                         }
 
                         if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)

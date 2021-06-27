@@ -4140,6 +4140,10 @@ Las denominaciones no válidas son:
           <source>Perform save or restore configuration operations</source>
           <target state="translated">Realizar operaciones de guardado o restauración de la configuración</target>
         </trans-unit>
+        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
+          <source>BMP image</source>
+          <target state="translated">Imagen BMP</target>
+        </trans-unit>
       </group>
     </body>
   </file>

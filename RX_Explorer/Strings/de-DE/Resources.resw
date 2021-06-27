@@ -3120,4 +3120,7 @@ Inkorrekte Namen sind
   <data name="SettingManageConfigContent.Text" xml:space="preserve">
     <value>Durchführen von Konfigurationsvorgängen zum Speichern oder Wiederherstellen</value>
   </data>
+  <data name="File_Type_Bmp_Description" xml:space="preserve">
+    <value>BMP-Bild</value>
+  </data>
 </root>

@@ -410,9 +410,11 @@
     <Content Include="Assets\AddImage_Dark.png" />
     <Content Include="Assets\AddImage_Light.png" />
     <Content Include="Assets\AlphaPNG.png" />
+    <Content Include="Assets\BmpFileIcon.png" />
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />
     <Content Include="Assets\DocumentIcon.ico" />
+    <Content Include="Assets\ExcelFileIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />
     <Content Include="Assets\Github-Intro2.png" />
     <Content Include="Assets\Github-Intro3.png" />
@@ -427,6 +429,7 @@
     <Content Include="Assets\KeyboardShortcut_en.txt" />
     <Content Include="Assets\KeyboardShortcut_es.txt" />
     <Content Include="Assets\KeyboardShortcut_fr.txt" />
+    <Content Include="Assets\lnkFileIcon.png" />
     <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\IntroFile-Chinese_S.txt" />
@@ -442,6 +445,8 @@
     <Content Include="Assets\NormalDriveUnLocked.ico" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
+    <Content Include="Assets\PowerPointFileIcon.png" />
+    <Content Include="Assets\RtfFileIcon.png" />
     <Content Include="Assets\RX-icon.png" />
     <Content Include="Assets\SAIntro_de.png" />
     <Content Include="Assets\SAIntro_es.png" />
@@ -451,6 +456,7 @@
     <Content Include="Assets\SAIntro_fr.png" />
     <Content Include="Assets\SystemDrive.ico" />
     <Content Include="Assets\SystemDriveUnLocked.ico" />
+    <Content Include="Assets\TxtFileIcon.png" />
     <Content Include="Assets\UpdateLog-Chinese_S.txt" />
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
@@ -458,6 +464,8 @@
     <Content Include="Assets\UpdateLog-German.txt" />
     <Content Include="Assets\UpdateLog-Spanish.txt" />
     <Content Include="Assets\VerticalSplitHero.png" />
+    <Content Include="Assets\WordFileIcon.png" />
+    <Content Include="Assets\ZipFileIcon.png" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />

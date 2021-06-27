@@ -684,6 +684,8 @@
                                 Value="False" />
                         <Setter Property="VerticalContentAlignment"
                                 Value="Center" />
+                        <Setter Property="HorizontalContentAlignment" 
+                                Value="Stretch"/>
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
                 <muxc:TreeView.ItemTemplate>

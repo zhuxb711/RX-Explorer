@@ -3120,4 +3120,7 @@
   <data name="SettingManageConfigContent.Text" xml:space="preserve">
     <value>执行保存或恢复配置操作</value>
   </data>
+  <data name="File_Type_Bmp_Description" xml:space="preserve">
+    <value>BMP图像</value>
+  </data>
 </root>

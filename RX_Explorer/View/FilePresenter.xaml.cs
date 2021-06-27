@@ -3073,21 +3073,22 @@ namespace RX_Explorer
             {
                 try
                 {
-                    string NewFileName = Item.Name switch
+                    string NewFileName = Globalization.GetString("NewFile_Admin_Name") + Item.Name switch
                     {
-                        "TxtItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.txt",
-                        "CompressItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.zip",
-                        "RtfItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.rtf",
-                        "LinkItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.lnk",
-                        "DocItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.docx",
-                        "PPTItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.pptx",
-                        "XLSItem" => $"{Globalization.GetString("NewFile_Admin_Name")}.xlsx",
+                        "TxtItem" => ".txt",
+                        "CompressItem" => ".zip",
+                        "RtfItem" => ".rtf",
+                        "LinkItem" => ".lnk",
+                        "DocItem" => ".docx",
+                        "PPTItem" => ".pptx",
+                        "XLSItem" => ".xlsx",
+                        "BmpItem" => ".bmp",
                         _ => throw new NotSupportedException()
                     };
 
                     FileSystemStorageItemBase NewFile = null;
 
-                    switch (Path.GetExtension(NewFileName))
+                    switch (Path.GetExtension(NewFileName).ToLower())
                     {
                         case ".zip":
                             {
@@ -5131,90 +5132,102 @@ namespace RX_Explorer
         {
             CreatNewFlyout.Items.Clear();
 
-            MenuFlyoutItem FolderItem = new MenuFlyoutItem
+            MenuFlyoutItemWithImage FolderItem = new MenuFlyoutItemWithImage
             {
                 Name = "FolderItem",
-                Icon = new SymbolIcon(Symbol.NewFolder),
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png")),
                 Text = Globalization.GetString("Operate_Text_CreateFolder"),
                 MinWidth = 160
             };
             FolderItem.Click += CreateFolder_Click;
             CreatNewFlyout.Items.Add(FolderItem);
 
-            MenuFlyoutItem TxtItem = new MenuFlyoutItem
-            {
-                Name = "TxtItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
-                Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
-                MinWidth = 160
-            };
-            TxtItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(TxtItem);
-
-            MenuFlyoutItem CompressItem = new MenuFlyoutItem
-            {
-                Name = "CompressItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
-                Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
-                MinWidth = 160
-            };
-            CompressItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(CompressItem);
-
-            MenuFlyoutItem RtfItem = new MenuFlyoutItem
-            {
-                Name = "RtfItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
-                Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
-                MinWidth = 160
-            };
-            RtfItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(RtfItem);
-
-            MenuFlyoutItem LinkItem = new MenuFlyoutItem
+            MenuFlyoutItemWithImage LinkItem = new MenuFlyoutItemWithImage
             {
                 Name = "LinkItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png")),
                 Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
                 MinWidth = 160
             };
             LinkItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(LinkItem);
 
-            MenuFlyoutItem DocItem = new MenuFlyoutItem
+            CreatNewFlyout.Items.Add(new MenuFlyoutSeparator());
+
+            MenuFlyoutItemWithImage DocItem = new MenuFlyoutItemWithImage
             {
                 Name = "DocItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png")),
                 Text = "Microsoft Word (.docx)",
                 MinWidth = 160
             };
             DocItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(DocItem);
 
-            MenuFlyoutItem PPTItem = new MenuFlyoutItem
+            MenuFlyoutItemWithImage PPTItem = new MenuFlyoutItemWithImage
             {
                 Name = "PPTItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png")),
                 Text = "Microsoft PowerPoint (.pptx)",
                 MinWidth = 160
             };
             PPTItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(PPTItem);
 
-            MenuFlyoutItem XLSItem = new MenuFlyoutItem
+            MenuFlyoutItemWithImage XLSItem = new MenuFlyoutItemWithImage
             {
                 Name = "XLSItem",
-                Icon = new FontIcon { Glyph = "\uE9F9" },
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png")),
                 Text = "Microsoft Excel (.xlsx)",
                 MinWidth = 160
             };
             XLSItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(XLSItem);
+
+            MenuFlyoutItemWithImage RtfItem = new MenuFlyoutItemWithImage
+            {
+                Name = "RtfItem",
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png")),
+                Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
+                MinWidth = 160
+            };
+            RtfItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(RtfItem);
+
+            MenuFlyoutItemWithImage BmpItem = new MenuFlyoutItemWithImage
+            {
+                Name = "BmpItem",
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png")),
+                Text = $"{Globalization.GetString("File_Type_Bmp_Description")} (.bmp)",
+                MinWidth = 160
+            };
+            BmpItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(BmpItem);
+
+            MenuFlyoutItemWithImage TxtItem = new MenuFlyoutItemWithImage
+            {
+                Name = "TxtItem",
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png")),
+                Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
+                MinWidth = 160
+            };
+            TxtItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(TxtItem);
+
+            MenuFlyoutItemWithImage CompressItem = new MenuFlyoutItemWithImage
+            {
+                Name = "CompressItem",
+                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png")),
+                Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
+                MinWidth = 160
+            };
+            CompressItem.Click += CreateFile_Click;
+            CreatNewFlyout.Items.Add(CompressItem);
         }
 
         private void CreatNewFlyout_Closed(object sender, object e)
         {
-            foreach (MenuFlyoutItem Item in CreatNewFlyout.Items)
+            foreach (MenuFlyoutItemWithImage Item in CreatNewFlyout.Items.OfType<MenuFlyoutItemWithImage>())
             {
                 if (Item.Name == "FolderItem")
                 {

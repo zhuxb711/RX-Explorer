@@ -4142,6 +4142,10 @@ Invalid names include
           <source>Perform save or restore configuration operations</source>
           <target state="translated">執行保存或恢復配置操作</target>
         </trans-unit>
+        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
+          <source>BMP image</source>
+          <target state="translated">BMP圖像</target>
+        </trans-unit>
       </group>
     </body>
   </file>

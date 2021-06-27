@@ -4140,6 +4140,10 @@ Inkorrekte Namen sind
           <source>Perform save or restore configuration operations</source>
           <target state="translated">Durchführen von Konfigurationsvorgängen zum Speichern oder Wiederherstellen</target>
         </trans-unit>
+        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
+          <source>BMP image</source>
+          <target state="translated">BMP-Bild</target>
+        </trans-unit>
       </group>
     </body>
   </file>

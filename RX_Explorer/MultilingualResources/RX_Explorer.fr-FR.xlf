@@ -4142,6 +4142,10 @@ Les noms non valides incluent
           <source>Perform save or restore configuration operations</source>
           <target state="translated">Effectuer des opérations de sauvegarde ou de restauration de configuration</target>
         </trans-unit>
+        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
+          <source>BMP image</source>
+          <target state="translated">Image BMP</target>
+        </trans-unit>
       </group>
     </body>
   </file>

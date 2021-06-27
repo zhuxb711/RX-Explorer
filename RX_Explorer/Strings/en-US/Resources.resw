@@ -3225,4 +3225,7 @@ Invalid names include
   <data name="SettingManageConfigContent.Text" xml:space="preserve">
     <value>Perform save or restore configuration operations</value>
   </data>
+  <data name="File_Type_Bmp_Description" xml:space="preserve">
+    <value>BMP image</value>
+  </data>
 </root>
