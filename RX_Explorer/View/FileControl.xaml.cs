@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -2122,22 +2123,28 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Path)}"));
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                if (await FileSystemStorageItemBase.CheckExistAsync(Content.Path))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                    string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                    {
+                        new string[]{ Content.Path }
+                    }));
 
-                await dialog.ShowAsync();
+                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
+                }
             }
         }
 

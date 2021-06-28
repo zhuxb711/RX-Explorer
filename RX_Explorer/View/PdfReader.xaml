@@ -99,7 +99,8 @@
                                  LostFocus="TextBoxControl_LostFocus"
                                  TextAlignment="Center"/>
                         <TextBlock Text="/"
-                                   Margin="5,0,5,3"
+                                   Margin="5,0"
+                                   Padding="0,0,0,3"
                                    VerticalAlignment="Center" />
                         <TextBlock x:Name="NumIndicator"
                                    VerticalAlignment="Center" />

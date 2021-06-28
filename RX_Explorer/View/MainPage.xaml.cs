@@ -80,7 +80,7 @@ namespace RX_Explorer
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
-            FullTrustProcessController.FullTrustProcessExitedUnexpected += FullTrustProcessController_FullTrustProcessExitedUnexpected;
+            FullTrustProcessController.AppServiceConnectionLost += FullTrustProcessController_AppServiceConnectionLost;
             FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
             MSStoreHelper.Current.PreLoadStoreData();
@@ -175,7 +175,7 @@ namespace RX_Explorer
             });
         }
 
-        private async void FullTrustProcessController_FullTrustProcessExitedUnexpected(object sender, EventArgs e)
+        private async void FullTrustProcessController_AppServiceConnectionLost(object sender, EventArgs e)
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {

@@ -3838,8 +3838,8 @@ Les noms non valides incluent
           <target state="translated">Un redémarrage est requis</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
-          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
-          <target state="translated">Le processus auxiliaire s'est arrêté de manière inattendue, ce qui peut entraîner un dysfonctionnement de certaines fonctions</target>
+          <source>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</source>
+          <target state="translated">La connexion avec le processus auxiliaire a été interrompue. Il peut être terminé car Windows manque de ressources système ou le processus auxiliaire s'est écrasé de manière inattendue</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>

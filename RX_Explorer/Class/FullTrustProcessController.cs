@@ -173,7 +173,7 @@ namespace RX_Explorer.Class
 
         public static event EventHandler<bool> CurrentBusyStatus;
 
-        public static event EventHandler FullTrustProcessExitedUnexpected;
+        public static event EventHandler AppServiceConnectionLost;
 
         public static readonly AutoResetEvent ResizeLocker = new AutoResetEvent(true);
 
@@ -399,11 +399,11 @@ namespace RX_Explorer.Class
                             await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
                             break;
                         }
-                    case "FullTrustProcessExited":
+                    case "AppServiceCancelled":
                         {
-                            LogTracer.Log("FullTrustProcess exited unexpected, dispose this instance");
                             Dispose();
-                            FullTrustProcessExitedUnexpected?.Invoke(this, null);
+                            LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
+                            AppServiceConnectionLost?.Invoke(this, null);
                             break;
                         }
                 }
@@ -490,8 +490,9 @@ namespace RX_Explorer.Class
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            LogTracer.Log("AppServiceConnection closed, dispose this instance");
             Dispose();
+            AppServiceConnectionLost?.Invoke(this, null);
+            LogTracer.Log("AppServiceConnection is closed, dispose this instance");
         }
 
         public async Task<string> GetMIMEContentType(string Path)

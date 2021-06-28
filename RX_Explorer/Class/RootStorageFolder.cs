@@ -91,11 +91,16 @@ namespace RX_Explorer.Class
                     {
                         QueryOptions Options = new QueryOptions
                         {
-                            FolderDepth = FolderDepth.Shallow,
+                            FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
                         Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
                         Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
+
+                        if (!IsRegexExpresstion)
+                        {
+                            Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
+                        }
 
                         StorageItemQueryResult Query = Drive.DriveFolder.CreateItemQueryWithOptions(Options);
 
@@ -106,8 +111,8 @@ namespace RX_Explorer.Class
                             if (ReadOnlyItemList.Count > 0)
                             {
                                 foreach (IStorageItem Item in IsRegexExpresstion
-                                                              ? ReadOnlyItemList.AsParallel().Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                              : ReadOnlyItemList.AsParallel().Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                              ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                                              : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
                                 {
                                     if (CancelToken.IsCancellationRequested)
                                     {
@@ -126,29 +131,6 @@ namespace RX_Explorer.Class
                                                 yield return await CreateByStorageItemAsync(SubFile);
                                                 break;
                                             }
-                                    }
-                                }
-
-                                if (SearchInSubFolders)
-                                {
-                                    foreach (StorageFolder Item in ReadOnlyItemList.OfType<StorageFolder>())
-                                    {
-                                        if (CancelToken.IsCancellationRequested)
-                                        {
-                                            yield break;
-                                        }
-
-                                        FileSystemStorageFolder FSubFolder = await CreateByStorageItemAsync(Item);
-
-                                        await foreach (FileSystemStorageItemBase FSubItem in FSubFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken))
-                                        {
-                                            if (CancelToken.IsCancellationRequested)
-                                            {
-                                                yield break;
-                                            }
-
-                                            yield return FSubItem;
-                                        }
                                     }
                                 }
                             }

@@ -2892,7 +2892,7 @@ Les noms non valides incluent
     <value>Un redémarrage est requis</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Le processus auxiliaire s'est arrêté de manière inattendue, ce qui peut entraîner un dysfonctionnement de certaines fonctions</value>
+    <value>La connexion avec le processus auxiliaire a été interrompue. Il peut être terminé car Windows manque de ressources système ou le processus auxiliaire s'est écrasé de manière inattendue</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Erreur critique</value>

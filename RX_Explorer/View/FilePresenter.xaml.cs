@@ -15,6 +15,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -4115,7 +4116,12 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Folder.Path)}"));
+                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                {
+                    new string[]{ Folder.Path }
+                }));
+
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
             }
         }
 

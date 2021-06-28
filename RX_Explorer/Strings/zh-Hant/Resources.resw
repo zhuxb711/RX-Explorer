@@ -2892,7 +2892,7 @@
     <value>需要重啟</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>輔助進程意外退出，這可能導致某些功能無法正常工作</value>
+    <value>與輔助過程的連接已中斷。 可能是因為 Windows 系統資源不足而被終止，或者輔助進程意外崩潰</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>關鍵錯誤</value>

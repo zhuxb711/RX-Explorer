@@ -3838,8 +3838,8 @@ Invalid names include
           <target state="translated">需要重新启动</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
-          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
-          <target state="translated">辅助进程意外退出，这可能导致某些功能无法正常工作</target>
+          <source>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</source>
+          <target state="translated">与辅助进程的连接已中断，可能是因为Windows缺少系统资源而终止，或者是因为辅助进程意外崩溃</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>

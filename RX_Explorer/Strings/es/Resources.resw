@@ -2892,7 +2892,7 @@ Las denominaciones no válidas son:
     <value>Es necesario reiniciar</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>El proceso auxiliar salió inesperadamente, lo que puede causar que algunas funciones no funcionen correctamente</value>
+    <value>Se ha interrumpido la conexión con el proceso auxiliar. Es posible que se cancele porque Windows carece de recursos del sistema o el proceso auxiliar se bloqueó inesperadamente</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Error crítico</value>

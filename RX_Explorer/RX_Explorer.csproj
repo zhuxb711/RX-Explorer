@@ -493,9 +493,6 @@
     <Content Include="QuickStartImage\Weather.png" />
     <Content Include="Assets\Restore_WIN_E.reg" />
     <Content Include="Assets\Intercept_WIN_E.reg" />
-    <Content Include="SecureAccess\NetworkAccess.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
@@ -855,12 +852,6 @@
       <Project>{f6d7bf7b-aa4f-4f20-a6fe-45c60c75f88a}</Project>
       <Name>UpdateCheckBackgroundTask</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="NetworkAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>SecureAccess\NetworkAccess.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <XliffResource Include="MultilingualResources\RX_Explorer.de-DE.xlf" />

@@ -54,7 +54,6 @@ namespace RX_Explorer
 
                                     break;
                                 }
-
                             case "Restart":
                                 {
                                     string InstanceId = Guid.NewGuid().ToString();
@@ -157,7 +156,6 @@ namespace RX_Explorer
 
                         break;
                     }
-
                 case LaunchActivatedEventArgs LaunchArg:
                     {
                         if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
@@ -209,46 +207,12 @@ namespace RX_Explorer
 
                         break;
                     }
-
-                case FileActivatedEventArgs:
-                    {
-                        if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
-                        {
-                            do
-                            {
-                                if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
-                                {
-                                    if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
-                                    {
-                                        TargetInstance.RedirectActivationTo();
-                                    }
-
-                                    break;
-                                }
-                                else
-                                {
-                                    AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
-                                }
-                            }
-                            while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
-                        }
-                        else
-                        {
-                            string InstanceId = Guid.NewGuid().ToString();
-                            AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                            AppInstanceIdContainer.RegisterId(InstanceId);
-
-                            Application.Start((p) => new App());
-                        }
-
-                        break;
-                    }
                 default:
                     {
                         string InstanceId = Guid.NewGuid().ToString();
+
                         AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
                         AppInstanceIdContainer.RegisterId(InstanceId);
-
                         Application.Start((p) => new App());
                         break;
                     }

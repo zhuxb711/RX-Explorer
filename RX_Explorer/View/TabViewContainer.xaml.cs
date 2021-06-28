@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
@@ -607,10 +608,15 @@ namespace RX_Explorer
                     }
                     else if (args.Tab.Tag is FileControl Control)
                     {
-                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(string.Join("||", Control.BladeViewer.Items.Cast<BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))}");
+                        string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> 
+                        { 
+                            Control.BladeViewer.Items.Cast<BladeItem>()
+                                                     .Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))
+                                                     .ToArray() 
+                        }));
 
                         await CleanUpAndRemoveTabItem(args.Tab);
-                        await Launcher.LaunchUriAsync(NewWindowActivationUri);
+                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
                     }
                 }
             }

@@ -2892,7 +2892,7 @@ Inkorrekte Namen sind
     <value>Neustart ist erforderlich</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Der Hilfsprozess wurde unerwartet beendet, was dazu führen kann, dass einige Funktionen nicht ordnungsgemäß funktionieren</value>
+    <value>Die Verbindung zum Hilfsprozess wurde unterbrochen. Es kann beendet werden, weil Windows keine Systemressourcen hat oder der Hilfsprozess unerwartet abgestürzt ist</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Kritischer Fehler</value>

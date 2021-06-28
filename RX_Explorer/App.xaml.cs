@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -263,14 +264,15 @@ namespace RX_Explorer
                     }
                 case ProtocolActivatedEventArgs ProtocalArgs:
                     {
-                        if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
+                        if (string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, new List<string[]> { Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries) });
+                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
                             Window.Current.Content = extendedSplash;
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
+                            string StartupArgument = Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, JsonSerializer.Deserialize<List<string[]>>(StartupArgument));
                             Window.Current.Content = extendedSplash;
                         }
 

@@ -3012,7 +3012,7 @@ Invalid names include
     <value>Restart is required</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</value>
+    <value>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Critical error</value>

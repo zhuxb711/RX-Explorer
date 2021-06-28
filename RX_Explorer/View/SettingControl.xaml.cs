@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -2259,7 +2260,7 @@ namespace RX_Explorer
                         {
                             using (MD5 MD5Alg = MD5.Create())
                             {
-                                string ConfigDecryptedString = Configuration.DecryptToString(Package.Current.Id.FamilyName);
+                                string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
 
                                 if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                 {
@@ -2306,7 +2307,7 @@ namespace RX_Explorer
                                         }
                                     }
 
-                                    string DatabaseDecryptedString = Database.DecryptToString(Package.Current.Id.FamilyName);
+                                    string DatabaseDecryptedString = Database.Decrypt(Package.Current.Id.FamilyName);
 
                                     if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                     {
@@ -2477,9 +2478,9 @@ namespace RX_Explorer
                         Dictionary<string, string> BaseDic = new Dictionary<string, string>
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
-                            { "Configuration",  ConfigurationString.EncryptToString(Package.Current.Id.FamilyName)},
+                            { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName)},
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                            { "Database", DatabaseString.EncryptToString(Package.Current.Id.FamilyName) },
+                            { "Database", DatabaseString.Encrypt(Package.Current.Id.FamilyName) },
                             { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
                         };
 

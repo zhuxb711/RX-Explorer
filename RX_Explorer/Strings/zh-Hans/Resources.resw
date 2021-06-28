@@ -2892,7 +2892,7 @@
     <value>需要重新启动</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>辅助进程意外退出，这可能导致某些功能无法正常工作</value>
+    <value>与辅助进程的连接已中断，可能是因为Windows缺少系统资源而终止，或者是因为辅助进程意外崩溃</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>关键错误</value>

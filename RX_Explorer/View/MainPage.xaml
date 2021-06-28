@@ -240,7 +240,6 @@
                         Margin="5,0"
                         HorizontalAlignment="Stretch" />
                 <GridView Name="QuickStartGridView"
-                          AllowFocusOnInteraction="False"
                           SelectionMode="None"
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="False"
@@ -269,7 +268,6 @@
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid MaximumRowsOrColumns="3"
                                            Orientation="Horizontal"
-                                           AllowDrop="True"
                                            HorizontalAlignment="Stretch" />
                         </ItemsPanelTemplate>
                     </GridView.ItemsPanel>
@@ -288,7 +286,6 @@
                           IsDoubleTapEnabled="False"
                           IsRightTapEnabled="True"
                           IsHoldingEnabled="True"
-                          AllowFocusOnInteraction="False"
                           Holding="QuickStart_Holding"
                           ItemClick="QuickStart_ItemClick"
                           RightTapped="QuickStart_RightTapped"

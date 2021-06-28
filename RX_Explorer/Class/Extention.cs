@@ -1,6 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
-using NetworkAccess;
 using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
@@ -758,100 +756,6 @@ namespace RX_Explorer.Class
             if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
                 Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-            }
-        }
-
-        /// <summary>
-        /// 根据指定的密钥使用AES-128-CBC加密字符串
-        /// </summary>
-        /// <param name="OriginText">要加密的内容</param>
-        /// <param name="Key">密钥</param>
-        /// <returns></returns>
-        public static string EncryptToString(this string OriginText, string Key)
-        {
-            if (string.IsNullOrEmpty(OriginText))
-            {
-                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
-            }
-
-            if (string.IsNullOrEmpty(Key))
-            {
-                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
-            }
-
-            try
-            {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
-                {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
-                })
-                {
-                    using (MemoryStream EncryptStream = new MemoryStream())
-                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
-                    using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
-                    {
-                        byte[] OriginBytes = Encoding.UTF8.GetBytes(OriginText);
-                        TransformStream.Write(OriginBytes, 0, OriginBytes.Length);
-                        TransformStream.FlushFinalBlock();
-                        return Convert.ToBase64String(EncryptStream.ToArray());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not encrypt the string");
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// 根据指定的密钥解密密文
-        /// </summary>
-        /// <param name="OriginText">密文</param>
-        /// <param name="Key">密钥</param>
-        /// <returns></returns>
-        public static string DecryptToString(this string OriginText, string Key)
-        {
-            if (string.IsNullOrEmpty(OriginText))
-            {
-                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
-            }
-
-            if (string.IsNullOrEmpty(Key))
-            {
-                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
-            }
-
-            try
-            {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
-                {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
-                })
-                {
-                    using (MemoryStream DecryptStream = new MemoryStream())
-                    using (ICryptoTransform Decryptor = AES.CreateDecryptor())
-                    using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Write))
-                    {
-                        byte[] EncryptedBytes = Convert.FromBase64String(OriginText);
-                        TransformStream.Write(EncryptedBytes, 0, EncryptedBytes.Length);
-                        TransformStream.FlushFinalBlock();
-                        return Encoding.UTF8.GetString(DecryptStream.ToArray());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not decrypt the string");
-                return string.Empty;
             }
         }
 
