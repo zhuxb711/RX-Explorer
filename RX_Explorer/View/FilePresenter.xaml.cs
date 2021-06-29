@@ -4674,7 +4674,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            SelectedItem.SetColorAsNormal();
+            SelectedItem.SetAccentColorAsNormal();
             SQLite.Current.DeleteFileColor(SelectedItem.Path);
         }
 
@@ -4685,7 +4685,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetColorAsNormal();
+                Item.SetAccentColorAsNormal();
                 SQLite.Current.DeleteFileColor(Item.Path);
             }
         }
@@ -4696,7 +4696,7 @@ namespace RX_Explorer
 
             Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
-            SelectedItem.SetColorAsSpecific(ForegroundColor);
+            SelectedItem.SetAccentColorAsSpecific(ForegroundColor);
             SQLite.Current.SetFileColor(SelectedItem.Path, ForegroundColor.ToHex());
         }
 
@@ -4763,7 +4763,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetColorAsSpecific(ForegroundColor);
+                Item.SetAccentColorAsSpecific(ForegroundColor);
                 SQLite.Current.SetFileColor(Item.Path, ForegroundColor.ToHex());
             }
         }

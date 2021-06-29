@@ -261,17 +261,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                foreach (FileSystemStorageItemBase Item in await Task.Factory.StartNew(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning))
-                {
-                    yield return Item;
-                }
+                return await Task.Factory.StartNew(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning);
             }
             else
             {
+                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
+
                 if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
                     QueryOptions Options = new QueryOptions
@@ -301,19 +300,19 @@ namespace RX_Explorer.Class
                             {
                                 if (CancelToken.IsCancellationRequested)
                                 {
-                                    yield break;
+                                    break;
                                 }
 
                                 switch (Item)
                                 {
                                     case StorageFolder SubFolder:
                                         {
-                                            yield return new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync());
+                                            Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
                                             break;
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            yield return await CreateByStorageItemAsync(SubFile);
+                                            Result.Add(await CreateByStorageItemAsync(SubFile));
                                             break;
                                         }
                                 }
@@ -321,10 +320,12 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            yield break;
+                            break;
                         }
                     }
                 }
+
+                return Result;
             }
         }
 

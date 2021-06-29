@@ -13,8 +13,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="TransparentColorBrush"
-                         Color="Transparent" />
         <CollectionViewSource x:Name="ListCollectionVS"
                               IsSourceGrouped="False" />
 
@@ -977,7 +975,7 @@
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5,4,5,5"
                   Width="220"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="60" />
@@ -1051,7 +1049,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />
                     <RowDefinition Height="Auto" />
@@ -1103,7 +1101,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="140" />
                     <RowDefinition Height="Auto" />
@@ -1155,7 +1153,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="80" />
                     <RowDefinition Height="Auto" />
@@ -1206,7 +1204,7 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}"
+                  Background="{x:Bind AccentColor,Mode=OneWay}"
                   Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -1276,7 +1274,7 @@
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
             <Grid Margin="2,1.5,1,2"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1465,8 +1463,8 @@
                                                          x:Name="SortIndicator1"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator1Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator1Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.NameIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1659,8 +1657,8 @@
                                                          x:Name="SortIndicator2"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator2Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator2Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.ModifiedTimeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1787,8 +1785,8 @@
                                                          x:Name="SortIndicator3"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator3Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator3Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.TypeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1858,8 +1856,8 @@
                                                          x:Name="SortIndicator4"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator4Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator4Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.SizeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"

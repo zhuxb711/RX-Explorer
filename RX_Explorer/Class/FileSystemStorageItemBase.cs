@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Interface;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -59,20 +60,45 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush BackgroundColor { get; private set; }
+        private SolidColorBrush accentColor;
+        public SolidColorBrush AccentColor
+        {
+            get
+            {
+                if (accentColor == null)
+                {
+                    string ColorString = SQLite.Current.GetFileColor(Path);
+
+                    if (!string.IsNullOrEmpty(ColorString))
+                    {
+                        accentColor = new SolidColorBrush(ColorString.ToColor());
+                    }
+                    else
+                    {
+                        accentColor = new SolidColorBrush(Colors.Transparent);
+                    }
+                }
+
+                return accentColor;
+            }
+            private set
+            {
+                accentColor = value;
+            }
+        }
 
         private bool ThubmnalModeChanged;
 
-        public void SetColorAsSpecific(Color Color)
+        public void SetAccentColorAsSpecific(Color Color)
         {
-            BackgroundColor = new SolidColorBrush(Color);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+            AccentColor = new SolidColorBrush(Color);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
         }
 
-        public void SetColorAsNormal()
+        public void SetAccentColorAsNormal()
         {
-            BackgroundColor = new SolidColorBrush(Colors.Transparent);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+            AccentColor = new SolidColorBrush(Colors.Transparent);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
         }
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
@@ -511,8 +537,6 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        LoadForegroundConfiguration();
-
                         await LoadSyncStatusAsync();
                     }
                     catch (Exception ex)
@@ -672,16 +696,6 @@ namespace RX_Explorer.Class
                     ThumbnailOverlay = new BitmapImage();
                     await ThumbnailOverlay.SetSourceAsync(Ms.AsRandomAccessStream());
                 }
-            }
-        }
-
-        private void LoadForegroundConfiguration()
-        {
-            string ColorString = SQLite.Current.GetFileColor(Path);
-
-            if (!string.IsNullOrEmpty(ColorString))
-            {
-                SetColorAsSpecific(ColorHelper.ToColor(ColorString));
             }
         }
 

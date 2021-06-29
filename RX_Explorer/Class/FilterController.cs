@@ -930,22 +930,22 @@ namespace RX_Explorer.Class
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Orange))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == OrangeColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == OrangeColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Green))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == GreenColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == GreenColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Purple))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == PurpleColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == PurpleColor));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Blue))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => (Item.BackgroundColor?.Color).GetValueOrDefault() == BlueColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == BlueColor));
                 }
             }
 

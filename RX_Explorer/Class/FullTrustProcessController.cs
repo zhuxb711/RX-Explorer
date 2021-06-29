@@ -183,14 +183,13 @@ namespace RX_Explorer.Class
         {
             DispatcherThread.Start();
             ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
+            Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
         }
 
         private FullTrustProcessController()
         {
             Interlocked.Increment(ref CurrentRunningControllerNum);
-
-            Application.Current.Suspending += Current_Suspending;
 
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
@@ -217,15 +216,17 @@ namespace RX_Explorer.Class
         private static void Current_Resuming(object sender, object e)
         {
             LogTracer.Log("RX-Explorer is resuming, recover all instance");
-            AvailableControllers.Clear();
+
             AllControllerList.Clear();
+            AvailableControllers.Clear();
+
             RequestResizeController(LastRequestedControllerNum);
         }
 
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
+        private static void Current_Suspending(object sender, SuspendingEventArgs e)
         {
             LogTracer.Log("RX-Explorer is suspending, dispose this instance");
-            Dispose();
+            AllControllerList.ToList().ForEach((Control) => Control.Dispose());
         }
 
         private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController Controller)
@@ -312,36 +313,39 @@ namespace RX_Explorer.Class
 
             try
             {
-                LastRequestedControllerNum = RequestedTarget;
-
-                RequestedTarget += DynamicBackupProcessNum;
-
-                while (CurrentRunningControllerNum > RequestedTarget && AvailableControllers.Count > DynamicBackupProcessNum)
+                using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
                 {
-                    if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
+                    LastRequestedControllerNum = RequestedTarget;
+
+                    RequestedTarget += DynamicBackupProcessNum;
+
+                    while (CurrentRunningControllerNum > RequestedTarget && AvailableControllers.Count > DynamicBackupProcessNum)
                     {
-                        Controller.Dispose();
-                    }
-                    else
-                    {
-                        if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
+                        if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
-                            break;
+                            Controller.Dispose();
+                        }
+                        else
+                        {
+                            if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
+                            {
+                                break;
+                            }
                         }
                     }
-                }
 
-                while (CurrentRunningControllerNum < RequestedTarget)
-                {
-                    FullTrustProcessController NewController = CreateAsync().Result;
+                    while (CurrentRunningControllerNum < RequestedTarget)
+                    {
+                        FullTrustProcessController NewController = CreateAsync().Result;
 
-                    if (NewController != null)
-                    {
-                        AvailableControllers.Enqueue(NewController);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("Could not create a new controller");
+                        if (NewController != null)
+                        {
+                            AvailableControllers.Enqueue(NewController);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Could not create a new controller");
+                        }
                     }
                 }
             }
@@ -2940,8 +2944,6 @@ namespace RX_Explorer.Class
                     {
                         PipeController.Dispose();
                     }
-
-                    Application.Current.Suspending -= Current_Suspending;
                 }
                 catch (Exception ex)
                 {
