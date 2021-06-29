@@ -123,6 +123,8 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
+        protected abstract bool IsFullTrustProcessNeeded { get; }
+
         private ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
@@ -476,7 +478,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (FullTrustProcessIsNeeded())
+                        if (IsFullTrustProcessNeeded)
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -694,8 +696,6 @@ namespace RX_Explorer.Class
         //Make sure override FullTrustProcessIsNeeded() and reture true.
         protected abstract Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller);
 
-        protected abstract bool FullTrustProcessIsNeeded();
-
         protected abstract bool CheckIfPropertiesLoaded();
 
         protected abstract Task LoadThumbnailAsync(ThumbnailMode Mode);
@@ -708,7 +708,7 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    if (FullTrustProcessIsNeeded())
+                    if (IsFullTrustProcessNeeded)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {

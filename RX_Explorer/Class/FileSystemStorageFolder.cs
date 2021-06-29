@@ -94,6 +94,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override bool IsFullTrustProcessNeeded
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
             CreationTimeRaw = Item.DateCreated;
@@ -147,10 +155,10 @@ namespace RX_Explorer.Class
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return await Task.Run(() =>
+                return await Task.Factory.StartNew(() =>
                 {
                     return WIN_Native_API.CalulateSize(Path, CancelToken);
-                });
+                }, TaskCreationOptions.LongRunning);
             }
             else
             {
@@ -163,7 +171,8 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = FolderDepth.Deep,
-                            IndexerOption = IndexerOption.DoNotUseIndexer
+                            IndexerOption = IndexerOption.DoNotUseIndexer,
+                            ApplicationSearchFilter = "System.Size:>0"
                         };
                         Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
@@ -175,11 +184,11 @@ namespace RX_Explorer.Class
                         {
                             IReadOnlyList<StorageFile> ReadOnlyItemList = await Query.GetFilesAsync(Index, 50);
 
-                            if (ReadOnlyItemList.Count > 0)
+                            if (ReadOnlyItemList.Any())
                             {
                                 foreach (StorageFile File in ReadOnlyItemList)
                                 {
-                                    TotalSize += await File.GetSizeRawDataAsync().ConfigureAwait(false);
+                                    TotalSize += await File.GetSizeRawDataAsync();
 
                                     if (CancelToken.IsCancellationRequested)
                                     {
@@ -213,10 +222,10 @@ namespace RX_Explorer.Class
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return await Task.Run(() =>
+                return await Task.Factory.StartNew(() =>
                 {
                     return WIN_Native_API.CalculateFolderAndFileCount(Path, CancelToken);
-                });
+                }, TaskCreationOptions.LongRunning);
             }
             else
             {
@@ -231,28 +240,13 @@ namespace RX_Explorer.Class
                             FolderDepth = FolderDepth.Deep,
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
-                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
-                        StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+                        StorageFileQueryResult FileQuery = Folder.CreateFileQueryWithOptions(Options);
+                        StorageFolderQueryResult FolderQuery = Folder.CreateFolderQueryWithOptions(Options);
 
-                        uint FolderCount = 0, FileCount = 0;
+                        uint[] Results = await Task.WhenAll(FolderQuery.GetItemCountAsync().AsTask(CancelToken), FileQuery.GetItemCountAsync().AsTask(CancelToken));
 
-                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
-                        {
-                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 50);
-
-                            if (ReadOnlyItemList.Count > 0)
-                            {
-                                FolderCount += Convert.ToUInt32(ReadOnlyItemList.OfType<StorageFolder>().Count());
-                                FileCount += Convert.ToUInt32(ReadOnlyItemList.OfType<StorageFile>().Count());
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        return (FolderCount, FileCount);
+                        return (Results[0], Results[1]);
                     }
                     else
                     {
@@ -423,11 +417,6 @@ namespace RX_Explorer.Class
         protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             return LoadPropertiesAsync(ForceUpdate);
-        }
-
-        protected override bool FullTrustProcessIsNeeded()
-        {
-            return false;
         }
 
         protected override bool CheckIfPropertiesLoaded()

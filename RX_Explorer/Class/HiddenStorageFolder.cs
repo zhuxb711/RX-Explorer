@@ -13,6 +13,14 @@ namespace RX_Explorer.Class
     {
         protected HiddenDataPackage RawData { get; set; }
 
+        protected override bool IsFullTrustProcessNeeded
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             RawData = await GetRawDataAsync(Controller);
@@ -39,11 +47,6 @@ namespace RX_Explorer.Class
         public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
-        }
-
-        protected override bool FullTrustProcessIsNeeded()
-        {
-            return true;
         }
 
         public async Task<HiddenDataPackage> GetRawDataAsync()
