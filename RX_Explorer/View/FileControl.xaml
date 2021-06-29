@@ -142,8 +142,7 @@
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
-                               x:Name="RightTabFlyout"
-                               AlwaysExpanded="True">
+                               x:Name="RightTabFlyout">
             <muxc:CommandBarFlyout.PrimaryCommands>
                 <AppBarButton Icon="Copy"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"

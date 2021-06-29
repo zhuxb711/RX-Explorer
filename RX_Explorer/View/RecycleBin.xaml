@@ -15,7 +15,6 @@
 
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SelectFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="永久删除"
@@ -49,7 +48,6 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"

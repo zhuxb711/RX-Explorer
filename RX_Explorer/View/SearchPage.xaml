@@ -10,7 +10,6 @@
       Background="Transparent">
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind local:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Name="MuiltSelect"
@@ -72,7 +71,6 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind local:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MuiltSelect_Click">

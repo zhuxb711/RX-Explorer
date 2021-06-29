@@ -3,10 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Microsoft.UI.Xaml.Controls">
     <Application.Resources>
-        <controls:XamlControlsResources ControlsResourcesVersion="Version1">
-            <controls:XamlControlsResources.MergedDictionaries>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="ms-appx:///GlobeDictionary.xaml" />
-            </controls:XamlControlsResources.MergedDictionaries>
-        </controls:XamlControlsResources>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
