@@ -35,11 +35,15 @@ namespace RX_Explorer.Class
             Interval = TimeSpan.FromSeconds(5)
         };
 
-        public static event EventHandler<DriveChangeDeferredEventArgs> DriveAdded;
+        public static event EventHandler<DriveChangedDeferredEventArgs> DriveAdded;
 
-        public static event EventHandler<DriveChangeDeferredEventArgs> DriveRemoved;
+        public static event EventHandler<DriveChangedDeferredEventArgs> DriveRemoved;
 
         public static event EventHandler<Queue<string>> LibraryNotFound;
+
+        public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryAdded;
+
+        public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryRemoved;
 
         public static bool IsLibaryLoaded { get; private set; }
 
@@ -248,7 +252,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray());
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
 
                         if (ErrorList.Count > 0)
                         {
@@ -429,7 +433,7 @@ namespace RX_Explorer.Class
                         {
                             foreach (DriveDataBase Drive in e.NewItems)
                             {
-                                await DriveAdded.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
+                                await DriveAdded.InvokeAsync(null, await DriveChangedDeferredEventArgs.CreateAsync(Drive));
                             }
                         }
                         break;
@@ -440,7 +444,7 @@ namespace RX_Explorer.Class
                         {
                             foreach (DriveDataBase Drive in e.OldItems)
                             {
-                                await DriveRemoved.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
+                                await DriveRemoved.InvokeAsync(null, await DriveChangedDeferredEventArgs.CreateAsync(Drive));
                             }
                         }
 
@@ -506,19 +510,66 @@ namespace RX_Explorer.Class
             PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
             DriveList.CollectionChanged += HardDeviceList_CollectionChanged;
+            LibraryFolderList.CollectionChanged += LibraryFolderList_CollectionChanged;
             NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
         }
 
-        public sealed class DriveChangeDeferredEventArgs : DeferredEventArgs
+        private static async void LibraryFolderList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        if (DriveAdded != null)
+                        {
+                            foreach (LibraryFolder Lib in e.NewItems)
+                            {
+                                await LibraryAdded.InvokeAsync(null, await LibraryChangedDeferredEventArgs.CreateAsync(Lib));
+                            }
+                        }
+
+                        break;
+                    }
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        if (DriveRemoved != null)
+                        {
+                            foreach (LibraryFolder Lib in e.OldItems)
+                            {
+                                await LibraryRemoved.InvokeAsync(null, await LibraryChangedDeferredEventArgs.CreateAsync(Lib));
+                            }
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        public sealed class DriveChangedDeferredEventArgs : DeferredEventArgs
         {
             public FileSystemStorageFolder StorageItem { get; }
 
-            public static async Task<DriveChangeDeferredEventArgs> CreateAsync(DriveDataBase Data)
+            public static async Task<DriveChangedDeferredEventArgs> CreateAsync(DriveDataBase Data)
             {
-                return new DriveChangeDeferredEventArgs(await FileSystemStorageItemBase.CreateByStorageItemAsync(Data.DriveFolder));
+                return new DriveChangedDeferredEventArgs(await FileSystemStorageItemBase.CreateByStorageItemAsync(Data.DriveFolder));
             }
 
-            private DriveChangeDeferredEventArgs(FileSystemStorageFolder StorageItem)
+            private DriveChangedDeferredEventArgs(FileSystemStorageFolder StorageItem)
+            {
+                this.StorageItem = StorageItem;
+            }
+        }
+
+        public sealed class LibraryChangedDeferredEventArgs : DeferredEventArgs
+        {
+            public FileSystemStorageFolder StorageItem { get; }
+
+            public static async Task<LibraryChangedDeferredEventArgs> CreateAsync(LibraryFolder Lib)
+            {
+                return new LibraryChangedDeferredEventArgs(await FileSystemStorageItemBase.CreateByStorageItemAsync(Lib.Folder));
+            }
+
+            private LibraryChangedDeferredEventArgs(FileSystemStorageFolder StorageItem)
             {
                 this.StorageItem = StorageItem;
             }

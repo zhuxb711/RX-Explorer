@@ -186,14 +186,8 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>取消固定</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>文件夹和库</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>打开</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>确定</value>
@@ -3122,5 +3116,14 @@
   </data>
   <data name="File_Type_Bmp_Description" xml:space="preserve">
     <value>BMP图像</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>取消固定</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>此操作将永久删除这些文件，是否继续？</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>这将永久删除文件夹中的所有内容，是否继续？</value>
   </data>
 </root>

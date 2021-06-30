@@ -320,11 +320,11 @@ namespace RX_Explorer.Class
             return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
         }
 
-        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Point ShowAt)
+        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, params string[] PathArray)
         {
-            if (Flyout == null)
+            if (RelatedTo == null)
             {
-                throw new ArgumentNullException(nameof(Flyout), "Argument could not be null");
+                throw new ArgumentNullException(nameof(RelatedTo), "Argument could not be null");
             }
 
             if (Interlocked.Exchange(ref ContextMenuLockResource, 1) == 0)
@@ -345,29 +345,11 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        string[] SelectedPathArray = null;
-
-                        if (ListControl.SelectedItems.Count <= 1)
-                        {
-                            if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
-                            {
-                                SelectedPathArray = new string[] { Selected.Path };
-                            }
-                            else if (ListControl.FindParentOfType<FileControl>() is FileControl Control && !string.IsNullOrEmpty(Control.CurrentPresenter.CurrentFolder?.Path))
-                            {
-                                SelectedPathArray = new string[] { Control.CurrentPresenter.CurrentFolder.Path };
-                            }
-                        }
-                        else
-                        {
-                            SelectedPathArray = ListControl.SelectedItems.OfType<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
-                        }
-
-                        if (SelectedPathArray != null)
+                        if (PathArray.Any() && PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
@@ -452,13 +434,11 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        FlyoutShowOptions Option = new FlyoutShowOptions
+                        Flyout?.ShowAt(RelatedTo, new FlyoutShowOptions
                         {
                             Position = ShowAt,
                             Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                        };
-
-                        Flyout?.ShowAt(ListControl, Option);
+                        });
                     }
                     catch (Exception ex)
                     {

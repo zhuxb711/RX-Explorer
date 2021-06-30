@@ -1,5 +1,4 @@
 ﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -40,14 +39,8 @@ namespace RX_Explorer
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private bool BlockKeyboardShortCutInput;
 
-        private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
-        {
-            {SortTarget.Name,SortDirection.Ascending },
-            {SortTarget.Type,SortDirection.Ascending },
-            {SortTarget.ModifiedTime,SortDirection.Ascending },
-            {SortTarget.Size,SortDirection.Ascending },
-            {SortTarget.Path,SortDirection.Ascending }
-        };
+        private SortTarget STarget;
+        private SortDirection SDirection;
 
 
         public SearchPage()
@@ -61,7 +54,7 @@ namespace RX_Explorer
         {
             SearchResult.Clear();
 
-            foreach (FileSystemStorageItemBase Item in e.FilterCollection)
+            foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(e.FilterCollection, STarget, SDirection))
             {
                 SearchResult.Add(Item);
             }
@@ -132,6 +125,9 @@ namespace RX_Explorer
 
         private async Task Initialize(SearchOptions Options)
         {
+            STarget = SortTarget.Name;
+            SDirection = SortDirection.Ascending;
+
             HasItem.Visibility = Visibility.Collapsed;
 
             CancellationTokenSource Cancellation = new CancellationTokenSource();
@@ -477,206 +473,33 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        private void ListHeader_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.Size] == SortDirection.Ascending)
+            if (sender is Button Btn)
             {
-                SortMap[SortTarget.Size] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Size, SortDirection.Descending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Descending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
+                SortTarget CTarget = Btn.Name switch
                 {
-                    SearchResult.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                    "ListHeaderName" => SortTarget.Name,
+                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
+                    "ListHeaderType" => SortTarget.Type,
+                    "ListHeaderPath" => SortTarget.Path,
+                    "ListHeaderSize" => SortTarget.Size,
+                    _ => throw new NotSupportedException()
+                };
 
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Size, SortDirection.Ascending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Ascending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
+                if (STarget == CTarget)
                 {
-                    SearchResult.Add(Item);
+                    SDirection = SDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
                 }
-            }
-        }
-
-        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.Type] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.Type] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Type, SortDirection.Descending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Descending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
+                else
                 {
-                    SearchResult.Add(Item);
+                    STarget = CTarget;
+                    SDirection = SortDirection.Ascending;
                 }
-            }
-            else
-            {
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Type, SortDirection.Ascending);
+                ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Ascending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.ModifiedTime] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.ModifiedTime, SortDirection.Descending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.ModifiedTime, SortDirection.Ascending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderPath_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.Path] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.Path] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Path, SortDirection.Descending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Descending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Path, SortDirection.Ascending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Ascending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.Name] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.Name] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Name, SortDirection.Descending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Descending).ToArray();
-
-                SearchResult.Clear();
-
-                foreach (FileSystemStorageItemBase Item in SortResult)
-                {
-                    SearchResult.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Path] = SortDirection.Ascending;
-
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortTarget.Name, SortDirection.Ascending);
-
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, STarget, SDirection).ToArray();
 
                 SearchResult.Clear();
 
@@ -1075,14 +898,21 @@ namespace RX_Explorer
                 string[] PathList = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
                     if (DeleteConfirm)
                     {
-                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+                        QueueContentDialog Dialog = new QueueContentDialog 
+                        { 
+                            Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
+                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
+                        };
 
-                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             ExecuteDelete = true;
                         }
@@ -1094,15 +924,19 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+                    QueueContentDialog Dialog = new QueueContentDialog 
+                    { 
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"), 
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
+                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
+                    };
 
-                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ExecuteDelete = true;
                     }
                 }
-
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
                 {

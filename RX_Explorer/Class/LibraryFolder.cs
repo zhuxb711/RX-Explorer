@@ -26,12 +26,20 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 文件夹缩略图
         /// </summary>
-        public BitmapImage Thumbnail { get; private set; }
+        public BitmapImage Thumbnail { get; }
 
         /// <summary>
         /// 文件夹对象
         /// </summary>
-        public StorageFolder Folder { get; private set; }
+        public StorageFolder Folder { get; }
+
+        public string Path
+        {
+            get
+            {
+                return Folder.Path;
+            }
+        }
 
         /// <summary>
         /// 文件夹的类型

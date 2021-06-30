@@ -255,9 +255,6 @@
     <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">
       <DependentUpon>BitlockerPasswordDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\DeleteDialog.xaml.cs">
-      <DependentUpon>DeleteDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialog\LinkOptionsDialog.xaml.cs">
       <DependentUpon>LinkOptionsDialog.xaml</DependentUpon>
     </Compile>
@@ -573,10 +570,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\DecompressDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialog\DeleteDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -306,14 +306,8 @@
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>Websites</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>Unpin</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Library</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>Open</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirm</value>
@@ -3227,5 +3221,14 @@ Invalid names include
   </data>
   <data name="File_Type_Bmp_Description" xml:space="preserve">
     <value>BMP image</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>Unpin</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>This operation will permanently delete these files. Whether to continue?</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>This will permanently delete everything in the folder. Whether to continue?</value>
   </data>
 </root>

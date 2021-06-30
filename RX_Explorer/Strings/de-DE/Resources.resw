@@ -195,14 +195,8 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>Losheften</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Bibliothek</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>Öffnen</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Bestätigen</value>
@@ -3122,5 +3116,14 @@ Inkorrekte Namen sind
   </data>
   <data name="File_Type_Bmp_Description" xml:space="preserve">
     <value>BMP-Bild</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>Loslösen</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>Durch diesen Vorgang werden diese Dateien dauerhaft gelöscht. Ob weitermachen?</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</value>
   </data>
 </root>

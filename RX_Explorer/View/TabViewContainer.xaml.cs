@@ -168,13 +168,13 @@ namespace RX_Explorer
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        if (HomeControl.DeviceGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                        if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                         {
                                             await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
                                         }
-                                        else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
+                                        else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Path))
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path);
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Path);
                                         }
                                     }
                                 }
@@ -185,7 +185,7 @@ namespace RX_Explorer
                             {
                                 args.Handled = true;
 
-                                if (HomeControl.DeviceGrid.SelectedItem is DriveDataBase Device)
+                                if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device)
                                 {
                                     if (string.IsNullOrEmpty(Device.Path))
                                     {

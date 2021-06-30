@@ -7,9 +7,9 @@ namespace RX_Explorer.Class
 {
     public static class SortCollectionGenerator
     {
-        public static event EventHandler<SortStateChangedEventArgs> SortStateChanged;
+        public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged;
 
-        public static void SavePathSortState(string Path, SortTarget Target, SortDirection Direction)
+        public static void SaveSortConfigOnPath(string Path, SortTarget Target, SortDirection Direction)
         {
             if (Target == SortTarget.OriginPath || Target == SortTarget.Path)
             {
@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
             if (CurrentConfiguration.SortTarget != Target || CurrentConfiguration.SortDirection != Direction)
             {
                 SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, Target, Direction));
-                SortStateChanged?.Invoke(null, new SortStateChangedEventArgs(Path, Target, Direction));
+                SortConfigChanged?.Invoke(null, new SortStateChangedEventArgs(Path, Target, Direction));
             }
         }
 

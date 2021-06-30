@@ -141,8 +141,21 @@
         
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
+        <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              MinWidth="160"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickAccessButton"
+                              Click="AddQuickAccessButton_Click"/>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
-                               x:Name="RightTabFlyout">
+                               x:Name="RightTabFlyout"
+                               Opening="RightTabFlyout_Opening">
             <muxc:CommandBarFlyout.PrimaryCommands>
                 <AppBarButton Icon="Copy"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -160,6 +173,11 @@
                               Name="FolderRename"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
                               Click="FolderRename_Click" />
+                <AppBarButton Icon="UnPin"
+                              Visibility="Collapsed"
+                              x:Name="RemovePin"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Unpin')}"
+                              Click="RemovePin_Click" />
             </muxc:CommandBarFlyout.PrimaryCommands>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="NewFolder"
@@ -196,6 +214,16 @@
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE140;" />
                     </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton Label="Send to"
+                              x:Uid="SendTo"
+                              MinWidth="250"
+                              MaxWidth="350"
+                              Icon="Send">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="SendToFlyout_Opening" />
+                    </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"

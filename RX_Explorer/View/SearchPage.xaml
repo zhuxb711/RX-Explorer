@@ -167,7 +167,7 @@
                                     IsDoubleTapEnabled="True"
                                     DoubleTapped="ListHeader_DoubleTapped"
                                     x:Name="ListHeaderName"
-                                    Click="ListHeaderName_Click"
+                                    Click="ListHeader_Click"
                                     Height="35"
                                     RelativePanel.LeftOf="NameFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
@@ -218,6 +218,54 @@
                                             </Style>
                                         </Flyout.FlyoutPresenterStyle>
                                         <StackPanel MinWidth="230">
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="16">
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                  Glyph="&#xF127;"
+                                                                  Foreground="Orange" />
+                                                    </Viewbox>
+                                                    <TextBlock Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
+                                                </StackPanel>
+                                            </CheckBox>
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="16">
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                  Glyph="&#xF127;"
+                                                                  Foreground="#22B324" />
+                                                    </Viewbox>
+                                                    <TextBlock Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
+                                                </StackPanel>
+                                            </CheckBox>
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="16">
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                  Glyph="&#xF127;"
+                                                                  Foreground="#CC6EFF" />
+                                                    </Viewbox>
+                                                    <TextBlock Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}"/>
+                                                </StackPanel>
+                                            </CheckBox>
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="16">
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                  Glyph="&#xF127;"
+                                                                  Foreground="#42C5FF" />
+                                                    </Viewbox>
+                                                    <TextBlock Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}"/>
+                                                </StackPanel>
+                                            </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="16"
@@ -274,60 +322,6 @@
                                                                x:Uid="NameFilterCheckBox5Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                  Glyph="&#xF127;"
-                                                                  Foreground="Orange" />
-                                                    </Viewbox>
-                                                    <TextBlock Margin="10,0,0,0"
-                                                               Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
-                                                </StackPanel>
-                                            </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                  Glyph="&#xF127;"
-                                                                  Foreground="#22B324" />
-                                                    </Viewbox>
-                                                    <TextBlock Margin="10,0,0,0"
-                                                               Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
-                                                </StackPanel>
-                                            </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                  Glyph="&#xF127;"
-                                                                  Foreground="#CC6EFF" />
-                                                    </Viewbox>
-                                                    <TextBlock Margin="10,0,0,0"
-                                                               Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}"
-                                                               x:Uid="NameFilterCheckBox5Text" />
-                                                </StackPanel>
-                                            </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                  Glyph="&#xF127;"
-                                                                  Foreground="#42C5FF" />
-                                                    </Viewbox>
-                                                    <TextBlock Margin="10,0,0,0"
-                                                               Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}"
-                                                               x:Uid="NameFilterCheckBox5Text" />
-                                                </StackPanel>
-                                            </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="16"
@@ -356,7 +350,7 @@
                                 IsDoubleTapEnabled="True"
                                 DoubleTapped="ListHeader_DoubleTapped"
                                 x:Name="ListHeaderPath"
-                                Click="ListHeaderPath_Click"
+                                Click="ListHeader_Click"
                                 Height="35"
                                 Grid.Column="1"
                                 RelativePanel.LeftOf="NameFilterHeader"
@@ -391,7 +385,7 @@
                                     IsDoubleTapEnabled="True"
                                     DoubleTapped="ListHeader_DoubleTapped"
                                     Name="ListHeaderModifiedTime"
-                                    Click="ListHeaderModifiedTime_Click"
+                                    Click="ListHeader_Click"
                                     RelativePanel.LeftOf="ModTimeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Background="{ThemeResource ElementAcrylicBrush}"
@@ -519,7 +513,7 @@
                                     VerticalAlignment="Stretch"
                                     Height="35"
                                     Name="ListHeaderType"
-                                    Click="ListHeaderType_Click"
+                                    Click="ListHeader_Click"
                                     RelativePanel.LeftOf="TypeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Background="{ThemeResource ElementAcrylicBrush}"
@@ -592,7 +586,7 @@
                                     RelativePanel.LeftOf="SizeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Height="35"
-                                    Click="ListHeaderSize_Click"
+                                    Click="ListHeader_Click"
                                     Background="{ThemeResource ElementAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>

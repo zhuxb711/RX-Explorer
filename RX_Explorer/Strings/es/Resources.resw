@@ -195,14 +195,8 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vaciar</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>Desanclar</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Biblioteca</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>Abrir</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirmar</value>
@@ -3122,5 +3116,14 @@ Las denominaciones no válidas son:
   </data>
   <data name="File_Type_Bmp_Description" xml:space="preserve">
     <value>Imagen BMP</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>Desprender</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>Esta operación eliminará permanentemente estos archivos. ¿Continuar?</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>Esto eliminará permanentemente todo en la carpeta. ¿Continuar?</value>
   </data>
 </root>

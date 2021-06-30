@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
@@ -20,6 +21,7 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -33,6 +35,7 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -166,7 +169,7 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -193,7 +196,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -556,6 +559,8 @@ namespace RX_Explorer
 
                         CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
                         CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
+                        CommonAccessCollection.LibraryAdded += CommonAccessCollection_LibraryAdded;
+                        CommonAccessCollection.LibraryRemoved += CommonAccessCollection_LibraryRemoved;
                     }
                 }
                 catch (Exception ex)
@@ -566,6 +571,53 @@ namespace RX_Explorer
                 {
                     _ = Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
+            }
+        }
+
+        private void CommonAccessCollection_LibraryRemoved(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
+        {
+            try
+            {
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                {
+                    if (QuickAccessNode.IsExpanded)
+                    {
+                        QuickAccessNode.Children.Remove(QuickAccessNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(e.StorageItem.Path, StringComparison.OrdinalIgnoreCase)));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Sync Library change failed");
+            }
+        }
+
+        private async void CommonAccessCollection_LibraryAdded(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
+        {
+            EventDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                {
+                    if (QuickAccessNode.IsExpanded)
+                    {
+                        QuickAccessNode.Children.Add(new TreeViewNode
+                        {
+                            IsExpanded = false,
+                            Content = new TreeViewNodeContent(e.StorageItem.Path, e.StorageItem.DisplayName),
+                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Sync Library change failed");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -772,14 +824,21 @@ namespace RX_Explorer
             if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
             {
                 bool ExecuteDelete = false;
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
                     if (DeleteConfirm)
                     {
-                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFolderPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFolder_Content")
+                        };
 
-                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             ExecuteDelete = true;
                         }
@@ -791,15 +850,19 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFolderPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFolder_Content")
+                    };
 
-                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ExecuteDelete = true;
                     }
                 }
-
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
                 {
@@ -901,35 +964,38 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        if (Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath"))
+                        FolderTree.SelectedNode = Node;
+
+                        if (Node.Content is TreeViewNodeContent Content)
                         {
-                            FolderTree.ContextFlyout = null;
-                        }
-                        else
-                        {
-                            if (FolderTree.RootNodes.Contains(Node))
+                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                             {
-                                FolderCopy.IsEnabled = false;
-                                FolderCut.IsEnabled = false;
-                                FolderDelete.IsEnabled = false;
-                                FolderRename.IsEnabled = false;
+                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
+                                {
+                                    Position = e.GetPosition((FrameworkElement)sender),
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                });
                             }
                             else
                             {
-                                FolderCopy.IsEnabled = true;
-                                FolderCut.IsEnabled = true;
-                                FolderDelete.IsEnabled = true;
-                                FolderRename.IsEnabled = true;
+                                if (FolderTree.RootNodes.Contains(Node))
+                                {
+                                    FolderCopy.IsEnabled = false;
+                                    FolderCut.IsEnabled = false;
+                                    FolderDelete.IsEnabled = false;
+                                    FolderRename.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    FolderCopy.IsEnabled = true;
+                                    FolderCut.IsEnabled = true;
+                                    FolderDelete.IsEnabled = true;
+                                    FolderRename.IsEnabled = true;
+                                }
+
+                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
                             }
-
-                            FolderTree.ContextFlyout = RightTabFlyout;
                         }
-
-                        FolderTree.SelectedNode = Node;
-                    }
-                    else
-                    {
-                        FolderTree.ContextFlyout = null;
                     }
                 }
                 catch (Exception ex)
@@ -1996,35 +2062,38 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        if (Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath"))
+                        FolderTree.SelectedNode = Node;
+
+                        if (Node.Content is TreeViewNodeContent Content)
                         {
-                            FolderTree.ContextFlyout = null;
-                        }
-                        else
-                        {
-                            if (FolderTree.RootNodes.Contains(Node))
+                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                             {
-                                FolderCopy.IsEnabled = false;
-                                FolderCut.IsEnabled = false;
-                                FolderDelete.IsEnabled = false;
-                                FolderRename.IsEnabled = false;
+                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
+                                {
+                                    Position = e.GetPosition((FrameworkElement)sender),
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                });
                             }
                             else
                             {
-                                FolderCopy.IsEnabled = true;
-                                FolderCut.IsEnabled = true;
-                                FolderDelete.IsEnabled = true;
-                                FolderRename.IsEnabled = true;
+                                if (FolderTree.RootNodes.Contains(Node))
+                                {
+                                    FolderCopy.IsEnabled = false;
+                                    FolderCut.IsEnabled = false;
+                                    FolderDelete.IsEnabled = false;
+                                    FolderRename.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    FolderCopy.IsEnabled = true;
+                                    FolderCut.IsEnabled = true;
+                                    FolderDelete.IsEnabled = true;
+                                    FolderRename.IsEnabled = true;
+                                }
+
+                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
                             }
-
-                            FolderTree.ContextFlyout = RightTabFlyout;
                         }
-
-                        FolderTree.SelectedNode = Node;
-                    }
-                    else
-                    {
-                        FolderTree.ContextFlyout = null;
                     }
                 }
                 catch (Exception ex)
@@ -2868,6 +2937,270 @@ namespace RX_Explorer
             }
         }
 
+        private async void AddQuickAccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
+
+                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                    {
+                        if (QuickAccessNode.IsExpanded)
+                        {
+                            QuickAccessNode.Children.Add(new TreeViewNode
+                            {
+                                IsExpanded = false,
+                                Content = new TreeViewNodeContent(Folder),
+                                HasUnrealizedChildren = (await Folder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                            });
+                        }
+                    }
+
+                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                }
+            }
+        }
+
+        private void SendToFlyout_Opening(object sender, object e)
+        {
+            if (sender is MenuFlyout Flyout)
+            {
+                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
+                {
+                    Item.Click -= SendToItem_Click;
+                }
+
+                Flyout.Items.Clear();
+
+                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendDocumentItem",
+                    Text = Globalization.GetString("SendTo_Document"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendDocumentItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendDocumentItem);
+
+                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendLinkItem",
+                    Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendLinkItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendLinkItem);
+
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                {
+                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
+                    {
+                        Name = "SendRemovableItem",
+                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
+                        ImageIcon = RemovableDrive.Thumbnail,
+                        MinWidth = 150,
+                        MaxWidth = 350,
+                        Tag = RemovableDrive.Path
+                    };
+                    SendRemovableDriveItem.Click += SendToItem_Click;
+
+                    Flyout.Items.Add(SendRemovableDriveItem);
+                }
+            }
+        }
+
+        private async void SendToItem_Click(object sender, RoutedEventArgs e)
+        {
+            RightTabFlyout.Hide();
+
+            if (sender is MenuFlyoutItemWithImage Item)
+            {
+                if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+                {
+                    switch (Item.Name)
+                    {
+                        case "SendLinkItem":
+                            {
+                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
+                                                                                        Content.Path,
+                                                                                        string.Empty,
+                                                                                        WindowState.Normal,
+                                                                                        0,
+                                                                                        string.Empty))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            {
+                                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
+                                                                                                Content.Path,
+                                                                                                string.Empty,
+                                                                                                WindowState.Normal,
+                                                                                                0,
+                                                                                                string.Empty))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
+                                    }
+                                }
+
+                                break;
+                            }
+                        case "SendDocumentItem":
+                            {
+                                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, DocumentPath);
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                        {
+                                            QueueTaskController.EnqueueCopyOpeartion(Content.Path, DataPath.Documents);
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get document path from UserDataPaths");
+                                    }
+                                }
+
+                                break;
+                            }
+                        case "SendRemovableItem":
+                            {
+                                if (Item.Tag is string RemovablePath)
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, RemovablePath);
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
+        }
+
+        private void RightTabFlyout_Opening(object sender, object e)
+        {
+            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+            {
+                if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
+                {
+                    RemovePin.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    RemovePin.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private async void RemovePin_Click(object sender, RoutedEventArgs e)
+        {
+            RightTabFlyout.Hide();
+
+            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            {
+                if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryFolder TargetLib)
+                {
+                    CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
+
+                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                    {
+                        QuickAccessNode.Children.Remove(Node);
+                    }
+
+                    SQLite.Current.DeleteLibrary(Content.Path);
+                    await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.Folder);
+                }
+            }
+        }
+
         public void Dispose()
         {
             AddressButtonList.Clear();
@@ -2882,8 +3215,12 @@ namespace RX_Explorer
             BladeViewer.Items.Clear();
 
             Frame.Navigated -= Frame_Navigated;
+
             CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
             CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
+            CommonAccessCollection.LibraryAdded -= CommonAccessCollection_LibraryAdded;
+            CommonAccessCollection.LibraryRemoved -= CommonAccessCollection_LibraryRemoved;
+
             AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
             GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
             GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);

@@ -121,7 +121,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return AllControllerList.Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
+                return AllControllerList.ToArray().Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
             }
         }
 

@@ -250,17 +250,9 @@
           <source>Empty</source>
           <target state="translated">Leer</target>
         </trans-unit>
-        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
-          <source>Unpin</source>
-          <target state="translated">Losheften</target>
-        </trans-unit>
         <trans-unit id="LibraryExpander.Text" translate="yes" xml:space="preserve">
           <source>Library</source>
           <target state="translated">Bibliothek</target>
-        </trans-unit>
-        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated">Öffnen</target>
         </trans-unit>
         <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
           <source>Confirm</source>
@@ -4143,6 +4135,18 @@ Inkorrekte Namen sind
         <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
           <source>BMP image</source>
           <target state="translated">BMP-Bild</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Unpin" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="translated">Loslösen</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFilesPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete these files. Whether to continue?</source>
+          <target state="translated">Durch diesen Vorgang werden diese Dateien dauerhaft gelöscht. Ob weitermachen?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This will permanently delete everything in the folder. Whether to continue?</source>
+          <target state="translated">Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</target>
         </trans-unit>
       </group>
     </body>

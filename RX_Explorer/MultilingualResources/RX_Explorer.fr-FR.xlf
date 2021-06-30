@@ -238,17 +238,9 @@
           <source>Empty</source>
           <target state="translated">Vide</target>
         </trans-unit>
-        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
-          <source>Unpin</source>
-          <target state="translated">Détacher</target>
-        </trans-unit>
         <trans-unit id="LibraryExpander.Text" translate="yes" xml:space="preserve">
           <source>Library</source>
           <target state="translated">Bibliothèque</target>
-        </trans-unit>
-        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated">Ouvrir</target>
         </trans-unit>
         <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
           <source>Confirm</source>
@@ -4145,6 +4137,18 @@ Les noms non valides incluent
         <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
           <source>BMP image</source>
           <target state="translated">Image BMP</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Unpin" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="translated">Détacher</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFilesPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete these files. Whether to continue?</source>
+          <target state="translated">Cette opération supprimera définitivement ces fichiers. Faut-il continuer ?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This will permanently delete everything in the folder. Whether to continue?</source>
+          <target state="translated">Cela supprimera définitivement tout dans le dossier. Faut-il continuer ?</target>
         </trans-unit>
       </group>
     </body>
