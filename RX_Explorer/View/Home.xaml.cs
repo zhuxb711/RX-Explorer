@@ -68,7 +68,7 @@ namespace RX_Explorer
             BitlockerDeviceFlyout.Hide();
         }
 
-        private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        private void DriveGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             if (args.InRecycleQueue)
             {
@@ -238,7 +238,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void DriveGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 
@@ -254,11 +254,11 @@ namespace RX_Explorer
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder);
+                await OpenTargetFolder(Library.LibFolder);
             }
         }
 
-        private async void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void DriveGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
@@ -304,7 +304,7 @@ namespace RX_Explorer
             }
         }
 
-        private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void DriveGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
@@ -362,7 +362,7 @@ namespace RX_Explorer
 
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder);
+                await OpenTargetFolder(Library.LibFolder);
             }
         }
 
@@ -374,7 +374,7 @@ namespace RX_Explorer
             {
                 CommonAccessCollection.LibraryFolderList.Remove(Library);
                 SQLite.Current.DeleteLibrary(Library.Path);
-                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.Folder);
+                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.LibFolder);
             }
         }
 
@@ -384,7 +384,7 @@ namespace RX_Explorer
 
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(Library.Folder);
+                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Library.LibFolder);
 
                 if (Folder != null)
                 {
@@ -413,7 +413,7 @@ namespace RX_Explorer
             await CommonAccessCollection.LoadDriveAsync(true);
         }
 
-        private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private async void DriveGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 
@@ -429,7 +429,7 @@ namespace RX_Explorer
 
             if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+                await OpenTargetFolder(Library.LibFolder).ConfigureAwait(false);
             }
         }
 
@@ -505,7 +505,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void DeviceGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void DriveGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == HoldingState.Started)
             {
@@ -709,7 +709,7 @@ namespace RX_Explorer
 
                     foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
                     {
-                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(Lib.Folder);
+                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
 
                         if (Folder != null)
                         {
@@ -747,7 +747,7 @@ namespace RX_Explorer
 
                     foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
                     {
-                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(Lib.Folder);
+                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
 
                         if (Folder != null)
                         {

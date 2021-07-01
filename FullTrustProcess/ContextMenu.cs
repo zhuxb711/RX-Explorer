@@ -211,7 +211,7 @@ namespace FullTrustProcess
                                     }
                                 }
                             }
-                            catch (AccessViolationException AVE)
+                            catch (AccessViolationException)
                             {
                                 Verb = null;
                             }

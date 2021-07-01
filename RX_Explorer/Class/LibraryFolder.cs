@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Folder.DisplayName;
+                return LibFolder.DisplayName;
             }
         }
 
@@ -31,13 +31,13 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 文件夹对象
         /// </summary>
-        public StorageFolder Folder { get; }
+        public StorageFolder LibFolder { get; }
 
         public string Path
         {
             get
             {
-                return Folder.Path;
+                return LibFolder.Path;
             }
         }
 
@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
 
         private LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
         {
-            this.Folder = Folder ?? throw new FileNotFoundException();
+            this.LibFolder = Folder ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
             this.Type = Type;
         }

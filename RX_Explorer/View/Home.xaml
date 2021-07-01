@@ -334,13 +334,13 @@
                               IsDoubleTapEnabled="True"
                               IsRightTapEnabled="True"
                               IsHoldingEnabled="True"
-                              Holding="DeviceGrid_Holding"
+                              Holding="DriveGrid_Holding"
                               MinHeight="300"
-                              ItemClick="DeviceGrid_ItemClick"
-                              ContainerContentChanging="DeviceGrid_ContainerContentChanging"
-                              PointerPressed="DeviceGrid_PointerPressed"
-                              RightTapped="DeviceGrid_RightTapped"
-                              DoubleTapped="DeviceGrid_DoubleTapped"
+                              ItemClick="DriveGrid_ItemClick"
+                              ContainerContentChanging="DriveGrid_ContainerContentChanging"
+                              PointerPressed="DriveGrid_PointerPressed"
+                              RightTapped="DriveGrid_RightTapped"
+                              DoubleTapped="DriveGrid_DoubleTapped"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:DriveDataBase">

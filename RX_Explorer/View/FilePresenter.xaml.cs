@@ -1864,7 +1864,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item)=>Item.Path).ToArray());
+                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                     }
                 }
                 else
@@ -1874,7 +1874,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                         }
                         else
                         {
@@ -1935,7 +1935,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                                         }
                                     }
                                 }
@@ -1943,7 +1943,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                             }
                         }
                     }
@@ -3736,7 +3736,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                     }
                 }
                 else
@@ -3746,7 +3746,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                         }
                         else
                         {
@@ -3807,7 +3807,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                                         }
                                     }
                                 }
@@ -3815,7 +3815,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
                             }
                         }
                     }

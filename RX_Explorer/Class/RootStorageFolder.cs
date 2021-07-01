@@ -122,12 +122,12 @@ namespace RX_Explorer.Class
                                     {
                                         case StorageFolder SubFolder:
                                             {
-                                                Result.Add(await CreateByStorageItemAsync(SubFolder));
+                                                Result.Add(await CreateFromStorageItemAsync(SubFolder));
                                                 break;
                                             }
                                         case StorageFile SubFile:
                                             {
-                                                Result.Add(await CreateByStorageItemAsync(SubFile));
+                                                Result.Add(await CreateFromStorageItemAsync(SubFile));
                                                 break;
                                             }
                                     }

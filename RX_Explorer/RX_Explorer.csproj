@@ -179,6 +179,8 @@
     <Compile Include="Class\GroupCollectionGenerator.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
     <Compile Include="Class\LockedDriveData.cs" />
+    <Compile Include="Class\NamedPipeReadController.cs" />
+    <Compile Include="Class\NamedPipeWriteController.cs" />
     <Compile Include="Class\NormalDriveData.cs" />
     <Compile Include="Class\OperationListBaseModel.cs" />
     <Compile Include="Class\OperationListCompressionModel.cs" />
@@ -238,7 +240,7 @@
     <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PathConfiguration.cs" />
-    <Compile Include="Class\NamedPipeController.cs" />
+    <Compile Include="Class\NamedPipeControllerBase.cs" />
     <Compile Include="Class\RecycleStorageFile.cs" />
     <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SortIndicatorController.cs" />

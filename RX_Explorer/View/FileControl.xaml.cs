@@ -665,7 +665,7 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveData.DriveFolder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder);
 
                         if (DeviceFolder != null)
                         {
@@ -762,9 +762,9 @@ namespace RX_Explorer
             {
                 for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
                 {
-                    StorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i].Folder;
+                    StorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i].LibFolder;
 
-                    if (await FileSystemStorageItemBase.CreateByStorageItemAsync(LibFolder) is FileSystemStorageFolder LibObject)
+                    if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(LibFolder) is FileSystemStorageFolder LibObject)
                     {
                         TreeViewNode LibNode = new TreeViewNode
                         {
@@ -3196,7 +3196,7 @@ namespace RX_Explorer
                     }
 
                     SQLite.Current.DeleteLibrary(Content.Path);
-                    await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.Folder);
+                    await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.LibFolder);
                 }
             }
         }

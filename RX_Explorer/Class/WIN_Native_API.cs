@@ -1315,13 +1315,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static SafePipeHandle CreateHandleForNamedPipe(string PipeName)
+        public static SafePipeHandle CreateHandleForNamedPipe(string PipeName, NamedPipeMode Mode)
         {
             SECURITY_ATTRIBUTES SA = new SECURITY_ATTRIBUTES();
 
             if (ConvertStringSecurityDescriptorToSecurityDescriptor("D:(A;;GA;;;WD)(A;;GA;;;AC)S:(ML;;;;;LW)", SDDL_REVISION.SDDL_REVISION_1, out SA.pSecurityDescriptor, out _))
             {
-                SafePipeHandle SPipeHandle = CreateNamedPipe(@$"\\.\pipe\local\{PipeName}", PIPE_ACCESS.PIPE_ACCESS_DUPLEX
+                SafePipeHandle SPipeHandle = CreateNamedPipe(@$"\\.\pipe\local\{PipeName}", (Mode == NamedPipeMode.Read ? PIPE_ACCESS.PIPE_ACCESS_INBOUND : PIPE_ACCESS.PIPE_ACCESS_OUTBOUND)
                                                                                             | PIPE_ACCESS.WRITE_DAC
                                                                                             | PIPE_ACCESS.WRITE_OWNER
                                                                                             | PIPE_ACCESS.FILE_FLAG_WRITE_THROUGH,

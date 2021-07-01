@@ -1302,27 +1302,6 @@ namespace RX_Explorer
             }
         }
 
-        private void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            if ((sender as GridView).Name == nameof(QuickStartGridView))
-            {
-                SQLite.Current.DeleteQuickStartItem(QuickStartType.Application);
-
-                foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList.Where((Item) => Item.Type != QuickStartType.AddButton))
-                {
-                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.Application);
-                }
-            }
-            else
-            {
-                SQLite.Current.DeleteQuickStartItem(QuickStartType.WebSite);
-
-                foreach (QuickStartItem Item in CommonAccessCollection.WebLinkList.Where((Item) => Item.Type != QuickStartType.AddButton))
-                {
-                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.WebSite);
-                }
-            }
-        }
 
         private void QuickStart_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
@@ -1411,14 +1390,6 @@ namespace RX_Explorer
             if (e.Key == VirtualKey.Space)
             {
                 e.Handled = true;
-            }
-        }
-
-        private void QuickStart_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
-        {
-            if (e.Items.Cast<QuickStartItem>().Any((Item) => Item.Type == QuickStartType.AddButton))
-            {
-                e.Cancel = true;
             }
         }
 

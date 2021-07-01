@@ -37,7 +37,9 @@ namespace FullTrustProcess
 
         private static Process ExplorerProcess;
 
-        private static NamedPipeController PipeController;
+        private static NamedPipeWriteController PipeWriteController;
+
+        private static NamedPipeReadController PipeReadController;
 
         static async Task Main(string[] args)
         {
@@ -332,7 +334,36 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
-                PipeController?.Dispose();
+                PipeWriteController?.Dispose();
+                PipeReadController?.Dispose();
+                LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
+
+        private async static void PipeController_OnDataReceived(string Data)
+        {
+            try
+            {
+                PipeCommand Command = JsonSerializer.Deserialize<PipeCommand>(Data);
+
+                switch (Command.CommandText)
+                {
+                    case "Execute_GetContextMenuItems":
+                        {
+                            PipeWriteController?.SendData(JsonSerializer.Serialize(await ContextMenu.FetchContextMenuItemsAsync(JsonSerializer.Deserialize<string[]>(Command.ExtraData["ExecutePath"]), Convert.ToBoolean(Command.ExtraData["IncludeExtensionItem"]))));
+                            break;
+                        }
+                    case "Execute_Get_RecycleBinItems":
+                        {
+                            PipeWriteController?.SendData(RecycleBinController.GenerateRecycleItemsByJson());
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in responding pipe message");
+                PipeWriteController?.SendData("<<<Error>>>");
             }
         }
 
@@ -341,6 +372,7 @@ namespace FullTrustProcess
             if (e.ExceptionObject is Exception Ex)
             {
                 LogTracer.Log(Ex, "UnhandledException");
+                LogTracer.MakeSureLogIsFlushed(2000);
             }
         }
 
@@ -1627,7 +1659,7 @@ namespace FullTrustProcess
                                 {
                                     if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                     {
-                                        PipeController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                        PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
                                     },
                                     (se, arg) =>
                                     {
@@ -1731,7 +1763,7 @@ namespace FullTrustProcess
                                     {
                                         if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
-                                            PipeController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
                                         },
                                         (se, arg) =>
                                         {
@@ -1846,7 +1878,7 @@ namespace FullTrustProcess
                                     {
                                         if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                         {
-                                            PipeController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
                                         },
                                         (se, arg) =>
                                         {
@@ -2118,9 +2150,14 @@ namespace FullTrustProcess
                                     }
                                 }
 
-                                if (PipeController == null && args.Request.Message.TryGetValue("PipeId", out object PipeId))
+                                if (PipeReadController == null && args.Request.Message.TryGetValue("PipeWriteId", out object PipeWriteId))
                                 {
-                                    PipeController = new NamedPipeController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeId}");
+                                    PipeReadController = new NamedPipeReadController(PipeController_OnDataReceived, Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeWriteId}");
+                                }
+
+                                if (PipeWriteController == null && args.Request.Message.TryGetValue("PipeReadId", out object PipeReadId))
+                                {
+                                    PipeWriteController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeReadId}");
                                 }
                             }
                             catch (Exception ex)

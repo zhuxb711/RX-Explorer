@@ -97,7 +97,9 @@
     <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="LogTracer.cs" />
-    <Compile Include="NamedPipeController.cs" />
+    <Compile Include="NamedPipeControllerBase.cs" />
+    <Compile Include="NamedPipeReadController.cs" />
+    <Compile Include="NamedPipeWriteController.cs" />
     <Compile Include="RemoteDataObject.cs" />
     <Compile Include="StorageController.cs" />
     <Compile Include="Program.cs" />

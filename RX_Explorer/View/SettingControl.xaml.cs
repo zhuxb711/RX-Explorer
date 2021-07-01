@@ -551,7 +551,15 @@ namespace RX_Explorer
                 {
                     IsAnimating = true;
 
-                    (TabViewContainer.CurrentNavigationControl.Content as Control).Focus(FocusState.Programmatic);
+                    if (TabViewContainer.CurrentNavigationControl is Frame Fra)
+                    {
+                        if (Fra.Content is Control Con)
+                        {
+                            Con.Focus(FocusState.Programmatic);
+                        }
+
+                        MainPage.ThisPage.NavView.IsBackEnabled = Fra.CanGoBack;
+                    }
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
@@ -1814,7 +1822,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
-                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveFolder);
+                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveFolder);
 
                                 if (Folder != null)
                                 {

@@ -312,7 +312,7 @@ namespace RX_Explorer.Class
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            Result.Add(await CreateByStorageItemAsync(SubFile));
+                                            Result.Add(await CreateFromStorageItemAsync(SubFile));
                                             break;
                                         }
                                 }
@@ -379,7 +379,7 @@ namespace RX_Explorer.Class
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(await CreateByStorageItemAsync(SubFile));
+                                        Result.Add(await CreateFromStorageItemAsync(SubFile));
                                     }
                                 }
                             }

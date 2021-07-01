@@ -1,20 +1,24 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using Vanara.PInvoke;
 using Windows.ApplicationModel;
 
 namespace FullTrustProcess
 {
-    public class NamedPipeController : IDisposable
+    public class NamedPipeControllerBase : IDisposable
     {
-        private readonly NamedPipeClientStream PipeStream;
-        private readonly StreamWriter Writer;
-        private readonly object Locker = new object();
+        protected NamedPipeClientStream PipeStream { get; }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return (PipeStream?.IsConnected).GetValueOrDefault();
+            }
+        }
 
         private string GetActualNamedPipeStringFromUWP(uint ProcessId, string PipeName)
         {
@@ -57,34 +61,32 @@ namespace FullTrustProcess
             }
         }
 
-        public void SendData(string Data)
-        {
-            lock (Locker)
-            {
-                try
-                {
-                    Writer.WriteLine(Data);
-                    Writer.Flush();
-
-                    PipeStream.WaitForPipeDrain();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not send progress data");
-                }
-            }
-        }
-
-        public NamedPipeController(uint ProcessId, string PipeName)
+        protected NamedPipeControllerBase(uint ProcessId, string PipeName)
         {
             string ActualPipePath = GetActualNamedPipeStringFromUWP(ProcessId, PipeName);
 
             if (!string.IsNullOrEmpty(ActualPipePath))
             {
-                PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.InOut, PipeOptions.WriteThrough);
-                PipeStream.Connect(2000);
+                switch (this)
+                {
+                    case NamedPipeReadController:
+                        {
+                            PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.In, PipeOptions.WriteThrough);
+                            PipeStream.Connect(2000);
+                            break;
+                        }
+                    case NamedPipeWriteController:
+                        {
+                            PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.Out, PipeOptions.WriteThrough);
+                            PipeStream.Connect(2000);
+                            break;
+                        }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
+                }
 
-                Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 1024, true);
             }
             else
             {
@@ -92,14 +94,13 @@ namespace FullTrustProcess
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             GC.SuppressFinalize(this);
-            Writer.Dispose();
             PipeStream.Dispose();
         }
 
-        ~NamedPipeController()
+        ~NamedPipeControllerBase()
         {
             Dispose();
         }

@@ -248,5 +248,15 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
+        public static void MakeSureLogIsFlushed(int TimeoutMilliseconds)
+        {
+            if (!BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
+                && !BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped))
+            {
+                SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
+                                         || BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped), Math.Max(0, TimeoutMilliseconds));
+            }
+        }
     }
 }

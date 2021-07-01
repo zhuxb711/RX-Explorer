@@ -155,7 +155,11 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.Normal
         };
 
-        private readonly NamedPipeController PipeController;
+        private readonly NamedPipeReadController PipeReadController;
+
+        private readonly NamedPipeWriteController PipeWriteController;
+
+        private event EventHandler<string> OnPipeDataReceived;
 
         private readonly AppServiceConnection Connection;
 
@@ -200,7 +204,15 @@ namespace RX_Explorer.Class
 
             if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
             {
-                PipeController = new NamedPipeController();
+                if (NamedPipeReadController.TryCreateNamedPipe(PipeController_OnDataReceived, out NamedPipeReadController ReadController))
+                {
+                    PipeReadController = ReadController;
+                }
+
+                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController WriteController))
+                {
+                    PipeWriteController = WriteController;
+                }
             }
 
             Connection = new AppServiceConnection
@@ -211,6 +223,11 @@ namespace RX_Explorer.Class
 
             Connection.RequestReceived += Connection_RequestReceived;
             Connection.ServiceClosed += Connection_ServiceClosed;
+        }
+
+        private void PipeController_OnDataReceived(string Data)
+        {
+            OnPipeDataReceived?.Invoke(null, Data);
         }
 
         private static void Current_Resuming(object sender, object e)
@@ -456,9 +473,10 @@ namespace RX_Explorer.Class
                         { "ProcessId", CurrentProcessId },
                     };
 
-                    if (PipeController != null)
+                    if (PipeReadController != null && PipeWriteController != null)
                     {
-                        Value.Add("PipeId", PipeController.PipeUniqueId);
+                        Value.Add("PipeWriteId", PipeWriteController.PipeUniqueId);
+                        Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
                     }
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1307,43 +1325,91 @@ namespace RX_Explorer.Class
 
                 if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
-                    if (await ConnectRemoteAsync())
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault() && (PipeWriteController?.IsConnected).GetValueOrDefault())
                     {
-                        ValueSet Value = new ValueSet
-                        {
-                            {"ExecuteType", ExecuteType_GetContextMenuItems},
-                            {"ExecutePath", JsonSerializer.Serialize(PathArray)},
-                            {"IncludeExtensionItem", IncludeExtensionItem }
-                        };
+                        TaskCompletionSource<List<ContextMenuItem>> CompletionSource = new TaskCompletionSource<List<ContextMenuItem>>();
 
-                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                        if (Response.Status == AppServiceResponseStatus.Success)
+                        void PipeController_OnDataReceived(object sender, string Data)
                         {
-                            if (Response.Message.TryGetValue("Success", out object Result))
+                            try
                             {
-                                return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
+                                if (Data != "<<<Error>>>")
+                                {
+                                    CompletionSource.SetResult(JsonSerializer.Deserialize<ContextMenuPackage[]>(Data).Select((Item) => new ContextMenuItem(Item)).ToList());
+                                }
+                                else
+                                {
+                                    CompletionSource.SetResult(new List<ContextMenuItem>(0));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                CompletionSource.SetException(ex);
+                            }
+                        }
+
+                        try
+                        {
+                            OnPipeDataReceived += PipeController_OnDataReceived;
+
+                            PipeCommand Command = new PipeCommand
+                            {
+                                CommandText = ExecuteType_GetContextMenuItems,
+                                ExtraData = new Dictionary<string, string>
+                                {
+                                    {"ExecutePath", JsonSerializer.Serialize(PathArray)},
+                                    {"IncludeExtensionItem", Convert.ToString(IncludeExtensionItem)}
+                                }
+                            };
+
+                            PipeWriteController.SendData(JsonSerializer.Serialize(Command));
+                            return await CompletionSource.Task;
+                        }
+                        finally
+                        {
+                            OnPipeDataReceived -= PipeController_OnDataReceived;
+                        }
+                    }
+                    else
+                    {
+                        if (await ConnectRemoteAsync())
+                        {
+                            ValueSet Value = new ValueSet
+                            {
+                                {"ExecuteType", ExecuteType_GetContextMenuItems},
+                                {"ExecutePath", JsonSerializer.Serialize(PathArray)},
+                                {"IncludeExtensionItem", IncludeExtensionItem }
+                            };
+
+                            AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                            if (Response.Status == AppServiceResponseStatus.Success)
+                            {
+                                if (Response.Message.TryGetValue("Success", out object Result))
+                                {
+                                    return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
+                                }
+                                else
+                                {
+                                    if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                                    {
+                                        LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
+                                    }
+
+                                    return new List<ContextMenuItem>(0);
+                                }
                             }
                             else
                             {
-                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                                {
-                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
-                                }
-
+                                LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                                 return new List<ContextMenuItem>(0);
                             }
                         }
                         else
                         {
-                            LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                            LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
                             return new List<ContextMenuItem>(0);
                         }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
-                        return new List<ContextMenuItem>(0);
                     }
                 }
                 else
@@ -1353,7 +1419,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(GetContextMenuItemsAsync)} throw an error");
                 return new List<ContextMenuItem>(0);
             }
             finally
@@ -2219,57 +2285,114 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync())
+                if ((PipeReadController?.IsConnected).GetValueOrDefault() && (PipeWriteController?.IsConnected).GetValueOrDefault())
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Get_RecycleBinItems}
-                    };
+                    TaskCompletionSource<List<IRecycleStorageItem>> CompletionSource = new TaskCompletionSource<List<IRecycleStorageItem>>();
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    void PipeController_OnDataReceived(object sender, string Data)
                     {
-                        if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
+                        try
                         {
-                            List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
-                            List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
+                            List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>();
 
-                            foreach (Dictionary<string, string> PropertyDic in JsonList)
+                            if (Data != "<<<Error>>>")
                             {
-                                WIN_Native_API.WIN32_FIND_DATA Data = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Data);
 
-                                IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                            ? new RecycleStorageFolder(PropertyDic["ActualPath"], Data)
-                                                            : new RecycleStorageFile(PropertyDic["ActualPath"], Data);
+                                foreach (Dictionary<string, string> PropertyDic in JsonList)
+                                {
+                                    WIN_Native_API.WIN32_FIND_DATA FData = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
-                                Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+                                    IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], FData)
+                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], FData);
 
-                                RecycleItems.Add(Item);
+                                    Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+
+                                    RecycleItems.Add(Item);
+                                }
                             }
 
-                            return RecycleItems;
+                            CompletionSource.SetResult(RecycleItems);
+                        }
+                        catch (Exception ex)
+                        {
+                            CompletionSource.SetException(ex);
+                        }
+                    }
+
+                    try
+                    {
+                        OnPipeDataReceived += PipeController_OnDataReceived;
+
+                        PipeCommand Command = new PipeCommand
+                        {
+                            CommandText = ExecuteType_Get_RecycleBinItems
+                        };
+
+                        PipeWriteController.SendData(JsonSerializer.Serialize(Command));
+
+                        return await CompletionSource.Task;
+                    }
+                    finally
+                    {
+                        OnPipeDataReceived -= PipeController_OnDataReceived;
+                    }
+                }
+                else
+                {
+                    if (await ConnectRemoteAsync())
+                    {
+                        ValueSet Value = new ValueSet
+                        {
+                            {"ExecuteType", ExecuteType_Get_RecycleBinItems}
+                        };
+
+                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
+                            {
+                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
+                                List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
+
+                                foreach (Dictionary<string, string> PropertyDic in JsonList)
+                                {
+                                    WIN_Native_API.WIN32_FIND_DATA Data = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+
+                                    IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], Data)
+                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], Data);
+
+                                    Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+
+                                    RecycleItems.Add(Item);
+                                }
+
+                                return RecycleItems;
+                            }
+                            else
+                            {
+                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                                {
+                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
+                                }
+
+                                return new List<IRecycleStorageItem>(0);
+                            }
                         }
                         else
                         {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
-                            }
-
+                            LogTracer.Log($"AppServiceResponse in {nameof(GetRecycleBinItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                             return new List<IRecycleStorageItem>(0);
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetRecycleBinItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"{nameof(GetRecycleBinItemsAsync)}: Failed to connect AppService");
                         return new List<IRecycleStorageItem>(0);
                     }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetRecycleBinItemsAsync)}: Failed to connect AppService");
-                    return new List<IRecycleStorageItem>(0);
                 }
             }
             catch (Exception ex)
@@ -2363,10 +2486,7 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived += PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived += PipeController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2377,10 +2497,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value).AsTask();
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived -= PipeController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2482,10 +2599,7 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived += PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived += PipeController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2497,10 +2611,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived -= PipeController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2657,10 +2768,7 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
                     }
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived += PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived += PipeController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2672,10 +2780,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (PipeController != null)
-                    {
-                        PipeController.OnDataReceived -= PipeController_OnDataReceived;
-                    }
+                    OnPipeDataReceived -= PipeController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2940,9 +3045,14 @@ namespace RX_Explorer.Class
                         Connection.Dispose();
                     }
 
-                    if (PipeController != null)
+                    if (PipeReadController != null)
                     {
-                        PipeController.Dispose();
+                        PipeReadController.Dispose();
+                    }
+
+                    if (PipeWriteController != null)
+                    {
+                        PipeWriteController.Dispose();
                     }
                 }
                 catch (Exception ex)

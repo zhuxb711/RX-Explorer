@@ -31,12 +31,12 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Suspending += App_Suspending;
             Resuming += App_Resuming;
             UnhandledException += App_UnhandledException;
             EnteredBackground += App_EnteredBackground;
             LeavingBackground += App_LeavingBackground;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
             PowerManager.EnergySaverStatusChanged += PowerManager_EnergySaverStatusChanged;
@@ -98,11 +98,13 @@ namespace RX_Explorer
         {
             SQLite.Current.Dispose();
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
+            LogTracer.MakeSureLogIsFlushed(Math.Min((int)(e.SuspendingOperation.Deadline - DateTimeOffset.Now).TotalMilliseconds, 3000));
         }
 
         private async void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
             SQLite.Current.Dispose();
+            LogTracer.MakeSureLogIsFlushed(1000);
 
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
             {
@@ -154,6 +156,7 @@ namespace RX_Explorer
         {
             e.Handled = true;
             SQLite.Current.Dispose();
+            LogTracer.MakeSureLogIsFlushed(1000);
             await LeadToBlueScreen(e.Exception);
         }
 

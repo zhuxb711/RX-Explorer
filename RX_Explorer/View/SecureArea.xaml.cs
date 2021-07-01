@@ -395,7 +395,7 @@ namespace RX_Explorer
 
                     foreach (StorageFile ImportFile in FileList)
                     {
-                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreateByStorageItemAsync(ImportFile);
+                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreateFromStorageItemAsync(ImportFile);
 
                         if (File != null)
                         {
