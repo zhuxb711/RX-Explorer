@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private NamedPipeWriteController() : base()
+        private NamedPipeWriteController()
         {
 
         }

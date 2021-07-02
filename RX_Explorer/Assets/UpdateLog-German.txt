@@ -1,4 +1,61 @@
 ﻿*****
+###Was ist neu in Ver.6.7.8.0
+
+#####Funktionsupdate
+
+>#####Unterstützung für das Erstellen von "BMP-Bildern" hinzugefügt
+
+>#####Filter-und Sortierreihenfolgeanzeige zur Suchseite hinzugefügt
+
+>#####Jetzt können Sie Ordner direkt hinzufügen, indem Sie im Verzeichnisbaum mit der rechten Maustaste auf den Knoten "Schnellzugriff" klicken
+
+#####UI-Update
+
+>#####Neues Icon für die Menüpunkte in "Datei erstellen" hinzugefügt
+
+>#####Kontrast der Benutzeroberfläche in mehreren Modi verbessert
+
+>#####Beim endgültigen Löschen einer Datei wird ein anderer Aufforderungstext angezeigt
+
+>#####"Bibliotheken", "Laufwerke" und "Verzeichnisbaum" haben jetzt die Anzahl der Kontextmenüpunkte erweitert
+
+#####Leistungsverbesserung
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass die Benutzeroberfläche einfriert, wenn eine langsame Festplatte vorhanden ist
+
+>#####Verbesserte Leistung der integrierten Suchmaschine auf einigen Festplatten
+
+>#####Verbesserte Leistung bei der Durchführung von Wartungsaufgaben während des Upgrades
+
+>#####Verbesserte Leistung beim Exportieren einer großen Anzahl von Protokollen
+
+>#####Die Leistung bei der Berechnung der Größe eines Ordners und der Anzahl der darin enthaltenen Unterdateien oder Unterordner verbessert
+
+>#####Die Geschwindigkeit beim Abrufen von Kontextmenüelementen wurde verbessert
+
+>#####Die Geschwindigkeit beim Lesen einer großen Anzahl von Papierkorbdateien wurde verbessert
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, dass "Bing-Hintergrundbild abrufen" beim Start nicht korrekt angezeigt werden konnte
+
+>#####Problem behoben, dass das Kontextmenü nicht im leeren Bereich des Verzeichnisbaums erscheinen kann
+
+>#####Problem behoben, dass der Kommunikationskanal nicht richtig geschlossen werden kann, nachdem der Hilfsprozess unerwartet abstürzt und zu hoher CPU-Auslastung führen kann
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass die Benutzeroberfläche bei der Suche nicht mehr reagiert
+
+>#####Problem mit möglichen Auslassungen beim Filtern von Dateien nach Markierungsfarbe behoben
+
+>#####Problem behoben, dass beim Hinzufügen oder Löschen des Inhalts von "Bibliotheken" die Änderungen am Knoten "Schnellzugriff" des Verzeichnisbaums nicht automatisch synchronisiert werden synchronize
+
+>#####Problem behoben, dass die aufsteigende und absteigende Reihenfolge beim Umschalten zwischen verschiedenen Sortiergrundlagen falsch sein kann
+
+>#####Problem behoben, das zu einem Absturz führen kann, wenn der Energiesparmodus aktiviert ist
+
+>#####Problem behoben, dass die Zurück-Taste beim Verlassen der Einstellungsseite ohne Verwendung der Zurück-Taste möglicherweise immer noch aktiviert ist enabled
+
+*****
 ###Was ist neu in Ver.6.7.4.0
 
 #####Funktionsupdate

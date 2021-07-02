@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DeferredEvents;
+using ShareClassLibrary;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -7,8 +9,8 @@ namespace FullTrustProcess
 {
     public sealed class NamedPipeReadController : NamedPipeControllerBase
     {
+        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-        private readonly Action<string> OnDataReceivedCallBack;
         private bool ExitSignal = false;
 
         private void ReadProcess()
@@ -27,7 +29,7 @@ namespace FullTrustProcess
 
                                 if (!string.IsNullOrEmpty(ReadText))
                                 {
-                                    OnDataReceivedCallBack?.Invoke(ReadText);
+                                    OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                                 }
                             }
                             catch (Exception ex)
@@ -44,10 +46,8 @@ namespace FullTrustProcess
             }
         }
 
-        public NamedPipeReadController(Action<string> OnDataReceivedCallBack, uint ProcessId, string PipeName) : base(ProcessId, PipeName)
+        public NamedPipeReadController(uint ProcessId, string PipeName) : base(ProcessId, PipeName)
         {
-            this.OnDataReceivedCallBack = OnDataReceivedCallBack;
-
             ProcessThread = new Thread(ReadProcess)
             {
                 Priority = ThreadPriority.Normal,

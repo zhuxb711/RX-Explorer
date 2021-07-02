@@ -1,4 +1,61 @@
 ﻿*****
+###Quoi de neuf dans la version 6.7.8.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la prise en charge de la création d'une "image BMP"
+
+>#####Ajout d'un indicateur d'ordre de filtrage et de tri à la page de recherche
+
+>#####Vous pouvez maintenant ajouter directement des dossiers en cliquant avec le bouton droit sur le nœud "Accès rapide" dans l'arborescence des répertoires
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Ajout d'une nouvelle icône pour les éléments de menu dans "Créer un fichier"
+
+>#####Amélioration du contraste de l'interface utilisateur dans plusieurs modes
+
+>#####Lors de la suppression définitive d'un fichier, un texte d'invite différent s'affichera
+
+>#####"Bibliothèques", "Lecteurs" et "Arborescence de répertoires" ont maintenant augmenté le nombre d'éléments de menu contextuel
+
+#####Amélioration des performances
+
+>#####Résolu le problème qui peut provoquer le blocage de l'interface utilisateur en cas de disque lent
+
+>#####Amélioration des performances du moteur de recherche intégré sur certains disques
+
+>#####Amélioration des performances des tâches de maintenance lors de la mise à niveau
+
+>#####Amélioration des performances lors de l'exportation d'un grand nombre de journaux
+
+>#####Amélioration des performances de calcul de la taille d'un dossier et du nombre de sous-fichiers ou sous-dossiers qu'il contient
+
+>#####Amélioration de la vitesse d'obtention des éléments du menu contextuel
+
+>#####Amélioration de la vitesse de lecture d'un grand nombre de fichiers de corbeille
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel "Récupérer le fond d'écran Bing" ne pouvait pas s'afficher correctement au démarrage
+
+>#####Correction du problème que le menu contextuel ne peut pas apparaître dans l'espace vide de l'arborescence des répertoires
+
+>#####Correction du problème selon lequel le canal de communication ne peut pas être fermé correctement après que le processus auxiliaire se bloque de manière inattendue et peut entraîner une utilisation élevée du processeur
+
+>#####Correction d'un problème qui pouvait empêcher l'interface utilisateur de répondre lors de la recherche
+
+>#####Correction du problème d'omissions possibles lors du filtrage des fichiers par couleur de marque
+
+>#####Correction du problème selon lequel lors de l'ajout ou de la suppression du contenu des "Bibliothèques", les modifications apportées au nœud "Accès rapide" de l'arborescence des répertoires ne seraient pas automatiquement synchronisées
+
+>#####Correction du problème selon lequel la logique d'ordre croissant et décroissant peut être incorrecte lors du basculement entre différentes bases de tri
+
+>#####Correction du problème pouvant provoquer un plantage lorsque le mode économiseur de batterie est activé
+
+>#####Correction du problème selon lequel le bouton de retour peut toujours être activé lorsque vous quittez la page de configuration sans utiliser le bouton de retour
+
+*****
 ###Quoi de neuf dans la version 6.7.4.0
 
 #####Mise à jour des fonctionnalités

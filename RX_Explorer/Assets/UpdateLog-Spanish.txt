@@ -1,4 +1,61 @@
 ﻿*****
+###Novedades de la versión 6.7.8.0
+
+#####Actualización de funciones
+
+>#####Soporte agregado para crear "imagen BMP"
+
+>#####Se agregó un indicador de orden de filtrado y clasificación a la página de búsqueda
+
+>#####Ahora puede agregar carpetas directamente haciendo clic derecho en el nodo "Acceso rápido" en el árbol de directorios
+
+#####actualización de la interfaz de usuario
+
+>#####Se agregó un nuevo ícono para los elementos del menú en "Crear archivo"
+
+>#####Se mejoró el contraste de la interfaz de usuario en múltiples modos
+
+>#####Al eliminar permanentemente un archivo, se mostrará un mensaje de texto diferente
+
+>#####"Bibliotecas", "Unidades" y "Árbol de directorios" ahora han ampliado el número de elementos del menú contextual
+
+#####Mejora del rendimiento
+
+>#####Resuelto el problema que puede hacer que la interfaz de usuario se congele cuando hay un disco lento
+
+>#####Se mejoró el rendimiento del motor de búsqueda integrado en algunos discos
+
+>#####Mejoró el rendimiento de realizar tareas de mantenimiento durante la actualización
+
+>#####Rendimiento mejorado al exportar una gran cantidad de registros
+
+>#####Se mejoró el rendimiento al calcular el tamaño de una carpeta y el número de subarchivos o subcarpetas que contiene
+
+>#####Se mejoró la velocidad de obtención de elementos del menú contextual
+
+>#####Se mejoró la velocidad de lectura de una gran cantidad de archivos de la papelera de reciclaje
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que "Obteniendo el fondo de pantalla de Bing" no se podía mostrar correctamente al inicio
+
+>#####Se solucionó el problema de que el menú contextual no podía aparecer en el espacio en blanco del árbol de directorios
+
+>#####Se solucionó el problema de que el canal de comunicación no se puede cerrar correctamente después de que el proceso auxiliar falla inesperadamente y puede causar un alto uso de CPU
+
+>#####Se solucionó un problema que podía hacer que la interfaz de usuario dejara de responder al buscar
+
+>#####Se solucionó el problema de posibles omisiones al filtrar archivos por color de marca
+
+>#####Se solucionó el problema de que al agregar o eliminar el contenido de "Bibliotecas", los cambios en el nodo "Acceso rápido" del árbol de directorios no se sincronizarán automáticamente
+
+>#####Se solucionó el problema de que la lógica de orden ascendente y descendente puede ser incorrecta al cambiar entre diferentes bases de clasificación
+
+>#####Se solucionó el problema que podía causar un bloqueo cuando se activa el modo de ahorro de batería
+
+>#####Se solucionó el problema de que el botón Atrás aún puede estar habilitado al salir de la página de configuración sin usar el botón Atrás
+
+*****
 ###Novedades de la versión 6.7.4.0
 
 #####Actualización de funciones

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DeferredEvents;
+using ShareClassLibrary;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -7,15 +9,15 @@ namespace RX_Explorer.Class
 {
     public sealed class NamedPipeReadController : NamedPipeControllerBase
     {
+        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-        private readonly Action<string> OnDataReceivedCallBack;
         private bool ExitSignal = false;
 
-        public static bool TryCreateNamedPipe(Action<string> OnDataReceivedCallBack, out NamedPipeReadController Controller)
+        public static bool TryCreateNamedPipe(out NamedPipeReadController Controller)
         {
             try
             {
-                Controller = new NamedPipeReadController(OnDataReceivedCallBack);
+                Controller = new NamedPipeReadController();
                 return true;
             }
             catch (Exception ex)
@@ -45,7 +47,7 @@ namespace RX_Explorer.Class
 
                             if (!string.IsNullOrEmpty(ReadText))
                             {
-                                OnDataReceivedCallBack?.Invoke(ReadText);
+                                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                             }
                         }
                         catch (Exception ex)
@@ -61,10 +63,8 @@ namespace RX_Explorer.Class
             }
         }
 
-        private NamedPipeReadController(Action<string> OnDataReceivedCallBack) : base()
+        private NamedPipeReadController()
         {
-            this.OnDataReceivedCallBack = OnDataReceivedCallBack;
-
             ProcessThread = new Thread(ReadProcess)
             {
                 Priority = ThreadPriority.Normal,

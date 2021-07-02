@@ -159,8 +159,6 @@ namespace RX_Explorer.Class
 
         private readonly NamedPipeWriteController PipeWriteController;
 
-        private event EventHandler<string> OnPipeDataReceived;
-
         private readonly AppServiceConnection Connection;
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
@@ -204,7 +202,7 @@ namespace RX_Explorer.Class
 
             if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
             {
-                if (NamedPipeReadController.TryCreateNamedPipe(PipeController_OnDataReceived, out NamedPipeReadController ReadController))
+                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController ReadController))
                 {
                     PipeReadController = ReadController;
                 }
@@ -223,11 +221,6 @@ namespace RX_Explorer.Class
 
             Connection.RequestReceived += Connection_RequestReceived;
             Connection.ServiceClosed += Connection_ServiceClosed;
-        }
-
-        private void PipeController_OnDataReceived(string Data)
-        {
-            OnPipeDataReceived?.Invoke(null, Data);
         }
 
         private static void Current_Resuming(object sender, object e)
@@ -1329,13 +1322,13 @@ namespace RX_Explorer.Class
                     {
                         TaskCompletionSource<List<ContextMenuItem>> CompletionSource = new TaskCompletionSource<List<ContextMenuItem>>();
 
-                        void PipeController_OnDataReceived(object sender, string Data)
+                        void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                         {
                             try
                             {
-                                if (Data != "<<<Error>>>")
+                                if (e.Data != "<<<Error>>>")
                                 {
-                                    CompletionSource.SetResult(JsonSerializer.Deserialize<ContextMenuPackage[]>(Data).Select((Item) => new ContextMenuItem(Item)).ToList());
+                                    CompletionSource.SetResult(JsonSerializer.Deserialize<ContextMenuPackage[]>(e.Data).Select((Item) => new ContextMenuItem(Item)).ToList());
                                 }
                                 else
                                 {
@@ -1350,7 +1343,7 @@ namespace RX_Explorer.Class
 
                         try
                         {
-                            OnPipeDataReceived += PipeController_OnDataReceived;
+                            PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
                             PipeCommand Command = new PipeCommand
                             {
@@ -1363,11 +1356,12 @@ namespace RX_Explorer.Class
                             };
 
                             PipeWriteController.SendData(JsonSerializer.Serialize(Command));
+                            
                             return await CompletionSource.Task;
                         }
                         finally
                         {
-                            OnPipeDataReceived -= PipeController_OnDataReceived;
+                            PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
                         }
                     }
                     else
@@ -2289,15 +2283,15 @@ namespace RX_Explorer.Class
                 {
                     TaskCompletionSource<List<IRecycleStorageItem>> CompletionSource = new TaskCompletionSource<List<IRecycleStorageItem>>();
 
-                    void PipeController_OnDataReceived(object sender, string Data)
+                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
                         try
                         {
                             List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>();
 
-                            if (Data != "<<<Error>>>")
+                            if (e.Data != "<<<Error>>>")
                             {
-                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Data);
+                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(e.Data);
 
                                 foreach (Dictionary<string, string> PropertyDic in JsonList)
                                 {
@@ -2323,7 +2317,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        OnPipeDataReceived += PipeController_OnDataReceived;
+                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
                         PipeCommand Command = new PipeCommand
                         {
@@ -2336,7 +2330,7 @@ namespace RX_Explorer.Class
                     }
                     finally
                     {
-                        OnPipeDataReceived -= PipeController_OnDataReceived;
+                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
                     }
                 }
                 else
@@ -2481,12 +2475,12 @@ namespace RX_Explorer.Class
 
                 if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
-                    void PipeController_OnDataReceived(object sender, string Data)
+                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    OnPipeDataReceived += PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2497,7 +2491,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value).AsTask();
 
-                    OnPipeDataReceived -= PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2594,12 +2588,12 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    void PipeController_OnDataReceived(object sender, string Data)
+                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    OnPipeDataReceived += PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2611,7 +2605,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    OnPipeDataReceived -= PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2763,12 +2757,12 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    void PipeController_OnDataReceived(object sender, string Data)
+                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Data), null));
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    OnPipeDataReceived += PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
                     ValueSet Value = new ValueSet
                     {
@@ -2780,7 +2774,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    OnPipeDataReceived -= PipeController_OnDataReceived;
+                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {

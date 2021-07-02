@@ -1,4 +1,61 @@
 ﻿*****
+###What's new in Ver.6.7.8.0
+
+#####Feature update
+
+>#####Added support for creating "BMP image"
+
+>#####Added filtering and sorting order indicator to the search page
+
+>#####Now you can directly add folders by right-clicking the "Quick Access" node in the directory tree
+
+#####UI update
+
+>#####Added a new icon for the menu items in "Create file"
+
+>#####Improved the contrast of UI in multiple modes
+
+>#####When permanently deleting a file, a different prompt text will be displayed
+
+>#####"Libraries", "Drives", and "Directory Tree" have now expanded the number of context menu items
+
+#####Performance improvement
+
+>#####Solved the problem that may cause the UI to freeze when there is a slow disk
+
+>#####Improved the performance of the built-in search engine on some disks
+
+>#####Improved the performance of performing maintenance tasks during upgrade
+
+>#####Improved performance when exporting a large number of logs
+
+>#####Improved the performance of calculating the size of a folder and the number of sub-files or sub-folders contained in it
+
+>#####Improved the speed of getting context menu items
+
+>#####Improved the speed of reading a large number of recycle bin files
+
+#####Bug fix
+
+>#####Fixed the problem that "Fetching Bing wallpaper" could not be displayed correctly at startup
+
+>#####Fixed the problem that the context menu cannot pop up in the blank space of the directory tree
+
+>#####Fixed the problem that the communication channel cannot be closed properly after the auxiliary process crashes unexpectedly and may cause high CPU usage
+
+>#####Fixed an issue that may cause the UI to become unresponsive when searching
+
+>#####Fixed the problem of possible omissions when filtering files by mark color
+
+>#####Fixed the problem that when adding or deleting the contents of "Libraries", the changes to the "Quick Access" node of the directory tree will not be automatically synchronized
+
+>#####Fixed the problem that the ascending and descending order logic may be incorrect when switching between different sorting basis
+
+>#####Fixed the problem that may cause a crash when the battery saver mode is activated
+
+>#####Fixed the problem that the back button may still be enabled when exiting the setting page without using the back button
+
+*****
 ###What's new in Ver.6.7.4.0
 
 #####Feature update

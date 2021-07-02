@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DeferredEvents;
+using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -340,11 +341,13 @@ namespace FullTrustProcess
             }
         }
 
-        private async static void PipeController_OnDataReceived(string Data)
+        private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
+            EventDeferral Deferral = e.GetDeferral();
+
             try
             {
-                PipeCommand Command = JsonSerializer.Deserialize<PipeCommand>(Data);
+                PipeCommand Command = JsonSerializer.Deserialize<PipeCommand>(e.Data);
 
                 switch (Command.CommandText)
                 {
@@ -364,6 +367,10 @@ namespace FullTrustProcess
             {
                 LogTracer.Log(ex, "An exception was threw in responding pipe message");
                 PipeWriteController?.SendData("<<<Error>>>");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -2152,7 +2159,8 @@ namespace FullTrustProcess
 
                                 if (PipeReadController == null && args.Request.Message.TryGetValue("PipeWriteId", out object PipeWriteId))
                                 {
-                                    PipeReadController = new NamedPipeReadController(PipeController_OnDataReceived, Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeWriteId}");
+                                    PipeReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeWriteId}");
+                                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
                                 }
 
                                 if (PipeWriteController == null && args.Request.Message.TryGetValue("PipeReadId", out object PipeReadId))
