@@ -81,6 +81,7 @@ namespace RX_Explorer
         private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding Enco)
         {
             LoadingControl.IsLoading = true;
+            await Task.Delay(500);
 
             try
             {

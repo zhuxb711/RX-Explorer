@@ -19,13 +19,13 @@ namespace RX_Explorer
 {
     public sealed partial class CropperPage : Page
     {
-        private SoftwareBitmap OriginImage;
-        private SoftwareBitmap OriginBackupImage;
-        private SoftwareBitmap FilterImage;
-        private SoftwareBitmap FilterBackupImage;
-        private FileSystemStorageFile OriginFile;
-        private Rect UnchangedRegion;
-        private readonly ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
+        SoftwareBitmap OriginImage;
+        SoftwareBitmap OriginBackupImage;
+        SoftwareBitmap FilterImage;
+        SoftwareBitmap FilterBackupImage;
+        FileSystemStorageFile OriginFile;
+        Rect UnchangeRegion;
+        ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
 
         public CropperPage()
         {
@@ -54,7 +54,7 @@ namespace RX_Explorer
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
-                    UnchangedRegion = Cropper.CroppedRegion;
+                    UnchangeRegion = Cropper.CroppedRegion;
 
                     await AddEffectsToPane().ConfigureAwait(false);
                 }
@@ -283,7 +283,7 @@ namespace RX_Explorer
 
         private void Cropper_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (Cropper.CroppedRegion != UnchangedRegion)
+            if (Cropper.CroppedRegion != UnchangeRegion)
             {
                 ResetButton.IsEnabled = true;
             }

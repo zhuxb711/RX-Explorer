@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -120,13 +119,11 @@ namespace RX_Explorer.Class
 
         private static readonly object Locker = new object();
 
-        public static Color SolidColor_WhiteTheme { get; } = Colors.White;
-
-        public static Color SolidColor_BlackTheme { get; } = "#1E1E1E".ToColor();
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly UISettings UIS;
+
+        private bool IsInitialized;
 
         /// <summary>
         /// 获取背景控制器的实例
@@ -160,11 +157,11 @@ namespace RX_Explorer.Class
             {
                 if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
                 {
-                    SolidColorBackgroundBrush = new SolidColorBrush(SolidColor_WhiteTheme);
+                    SolidColorBackgroundBrush = new SolidColorBrush(Colors.White);
                 }
                 else
                 {
-                    SolidColorBackgroundBrush = new SolidColorBrush(SolidColor_BlackTheme);
+                    SolidColorBackgroundBrush = new SolidColorBrush("#1E1E1E".ToColor());
                 }
             }
 
@@ -177,7 +174,7 @@ namespace RX_Explorer.Class
                             AcrylicBackgroundBrush = new AcrylicBrush
                             {
                                 BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.SlateGray,
+                                TintColor = Colors.LightSlateGray,
                                 TintOpacity = 0.4,
                                 FallbackColor = Colors.DimGray
                             };
@@ -191,7 +188,7 @@ namespace RX_Explorer.Class
                             AcrylicBackgroundBrush = new AcrylicBrush
                             {
                                 BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.SlateGray,
+                                TintColor = Colors.LightSlateGray,
                                 TintOpacity = 0.4,
                                 FallbackColor = Colors.DimGray
                             };
@@ -200,46 +197,12 @@ namespace RX_Explorer.Class
                             {
                                 AppThemeController.Current.Theme = ElementTheme.Light;
                             }
-                            else if (SolidColorBackgroundBrush.Color == SolidColor_BlackTheme && AppThemeController.Current.Theme == ElementTheme.Light)
+                            else if (SolidColorBackgroundBrush.Color == "#1E1E1E".ToColor() && AppThemeController.Current.Theme == ElementTheme.Light)
                             {
                                 AppThemeController.Current.Theme = ElementTheme.Dark;
                             }
 
                             CurrentType = BackgroundBrushType.SolidColor;
-
-                            if (Application.Current.Resources.MergedDictionaries.FirstOrDefault((Res) => Res.Source.AbsoluteUri.Contains("GlobeDictionary.xaml")) is ResourceDictionary GlobeDictionary)
-                            {
-                                foreach (string DicKey in new string[] { "Dark", "Light" })
-                                {
-                                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
-                                    {
-                                        if (Dictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
-                                        {
-                                            ElementBrushInstance.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
-                                        {
-                                            TreeViewBrushInstance1.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
-                                        {
-                                            TreeViewBrushInstance2.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
-                                        {
-                                            TreeViewBrushInstance3.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
-                                        {
-                                            TabViewBrushInstance.AlwaysUseFallback = true;
-                                        }
-                                    }
-                                }
-                            }
 
                             break;
                         }
@@ -252,7 +215,7 @@ namespace RX_Explorer.Class
                                     AcrylicBackgroundBrush = new AcrylicBrush
                                     {
                                         BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.LightSlateGray,
                                         TintOpacity = 1 - TintOpacity,
                                         TintLuminosityOpacity = 1 - TintLuminosity,
                                         FallbackColor = Colors.DimGray
@@ -263,7 +226,7 @@ namespace RX_Explorer.Class
                                     AcrylicBackgroundBrush = new AcrylicBrush
                                     {
                                         BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.LightSlateGray,
                                         TintOpacity = 1 - TintOpacity,
                                         FallbackColor = Colors.DimGray
                                     };
@@ -274,7 +237,7 @@ namespace RX_Explorer.Class
                                 AcrylicBackgroundBrush = new AcrylicBrush
                                 {
                                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                    TintColor = Colors.SlateGray,
+                                    TintColor = Colors.LightSlateGray,
                                     TintOpacity = 0.4,
                                     FallbackColor = Colors.DimGray
                                 };
@@ -299,7 +262,7 @@ namespace RX_Explorer.Class
                 AcrylicBackgroundBrush = new AcrylicBrush
                 {
                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                    TintColor = Colors.SlateGray,
+                    TintColor = Colors.LightSlateGray,
                     TintOpacity = 0.4,
                     FallbackColor = Colors.DimGray
                 };
@@ -353,12 +316,14 @@ namespace RX_Explorer.Class
                 {
                     if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
                     {
-                        SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
+                        SolidColorBackgroundBrush.Color = Colors.White;
+
                         AppThemeController.Current.Theme = ElementTheme.Light;
                     }
                     else
                     {
-                        SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
+                        SolidColorBackgroundBrush.Color = "#1E1E1E".ToColor();
+
                         AppThemeController.Current.Theme = ElementTheme.Dark;
                     }
 
@@ -369,71 +334,78 @@ namespace RX_Explorer.Class
 
         public async Task InitializeAsync()
         {
-            try
+            if (!IsInitialized)
             {
-                switch (CurrentType)
+                try
                 {
-                    case BackgroundBrushType.Picture:
-                        {
-                            string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
-
-                            if (!string.IsNullOrEmpty(UriString))
+                    switch (CurrentType)
+                    {
+                        case BackgroundBrushType.Picture:
                             {
-                                BitmapImage Bitmap = new BitmapImage();
+                                string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
 
-                                PictureBackgroundBrush.ImageSource = Bitmap;
-
-                                try
+                                if (!string.IsNullOrEmpty(UriString))
                                 {
-                                    StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+                                    BitmapImage Bitmap = new BitmapImage();
 
-                                    using (IRandomAccessStream Stream = await File.OpenReadAsync())
+                                    PictureBackgroundBrush.ImageSource = Bitmap;
+
+                                    try
+                                    {
+                                        StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                                        using (IRandomAccessStream Stream = await File.OpenReadAsync())
+                                        {
+                                            await Bitmap.SetSourceAsync(Stream);
+                                        }
+
+                                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, $"PicturePath is \"{UriString}\" but could not found, {nameof(BackgroundController.InitializeAsync)} is not finished");
+                                    }
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"PicturePath is empty, {nameof(BackgroundController.InitializeAsync)} is not finished");
+                                }
+
+                                break;
+                            }
+
+                        case BackgroundBrushType.BingPicture:
+                            {
+                                if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile ImageFile)
+                                {
+                                    BitmapImage Bitmap = new BitmapImage();
+
+                                    BingPictureBursh.ImageSource = Bitmap;
+
+                                    using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                                     {
                                         await Bitmap.SetSourceAsync(Stream);
                                     }
 
                                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    LogTracer.Log(ex, $"PicturePath is \"{UriString}\" but could not found, {nameof(BackgroundController.InitializeAsync)} is not finished");
-                                }
-                            }
-                            else
-                            {
-                                LogTracer.Log($"PicturePath is empty, {nameof(BackgroundController.InitializeAsync)} is not finished");
-                            }
-
-                            break;
-                        }
-
-                    case BackgroundBrushType.BingPicture:
-                        {
-                            if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile ImageFile)
-                            {
-                                BitmapImage Bitmap = new BitmapImage();
-
-                                BingPictureBursh.ImageSource = Bitmap;
-
-                                using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
-                                {
-                                    await Bitmap.SetSourceAsync(Stream);
+                                    LogTracer.Log("Download Bing picture failed, BackgroundController.Initialize is not finished");
                                 }
 
-                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                break;
                             }
-                            else
-                            {
-                                LogTracer.Log("Download Bing picture failed, BackgroundController.Initialize is not finished");
-                            }
-
-                            break;
-                        }
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Exception happend when loading image for background");
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Exception happend when loading image for background");
+                }
+                finally
+                {
+                    IsInitialized = true;
+                }
             }
         }
 
@@ -625,12 +597,12 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            return Colors.SlateGray;
+                            return Colors.DimGray;
                         }
                     }
                     else
                     {
-                        return Colors.SlateGray;
+                        return Colors.DimGray;
                     }
                 }
                 else
@@ -671,14 +643,14 @@ namespace RX_Explorer.Class
             {
                 case BackgroundBrushType.Picture:
                     {
-                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
+                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
 
                         break;
                     }
                 case BackgroundBrushType.BingPicture:
                     {
-                        BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.BingPicture)}', parameter: '{nameof(Background)}' could not be null");
+                        BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.BingPicture, parameter: 'Background' could not be null");
                         break;
                     }
                 case BackgroundBrushType.SolidColor:
@@ -689,58 +661,30 @@ namespace RX_Explorer.Class
 
                             if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
                             {
-                                SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
+                                SolidColorBackgroundBrush.Color = Colors.White;
                                 AppThemeController.Current.Theme = ElementTheme.Light;
                             }
                             else
                             {
-                                SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
+                                SolidColorBackgroundBrush.Color = "#1E1E1E".ToColor();
                                 AppThemeController.Current.Theme = ElementTheme.Dark;
                             }
                         }
                         else
                         {
+                            AppThemeController.Current.Theme = Color == Colors.White ? ElementTheme.Light : ElementTheme.Dark;
+
                             SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
-                            AppThemeController.Current.Theme = Color == SolidColor_WhiteTheme ? ElementTheme.Light : ElementTheme.Dark;
+
                             ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
                         }
 
                         break;
                     }
-            }
-
-            if (Application.Current.Resources.MergedDictionaries.FirstOrDefault((Res) => Res.Source.AbsoluteUri.Contains("GlobeDictionary.xaml")) is ResourceDictionary GlobeDictionary)
-            {
-                foreach (string DicKey in new string[] { "Dark", "Light" })
-                {
-                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
+                case BackgroundBrushType.Acrylic:
                     {
-                        if (Dictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
-                        {
-                            ElementBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
-                        {
-                            TreeViewBrushInstance1.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
-                        {
-                            TreeViewBrushInstance2.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
-                        {
-                            TreeViewBrushInstance3.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
-                        {
-                            TabViewBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
+                        break;
                     }
-                }
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));

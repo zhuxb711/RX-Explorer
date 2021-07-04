@@ -395,7 +395,7 @@ namespace RX_Explorer
 
                     foreach (StorageFile ImportFile in FileList)
                     {
-                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreateFromStorageItemAsync(ImportFile);
+                        FileSystemStorageFile File = await FileSystemStorageItemBase.CreateByStorageItemAsync(ImportFile);
 
                         if (File != null)
                         {
@@ -668,10 +668,7 @@ namespace RX_Explorer
                                     ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                 });
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}", true);
-                                }
+                                await DecryptedFile.RenameAsync(SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}");
                             }
 
                             SecureCollection.Remove(OriginFile);
@@ -792,10 +789,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
-                    }
+                    await RenameItem.RenameAsync(NewName);
                 }
             }
         }

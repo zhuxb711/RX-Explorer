@@ -1,0 +1,17 @@
+﻿<local:QueueContentDialog
+    x:Class="RX_Explorer.Dialog.DeleteDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RX_Explorer.Class"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="{x:Bind local:Globalization.GetString('Common_Dialog_WarningTitle')}"
+    PrimaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_ContinueButton')}"
+    SecondaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_CancelButton')}">
+
+    <Grid>
+        <TextBlock x:Name="DisplayText"
+                   VerticalAlignment="Center" />
+    </Grid>
+</local:QueueContentDialog>

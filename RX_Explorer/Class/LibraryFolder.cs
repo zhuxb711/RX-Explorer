@@ -19,27 +19,19 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return LibFolder.DisplayName;
+                return Folder.DisplayName;
             }
         }
 
         /// <summary>
         /// 文件夹缩略图
         /// </summary>
-        public BitmapImage Thumbnail { get; }
+        public BitmapImage Thumbnail { get; private set; }
 
         /// <summary>
         /// 文件夹对象
         /// </summary>
-        public StorageFolder LibFolder { get; }
-
-        public string Path
-        {
-            get
-            {
-                return LibFolder.Path;
-            }
-        }
+        public StorageFolder Folder { get; private set; }
 
         /// <summary>
         /// 文件夹的类型
@@ -69,7 +61,7 @@ namespace RX_Explorer.Class
 
         private LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
         {
-            this.LibFolder = Folder ?? throw new FileNotFoundException();
+            this.Folder = Folder ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
             this.Type = Type;
         }

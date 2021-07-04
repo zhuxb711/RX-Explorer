@@ -27,16 +27,16 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="):"
-                               FontSize="40" />
+                               FontSize="50" />
                     <TextBlock Text="Oops..."
                                TextTrimming="CharacterEllipsis"
-                               FontSize="40"
+                               FontSize="50"
                                Margin="30,0,0,0" />
                 </StackPanel>
 
                 <TextBlock x:Uid="CrashText"
                            Text="不小心崩溃了...(╯‵□′)╯︵┻━┻"
-                           FontSize="25"
+                           FontSize="30"
                            TextTrimming="CharacterEllipsis"
                            Margin="0,30,0,0" />
             </StackPanel>
@@ -47,7 +47,7 @@
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollMode="Enabled"
                           HorizontalScrollBarVisibility="Auto">
-                <TextBlock FontSize="16"
+                <TextBlock FontSize="18"
                            Name="Message"
                            TextWrapping="WrapWholeWords" />
             </ScrollViewer>
@@ -57,11 +57,13 @@
                         VerticalAlignment="Bottom"
                         Grid.Row="2">
                 <Button Content="报告给开发者"
+                        Padding="10"
                         x:Uid="BlueScreenReport"
                         Name="Report"
                         Click="Report_Click" />
                 <Button Content="导出错误日志"
-                        Margin="5,0,0,0"
+                        Margin="10,0,0,0"
+                        Padding="10"
                         x:Uid="ExportLog"
                         Name="ExportLog"
                         Click="ExportLog_Click" />

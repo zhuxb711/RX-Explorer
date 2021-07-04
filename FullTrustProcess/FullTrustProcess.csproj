@@ -88,18 +88,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContextMenu.cs" />
-    <Compile Include="ElevationCopyData.cs" />
-    <Compile Include="ElevationDataBase.cs" />
-    <Compile Include="ElevationDeleteData.cs" />
-    <Compile Include="ElevationMoveData.cs" />
-    <Compile Include="ElevationRenameData.cs" />
     <Compile Include="EverythingConnector.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="LogTracer.cs" />
-    <Compile Include="NamedPipeControllerBase.cs" />
-    <Compile Include="NamedPipeReadController.cs" />
-    <Compile Include="NamedPipeWriteController.cs" />
+    <Compile Include="MIMEHelper.cs" />
     <Compile Include="RemoteDataObject.cs" />
     <Compile Include="StorageController.cs" />
     <Compile Include="Program.cs" />
@@ -128,9 +121,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DeferredEvents">
-      <Version>1.0.5</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
       <Version>5.0.3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -166,9 +156,6 @@
       <Version>3.3.10</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
-      <Version>3.3.10</Version>
-    </PackageReference>
-    <PackageReference Include="Vanara.PInvoke.UserEnv">
       <Version>3.3.10</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">

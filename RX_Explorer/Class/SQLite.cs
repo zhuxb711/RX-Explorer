@@ -763,6 +763,15 @@ namespace RX_Explorer.Class
             }
         }
 
+        public void DeleteQuickStartItem(QuickStartType Type)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Type=@Type", Connection))
+            {
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                Command.ExecuteNonQuery();
+            }
+        }
+
         public void DeleteQuickStartItem(string Name, string Protocol, string FullPath, string Type)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And Protocal = @Protocol And FullPath = @FullPath And Type=@Type", Connection))

@@ -81,14 +81,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool IsFullTrustProcessNeeded
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         public async Task LaunchAsync()
         {
             try
@@ -165,6 +157,11 @@ namespace RX_Explorer.Class
         public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
+        }
+
+        protected override bool FullTrustProcessIsNeeded()
+        {
+            return true;
         }
 
         protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)

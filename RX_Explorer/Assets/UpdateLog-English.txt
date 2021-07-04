@@ -1,146 +1,4 @@
 ﻿*****
-###What's new in Ver.6.7.8.0
-
-#####Feature update
-
->#####Added support for creating "BMP image"
-
->#####Added filtering and sorting order indicator to the search page
-
->#####Now you can directly add folders by right-clicking the "Quick Access" node in the directory tree
-
-#####UI update
-
->#####Added a new icon for the menu items in "Create file"
-
->#####Improved the contrast of UI in multiple modes
-
->#####When permanently deleting a file, a different prompt text will be displayed
-
->#####"Libraries", "Drives", and "Directory Tree" have now expanded the number of context menu items
-
-#####Performance improvement
-
->#####Solved the problem that may cause the UI to freeze when there is a slow disk
-
->#####Improved the performance of the built-in search engine on some disks
-
->#####Improved the performance of performing maintenance tasks during upgrade
-
->#####Improved performance when exporting a large number of logs
-
->#####Improved the performance of calculating the size of a folder and the number of sub-files or sub-folders contained in it
-
->#####Improved the speed of getting context menu items
-
->#####Improved the speed of reading a large number of recycle bin files
-
-#####Bug fix
-
->#####Fixed the problem that "Fetching Bing wallpaper" could not be displayed correctly at startup
-
->#####Fixed the problem that the context menu cannot pop up in the blank space of the directory tree
-
->#####Fixed the problem that the communication channel cannot be closed properly after the auxiliary process crashes unexpectedly and may cause high CPU usage
-
->#####Fixed an issue that may cause the UI to become unresponsive when searching
-
->#####Fixed the problem of possible omissions when filtering files by mark color
-
->#####Fixed the problem that when adding or deleting the contents of "Libraries", the changes to the "Quick Access" node of the directory tree will not be automatically synchronized
-
->#####Fixed the problem that the ascending and descending order logic may be incorrect when switching between different sorting basis
-
->#####Fixed the problem that may cause a crash when the battery saver mode is activated
-
->#####Fixed the problem that the back button may still be enabled when exiting the setting page without using the back button
-
-*****
-###What's new in Ver.6.7.4.0
-
-#####Feature update
-
->#####Undo task now supports "Rename" operation
-
->#####It is now supported to request administrator permissions to perform certain operations if necessary
-
->#####Improved the communication mechanism with auxiliary processes
-
-#####UI update
-
->#####Optimized the display effect in "Recommended" mode
-
->#####Enhanced the contrast of some controls in "Solid Color" mode
-
->#####Now you can create various types of files directly in the right-click menu
-
-#####Bug fix
-
->#####Fixed the problem of duplicate pictures in the list in "Picture Background" mode in some cases
-
->#####Fixed the scheduling problem of "Task List" when quickly creating tasks, which may cause all tasks to be executed concurrently in some cases
-
->#####Fixed the problem of deleting to the recycle bin when clicking the "Delete" button while pressing "Shift"
-
->#####Fixed some translation problems
-
-*****
-###What's new in Ver.6.7.2.0
-
-#####Feature update
-
->#####Now the built-in media player can continue to play media content when minimized
-
->#####Now you can open the folder in a new tab by Ctrl + Double-clicking
-
-#####UI update
-
->#####Adjusted the color of some acrylic materials
-
-#####Bug fix
-
->#####Fixed the problem that the homepage loading was too slow at startup
-
-*****
-###What's new in Ver.6.7.1.0
-
-#####Feature update
-
->#####Optimized the mechanism when Win+E is enabled and improved the success rate
-
->#####When the task list is hidden, a small progress bar will be displayed to indicate the total progress of all tasks
-
->#####"Quick Access" was created by default in the directory tree
-
->#####Added "Close all tabs on the right" option in right-click menu of tabs
-
-#####UI update
-
->#####"Vertical Split View" ends beta and now requires payment to unlock
-
->#####When you right-click the directory tree, it will no longer automatically jump to the corresponding folder
-
->#####Optimized the UI color and display effect when using the solid color theme or turning off the Acrylic
-
-#####Bug fix
-
->#####Fixed the problem that "Quick Start" could not pop up on some small screens
-
->#####Fixed the problem that some applications cannot be adjusted to the top when they are launched
-
->#####Fixed the problem that although the built-in viewer does not support GIF files, the GIF file can still be opened through the built-in viewer in some cases
-
->#####Fixed the problem that may cause a crash when using filtering in a folder that does not have a color tag
-
->#####Fixed the problem that the prompt ask for change the theme may pop up again when entering the settings page
-
->#####Fixed the problem that would cause a crash when opening root directory in a new tab page
-
->#####Fixed a problem that may cause a crash when opening the properties window
-
->#####Fixed the problems related to auxiliary process scheduling
-
-*****
 ###What's new in Ver.6.6.8.0
 
 #####Performance improvement
@@ -2422,9 +2280,9 @@
 
 #####Bug fix
 
->#####Resolved an issue that could prevent normal blue screen entry
+>######Resolved an issue that could prevent normal blue screen entry
 
->#####Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
+>######Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
 
 *****
 ###What's new in Ver.4.3.5.0
@@ -2887,13 +2745,13 @@
 
 >#####Using C # 8.0 features -<asynchronous streaming traversal>- improves data acquisition speed in some scenarios
 
->#####Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
+>######Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
 
 #####Bug fix
 
->#####Solved the problem that users may not display correctly after importing background images
+>######Solved the problem that users may not display correctly after importing background images
 
->#####Fixed the problem of scrolling animation of picture list when switching between different background modes
+>######Fixed the problem of scrolling animation of picture list when switching between different background modes
 
 *****
 ###What's new in Ver.3.6.0.0
@@ -2904,13 +2762,13 @@
 
 #####Bug fix
 
->#####Resolved an issue that could cause RX to crash when returning directly to the main interface
+>######Resolved an issue that could cause RX to crash when returning directly to the main interface
 
 >#####Performance improvements
 
->#####Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
+>######Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
 
->#####Improved the way to get feedback data, reduce network usage, and improve interface response speed
+>######Improved the way to get feedback data, reduce network usage, and improve interface response speed
 
 *****
 ###What's new in Ver.3.5.7.0

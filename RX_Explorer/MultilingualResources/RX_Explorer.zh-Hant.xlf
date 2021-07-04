@@ -250,9 +250,17 @@
           <source>Empty</source>
           <target state="translated" state-qualifier="tm-suggestion">空白</target>
         </trans-unit>
+        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="translated">取消釘選</target>
+        </trans-unit>
         <trans-unit id="LibraryExpander.Text" translate="yes" xml:space="preserve">
           <source>Library</source>
           <target state="translated">資料庫</target>
+        </trans-unit>
+        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated" state-qualifier="tm-suggestion">開啟</target>
         </trans-unit>
         <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
           <source>Confirm</source>
@@ -281,6 +289,38 @@
         <trans-unit id="MergeDialogText.Text" translate="yes" xml:space="preserve">
           <source>Merge</source>
           <target state="translated" state-qualifier="tm-suggestion">合併</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated" state-qualifier="tm-suggestion">取消</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated" state-qualifier="tm-suggestion">確認</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create new file</source>
+          <target state="translated">新增檔案</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
+          <source>File name</source>
+          <target state="translated">檔案名稱</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter file name</source>
+          <target state="translated" state-qualifier="tm-suggestion">輸入檔案名稱</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The file type you specified does not meet the specifications. Please re-enter</source>
+          <target state="translated">您指定的檔案類型不符合規定。 請重新輸入</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
+          <source>Malformed</source>
+          <target state="translated" state-qualifier="tm-suggestion">格式不正確</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter or select a type</source>
+          <target state="translated">輸入或選擇一種類型</target>
         </trans-unit>
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
@@ -1064,6 +1104,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Language</source>
           <target state="translated" state-qualifier="tm-suggestion">語言</target>
         </trans-unit>
+        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
+          <target state="translated">您可以手動輸入需要新增的檔案類型，也可以選擇RX 檔案總管預定義的檔案類型。 但是RX 檔案總管預只能保證正確新增預定義的類型。它不能保證您手動輸入的類型是否可以正確新增。</target>
+        </trans-unit>
+        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
+          <source>Explanation</source>
+          <target state="translated">說明</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
+          <source>File type</source>
+          <target state="translated" state-qualifier="tm-suggestion">檔案類型</target>
+        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">讀取可能會延遲</target>
@@ -1504,6 +1556,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">新增</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
+          <source>Create file</source>
+          <target state="translated">新增檔案</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
           <source>Create folder</source>
@@ -2806,7 +2862,7 @@ Invalid names include
           <target state="translated">創建新的垂直拆分視圖</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tabs but this</source>
+          <source>Close all tab but this</source>
           <target state="translated">關閉除此以外所有選項卡</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
@@ -3830,8 +3886,8 @@ Invalid names include
           <target state="translated">需要重啟</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
-          <source>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</source>
-          <target state="translated">與輔助過程的連接已中斷。 可能是因為 Windows 系統資源不足而被終止，或者輔助進程意外崩潰</target>
+          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
+          <target state="translated">輔助進程意外退出，這可能導致某些功能無法正常工作</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>
@@ -4107,8 +4163,8 @@ Invalid names include
           <target state="translated">快速訪問</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close all tabs on the right</source>
-          <target state="translated">關閉右側的所有選項卡</target>
+          <source>Close the tab on the right</source>
+          <target state="translated">關閉右側的選項卡</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>
@@ -4125,30 +4181,6 @@ Invalid names include
         <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
           <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
           <target state="translated">立即獲得周年紀念折扣！以50%的折扣購買正式版並解鎖新功能</target>
-        </trans-unit>
-        <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
-          <source>New file</source>
-          <target state="translated">新建文件</target>
-        </trans-unit>
-        <trans-unit id="SettingManageConfigContent.Text" translate="yes" xml:space="preserve">
-          <source>Perform save or restore configuration operations</source>
-          <target state="translated">執行保存或恢復配置操作</target>
-        </trans-unit>
-        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
-          <source>BMP image</source>
-          <target state="translated">BMP圖像</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Unpin" translate="yes" xml:space="preserve">
-          <source>Unpin</source>
-          <target state="translated">取消固定</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_DeleteFilesPermanent_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete these files. Whether to continue?</source>
-          <target state="translated">此操作將永久刪除這些文件，是否繼續？</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
-          <source>This will permanently delete everything in the folder. Whether to continue?</source>
-          <target state="translated">這將永久刪除文件夾中的所有內容。 是否繼續？</target>
         </trans-unit>
       </group>
     </body>

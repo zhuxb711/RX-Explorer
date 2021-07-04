@@ -10,7 +10,7 @@
       xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
-      Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
+      Background="{StaticResource ElementAcrylicBrush}">
 
     <Page.Resources>
         <ItemsPanelTemplate x:Name="VerticalPanel">
@@ -19,6 +19,12 @@
         <ItemsPanelTemplate x:Name="HorizontalPanel">
             <VirtualizingStackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
+
+        <AcrylicBrush x:Key="AppBarCommandBackground"
+                      BackgroundSource="Backdrop"
+                      TintLuminosityOpacity="0.5"
+                      TintColor="{ThemeResource SystemAltMediumColor}"
+                      FallbackColor="{ThemeResource SystemAccentColor}" />
     </Page.Resources>
     
     <Grid>
@@ -28,7 +34,7 @@
         </Grid.RowDefinitions>
         <CommandBar DefaultLabelPosition="Right"
                     VerticalContentAlignment="Center"
-                    Background="{ThemeResource ElementAcrylicBrush}">
+                    Background="{StaticResource AppBarCommandBackground}">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="Zoom"
                               Icon="Zoom"
@@ -41,7 +47,7 @@
                                     <Setter Property="CornerRadius"
                                             Value="0" />
                                     <Setter Property="Background"
-                                            Value="{ThemeResource SystemControlChromeMediumLowAcrylicElementMediumBrush}" />
+                                            Value="{StaticResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                 </Style>
                             </Flyout.FlyoutPresenterStyle>
                             <StackPanel Orientation="Horizontal">
@@ -91,16 +97,14 @@
                         <TextBox x:Name="TextBoxControl"
                                  MinWidth="30" 
                                  MinHeight="25"
-                                 Height="26"
-                                 Padding="5,2"
-                                 VerticalAlignment="Center"
+                                 Height="28"
+                                 Padding="5,3"
                                  IsSpellCheckEnabled="False"
                                  KeyDown="TextBoxControl_KeyDown"
                                  LostFocus="TextBoxControl_LostFocus"
                                  TextAlignment="Center"/>
                         <TextBlock Text="/"
                                    Margin="5,0"
-                                   Padding="0,0,0,3"
                                    VerticalAlignment="Center" />
                         <TextBlock x:Name="NumIndicator"
                                    VerticalAlignment="Center" />
@@ -144,9 +148,9 @@
                           IsLoading="False"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
-                                    TintOpacity="0.6"
-                                    BlurAmount="3" />
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock FontSize="16"

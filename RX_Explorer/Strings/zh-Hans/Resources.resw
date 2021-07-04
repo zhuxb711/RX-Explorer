@@ -186,8 +186,14 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
   </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>取消固定</value>
+  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>文件夹和库</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>打开</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>确定</value>
@@ -209,6 +215,30 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>合并</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>新建文件</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>输入新建文件名</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>您所指定的文件类型不符合规范，请重新输入</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>格式不正确</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>输入或选择一种类型</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>打开</value>
@@ -796,6 +826,15 @@
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>语言</value>
   </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>文件类型</value>
+  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>加载可能存在延迟</value>
   </data>
@@ -1131,6 +1170,9 @@
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>新建</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>新建文件</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>新建文件夹</value>
@@ -2886,7 +2928,7 @@
     <value>需要重新启动</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>与辅助进程的连接已中断，可能是因为Windows缺少系统资源而终止，或者是因为辅助进程意外崩溃</value>
+    <value>辅助进程意外退出，这可能导致某些功能无法正常工作</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>关键错误</value>
@@ -3094,7 +3136,7 @@
     <value>快速访问</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>关闭右侧所有的标签页</value>
+    <value>关闭右侧标签页</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>立即获取</value>
@@ -3107,23 +3149,5 @@
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>立即获得周年纪念折扣！以50%的折扣购买正式版并解锁新功能 </value>
-  </data>
-  <data name="NewFile_Admin_Name" xml:space="preserve">
-    <value>新建文件</value>
-  </data>
-  <data name="SettingManageConfigContent.Text" xml:space="preserve">
-    <value>执行保存或恢复配置操作</value>
-  </data>
-  <data name="File_Type_Bmp_Description" xml:space="preserve">
-    <value>BMP图像</value>
-  </data>
-  <data name="Operate_Text_Unpin" xml:space="preserve">
-    <value>取消固定</value>
-  </data>
-  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
-    <value>此操作将永久删除这些文件，是否继续？</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
-    <value>这将永久删除文件夹中的所有内容，是否继续？</value>
   </data>
 </root>

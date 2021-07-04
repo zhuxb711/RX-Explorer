@@ -65,19 +65,20 @@ namespace RX_Explorer
 
         private void ExtendedSplash_Loaded(object sender, RoutedEventArgs e)
         {
-            SetControlsPosition();
+            SetControlPosition();
+
             Window.Current.SizeChanged += Current_SizeChanged;
         }
 
-        private void SetControlsPosition()
+        private void SetControlPosition()
         {
             double HorizonLocation = Splash.ImageLocation.X + (Splash.ImageLocation.Width * 0.5);
             double VerticalLocation = Splash.ImageLocation.Y + (Splash.ImageLocation.Height * 0.7);
 
-            PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.ActualWidth * 0.5));
+            PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.Width * 0.5));
             PermissionArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
 
-            LoadingBingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingBingArea.ActualWidth * 0.5));
+            LoadingBingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingBingArea.Width * 0.5));
             LoadingBingArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
 
             extendedSplashImage.SetValue(Canvas.LeftProperty, Splash.ImageLocation.X);
@@ -96,24 +97,24 @@ namespace RX_Explorer
                     if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
                     {
                         LoadingBingArea.Visibility = Visibility.Visible;
-                        LoadingBingArea.UpdateLayout();
-                        SetControlsPosition();
                     }
 
                     await BackgroundController.Current.InitializeAsync();
 
                     Frame RootFrame = new Frame();
+                    Window.Current.Content = RootFrame;
 
                     if ((Parameter?.Count).GetValueOrDefault() == 0)
                     {
-                        RootFrame.Content = new MainPage(Splash.ImageLocation);
+                        MainPage Main = new MainPage(Splash.ImageLocation);
+                        RootFrame.Content = Main;
                     }
                     else
                     {
-                        RootFrame.Content = new MainPage(Splash.ImageLocation, Parameter);
-                    }
+                        MainPage Main = new MainPage(Splash.ImageLocation, Parameter);
 
-                    Window.Current.Content = RootFrame;
+                        RootFrame.Content = Main;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -139,9 +140,6 @@ namespace RX_Explorer
                         Display.Text = Globalization.GetString("ExtendedSplash_Access_Tips");
                         PermissionArea.Visibility = Visibility.Visible;
                         LoadingBingArea.Visibility = Visibility.Collapsed;
-                        PermissionArea.UpdateLayout();
-                        LoadingBingArea.UpdateLayout();
-                        SetControlsPosition();
                     });
                 }
             }
@@ -198,7 +196,7 @@ namespace RX_Explorer
         {
             if (Splash != null)
             {
-                SetControlsPosition();
+                SetControlPosition();
             }
         }
     }

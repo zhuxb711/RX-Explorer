@@ -186,8 +186,14 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vide</value>
   </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>Détacher</value>
+  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Bibliothèque</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>Ouvrir</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirmer</value>
@@ -209,6 +215,30 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Fusionner</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>Créer un nouveau fichier</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>Nom de fichier</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>Entrer un nom de fichier</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>Le type de fichier spécifié n'est pas valable. Veuillez réessayer</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>Malformé</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>Entrer ou sélectionner un type</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Ouvrir</value>
@@ -796,6 +826,15 @@
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Langue</value>
   </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>Explication</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>Type de fichier</value>
+  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Il peut y avoir un retard dans le chargement</value>
   </data>
@@ -1131,6 +1170,9 @@
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Nouveau</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Fichier</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Dossier</value>
@@ -2117,7 +2159,7 @@ Les noms non valides incluent
     <value>Créer une nouvelle vue fractionnée verticale</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Fermez tous les onglets sauf celui-ci</value>
+    <value>Fermez tout l'onglet mais ceci</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Fermer cet onglet</value>
@@ -2886,7 +2928,7 @@ Les noms non valides incluent
     <value>Un redémarrage est requis</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>La connexion avec le processus auxiliaire a été interrompue. Il peut être terminé car Windows manque de ressources système ou le processus auxiliaire s'est écrasé de manière inattendue</value>
+    <value>Le processus auxiliaire s'est arrêté de manière inattendue, ce qui peut entraîner un dysfonctionnement de certaines fonctions</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Erreur critique</value>
@@ -3094,7 +3136,7 @@ Les noms non valides incluent
     <value>Accès rapide</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Fermez tous les onglets à droite</value>
+    <value>Fermez l'onglet à droite</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Obtenez le maintenant</value>
@@ -3107,23 +3149,5 @@ Les noms non valides incluent
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>Obtenez le rabais anniversaire maintenant! Achetez la version officielle à 50% de réduction et débloquez de nouvelles fonctionnalités</value>
-  </data>
-  <data name="NewFile_Admin_Name" xml:space="preserve">
-    <value>Nouveau fichier</value>
-  </data>
-  <data name="SettingManageConfigContent.Text" xml:space="preserve">
-    <value>Effectuer des opérations de sauvegarde ou de restauration de configuration</value>
-  </data>
-  <data name="File_Type_Bmp_Description" xml:space="preserve">
-    <value>Image BMP</value>
-  </data>
-  <data name="Operate_Text_Unpin" xml:space="preserve">
-    <value>Détacher</value>
-  </data>
-  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
-    <value>Cette opération supprimera définitivement ces fichiers. Faut-il continuer ?</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
-    <value>Cela supprimera définitivement tout dans le dossier. Faut-il continuer ?</value>
   </data>
 </root>

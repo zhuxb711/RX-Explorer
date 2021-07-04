@@ -10,13 +10,7 @@
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
-
-    <Page.Resources>
-        <AcrylicBrush x:Key="TextControlBackgroundFocused"
-                      TintColor="{ThemeResource SystemAltHighColor}"
-                      TintOpacity="0.6" />
-    </Page.Resources>
-
+    
     <Grid Padding="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -31,7 +25,7 @@
             <AppBarButton Icon="Save"
                           x:Uid="TextViewerSave"
                           Label="保存"
-                          Click="Save_Click" />
+                          Click="Save_Click"/>
             <AppBarButton Icon="Cancel"
                           x:Uid="TextViewerCancel"
                           Label="放弃"
@@ -53,9 +47,9 @@
                           IsLoading="False"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
-                                    TintOpacity="0.6"
-                                    BlurAmount="3" />
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"

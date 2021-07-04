@@ -83,13 +83,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool IsFullTrustProcessNeeded
-        {
-            get
-            {
-                return false;
-            }
-        }
         protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
             CreationTimeRaw = Item.DateCreated;
@@ -170,6 +163,11 @@ namespace RX_Explorer.Class
         protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             return LoadPropertiesAsync(ForceUpdate);
+        }
+
+        protected override bool FullTrustProcessIsNeeded()
+        {
+            return false;
         }
 
         protected override bool CheckIfPropertiesLoaded()

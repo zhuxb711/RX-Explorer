@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
@@ -12,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -21,7 +19,6 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -35,7 +32,6 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -169,26 +165,66 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
+        private void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
+        {
+            try
+            {
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                {
+                    FolderTree.RootNodes.Remove(Node);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in DriveRemoved");
+            }
+        }
+
+        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
             try
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                 {
-                    try
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                        bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                        TreeViewNode RootNode;
+
+                        if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                         {
-                            FolderTree.RootNodes.Remove(Node);
+                            RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(Folder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
                         }
+                        else
+                        {
+                            RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+                        }
+
+                        FolderTree.RootNodes.Add(RootNode);
                     }
-                    catch (Exception ex)
+
+                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
                     {
-                        LogTracer.Log(ex, "An exception was threw in DriveRemoved");
+                        FolderTree.SelectNodeAndScrollToVertical(Node);
                     }
-                });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in DriveAdded");
             }
             finally
             {
@@ -196,62 +232,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
-        {
-            EventDeferral Deferral = args.GetDeferral();
-
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                try
-                {
-                    if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
-                    {
-                        if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                            TreeViewNode RootNode;
-
-                            if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
-                            {
-                                RootNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(Folder),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-                            }
-                            else
-                            {
-                                RootNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(args.StorageItem.Path),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-                            }
-
-                            FolderTree.RootNodes.Add(RootNode);
-                        }
-
-                        if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                        {
-                            FolderTree.SelectNodeAndScrollToVertical(Node);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw in DriveAdded");
-                }
-                finally
-                {
-                    Deferral.Complete();
-                }
-            });
-        }
-
-        private async void FileControl_Loaded(object sender, RoutedEventArgs e)
+        private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
             {
@@ -260,11 +241,6 @@ namespace RX_Explorer
             else
             {
                 TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
-            }
-
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
             }
         }
 
@@ -536,6 +512,8 @@ namespace RX_Explorer
                     if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, string[]> Parameters)
                     {
                         Frame.Navigated += Frame_Navigated;
+                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
+                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
                         AddressBox.AddHandler(RightTappedEvent, AddressBoxRightTapEventHandler, true);
                         GoBackRecord.AddHandler(PointerPressedEvent, GoBackButtonPressedHandler, true);
                         GoBackRecord.AddHandler(PointerReleasedEvent, GoBackButtonReleasedHandler, true);
@@ -555,12 +533,7 @@ namespace RX_Explorer
                         };
                         ViewModeComboBox.SetBinding(Selector.SelectedIndexProperty, SelectedIndexBinding);
 
-                        await Initialize(Parameters.Item2);
-
-                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
-                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
-                        CommonAccessCollection.LibraryAdded += CommonAccessCollection_LibraryAdded;
-                        CommonAccessCollection.LibraryRemoved += CommonAccessCollection_LibraryRemoved;
+                        await Initialize(Parameters.Item2).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
@@ -571,53 +544,6 @@ namespace RX_Explorer
                 {
                     _ = Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
-            }
-        }
-
-        private void CommonAccessCollection_LibraryRemoved(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
-        {
-            try
-            {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                {
-                    if (QuickAccessNode.IsExpanded)
-                    {
-                        QuickAccessNode.Children.Remove(QuickAccessNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(e.StorageItem.Path, StringComparison.OrdinalIgnoreCase)));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Sync Library change failed");
-            }
-        }
-
-        private async void CommonAccessCollection_LibraryAdded(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
-        {
-            EventDeferral Deferral = e.GetDeferral();
-
-            try
-            {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                {
-                    if (QuickAccessNode.IsExpanded)
-                    {
-                        QuickAccessNode.Children.Add(new TreeViewNode
-                        {
-                            IsExpanded = false,
-                            Content = new TreeViewNodeContent(e.StorageItem.Path, e.StorageItem.DisplayName),
-                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Sync Library change failed");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -642,11 +568,6 @@ namespace RX_Explorer
         {
             if (InitFolderPathArray.Length > 0)
             {
-                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
-                {
-                    await CreateNewBladeAsync(TargetPath);
-                }
-
                 if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                 {
                     TreeViewNode RootNode = new TreeViewNode
@@ -661,43 +582,54 @@ namespace RX_Explorer
 
                 DriveDataBase[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Path)).ToArray();
 
-                foreach (DriveDataBase DriveData in Drives.OrderBy((Dr) => (int)Dr.DriveType))
+                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType != DriveType.Network))
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveData.DriveFolder);
 
                         if (DeviceFolder != null)
                         {
-                            if (DriveData.DriveType == DriveType.Network)
-                            {
-                                await Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
-                                {
-                                    TreeViewNode RootNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = task.Result
-                                    };
+                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
-                                    FolderTree.RootNodes.Add(RootNode);
-                                    FolderTree.UpdateLayout();
-                                }, TaskScheduler.FromCurrentSynchronizationContext());
-                            }
-                            else
+                            TreeViewNode RootNode = new TreeViewNode
                             {
-                                bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
 
+                            FolderTree.RootNodes.Add(RootNode);
+                            FolderTree.UpdateLayout();
+                        }
+                    }
+                }
+
+                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                {
+                    await CreateNewBladeAsync(TargetPath);
+                }
+
+                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
+                {
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveData.DriveFolder);
+
+                        if (DeviceFolder != null)
+                        {
+                            await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)).ContinueWith((task) =>
+                            {
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(DriveData.DriveFolder),
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
+                                    HasUnrealizedChildren = task.Result
                                 };
 
                                 FolderTree.RootNodes.Add(RootNode);
                                 FolderTree.UpdateLayout();
-                            }
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
                         }
                     }
                 }
@@ -762,9 +694,9 @@ namespace RX_Explorer
             {
                 for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
                 {
-                    StorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i].LibFolder;
+                    StorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i].Folder;
 
-                    if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(LibFolder) is FileSystemStorageFolder LibObject)
+                    if (await FileSystemStorageItemBase.CreateByStorageItemAsync(LibFolder) is FileSystemStorageFolder LibObject)
                     {
                         TreeViewNode LibNode = new TreeViewNode
                         {
@@ -789,16 +721,9 @@ namespace RX_Explorer
             {
                 if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content && CurrentPresenter != null)
                 {
-                    if (CurrentPresenter != null)
+                    if (CurrentPresenter != null && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Node.IsExpanded = !Node.IsExpanded;
-                        }
-                        else
-                        {
-                            await CurrentPresenter.DisplayItemsInFolder(Content.Path);
-                        }
+                        await CurrentPresenter.DisplayItemsInFolder(Content.Path);
                     }
                 }
             }
@@ -819,126 +744,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
-            {
-                bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
-
-                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
-                {
-                    if (DeleteConfirm)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFolderPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFolder_Content")
-                        };
-
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            ExecuteDelete = true;
-                        }
-                    }
-                    else
-                    {
-                        ExecuteDelete = true;
-                    }
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFolderPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFolder_Content")
-                    };
-
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        ExecuteDelete = true;
-                    }
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
-                {
-                    PermanentDelete |= IsAvoidRecycleBin;
-                }
-
-                if (ExecuteDelete)
-                {
-                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting"));
-
-                    try
-                    {
-                        await Item.DeleteAsync(PermanentDelete);
-
-                        await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
-
-                        foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            await RootNode.UpdateAllSubNodeAsync();
-                        }
-                    }
-                    catch (FileCaputureException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        await dialog.ShowAsync();
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                        };
-
-                        await Dialog.ShowAsync();
-
-                        await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderPathAsync(System.IO.Path.GetDirectoryName(Item.Path));
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        await Dialog.ShowAsync();
-                    }
-
-                    await LoadingActivation(false);
-                }
-            }
-            else
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -948,6 +754,115 @@ namespace RX_Explorer
                 };
 
                 await dialog.ShowAsync();
+
+                return;
+            }
+
+            //We should take the path of what we want to delete first. Or we might delete some items incorrectly
+            FileSystemStorageFolder ToBeDeleteFolder = CurrentPresenter.CurrentFolder;
+
+            bool ExecuteDelete = false;
+
+            if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
+            {
+                if (DeleteConfirm)
+                {
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+                else
+                {
+                    ExecuteDelete = true;
+                }
+            }
+            else
+            {
+                DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    ExecuteDelete = true;
+                }
+            }
+
+            bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+            if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+            {
+                PermanentDelete |= IsAvoidRecycleBin;
+            }
+
+            if (ExecuteDelete)
+            {
+                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting"));
+
+                try
+                {
+                    await ToBeDeleteFolder.DeleteAsync(PermanentDelete);
+
+                    await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(ToBeDeleteFolder.Path));
+
+                    foreach (TreeViewNode RootNode in FolderTree.RootNodes)
+                    {
+                        await RootNode.UpdateAllSubNodeAsync();
+                    }
+                }
+                catch (FileCaputureException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
+                }
+                catch (FileNotFoundException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+
+                    await Dialog.ShowAsync();
+
+                    await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
+                }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
+                    }
+                }
+                catch (Exception)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+
+                await LoadingActivation(false);
             }
         }
 
@@ -964,44 +879,36 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
+                        if (FolderTree.RootNodes.Contains(Node))
+                        {
+                            FolderCopy.IsEnabled = false;
+                            FolderCut.IsEnabled = false;
+                            FolderDelete.IsEnabled = false;
+                            FolderRename.IsEnabled = false;
+                        }
+                        else
+                        {
+                            FolderCopy.IsEnabled = true;
+                            FolderCut.IsEnabled = true;
+                            FolderDelete.IsEnabled = true;
+                            FolderRename.IsEnabled = true;
+                        }
+
+                        FolderTree.ContextFlyout = RightTabFlyout;
                         FolderTree.SelectedNode = Node;
 
                         if (Node.Content is TreeViewNodeContent Content)
                         {
-                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                            {
-                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                                });
-                            }
-                            else
-                            {
-                                if (FolderTree.RootNodes.Contains(Node))
-                                {
-                                    FolderCopy.IsEnabled = false;
-                                    FolderCut.IsEnabled = false;
-                                    FolderDelete.IsEnabled = false;
-                                    FolderRename.IsEnabled = false;
-                                }
-                                else
-                                {
-                                    FolderCopy.IsEnabled = true;
-                                    FolderCut.IsEnabled = true;
-                                    FolderDelete.IsEnabled = true;
-                                    FolderRename.IsEnabled = true;
-                                }
-
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
-                            }
+                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
                         }
                     }
+                    else
+                    {
+                        FolderTree.ContextFlyout = null;
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
-
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1096,11 +1003,9 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
             {
-                if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is not FileSystemStorageFolder)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentPresenter.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) == null)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1128,33 +1033,25 @@ namespace RX_Explorer
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path))
             {
-                if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)))
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
-                    {
-                        await new DeviceInfoDialog(Info).ShowAsync();
-                    }
-                    else
-                    {
-                        AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                        NewWindow.RequestSize(new Size(420, 600));
-                        NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                        NewWindow.PersistedStateId = "Properties";
-                        NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                        NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                        NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                        NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                        NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                await dialog.ShowAsync();
 
-                        ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
-                        WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                return;
+            }
 
-                        await NewWindow.TryShowAsync();
-                    }
+            if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
+            {
+                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
+                {
+                    DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
+                    await dialog.ShowAsync();
                 }
                 else
                 {
@@ -1168,7 +1065,7 @@ namespace RX_Explorer
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
                     WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
                     await NewWindow.TryShowAsync();
@@ -1176,14 +1073,20 @@ namespace RX_Explorer
             }
             else
             {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                await dialog.ShowAsync();
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                await NewWindow.TryShowAsync();
             }
         }
 
@@ -2062,73 +1965,56 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        FolderTree.SelectedNode = Node;
+                        if (FolderTree.RootNodes.Contains(Node))
+                        {
+                            FolderDelete.IsEnabled = false;
+                            FolderRename.IsEnabled = false;
+                        }
+                        else
+                        {
+                            FolderDelete.IsEnabled = true;
+                            FolderRename.IsEnabled = true;
+                        }
+
+                        FolderTree.ContextFlyout = RightTabFlyout;
 
                         if (Node.Content is TreeViewNodeContent Content)
                         {
-                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                            {
-                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                                });
-                            }
-                            else
-                            {
-                                if (FolderTree.RootNodes.Contains(Node))
-                                {
-                                    FolderCopy.IsEnabled = false;
-                                    FolderCut.IsEnabled = false;
-                                    FolderDelete.IsEnabled = false;
-                                    FolderRename.IsEnabled = false;
-                                }
-                                else
-                                {
-                                    FolderCopy.IsEnabled = true;
-                                    FolderCut.IsEnabled = true;
-                                    FolderDelete.IsEnabled = true;
-                                    FolderRename.IsEnabled = true;
-                                }
-
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
-                            }
+                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
                         }
                     }
+                    else
+                    {
+                        FolderTree.ContextFlyout = null;
+                    }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
-
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
             }
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
-
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+            if (CurrentPresenter.CurrentFolder != null)
             {
                 try
                 {
-                    Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Folder }.GetAsDataPackageAsync(DataPackageOperation.Move));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
+                    RightTabFlyout.Hide();
 
+                    Clipboard.Clear();
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Move));
+                }
+                catch
+                {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2137,37 +2023,22 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
             }
         }
 
         private async void FolderCopy_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
-
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
+            if (CurrentPresenter.CurrentFolder != null)
             {
                 try
                 {
-                    Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Item }.GetAsDataPackageAsync(DataPackageOperation.Copy));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
+                    RightTabFlyout.Hide();
 
+                    Clipboard.Clear();
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Copy));
+                }
+                catch
+                {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2177,64 +2048,21 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
-            }
         }
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
-            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            if (CurrentPresenter.CurrentFolder != null)
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(Content.Path))
-                {
-                    string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
-                    {
-                        new string[]{ Content.Path }
-                    }));
-
-                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
-                }
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CurrentPresenter.CurrentFolder.Path)}"));
             }
         }
 
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
-            string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
-
-            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+            if (CurrentPresenter.CurrentFolder != null)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(Path);
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
+                await TabViewContainer.ThisPage.CreateNewTabAsync(null, CurrentPresenter.CurrentFolder.Path);
             }
         }
 
@@ -2937,270 +2765,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void AddQuickAccessButton_Click(object sender, RoutedEventArgs e)
-        {
-            FolderPicker Picker = new FolderPicker
-            {
-                ViewMode = PickerViewMode.List,
-                SuggestedStartLocation = PickerLocationId.ComputerFolder
-            };
-            Picker.FileTypeFilter.Add("*");
-
-            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-            {
-                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-                else
-                {
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
-
-                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                    {
-                        if (QuickAccessNode.IsExpanded)
-                        {
-                            QuickAccessNode.Children.Add(new TreeViewNode
-                            {
-                                IsExpanded = false,
-                                Content = new TreeViewNodeContent(Folder),
-                                HasUnrealizedChildren = (await Folder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                            });
-                        }
-                    }
-
-                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
-                }
-            }
-        }
-
-        private void SendToFlyout_Opening(object sender, object e)
-        {
-            if (sender is MenuFlyout Flyout)
-            {
-                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
-                {
-                    Item.Click -= SendToItem_Click;
-                }
-
-                Flyout.Items.Clear();
-
-                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
-                {
-                    Name = "SendDocumentItem",
-                    Text = Globalization.GetString("SendTo_Document"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
-                    MinWidth = 150,
-                    MaxWidth = 350
-                };
-                SendDocumentItem.Click += SendToItem_Click;
-
-                Flyout.Items.Add(SendDocumentItem);
-
-                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
-                {
-                    Name = "SendLinkItem",
-                    Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
-                    MinWidth = 150,
-                    MaxWidth = 350
-                };
-                SendLinkItem.Click += SendToItem_Click;
-
-                Flyout.Items.Add(SendLinkItem);
-
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
-                {
-                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
-                    {
-                        Name = "SendRemovableItem",
-                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
-                        ImageIcon = RemovableDrive.Thumbnail,
-                        MinWidth = 150,
-                        MaxWidth = 350,
-                        Tag = RemovableDrive.Path
-                    };
-                    SendRemovableDriveItem.Click += SendToItem_Click;
-
-                    Flyout.Items.Add(SendRemovableDriveItem);
-                }
-            }
-        }
-
-        private async void SendToItem_Click(object sender, RoutedEventArgs e)
-        {
-            RightTabFlyout.Hide();
-
-            if (sender is MenuFlyoutItemWithImage Item)
-            {
-                if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
-                {
-                    switch (Item.Name)
-                    {
-                        case "SendLinkItem":
-                            {
-                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
-                                {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                    {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
-                                                                                        Content.Path,
-                                                                                        string.Empty,
-                                                                                        WindowState.Normal,
-                                                                                        0,
-                                                                                        string.Empty))
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            await Dialog.ShowAsync();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    try
-                                    {
-                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                                 ? UserDataPaths.GetForUser(CurrentUser)
-                                                                 : UserDataPaths.GetDefault();
-
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
-                                        {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                            {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
-                                                                                                Content.Path,
-                                                                                                string.Empty,
-                                                                                                WindowState.Normal,
-                                                                                                0,
-                                                                                                string.Empty))
-                                                {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    await Dialog.ShowAsync();
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
-                                    }
-                                }
-
-                                break;
-                            }
-                        case "SendDocumentItem":
-                            {
-                                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
-                                {
-                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, DocumentPath);
-                                }
-                                else
-                                {
-                                    try
-                                    {
-                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                                 ? UserDataPaths.GetForUser(CurrentUser)
-                                                                 : UserDataPaths.GetDefault();
-
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
-                                        {
-                                            QueueTaskController.EnqueueCopyOpeartion(Content.Path, DataPath.Documents);
-                                        }
-                                        else
-                                        {
-                                            LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, "Could not get document path from UserDataPaths");
-                                    }
-                                }
-
-                                break;
-                            }
-                        case "SendRemovableItem":
-                            {
-                                if (Item.Tag is string RemovablePath)
-                                {
-                                    QueueTaskController.EnqueueCopyOpeartion(Content.Path, RemovablePath);
-                                }
-
-                                break;
-                            }
-                    }
-                }
-            }
-        }
-
-        private void RightTabFlyout_Opening(object sender, object e)
-        {
-            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-            {
-                if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
-                {
-                    RemovePin.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    RemovePin.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
-        private async void RemovePin_Click(object sender, RoutedEventArgs e)
-        {
-            RightTabFlyout.Hide();
-
-            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
-            {
-                if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryFolder TargetLib)
-                {
-                    CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
-
-                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                    {
-                        QuickAccessNode.Children.Remove(Node);
-                    }
-
-                    SQLite.Current.DeleteLibrary(Content.Path);
-                    await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.LibFolder);
-                }
-            }
-        }
-
         public void Dispose()
         {
             AddressButtonList.Clear();
@@ -3215,12 +2779,8 @@ namespace RX_Explorer
             BladeViewer.Items.Clear();
 
             Frame.Navigated -= Frame_Navigated;
-
             CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
             CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
-            CommonAccessCollection.LibraryAdded -= CommonAccessCollection_LibraryAdded;
-            CommonAccessCollection.LibraryRemoved -= CommonAccessCollection_LibraryRemoved;
-
             AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
             GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
             GoBackRecord.RemoveHandler(PointerReleasedEvent, GoBackButtonReleasedHandler);

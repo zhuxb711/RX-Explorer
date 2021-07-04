@@ -13,8 +13,7 @@
     <Page.Resources>
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
 
-        <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
-                               Placement="RightEdgeAlignedTop">
+        <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"
@@ -39,13 +38,8 @@
                PanePlacement="Right"
                Name="TaskListPanel"
                OpenPaneLength="350"
-               x:FieldModifier="public">
-        <SplitView.PaneBackground>
-            <AcrylicBrush BackgroundSource="Backdrop"
-                          TintColor="Gray"
-                          TintOpacity="0.1"
-                          FallbackColor="{ThemeResource SystemAltMediumHighColor}" />
-        </SplitView.PaneBackground>
+               x:FieldModifier="public"
+               PaneBackground="{ThemeResource TaskListAcrylicBrush}">
         <Grid>
             <muxc:TabView TabWidthMode="Equal"
                           Name="TabViewControl"
@@ -64,6 +58,15 @@
                           TabCloseRequested="TabViewControl_TabCloseRequested"
                           TabDroppedOutside="TabViewControl_TabDroppedOutside"
                           AddTabButtonClick="TabViewControl_AddTabButtonClick">
+                <muxc:TabView.Resources>
+                    <SolidColorBrush x:Key="TabViewBackground"
+                                     Color="Transparent" />
+                    <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
+                                  BackgroundSource="Backdrop"
+                                  TintLuminosityOpacity="0.5"
+                                  TintColor="{ThemeResource SystemAltMediumColor}"
+                                  FallbackColor="{ThemeResource SystemAccentColor}" />
+                </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
                     <Button HorizontalAlignment="Right"
                             VerticalAlignment="Bottom"

@@ -15,7 +15,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -302,7 +301,7 @@ namespace RX_Explorer
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
-            SortCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
+            SortCollectionGenerator.SortStateChanged += Current_SortStateChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             ViewModeController.ViewModeChanged += Current_ViewModeChanged;
         }
@@ -316,9 +315,9 @@ namespace RX_Explorer
                     GroupAsc.IsEnabled = false;
                     GroupDesc.IsEnabled = false;
 
-                    IsGroupedEnable = false;
-
                     GroupCollection.Clear();
+
+                    IsGroupedEnable = false;
                 }
                 else
                 {
@@ -520,7 +519,7 @@ namespace RX_Explorer
                                 CreateFolder_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.IsNotEmpty:
+                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
                             {
                                 await Ctrl_Z_Click().ConfigureAwait(false);
                                 break;
@@ -567,16 +566,13 @@ namespace RX_Explorer
                             }
                         case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
                                 {
-                                    if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
-                                    {
-                                        await Container.CreateNewBladeAsync(Folder.Path);
-                                    }
-                                    else
-                                    {
-                                        await Container.CreateNewBladeAsync(CurrentFolder.Path);
-                                    }
+                                    await Container.CreateNewBladeAsync(Folder.Path);
+                                }
+                                else
+                                {
+                                    await Container.CreateNewBladeAsync(CurrentFolder.Path);
                                 }
 
                                 break;
@@ -759,7 +755,7 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_SortConfigChanged(object sender, SortCollectionGenerator.SortStateChangedEventArgs args)
+        private void Current_SortStateChanged(object sender, SortCollectionGenerator.SortStateChangedEventArgs args)
         {
             if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
@@ -873,7 +869,6 @@ namespace RX_Explorer
                     }
 
                     FileCollection.Clear();
-                    GroupCollection.Clear();
 
                     PathConfiguration Config = SQLite.Current.GetPathConfiguration(FolderPath);
 
@@ -887,7 +882,9 @@ namespace RX_Explorer
 
                         if (Config.GroupTarget != GroupTarget.None)
                         {
-                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                            GroupCollection.Clear();
+
+                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
                             {
                                 GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                             }
@@ -896,6 +893,7 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            GroupCollection.Clear();
                             IsGroupedEnable = false;
                         }
 
@@ -1181,7 +1179,7 @@ namespace RX_Explorer
 
         private async Task Ctrl_Z_Click()
         {
-            if (OperationRecorder.Current.IsNotEmpty)
+            if (OperationRecorder.Current.Count > 0)
             {
                 try
                 {
@@ -1211,7 +1209,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }
@@ -1226,7 +1224,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }
@@ -1241,22 +1239,7 @@ namespace RX_Explorer
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                                    {
-                                                        await RootNode.UpdateAllSubNodeAsync();
-                                                    }
-                                                }
-                                            });
-
-                                            break;
-                                        }
-                                    case "Rename":
-                                        {
-                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Rename, SplitGroup.Select((Item) => Item[2]).FirstOrDefault(), SplitGroup.Select((Item) => Item[0]).FirstOrDefault(), OnCompleted: async (s, e) =>
-                                            {
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                                {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
                                                     {
                                                         await RootNode.UpdateAllSubNodeAsync();
                                                     }
@@ -1320,7 +1303,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync();
+                    await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -1396,7 +1379,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -1411,21 +1394,14 @@ namespace RX_Explorer
                 string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
                     if (DeleteConfirm)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
-                        };
+                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             ExecuteDelete = true;
                         }
@@ -1437,27 +1413,23 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
-                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
-                    };
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ExecuteDelete = true;
                     }
                 }
 
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                {
+                    PermanentDelete |= IsAvoidRecycleBin;
+                }
+
                 if (ExecuteDelete)
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
-                    {
-                        PermanentDelete |= IsAvoidRecycleBin;
-                    }
-
                     foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
                                                                                                              .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
                     {
@@ -1747,7 +1719,7 @@ namespace RX_Explorer
                     {
                         SelectionExtention.Disable();
                         SelectedItem = Item;
-                        _ = TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path);
+                        _ = TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path);
                     }
                     else if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
                     {
@@ -1835,7 +1807,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -1845,17 +1817,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFolder:
                                     {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                             }
@@ -1864,7 +1836,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                     }
                 }
                 else
@@ -1874,7 +1846,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -1882,7 +1854,7 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                                 }
                                 else
                                 {
@@ -1892,17 +1864,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
                                                 {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                         }
@@ -1917,17 +1889,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
                                                     {
-                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                             }
@@ -1935,7 +1907,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                                         }
                                     }
                                 }
@@ -1943,7 +1915,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                             }
                         }
                     }
@@ -2026,11 +1998,9 @@ namespace RX_Explorer
 
             DelayRenameCancel?.Cancel();
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
-                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
-
-                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                if (CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                 {
                     AppWindow NewWindow = await AppWindow.TryCreateAsync();
                     NewWindow.RequestSize(new Size(420, 600));
@@ -2042,18 +2012,14 @@ namespace RX_Explorer
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, ReFile));
                     WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
                     await NewWindow.TryShowAsync();
                 }
-                else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
-                {
-                    await TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path);
-                }
                 else
                 {
-                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                    await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
                 }
             }
             else if (e.OriginalSource is Grid)
@@ -2467,7 +2433,7 @@ namespace RX_Explorer
                 Paste.IsEnabled = false;
             }
 
-            if (OperationRecorder.Current.IsNotEmpty)
+            if (OperationRecorder.Current.Count > 0)
             {
                 Undo.IsEnabled = true;
             }
@@ -3015,36 +2981,59 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button Btn)
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+            if (Config.SortDirection == SortDirection.Ascending)
             {
-                SortTarget STarget = Btn.Name switch
-                {
-                    "ListHeaderName" => SortTarget.Name,
-                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
-                    "ListHeaderType" => SortTarget.Type,
-                    "ListHeaderSize" => SortTarget.Size,
-                    _ => throw new NotSupportedException()
-                };
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
+            }
+            else
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
+            }
+        }
 
-                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
+        {
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-                if (Config.SortTarget == STarget)
-                {
-                    if (Config.SortDirection == SortDirection.Ascending)
-                    {
-                        SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Descending);
-                    }
-                    else
-                    {
-                        SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
-                    }
-                }
-                else
-                {
-                    SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, STarget, SortDirection.Ascending);
-                }
+            if (Config.SortDirection == SortDirection.Ascending)
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
+            }
+            else
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
+            }
+        }
+
+        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
+        {
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+            if (Config.SortDirection == SortDirection.Ascending)
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
+            }
+            else
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
+            }
+        }
+
+        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        {
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+            if (Config.SortDirection == SortDirection.Ascending)
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
+            }
+            else
+            {
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
             }
         }
 
@@ -3059,40 +3048,27 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (sender is MenuFlyoutItem Item)
+            NewFileDialog Dialog = new NewFileDialog();
+
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 try
                 {
-                    string NewFileName = Globalization.GetString("NewFile_Admin_Name") + Item.Name switch
-                    {
-                        "TxtItem" => ".txt",
-                        "CompressItem" => ".zip",
-                        "RtfItem" => ".rtf",
-                        "LinkItem" => ".lnk",
-                        "DocItem" => ".docx",
-                        "PPTItem" => ".pptx",
-                        "XLSItem" => ".xlsx",
-                        "BmpItem" => ".bmp",
-                        _ => throw new NotSupportedException()
-                    };
-
-                    FileSystemStorageItemBase NewFile = null;
-
-                    switch (Path.GetExtension(NewFileName).ToLower())
+                    switch (Path.GetExtension(Dialog.NewFileName))
                     {
                         case ".zip":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, NewFileName);
+                                await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, NewFileName);
+                                await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, NewFileName);
+                                await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".lnk":
@@ -3103,71 +3079,24 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
                                         {
                                             throw new UnauthorizedAccessException();
                                         }
                                     }
                                 }
 
-                                return;
+                                break;
                             }
                         default:
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
                                 {
-                                    NewFile = File;
+                                    throw new UnauthorizedAccessException();
                                 }
 
                                 break;
                             }
-                    }
-
-                    if (NewFile != null)
-                    {
-                        FileSystemStorageItemBase TargetItem = null;
-
-                        for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
-                        {
-                            TargetItem = FileCollection.FirstOrDefault((Item) => Item == NewFile);
-
-                            if (TargetItem == null)
-                            {
-                                await Task.Delay(500);
-                            }
-                            else
-                            {
-                                SelectedItem = TargetItem;
-                                ItemPresenter.ScrollIntoView(TargetItem);
-
-                                if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
-                                {
-                                    if (Element.FindName("NameLabel") is TextBlock NameLabel)
-                                    {
-                                        NameLabel.Visibility = Visibility.Collapsed;
-                                    }
-
-                                    if (Element.FindName("NameEditBox") is TextBox EditBox)
-                                    {
-                                        EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
-                                        EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
-                                        EditBox.LostFocus += EditBox_LostFocus;
-                                        EditBox.Text = TargetItem.Name;
-                                        EditBox.Visibility = Visibility.Visible;
-                                        EditBox.Focus(FocusState.Programmatic);
-                                        EditBox.SelectAll();
-                                    }
-
-                                    Container.BlockKeyboardShortCutInput = true;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessException();
                     }
                 }
                 catch (Exception)
@@ -3699,7 +3628,6 @@ namespace RX_Explorer
             if (e.HoldingState == HoldingState.Started)
             {
                 e.Handled = true;
-                Container.BlockKeyboardShortCutInput = true;
 
                 if (ItemPresenter is GridView)
                 {
@@ -3707,7 +3635,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -3717,17 +3645,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                                case FileSystemStorageFolder:
-                                    {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
+                                        break;
+                                    }
+                                case FileSystemStorageFolder:
+                                    {
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                             }
@@ -3736,7 +3664,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                     }
                 }
                 else
@@ -3746,7 +3674,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -3754,7 +3682,7 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                                 }
                                 else
                                 {
@@ -3764,17 +3692,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                            case FileSystemStorageFolder:
-                                                {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    break;
+                                                }
+                                            case FileSystemStorageFolder:
+                                                {
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                         }
@@ -3789,17 +3717,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
-                                                        break;
-                                                    }
-                                                case FileSystemStorageFolder:
-                                                    {
-                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        break;
+                                                    }
+                                                case FileSystemStorageFolder:
+                                                    {
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                             }
@@ -3807,7 +3735,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                                         }
                                     }
                                 }
@@ -3815,13 +3743,11 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                             }
                         }
                     }
                 }
-
-                Container.BlockKeyboardShortCutInput = false;
             }
         }
 
@@ -3922,7 +3848,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(Folder.Path);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(null, Folder.Path);
             }
         }
 
@@ -4105,12 +4031,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
-                {
-                    new string[]{ Folder.Path }
-                }));
-
-                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Folder.Path)}"));
             }
         }
 
@@ -4124,25 +4045,25 @@ namespace RX_Explorer
         private void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private void SortDesc_Click(object sender, RoutedEventArgs e)
@@ -4150,7 +4071,7 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
         }
 
         private void SortAsc_Click(object sender, RoutedEventArgs e)
@@ -4158,7 +4079,7 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
@@ -4314,7 +4235,7 @@ namespace RX_Explorer
                     {
                         Icon = new SymbolIcon(Symbol.Undo),
                         Label = Globalization.GetString("Operate_Text_Undo"),
-                        IsEnabled = OperationRecorder.Current.IsNotEmpty
+                        IsEnabled = OperationRecorder.Current.Count > 0
                     };
                     UndoButton.Click += Undo_Click;
                     BottomCommandBar.PrimaryCommands.Add(UndoButton);
@@ -4491,16 +4412,17 @@ namespace RX_Explorer
         {
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-            FileCollection.Clear();
-            GroupCollection.Clear();
-
             if (IsGroupedEnable)
             {
+                GroupCollection.Clear();
+
                 foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
                 {
                     GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                 }
             }
+
+            FileCollection.Clear();
 
             foreach (FileSystemStorageItemBase Item in args.FilterCollection)
             {
@@ -4514,7 +4436,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                await Container.CreateNewBladeAsync(SelectedItem.Path);
+                await Container.CreateNewBladeAsync(SelectedItem.Path).ConfigureAwait(false);
             }
         }
 
@@ -4663,7 +4585,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            SelectedItem.SetAccentColorAsNormal();
+            SelectedItem.SetColorAsNormal();
             SQLite.Current.DeleteFileColor(SelectedItem.Path);
         }
 
@@ -4674,7 +4596,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetAccentColorAsNormal();
+                Item.SetColorAsNormal();
                 SQLite.Current.DeleteFileColor(Item.Path);
             }
         }
@@ -4685,7 +4607,7 @@ namespace RX_Explorer
 
             Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
-            SelectedItem.SetAccentColorAsSpecific(ForegroundColor);
+            SelectedItem.SetColorAsSpecific(ForegroundColor);
             SQLite.Current.SetFileColor(SelectedItem.Path, ForegroundColor.ToHex());
         }
 
@@ -4752,7 +4674,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetAccentColorAsSpecific(ForegroundColor);
+                Item.SetColorAsSpecific(ForegroundColor);
                 SQLite.Current.SetFileColor(Item.Path, ForegroundColor.ToHex());
             }
         }
@@ -4769,15 +4691,7 @@ namespace RX_Explorer
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                                {
-                                    await Container.CreateNewBladeAsync(Folder.Path);
-                                }
-                                else
-                                {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync(Folder.Path);
-                                }
-
+                                await Container.CreateNewBladeAsync(Folder.Path);
                                 break;
                             }
                         case FileSystemStorageFile File:
@@ -5123,124 +5037,9 @@ namespace RX_Explorer
             }
         }
 
-        private void CreatNewFlyout_Opening(object sender, object e)
-        {
-            CreatNewFlyout.Items.Clear();
-
-            MenuFlyoutItemWithImage FolderItem = new MenuFlyoutItemWithImage
-            {
-                Name = "FolderItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png")),
-                Text = Globalization.GetString("Operate_Text_CreateFolder"),
-                MinWidth = 160
-            };
-            FolderItem.Click += CreateFolder_Click;
-            CreatNewFlyout.Items.Add(FolderItem);
-
-            MenuFlyoutItemWithImage LinkItem = new MenuFlyoutItemWithImage
-            {
-                Name = "LinkItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png")),
-                Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
-                MinWidth = 160
-            };
-            LinkItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(LinkItem);
-
-            CreatNewFlyout.Items.Add(new MenuFlyoutSeparator());
-
-            MenuFlyoutItemWithImage DocItem = new MenuFlyoutItemWithImage
-            {
-                Name = "DocItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png")),
-                Text = "Microsoft Word (.docx)",
-                MinWidth = 160
-            };
-            DocItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(DocItem);
-
-            MenuFlyoutItemWithImage PPTItem = new MenuFlyoutItemWithImage
-            {
-                Name = "PPTItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png")),
-                Text = "Microsoft PowerPoint (.pptx)",
-                MinWidth = 160
-            };
-            PPTItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(PPTItem);
-
-            MenuFlyoutItemWithImage XLSItem = new MenuFlyoutItemWithImage
-            {
-                Name = "XLSItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png")),
-                Text = "Microsoft Excel (.xlsx)",
-                MinWidth = 160
-            };
-            XLSItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(XLSItem);
-
-            MenuFlyoutItemWithImage RtfItem = new MenuFlyoutItemWithImage
-            {
-                Name = "RtfItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png")),
-                Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
-                MinWidth = 160
-            };
-            RtfItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(RtfItem);
-
-            MenuFlyoutItemWithImage BmpItem = new MenuFlyoutItemWithImage
-            {
-                Name = "BmpItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png")),
-                Text = $"{Globalization.GetString("File_Type_Bmp_Description")} (.bmp)",
-                MinWidth = 160
-            };
-            BmpItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(BmpItem);
-
-            MenuFlyoutItemWithImage TxtItem = new MenuFlyoutItemWithImage
-            {
-                Name = "TxtItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png")),
-                Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
-                MinWidth = 160
-            };
-            TxtItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(TxtItem);
-
-            MenuFlyoutItemWithImage CompressItem = new MenuFlyoutItemWithImage
-            {
-                Name = "CompressItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png")),
-                Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
-                MinWidth = 160
-            };
-            CompressItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(CompressItem);
-        }
-
-        private void CreatNewFlyout_Closed(object sender, object e)
-        {
-            foreach (MenuFlyoutItemWithImage Item in CreatNewFlyout.Items.OfType<MenuFlyoutItemWithImage>())
-            {
-                if (Item.Name == "FolderItem")
-                {
-                    Item.Click -= CreateFolder_Click;
-                }
-                else
-                {
-                    Item.Click -= CreateFile_Click;
-                }
-            }
-
-            CreatNewFlyout.Items.Clear();
-        }
-
         public void Dispose()
         {
             FileCollection.Clear();
-            GroupCollection.Clear();
 
             AreaWatcher?.Dispose();
             WiFiProvider?.Dispose();
@@ -5275,7 +5074,7 @@ namespace RX_Explorer
 
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
-            SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
+            SortCollectionGenerator.SortStateChanged -= Current_SortStateChanged;
             GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
         }

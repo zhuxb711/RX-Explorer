@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Storage;
-using Windows.Storage.Search;
 
 namespace MaintenanceTask
 {
@@ -24,9 +23,8 @@ namespace MaintenanceTask
 
             try
             {
-                UpdateSQLite();
-
-                await ClearUselessLogAsync(Cancellation.Token);
+                await ClearUselessLogTask(Cancellation.Token);
+                await UpdateSQLiteDatabaseTask();
 
                 //The following code is used to update the globalization problem of the ContextMenu in the old version
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("GlobalizationStringForContextMenu"))
@@ -84,18 +82,11 @@ namespace MaintenanceTask
             }
         }
 
-        private async Task ClearUselessLogAsync(CancellationToken CancelToken = default)
+        private async Task ClearUselessLogTask(CancellationToken CancelToken = default)
         {
             try
             {
-                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
-                {
-                    IndexerOption = IndexerOption.DoNotUseIndexer,
-                    FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
-                });
-
-                foreach (StorageFile File in from StorageFile File in await Query.GetFilesAsync()
+                foreach (StorageFile File in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
                                              let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
                                              where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)
                                              select File)
@@ -110,7 +101,7 @@ namespace MaintenanceTask
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An exception was threw in {nameof(ClearUselessLogAsync)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(ClearUselessLogTask)}, message: {ex.Message}");
             }
         }
 
@@ -133,90 +124,118 @@ namespace MaintenanceTask
             }
         }
 
-        private void UpdateSQLite()
+        private async Task UpdateSQLiteDatabaseTask()
         {
-            try
+            using (SqliteConnection Connection = GetSQLConnection())
             {
-                using SqliteConnection Connection = GetSQLConnection();
-                using SqliteTransaction Transaction = Connection.BeginTransaction();
-
-                StringBuilder Builder = new StringBuilder()
-                                        .Append("Update FileColor Set Color = '#22B324' Where Color = '#FFADFF2F';")
-                                        .Append("Update FileColor Set Color = '#CC6EFF' Where Color = '#FFFFFF00';")
-                                        .Append("Update FileColor Set Color = '#42C5FF' Where Color = '#FF409EFE';")
-                                        .Append("Delete From ProgramPicker Where FileType = '.*';");
-
-                bool HasGroupColumnColumn = false;
-                bool HasGroupDirectionColumn = false;
-
-                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('PathConfiguration')", Connection, Transaction))
-                using (SqliteDataReader Reader = Command.ExecuteReader())
+                try
                 {
-                    while (Reader.Read())
+                    using (SqliteCommand Command = new SqliteCommand("Alter Table PathConfiguration Add GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size'))", Connection))
                     {
-                        switch (Convert.ToString(Reader[1]))
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    using (SqliteCommand Command = new SqliteCommand("Alter Table PathConfiguration Add GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending'))", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    using (SqliteCommand Command = new SqliteCommand(@"Update FileColor Set Color = '#22B324' Where Color = '#FFADFF2F';
+                                                                       Update FileColor Set Color = '#CC6EFF' Where Color = '#FFFFFF00';
+                                                                       Update FileColor Set Color = '#42C5FF' Where Color = '#FF409EFE';", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    using (SqliteCommand Command = new SqliteCommand("Update TerminalProfile Set Argument = '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"' Where Name = 'Powershell'", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    bool HasIsDefaultColumn = false;
+                    bool HasIsRecommandColumn = false;
+
+                    using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
+                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
+                    {
+                        while (Reader.Read())
                         {
-                            case "GroupColumn":
-                                HasGroupColumnColumn = true;
-                                break;
-                            case "GroupDirection":
-                                HasGroupDirectionColumn = true;
-                                break;
+                            switch (Convert.ToString(Reader[1]))
+                            {
+                                case "IsRecommanded":
+                                    HasIsRecommandColumn = true;
+                                    break;
+                                case "IsDefault":
+                                    HasIsDefaultColumn = true;
+                                    break;
+                            }
+                        }
+                    }
+
+                    StringBuilder Builder = new StringBuilder();
+
+                    if (!HasIsDefaultColumn)
+                    {
+                        Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
+                    }
+
+                    if (!HasIsRecommandColumn)
+                    {
+                        Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
+                    }
+
+                    if (Builder.Length > 0)
+                    {
+                        using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
+                        {
+                            await Command.ExecuteNonQueryAsync();
                         }
                     }
                 }
-
-                if (!HasGroupColumnColumn)
+                catch (Exception ex)
                 {
-                    Builder.Append("Alter Table PathConfiguration Add GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size'));");
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
                 }
-
-                if (!HasGroupDirectionColumn)
-                {
-                    Builder.Append("Alter Table PathConfiguration Add GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending'));");
-                }
-
-
-                bool HasIsDefaultColumn = false;
-                bool HasIsRecommandColumn = false;
-
-                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection, Transaction))
-                using (SqliteDataReader Reader = Command.ExecuteReader())
-                {
-                    while (Reader.Read())
-                    {
-                        switch (Convert.ToString(Reader[1]))
-                        {
-                            case "IsRecommanded":
-                                HasIsRecommandColumn = true;
-                                break;
-                            case "IsDefault":
-                                HasIsDefaultColumn = true;
-                                break;
-                        }
-                    }
-                }
-
-                if (!HasIsDefaultColumn)
-                {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
-                }
-
-                if (!HasIsRecommandColumn)
-                {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
-                }
-
-                using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection, Transaction))
-                {
-                    Command.ExecuteNonQuery();
-                }
-
-                Transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLite)}, message: {ex.Message}");
             }
         }
 

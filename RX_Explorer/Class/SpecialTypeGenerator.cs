@@ -5,7 +5,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
@@ -41,9 +40,9 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task<FileSystemStorageFile> CreateZipFile(string TargetFolder, string Name)
+        public async Task CreateZipFile(string TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -53,7 +52,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+            if (Path.GetExtension(Name) != ".zip")
             {
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
@@ -68,8 +67,6 @@ namespace RX_Explorer.Class
                         Zip.BeginUpdate();
                         Zip.CommitUpdate();
                     }
-
-                    return File;
                 }
                 catch (Exception ex)
                 {
@@ -83,9 +80,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<FileSystemStorageFile> CreateRtfFile(string TargetFolder, string Name)
+        public async Task CreateRtfFile(string TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -95,7 +92,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".rtf", StringComparison.OrdinalIgnoreCase))
+            if (Path.GetExtension(Name) != ".rtf")
             {
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
@@ -116,13 +113,11 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-
-                    return File;
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
-                    return null;
+                    throw new UnauthorizedAccessException();
                 }
             }
             else
@@ -131,9 +126,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<FileSystemStorageFile> CreateExcelFile(string TargetFolder, string Name)
+        public async Task CreateExcelFile(string TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -143,7 +138,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+            if (Path.GetExtension(Name) != ".xlsx")
             {
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
@@ -157,13 +152,11 @@ namespace RX_Explorer.Class
                     {
                         CreateExcelParts(Document);
                     }
-
-                    return File;
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
-                    return null;
+                    throw new UnauthorizedAccessException();
                 }
             }
             else

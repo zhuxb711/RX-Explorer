@@ -6,6 +6,7 @@
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                           mc:Ignorable="d"
+                          Background="{StaticResource DialogAcrylicBrush}"
                           x:Uid="SAVerifyDialog"
                           Title="输入凭据"
                           PrimaryButtonText="确定"

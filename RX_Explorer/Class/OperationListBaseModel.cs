@@ -263,7 +263,7 @@ namespace RX_Explorer.Class
             {
                 Calculator.SetProgressValue(NewProgress);
                 ProgressSpeed = Calculator.GetSpeed();
-                RemainingTime = Calculator.GetRemainingTime().ConvertTimeSpanToString();
+                RemainingTime = Calculator.GetRemainingTime().ConvertTimsSpanToString();
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Progress)));

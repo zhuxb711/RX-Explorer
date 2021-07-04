@@ -30,14 +30,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool IsFullTrustProcessNeeded
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         public async Task<UrlDataPackage> GetRawDataAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
@@ -69,6 +61,11 @@ namespace RX_Explorer.Class
         public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
+        }
+
+        protected override bool FullTrustProcessIsNeeded()
+        {
+            return true;
         }
 
         protected override bool CheckIfNeedLoadThumbnailOverlay()

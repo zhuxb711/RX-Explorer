@@ -19,8 +19,7 @@ Ctrl + Q|Select only one folder|Open the specified folder in a new window
 Ctrl + B|None|If only one folder is selected, the specified folder will be opened in a new vertical split window. In other cases, the current folder will be opened in a new vertical split window
 Ctrl + E|None|Empty the recycle bin
 Ctrl + R|Select any file or folder|Restore all items selected in recycle bin
-Ctrl + Mouse Wheel|None|Change file display mode
-Ctrl + Double Click|Select any folder|Open the specified folder in a new tab
+Ctrl + Mouse Wheel|none|change file display mode
 Shift + E|None|Use the Windows Explorer to open the current folder
 Shift + T|None|Start the corresponding terminal according to the configuration in the settings
 Alt + Left|None|Navigate to the previous folder

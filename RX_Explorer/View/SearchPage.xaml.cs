@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -31,33 +32,26 @@ namespace RX_Explorer
 {
     public sealed partial class SearchPage : Page
     {
+        private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private WeakReference<FileControl> WeakToFileControl;
         private CancellationTokenSource Cancellation;
         private ListViewBaseSelectionExtention SelectionExtention;
         private readonly PointerEventHandler PointerPressedEventHandler;
-        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
-        private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
-        private bool BlockKeyboardShortCutInput;
 
-        private SortTarget STarget;
-        private SortDirection SDirection;
+        private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
+        {
+            {SortTarget.Name,SortDirection.Ascending },
+            {SortTarget.Type,SortDirection.Ascending },
+            {SortTarget.ModifiedTime,SortDirection.Ascending },
+            {SortTarget.Size,SortDirection.Ascending },
+            {SortTarget.Path,SortDirection.Ascending }
+        };
 
 
         public SearchPage()
         {
             InitializeComponent();
-            ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
-        }
-
-        private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs e)
-        {
-            SearchResult.Clear();
-
-            foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(e.FilterCollection, STarget, SDirection))
-            {
-                SearchResult.Add(Item);
-            }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -87,47 +81,41 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!BlockKeyboardShortCutInput)
-            {
-                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
 
-                switch (args.VirtualKey)
-                {
-                    case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Location_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            SearchResultList.SelectAll();
-                            break;
-                        }
-                    case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Copy_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Cut_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Delete:
-                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Delete_Click(null, null);
-                            break;
-                        }
-                }
+            switch (args.VirtualKey)
+            {
+                case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Location_Click(null, null);
+                        break;
+                    }
+                case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        SearchResultList.SelectAll();
+                        break;
+                    }
+                case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Copy_Click(null, null);
+                        break;
+                    }
+                case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Cut_Click(null, null);
+                        break;
+                    }
+                case VirtualKey.Delete:
+                case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Delete_Click(null, null);
+                        break;
+                    }
             }
         }
 
         private async Task Initialize(SearchOptions Options)
         {
-            STarget = SortTarget.Name;
-            SDirection = SortDirection.Ascending;
-
             HasItem.Visibility = Visibility.Collapsed;
 
             CancellationTokenSource Cancellation = new CancellationTokenSource();
@@ -143,26 +131,22 @@ namespace RX_Explorer
                 {
                     case SearchCategory.BuiltInEngine:
                         {
-                            IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText, Options.DeepSearch, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Options.UseRegexExpression, Options.IgnoreCase, Cancellation.Token);
+                            await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText, Options.DeepSearch, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Options.UseRegexExpression, Options.IgnoreCase, Cancellation.Token))
+                            {
+                                if (Cancellation.IsCancellationRequested)
+                                {
+                                    HasItem.Visibility = Visibility.Visible;
+                                    break;
+                                }
+                                else
+                                {
+                                    SearchResult.Insert(SortCollectionGenerator.SearchInsertLocation(SearchResult, Item, SortTarget.Name, SortDirection.Ascending), Item);
+                                }
+                            }
 
-                            if (Result.Count == 0)
+                            if (SearchResult.Count == 0)
                             {
                                 HasItem.Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
-                                {
-                                    if (Cancellation.IsCancellationRequested)
-                                    {
-                                        HasItem.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
-                                }
                             }
 
                             break;
@@ -187,7 +171,6 @@ namespace RX_Explorer
                         }
                 }
 
-                ListViewDetailHeader.Filter.SetDataSource(SearchResult);
                 SearchStatus.Text = Globalization.GetString("SearchCompletedText");
                 SearchStatusBar.Visibility = Visibility.Collapsed;
             }
@@ -401,105 +384,186 @@ namespace RX_Explorer
             }
         }
 
-        private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
-            BlockKeyboardShortCutInput = false;
+            if (SortMap[SortTarget.Size] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Size] = SortDirection.Descending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
 
-            if (sender.Target is FrameworkElement Element)
-            {
-                Element.Visibility = Visibility.Collapsed;
-            }
-        }
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Descending).ToArray();
 
-        private void FilterFlyout_Opened(object sender, object e)
-        {
-            BlockKeyboardShortCutInput = true;
-        }
+                SearchResult.Clear();
 
-        private void ListHeaderRelativePanel_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            if ((sender as FrameworkElement).FindChildOfName<Button>("NameFilterHeader") is Button NameFilterBtn)
-            {
-                NameFilterBtn.Visibility = Visibility.Visible;
-            }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("ModTimeFilterHeader") is Button ModTimeFilterBtn)
-            {
-                ModTimeFilterBtn.Visibility = Visibility.Visible;
-            }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("TypeFilterHeader") is Button TypeFilterBtn)
-            {
-                TypeFilterBtn.Visibility = Visibility.Visible;
-            }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("SizeFilterHeader") is Button SizeFilterBtn)
-            {
-                SizeFilterBtn.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void ListHeader_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            e.Handled = true;
-        }
-
-        private void ListHeaderRelativePanel_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            if ((sender as FrameworkElement).FindChildOfName<Button>("NameFilterHeader") is Button NameFilterBtn)
-            {
-                if (!NameFilterBtn.Flyout.IsOpen)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
-                    NameFilterBtn.Visibility = Visibility.Collapsed;
+                    SearchResult.Add(Item);
                 }
             }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("ModTimeFilterHeader") is Button ModTimeFilterBtn)
+            else
             {
-                if (!ModTimeFilterBtn.Flyout.IsOpen)
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Ascending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
-                    ModTimeFilterBtn.Visibility = Visibility.Collapsed;
-                }
-            }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("TypeFilterHeader") is Button TypeFilterBtn)
-            {
-                if (!TypeFilterBtn.Flyout.IsOpen)
-                {
-                    TypeFilterBtn.Visibility = Visibility.Collapsed;
-                }
-            }
-            else if ((sender as FrameworkElement).FindChildOfName<Button>("SizeFilterHeader") is Button SizeFilterBtn)
-            {
-                if (!SizeFilterBtn.Flyout.IsOpen)
-                {
-                    SizeFilterBtn.Visibility = Visibility.Collapsed;
+                    SearchResult.Add(Item);
                 }
             }
         }
 
-        private void ListHeader_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button Btn)
+            if (SortMap[SortTarget.Type] == SortDirection.Ascending)
             {
-                SortTarget CTarget = Btn.Name switch
-                {
-                    "ListHeaderName" => SortTarget.Name,
-                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
-                    "ListHeaderType" => SortTarget.Type,
-                    "ListHeaderPath" => SortTarget.Path,
-                    "ListHeaderSize" => SortTarget.Size,
-                    _ => throw new NotSupportedException()
-                };
+                SortMap[SortTarget.Type] = SortDirection.Descending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                if (STarget == CTarget)
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Descending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
-                    SDirection = SDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+                    SearchResult.Add(Item);
                 }
-                else
+            }
+            else
+            {
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Ascending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
-                    STarget = CTarget;
-                    SDirection = SortDirection.Ascending;
+                    SearchResult.Add(Item);
                 }
+            }
+        }
 
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(STarget, SDirection);
+        private void ListHeaderModifyDate_Click(object sender, RoutedEventArgs e)
+        {
+            if (SortMap[SortTarget.ModifiedTime] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Descending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, STarget, SDirection).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
+                {
+                    SearchResult.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
+                {
+                    SearchResult.Add(Item);
+                }
+            }
+        }
+
+        private void ListHeaderPath_Click(object sender, RoutedEventArgs e)
+        {
+            if (SortMap[SortTarget.Path] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Path] = SortDirection.Descending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Descending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
+                {
+                    SearchResult.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Ascending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
+                {
+                    SearchResult.Add(Item);
+                }
+            }
+        }
+
+        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        {
+            if (SortMap[SortTarget.Name] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Name] = SortDirection.Descending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Descending).ToArray();
+
+                SearchResult.Clear();
+
+                foreach (FileSystemStorageItemBase Item in SortResult)
+                {
+                    SearchResult.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortMap[SortTarget.Path] = SortDirection.Ascending;
+
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 
@@ -898,21 +962,14 @@ namespace RX_Explorer
                 string[] PathList = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
-                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
                     if (DeleteConfirm)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog 
-                        { 
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
-                        };
+                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             ExecuteDelete = true;
                         }
@@ -924,19 +981,15 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog 
-                    { 
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"), 
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
-                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
-                    };
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ExecuteDelete = true;
                     }
                 }
+
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
                 {

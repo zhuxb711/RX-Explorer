@@ -428,7 +428,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>(5)
                     {
-                        { Globalization.GetString("Properties_Details_Duration"), VideoProperties.Duration.ConvertTimeSpanToString() },
+                        { Globalization.GetString("Properties_Details_Duration"), VideoProperties.Duration.ConvertTimsSpanToString() },
                         { Globalization.GetString("Properties_Details_FrameWidth"), VideoProperties.Width.ToString() },
                         { Globalization.GetString("Properties_Details_FrameHeight"), VideoProperties.Height.ToString() },
                         { Globalization.GetString("Properties_Details_Bitrate"), VideoProperties.Bitrate / 1024f < 1024 ? $"{Math.Round(VideoProperties.Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(VideoProperties.Bitrate / 1048576f, 2):N2} Mbps" }
@@ -525,7 +525,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(3)
                     {
                         { Globalization.GetString("Properties_Details_Bitrate"), AudioProperties.Bitrate / 1024f < 1024 ? $"{Math.Round(AudioProperties.Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(AudioProperties.Bitrate / 1048576f, 2):N2} Mbps" },
-                        { Globalization.GetString("Properties_Details_Duration"), AudioProperties.Duration.ConvertTimeSpanToString() }
+                        { Globalization.GetString("Properties_Details_Duration"), AudioProperties.Duration.ConvertTimsSpanToString() }
                     };
 
                     IDictionary<string, object> AudioResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.Audio.SampleRate", "System.Audio.ChannelCount" });
@@ -699,7 +699,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         if (!string.IsNullOrEmpty(TotalEditingTime))
                         {
-                            DocExtraProperties["TotalEditingTime"] = TimeSpan.FromMilliseconds(Convert.ToUInt64(TotalEditingTime) / 10000).ConvertTimeSpanToString();
+                            DocExtraProperties["TotalEditingTime"] = TimeSpan.FromMilliseconds(Convert.ToUInt64(TotalEditingTime) / 10000).ConvertTimsSpanToString();
                         }
 
                         IDictionary<string, object> DocTimeResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.Document.DateCreated", "System.Document.DateSaved" });
@@ -788,7 +788,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
+                    LogTracer.Log(ex, $"{ nameof(CalculateFolderAndFileCount)} and { nameof(CalculateFolderSize)} threw an exception");
                 }
                 finally
                 {

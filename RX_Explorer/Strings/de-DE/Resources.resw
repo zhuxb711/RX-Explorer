@@ -195,8 +195,14 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
   </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>Losheften</value>
+  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Bibliothek</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>Öffnen</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Bestätigen</value>
@@ -224,6 +230,30 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Zusammenführen</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>Neue Datei erstellen</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>Dateiname</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>Dateinamen eingeben</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>Der angegebene Dateityp entspricht nicht den Spezifikationen. Bitte erneut versuchen.</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>Fehlerhaft</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>Typ eingeben oder auswählen</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Öffnen</value>
@@ -839,6 +869,15 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Sprache</value>
   </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>Sie können den Dateityp, den Sie erstellen möchten, manuell eingeben oder den vom RX Explorer vordefinierten Typ auswählen. Der RX Explorer kann jedoch nur die korrekte Erstellung vordefinierter Typen garantieren. Es kann nicht garantiert werden, dass die manuell eingegebenen Typen korrekt erstellt werden können.</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>Erklärung</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>Dateityp</value>
+  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Es kann zu einer Verzögerung beim Laden kommen</value>
   </data>
@@ -1174,6 +1213,9 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Erstellen</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Datei erstellen</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Ordner erstellen</value>
@@ -2151,7 +2193,7 @@ Inkorrekte Namen sind
     <value>In horizontaler Geteiltansicht öffnen</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Schließe alle Tabs außer diesem</value>
+    <value>Alle Tabs außer diesen schließen</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Diesen Tab schließen</value>
@@ -2886,7 +2928,7 @@ Inkorrekte Namen sind
     <value>Neustart ist erforderlich</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Die Verbindung zum Hilfsprozess wurde unterbrochen. Es kann beendet werden, weil Windows keine Systemressourcen hat oder der Hilfsprozess unerwartet abgestürzt ist</value>
+    <value>Der Hilfsprozess wurde unerwartet beendet, was dazu führen kann, dass einige Funktionen nicht ordnungsgemäß funktionieren</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Kritischer Fehler</value>
@@ -3094,7 +3136,7 @@ Inkorrekte Namen sind
     <value>Schneller Zugang</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Alle Tabs rechts schließen</value>
+    <value>Schließen Sie die Registerkarte rechts</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Hol es dir jetzt</value>
@@ -3107,23 +3149,5 @@ Inkorrekte Namen sind
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>Jetzt Jubiläumsrabatt sichern! Kaufen Sie die offizielle Version mit 50% Rabatt und schalten Sie neue Funktionen frei</value>
-  </data>
-  <data name="NewFile_Admin_Name" xml:space="preserve">
-    <value>Neue Datei</value>
-  </data>
-  <data name="SettingManageConfigContent.Text" xml:space="preserve">
-    <value>Durchführen von Konfigurationsvorgängen zum Speichern oder Wiederherstellen</value>
-  </data>
-  <data name="File_Type_Bmp_Description" xml:space="preserve">
-    <value>BMP-Bild</value>
-  </data>
-  <data name="Operate_Text_Unpin" xml:space="preserve">
-    <value>Loslösen</value>
-  </data>
-  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
-    <value>Durch diesen Vorgang werden diese Dateien dauerhaft gelöscht. Ob weitermachen?</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
-    <value>Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</value>
   </data>
 </root>

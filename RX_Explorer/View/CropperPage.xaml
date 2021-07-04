@@ -25,8 +25,7 @@
                                CropShape="Rectangular"
                                ThumbPlacement="Corners"
                                PointerReleased="Cropper_PointerReleased" />
-        <Grid Grid.Column="1"
-              Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="50" />
@@ -301,9 +300,9 @@
                           IsLoading="False"
                           Grid.ColumnSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
-                                    TintOpacity="0.6"
-                                    BlurAmount="3" />
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">

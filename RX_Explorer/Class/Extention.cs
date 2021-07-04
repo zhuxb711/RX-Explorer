@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using NetworkAccess;
 using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
@@ -217,16 +219,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string ConvertTimeSpanToString(this TimeSpan Span)
+        public static string ConvertTimsSpanToString(this TimeSpan Span)
         {
             if (Span == TimeSpan.MaxValue || Span == TimeSpan.MinValue)
             {
                 return "--:--:--";
             }
 
-            double Hour = 0;
-            double Minute = 0;
-            double Second = Math.Max(Span.TotalSeconds, 0);
+            int Hour = 0;
+            int Minute = 0;
+            int Second = Convert.ToInt32(Span.TotalSeconds);
 
             if (Second >= 60)
             {
@@ -239,7 +241,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return string.Format("{0:###00}:{1:00}:{2:00}", Hour, Minute, Second);
+            return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
         public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)
@@ -320,11 +322,11 @@ namespace RX_Explorer.Class
             return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
         }
 
-        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, params string[] PathArray)
+        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Point ShowAt)
         {
-            if (RelatedTo == null)
+            if (Flyout == null)
             {
-                throw new ArgumentNullException(nameof(RelatedTo), "Argument could not be null");
+                throw new ArgumentNullException(nameof(Flyout), "Argument could not be null");
             }
 
             if (Interlocked.Exchange(ref ContextMenuLockResource, 1) == 0)
@@ -345,11 +347,29 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (PathArray.Any() && PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
+                        string[] SelectedPathArray = null;
+
+                        if (ListControl.SelectedItems.Count <= 1)
+                        {
+                            if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
+                            {
+                                SelectedPathArray = new string[] { Selected.Path };
+                            }
+                            else if (ListControl.FindParentOfType<FileControl>() is FileControl Control && !string.IsNullOrEmpty(Control.CurrentPresenter.CurrentFolder?.Path))
+                            {
+                                SelectedPathArray = new string[] { Control.CurrentPresenter.CurrentFolder.Path };
+                            }
+                        }
+                        else
+                        {
+                            SelectedPathArray = ListControl.SelectedItems.OfType<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
+                        }
+
+                        if (SelectedPathArray != null)
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
@@ -434,11 +454,13 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        Flyout?.ShowAt(RelatedTo, new FlyoutShowOptions
+                        FlyoutShowOptions Option = new FlyoutShowOptions
                         {
                             Position = ShowAt,
                             Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                        });
+                        };
+
+                        Flyout?.ShowAt(ListControl, Option);
                     }
                     catch (Exception ex)
                     {
@@ -736,6 +758,102 @@ namespace RX_Explorer.Class
             if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
                 Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+            }
+        }
+
+        /// <summary>
+        /// 根据指定的密钥使用AES-128-CBC加密字符串
+        /// </summary>
+        /// <param name="OriginText">要加密的内容</param>
+        /// <param name="Key">密钥</param>
+        /// <returns></returns>
+        public static string EncryptToString(this string OriginText, string Key)
+        {
+            if (string.IsNullOrEmpty(OriginText))
+            {
+                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                string IV = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current);
+
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                {
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes(IV)
+                })
+                {
+                    using (MemoryStream EncryptStream = new MemoryStream())
+                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                    using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                    {
+                        byte[] OriginBytes = Encoding.UTF8.GetBytes(OriginText);
+                        TransformStream.Write(OriginBytes, 0, OriginBytes.Length);
+                        TransformStream.FlushFinalBlock();
+                        return Convert.ToBase64String(EncryptStream.ToArray());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not encrypt the string");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 根据指定的密钥解密密文
+        /// </summary>
+        /// <param name="OriginText">密文</param>
+        /// <param name="Key">密钥</param>
+        /// <returns></returns>
+        public static string DecryptToString(this string OriginText, string Key)
+        {
+            if (string.IsNullOrEmpty(OriginText))
+            {
+                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                {
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
+                })
+                {
+                    using (MemoryStream DecryptStream = new MemoryStream())
+                    using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                    using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Write))
+                    {
+                        byte[] EncryptedBytes = Convert.FromBase64String(OriginText);
+                        TransformStream.Write(EncryptedBytes, 0, EncryptedBytes.Length);
+                        TransformStream.FlushFinalBlock();
+                        return Encoding.UTF8.GetString(DecryptStream.ToArray());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not decrypt the string");
+                return string.Empty;
             }
         }
 

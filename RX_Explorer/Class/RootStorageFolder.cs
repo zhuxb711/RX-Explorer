@@ -74,32 +74,28 @@ namespace RX_Explorer.Class
             return Task.FromResult(false);
         }
 
-        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public override async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
             foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
             {
                 if (WIN_Native_API.CheckLocationAvailability(Drive.Path))
                 {
-                    return await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning);
+                    foreach (FileSystemStorageItemBase Item in await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning))
+                    {
+                        yield return Item;
+                    }
                 }
                 else
                 {
-                    List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
-
                     if (Drive.DriveFolder != null)
                     {
                         QueryOptions Options = new QueryOptions
                         {
-                            FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
+                            FolderDepth = FolderDepth.Shallow,
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
                         Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
                         Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
-
-                        if (!IsRegexExpresstion)
-                        {
-                            Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
-                        }
 
                         StorageItemQueryResult Query = Drive.DriveFolder.CreateItemQueryWithOptions(Options);
 
@@ -110,26 +106,49 @@ namespace RX_Explorer.Class
                             if (ReadOnlyItemList.Count > 0)
                             {
                                 foreach (IStorageItem Item in IsRegexExpresstion
-                                                              ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                              : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                              ? ReadOnlyItemList.AsParallel().Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                                              : ReadOnlyItemList.AsParallel().Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
                                 {
                                     if (CancelToken.IsCancellationRequested)
                                     {
-                                        break;
+                                        yield break;
                                     }
 
                                     switch (Item)
                                     {
                                         case StorageFolder SubFolder:
                                             {
-                                                Result.Add(await CreateFromStorageItemAsync(SubFolder));
+                                                yield return await CreateByStorageItemAsync(SubFolder);
                                                 break;
                                             }
                                         case StorageFile SubFile:
                                             {
-                                                Result.Add(await CreateFromStorageItemAsync(SubFile));
+                                                yield return await CreateByStorageItemAsync(SubFile);
                                                 break;
                                             }
+                                    }
+                                }
+
+                                if (SearchInSubFolders)
+                                {
+                                    foreach (StorageFolder Item in ReadOnlyItemList.OfType<StorageFolder>())
+                                    {
+                                        if (CancelToken.IsCancellationRequested)
+                                        {
+                                            yield break;
+                                        }
+
+                                        FileSystemStorageFolder FSubFolder = await CreateByStorageItemAsync(Item);
+
+                                        await foreach (FileSystemStorageItemBase FSubItem in FSubFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken))
+                                        {
+                                            if (CancelToken.IsCancellationRequested)
+                                            {
+                                                yield break;
+                                            }
+
+                                            yield return FSubItem;
+                                        }
                                     }
                                 }
                             }
@@ -139,12 +158,8 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-
-                    return Result;
                 }
             }
-
-            return new List<FileSystemStorageItemBase>(0);
         }
 
         private RootStorageFolder() : base("RootFolderUniquePath", default)

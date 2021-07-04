@@ -2,12 +2,6 @@
 
 namespace RX_Explorer.Class
 {
-    public enum NamedPipeMode
-    {
-        Read,
-        Write
-    }
-
     public enum SLEVersion
     {
         Version_1_0_0 = 100,
@@ -41,8 +35,7 @@ namespace RX_Explorer.Class
     {
         Copy,
         Move,
-        Delete,
-        Rename
+        Delete
     }
 
     public enum OperationStatus

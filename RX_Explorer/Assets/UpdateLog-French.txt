@@ -1,146 +1,4 @@
 ﻿*****
-###Quoi de neuf dans la version 6.7.8.0
-
-#####Mise à jour des fonctionnalités
-
->#####Ajout de la prise en charge de la création d'une "image BMP"
-
->#####Ajout d'un indicateur d'ordre de filtrage et de tri à la page de recherche
-
->#####Vous pouvez maintenant ajouter directement des dossiers en cliquant avec le bouton droit sur le nœud "Accès rapide" dans l'arborescence des répertoires
-
-#####Mise à jour de l'interface utilisateur
-
->#####Ajout d'une nouvelle icône pour les éléments de menu dans "Créer un fichier"
-
->#####Amélioration du contraste de l'interface utilisateur dans plusieurs modes
-
->#####Lors de la suppression définitive d'un fichier, un texte d'invite différent s'affichera
-
->#####"Bibliothèques", "Lecteurs" et "Arborescence de répertoires" ont maintenant augmenté le nombre d'éléments de menu contextuel
-
-#####Amélioration des performances
-
->#####Résolu le problème qui peut provoquer le blocage de l'interface utilisateur en cas de disque lent
-
->#####Amélioration des performances du moteur de recherche intégré sur certains disques
-
->#####Amélioration des performances des tâches de maintenance lors de la mise à niveau
-
->#####Amélioration des performances lors de l'exportation d'un grand nombre de journaux
-
->#####Amélioration des performances de calcul de la taille d'un dossier et du nombre de sous-fichiers ou sous-dossiers qu'il contient
-
->#####Amélioration de la vitesse d'obtention des éléments du menu contextuel
-
->#####Amélioration de la vitesse de lecture d'un grand nombre de fichiers de corbeille
-
-#####Correction d'un bug
-
->#####Correction du problème selon lequel "Récupérer le fond d'écran Bing" ne pouvait pas s'afficher correctement au démarrage
-
->#####Correction du problème que le menu contextuel ne peut pas apparaître dans l'espace vide de l'arborescence des répertoires
-
->#####Correction du problème selon lequel le canal de communication ne peut pas être fermé correctement après que le processus auxiliaire se bloque de manière inattendue et peut entraîner une utilisation élevée du processeur
-
->#####Correction d'un problème qui pouvait empêcher l'interface utilisateur de répondre lors de la recherche
-
->#####Correction du problème d'omissions possibles lors du filtrage des fichiers par couleur de marque
-
->#####Correction du problème selon lequel lors de l'ajout ou de la suppression du contenu des "Bibliothèques", les modifications apportées au nœud "Accès rapide" de l'arborescence des répertoires ne seraient pas automatiquement synchronisées
-
->#####Correction du problème selon lequel la logique d'ordre croissant et décroissant peut être incorrecte lors du basculement entre différentes bases de tri
-
->#####Correction du problème pouvant provoquer un plantage lorsque le mode économiseur de batterie est activé
-
->#####Correction du problème selon lequel le bouton de retour peut toujours être activé lorsque vous quittez la page de configuration sans utiliser le bouton de retour
-
-*****
-###Quoi de neuf dans la version 6.7.4.0
-
-#####Mise à jour des fonctionnalités
-
->#####La tâche d'annulation prend désormais en charge l'opération "Renommer"
-
->#####Il est désormais possible de demander des autorisations d'administrateur pour effectuer certaines opérations si nécessaire
-
->#####Amélioration du mécanisme de communication avec les processus auxiliaires
-
-#####Mise à jour de l'interface utilisateur
-
->#####Optimisation de l'effet d'affichage en mode "Recommandé"
-
->#####Amélioration du contraste de certains contrôles en mode « Couleur unie »
-
->#####Maintenant, vous pouvez créer différents types de fichiers directement dans le menu contextuel
-
-#####Correction d'un bug
-
->#####Correction du problème des images en double dans la liste en mode "Fond d'image" dans certains cas
-
->#####Correction du problème de planification de la « Liste des tâches » lors de la création rapide de tâches, ce qui peut entraîner l'exécution simultanée de toutes les tâches dans certains cas
-
->#####Correction du problème de suppression dans la corbeille en cliquant sur le bouton "Supprimer" tout en appuyant sur "Shift"
-
->#####Correction de quelques problèmes de traduction
-
-*****
-###Quoi de neuf dans la version 6.7.2.0
-
-#####Mise à jour des fonctionnalités
-
->#####Maintenant, le lecteur multimédia intégré peut continuer à lire du contenu multimédia lorsqu'il est minimisé
-
->#####Maintenant, vous pouvez ouvrir le dossier dans un nouvel onglet en Ctrl + Double-cliquer
-
-#####Mise à jour de l'interface utilisateur
-
->#####Ajustement de la couleur de certains matériaux acryliques
-
-#####Correction d'un bug
-
->#####Correction du problème de chargement trop lent de la page d'accueil au démarrage
-
-*****
-###Quoi de neuf dans la version 6.7.1.0
-
-#####Mise à jour des fonctionnalités
-
->#####Optimisation du mécanisme lorsque Win+E est activé et amélioration du taux de réussite
-
->#####Lorsque la liste des tâches est masquée, une petite barre de progression s'affiche pour indiquer la progression totale de toutes les tâches
-
->#####"Quick Access" a été créé par défaut dans l'arborescence des répertoires
-
->#####Ajout de l'option "Fermer tous les onglets à droite" dans le menu contextuel des onglets
-
-#####Mise à jour de l'interface utilisateur
-
->#####"Vertical Split View" termine la version bêta et nécessite désormais un paiement pour déverrouiller
-
->#####Lorsque vous faites un clic droit sur l'arborescence des répertoires, il ne sautera plus automatiquement vers le dossier correspondant
-
->#####Optimisation de la couleur de l'interface utilisateur et de l'effet d'affichage lors de l'utilisation du thème de couleur unie ou de la désactivation de l'acrylique
-
-#####Correction d'un bug
-
->#####Correction du problème selon lequel "Démarrage rapide" ne pouvait pas apparaître sur certains petits écrans
-
->#####Correction du problème selon lequel certaines applications ne peuvent pas être ajustées vers le haut lorsqu'elles sont lancées
-
->#####Correction du problème selon lequel, bien que la visionneuse intégrée ne prenne pas en charge les fichiers GIF, le fichier GIF peut toujours être ouvert via la visionneuse intégrée dans certains cas
-
->#####Correction du problème pouvant provoquer un plantage lors de l'utilisation du filtrage dans un dossier qui n'a pas de balise de couleur
-
->#####Correction du problème selon lequel l'invite demandant de modifier le thème peut réapparaître lors de l'accès à la page des paramètres
-
->#####Correction du problème qui provoquait un plantage lors de l'ouverture du répertoire racine dans une nouvelle page à onglet
-
->#####Correction d'un problème pouvant provoquer un plantage lors de l'ouverture de la fenêtre des propriétés
-
->#####Correction des problèmes liés à la planification des processus auxiliaires
-
-*****
 ###Quoi de neuf dans la version 6.6.8.0
 
 #####Amélioration des performances
@@ -202,7 +60,7 @@
 
 >#####Correction du problème selon lequel le titre de la fenêtre était incorrect lors de l'ouverture de la fenêtre des propriétés à partir de la corbeille
 
->#####Correction du problème d'affichage incorrect d'une partie du contenu dans la fenêtre des propriétés du dossier
+>######Correction du problème d'affichage incorrect d'une partie du contenu dans la fenêtre des propriétés du dossier
 
 >#####Correction de certains problèmes d'interface utilisateur sur la page des paramètres
 
@@ -236,7 +94,7 @@
 
 >#####Maintenant, vous pouvez filtrer les fichiers en fonction de la couleur de la balise
 
->#####L'invite indiquant que la vignette ne peut pas être chargée disparaîtra automatiquement après 5 s
+>######L'invite indiquant que la vignette ne peut pas être chargée disparaîtra automatiquement après 5 s
 
 >#####Refonte de l'interface utilisateur de "Restaurer" et "Autre" dans la page des paramètres
 

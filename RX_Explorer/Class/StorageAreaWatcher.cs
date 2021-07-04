@@ -175,7 +175,7 @@ namespace RX_Explorer.Class
 
                                         if (Item is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                                         {
-                                            if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                             {
                                                 if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                                 {
@@ -220,7 +220,7 @@ namespace RX_Explorer.Class
 
                                 if (Item is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                                 {
-                                    if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                    if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                     {
                                         if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                         {
@@ -283,7 +283,7 @@ namespace RX_Explorer.Class
 
                                         if (NewItem is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                                         {
-                                            if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                             {
                                                 if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                                 {

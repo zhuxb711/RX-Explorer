@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Search;
+using Windows.Storage.FileProperties;
 
 namespace RX_Explorer.Class
 {
@@ -55,14 +55,20 @@ namespace RX_Explorer.Class
         {
             try
             {
-                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
+                foreach (StorageFile LogFile in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
+                                                let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                                where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _)
+                                                select File)
                 {
-                    IndexerOption = IndexerOption.DoNotUseIndexer,
-                    FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
-                });
+                    BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
 
-                return await Query.GetItemCountAsync() > 0;
+                    if (Properties.Size > 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
             catch (Exception ex)
             {
@@ -75,36 +81,35 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using Stream ExportStream = await ExportFile.OpenStreamForWriteAsync();
-
-                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
+                using (Stream ExportStream = await ExportFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                 {
-                    IndexerOption = IndexerOption.DoNotUseIndexer,
-                    FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
-                });
-
-                foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await Query.GetFilesAsync()
-                                                                    let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                                                    where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
-                                                                    let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
-                                                                    orderby LogDate ascending
-                                                                    select (LogDate, File))
-                {
-                    using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
+                    foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
+                                                                        let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                                                        where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
+                                                                        let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
+                                                                        orderby LogDate ascending
+                                                                        select (LogDate, File))
                     {
-                        Writer.WriteLine();
-                        Writer.WriteLine("*************************");
-                        Writer.WriteLine($"LogDate: {LogDate:G}");
-                        Writer.WriteLine("*************************");
-                    }
+                        BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
 
-                    using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync())
-                    {
-                        await LogFileStream.CopyToAsync(ExportStream);
-                    }
+                        if (Properties.Size > 0)
+                        {
+                            using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
+                            {
+                                Writer.WriteLine();
+                                Writer.WriteLine("*************************");
+                                Writer.WriteLine($"LogDate: {LogDate:G}");
+                                Writer.WriteLine("*************************");
+                            }
 
-                    ExportStream.Seek(0, SeekOrigin.End);
+                            using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            {
+                                await LogFileStream.CopyToAsync(ExportStream).ConfigureAwait(false);
+                            }
+
+                            ExportStream.Seek(0, SeekOrigin.End);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -229,33 +234,25 @@ namespace RX_Explorer.Class
                     StorageFile LogFile = ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.OpenIfExists).AsTask().Result;
 
                     using (FileStream LogFileStream = LogFile.LockAndBlockAccess())
-                    using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);
 
-                        while (LogQueue.TryDequeue(out string LogItem))
+                        using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
                         {
-                            Writer.WriteLine(LogItem);
-                            Debug.WriteLine(LogItem);
-                        }
+                            while (LogQueue.TryDequeue(out string LogItem))
+                            {
+                                Writer.WriteLine(LogItem);
+                                Debug.WriteLine(LogItem);
+                            }
 
-                        Writer.Flush();
+                            Writer.Flush();
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error in writing log file: {ex.Message}");
                 }
-            }
-        }
-
-        public static void MakeSureLogIsFlushed(int TimeoutMilliseconds)
-        {
-            if (!BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                && !BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped))
-            {
-                SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                                         || BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped), Math.Max(0, TimeoutMilliseconds));
             }
         }
     }
