@@ -238,17 +238,9 @@
           <source>Empty</source>
           <target state="translated">Vide</target>
         </trans-unit>
-        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
-          <source>Unpin</source>
-          <target state="translated">Détacher</target>
-        </trans-unit>
         <trans-unit id="LibraryExpander.Text" translate="yes" xml:space="preserve">
           <source>Library</source>
           <target state="translated">Bibliothèque</target>
-        </trans-unit>
-        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated">Ouvrir</target>
         </trans-unit>
         <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
           <source>Confirm</source>
@@ -277,38 +269,6 @@
         <trans-unit id="MergeDialogText.Text" translate="yes" xml:space="preserve">
           <source>Merge</source>
           <target state="translated">Fusionner</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Annuler</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">Confirmer</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
-          <source>Create new file</source>
-          <target state="translated">Créer un nouveau fichier</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
-          <source>File name</source>
-          <target state="translated">Nom de fichier</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter file name</source>
-          <target state="translated">Entrer un nom de fichier</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The file type you specified does not meet the specifications. Please re-enter</source>
-          <target state="translated">Le type de fichier spécifié n'est pas valable. Veuillez réessayer</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
-          <source>Malformed</source>
-          <target state="translated">Malformé</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter or select a type</source>
-          <target state="translated">Entrer ou sélectionner un type</target>
         </trans-unit>
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
@@ -1092,18 +1052,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Language</source>
           <target state="translated">Langue</target>
         </trans-unit>
-        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
-          <target state="translated">Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</target>
-        </trans-unit>
-        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
-          <source>Explanation</source>
-          <target state="translated">Explication</target>
-        </trans-unit>
-        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
-          <source>File type</source>
-          <target state="translated">Type de fichier</target>
-        </trans-unit>
         <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">Il peut y avoir un retard dans le chargement</target>
@@ -1544,10 +1492,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">Nouveau</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
-          <source>Create file</source>
-          <target state="translated">Fichier</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
           <source>Create folder</source>
@@ -2862,8 +2806,8 @@ Les noms non valides incluent
           <target state="translated">Créer une nouvelle vue fractionnée verticale</target>
         </trans-unit>
         <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
-          <source>Close all tab but this</source>
-          <target state="translated">Fermez tout l'onglet mais ceci</target>
+          <source>Close all tabs but this</source>
+          <target state="translated">Fermez tous les onglets sauf celui-ci</target>
         </trans-unit>
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
@@ -3886,8 +3830,8 @@ Les noms non valides incluent
           <target state="translated">Un redémarrage est requis</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
-          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
-          <target state="translated">Le processus auxiliaire s'est arrêté de manière inattendue, ce qui peut entraîner un dysfonctionnement de certaines fonctions</target>
+          <source>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</source>
+          <target state="translated">La connexion avec le processus auxiliaire a été interrompue. Il peut être terminé car Windows manque de ressources système ou le processus auxiliaire s'est écrasé de manière inattendue</target>
         </trans-unit>
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>
@@ -4163,8 +4107,8 @@ Les noms non valides incluent
           <target state="translated">Accès rapide</target>
         </trans-unit>
         <trans-unit id="CloseTabOnRight.Label" translate="yes" xml:space="preserve">
-          <source>Close the tab on the right</source>
-          <target state="translated">Fermez l'onglet à droite</target>
+          <source>Close all tabs on the right</source>
+          <target state="translated">Fermez tous les onglets à droite</target>
         </trans-unit>
         <trans-unit id="DiscountTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Get it now</source>
@@ -4181,6 +4125,30 @@ Les noms non valides incluent
         <trans-unit id="TeachingTip_DiscountTip_Subtitle" translate="yes" xml:space="preserve">
           <source>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</source>
           <target state="translated">Obtenez le rabais anniversaire maintenant! Achetez la version officielle à 50% de réduction et débloquez de nouvelles fonctionnalités</target>
+        </trans-unit>
+        <trans-unit id="NewFile_Admin_Name" translate="yes" xml:space="preserve">
+          <source>New file</source>
+          <target state="translated">Nouveau fichier</target>
+        </trans-unit>
+        <trans-unit id="SettingManageConfigContent.Text" translate="yes" xml:space="preserve">
+          <source>Perform save or restore configuration operations</source>
+          <target state="translated">Effectuer des opérations de sauvegarde ou de restauration de configuration</target>
+        </trans-unit>
+        <trans-unit id="File_Type_Bmp_Description" translate="yes" xml:space="preserve">
+          <source>BMP image</source>
+          <target state="translated">Image BMP</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Unpin" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="translated">Détacher</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFilesPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete these files. Whether to continue?</source>
+          <target state="translated">Cette opération supprimera définitivement ces fichiers. Faut-il continuer ?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
+          <source>This will permanently delete everything in the folder. Whether to continue?</source>
+          <target state="translated">Cela supprimera définitivement tout dans le dossier. Faut-il continuer ?</target>
         </trans-unit>
       </group>
     </body>

@@ -112,22 +112,12 @@ namespace CommunicateService
                 }
                 else
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        { "Error", "Failed to wait a server connection within the specified time" }
-                    };
-
-                    await args.Request.SendResponseAsync(Value);
+                    await args.Request.SendResponseAsync(new ValueSet { { "Error", "Failed to wait a server connection within the specified time" } });
                 }
             }
             catch (Exception ex)
             {
-                ValueSet Value = new ValueSet
-                {
-                    { "Error", $"Some exceptions were threw while transmitting the message, exception: {ex}, message: {ex.Message}" }
-                };
-
-                await args.Request.SendResponseAsync(Value);
+                await args.Request.SendResponseAsync(new ValueSet { { "Error", $"Some exceptions were threw while transmitting the message, exception: {ex}, message: {ex.Message}" } });
             }
             finally
             {
@@ -147,15 +137,21 @@ namespace CommunicateService
 
                         lock (Locker)
                         {
+                            ValueSet Value = new ValueSet
+                            {
+                                { "ExecuteType", "AppServiceCancelled" },
+                                { "Reason", Enum.GetName(typeof(BackgroundTaskCancellationReason), reason) }
+                            };
+
                             if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
                             {
-                                Task.WaitAny(ServerConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask(), Task.Delay(2000));
+                                Task.WaitAny(ServerConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
                             }
                             else if (PairedConnections.FirstOrDefault((Con) => Con.Value == DisConnection).Key is AppServiceConnection ClientConnection)
                             {
                                 if (PairedConnections.TryRemove(ClientConnection, out _))
                                 {
-                                    Task.WaitAny(ClientConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "FullTrustProcessExited" } }).AsTask(), Task.Delay(2000));
+                                    Task.WaitAny(ClientConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
                                     ClientConnection.Dispose();
                                 }
                             }

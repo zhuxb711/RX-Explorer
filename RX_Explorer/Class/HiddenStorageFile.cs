@@ -21,6 +21,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override bool IsFullTrustProcessNeeded
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             RawData = await GetRawDataAsync(Controller);
@@ -37,11 +45,6 @@ namespace RX_Explorer.Class
                     Thumbnail = Image;
                 }
             }
-        }
-
-        protected override bool FullTrustProcessIsNeeded()
-        {
-            return true;
         }
 
         protected override bool CheckIfPropertiesLoaded()

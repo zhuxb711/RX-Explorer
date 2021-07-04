@@ -4,7 +4,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:local="using:RX_Explorer"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
@@ -142,8 +141,21 @@
         
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
+        <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              MinWidth="160"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickAccessButton"
+                              Click="AddQuickAccessButton_Click"/>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
-                               x:Name="RightTabFlyout">
+                               x:Name="RightTabFlyout"
+                               Opening="RightTabFlyout_Opening">
             <muxc:CommandBarFlyout.PrimaryCommands>
                 <AppBarButton Icon="Copy"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -161,12 +173,18 @@
                               Name="FolderRename"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
                               Click="FolderRename_Click" />
+                <AppBarButton Icon="UnPin"
+                              Visibility="Collapsed"
+                              x:Name="RemovePin"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Unpin')}"
+                              Click="RemovePin_Click" />
             </muxc:CommandBarFlyout.PrimaryCommands>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="NewFolder"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Name="CreateFolder"
                               MinWidth="250"
+                              MaxWidth="350"
                               Click="CreateFolder_Click" />
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
                               x:Name="OpenFolderInNewWindow"
@@ -179,6 +197,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
                               x:Name="OpenFolderInNewTab"
                               MinWidth="250"
+                              MaxWidth="350"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -188,6 +207,8 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               x:Name="OpenFolderInVerticalSplitView"
                               MinWidth="250"
+                              MaxWidth="350"
+                              Visibility="Collapsed"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -195,10 +216,21 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarSeparator />
+                <AppBarButton Label="Send to"
+                              x:Uid="SendTo"
+                              MinWidth="250"
+                              MaxWidth="350"
+                              Icon="Send">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="SendToFlyout_Opening" />
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="FolderAttribute"
                               MinWidth="250"
+                              MaxWidth="350"
                               Click="FolderAttribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
@@ -313,8 +345,7 @@
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}"
-                            ItemsSource="{x:Bind AddressSuggestionList}"
+            <AutoSuggestBox ItemsSource="{x:Bind AddressSuggestionList}"
                             Grid.Column="4"
                             Grid.ColumnSpan="2"
                             Margin="3,0,0,0"
@@ -399,6 +430,7 @@
                                     VerticalContentAlignment="Center"
                                     AllowDrop="True"
                                     CornerRadius="0"
+                                    BorderThickness="0"
                                     Drop="AddressButton_Drop"
                                     DragEnter="AddressButton_DragEnter"
                                     DragLeave="AddressButton_DragLeave"
@@ -412,6 +444,7 @@
                                     HorizontalContentAlignment="Center"
                                     Padding="0,4"
                                     CornerRadius="0"
+                                    BorderThickness="0"
                                     Name="AddressExtention"
                                     Click="AddressExtention_Click">
                                 <Button.Content>
@@ -468,7 +501,6 @@
                       VerticalAlignment="Stretch" />
 
             <AutoSuggestBox QueryIcon="Find"
-                            Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
                             x:FieldModifier="public"
@@ -678,20 +710,18 @@
                         <Setter Property="UseSystemFocusVisuals"
                                 Value="False" />
                         <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
+                                Value="Center" />
+                        <Setter Property="HorizontalContentAlignment" 
+                                Value="Stretch"/>
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
-                <muxc:TreeView.Resources>
-                    <RevealBackgroundBrush  x:Key="TreeViewItemBackgroundSelected"
-                                            Color="{ThemeResource SystemAccentColor}"
-                                            FallbackColor="{ThemeResource SystemAccentColor}" />
-                </muxc:TreeView.Resources>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
                         <RelativePanel Padding="0,5">
                             <Viewbox Height="20"
+                                     Width="20"
                                      Name="Icon"
-                                     Margin="0,3,0,0"
+                                     Margin="0,2,0,0"
                                      RelativePanel.AlignVerticalCenterWithPanel="True"
                                      RelativePanel.AlignLeftWithPanel="True">
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -723,9 +753,9 @@
                           x:FieldModifier="public"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="Black"
-                                    TintOpacity="0.65"
-                                    BlurAmount="4" />
+                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                    TintOpacity="0.6"
+                                    BlurAmount="3" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"

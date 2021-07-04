@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -200,6 +201,8 @@ namespace RX_Explorer.Class
 
                 try
                 {
+                    List<Task> RunningTask = new List<Task>();
+
                     while (OpeartionQueue.TryDequeue(out OperationListBaseModel Model))
                     {
                     Retry:
@@ -207,7 +210,9 @@ namespace RX_Explorer.Class
                         {
                             if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
                             {
-                                if (FullTrustProcessController.AvailableControllerNum < FullTrustProcessController.DynamicBackupProcessNum)
+                                if (FullTrustProcessController.AllControllersNum
+                                    - Math.Max(RunningTask.Count((Task) => !Task.IsCompleted), FullTrustProcessController.InUseControllersNum)
+                                    < FullTrustProcessController.DynamicBackupProcessNum)
                                 {
                                     Thread.Sleep(1000);
                                     goto Retry;
@@ -216,16 +221,7 @@ namespace RX_Explorer.Class
 
                             if (AllowParalledExecution)
                             {
-                                Thread SubThread = new Thread(() =>
-                                {
-                                    ExecuteSubTaskCore(Model);
-                                })
-                                {
-                                    IsBackground = true,
-                                    Priority = ThreadPriority.Normal
-                                };
-
-                                SubThread.Start();
+                                RunningTask.Add(Task.Factory.StartNew(() => ExecuteSubTaskCore(Model), TaskCreationOptions.LongRunning));
                             }
                             else
                             {
@@ -505,7 +501,7 @@ namespace RX_Explorer.Class
                                             }
                                         case OperationKind.Move:
                                             {
-                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, IsUndoOperation: true, ProgressHandler: (s, e) =>
+                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, SkipOperationRecord: true, ProgressHandler: (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -522,6 +518,12 @@ namespace RX_Explorer.Class
                                                 {
                                                     throw new Exception();
                                                 }
+
+                                                break;
+                                            }
+                                        case OperationKind.Rename:
+                                            {
+                                                Exclusive.Controller.RenameAsync(Model.FromPath.FirstOrDefault(), Path.GetFileName(Model.ToPath), true).Wait();
 
                                                 break;
                                             }
@@ -725,9 +727,11 @@ namespace RX_Explorer.Class
                     if (Model.Status != OperationStatus.Error)
                     {
                         Model.UpdateProgress(100);
-                        ProgressChangedCore();
                         Model.UpdateStatus(OperationStatus.Completed);
                     }
+
+                    ProgressChangedCore();
+
                 }).AsTask().Wait();
             }
             catch (Exception ex)
@@ -763,6 +767,10 @@ namespace RX_Explorer.Class
                         }
 
                         ProgressChanged?.Invoke(null, new ProgressChangedEventArgs((int)Math.Ceiling(CurrentValue / MaxOperationAddedSinceLastExecution), null));
+                    }
+                    else
+                    {
+                        ProgressChanged?.Invoke(null, new ProgressChangedEventArgs(100, null));
                     }
                 }
                 catch (Exception ex)

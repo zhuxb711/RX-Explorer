@@ -306,14 +306,8 @@
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>Websites</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>Unpin</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Library</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>Open</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirm</value>
@@ -341,30 +335,6 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Merge</value>
-  </data>
-  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
-  <data name="NewFileDialog.Title" xml:space="preserve">
-    <value>Create new file</value>
-  </data>
-  <data name="NewFileDialogFileName.Header" xml:space="preserve">
-    <value>File name</value>
-  </data>
-  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>Enter file name</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
-    <value>The file type you specified does not meet the specifications. Please re-enter</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
-    <value>Malformed</value>
-  </data>
-  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
-    <value>Enter or select a type</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
@@ -980,15 +950,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</value>
-  </data>
-  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
-    <value>Explanation</value>
-  </data>
-  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
-    <value>File type</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>There may be a delay in loading</value>
   </data>
@@ -1324,9 +1285,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Create</value>
-  </data>
-  <data name="Operate_Text_CreateFile" xml:space="preserve">
-    <value>Create file</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Create folder</value>
@@ -2307,7 +2265,7 @@ Invalid names include
     <value>Create a new vertical split view</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Close all tab but this</value>
+    <value>Close all tabs but this</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Close this tab</value>
@@ -3048,7 +3006,7 @@ Invalid names include
     <value>Restart is required</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</value>
+    <value>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Critical error</value>
@@ -3241,7 +3199,7 @@ Invalid names include
     <value>Quick Access</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Close the tab on the right</value>
+    <value>Close all tabs on the right</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Get it now</value>
@@ -3254,5 +3212,23 @@ Invalid names include
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>Get the anniversary discount now! Buy the official version at 50% discount and unlock new features</value>
+  </data>
+  <data name="NewFile_Admin_Name" xml:space="preserve">
+    <value>New file</value>
+  </data>
+  <data name="SettingManageConfigContent.Text" xml:space="preserve">
+    <value>Perform save or restore configuration operations</value>
+  </data>
+  <data name="File_Type_Bmp_Description" xml:space="preserve">
+    <value>BMP image</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>Unpin</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>This operation will permanently delete these files. Whether to continue?</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>This will permanently delete everything in the folder. Whether to continue?</value>
   </data>
 </root>

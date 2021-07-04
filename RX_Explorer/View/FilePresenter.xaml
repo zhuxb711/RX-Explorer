@@ -13,8 +13,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="TransparentColorBrush"
-                         Color="Transparent" />
         <CollectionViewSource x:Name="ListCollectionVS"
                               IsSourceGrouped="False" />
 
@@ -780,17 +778,9 @@
                               MinWidth="250"
                               MaxWidth="350">
                     <AppBarButton.Flyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Icon="Page2"
-                                            MinWidth="160"
-                                            Text="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
-                                            Name="CreateFile"
-                                            Click="CreateFile_Click" />
-                            <MenuFlyoutItem Icon="NewFolder"
-                                            Text="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
-                                            MinWidth="160"
-                                            Click="CreateFolder_Click" />
-                        </MenuFlyout>
+                        <MenuFlyout x:Name="CreatNewFlyout"
+                                    Opening="CreatNewFlyout_Opening"
+                                    Closed="CreatNewFlyout_Closed"/>
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Icon="Sort"
@@ -985,7 +975,7 @@
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5,4,5,5"
                   Width="220"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="60" />
@@ -1059,7 +1049,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="190" />
                     <RowDefinition Height="Auto" />
@@ -1111,7 +1101,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="140" />
                     <RowDefinition Height="Auto" />
@@ -1163,7 +1153,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="80" />
                     <RowDefinition Height="Auto" />
@@ -1214,7 +1204,7 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}"
+                  Background="{x:Bind AccentColor,Mode=OneWay}"
                   Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -1284,7 +1274,7 @@
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
             <Grid Margin="2,1.5,1,2"
-                  Background="{x:Bind BackgroundColor,Mode=OneWay,TargetNullValue={StaticResource TransparentColorBrush}}">
+                  Background="{x:Bind AccentColor,Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1426,6 +1416,7 @@
                                                        FontSize="18" />
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
+                                                       FontSize="14"
                                                        Text="{x:Bind Description}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -1454,11 +1445,11 @@
                                                 IsDoubleTapEnabled="True"
                                                 DoubleTapped="ListHeader_DoubleTapped"
                                                 x:Name="ListHeaderName"
-                                                Click="ListHeaderName_Click"
+                                                Click="ListHeader_Click"
                                                 Height="35"
                                                 RelativePanel.LeftOf="NameFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="名称"
@@ -1472,8 +1463,8 @@
                                                          x:Name="SortIndicator1"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator1Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator1Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.NameIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1483,7 +1474,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1505,6 +1496,54 @@
                                                         </Style>
                                                     </Flyout.FlyoutPresenterStyle>
                                                     <StackPanel MinWidth="230">
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="Orange" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#22B324" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#CC6EFF" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#42C5FF" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           VerticalAlignment="Center"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
+                                                            </StackPanel>
+                                                        </CheckBox>
                                                         <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
@@ -1561,60 +1600,6 @@
                                                                            x:Uid="NameFilterCheckBox5Text" />
                                                             </StackPanel>
                                                         </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Center">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="Orange" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Center">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#22B324" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Center">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#CC6EFF" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}"
-                                                                           x:Uid="NameFilterCheckBox5Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Center">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#42C5FF" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}"
-                                                                           x:Uid="NameFilterCheckBox5Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
                                                         <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
@@ -1649,10 +1634,10 @@
                                                 IsDoubleTapEnabled="True"
                                                 DoubleTapped="ListHeader_DoubleTapped"
                                                 Name="ListHeaderModifiedTime"
-                                                Click="ListHeaderModifiedTime_Click"
+                                                Click="ListHeader_Click"
                                                 RelativePanel.LeftOf="ModTimeFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="修改日期"
@@ -1666,8 +1651,8 @@
                                                          x:Name="SortIndicator2"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator2Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator2Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.ModifiedTimeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1677,7 +1662,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1777,10 +1762,10 @@
                                                 VerticalAlignment="Stretch"
                                                 Height="35"
                                                 Name="ListHeaderType"
-                                                Click="ListHeaderType_Click"
+                                                Click="ListHeader_Click"
                                                 RelativePanel.LeftOf="TypeFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="类型"
@@ -1794,8 +1779,8 @@
                                                          x:Name="SortIndicator3"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator3Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator3Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.TypeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1805,7 +1790,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1826,8 +1811,10 @@
                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                         </Style>
                                                     </Flyout.FlyoutPresenterStyle>
-                                                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
-                                                                  MaxHeight="400"
+                                                    <ScrollViewer VerticalScrollMode="Enabled"
+                                                                  HorizontalScrollMode="Disabled"
+                                                                  VerticalScrollBarVisibility="Auto"
+                                                                  MaxHeight="350"
                                                                   MinWidth="200"
                                                                   Content="{x:Bind Filter.TypeCheckBoxPanel,Mode=OneWay}" />
                                                 </Flyout>
@@ -1848,8 +1835,8 @@
                                                 RelativePanel.LeftOf="SizeFilterHeader"
                                                 RelativePanel.AlignLeftWithPanel="True"
                                                 Height="35"
-                                                Click="ListHeaderSize_Click"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Click="ListHeader_Click"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                             <RelativePanel>
                                                 <TextBlock Text="大小"
@@ -1863,8 +1850,8 @@
                                                          x:Name="SortIndicator4"
                                                          Height="12"
                                                          Width="12"
-                                                         Child="{x:Bind Indicator.Indicator4Icon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.Indicator4Visibility,Mode=OneWay}" />
+                                                         Child="{x:Bind Indicator.SizeIndicatorIcon,Mode=OneWay}"
+                                                         Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
                                             </RelativePanel>
                                         </Button>
                                         <Button HorizontalAlignment="Stretch"
@@ -1874,7 +1861,7 @@
                                                 Height="35"
                                                 Width="25"
                                                 Padding="2"
-                                                Background="{StaticResource ElementAcrylicBrush}"
+                                                Background="{ThemeResource ElementAcrylicBrush}"
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
@@ -1954,7 +1941,7 @@
                                             Grid.Column="4"
                                             IsDoubleTapEnabled="True"
                                             DoubleTapped="ListHeader_DoubleTapped"
-                                            Background="{StaticResource ElementAcrylicBrush}"
+                                            Background="{ThemeResource ElementAcrylicBrush}"
                                             Style="{StaticResource ListHeaderButtonStyle}" />
                                 </Grid>
                             </DataTemplate>
@@ -1988,6 +1975,7 @@
                                                FontSize="18" />
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
+                                               FontSize="14"
                                                Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
                                 </StackPanel>
                             </DataTemplate>
@@ -2097,7 +2085,7 @@
                             DefaultLabelPosition="Right"
                             Name="BottomCommandBar"
                             Opening="BottomCommandBar_Opening"
-                            Background="{StaticResource ElementAcrylicBrush}" />
+                            Background="{ThemeResource ElementAcrylicBrush}" />
             </StackPanel>
         </Grid>
         <local:Home HorizontalAlignment="Stretch"

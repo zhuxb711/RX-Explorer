@@ -11,12 +11,13 @@
   xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
   xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2"  
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"  
-  IgnorableNamespaces="uap mp desktop uap5 rescap desktop4 iot2">
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"  
+  IgnorableNamespaces="uap mp desktop uap5 rescap desktop4 iot2 uap3">
 
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="6.6.9.0" />
+    Version="6.7.8.0" />
 
   <mp:PhoneIdentity PhoneProductId="cb13434c-d58e-4756-a099-364235a676db" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -111,6 +112,7 @@
     <Capability Name="internetClientServer"/>
     <Capability Name="privateNetworkClientServer" />
     <uap:Capability Name="removableStorage"/>
+    <uap3:Capability Name="backgroundMediaPlayback"/>
     <DeviceCapability Name="bluetooth"/>
     <DeviceCapability Name="6AC27878-A6FA-4155-BA85-F98F491D4F33"/>
     <DeviceCapability Name="BA0C718F-4DED-49B7-BDD3-FABE28661211"/>

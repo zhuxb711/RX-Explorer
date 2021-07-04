@@ -9,21 +9,25 @@ namespace RX_Explorer.Class
 {
     public sealed class SortIndicatorController : INotifyPropertyChanged
     {
-        public Visibility Indicator1Visibility { get; private set; }
+        public Visibility NameIndicatorVisibility { get; private set; }
 
-        public Visibility Indicator2Visibility { get; private set; }
+        public Visibility ModifiedTimeIndicatorVisibility { get; private set; }
 
-        public Visibility Indicator3Visibility { get; private set; }
+        public Visibility TypeIndicatorVisibility { get; private set; }
 
-        public Visibility Indicator4Visibility { get; private set; }
+        public Visibility SizeIndicatorVisibility { get; private set; }
 
-        public FontIcon Indicator1Icon { get; private set; }
+        public Visibility PathIndicatorVisibility { get; private set; }
 
-        public FontIcon Indicator2Icon { get; private set; }
+        public FontIcon NameIndicatorIcon { get; private set; }
 
-        public FontIcon Indicator3Icon { get; private set; }
+        public FontIcon ModifiedTimeIndicatorIcon { get; private set; }
 
-        public FontIcon Indicator4Icon { get; private set; }
+        public FontIcon TypeIndicatorIcon { get; private set; }
+
+        public FontIcon SizeIndicatorIcon { get; private set; }
+
+        public FontIcon PathIndicatorIcon { get; private set; }
 
         private const string UpArrowIcon = "\uF0AD";
 
@@ -37,45 +41,61 @@ namespace RX_Explorer.Class
             {
                 case SortTarget.Name:
                     {
-                        Indicator1Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        NameIndicatorIcon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Indicator1Visibility = Visibility.Visible;
-                        Indicator2Visibility = Visibility.Collapsed;
-                        Indicator3Visibility = Visibility.Collapsed;
-                        Indicator4Visibility = Visibility.Collapsed;
+                        NameIndicatorVisibility = Visibility.Visible;
+                        ModifiedTimeIndicatorVisibility = Visibility.Collapsed;
+                        TypeIndicatorVisibility = Visibility.Collapsed;
+                        SizeIndicatorVisibility = Visibility.Collapsed;
+                        PathIndicatorVisibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        Indicator2Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        ModifiedTimeIndicatorIcon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Indicator1Visibility = Visibility.Collapsed;
-                        Indicator2Visibility = Visibility.Visible;
-                        Indicator3Visibility = Visibility.Collapsed;
-                        Indicator4Visibility = Visibility.Collapsed;
+                        NameIndicatorVisibility = Visibility.Collapsed;
+                        ModifiedTimeIndicatorVisibility = Visibility.Visible;
+                        TypeIndicatorVisibility = Visibility.Collapsed;
+                        SizeIndicatorVisibility = Visibility.Collapsed;
+                        PathIndicatorVisibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.Type:
                     {
-                        Indicator3Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        TypeIndicatorIcon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Indicator1Visibility = Visibility.Collapsed;
-                        Indicator2Visibility = Visibility.Collapsed;
-                        Indicator3Visibility = Visibility.Visible;
-                        Indicator4Visibility = Visibility.Collapsed;
+                        NameIndicatorVisibility = Visibility.Collapsed;
+                        ModifiedTimeIndicatorVisibility = Visibility.Collapsed;
+                        TypeIndicatorVisibility = Visibility.Visible;
+                        SizeIndicatorVisibility = Visibility.Collapsed;
+                        PathIndicatorVisibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.Size:
                     {
-                        Indicator4Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        SizeIndicatorIcon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Indicator1Visibility = Visibility.Collapsed;
-                        Indicator2Visibility = Visibility.Collapsed;
-                        Indicator3Visibility = Visibility.Collapsed;
-                        Indicator4Visibility = Visibility.Visible;
+                        NameIndicatorVisibility = Visibility.Collapsed;
+                        ModifiedTimeIndicatorVisibility = Visibility.Collapsed;
+                        TypeIndicatorVisibility = Visibility.Collapsed;
+                        SizeIndicatorVisibility = Visibility.Visible;
+                        PathIndicatorVisibility = Visibility.Collapsed;
+
+                        break;
+                    }
+                case SortTarget.Path:
+                    {
+                        PathIndicatorIcon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+
+                        NameIndicatorVisibility = Visibility.Collapsed;
+                        ModifiedTimeIndicatorVisibility = Visibility.Collapsed;
+                        TypeIndicatorVisibility = Visibility.Collapsed;
+                        SizeIndicatorVisibility = Visibility.Collapsed;
+                        PathIndicatorVisibility = Visibility.Visible;
 
                         break;
                     }
@@ -85,14 +105,16 @@ namespace RX_Explorer.Class
                     }
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator1Icon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator2Icon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator3Icon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator4Icon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator1Visibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator2Visibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator3Visibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator4Visibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameIndicatorIcon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModifiedTimeIndicatorIcon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeIndicatorIcon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeIndicatorIcon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathIndicatorIcon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameIndicatorVisibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModifiedTimeIndicatorVisibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeIndicatorVisibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeIndicatorVisibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathIndicatorVisibility)));
         }
 
         public SortIndicatorController()

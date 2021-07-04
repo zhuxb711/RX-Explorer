@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -95,6 +94,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override bool IsFullTrustProcessNeeded
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
             CreationTimeRaw = Item.DateCreated;
@@ -148,10 +155,10 @@ namespace RX_Explorer.Class
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return await Task.Run(() =>
+                return await Task.Factory.StartNew(() =>
                 {
                     return WIN_Native_API.CalulateSize(Path, CancelToken);
-                });
+                }, TaskCreationOptions.LongRunning);
             }
             else
             {
@@ -164,7 +171,8 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = FolderDepth.Deep,
-                            IndexerOption = IndexerOption.DoNotUseIndexer
+                            IndexerOption = IndexerOption.DoNotUseIndexer,
+                            ApplicationSearchFilter = "System.Size:>0"
                         };
                         Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
@@ -172,15 +180,15 @@ namespace RX_Explorer.Class
 
                         ulong TotalSize = 0;
 
-                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 25)
+                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 50)
                         {
-                            IReadOnlyList<StorageFile> ReadOnlyItemList = await Query.GetFilesAsync(Index, 25);
+                            IReadOnlyList<StorageFile> ReadOnlyItemList = await Query.GetFilesAsync(Index, 50);
 
-                            if (ReadOnlyItemList.Count > 0)
+                            if (ReadOnlyItemList.Any())
                             {
                                 foreach (StorageFile File in ReadOnlyItemList)
                                 {
-                                    TotalSize += await File.GetSizeRawDataAsync().ConfigureAwait(false);
+                                    TotalSize += await File.GetSizeRawDataAsync();
 
                                     if (CancelToken.IsCancellationRequested)
                                     {
@@ -193,6 +201,7 @@ namespace RX_Explorer.Class
                                 break;
                             }
                         }
+
 
                         return TotalSize;
                     }
@@ -213,10 +222,10 @@ namespace RX_Explorer.Class
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return await Task.Run(() =>
+                return await Task.Factory.StartNew(() =>
                 {
                     return WIN_Native_API.CalculateFolderAndFileCount(Path, CancelToken);
-                });
+                }, TaskCreationOptions.LongRunning);
             }
             else
             {
@@ -231,42 +240,13 @@ namespace RX_Explorer.Class
                             FolderDepth = FolderDepth.Deep,
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
-                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
-                        StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+                        StorageFileQueryResult FileQuery = Folder.CreateFileQueryWithOptions(Options);
+                        StorageFolderQueryResult FolderQuery = Folder.CreateFolderQueryWithOptions(Options);
 
-                        uint FolderCount = 0, FileCount = 0;
+                        uint[] Results = await Task.WhenAll(FolderQuery.GetItemCountAsync().AsTask(CancelToken), FileQuery.GetItemCountAsync().AsTask(CancelToken));
 
-                        for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 25)
-                        {
-                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25);
-
-                            if (ReadOnlyItemList.Count > 0)
-                            {
-                                foreach (IStorageItem Item in ReadOnlyItemList)
-                                {
-                                    if (Item.IsOfType(StorageItemTypes.Folder))
-                                    {
-                                        FolderCount++;
-                                    }
-                                    else
-                                    {
-                                        FileCount++;
-                                    }
-
-                                    if (CancelToken.IsCancellationRequested)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        return (FolderCount, FileCount);
+                        return (Results[0], Results[1]);
                     }
                     else
                     {
@@ -281,26 +261,30 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                foreach (FileSystemStorageItemBase Item in await Task.Factory.StartNew(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning))
-                {
-                    yield return Item;
-                }
+                return await Task.Factory.StartNew(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning);
             }
             else
             {
+                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
+
                 if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
                     QueryOptions Options = new QueryOptions
                     {
-                        FolderDepth = FolderDepth.Shallow,
+                        FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
                         IndexerOption = IndexerOption.DoNotUseIndexer
                     };
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
                     Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
+
+                    if (!IsRegexExpresstion)
+                    {
+                        Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
+                    }
 
                     StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 
@@ -308,52 +292,29 @@ namespace RX_Explorer.Class
                     {
                         IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 50).AsTask(CancelToken);
 
-                        if (ReadOnlyItemList.Count > 0)
+                        if (ReadOnlyItemList.Any())
                         {
                             foreach (IStorageItem Item in IsRegexExpresstion
-                                                          ? ReadOnlyItemList.AsParallel().Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                          : ReadOnlyItemList.AsParallel().Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                          ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                                          : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
                             {
                                 if (CancelToken.IsCancellationRequested)
                                 {
-                                    yield break;
+                                    break;
                                 }
 
                                 switch (Item)
                                 {
                                     case StorageFolder SubFolder:
                                         {
-                                            yield return await CreateByStorageItemAsync(SubFolder);
+                                            Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
                                             break;
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            yield return await CreateByStorageItemAsync(SubFile);
+                                            Result.Add(await CreateFromStorageItemAsync(SubFile));
                                             break;
                                         }
-                                }
-                            }
-
-                            if (SearchInSubFolders)
-                            {
-                                foreach (StorageFolder Item in ReadOnlyItemList.OfType<StorageFolder>())
-                                {
-                                    if (CancelToken.IsCancellationRequested)
-                                    {
-                                        yield break;
-                                    }
-
-                                    FileSystemStorageFolder FSubFolder = await CreateByStorageItemAsync(Item);
-
-                                    await foreach (FileSystemStorageItemBase FSubItem in FSubFolder.SearchAsync(SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken))
-                                    {
-                                        if (CancelToken.IsCancellationRequested)
-                                        {
-                                            yield break;
-                                        }
-
-                                        yield return FSubItem;
-                                    }
                                 }
                             }
                         }
@@ -363,6 +324,8 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+
+                return Result;
             }
         }
 
@@ -416,7 +379,7 @@ namespace RX_Explorer.Class
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(await CreateByStorageItemAsync(SubFile));
+                                        Result.Add(await CreateFromStorageItemAsync(SubFile));
                                     }
                                 }
                             }
@@ -455,11 +418,6 @@ namespace RX_Explorer.Class
         protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
         {
             return LoadPropertiesAsync(ForceUpdate);
-        }
-
-        protected override bool FullTrustProcessIsNeeded()
-        {
-            return false;
         }
 
         protected override bool CheckIfPropertiesLoaded()

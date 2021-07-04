@@ -61,7 +61,7 @@ namespace FullTrustProcess
                                     {
                                         LockProcesses.Add(Process.GetProcessById(Convert.ToInt32(ProcessInfo[i].Process.dwProcessId)));
                                     }
-                                    catch(Exception ex)
+                                    catch (Exception ex)
                                     {
                                         // catch the error -- in case the process is no longer running
                                         LogTracer.Log(ex, "Process is no longer running");
@@ -158,8 +158,9 @@ namespace FullTrustProcess
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(CheckCaptured)}");
                     return false;
                 }
             }
@@ -253,8 +254,9 @@ namespace FullTrustProcess
 
                 return InheritedAllow && !InheritedDeny;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(CheckPermission)}");
                 return false;
             }
         }
@@ -331,13 +333,14 @@ namespace FullTrustProcess
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Rename)}");
                 return false;
             }
         }
 
-        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent)
+        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent = null)
         {
             try
             {
@@ -360,8 +363,15 @@ namespace FullTrustProcess
                     Options = Flags
                 })
                 {
-                    Operation.UpdateProgress += Progress;
-                    Operation.PostDeleteItem += PostDeleteEvent;
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress += Progress;
+                    }
+
+                    if (PostDeleteEvent != null)
+                    {
+                        Operation.PostDeleteItem += PostDeleteEvent;
+                    }
 
                     foreach (string Path in Source)
                     {
@@ -373,19 +383,31 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
-                    Operation.PostDeleteItem -= PostDeleteEvent;
-                    Operation.UpdateProgress -= Progress;
+                    if (PostDeleteEvent != null)
+                    {
+                        Operation.PostDeleteItem -= PostDeleteEvent;
+                    }
+
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress -= Progress;
+                    }
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 
-        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
+        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent = null)
         {
             try
             {
@@ -422,8 +444,15 @@ namespace FullTrustProcess
                     Options = Flags
                 })
                 {
-                    Operation.UpdateProgress += Progress;
-                    Operation.PostCopyItem += PostCopyEvent;
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress += Progress;
+                    }
+
+                    if (PostCopyEvent != null)
+                    {
+                        Operation.PostCopyItem += PostCopyEvent;
+                    }
 
                     foreach (string Source in SourcePath)
                     {
@@ -436,19 +465,31 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
-                    Operation.PostCopyItem -= PostCopyEvent;
-                    Operation.UpdateProgress -= Progress;
+                    if (PostCopyEvent != null)
+                    {
+                        Operation.PostCopyItem -= PostCopyEvent;
+                    }
+
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress -= Progress;
+                    }
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Copy)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 
-        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
+        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent = null)
         {
             try
             {
@@ -485,8 +526,15 @@ namespace FullTrustProcess
                     Options = Flags
                 })
                 {
-                    Operation.UpdateProgress += Progress;
-                    Operation.PostMoveItem += PostMoveEvent;
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress += Progress;
+                    }
+
+                    if (PostMoveEvent != null)
+                    {
+                        Operation.PostMoveItem += PostMoveEvent;
+                    }
 
                     foreach (string Source in SourcePath)
                     {
@@ -499,15 +547,27 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
-                    Operation.PostMoveItem -= PostMoveEvent;
-                    Operation.UpdateProgress -= Progress;
+                    if (PostMoveEvent != null)
+                    {
+                        Operation.PostMoveItem -= PostMoveEvent;
+                    }
+
+                    if (Progress != null)
+                    {
+                        Operation.UpdateProgress -= Progress;
+                    }
                 }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Move)}");
                 return false;
+            }
+            finally
+            {
+                Progress?.Invoke(null, new ProgressChangedEventArgs(100, null));
             }
         }
 

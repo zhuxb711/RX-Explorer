@@ -1,60 +1,67 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RX_Explorer.Class
 {
     public sealed class OperationRecorder
     {
-        private readonly Stack<List<string>> Container;
-
-        private static readonly object Locker = new object();
+        private readonly ConcurrentStack<List<string>> Container;
 
         private static OperationRecorder Instance;
 
-        public void Push(List<string> InputList)
+        public void Push(params string[] InputList)
         {
-            lock (Locker)
+            if (InputList.Length > 0)
             {
                 List<string> FilterList = new List<string>();
 
                 foreach (string Record in InputList)
                 {
-                    string SourcePath = Record.Split("||", System.StringSplitOptions.None).FirstOrDefault();
+                    string SourcePath = Record.Split("||").FirstOrDefault();
 
-                    if (FilterList.Select((Rec) => Rec.Split("||", System.StringSplitOptions.None).FirstOrDefault()).All((RecPath) => !SourcePath.StartsWith(RecPath)))
+                    if (FilterList.Select((Rec) => Rec.Split("||").FirstOrDefault()).All((RecPath) => !SourcePath.StartsWith(RecPath, StringComparison.OrdinalIgnoreCase)))
                     {
                         FilterList.Add(Record);
                     }
                 }
 
-                Container.Push(FilterList);
+                if (FilterList.Count > 0)
+                {
+                    Container.Push(FilterList);
+                }
             }
         }
 
         public List<string> Pop()
         {
-            lock (Locker)
+            if (Container.TryPop(out List<string> Result))
             {
-                return Container.Pop();
+                return Result;
+            }
+            else
+            {
+                return new List<string>(0);
             }
         }
 
-        public int Count { get => Container.Count; }
+        public bool IsNotEmpty 
+        { 
+            get => !Container.IsEmpty; 
+        }
 
         public static OperationRecorder Current
         {
             get
             {
-                lock (Locker)
-                {
-                    return Instance ??= new OperationRecorder();
-                }
+                return Instance ??= new OperationRecorder();
             }
         }
 
         private OperationRecorder()
         {
-            Container = new Stack<List<string>>();
+            Container = new ConcurrentStack<List<string>>();
         }
     }
 }

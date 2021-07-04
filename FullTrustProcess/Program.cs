@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DeferredEvents;
+using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -7,11 +8,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -33,55 +32,299 @@ namespace FullTrustProcess
     {
         private static AppServiceConnection Connection;
 
-        private static readonly Dictionary<string, NamedPipeServerStream> PipeServers = new Dictionary<string, NamedPipeServerStream>();
-
-        private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
-
-        private static readonly object Locker = new object();
+        private static ManualResetEvent ExitLocker;
 
         private static Timer AliveCheckTimer;
 
         private static Process ExplorerProcess;
 
+        private static NamedPipeWriteController PipeWriteController;
+
+        private static NamedPipeReadController PipeReadController;
+
         static async Task Main(string[] args)
         {
             try
             {
+                ExitLocker = new ManualResetEvent(false);
+
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-                Connection = new AppServiceConnection
+                if (args.FirstOrDefault() != "/ExecuteAdminOperation")
                 {
-                    AppServiceName = "CommunicateService",
-                    PackageFamilyName = Package.Current.Id.FamilyName
-                };
-                Connection.RequestReceived += Connection_RequestReceived;
-                Connection.ServiceClosed += Connection_ServiceClosed;
-
-                if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
-                {
-                    AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
-
-                    try
+                    Connection = new AppServiceConnection
                     {
-                        //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                        string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
+                        AppServiceName = "CommunicateService",
+                        PackageFamilyName = Package.Current.Id.FamilyName
+                    };
+                    Connection.RequestReceived += Connection_RequestReceived;
+                    Connection.ServiceClosed += Connection_ServiceClosed;
 
-                        if (Directory.Exists(TempFolderPath))
+                    if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                    {
+                        AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
+
+                        try
                         {
-                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
+                            //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
+                            string TempFolderPath = Path.GetTempPath();
+
+                            if (Directory.Exists(TempFolderPath))
+                            {
+                                await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
+                        ExitLocker.Set();
                     }
+
+                    ExitLocker.WaitOne();
                 }
                 else
                 {
-                    ExitLocker.Set();
-                }
+                    string Input = args.LastOrDefault();
 
-                ExitLocker.WaitOne();
+                    if (!string.IsNullOrEmpty(Input))
+                    {
+                        string DataPath = Input.Decrypt("W8aPHu7MGOGA5x5x");
+
+                        if (File.Exists(DataPath))
+                        {
+                            using (Process CurrentProcess = Process.GetCurrentProcess())
+                            {
+                                string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{CurrentProcess.Id}");
+
+                                try
+                                {
+                                    string[] InitData = File.ReadAllLines(DataPath);
+
+                                    using (StreamWriter Writer = File.CreateText(TempFilePath))
+                                    {
+                                        switch (JsonSerializer.Deserialize(InitData[1], Type.GetType(InitData[0])))
+                                        {
+                                            case ElevationCopyData CopyData:
+                                                {
+                                                    if (CopyData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    {
+                                                        if (StorageController.CheckPermission(FileSystemRights.Modify, CopyData.Destination))
+                                                        {
+                                                            List<string> OperationRecordList = new List<string>();
+
+                                                            if (StorageController.Copy(CopyData.Source, CopyData.Destination, CopyData.Option, PostCopyEvent: (se, arg) =>
+                                                            {
+                                                                if (arg.Result == HRESULT.S_OK)
+                                                                {
+                                                                    if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                                    {
+                                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                                    }
+                                                                }
+                                                            }))
+                                                            {
+                                                                Writer.WriteLine("Success");
+                                                                Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
+                                                            }
+                                                            else
+                                                            {
+                                                                Writer.WriteLine("Error_Failure");
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Writer.WriteLine("Error_NoPermission");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Writer.WriteLine("Error_NotFound");
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ElevationMoveData MoveData:
+                                                {
+                                                    if (MoveData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    {
+                                                        if (MoveData.Source.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                        {
+                                                            Writer.WriteLine("Error_Capture");
+                                                        }
+                                                        else
+                                                        {
+                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.Destination)
+                                                                && MoveData.Source.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            {
+                                                                List<string> OperationRecordList = new List<string>();
+
+                                                                if (StorageController.Move(MoveData.Source, MoveData.Destination, MoveData.Option, PostMoveEvent: (se, arg) =>
+                                                                {
+                                                                    if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
+                                                                    {
+                                                                        if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                                        {
+                                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                                        }
+                                                                    }
+                                                                }))
+                                                                {
+                                                                    if (MoveData.Source.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    {
+                                                                        Writer.WriteLine("Success");
+                                                                        Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Writer.WriteLine("Error_Capture");
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    Writer.WriteLine("Error_Failure");
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Writer.WriteLine("Error_NoPermission");
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Writer.WriteLine("Error_NotFound");
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ElevationDeleteData DeleteData:
+                                                {
+                                                    if (DeleteData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    {
+                                                        if (DeleteData.Source.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                        {
+                                                            Writer.WriteLine("Error_Capture");
+                                                        }
+                                                        else
+                                                        {
+                                                            if (DeleteData.Source.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            {
+                                                                List<string> OperationRecordList = new List<string>();
+
+                                                                if (StorageController.Delete(DeleteData.Source, DeleteData.PermanentDelete, PostDeleteEvent: (se, arg) =>
+                                                                {
+                                                                    if (!DeleteData.PermanentDelete)
+                                                                    {
+                                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                                    }
+                                                                }))
+                                                                {
+                                                                    if (DeleteData.Source.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    {
+                                                                        Writer.WriteLine("Success");
+                                                                        Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Writer.WriteLine("Error_Capture");
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    Writer.WriteLine("Error_Failure");
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Writer.WriteLine("Error_NoPermission");
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Writer.WriteLine("Error_NotFound");
+                                                    }
+
+                                                    break;
+                                                }
+                                            case ElevationRenameData RenameData:
+                                                {
+                                                    string Path = RenameData.Source.FirstOrDefault();
+
+                                                    if (File.Exists(Path) || Directory.Exists(Path))
+                                                    {
+                                                        if (StorageController.CheckCaptured(Path))
+                                                        {
+                                                            Writer.WriteLine("Error_Capture");
+                                                        }
+                                                        else
+                                                        {
+                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path))
+                                                            {
+                                                                string NewName = string.Empty;
+
+                                                                if (StorageController.Rename(Path, RenameData.DesireName, (s, e) =>
+                                                                {
+                                                                    NewName = e.Name;
+                                                                }))
+                                                                {
+                                                                    Writer.WriteLine("Success");
+                                                                    Writer.WriteLine(NewName);
+                                                                }
+                                                                else
+                                                                {
+                                                                    Writer.WriteLine("Error_Failure");
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Writer.WriteLine("Error_NoPermission");
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Writer.WriteLine("Error_NotFound");
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"FullTrustProcess(Elevated) threw an exception, message: {ex.Message}");
+                                    File.Delete(TempFilePath);
+                                }
+                                finally
+                                {
+                                    File.Delete(DataPath);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("Init file is missing");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("Startup parameter is not correct");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -92,17 +335,42 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
+                PipeWriteController?.Dispose();
+                PipeReadController?.Dispose();
+                LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
 
-                try
-                {
-                    PipeServers.Values.ToList().ForEach((Item) => Item.Dispose());
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Error when dispose PipeLine");
-                }
+        private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            EventDeferral Deferral = e.GetDeferral();
 
-                PipeServers.Clear();
+            try
+            {
+                PipeCommand Command = JsonSerializer.Deserialize<PipeCommand>(e.Data);
+
+                switch (Command.CommandText)
+                {
+                    case "Execute_GetContextMenuItems":
+                        {
+                            PipeWriteController?.SendData(JsonSerializer.Serialize(await ContextMenu.FetchContextMenuItemsAsync(JsonSerializer.Deserialize<string[]>(Command.ExtraData["ExecutePath"]), Convert.ToBoolean(Command.ExtraData["IncludeExtensionItem"]))));
+                            break;
+                        }
+                    case "Execute_Get_RecycleBinItems":
+                        {
+                            PipeWriteController?.SendData(RecycleBinController.GenerateRecycleItemsByJson());
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in responding pipe message");
+                PipeWriteController?.SendData("<<<Error>>>");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -111,6 +379,7 @@ namespace FullTrustProcess
             if (e.ExceptionObject is Exception Ex)
             {
                 LogTracer.Log(Ex, "UnhandledException");
+                LogTracer.MakeSureLogIsFlushed(2000);
             }
         }
 
@@ -377,7 +646,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet
                             {
-                                { "Success", MIMEHelper.GetMIMEFromPath(ExecutePath)}
+                                { "Success", Helper.GetMIMEFromPath(ExecutePath)}
                             };
 
                             await args.Request.SendResponseAsync(Value);
@@ -559,30 +828,81 @@ namespace FullTrustProcess
                             {
                                 if (StorageController.CheckCaptured(ExecutePath))
                                 {
-                                    Value.Add("Error_Capture", "FileLoadException");
+                                    Value.Add("Error_Capture", "An error occurred while renaming the files");
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
+                                    if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath) ?? ExecutePath))
                                     {
-                                        if (!StorageController.Rename(ExecutePath, DesireName, (s, e) =>
+                                        string NewName = string.Empty;
+
+                                        if (StorageController.Rename(ExecutePath, DesireName, (s, e) =>
                                         {
-                                            Value.Add("Success", e.Name);
+                                            NewName = e.Name;
                                         }))
                                         {
-                                            Value.Remove("Success");
+                                            Value.Add("Success", NewName);
+                                        }
+                                        else
+                                        {
                                             Value.Add("Error_Failure", "Error happened when rename");
                                         }
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "No Modify Permission");
+                                        using (Process AdminProcess = CreateNewProcessAsElevated(new ElevationRenameData(ExecutePath, DesireName)))
+                                        using (Process CurrentProcess = Process.GetCurrentProcess())
+                                        {
+                                            AdminProcess.WaitForExit();
+
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
+
+                                            if (File.Exists(TempFilePath))
+                                            {
+                                                try
+                                                {
+                                                    string[] OriginData = File.ReadAllLines(TempFilePath, Encoding.UTF8);
+
+                                                    switch (OriginData[0])
+                                                    {
+                                                        case "Success":
+                                                            {
+                                                                Value.Add("Success", OriginData[1]);
+                                                                break;
+                                                            }
+                                                        case "Error_Capture":
+                                                            {
+                                                                Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                break;
+                                                            }
+                                                        case "Error_NoPermission":
+                                                            {
+                                                                Value.Add("Error_Capture", "Do not have enough permission");
+                                                                break;
+                                                            }
+                                                        case "Error_Failure":
+                                                            {
+                                                                Value.Add("Error_Failure", "Error happened when rename");
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    File.Delete(TempFilePath);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error", "Could not found template file");
+                                            }
+                                        }
                                     }
                                 }
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "FileNotFoundException");
+                                Value.Add("Error_NotFound", "Path is not found");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -1131,35 +1451,6 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Execute_RequestCreateNewPipe":
-                        {
-                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
-
-                            if (!PipeServers.ContainsKey(Guid))
-                            {
-                                NamedPipeServerStream NewPipeServer = new NamedPipeServerStream($@"Explorer_And_FullTrustProcess_NamedPipe-{Guid}", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 2048, 2048, null, HandleInheritability.None, PipeAccessRights.ChangePermissions);
-
-                                PipeSecurity Security = NewPipeServer.GetAccessControl();
-                                PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
-                                PipeAccessRule OwnerRule = new PipeAccessRule(WindowsIdentity.GetCurrent().Owner, PipeAccessRights.FullControl, AccessControlType.Allow);
-                                Security.AddAccessRule(ClientRule);
-                                Security.AddAccessRule(OwnerRule);
-                                NewPipeServer.SetAccessControl(Security);
-
-                                PipeServers.Add(Guid, NewPipeServer);
-
-                                _ = NewPipeServer.WaitForConnectionAsync(new CancellationTokenSource(3000).Token).ContinueWith((task) =>
-                                {
-                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipe))
-                                    {
-                                        Pipe.Dispose();
-                                        PipeServers.Remove(Guid);
-                                    }
-                                }, TaskContinuationOptions.OnlyOnCanceled);
-                            }
-
-                            break;
-                        }
                     case "Identity":
                         {
                             ValueSet Value = new ValueSet
@@ -1363,13 +1654,11 @@ namespace FullTrustProcess
 
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
-                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
+
                             CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(args.Request.Message["CollisionOptions"]));
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
-
-                            int Progress = 0;
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
@@ -1377,25 +1666,7 @@ namespace FullTrustProcess
                                 {
                                     if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                     {
-                                        lock (Locker)
-                                        {
-                                            try
-                                            {
-                                                Progress = e.ProgressPercentage;
-
-                                                if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
-                                                {
-                                                    using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
-                                                    {
-                                                        Writer.WriteLine(e.ProgressPercentage);
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                LogTracer.Log(ex, "Could not send progress data");
-                                            }
-                                        }
+                                        PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
                                     },
                                     (se, arg) =>
                                     {
@@ -1412,44 +1683,62 @@ namespace FullTrustProcess
                                         }
                                     }))
                                     {
-                                        Value.Add("Success", string.Empty);
-
-                                        if (OperationRecordList.Count > 0)
-                                        {
-                                            Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
-                                        }
+                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "An error occurred while copying the folder");
+                                        Value.Add("Error_Failure", "An error occurred while copying the files");
                                     }
                                 }
                                 else
                                 {
-                                    Value.Add("Error_Failure", "An error occurred while copying the folder");
+                                    using (Process AdminProcess = CreateNewProcessAsElevated(new ElevationCopyData(SourcePathList, DestinationPath, Option)))
+                                    using (Process CurrentProcess = Process.GetCurrentProcess())
+                                    {
+                                        AdminProcess.WaitForExit();
+
+                                        string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
+
+                                        if (File.Exists(TempFilePath))
+                                        {
+                                            try
+                                            {
+                                                string[] OriginData = File.ReadAllLines(TempFilePath, Encoding.UTF8);
+
+                                                switch (OriginData[0])
+                                                {
+                                                    case "Success":
+                                                        {
+                                                            Value.Add("Success", OriginData[1]);
+                                                            break;
+                                                        }
+                                                    case "Error_NoPermission":
+                                                        {
+                                                            Value.Add("Error_Capture", "Do not have enough permission");
+                                                            break;
+                                                        }
+                                                    case "Error_Failure":
+                                                        {
+                                                            Value.Add("Error_Failure", "Error happened when rename");
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            finally
+                                            {
+                                                File.Delete(TempFilePath);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", "Could not found template file");
+                                        }
+                                    }
                                 }
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "SourcePath is not a file or directory");
-                            }
-
-                            if (Progress < 100)
-                            {
-                                try
-                                {
-                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
-                                    {
-                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
-                                        {
-                                            Writer.WriteLine("Error_Stop_Signal");
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Could not send stop signal");
-                                }
+                                Value.Add("Error_NotFound", "One of path in \"Source\" is not a file or directory");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -1462,13 +1751,11 @@ namespace FullTrustProcess
 
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
-                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
+
                             CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(args.Request.Message["CollisionOptions"]));
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
-
-                            int Progress = 0;
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
@@ -1478,29 +1765,12 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
+                                    if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath)
+                                        && SourcePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                     {
                                         if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
-                                            lock (Locker)
-                                            {
-                                                try
-                                                {
-                                                    Progress = e.ProgressPercentage;
-
-                                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
-                                                    {
-                                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
-                                                        {
-                                                            Writer.WriteLine(e.ProgressPercentage);
-                                                        }
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    LogTracer.Log(ex, "Could not send progress data");
-                                                }
-                                            }
+                                            PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
                                         },
                                         (se, arg) =>
                                         {
@@ -1519,53 +1789,77 @@ namespace FullTrustProcess
                                         {
                                             if (SourcePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                             {
-                                                Value.Add("Success", string.Empty);
-
-                                                if (OperationRecordList.Count > 0)
-                                                {
-                                                    Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
-                                                }
+                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                             }
                                             else
                                             {
-                                                Value.Add("Error_Capture", "An error occurred while moving the folder");
+                                                Value.Add("Error_Capture", "An error occurred while moving the files");
                                             }
                                         }
                                         else
                                         {
-                                            Value.Add("Error_Failure", "An error occurred while moving the folder");
+                                            Value.Add("Error_Failure", "An error occurred while moving the files");
                                         }
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "An error occurred while moving the folder");
+                                        using (Process AdminProcess = CreateNewProcessAsElevated(new ElevationMoveData(SourcePathList, DestinationPath, Option)))
+                                        using (Process CurrentProcess = Process.GetCurrentProcess())
+                                        {
+                                            AdminProcess.WaitForExit();
+
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
+
+                                            if (File.Exists(TempFilePath))
+                                            {
+                                                try
+                                                {
+                                                    string[] OriginData = File.ReadAllLines(TempFilePath, Encoding.UTF8);
+
+                                                    switch (OriginData[0])
+                                                    {
+                                                        case "Success":
+                                                            {
+                                                                Value.Add("Success", OriginData[1]);
+                                                                break;
+                                                            }
+                                                        case "Error_Capture":
+                                                            {
+                                                                Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                break;
+                                                            }
+                                                        case "Error_NoPermission":
+                                                            {
+                                                                Value.Add("Error_Capture", "Do not have enough permission");
+                                                                break;
+                                                            }
+                                                        case "Error_Failure":
+                                                            {
+                                                                Value.Add("Error_Failure", "Error happened when rename");
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    File.Delete(TempFilePath);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error", "Could not found template file");
+                                            }
+                                        }
                                     }
                                 }
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "SourcePath is not a file or directory");
-                            }
-
-                            if (Progress < 100)
-                            {
-                                try
-                                {
-                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
-                                    {
-                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
-                                        {
-                                            Writer.WriteLine("Error_Stop_Signal");
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Could not send progress data");
-                                }
+                                Value.Add("Error_NotFound", "One of path in \"Source\" is not a file or directory");
                             }
 
                             await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Execute_Delete":
@@ -1573,73 +1867,41 @@ namespace FullTrustProcess
                             ValueSet Value = new ValueSet();
 
                             string ExecutePathJson = Convert.ToString(args.Request.Message["ExecutePath"]);
-                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
+
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
 
                             List<string> ExecutePathList = JsonSerializer.Deserialize<List<string>>(ExecutePathJson);
                             List<string> OperationRecordList = new List<string>();
 
-                            int Progress = 0;
-
-                            try
+                            if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                if (ExecutePathList.Any((Item) => StorageController.CheckCaptured(Item)))
                                 {
-                                    if (ExecutePathList.Any((Item) => StorageController.CheckCaptured(Item)))
+                                    Value.Add("Error_Capture", "An error occurred while deleting the files");
+                                }
+                                else
+                                {
+                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                     {
-                                        Value.Add("Error_Capture", "An error occurred while deleting the folder");
-                                    }
-                                    else
-                                    {
-                                        if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
+                                        if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                         {
-                                            if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                            PipeWriteController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                        },
+                                        (se, arg) =>
+                                        {
+                                            if (!PermanentDelete)
                                             {
-                                                lock (Locker)
-                                                {
-                                                    try
-                                                    {
-                                                        Progress = e.ProgressPercentage;
-
-                                                        if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
-                                                        {
-                                                            using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
-                                                            {
-                                                                Writer.WriteLine(e.ProgressPercentage);
-                                                            }
-                                                        }
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        LogTracer.Log(ex, "Could not send progress data");
-                                                    }
-                                                }
-                                            },
-                                            (se, arg) =>
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                            }
+                                        }))
+                                        {
+                                            if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                             {
-                                                if (!PermanentDelete)
-                                                {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
-                                                }
-                                            }))
-                                            {
-                                                if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                {
-                                                    Value.Add("Success", string.Empty);
-
-                                                    if (OperationRecordList.Count > 0)
-                                                    {
-                                                        Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Value.Add("Error_Capture", "An error occurred while deleting the folder");
-                                                }
+                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                             }
                                             else
                                             {
-                                                Value.Add("Error_Failure", "The specified file could not be deleted");
+                                                Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                             }
                                         }
                                         else
@@ -1647,33 +1909,61 @@ namespace FullTrustProcess
                                             Value.Add("Error_Failure", "The specified file could not be deleted");
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    Value.Add("Error_NotFound", "ExecutePath is not a file or directory");
-                                }
-                            }
-                            catch
-                            {
-                                Value.Add("Error_Failure", "The specified file or folder could not be deleted");
-                            }
-
-                            if (Progress < 100)
-                            {
-                                try
-                                {
-                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
+                                    else
                                     {
-                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                        using (Process AdminProcess = CreateNewProcessAsElevated(new ElevationDeleteData(ExecutePathList, PermanentDelete)))
+                                        using (Process CurrentProcess = Process.GetCurrentProcess())
                                         {
-                                            Writer.WriteLine("Error_Stop_Signal");
+                                            AdminProcess.WaitForExit();
+
+                                            string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
+
+                                            if (File.Exists(TempFilePath))
+                                            {
+                                                try
+                                                {
+                                                    string[] OriginData = File.ReadAllLines(TempFilePath, Encoding.UTF8);
+
+                                                    switch (OriginData[0])
+                                                    {
+                                                        case "Success":
+                                                            {
+                                                                Value.Add("Success", OriginData[1]);
+                                                                break;
+                                                            }
+                                                        case "Error_Capture":
+                                                            {
+                                                                Value.Add("Error_Capture", "An error occurred while renaming the files");
+                                                                break;
+                                                            }
+                                                        case "Error_NoPermission":
+                                                            {
+                                                                Value.Add("Error_Capture", "Do not have enough permission");
+                                                                break;
+                                                            }
+                                                        case "Error_Failure":
+                                                            {
+                                                                Value.Add("Error_Failure", "Error happened when rename");
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    File.Delete(TempFilePath);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error", "Could not found template file");
+                                            }
                                         }
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Could not send stop signal");
-                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error_NotFound", "ExecutePath is not a file or directory");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -1695,7 +1985,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.ExecuteFile, ExecutePath))
+                                if (StorageController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
                                 {
                                     try
                                     {
@@ -1843,7 +2133,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    Value.Add("Error", "The specified file could not be executed for lack of permission");
+                                    Value.Add("Error_NoPermission", "Do not have enough permission");
                                 }
                             }
                             else
@@ -1859,14 +2149,28 @@ namespace FullTrustProcess
                         {
                             try
                             {
-                                if (args.Request.Message.TryGetValue("ProcessId", out object ProcessId) && (ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
+                                if (args.Request.Message.TryGetValue("ProcessId", out object ProcessId))
                                 {
-                                    ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
+                                    if ((ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
+                                    {
+                                        ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
+                                    }
+                                }
+
+                                if (PipeReadController == null && args.Request.Message.TryGetValue("PipeWriteId", out object PipeWriteId))
+                                {
+                                    PipeReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeWriteId}");
+                                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                                }
+
+                                if (PipeWriteController == null && args.Request.Message.TryGetValue("PipeReadId", out object PipeReadId))
+                                {
+                                    PipeWriteController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeReadId}");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                LogTracer.Log(ex, "GetProcess from id failed");
+                                LogTracer.Log(ex);
                             }
 
                             await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
@@ -1994,7 +2298,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Execute_Exit":
+                    case "AppServiceCancelled":
                         {
                             ExitLocker.Set();
                             break;
@@ -2098,6 +2402,28 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(AliveCheck)} threw an exception, message: {ex.Message}");
+            }
+        }
+
+        private static Process CreateNewProcessAsElevated<T>(T Data) where T : ElevationDataBase
+        {
+            using (Process CurrentProcess = Process.GetCurrentProcess())
+            {
+                string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{CurrentProcess.Id}");
+
+                using (StreamWriter Writer = File.CreateText(TempFilePath))
+                {
+                    Writer.WriteLine(Data.GetType().FullName);
+                    Writer.WriteLine(JsonSerializer.Serialize(Data));
+                }
+
+                return Process.Start(new ProcessStartInfo
+                {
+                    FileName = CurrentProcess.MainModule.FileName,
+                    Arguments = $"/ExecuteAdminOperation \"{TempFilePath.Encrypt("W8aPHu7MGOGA5x5x")}\"",
+                    UseShellExecute = true,
+                    Verb = "runas"
+                });
             }
         }
     }

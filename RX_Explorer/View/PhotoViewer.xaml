@@ -9,7 +9,7 @@
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
-      Background="Transparent">
+      Background="{ThemeResource SystemControlChromeMediumAcrylicElementMediumBrush}">
 
     <Page.Resources>
         <Storyboard x:Name="EnterAnimation">
@@ -90,9 +90,9 @@
                           IsLoading="False"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="Black"
-                                    TintOpacity="0.65"
-                                    BlurAmount="4" />
+                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                    TintOpacity="0.6"
+                                    BlurAmount="3" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Text="正在保存..."

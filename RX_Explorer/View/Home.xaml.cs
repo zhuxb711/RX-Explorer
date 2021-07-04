@@ -1,15 +1,21 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
+using ShareClassLibrary;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
@@ -17,8 +23,11 @@ using Windows.UI.WindowManagement;
 using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
@@ -38,13 +47,28 @@ namespace RX_Explorer
             Loaded += Home_Loaded;
         }
 
-        private void Home_Loaded(object sender, RoutedEventArgs e)
+        private async void Home_Loaded(object sender, RoutedEventArgs e)
         {
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
+
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            {
+                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
+            }
         }
 
-        private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        private void CloseAllFlyout()
+        {
+            LibraryEmptyFlyout.Hide();
+            DriveEmptyFlyout.Hide();
+            DriveFlyout.Hide();
+            LibraryFlyout.Hide();
+            PortableDeviceFlyout.Hide();
+            BitlockerDeviceFlyout.Hide();
+        }
+
+        private void DriveGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             if (args.InRecycleQueue)
             {
@@ -95,11 +119,11 @@ namespace RX_Explorer
                     if (Item is LibraryFolder)
                     {
                         LibraryGrid.SelectedItem = Item;
-                        DeviceGrid.SelectedIndex = -1;
+                        DriveGrid.SelectedIndex = -1;
                     }
                     else if (Item is DriveDataBase)
                     {
-                        DeviceGrid.SelectedItem = Item;
+                        DriveGrid.SelectedItem = Item;
                         LibraryGrid.SelectedIndex = -1;
                     }
                 }
@@ -214,7 +238,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void DriveGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 
@@ -226,54 +250,65 @@ namespace RX_Explorer
 
         private async void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            DeviceGrid.SelectedIndex = -1;
+            DriveGrid.SelectedIndex = -1;
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+                await OpenTargetFolder(Library.LibFolder);
             }
         }
 
-        private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void DriveGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
-                    DeviceGrid.SelectedItem = Context;
+                    DriveGrid.SelectedItem = Context;
+
+                    CommandBarFlyout Flyout;
 
                     if (Context is LockedDriveData)
                     {
-                        DeviceGrid.ContextFlyout = BitlockerDeviceFlyout;
+                        Flyout = BitlockerDeviceFlyout;
                     }
                     else
                     {
-                        DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+                        Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
                     }
+
+                    await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid, e.GetPosition((FrameworkElement)sender), DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
                 }
                 else
                 {
-                    DeviceGrid.SelectedIndex = -1;
-                    DeviceGrid.ContextFlyout = EmptyFlyout;
+                    DriveGrid.SelectedIndex = -1;
+
+                    DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
+                    {
+                        Position = e.GetPosition((FrameworkElement)sender),
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    });
                 }
             }
         }
 
-        private async void OpenDevice_Click(object sender, RoutedEventArgs e)
+        private async void OpenDrive_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             LibraryGrid.SelectedIndex = -1;
 
-            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
+            if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
                 await OpenTargetDriveAsync(Drive);
             }
         }
 
-        private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void DriveGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
-                DeviceGrid.SelectedIndex = -1;
+                DriveGrid.SelectedIndex = -1;
             }
             else
             {
@@ -289,57 +324,67 @@ namespace RX_Explorer
             }
             else
             {
-                DeviceGrid.SelectedIndex = -1;
+                DriveGrid.SelectedIndex = -1;
             }
         }
 
         private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            DeviceGrid.SelectedIndex = -1;
+            DriveGrid.SelectedIndex = -1;
             LibraryGrid.SelectedIndex = -1;
         }
 
-        private void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    LibraryGrid.ContextFlyout = LibraryFlyout;
+                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryFolder>().Select((Lib) => Lib.Path).ToArray());
                 }
                 else
                 {
-                    LibraryGrid.ContextFlyout = LibraryEmptyFlyout;
+                    LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
+                    {
+                        Position = e.GetPosition((FrameworkElement)sender),
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    });
                 }
             }
         }
 
         private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
-            DeviceGrid.SelectedIndex = -1;
+            CloseAllFlyout();
+
+            DriveGrid.SelectedIndex = -1;
 
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+                await OpenTargetFolder(Library.LibFolder);
             }
         }
 
         private async void RemovePin_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
                 CommonAccessCollection.LibraryFolderList.Remove(Library);
-                SQLite.Current.DeleteLibrary(Library.Folder.Path);
-                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.Folder).ConfigureAwait(false);
+                SQLite.Current.DeleteLibrary(Library.Path);
+                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.LibFolder);
             }
         }
 
         private async void LibraryProperties_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(Library.Folder);
+                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Library.LibFolder);
 
                 if (Folder != null)
                 {
@@ -368,7 +413,7 @@ namespace RX_Explorer
             await CommonAccessCollection.LoadDriveAsync(true);
         }
 
-        private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private async void DriveGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 
@@ -380,16 +425,18 @@ namespace RX_Explorer
 
         private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
-            DeviceGrid.SelectedIndex = -1;
+            DriveGrid.SelectedIndex = -1;
 
             if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
             {
-                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+                await OpenTargetFolder(Library.LibFolder).ConfigureAwait(false);
             }
         }
 
-        private async void AddDevice_Click(object sender, RoutedEventArgs e)
+        private async void AddDrive_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             FolderPicker Picker = new FolderPicker
             {
                 SuggestedStartLocation = PickerLocationId.ComputerFolder,
@@ -434,39 +481,60 @@ namespace RX_Explorer
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveDataBase);
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DriveGrid.SelectedItem as DriveDataBase);
             await Dialog.ShowAsync();
         }
 
-        private void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == HoldingState.Started)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    LibraryGrid.ContextFlyout = LibraryFlyout;
+                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryFolder>().Select((Lib) => Lib.Path).ToArray());
                 }
                 else
                 {
-                    LibraryGrid.ContextFlyout = null;
+                    LibraryFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
+                    {
+                        Position = e.GetPosition((FrameworkElement)sender),
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    });
                 }
             }
         }
 
-        private void DeviceGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void DriveGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == HoldingState.Started)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
-                    DeviceGrid.SelectedItem = Context;
-                    DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+                    DriveGrid.SelectedItem = Context;
+
+                    CommandBarFlyout Flyout;
+
+                    if (Context is LockedDriveData)
+                    {
+                        Flyout = BitlockerDeviceFlyout;
+                    }
+                    else
+                    {
+                        Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
+                    }
+
+                    await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid, e.GetPosition((FrameworkElement)sender), DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
                 }
                 else
                 {
-                    DeviceGrid.SelectedIndex = -1;
-                    DeviceGrid.ContextFlyout = EmptyFlyout;
+                    DriveGrid.SelectedIndex = -1;
+
+                    DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
+                    {
+                        Position = e.GetPosition((FrameworkElement)sender),
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    });
                 }
             }
         }
@@ -480,12 +548,14 @@ namespace RX_Explorer
         private void DeviceExpander_Collapsed(object sender, EventArgs e)
         {
             SettingControl.DeviceExpanderIsExpand = false;
-            DeviceGrid.SelectedIndex = -1;
+            DriveGrid.SelectedIndex = -1;
         }
 
         private async void EjectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is DriveDataBase Item)
+            CloseAllFlyout();
+
+            if (DriveGrid.SelectedItem is DriveDataBase Item)
             {
                 if (string.IsNullOrEmpty(Item.Path))
                 {
@@ -566,12 +636,14 @@ namespace RX_Explorer
 
             foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
             {
-                SQLite.Current.SetLibraryPath(Item.Type, Item.Folder.Path);
+                SQLite.Current.SetLibraryPath(Item.Type, Item.Path);
             }
         }
 
         private async void AddLibraryButton_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             FolderPicker Picker = new FolderPicker
             {
                 ViewMode = PickerViewMode.List,
@@ -581,7 +653,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Folder.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -596,14 +668,16 @@ namespace RX_Explorer
                 {
                     CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }
             }
         }
 
         private async void UnlockBitlocker_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
+            CloseAllFlyout();
+
+            if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
                 await OpenTargetDriveAsync(Drive);
             }
@@ -619,6 +693,300 @@ namespace RX_Explorer
         {
             SettingControl.DeviceExpanderIsExpand = true;
             await CommonAccessCollection.LoadDriveAsync();
+        }
+
+        private async void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    Clipboard.Clear();
+
+                    List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
+
+                    foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
+                    {
+                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
+
+                        if (Folder != null)
+                        {
+                            TransformList.Add(Folder);
+                        }
+                    }
+
+                    Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Copy));
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+            }
+        }
+
+        private async void Cut_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    Clipboard.Clear();
+
+                    List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
+
+                    foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
+                    {
+                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
+
+                        if (Folder != null)
+                        {
+                            TransformList.Add(Folder);
+                        }
+                    }
+
+                    Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Move));
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+            }
+        }
+
+        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            {
+                await TabViewContainer.ThisPage.CreateNewTabAsync(Lib.Path);
+            }
+        }
+
+        private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            {
+                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                {
+                    new string[]{ Lib.Path }
+                }));
+
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+            }
+        }
+
+        private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            {
+                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Lib.Path);
+            }
+        }
+
+        private void SendToFlyout_Opening(object sender, object e)
+        {
+            if (sender is MenuFlyout Flyout)
+            {
+                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
+                {
+                    Item.Click -= SendToItem_Click;
+                }
+
+                Flyout.Items.Clear();
+
+                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendDocumentItem",
+                    Text = Globalization.GetString("SendTo_Document"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendDocumentItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendDocumentItem);
+
+                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendLinkItem",
+                    Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendLinkItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendLinkItem);
+
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                {
+                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
+                    {
+                        Name = "SendRemovableItem",
+                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
+                        ImageIcon = RemovableDrive.Thumbnail,
+                        MinWidth = 150,
+                        MaxWidth = 350,
+                        Tag = RemovableDrive.Path
+                    };
+                    SendRemovableDriveItem.Click += SendToItem_Click;
+
+                    Flyout.Items.Add(SendRemovableDriveItem);
+                }
+            }
+        }
+
+        private async void SendToItem_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (sender is MenuFlyoutItemWithImage Item)
+            {
+                if (LibraryGrid.SelectedItem is LibraryFolder SItem)
+                {
+                    switch (Item.Name)
+                    {
+                        case "SendLinkItem":
+                            {
+                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{SItem.Name}.lnk"),
+                                                                                        SItem.Path,
+                                                                                        string.Empty,
+                                                                                        WindowState.Normal,
+                                                                                        0,
+                                                                                        string.Empty))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            {
+                                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"),
+                                                                                                SItem.Path,
+                                                                                                string.Empty,
+                                                                                                WindowState.Normal,
+                                                                                                0,
+                                                                                                string.Empty))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
+                                    }
+                                }
+
+                                break;
+                            }
+                        case "SendDocumentItem":
+                            {
+                                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                        {
+                                            QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get document path from UserDataPaths");
+                                    }
+                                }
+
+                                break;
+                            }
+                        case "SendRemovableItem":
+                            {
+                                if (Item.Tag is string RemovablePath)
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
         }
     }
 }

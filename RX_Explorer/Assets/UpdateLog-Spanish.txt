@@ -1,4 +1,146 @@
 ﻿*****
+###Novedades de la versión 6.7.8.0
+
+#####Actualización de funciones
+
+>#####Soporte agregado para crear "imagen BMP"
+
+>#####Se agregó un indicador de orden de filtrado y clasificación a la página de búsqueda
+
+>#####Ahora puede agregar carpetas directamente haciendo clic derecho en el nodo "Acceso rápido" en el árbol de directorios
+
+#####actualización de la interfaz de usuario
+
+>#####Se agregó un nuevo ícono para los elementos del menú en "Crear archivo"
+
+>#####Se mejoró el contraste de la interfaz de usuario en múltiples modos
+
+>#####Al eliminar permanentemente un archivo, se mostrará un mensaje de texto diferente
+
+>#####"Bibliotecas", "Unidades" y "Árbol de directorios" ahora han ampliado el número de elementos del menú contextual
+
+#####Mejora del rendimiento
+
+>#####Resuelto el problema que puede hacer que la interfaz de usuario se congele cuando hay un disco lento
+
+>#####Se mejoró el rendimiento del motor de búsqueda integrado en algunos discos
+
+>#####Mejoró el rendimiento de realizar tareas de mantenimiento durante la actualización
+
+>#####Rendimiento mejorado al exportar una gran cantidad de registros
+
+>#####Se mejoró el rendimiento al calcular el tamaño de una carpeta y el número de subarchivos o subcarpetas que contiene
+
+>#####Se mejoró la velocidad de obtención de elementos del menú contextual
+
+>#####Se mejoró la velocidad de lectura de una gran cantidad de archivos de la papelera de reciclaje
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que "Obteniendo el fondo de pantalla de Bing" no se podía mostrar correctamente al inicio
+
+>#####Se solucionó el problema de que el menú contextual no podía aparecer en el espacio en blanco del árbol de directorios
+
+>#####Se solucionó el problema de que el canal de comunicación no se puede cerrar correctamente después de que el proceso auxiliar falla inesperadamente y puede causar un alto uso de CPU
+
+>#####Se solucionó un problema que podía hacer que la interfaz de usuario dejara de responder al buscar
+
+>#####Se solucionó el problema de posibles omisiones al filtrar archivos por color de marca
+
+>#####Se solucionó el problema de que al agregar o eliminar el contenido de "Bibliotecas", los cambios en el nodo "Acceso rápido" del árbol de directorios no se sincronizarán automáticamente
+
+>#####Se solucionó el problema de que la lógica de orden ascendente y descendente puede ser incorrecta al cambiar entre diferentes bases de clasificación
+
+>#####Se solucionó el problema que podía causar un bloqueo cuando se activa el modo de ahorro de batería
+
+>#####Se solucionó el problema de que el botón Atrás aún puede estar habilitado al salir de la página de configuración sin usar el botón Atrás
+
+*****
+###Novedades de la versión 6.7.4.0
+
+#####Actualización de funciones
+
+>#####La tarea de deshacer ahora admite la operación "Cambiar nombre"
+
+>#####Ahora se admite solicitar permisos de administrador para realizar ciertas operaciones si es necesario
+
+>#####Se mejoró el mecanismo de comunicación con procesos auxiliares
+
+#####Actualización de la interfaz de usuario
+
+>#####Optimizó el efecto de visualización en el modo "Recomendado"
+
+>#####Se mejoró el contraste de algunos controles en el modo "Color sólido"
+
+>#####Ahora puedes crear varios tipos de archivos directamente en el menú contextual
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de las imágenes duplicadas en la lista en el modo "Imagen de fondo" en algunos casos
+
+>#####Se corrigió el problema de programación de la "Lista de tareas" al crear tareas rápidamente, lo que puede hacer que todas las tareas se ejecuten al mismo tiempo en algunos casos
+
+>#####Se solucionó el problema de eliminar a la papelera de reciclaje al hacer clic en el botón "Eliminar" mientras se presiona "Shift"
+
+>#####Se corrigieron algunos problemas de traducción
+
+*****
+###Novedades de la versión 6.7.2.0
+
+#####Actualización de funciones
+
+>#####Ahora el reproductor multimedia incorporado puede continuar reproduciendo contenido multimedia cuando está minimizado
+
+>#####Ahora puedes abrir la carpeta en una nueva pestaña presionando Ctrl + doble clic
+
+#####Actualización de la interfaz de usuario
+
+>#####Ajustó el color de algunos materiales acrílicos
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la carga de la página de inicio era demasiado lenta al inicio
+
+*****
+###Novedades de la versión 6.7.1.0
+
+#####Actualización de funciones
+
+>#####Optimizó el mecanismo cuando Win + E está habilitado y mejoró la tasa de éxito
+
+>#####Cuando la lista de tareas está oculta, se mostrará una pequeña barra de progreso para indicar el progreso total de todas las tareas.
+
+>#####"Acceso rápido" se creó por defecto en el árbol del directorio
+
+>#####Se agregó la opción "Cerrar todas las pestañas a la derecha" en el menú de pestañas del botón derecho
+
+#####Actualización de la interfaz de usuario
+
+>#####"Vertical Split View" finaliza la versión beta y ahora requiere pago para desbloquear
+
+>#####Cuando haces clic derecho en el árbol de directorios, ya no saltará automáticamente a la carpeta correspondiente.
+
+>#####Optimizó el color de la interfaz de usuario y el efecto de visualización al usar el tema de color sólido o apagar el Acrílico
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que "Inicio rápido" no podía aparecer en algunas pantallas pequeñas
+
+>#####Se solucionó el problema de que algunas aplicaciones no se pueden ajustar en la parte superior cuando se inician
+
+>#####Se solucionó el problema de que, aunque el visor integrado no admite archivos GIF, el archivo GIF aún se puede abrir a través del visor integrado en algunos casos
+
+>#####Se solucionó el problema que podía causar un bloqueo al usar el filtrado en una carpeta que no tiene una etiqueta de color
+
+>#####Se solucionó el problema de que la solicitud de cambio del tema puede aparecer nuevamente al ingresar a la página de configuración
+
+>#####Se solucionó el problema que causaría un bloqueo al abrir el directorio raíz en una página de nueva pestaña
+
+>#####Se solucionó un problema que podía causar un bloqueo al abrir la ventana de propiedades
+
+>#####Se corrigieron los problemas relacionados con la programación del proceso auxiliar
+
+*****
 ###Novedades de la versión 6.6.8.0
 
 #####Mejora del rendimiento

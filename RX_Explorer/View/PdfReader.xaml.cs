@@ -89,10 +89,10 @@ namespace RX_Explorer
 
         private async Task InitializeAsync(FileSystemStorageFile PdfFile)
         {
-            LoadingControl.IsLoading = true;
-
             try
             {
+                LoadingControl.IsLoading = true;
+
                 using (IRandomAccessStream PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                 {
                     try
@@ -138,6 +138,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 };
+
                 await Dialog.ShowAsync();
 
                 Frame.GoBack();

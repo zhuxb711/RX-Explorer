@@ -198,7 +198,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return "\xED41";
+                    return "\xE8B7";
                 }
             }
             else

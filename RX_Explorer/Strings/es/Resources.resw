@@ -195,14 +195,8 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vaciar</value>
   </data>
-  <data name="LibraryCancelButton.Label" xml:space="preserve">
-    <value>Desanclar</value>
-  </data>
   <data name="LibraryExpander.Text" xml:space="preserve">
     <value>Biblioteca</value>
-  </data>
-  <data name="LibraryOpenButton.Label" xml:space="preserve">
-    <value>Abrir</value>
   </data>
   <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirmar</value>
@@ -230,30 +224,6 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Fusionar</value>
-  </data>
-  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancelar</value>
-  </data>
-  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirmar</value>
-  </data>
-  <data name="NewFileDialog.Title" xml:space="preserve">
-    <value>Crear archivo nuevo</value>
-  </data>
-  <data name="NewFileDialogFileName.Header" xml:space="preserve">
-    <value>Nombre de archivo</value>
-  </data>
-  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>Introducir nombre de archivo</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
-    <value>El tipo de archivo especificado no cumple las especificaciones. Vuelve a introducirlo.</value>
-  </data>
-  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
-    <value>Malformado</value>
-  </data>
-  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
-    <value>Introduce o elige un tipo.</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Abrir</value>
@@ -869,15 +839,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Idioma</value>
   </data>
-  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>Puedes introducir manualmente el tipo de archivo que deseas crear o seleccionar el tipo predefinido por RX Explorer. Sin embargo, RX Explorer solo puede garantizar que se creen correctamente tipos predefinidos; no garantiza que los tipos introducidos manualmente se creen correctamente.</value>
-  </data>
-  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
-    <value>Explicación</value>
-  </data>
-  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
-    <value>Tipo de archivo</value>
-  </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Puede que la carga se esté demorando.</value>
   </data>
@@ -1213,9 +1174,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Crear</value>
-  </data>
-  <data name="Operate_Text_CreateFile" xml:space="preserve">
-    <value>Crear archivo</value>
   </data>
   <data name="Operate_Text_CreateFolder" xml:space="preserve">
     <value>Crear carpeta</value>
@@ -2190,7 +2148,7 @@ Las denominaciones no válidas son:
     <value>Crear una vista dividida vertical nueva</value>
   </data>
   <data name="CloseButThis.Label" xml:space="preserve">
-    <value>Cerrar todas las pestañas excepto esta</value>
+    <value>Cierre todas las pestañas excepto esta</value>
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Cerrar esta ventana</value>
@@ -2928,7 +2886,7 @@ Las denominaciones no válidas son:
     <value>Es necesario reiniciar</value>
   </data>
   <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>El proceso auxiliar salió inesperadamente, lo que puede causar que algunas funciones no funcionen correctamente</value>
+    <value>Se ha interrumpido la conexión con el proceso auxiliar. Es posible que se cancele porque Windows carece de recursos del sistema o el proceso auxiliar se bloqueó inesperadamente</value>
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Error crítico</value>
@@ -3136,7 +3094,7 @@ Las denominaciones no válidas son:
     <value>Acceso rapido</value>
   </data>
   <data name="CloseTabOnRight.Label" xml:space="preserve">
-    <value>Cerrar la pestaña de la derecha</value>
+    <value>Cerrar todas las pestañas de la derecha</value>
   </data>
   <data name="DiscountTip.ActionButtonContent" xml:space="preserve">
     <value>Consiguelo ahora</value>
@@ -3149,5 +3107,23 @@ Las denominaciones no válidas son:
   </data>
   <data name="TeachingTip_DiscountTip_Subtitle" xml:space="preserve">
     <value>¡Obtén el descuento de aniversario ahora! Compra la versión oficial con un 50% de descuento y desbloquea nuevas funciones</value>
+  </data>
+  <data name="NewFile_Admin_Name" xml:space="preserve">
+    <value>Archivo nuevo</value>
+  </data>
+  <data name="SettingManageConfigContent.Text" xml:space="preserve">
+    <value>Realizar operaciones de guardado o restauración de la configuración</value>
+  </data>
+  <data name="File_Type_Bmp_Description" xml:space="preserve">
+    <value>Imagen BMP</value>
+  </data>
+  <data name="Operate_Text_Unpin" xml:space="preserve">
+    <value>Desprender</value>
+  </data>
+  <data name="QueueDialog_DeleteFilesPermanent_Content" xml:space="preserve">
+    <value>Esta operación eliminará permanentemente estos archivos. ¿Continuar?</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
+    <value>Esto eliminará permanentemente todo en la carpeta. ¿Continuar?</value>
   </data>
 </root>

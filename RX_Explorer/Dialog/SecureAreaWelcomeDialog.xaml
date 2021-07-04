@@ -8,7 +8,6 @@
                           mc:Ignorable="d"
                           x:Uid="SAWelcomeDialog"
                           Title="首次激活安全域"
-                          Background="{StaticResource DialogAcrylicBrush}"
                           PrimaryButtonText="确定"
                           PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
                           CloseButtonText="返回">

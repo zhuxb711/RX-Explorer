@@ -1,10 +1,8 @@
-﻿using NetworkAccess;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Windows.ApplicationModel;
 
 namespace RX_Explorer.Class
 {
@@ -108,7 +106,7 @@ namespace RX_Explorer.Class
                 Padding = Version > SLEVersion.Version_1_0_0 ? PaddingMode.PKCS7 : PaddingMode.Zeros,
                 KeySize = KeySize,
                 Key = KeyArray,
-                IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
+                IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
             })
             {
                 TransformStream = new CryptoStream(BaseFileStream, AES.CreateDecryptor(), CryptoStreamMode.Read);

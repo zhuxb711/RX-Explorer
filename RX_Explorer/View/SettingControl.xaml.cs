@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -438,26 +439,14 @@ namespace RX_Explorer
                                                                 {
                                                                     try
                                                                     {
-                                                                        Uri NewUri = new Uri(Uri);
+                                                                        BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri(Uri));
 
-                                                                        StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(NewUri);
-
-                                                                        BitmapImage Bitmap = new BitmapImage()
+                                                                        if (!PictureList.Contains(Picture))
                                                                         {
-                                                                            DecodePixelHeight = 90,
-                                                                            DecodePixelWidth = 160
-                                                                        };
-
-                                                                        using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
-                                                                        {
-                                                                            await Bitmap.SetSourceAsync(Stream);
+                                                                            PictureList.Add(Picture);
+                                                                            PictureGirdView.UpdateLayout();
+                                                                            PictureGirdView.SelectedItem = Picture;
                                                                         }
-
-                                                                        BackgroundPicture Picture = new BackgroundPicture(Bitmap, NewUri);
-
-                                                                        PictureList.Add(Picture);
-                                                                        PictureGirdView.UpdateLayout();
-                                                                        PictureGirdView.SelectedItem = Picture;
                                                                     }
                                                                     catch (Exception ex)
                                                                     {
@@ -562,7 +551,15 @@ namespace RX_Explorer
                 {
                     IsAnimating = true;
 
-                    (TabViewContainer.CurrentNavigationControl.Content as Control).Focus(FocusState.Programmatic);
+                    if (TabViewContainer.CurrentNavigationControl is Frame Fra)
+                    {
+                        if (Fra.Content is Control Con)
+                        {
+                            Con.Focus(FocusState.Programmatic);
+                        }
+
+                        MainPage.ThisPage.NavView.IsBackEnabled = Fra.CanGoBack;
+                    }
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
@@ -1013,7 +1010,10 @@ namespace RX_Explorer
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
 
-                                        await DecryptedFile.RenameAsync(SLEStream.FileName);
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        {
+                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.FileName, true);
+                                        }
                                     }
                                 }
                             }
@@ -1114,7 +1114,6 @@ namespace RX_Explorer
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
-                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1122,7 +1121,7 @@ namespace RX_Explorer
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                             BackgroundController.Current.TintOpacity = 0.6;
                             BackgroundController.Current.TintLuminosityOpacity = -1;
-                            BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
+                            BackgroundController.Current.AcrylicColor = Colors.SlateGray;
 
                             AppThemeController.Current.Theme = ElementTheme.Dark;
 
@@ -1137,7 +1136,6 @@ namespace RX_Explorer
                             PictureMode.IsChecked = null;
                             PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
-                            ThemeColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
                             MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
@@ -1168,7 +1166,6 @@ namespace RX_Explorer
                             SolidColor_White.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
-                            ThemeColor.IsEnabled = true;
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                             {
@@ -1227,10 +1224,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Error in {nameof(UIMode_SelectionChanged)}");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -1385,22 +1378,14 @@ namespace RX_Explorer
                 {
                     foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
                     {
-                        BitmapImage Bitmap = new BitmapImage
-                        {
-                            DecodePixelHeight = 90,
-                            DecodePixelWidth = 160
-                        };
-
                         try
                         {
-                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(ImageUri);
+                            BackgroundPicture Picture = await BackgroundPicture.CreateAsync(ImageUri);
 
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            if (!PictureList.Contains(Picture))
                             {
-                                await Bitmap.SetSourceAsync(Stream);
+                                PictureList.Add(Picture);
                             }
-
-                            PictureList.Add(new BackgroundPicture(Bitmap, ImageUri));
                         }
                         catch (Exception ex)
                         {
@@ -1580,44 +1565,47 @@ namespace RX_Explorer
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                         PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
 
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (e.RemovedItems.Count > 0)
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
+                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
 
-                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                             {
-                                float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
 
-                                if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
+                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                                    float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    if (Brightness <= 100 && ThemeColor.SelectedIndex == 1)
                                     {
-                                        ThemeColor.SelectedIndex = 0;
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            ThemeColor.SelectedIndex = 0;
+                                        }
                                     }
-                                }
-                                else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    else if (Brightness > 156 && ThemeColor.SelectedIndex == 0)
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
 
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        ThemeColor.SelectedIndex = 1;
+                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            ThemeColor.SelectedIndex = 1;
+                                        }
                                     }
                                 }
                             }
@@ -1658,21 +1646,9 @@ namespace RX_Explorer
             if (await Picker.PickSingleFileAsync() is StorageFile File)
             {
                 StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
-
                 StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
 
-                BitmapImage Bitmap = new BitmapImage()
-                {
-                    DecodePixelHeight = 90,
-                    DecodePixelWidth = 160
-                };
-
-                using (IRandomAccessStream Stream = await CopyedFile.OpenAsync(FileAccessMode.Read))
-                {
-                    await Bitmap.SetSourceAsync(Stream);
-                }
-
-                BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
 
                 PictureList.Add(Picture);
                 PictureGirdView.UpdateLayout();
@@ -1793,7 +1769,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_WhiteTheme);
             }
             catch (Exception ex)
             {
@@ -1809,7 +1785,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: "#1E1E1E".ToColor());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_BlackTheme);
             }
             catch (Exception ex)
             {
@@ -1846,7 +1822,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
-                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateByStorageItemAsync(DriveFolder);
+                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveFolder);
 
                                 if (Folder != null)
                                 {
@@ -2010,7 +1986,7 @@ namespace RX_Explorer
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }
@@ -2292,7 +2268,7 @@ namespace RX_Explorer
                         {
                             using (MD5 MD5Alg = MD5.Create())
                             {
-                                string ConfigDecryptedString = Configuration.DecryptToString(Package.Current.Id.FamilyName);
+                                string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
 
                                 if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                 {
@@ -2339,7 +2315,7 @@ namespace RX_Explorer
                                         }
                                     }
 
-                                    string DatabaseDecryptedString = Database.DecryptToString(Package.Current.Id.FamilyName);
+                                    string DatabaseDecryptedString = Database.Decrypt(Package.Current.Id.FamilyName);
 
                                     if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                     {
@@ -2510,9 +2486,9 @@ namespace RX_Explorer
                         Dictionary<string, string> BaseDic = new Dictionary<string, string>
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
-                            { "Configuration",  ConfigurationString.EncryptToString(Package.Current.Id.FamilyName)},
+                            { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName)},
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                            { "Database", DatabaseString.EncryptToString(Package.Current.Id.FamilyName) },
+                            { "Database", DatabaseString.Encrypt(Package.Current.Id.FamilyName) },
                             { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
                         };
 
@@ -2649,7 +2625,7 @@ namespace RX_Explorer
 
                             if (!IsDetachTreeViewAndPresenter)
                             {
-                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                 {
                                     await RootNode.UpdateAllSubNodeAsync();
                                 }
@@ -2688,7 +2664,7 @@ namespace RX_Explorer
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }

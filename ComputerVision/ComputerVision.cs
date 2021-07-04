@@ -176,7 +176,7 @@ namespace ComputerVision
                             }
                         }
 
-                        using (Mat gain = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_32F))
+                        using (Mat Gain = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_32F))
                         {
                             for (int i = 0; i < inputMat.Rows; i++)
                             {
@@ -184,7 +184,7 @@ namespace ComputerVision
                                 {
                                     float x = Gray.At<float>(i, j);
                                     float y = Lout.At<float>(i, j);
-                                    gain.At<float>(i, j) = 0 == x ? y : y / x;
+                                    Gain.At<float>(i, j) = x == 0 ? y : y / x;
                                 }
                             }
 
@@ -192,11 +192,12 @@ namespace ComputerVision
 
                             try
                             {
-                                BGRChannel[0] = (gain.Mul(BGRChannel[0] + Gray) + BGRChannel[0] - Gray) * 0.5f;
-                                BGRChannel[1] = (gain.Mul(BGRChannel[1] + Gray) + BGRChannel[1] - Gray) * 0.5f;
-                                BGRChannel[2] = (gain.Mul(BGRChannel[2] + Gray) + BGRChannel[2] - Gray) * 0.5f;
+                                BGRChannel[0] = (Gain.Mul(BGRChannel[0] + Gray) + BGRChannel[0] - Gray) * 0.5f;
+                                BGRChannel[1] = (Gain.Mul(BGRChannel[1] + Gray) + BGRChannel[1] - Gray) * 0.5f;
+                                BGRChannel[2] = (Gain.Mul(BGRChannel[2] + Gray) + BGRChannel[2] - Gray) * 0.5f;
 
                                 Cv2.Merge(BGRChannel, Temp);
+
                                 Temp.ConvertTo(outputMat, MatType.CV_8UC4);
                             }
                             finally
@@ -314,6 +315,7 @@ namespace ComputerVision
                 }
 
                 Cv2.CvtColor(temp, outputMat, ColorConversionCodes.BGR2BGRA);
+
                 return outputMat.MatToSoftwareBitmap();
             }
         }

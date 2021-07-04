@@ -2,11 +2,9 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Cls="using:RX_Explorer.Class"
-      xmlns:local="using:RX_Explorer.SeparateWindow.PropertyWindow"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      xmlns:System="using:System"
       xmlns:Data="using:Windows.UI.Xaml.Data"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
@@ -657,9 +655,9 @@
                           IsLoading="False"
                           Grid.RowSpan="3">
             <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="Black"
-                                    TintOpacity="0.65"
-                                    BlurAmount="4" />
+                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
+                                    TintOpacity="0.6"
+                                    BlurAmount="3" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Text="Applying"

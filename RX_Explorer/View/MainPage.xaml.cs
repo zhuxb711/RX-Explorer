@@ -80,7 +80,7 @@ namespace RX_Explorer
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
-            FullTrustProcessController.FullTrustProcessExitedUnexpected += FullTrustProcessController_FullTrustProcessExitedUnexpected;
+            FullTrustProcessController.AppServiceConnectionLost += FullTrustProcessController_AppServiceConnectionLost;
             FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
             MSStoreHelper.Current.PreLoadStoreData();
@@ -175,7 +175,7 @@ namespace RX_Explorer
             });
         }
 
-        private async void FullTrustProcessController_FullTrustProcessExitedUnexpected(object sender, EventArgs e)
+        private async void FullTrustProcessController_AppServiceConnectionLost(object sender, EventArgs e)
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
@@ -1302,27 +1302,6 @@ namespace RX_Explorer
             }
         }
 
-        private void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            if ((sender as GridView).Name == nameof(QuickStartGridView))
-            {
-                SQLite.Current.DeleteQuickStartItem(QuickStartType.Application);
-
-                foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList.Where((Item) => Item.Type != QuickStartType.AddButton))
-                {
-                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.Application);
-                }
-            }
-            else
-            {
-                SQLite.Current.DeleteQuickStartItem(QuickStartType.WebSite);
-
-                foreach (QuickStartItem Item in CommonAccessCollection.WebLinkList.Where((Item) => Item.Type != QuickStartType.AddButton))
-                {
-                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.WebSite);
-                }
-            }
-        }
 
         private void QuickStart_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
@@ -1411,14 +1390,6 @@ namespace RX_Explorer
             if (e.Key == VirtualKey.Space)
             {
                 e.Handled = true;
-            }
-        }
-
-        private void QuickStart_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
-        {
-            if (e.Items.Cast<QuickStartItem>().Any((Item) => Item.Type == QuickStartType.AddButton))
-            {
-                e.Cancel = true;
             }
         }
 

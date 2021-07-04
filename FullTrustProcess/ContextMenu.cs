@@ -1,7 +1,6 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -212,10 +211,9 @@ namespace FullTrustProcess
                                     }
                                 }
                             }
-                            catch (AccessViolationException AVE)
+                            catch (AccessViolationException)
                             {
                                 Verb = null;
-                                LogTracer.Log(AVE, "Could not get verb from context menu item");
                             }
                             finally
                             {

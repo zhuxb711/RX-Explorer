@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Interface;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -59,20 +60,45 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush BackgroundColor { get; private set; }
+        private SolidColorBrush accentColor;
+        public SolidColorBrush AccentColor
+        {
+            get
+            {
+                if (accentColor == null)
+                {
+                    string ColorString = SQLite.Current.GetFileColor(Path);
+
+                    if (!string.IsNullOrEmpty(ColorString))
+                    {
+                        accentColor = new SolidColorBrush(ColorString.ToColor());
+                    }
+                    else
+                    {
+                        accentColor = new SolidColorBrush(Colors.Transparent);
+                    }
+                }
+
+                return accentColor;
+            }
+            private set
+            {
+                accentColor = value;
+            }
+        }
 
         private bool ThubmnalModeChanged;
 
-        public void SetColorAsSpecific(Color Color)
+        public void SetAccentColorAsSpecific(Color Color)
         {
-            BackgroundColor = new SolidColorBrush(Color);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+            AccentColor = new SolidColorBrush(Color);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
         }
 
-        public void SetColorAsNormal()
+        public void SetAccentColorAsNormal()
         {
-            BackgroundColor = new SolidColorBrush(Colors.Transparent);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+            AccentColor = new SolidColorBrush(Colors.Transparent);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
         }
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
@@ -122,6 +148,8 @@ namespace RX_Explorer.Class
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
+
+        protected abstract bool IsFullTrustProcessNeeded { get; }
 
         private ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
@@ -181,7 +209,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FileSystemStorageFolder> CreateByStorageItemAsync(StorageFolder Folder)
+        public static async Task<FileSystemStorageFolder> CreateFromStorageItemAsync(StorageFolder Folder)
         {
             try
             {
@@ -202,12 +230,12 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CreateByStorageItemAsync)} threw an exception");
+                LogTracer.Log(ex, $"{nameof(CreateFromStorageItemAsync)} threw an exception");
                 return null;
             }
         }
 
-        public static async Task<FileSystemStorageFile> CreateByStorageItemAsync(StorageFile File)
+        public static async Task<FileSystemStorageFile> CreateFromStorageItemAsync(StorageFile File)
         {
             try
             {
@@ -228,7 +256,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CreateByStorageItemAsync)} threw an exception");
+                LogTracer.Log(ex, $"{nameof(CreateFromStorageItemAsync)} threw an exception");
                 return null;
             }
         }
@@ -250,7 +278,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return await CreateByStorageItemAsync(Folder);
+                        return await CreateFromStorageItemAsync(Folder);
                     }
                     else
                     {
@@ -260,11 +288,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return await CreateByStorageItemAsync(Folder);
+                                    return await CreateFromStorageItemAsync(Folder);
                                 }
                             case StorageFile File:
                                 {
-                                    return await CreateByStorageItemAsync(File);
+                                    return await CreateFromStorageItemAsync(File);
                                 }
                             default:
                                 {
@@ -305,17 +333,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateByStorageItemAsync(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateByStorageItemAsync(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateByStorageItemAsync(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     default:
                                         {
@@ -349,17 +377,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateByStorageItemAsync(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateByStorageItemAsync(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateByStorageItemAsync(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     default:
                                         {
@@ -476,7 +504,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (FullTrustProcessIsNeeded())
+                        if (IsFullTrustProcessNeeded)
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -508,8 +536,6 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-
-                        LoadForegroundConfiguration();
 
                         await LoadSyncStatusAsync();
                     }
@@ -673,16 +699,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void LoadForegroundConfiguration()
-        {
-            string ColorString = SQLite.Current.GetFileColor(Path);
-
-            if (!string.IsNullOrEmpty(ColorString))
-            {
-                SetColorAsSpecific(ColorHelper.ToColor(ColorString));
-            }
-        }
-
         protected abstract bool CheckIfNeedLoadThumbnailOverlay();
 
         //Use this overload if subclass has no need for FullTrustProcessController.
@@ -693,8 +709,6 @@ namespace RX_Explorer.Class
         //Subclass who want to use FullTrustProcessController should override this method.
         //Make sure override FullTrustProcessIsNeeded() and reture true.
         protected abstract Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller);
-
-        protected abstract bool FullTrustProcessIsNeeded();
 
         protected abstract bool CheckIfPropertiesLoaded();
 
@@ -708,7 +722,7 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    if (FullTrustProcessIsNeeded())
+                    if (IsFullTrustProcessNeeded)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
