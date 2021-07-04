@@ -372,20 +372,24 @@ namespace RX_Explorer
                         {
                             args.Handled = true;
 
-                            AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                            NewWindow.RequestSize(new Size(420, 600));
-                            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                            NewWindow.PersistedStateId = "Properties";
-                            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                            if (SelectedItem is FileSystemStorageItemBase Item)
+                            {
+                                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                                NewWindow.RequestSize(new Size(420, 600));
+                                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                                NewWindow.PersistedStateId = "Properties";
+                                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-                            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
+                                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
-                            await NewWindow.TryShowAsync();
+                                await NewWindow.TryShowAsync();
+                            }
+
                             break;
                         }
                 }
@@ -1957,20 +1961,23 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(420, 600));
-            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-            NewWindow.PersistedStateId = "Properties";
-            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            if (SelectedItem is FileSystemStorageFile File)
+            {
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, File));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
-            await NewWindow.TryShowAsync();
+                await NewWindow.TryShowAsync();
+            }
         }
 
         private async void Compression_Click(object sender, RoutedEventArgs e)
@@ -2201,20 +2208,23 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(420, 600));
-            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-            NewWindow.PersistedStateId = "Properties";
-            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            if (SelectedItem is FileSystemStorageFolder Folder)
+            {
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Folder));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
-            await NewWindow.TryShowAsync();
+                await NewWindow.TryShowAsync();
+            }
         }
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)

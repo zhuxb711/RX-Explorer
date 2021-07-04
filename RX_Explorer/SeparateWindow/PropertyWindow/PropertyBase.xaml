@@ -189,6 +189,7 @@
                                        TextTrimming="CharacterEllipsis" />
                             <RelativePanel Grid.Row="2"
                                            Grid.Column="1"
+                                           Name="OpenWithPanel"
                                            VerticalAlignment="Center">
                                 <Image Name="OpenWithImage"
                                        Height="25"
@@ -209,7 +210,7 @@
                                         Content="Change"
                                         x:Uid="Properties_General_Change"
                                         MinWidth="80"
-                                        Padding="4,1" />
+                                        Padding="4,2" />
                             </RelativePanel>
                             <ScrollViewer Grid.Row="4"
                                           Grid.Column="1"

@@ -1126,7 +1126,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
+        private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 

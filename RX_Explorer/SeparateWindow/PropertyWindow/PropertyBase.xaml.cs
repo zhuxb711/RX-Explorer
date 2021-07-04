@@ -112,6 +112,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 GeneralSubGrid.RowDefinitions[6].Height = new GridLength(35);
                 GeneralSubGrid.RowDefinitions[9].Height = new GridLength(0);
 
+                OpenWithPanel.Visibility = Visibility.Collapsed;
+
                 while (PivotControl.Items.Count > 1)
                 {
                     PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
@@ -139,6 +141,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 GeneralSubGrid.RowDefinitions[3].Height = new GridLength(10);
                 GeneralSubGrid.RowDefinitions[6].Height = new GridLength(0);
                 GeneralSubGrid.RowDefinitions[9].Height = new GridLength(35);
+
+                OpenWithPanel.Visibility = Visibility.Visible;
 
                 Unlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
 

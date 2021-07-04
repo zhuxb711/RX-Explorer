@@ -228,10 +228,9 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
-                              x:Name="FolderAttribute"
                               MinWidth="250"
                               MaxWidth="350"
-                              Click="FolderAttribute_Click" />
+                              Click="FolderProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
