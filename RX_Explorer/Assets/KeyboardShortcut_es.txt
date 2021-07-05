@@ -21,6 +21,8 @@ Ctrl + E|Ninguno|Vaciar la papelera de reciclaje
 Ctrl + R|Seleccionar cualquier archivo o carpeta|Restaurar todos los elementos seleccionados en la papelera de reciclaje
 Ctrl + Rueda del mouse|ninguno|cambiar el modo de visualización del archivo
 Ctrl + Doble clic|Seleccionar cualquier carpeta|Abrir la carpeta especificada en una nueva pestaña
+Ctrl + PageUp|Ninguno|Cambiar a la pestaña de la izquierda
+Ctrl + PageDown|Ninguno|Cambiar a la pestaña de la derecha
 Shift + E|Ninguno|Use el Explorador de Windows para abrir la carpeta actual
 Shift + T|Ninguno|Inicie el terminal correspondiente de acuerdo con la configuración en la configuración
 Alt + Izquierda|Ninguno|Navegar a la carpeta anterior

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -10,8 +12,41 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对文件夹库的UI显示支持
     /// </summary>
-    public sealed class LibraryFolder
+    public sealed class LibraryFolder : INotifyPropertyChanged
     {
+        /// <summary>
+        /// 文件夹缩略图
+        /// </summary>
+        public BitmapImage Thumbnail
+        {
+            get
+            {
+                return InnerThumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+            }
+            private set
+            {
+                InnerThumbnail = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private BitmapImage InnerThumbnail;
+
+        /// <summary>
+        /// 文件夹对象
+        /// </summary>
+        public StorageFolder LibFolder { get; }
+
+        public LibraryType Type { get; }
+
+        public string Path
+        {
+            get
+            {
+                return LibFolder.Path;
+            }
+        }
+
         /// <summary>
         /// 文件夹名称
         /// </summary>
@@ -19,25 +54,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return LibFolder.DisplayName;
-            }
-        }
-
-        /// <summary>
-        /// 文件夹缩略图
-        /// </summary>
-        public BitmapImage Thumbnail { get; }
-
-        /// <summary>
-        /// 文件夹对象
-        /// </summary>
-        public StorageFolder LibFolder { get; }
-
-        public string Path
-        {
-            get
-            {
-                return LibFolder.Path;
+                return string.IsNullOrEmpty(LibFolder.DisplayName) ? LibFolder.Name : LibFolder.DisplayName;
             }
         }
 
@@ -52,25 +69,21 @@ namespace RX_Explorer.Class
             }
         }
 
-        public LibraryType Type { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public static async Task<LibraryFolder> CreateAsync(string Path, LibraryType Type)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Path);
-            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
-            return new LibraryFolder(PinFolder, Thumbnail, Type);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        public static async Task<LibraryFolder> CreateAsync(StorageFolder Folder, LibraryType Type)
+        public async Task LoadThumbnailAsync()
         {
-            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
-            return new LibraryFolder(Folder, Thumbnail, Type);
+            Thumbnail = (await LibFolder.GetThumbnailBitmapAsync(ThumbnailMode.ListView)) ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
         }
 
-        private LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
+        public LibraryFolder(LibraryType Type, StorageFolder LibFolder)
         {
-            this.LibFolder = Folder ?? throw new FileNotFoundException();
-            this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+            this.LibFolder = LibFolder ?? throw new FileNotFoundException();
             this.Type = Type;
         }
     }

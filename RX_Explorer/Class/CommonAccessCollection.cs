@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
         public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
 
 
-        private static readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+        private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
         private static readonly DispatcherTimer NetworkDriveCheckTimer = new DispatcherTimer
         {
@@ -243,7 +243,8 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                LibraryFolderList.Add(await LibraryFolder.CreateAsync(Library.Item1, Library.Item2));
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
+                                LibraryFolderList.Add(new LibraryFolder(Library.Item2, Folder));
                             }
                             catch (Exception)
                             {
@@ -291,7 +292,7 @@ namespace RX_Explorer.Class
 
                                 if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(Folder, Drive.DriveType));
+                                    DriveList.Add(await DriveDataBase.CreateAsync(Drive.DriveType, Folder));
                                 }
                             }
                             catch (Exception ex)
@@ -308,7 +309,7 @@ namespace RX_Explorer.Class
 
                                 if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(Folder, DriveType.Removable));
+                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Removable, Folder));
                                 }
                             }
                             catch (Exception ex)
@@ -323,7 +324,7 @@ namespace RX_Explorer.Class
                             {
                                 if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(Folder, DriveType.Network));
+                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Network, Folder));
                                 }
                             }
                             catch (Exception ex)
@@ -332,13 +333,13 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        switch (PortalDeviceWatcher.Status)
+                        switch (PortalDriveWatcher.Status)
                         {
                             case DeviceWatcherStatus.Created:
                             case DeviceWatcherStatus.Aborted:
                             case DeviceWatcherStatus.Stopped:
                                 {
-                                    PortalDeviceWatcher.Start();
+                                    PortalDriveWatcher.Start();
                                     break;
                                 }
                         }
@@ -360,7 +361,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        private static async void PortalDriveWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
             try
             {
@@ -403,17 +404,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+        private static async void PortalDriveWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
             try
             {
-                StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
+                StorageFolder Folder = StorageDevice.FromId(args.Id);
 
-                if (DriveList.All((Device) => (string.IsNullOrEmpty(Device.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? !Device.Name.Equals(DeviceFolder.Name, StringComparison.OrdinalIgnoreCase) : !Device.Path.Equals(DeviceFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                if (!DriveList.Any((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        DriveList.Add(await DriveDataBase.CreateAsync(DeviceFolder, DriveType.Removable));
+                        DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Removable, Folder));
                     });
                 }
             }
@@ -423,7 +424,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async static void HardDeviceList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private async static void DriveList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
@@ -492,9 +493,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                    DriveList.Add(await DriveDataBase.CreateAsync(Device, Drive.DriveType));
+                    DriveList.Add(await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName)));
                 }
                 catch (Exception ex)
                 {
@@ -507,9 +506,9 @@ namespace RX_Explorer.Class
 
         static CommonAccessCollection()
         {
-            PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
-            PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
-            DriveList.CollectionChanged += HardDeviceList_CollectionChanged;
+            PortalDriveWatcher.Added += PortalDriveWatcher_Added;
+            PortalDriveWatcher.Removed += PortalDriveWatcher_Removed;
+            DriveList.CollectionChanged += DriveList_CollectionChanged;
             LibraryFolderList.CollectionChanged += LibraryFolderList_CollectionChanged;
             NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
         }

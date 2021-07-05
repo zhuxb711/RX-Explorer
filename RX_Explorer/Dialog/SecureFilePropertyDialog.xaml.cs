@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace RX_Explorer.Dialog
 {
@@ -44,11 +45,16 @@ namespace RX_Explorer.Dialog
                 Version = string.Join('.', Convert.ToString((int)SLEStream.Version).ToCharArray());
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileType)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Version)));
+            OnPropertyChanged(nameof(FileSize));
+            OnPropertyChanged(nameof(FileName));
+            OnPropertyChanged(nameof(FileType));
+            OnPropertyChanged(nameof(Level));
+            OnPropertyChanged(nameof(Version));
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

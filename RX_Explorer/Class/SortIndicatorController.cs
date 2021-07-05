@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -105,16 +106,21 @@ namespace RX_Explorer.Class
                     }
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameIndicatorIcon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModifiedTimeIndicatorIcon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeIndicatorIcon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeIndicatorIcon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathIndicatorIcon)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameIndicatorVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModifiedTimeIndicatorVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeIndicatorVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeIndicatorVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathIndicatorVisibility)));
+            OnPropertyChanged(nameof(NameIndicatorIcon));
+            OnPropertyChanged(nameof(ModifiedTimeIndicatorIcon));
+            OnPropertyChanged(nameof(TypeIndicatorIcon));
+            OnPropertyChanged(nameof(SizeIndicatorIcon));
+            OnPropertyChanged(nameof(PathIndicatorIcon));
+            OnPropertyChanged(nameof(NameIndicatorVisibility));
+            OnPropertyChanged(nameof(ModifiedTimeIndicatorVisibility));
+            OnPropertyChanged(nameof(TypeIndicatorVisibility));
+            OnPropertyChanged(nameof(SizeIndicatorVisibility));
+            OnPropertyChanged(nameof(PathIndicatorVisibility));
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public SortIndicatorController()

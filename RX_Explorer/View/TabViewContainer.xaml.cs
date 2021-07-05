@@ -142,244 +142,280 @@ namespace RX_Explorer
 
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabViewControl.SelectedItem is TabViewItem Tab:
                         {
-                            if (TabViewControl.SelectedItem is TabViewItem Tab)
-                            {
-                                args.Handled = true;
-                                await CleanUpAndRemoveTabItem(Tab);
-                            }
+                            args.Handled = true;
 
-                            return;
+                            await CleanUpAndRemoveTabItem(Tab);
+
+                            break;
                         }
-                }
+                    case VirtualKey.PageUp when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabCollection.Count > 1:
+                        {
+                            args.Handled = true;
 
-                if (CurrentNavigationControl?.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
-                {
-                    Home HomeControl = Control.CurrentPresenter.RootFolderControl;
-
-                    switch (args.VirtualKey)
-                    {
-                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                            if (TabViewControl.SelectedIndex > 0)
                             {
-                                args.Handled = true;
+                                TabViewControl.SelectedIndex--;
+                            }
+                            else
+                            {
+                                TabViewControl.SelectedIndex = TabCollection.Count - 1;
+                            }
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            break;
+                        }
+                    case VirtualKey.PageDown when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabCollection.Count > 1:
+                        {
+                            args.Handled = true;
+
+                            if (TabViewControl.SelectedIndex < TabCollection.Count - 1)
+                            {
+                                TabViewControl.SelectedIndex++;
+                            }
+                            else
+                            {
+                                TabViewControl.SelectedIndex = 0;
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            if (CurrentNavigationControl?.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
+                            {
+                                Home HomeControl = Control.CurrentPresenter.RootFolderControl;
+
+                                switch (args.VirtualKey)
                                 {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
-                                    {
-                                        if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                    case VirtualKey.Space when SettingControl.IsQuicklookEnable:
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
+                                            args.Handled = true;
+
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            {
+                                                if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                                {
+                                                    if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                                    {
+                                                        await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
+                                                    }
+                                                    else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                                    {
+                                                        await Exclusive.Controller.ViewWithQuicklookAsync(Library.Path);
+                                                    }
+                                                }
+                                            }
+
+                                            break;
                                         }
-                                        else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                    case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Path);
+                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
+                                            {
+                                                args.Handled = true;
+
+                                                if (string.IsNullOrEmpty(Drive.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                                    {
+                                                        await Control.CreateNewBladeAsync(Drive.Path);
+                                                    }
+                                                }
+                                            }
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            {
+                                                args.Handled = true;
+
+                                                if (string.IsNullOrEmpty(Library.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                                    {
+                                                        await Control.CreateNewBladeAsync(Library.Path);
+                                                    }
+                                                }
+                                            }
+
+                                            break;
                                         }
-                                    }
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Drive.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                    case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
+                                            {
+                                                args.Handled = true;
 
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                                        {
-                                            await Control.CreateNewBladeAsync(Drive.Path);
+                                                if (string.IsNullOrEmpty(Drive.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
+                                                }
+                                            }
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            {
+                                                args.Handled = true;
+
+                                                if (string.IsNullOrEmpty(Library.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Library.Path } }))}"));
+                                                }
+                                            }
+
+                                            break;
                                         }
-                                    }
-                                }
-                                else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Library.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                    case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
+                                            {
+                                                args.Handled = true;
 
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                                        {
-                                            await Control.CreateNewBladeAsync(Library.Path);
+                                                if (string.IsNullOrEmpty(Drive.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await CreateNewTabAsync(Drive.Path);
+                                                }
+                                            }
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            {
+                                                args.Handled = true;
+
+                                                if (string.IsNullOrEmpty(Library.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await CreateNewTabAsync(Library.Path);
+                                                }
+                                            }
+
+                                            break;
                                         }
-                                    }
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Drive.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                    case VirtualKey.Enter:
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
+                                            {
+                                                args.Handled = true;
 
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
-                                    }
-                                }
-                                else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
-                                {
-                                    args.Handled = true;
+                                                if (string.IsNullOrEmpty(Drive.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
 
-                                    if (string.IsNullOrEmpty(Library.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await HomeControl.OpenTargetFolder(Drive.DriveFolder);
+                                                }
+                                            }
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            {
+                                                args.Handled = true;
+
+                                                if (string.IsNullOrEmpty(Library.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                                else
+                                                {
+                                                    await HomeControl.OpenTargetFolder(Library.LibFolder);
+                                                }
+                                            }
+
+                                            break;
+                                        }
+                                    case VirtualKey.F5:
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            args.Handled = true;
 
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Library.Path } }))}"));
-                                    }
-                                }
+                                            await CommonAccessCollection.LoadDriveAsync(true);
 
-                                break;
-                            }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Drive.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                            break;
+                                        }
+                                    case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            args.Handled = true;
 
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await CreateNewTabAsync(Drive.Path);
-                                    }
+                                            await CreateNewTabAsync();
+
+                                            break;
+                                        }
                                 }
-                                else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Library.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await CreateNewTabAsync(Library.Path);
-                                    }
-                                }
-
-                                break;
                             }
-                        case VirtualKey.Enter:
-                            {
-                                if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
-                                {
-                                    args.Handled = true;
 
-                                    if (string.IsNullOrEmpty(Drive.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await HomeControl.OpenTargetFolder(Drive.DriveFolder);
-                                    }
-                                }
-                                else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
-                                {
-                                    args.Handled = true;
-
-                                    if (string.IsNullOrEmpty(Library.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        await HomeControl.OpenTargetFolder(Library.LibFolder);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.F5:
-                            {
-                                args.Handled = true;
-                                await CommonAccessCollection.LoadDriveAsync(true);
-                                break;
-                            }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                args.Handled = true;
-                                await CreateNewTabAsync();
-                                break;
-                            }
-                    }
+                            break;
+                        }
                 }
             }
         }

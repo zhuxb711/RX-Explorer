@@ -939,7 +939,7 @@ namespace RX_Explorer
             return DisplayItemsInFolderCore(FolderPath, ForceRefresh, SkipNavigationRecord);
         }
 
-        private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        private async void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             int Delta = e.GetCurrentPoint(null).Properties.MouseWheelDelta;
 
@@ -949,14 +949,14 @@ namespace RX_Explorer
                 {
                     if (Container.ViewModeControl.ViewModeIndex > 0)
                     {
-                        Container.ViewModeControl.ViewModeIndex--;
+                        await Container.ViewModeControl.SetCurrentViewMode(CurrentFolder.Path, Container.ViewModeControl.ViewModeIndex - 1);
                     }
                 }
                 else
                 {
                     if (Container.ViewModeControl.ViewModeIndex < ViewModeController.SelectionSource.Length - 1)
                     {
-                        Container.ViewModeControl.ViewModeIndex++;
+                        await Container.ViewModeControl.SetCurrentViewMode(CurrentFolder.Path, Container.ViewModeControl.ViewModeIndex + 1);
                     }
                 }
 

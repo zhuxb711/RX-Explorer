@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
@@ -203,24 +204,29 @@ namespace RX_Explorer.Class
                         }
                 }
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton1Content)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton2Content)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton3Content)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton1Visibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton2Visibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButton3Visibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ActionButtonAreaVisibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CancelButtonVisibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoveButtonVisibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SpeedAndTimeVisibility)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressIndeterminate)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressError)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressPause)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusText)));
+                OnPropertyChanged(nameof(ActionButton1Content));
+                OnPropertyChanged(nameof(ActionButton2Content));
+                OnPropertyChanged(nameof(ActionButton3Content));
+                OnPropertyChanged(nameof(ActionButton1Visibility));
+                OnPropertyChanged(nameof(ActionButton2Visibility));
+                OnPropertyChanged(nameof(ActionButton3Visibility));
+                OnPropertyChanged(nameof(ActionButtonAreaVisibility));
+                OnPropertyChanged(nameof(CancelButtonVisibility));
+                OnPropertyChanged(nameof(RemoveButtonVisibility));
+                OnPropertyChanged(nameof(SpeedAndTimeVisibility));
+                OnPropertyChanged(nameof(ProgressIndeterminate));
+                OnPropertyChanged(nameof(ProgressError));
+                OnPropertyChanged(nameof(ProgressPause));
+                OnPropertyChanged(nameof(StatusText));
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
 
         private string Message;
         private short ActionButtonIndex = -1;
@@ -266,9 +272,9 @@ namespace RX_Explorer.Class
                 RemainingTime = Calculator.GetRemainingTime().ConvertTimeSpanToString();
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Progress)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressSpeed)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemainingTime)));
+            OnPropertyChanged(nameof(Progress));
+            OnPropertyChanged(nameof(ProgressSpeed));
+            OnPropertyChanged(nameof(RemainingTime));
         }
 
         public void UpdateStatus(OperationStatus Status, string Message = null)

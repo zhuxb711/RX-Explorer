@@ -545,15 +545,7 @@ namespace RX_Explorer
                         CurrentTabItem = Parameters.Item1;
                         CurrentTabItem.Tag = this;
 
-                        ViewModeControl = new ViewModeController();
-
-                        Binding SelectedIndexBinding = new Binding
-                        {
-                            Source = ViewModeControl,
-                            Path = new PropertyPath(nameof(ViewModeController.ViewModeIndex)),
-                            Mode = BindingMode.TwoWay
-                        };
-                        ViewModeComboBox.SetBinding(Selector.SelectedIndexProperty, SelectedIndexBinding);
+                        ViewModeControl = new ViewModeController(ViewModeComboBox);
 
                         await Initialize(Parameters.Item2);
 
@@ -1478,9 +1470,7 @@ namespace RX_Explorer
                                 }
                             }
 
-                            StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Drive.Path);
-
-                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DeviceFolder, Drive.DriveType);
+                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
 
                             if (NewDrive is LockedDriveData)
                             {
@@ -2961,7 +2951,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(LibraryType.UserCustom, Folder));
 
                     if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                     {

@@ -107,6 +107,14 @@ namespace RX_Explorer
             else
             {
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+
+                args.RegisterUpdateCallback(async (s, e) =>
+                {
+                    if (e.Item is LibraryFolder Item)
+                    {
+                        await Item.LoadThumbnailAsync().ConfigureAwait(false);
+                    }
+                });
             }
         }
 
@@ -161,9 +169,7 @@ namespace RX_Explorer
                                 }
                             }
 
-                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(LockedDrive.Path);
-
-                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveFolder, LockedDrive.DriveType);
+                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(LockedDrive.DriveType, await StorageFolder.GetFolderFromPathAsync(LockedDrive.Path));
 
                             if (NewDrive is LockedDriveData)
                             {
@@ -452,7 +458,7 @@ namespace RX_Explorer
                 {
                     if (CommonAccessCollection.DriveList.All((Item) => !Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(DriveFolder, new DriveInfo(DriveFolder.Path).DriveType));
+                        CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(new DriveInfo(DriveFolder.Path).DriveType, DriveFolder));
                     }
                     else
                     {
@@ -462,6 +468,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
+
                         await Dialog.ShowAsync();
                     }
                 }
@@ -666,7 +673,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(LibraryType.UserCustom, Folder));
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }

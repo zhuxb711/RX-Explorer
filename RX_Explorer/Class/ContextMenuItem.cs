@@ -81,7 +81,7 @@ namespace RX_Explorer.Class
                         Text = SubItem.Name,
                         Tag = SubItem,
                         MinWidth = 150,
-                        MaxWidth = 350,
+                        MaxWidth = 300,
                         Icon = new FontIcon
                         {
                             Glyph = "\uE2AC"
@@ -99,7 +99,7 @@ namespace RX_Explorer.Class
                         Text = SubItem.Name,
                         Tag = SubItem,
                         MinWidth = 150,
-                        MaxWidth = 350
+                        MaxWidth = 300
                     };
 
                     if (SubItem.IconData.Length != 0)
@@ -134,7 +134,7 @@ namespace RX_Explorer.Class
             {
                 Label = Name,
                 Tag = this,
-                MinWidth = 280,
+                Width = 300,
                 Name = "ExtraButton"
             };
             Button.Click += ClickHandler;

@@ -125,7 +125,6 @@
                                                     Value="76,0,12,0" />
                                         </VisualState.Setters>
                                     </VisualState>
-
                                 </VisualStateGroup>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal">
@@ -213,29 +212,35 @@
                                                     Value="{ThemeResource AppBarButtonOverflowTextTouchMargin}" />
                                         </VisualState.Setters>
                                     </VisualState>
-
                                 </VisualStateGroup>
                                 <VisualStateGroup x:Name="KeyboardAcceleratorTextVisibility">
-                                    <VisualState x:Name="KeyboardAcceleratorTextCollapsed" />
+                                    <VisualState x:Name="KeyboardAcceleratorTextCollapsed">
+                                        <VisualState.Setters>
+                                            <Setter Target="KeyboardAcceleratorTextLabel.Visibility"
+                                                    Value="Collapsed" />
+                                        </VisualState.Setters>
+                                    </VisualState>
                                     <VisualState x:Name="KeyboardAcceleratorTextVisible">
                                         <VisualState.Setters>
                                             <Setter Target="KeyboardAcceleratorTextLabel.Visibility"
                                                     Value="Visible" />
                                         </VisualState.Setters>
                                     </VisualState>
-
                                 </VisualStateGroup>
                                 <VisualStateGroup x:Name="FlyoutStates">
-                                    <VisualState x:Name="NoFlyout" />
+                                    <VisualState x:Name="NoFlyout">
+                                        <VisualState.Setters>
+                                            <Setter Target="SubItemChevron.Visibility"
+                                                    Value="Collapsed" />
+                                        </VisualState.Setters>
+                                    </VisualState>
                                     <VisualState x:Name="HasFlyout">
                                         <VisualState.Setters>
                                             <Setter Target="SubItemChevron.Visibility"
                                                     Value="Visible" />
                                         </VisualState.Setters>
                                     </VisualState>
-
                                 </VisualStateGroup>
-
                             </VisualStateManager.VisualStateGroups>
                             <Grid x:Name="ContentRoot">
                                 <Grid.ColumnDefinitions>
@@ -277,7 +282,6 @@
                                            Grid.Column="1"
                                            Style="{ThemeResource CaptionTextBlockStyle}"
                                            Text="{TemplateBinding KeyboardAcceleratorTextOverride}"
-                                           MinWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.KeyboardAcceleratorTextMinWidth}"
                                            Margin="24,0,12,0"
                                            Foreground="{ThemeResource SystemControlBackgroundBaseMediumBrush}"
                                            HorizontalAlignment="Right"
@@ -295,7 +299,6 @@
                                           MirroredWhenRightToLeft="True"
                                           VerticalAlignment="Center"
                                           Visibility="Collapsed" />
-
                             </Grid>
                         </Grid>
                     </ControlTemplate>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -184,15 +185,15 @@ namespace RX_Explorer.Class
                 {
                     isEnableAnimation = value;
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnableAnimation)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DeviceAndLibraryTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuickStartTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AddDeleteTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EntranceTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneLeftTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneTopTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RepositionTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BladeViewTransitions)));
+                    OnPropertyChanged(nameof(IsEnableAnimation));
+                    OnPropertyChanged(nameof(DeviceAndLibraryTransitions));
+                    OnPropertyChanged(nameof(QuickStartTransitions));
+                    OnPropertyChanged(nameof(AddDeleteTransitions));
+                    OnPropertyChanged(nameof(EntranceTransitions));
+                    OnPropertyChanged(nameof(PaneLeftTransitions));
+                    OnPropertyChanged(nameof(PaneTopTransitions));
+                    OnPropertyChanged(nameof(RepositionTransitions));
+                    OnPropertyChanged(nameof(BladeViewTransitions));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                     ApplicationData.Current.SignalDataChanged();
@@ -212,7 +213,7 @@ namespace RX_Explorer.Class
                 {
                     isDisableStartupAnimation = value;
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDisableStartupAnimation)));
+                    OnPropertyChanged();
 
                     ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
                     ApplicationData.Current.SignalDataChanged();
@@ -229,6 +230,11 @@ namespace RX_Explorer.Class
         private volatile static AnimationController Instance;
 
         private static readonly object Locker = new object();
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
 
         public static AnimationController Current
         {

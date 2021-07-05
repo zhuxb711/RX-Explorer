@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -96,43 +97,27 @@ namespace RX_Explorer.Class
 
         public async Task GenerateThumbnailAsync()
         {
-            if (BitmapSource != null)
+            if (BitmapSource == null)
             {
-                return;
-            }
-
-            try
-            {
-                if ((await PhotoFile.GetStorageItemAsync()) is StorageFile File)
+                try
                 {
-                    BitmapSource = new BitmapImage();
-
-                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                    if ((await PhotoFile.GetStorageItemAsync()) is StorageFile File)
                     {
-                        await BitmapSource.SetSourceAsync(ThumbnailStream);
-                    }
+                        BitmapSource = new BitmapImage();
 
-                    OnPropertyChanged(nameof(BitmapSource));
+                        using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                        {
+                            await BitmapSource.SetSourceAsync(ThumbnailStream);
+                        }
+
+                        OnPropertyChanged(nameof(BitmapSource));
+                    }
+                }
+                catch
+                {
+                    BitmapSource = new BitmapImage(new Uri("ms-appx:///Assets/AlphaPNG.png"));
                 }
             }
-            catch
-            {
-                BitmapSource = new BitmapImage(new Uri("ms-appx:///Assets/AlphaPNG.png"));
-            }
-        }
-
-        /// <summary>
-        /// 更新图片的显示
-        /// </summary>
-        /// <returns></returns>
-        public async Task UpdateImage()
-        {
-            using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
-            {
-                await BitmapSource.SetSourceAsync(Stream);
-            }
-
-            OnPropertyChanged(nameof(BitmapSource));
         }
 
         /// <summary>
@@ -187,12 +172,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void OnPropertyChanged(string Name)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            if (!string.IsNullOrEmpty(Name))
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

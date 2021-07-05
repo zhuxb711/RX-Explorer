@@ -21,6 +21,8 @@ Ctrl + E|None|Empty the recycle bin
 Ctrl + R|Select any file or folder|Restore all items selected in recycle bin
 Ctrl + Mouse Wheel|None|Change file display mode
 Ctrl + Double Click|Select any folder|Open the specified folder in a new tab
+Ctrl + PageUp|None|Switch to the tab on the left
+Ctrl + PageDown|None|Switch to the tab on the right
 Shift + E|None|Use the Windows Explorer to open the current folder
 Shift + T|None|Start the corresponding terminal according to the configuration in the settings
 Alt + Left|None|Navigate to the previous folder

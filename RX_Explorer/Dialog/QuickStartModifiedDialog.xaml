@@ -52,7 +52,7 @@
         </controls:TeachingTip>
         <controls:TeachingTip x:Name="UWPPickerTip"
                               IsLightDismissEnabled="True"
-                              PreferredPlacement="Left"
+                              PreferredPlacement="Bottom"
                               Title="选取UWP应用"
                               ActionButtonContent="确定"
                               CloseButtonContent="取消"
@@ -64,7 +64,8 @@
                 <ListView x:Name="PackageListView"
                           Visibility="Collapsed"
                           ItemsSource="{x:Bind PackageListViewSource}"
-                          MaxHeight="350">
+                          MaxHeight="350"
+                          Width="320">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
@@ -93,8 +94,10 @@
                                 </Border>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{x:Bind AppName}"
+                                               ToolTipService.ToolTip="{x:Bind AppName}"
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Text="{x:Bind AppDescription}"
+                                               ToolTipService.ToolTip="{x:Bind AppDescription}"
                                                FontSize="12"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
@@ -159,7 +162,7 @@
                             x:Uid="QuickStartPickApp"
                             MinWidth="100">
                         <Button.Flyout>
-                            <Flyout Placement="Top"
+                            <Flyout Placement="Bottom"
                                     x:Name="PickAppFlyout">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">

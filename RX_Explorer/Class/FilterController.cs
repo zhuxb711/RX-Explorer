@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -75,7 +76,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.From_A_To_G);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox1)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -103,7 +104,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.From_H_To_N);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox2)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -132,7 +133,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.From_O_To_T);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox3)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -161,7 +162,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.From_U_To_Z);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox4)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -189,7 +190,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.Other);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox5)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -221,7 +222,7 @@ namespace RX_Explorer.Class
                         RemoveNameCondition(NameFilterCondition.Regex);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox6)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -237,7 +238,7 @@ namespace RX_Explorer.Class
             {
                 regexExpression = value;
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegexExpression)));
+                OnPropertyChanged();
 
                 if (NameFilterCheckBox6.GetValueOrDefault())
                 {
@@ -272,7 +273,7 @@ namespace RX_Explorer.Class
                         FireRefreshEvent();
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox1)));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -298,7 +299,7 @@ namespace RX_Explorer.Class
                         RemoveModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox2)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -325,7 +326,7 @@ namespace RX_Explorer.Class
                         RemoveModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox3)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -352,7 +353,7 @@ namespace RX_Explorer.Class
                         RemoveModTimeCondition(ModTimeFilterCondition.Long_Ago);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox4)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -379,7 +380,7 @@ namespace RX_Explorer.Class
                         RemoveSizeCondition(SizeFilterCondition.Smaller);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox1)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -406,7 +407,7 @@ namespace RX_Explorer.Class
                         RemoveSizeCondition(SizeFilterCondition.Medium);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox2)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -433,7 +434,7 @@ namespace RX_Explorer.Class
                         RemoveSizeCondition(SizeFilterCondition.Larger);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox3)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -460,7 +461,7 @@ namespace RX_Explorer.Class
                         RemoveSizeCondition(SizeFilterCondition.Huge);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox4)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -480,7 +481,7 @@ namespace RX_Explorer.Class
 
                     AddModTimeCondition(ModTimeFilterCondition.Range, value.GetValueOrDefault(), ToDate ?? DateTimeOffset.Now);
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FromDate)));
+                    OnPropertyChanged();
 
                     if (ModTimeFilterCheckBox1.GetValueOrDefault())
                     {
@@ -511,7 +512,7 @@ namespace RX_Explorer.Class
 
                     AddModTimeCondition(ModTimeFilterCondition.Range, FromDate.GetValueOrDefault(), value.GetValueOrDefault());
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToDate)));
+                    OnPropertyChanged();
 
                     if (ModTimeFilterCheckBox1.GetValueOrDefault())
                     {
@@ -532,7 +533,7 @@ namespace RX_Explorer.Class
                 if (fromDateMax != value)
                 {
                     fromDateMax = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FromDateMax)));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -638,7 +639,7 @@ namespace RX_Explorer.Class
                         RemoveColorCondition(ColorFilterCondition.Orange);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox1)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -665,7 +666,7 @@ namespace RX_Explorer.Class
                         RemoveColorCondition(ColorFilterCondition.Green);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox2)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -692,7 +693,7 @@ namespace RX_Explorer.Class
                         RemoveColorCondition(ColorFilterCondition.Purple);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox3)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -719,7 +720,7 @@ namespace RX_Explorer.Class
                         RemoveColorCondition(ColorFilterCondition.Blue);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox4)));
+                    OnPropertyChanged();
                     FireRefreshEvent();
                 }
             }
@@ -777,24 +778,24 @@ namespace RX_Explorer.Class
             fromDate = null;
             toDate = null;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox1)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox2)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox3)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox4)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox5)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NameFilterCheckBox6)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegexExpression)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox1)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox2)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox3)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModTimeFilterCheckBox4)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FromDate)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ToDate)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox1)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox2)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox3)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SizeFilterCheckBox4)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeCheckBoxPanel)));
+            OnPropertyChanged(nameof(NameFilterCheckBox1));
+            OnPropertyChanged(nameof(NameFilterCheckBox2));
+            OnPropertyChanged(nameof(NameFilterCheckBox3));
+            OnPropertyChanged(nameof(NameFilterCheckBox4));
+            OnPropertyChanged(nameof(NameFilterCheckBox5));
+            OnPropertyChanged(nameof(NameFilterCheckBox6));
+            OnPropertyChanged(nameof(RegexExpression));
+            OnPropertyChanged(nameof(ModTimeFilterCheckBox1));
+            OnPropertyChanged(nameof(ModTimeFilterCheckBox2));
+            OnPropertyChanged(nameof(ModTimeFilterCheckBox3));
+            OnPropertyChanged(nameof(ModTimeFilterCheckBox4));
+            OnPropertyChanged(nameof(FromDate));
+            OnPropertyChanged(nameof(ToDate));
+            OnPropertyChanged(nameof(SizeFilterCheckBox1));
+            OnPropertyChanged(nameof(SizeFilterCheckBox2));
+            OnPropertyChanged(nameof(SizeFilterCheckBox3));
+            OnPropertyChanged(nameof(SizeFilterCheckBox4));
+            OnPropertyChanged(nameof(TypeCheckBoxPanel));
         }
 
         private void AddColorCondition(ColorFilterCondition Condition)
@@ -870,6 +871,11 @@ namespace RX_Explorer.Class
             {
                 SizeCondition ^= Condition;
             }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public IEnumerable<FileSystemStorageItemBase> GetFilterCollection()

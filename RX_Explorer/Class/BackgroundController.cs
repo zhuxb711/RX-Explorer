@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -56,7 +57,7 @@ namespace RX_Explorer.Class
 
                     isCompositionAcrylicEnabled = value;
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsCompositionAcrylicEnabled)));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -362,7 +363,7 @@ namespace RX_Explorer.Class
                         AppThemeController.Current.Theme = ElementTheme.Dark;
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                    OnPropertyChanged(nameof(BackgroundBrush));
                 }
             });
         }
@@ -392,7 +393,7 @@ namespace RX_Explorer.Class
                                         await Bitmap.SetSourceAsync(Stream);
                                     }
 
-                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                    OnPropertyChanged(nameof(BackgroundBrush));
                                 }
                                 catch (Exception ex)
                                 {
@@ -420,7 +421,7 @@ namespace RX_Explorer.Class
                                     await Bitmap.SetSourceAsync(Stream);
                                 }
 
-                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                OnPropertyChanged(nameof(BackgroundBrush));
                             }
                             else
                             {
@@ -499,8 +500,8 @@ namespace RX_Explorer.Class
             bindSizeAnimation.SetReferenceParameter("ElementVisual", ElementVisual);
             SpVisual.StartAnimation("Size", bindSizeAnimation);
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintLuminosityOpacity)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AcrylicColor)));
+            OnPropertyChanged(nameof(TintLuminosityOpacity));
+            OnPropertyChanged(nameof(AcrylicColor));
         }
 
         private void DisableCompositionAcrylic()
@@ -543,7 +544,8 @@ namespace RX_Explorer.Class
                 {
                     AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
                     ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = Convert.ToString(value);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintOpacity)));
+
+                    OnPropertyChanged();
                     ApplicationData.Current.SignalDataChanged();
                 }
             }
@@ -601,7 +603,7 @@ namespace RX_Explorer.Class
                         AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
                         ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = Convert.ToString(value);
 
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintLuminosityOpacity)));
+                        OnPropertyChanged();
                         ApplicationData.Current.SignalDataChanged();
                     }
                 }
@@ -652,7 +654,8 @@ namespace RX_Explorer.Class
                 {
                     AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
                     ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = value.ToHex();
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AcrylicColor)));
+
+                    OnPropertyChanged();
                     ApplicationData.Current.SignalDataChanged();
                 }
             }
@@ -743,7 +746,12 @@ namespace RX_Explorer.Class
                 }
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+            OnPropertyChanged(nameof(BackgroundBrush));
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
@@ -25,7 +26,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public string Status { get; private set; } = Globalization.GetString("BluetoothAudio_Status_1");
+        public string Status { get; private set; }
 
         public string Id
         {
@@ -35,7 +36,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public string ActionButtonText { get; private set; } = Globalization.GetString("BluetoothAudio_Button_Text_1");
+        public string ActionButtonText { get; private set; }
 
         public bool ActionButtonEnabled { get; private set; } = true;
 
@@ -208,9 +209,9 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(Name));
         }
 
-        private void OnPropertyChanged(string name)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -219,6 +220,9 @@ namespace RX_Explorer.Class
         {
             this.DeviceInfo = DeviceInfo;
             this.Glyph = Glyph;
+
+            Status = Globalization.GetString("BluetoothAudio_Status_1");
+            ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
 
             ConnectionStatusChanged += StatusChanged;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -22,7 +23,7 @@ namespace RX_Explorer.Class
             private set
             {
                 foregroundColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+                OnPropertyChanged();
             }
         }
 
@@ -52,7 +53,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private string InnerDisplayName;
+        private readonly string InnerDisplayName;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -81,6 +82,11 @@ namespace RX_Explorer.Class
             {
                 ForegroundColor = new SolidColorBrush(Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
             }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public void Dispose()

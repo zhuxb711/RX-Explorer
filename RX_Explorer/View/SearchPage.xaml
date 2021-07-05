@@ -35,13 +35,13 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
-                              MinWidth="250"
+                              Width="300"
                               x:Name="Open"
                               Click="Open_Click" />
                 <AppBarButton x:Uid="SearchLocation"
                               x:Name="Location"
                               Label="打开所在位置"
-                              MinWidth="250"
+                              Width="300"
                               Click="Location_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="L"
@@ -55,7 +55,7 @@
                 </AppBarButton>
                 <AppBarButton x:Name="CopyPath"
                               Label="复制完整路径"
-                              MinWidth="250"
+                              Width="300"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click">
                     <AppBarButton.Icon>
@@ -67,7 +67,7 @@
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"
-                              MinWidth="250"
+                              Width="300"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

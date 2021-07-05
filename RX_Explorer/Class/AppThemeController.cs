@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -28,7 +29,8 @@ namespace RX_Explorer.Class
                     theme = value;
 
                     ThemeChanged?.Invoke(null, value);
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
+
+                    OnPropertyChanged();
 
                     ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
                     ApplicationData.Current.SignalDataChanged();
@@ -73,6 +75,11 @@ namespace RX_Explorer.Class
                 Theme = ElementTheme.Dark;
                 ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = "Dark";
             }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)

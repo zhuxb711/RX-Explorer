@@ -401,7 +401,7 @@ namespace RX_Explorer.Class
                                             Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                             Icon = new SymbolIcon(Symbol.More),
                                             Name = "ExtraButton",
-                                            MinWidth = 250
+                                            Width = 300
                                         };
 
                                         MenuFlyout MoreFlyout = new MenuFlyout();
@@ -960,11 +960,15 @@ namespace RX_Explorer.Class
                     switch (Item)
                     {
                         case StorageFolder Folder:
-                            GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                            break;
+                            {
+                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                break;
+                            }
                         case StorageFile File:
-                            GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                            break;
+                            {
+                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                break;
+                            }
                         default:
                             {
                                 return null;

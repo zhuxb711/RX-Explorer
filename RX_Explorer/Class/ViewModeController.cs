@@ -1,26 +1,14 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace RX_Explorer.Class
 {
-    public sealed class ViewModeController : INotifyPropertyChanged, IDisposable
+    public sealed class ViewModeController : IDisposable
     {
-        private int modeIndex;
-        public int ViewModeIndex
-        {
-            get
-            {
-                return modeIndex;
-            }
-            set
-            {
-                modeIndex = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
-                ViewModeChanged?.Invoke(this, new ViewModeChangedEventArgs(CurrentPath, value));
-            }
-        }
+        public int ViewModeIndex { get; private set; }
 
         public static string[] SelectionSource
         {
@@ -38,35 +26,42 @@ namespace RX_Explorer.Class
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public static event EventHandler<ViewModeChangedEventArgs> ViewModeChanged;
 
-        private string CurrentPath = string.Empty;
+        private string CurrentPath;
+        private Selector Element;
+        private readonly long CallbackToken;
+
 
         public async Task SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
-        {            
-            modeIndex = ViewModeIndex;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
-            
+        {
+            this.CurrentPath = CurrentPath;
             await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, ViewModeIndex));
-
-            this.CurrentPath = CurrentPath ?? string.Empty;
         }
 
-        public ViewModeController()
+        public ViewModeController(Selector Element)
         {
+            this.Element = Element;
+            CallbackToken = Element.RegisterPropertyChangedCallback(Selector.SelectedIndexProperty, new DependencyPropertyChangedCallback(OnSelectedIndexChanged));
             ViewModeChanged += ViewModeController_ViewModeChanged;
+        }
+
+        private async void OnSelectedIndexChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            if (sender is Selector Selector)
+            {
+                await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, Selector.SelectedIndex));
+            }
         }
 
         private void ViewModeController_ViewModeChanged(object sender, ViewModeChangedEventArgs e)
         {
-            if (sender is ViewModeController Controller && Controller != this)
+            if (sender is ViewModeController)
             {
-                if (e.Path == CurrentPath && modeIndex != e.Index)
+                if ((e.Path?.Equals(CurrentPath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
                 {
-                    modeIndex = e.Index;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
+                    ViewModeIndex = e.Index;
+                    Element.SelectedIndex = e.Index;
                 }
             }
         }
@@ -74,6 +69,8 @@ namespace RX_Explorer.Class
         public void Dispose()
         {
             ViewModeChanged -= ViewModeController_ViewModeChanged;
+            Element.UnregisterPropertyChangedCallback(Selector.SelectedIndexProperty, CallbackToken);
+            Element = null;
         }
 
         public sealed class ViewModeChangedEventArgs : DeferredEventArgs

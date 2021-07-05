@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -433,9 +434,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected void OnPropertyChanged(string Name)
+        protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public virtual void SetThumbnailOpacity(ThumbnailStatus Status)
@@ -448,6 +449,7 @@ namespace RX_Explorer.Class
                         {
                             ThumbnailOpacity = 1d;
                         }
+
                         break;
                     }
                 case ThumbnailStatus.ReducedOpacity:
@@ -456,6 +458,7 @@ namespace RX_Explorer.Class
                         {
                             ThumbnailOpacity = 0.5;
                         }
+
                         break;
                     }
             }

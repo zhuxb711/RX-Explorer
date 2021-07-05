@@ -21,6 +21,8 @@ Ctrl + E|Keine|Papierkorb leeren
 Ctrl + R|Beliebige Datei oder Ordner auswählen|Alle im Papierkorb ausgewählten Elemente wiederherstellen
 Ctrl + Mausrad|keine|Dateianzeigemodus ändern
 Ctrl + Doppelklick|Beliebigen Ordner auswählen|Angegebenen Ordner in einem neuen Tab öffnen
+Ctrl + PageUp|Keine|Wechseln Sie zum Tab links
+Ctrl + PageDown|Keine|Wechseln Sie zum Reiter rechts
 Shift + E |Keine|Verwenden Sie den Windows Explorer, um den aktuellen Ordner zu öffnen
 Shift + T|Keine|Starte das entsprechende Terminal entsprechend der Konfiguration in den Einstellungen
 Alt + Links|Keine|Navigiere zum vorherigen Ordner

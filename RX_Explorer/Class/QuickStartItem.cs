@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -59,9 +60,9 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(Image));
         }
 
-        private void OnPropertyChanged(string name)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         /// <summary>

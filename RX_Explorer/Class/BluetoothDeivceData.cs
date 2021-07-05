@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Windows.Devices.Enumeration;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -92,9 +93,9 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ActionButtonText));
         }
 
-        private void OnPropertyChanged(string name)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -146,8 +147,13 @@ namespace RX_Explorer.Dialog
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
                 ExtractLocation = Folder.Path;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExtractLocation)));
+                OnPropertyChanged(nameof(ExtractLocation));
             }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

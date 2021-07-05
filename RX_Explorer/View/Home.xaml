@@ -37,8 +37,7 @@
 
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="OpenLibrary"
                               Click="OpenLibrary_Click">
@@ -49,8 +48,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               x:Name="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
@@ -64,8 +62,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               x:Name="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
@@ -79,8 +76,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               Visibility="Collapsed"
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
@@ -97,8 +93,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -107,8 +102,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
-                              MinWidth="250"
-                              MaxWidth="350"
+                              Width="300"
                               x:Name="LibraryProperty"
                               Click="LibraryProperties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -246,7 +240,6 @@
                     <GridView Margin="0,20,0,0"
                               Name="LibraryGrid"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryFolderList}"
-                              ContainerContentChanging="LibraryGrid_ContainerContentChanging"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"
@@ -261,6 +254,7 @@
                               Holding="LibraryGrid_Holding"
                               PointerPressed="LibraryGrid_PointerPressed"
                               DoubleTapped="LibraryGrid_DoubleTapped"
+                              ContainerContentChanging="LibraryGrid_ContainerContentChanging"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:LibraryFolder">
@@ -272,8 +266,9 @@
                                     </Grid.ColumnDefinitions>
                                     <Image Height="50"
                                            Width="50"
-                                           Source="{x:Bind Thumbnail}"
-                                           Stretch="Uniform" />
+                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                           Stretch="Uniform"
+                                           x:Phase="1"/>
                                     <StackPanel Orientation="Vertical"
                                                 Padding="5,2,0,2"
                                                 Grid.Column="1">

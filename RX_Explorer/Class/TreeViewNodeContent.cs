@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -29,9 +30,9 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void OnPropertyChanged(string Name)
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         public void ReplaceWithNewPath(string NewPath)

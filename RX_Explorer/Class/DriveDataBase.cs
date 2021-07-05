@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -22,16 +23,16 @@ namespace RX_Explorer.Class
     public class DriveDataBase : INotifyPropertyChanged, IDriveData
     {
         private static readonly Uri SystemDriveIconUri = new Uri("ms-appx:///Assets/SystemDrive.ico");
+        private static readonly Uri SystemDriveUnLockedIconUri = new Uri("ms-appx:///Assets/SystemDriveUnLocked.ico");
         private static readonly Uri NormalDriveIconUri = new Uri("ms-appx:///Assets/NormalDrive.ico");
         private static readonly Uri NormalDriveLockedIconUri = new Uri("ms-appx:///Assets/NormalDriveLocked.ico");
         private static readonly Uri NormalDriveUnLockedIconUri = new Uri("ms-appx:///Assets/NormalDriveUnLocked.ico");
-        private static readonly Uri SystemDriveUnLockedIconUri = new Uri("ms-appx:///Assets/SystemDriveUnLocked.ico");
         private static readonly Uri NetworkDriveIconUri = new Uri("ms-appx:///Assets/NetworkDrive.ico");
 
         /// <summary>
         /// 驱动器缩略图
         /// </summary>
-        public virtual BitmapImage Thumbnail { get; }
+        public BitmapImage Thumbnail { get; }
 
         /// <summary>
         /// 驱动器对象
@@ -143,16 +144,17 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return progressBarForeground;
+                    return progressBarForeground ??= new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
                 }
             }
-            protected set
+            private set
             {
                 progressBarForeground = value;
+                OnPropertyChanged();
             }
         }
 
-        private SolidColorBrush progressBarForeground = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
+        private SolidColorBrush progressBarForeground;
 
         /// <summary>
         /// 存储空间描述
@@ -171,7 +173,7 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static async Task<DriveDataBase> CreateAsync(StorageFolder Drive, DriveType DriveType)
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder Drive)
         {
             BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
 
@@ -281,8 +283,12 @@ namespace RX_Explorer.Class
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 ProgressBarForeground = new SolidColorBrush(sender.GetColorValue(UIColorType.Accent));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressBarForeground)));
             });
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         /// <summary>
