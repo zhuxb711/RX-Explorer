@@ -3126,4 +3126,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
     <value>Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</value>
   </data>
+  <data name="SearchEngineUseAQS.Content" xml:space="preserve">
+    <value>Verwenden Die Erweiterte Abfrage Syntax (AQS)</value>
+  </data>
 </root>

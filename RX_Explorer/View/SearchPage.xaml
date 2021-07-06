@@ -13,8 +13,8 @@
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                          Name="MuiltSelect"
-                          Click="MuiltSelect_Click">
+                          Name="MultiSelect"
+                          Click="MultiSelect_Click">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                               Glyph="&#xE762;" />
@@ -74,7 +74,7 @@
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                          Click="MuiltSelect_Click">
+                          Click="MultiSelect_Click">
                 <AppBarButton.Icon>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                               Glyph="&#xE762;" />

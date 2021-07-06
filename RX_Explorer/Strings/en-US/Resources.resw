@@ -2181,10 +2181,10 @@ Invalid names include
     <value>Use regular expressions</value>
   </data>
   <data name="SearchInDefaultEngine.Content" xml:space="preserve">
-    <value>Use built-in search engine (default)</value>
+    <value>Use Built-in search engine (Default)</value>
   </data>
   <data name="SearchInEverythingEngine.Content" xml:space="preserve">
-    <value>Use Everything search engine (faster)</value>
+    <value>Use Everything search engine (Faster)</value>
   </data>
   <data name="UnlockBitlocker.Label" xml:space="preserve">
     <value>Unlock</value>
@@ -3230,5 +3230,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
     <value>This will permanently delete everything in the folder. Whether to continue?</value>
+  </data>
+  <data name="SearchEngineUseAQS.Content" xml:space="preserve">
+    <value>Use Advanced Query Syntax(AQS)</value>
   </data>
 </root>

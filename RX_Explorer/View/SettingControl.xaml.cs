@@ -2739,8 +2739,7 @@ namespace RX_Explorer
 
         private async void ShortcutGuide_Click(object sender, RoutedEventArgs e)
         {
-            KeyboardShortcutGuideDialog Dialog = new KeyboardShortcutGuideDialog();
-            await Dialog.ShowAsync();
+            await new KeyboardShortcutGuideDialog().ShowAsync();
         }
 
         private async void PurchaseApp_Click(object sender, RoutedEventArgs e)
@@ -2812,6 +2811,11 @@ namespace RX_Explorer
             DataPackage Package = new DataPackage();
             Package.SetText("937294538");
             Clipboard.SetContent(Package);
+        }
+
+        private async void AQSGuide_Click(object sender, RoutedEventArgs e)
+        {
+            await new AQSGuide().ShowAsync();
         }
     }
 }

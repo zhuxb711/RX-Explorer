@@ -4228,14 +4228,6 @@ namespace RX_Explorer
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
 
-            AppBarButton MultiSelectButton = new AppBarButton
-            {
-                Icon = new FontIcon { Glyph = "\uE762" },
-                Label = Globalization.GetString("Operate_Text_MultiSelect")
-            };
-            MultiSelectButton.Click += MulSelect_Click;
-            BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
-
             if (SelectedItems.Count > 1)
             {
                 AppBarButton CopyButton = new AppBarButton
@@ -4300,22 +4292,30 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    bool IsEnablePaste = false;
+                    AppBarButton MultiSelectButton = new AppBarButton
+                    {
+                        Icon = new FontIcon { Glyph = "\uE762" },
+                        Label = Globalization.GetString("Operate_Text_MultiSelect")
+                    };
+                    MultiSelectButton.Click += MultiSelect_Click;
+                    BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
+
+                    bool EnablePasteButton;
 
                     try
                     {
-                        IsEnablePaste = await Clipboard.GetContent().CheckIfContainsAvailableDataAsync();
+                        EnablePasteButton = await Clipboard.GetContent().CheckIfContainsAvailableDataAsync();
                     }
                     catch
                     {
-                        IsEnablePaste = false;
+                        EnablePasteButton = false;
                     }
 
                     AppBarButton PasteButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Paste),
                         Label = Globalization.GetString("Operate_Text_Paste"),
-                        IsEnabled = IsEnablePaste
+                        IsEnabled = EnablePasteButton
                     };
                     PasteButton.Click += Paste_Click;
                     BottomCommandBar.PrimaryCommands.Add(PasteButton);
@@ -4401,7 +4401,7 @@ namespace RX_Explorer
             }
         }
 
-        private void MulSelect_Click(object sender, RoutedEventArgs e)
+        private void MultiSelect_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 

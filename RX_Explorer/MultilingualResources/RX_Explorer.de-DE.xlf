@@ -2741,11 +2741,11 @@ Inkorrekte Namen sind
           <target state="translated">Reguläre Ausdrücke verwenden</target>
         </trans-unit>
         <trans-unit id="SearchInDefaultEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use built-in search engine (default)</source>
+          <source>Use Built-in search engine (Default)</source>
           <target state="translated">Eingebaute Suchmaschine verwenden (Standard)</target>
         </trans-unit>
         <trans-unit id="SearchInEverythingEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use Everything search engine (faster)</source>
+          <source>Use Everything search engine (Faster)</source>
           <target state="translated">Everything-Suchmaschine verwenden (schneller)</target>
         </trans-unit>
         <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
@@ -4147,6 +4147,10 @@ Inkorrekte Namen sind
         <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
           <source>This will permanently delete everything in the folder. Whether to continue?</source>
           <target state="translated">Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
+          <source>Use Advanced Query Syntax(AQS)</source>
+          <target state="translated">Verwenden Die Erweiterte Abfrage Syntax (AQS)</target>
         </trans-unit>
       </group>
     </body>

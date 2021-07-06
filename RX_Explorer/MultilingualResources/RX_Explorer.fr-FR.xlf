@@ -2694,11 +2694,11 @@ Les noms non valides incluent
           <target state="translated">Utiliser des expressions régulières</target>
         </trans-unit>
         <trans-unit id="SearchInDefaultEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use built-in search engine (default)</source>
+          <source>Use Built-in search engine (Default)</source>
           <target state="translated">Utiliser le moteur de recherche intégré (par défaut)</target>
         </trans-unit>
         <trans-unit id="SearchInEverythingEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use Everything search engine (faster)</source>
+          <source>Use Everything search engine (Faster)</source>
           <target state="translated">Utilisez le moteur de recherche Everything (plus rapide)</target>
         </trans-unit>
         <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
@@ -4149,6 +4149,10 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
           <source>This will permanently delete everything in the folder. Whether to continue?</source>
           <target state="translated">Cela supprimera définitivement tout dans le dossier. Faut-il continuer ?</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
+          <source>Use Advanced Query Syntax(AQS)</source>
+          <target state="translated">Utiliser La syntaxe de requête avancée (AQS)</target>
         </trans-unit>
       </group>
     </body>

@@ -241,7 +241,7 @@ namespace RX_Explorer.Dialog
             {
                 string[] CoreInfoGroup = CoreInfo.Split("||");
                 CPUCoreCount = $"{CoreInfoGroup[0]} {Globalization.GetString("SystemInfo_Dialog_CPU_PhysicalCore_Text")} , {CoreInfoGroup[1]} {Globalization.GetString("SystemInfo_Dialog_CPU_LogicalCore_Text")}";
-                
+
                 float L1Size = Convert.ToSingle(CoreInfoGroup[2]);
                 float L2Size = Convert.ToSingle(CoreInfoGroup[3]);
                 float L3Size = Convert.ToSingle(CoreInfoGroup[4]);
@@ -251,9 +251,7 @@ namespace RX_Explorer.Dialog
                                                                  : Convert.ToUInt16(Math.Round(L2Size / 1048576f, 2)) + " MB";
                 string L3SizeDescription = L3Size / 1024f < 1024 ? Convert.ToUInt16(Math.Round(L3Size / 1024f, 2)) + " KB"
                                                                  : Convert.ToUInt16(Math.Round(L3Size / 1048576f, 2)) + " MB";
-                CPUArchitecture = (Package.Current.Id.Architecture == ProcessorArchitecture.X86
-                                    ? "X86"
-                                    : "X64");
+                CPUArchitecture = Package.Current.Id.Architecture == ProcessorArchitecture.X86 ? "X86" : "X64";
                 CPUCache = $"{Globalization.GetString("SystemInfo_Dialog_CPU_L1Cache_Text")}: {L1SizeDescription}   {Globalization.GetString("SystemInfo_Dialog_CPU_L2Cache_Text")}: {L2SizeDescription}   {Globalization.GetString("SystemInfo_Dialog_CPU_L3Cache_Text")}: {L3SizeDescription}";
             }
 

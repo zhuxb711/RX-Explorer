@@ -205,7 +205,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static async Task ExecuteOnSTAThreadAsync(Action Executor)
+        public static Task ExecuteOnSTAThreadAsync(Action Executor)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
@@ -236,15 +236,16 @@ namespace FullTrustProcess
                 STAThread.SetApartmentState(ApartmentState.STA);
                 STAThread.Start();
 
-                await CompletionSource.Task;
+                return CompletionSource.Task;
             }
             else
             {
                 Executor();
+                return Task.CompletedTask;
             }
         }
 
-        public static async Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executor)
+        public static Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executor)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
@@ -274,11 +275,11 @@ namespace FullTrustProcess
                 STAThread.SetApartmentState(ApartmentState.STA);
                 STAThread.Start();
 
-                return await CompletionSource.Task;
+                return CompletionSource.Task;
             }
             else
             {
-                return Executor();
+                return Task.FromResult(Executor());
             }
         }
 

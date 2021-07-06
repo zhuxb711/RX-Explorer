@@ -3126,4 +3126,7 @@
   <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
     <value>这将永久删除文件夹中的所有内容，是否继续？</value>
   </data>
+  <data name="SearchEngineUseAQS.Content" xml:space="preserve">
+    <value>使用高级查询语法(AQS)</value>
+  </data>
 </root>

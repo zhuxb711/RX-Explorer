@@ -312,7 +312,7 @@ namespace RX_Explorer.Class
                             if (!CreateDirectoryFromAppW(NextPath, IntPtr.Zero))
                             {
                                 NewFolderPath = string.Empty;
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
                                 return false;
                             }
                         }
@@ -333,7 +333,7 @@ namespace RX_Explorer.Class
                                     else
                                     {
                                         NewFolderPath = string.Empty;
-                                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
                                         return false;
                                     }
                                 }
@@ -354,7 +354,7 @@ namespace RX_Explorer.Class
                                         else
                                         {
                                             NewFolderPath = string.Empty;
-                                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
                                             return false;
                                         }
                                     }
@@ -370,7 +370,7 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 NewFolderPath = string.Empty;
-                LogTracer.Log(ex, "An exception was threw when createdirectory");
+                LogTracer.Log(ex, $"An exception was threw when create directory, Path: \"{Path}\"");
                 return false;
             }
         }
@@ -397,7 +397,7 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
                                     NewPath = string.Empty;
                                     return false;
                                 }
@@ -414,7 +414,7 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
                                     NewPath = string.Empty;
                                     return false;
                                 }
@@ -432,7 +432,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
                                 NewPath = string.Empty;
                                 return false;
                             }
@@ -449,7 +449,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
                                 NewPath = string.Empty;
                                 return false;
                             }
@@ -463,7 +463,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not create a new file");
+                LogTracer.Log(ex, $"Could not create a new file, Path: \"{Path}\"");
                 NewPath = string.Empty;
                 return false;
             }
@@ -525,108 +525,111 @@ namespace RX_Explorer.Class
             {
                 IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-                if (!hDir.CheckIfValidPtr())
+                if (hDir.CheckIfValidPtr())
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-
-                Task.Factory.StartNew((Arguement) =>
-                {
-                    ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>> Package = (ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>>)Arguement;
-
-                    while (true)
+                    Task.Factory.StartNew((Arguement) =>
                     {
-                        IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
+                        ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>> Package = (ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>>)Arguement;
 
-                        try
+                        while (true)
                         {
-                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_ATTRIBUTES, out uint BytesReturned, IntPtr.Zero, IntPtr.Zero))
+                            IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
+
+                            try
                             {
-                                if (BytesReturned > 0)
+                                if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_ATTRIBUTES, out uint BytesReturned, IntPtr.Zero, IntPtr.Zero))
                                 {
-                                    IntPtr CurrentPointer = BufferPointer;
-                                    int Offset = 0;
-                                    string OldPath = null;
-
-                                    do
+                                    if (BytesReturned > 0)
                                     {
-                                        CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+                                        IntPtr CurrentPointer = BufferPointer;
+                                        int Offset = 0;
+                                        string OldPath = null;
 
-                                        // Read file length (in bytes) at offset 8
-                                        int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
-                                        // Read file name (fileLen/2 characters) from offset 12
-                                        string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
-                                        // Read action at offset 4
-                                        int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
-
-                                        if (ActionIndex < 1 || ActionIndex > 5)
+                                        do
                                         {
-                                            ActionIndex = 0;
-                                        }
+                                            CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
 
-                                        switch ((StateChangeType)ActionIndex)
-                                        {
-                                            case StateChangeType.Unknown_Action:
-                                                {
-                                                    break;
-                                                }
-                                            case StateChangeType.Added_Action:
-                                                {
-                                                    Package.Item2?.Invoke(Path.Combine(FolderPath, FileName));
-                                                    break;
-                                                }
-                                            case StateChangeType.Removed_Action:
-                                                {
-                                                    Package.Item3?.Invoke(Path.Combine(FolderPath, FileName));
-                                                    break;
-                                                }
-                                            case StateChangeType.Modified_Action:
-                                                {
-                                                    Package.Item5?.Invoke(Path.Combine(FolderPath, FileName));
-                                                    break;
-                                                }
-                                            case StateChangeType.Rename_Action_OldName:
-                                                {
-                                                    OldPath = Path.Combine(FolderPath, FileName);
-                                                    break;
-                                                }
-                                            case StateChangeType.Rename_Action_NewName:
-                                                {
-                                                    Package.Item4?.Invoke(OldPath, Path.Combine(FolderPath, FileName));
-                                                    break;
-                                                }
-                                        }
+                                            // Read file length (in bytes) at offset 8
+                                            int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
+                                            // Read file name (fileLen/2 characters) from offset 12
+                                            string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
+                                            // Read action at offset 4
+                                            int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
 
-                                        // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
-                                        Offset = Marshal.ReadInt32(CurrentPointer);
+                                            if (ActionIndex < 1 || ActionIndex > 5)
+                                            {
+                                                ActionIndex = 0;
+                                            }
+
+                                            switch ((StateChangeType)ActionIndex)
+                                            {
+                                                case StateChangeType.Unknown_Action:
+                                                    {
+                                                        break;
+                                                    }
+                                                case StateChangeType.Added_Action:
+                                                    {
+                                                        Package.Item2?.Invoke(Path.Combine(FolderPath, FileName));
+                                                        break;
+                                                    }
+                                                case StateChangeType.Removed_Action:
+                                                    {
+                                                        Package.Item3?.Invoke(Path.Combine(FolderPath, FileName));
+                                                        break;
+                                                    }
+                                                case StateChangeType.Modified_Action:
+                                                    {
+                                                        Package.Item5?.Invoke(Path.Combine(FolderPath, FileName));
+                                                        break;
+                                                    }
+                                                case StateChangeType.Rename_Action_OldName:
+                                                    {
+                                                        OldPath = Path.Combine(FolderPath, FileName);
+                                                        break;
+                                                    }
+                                                case StateChangeType.Rename_Action_NewName:
+                                                    {
+                                                        Package.Item4?.Invoke(OldPath, Path.Combine(FolderPath, FileName));
+                                                        break;
+                                                    }
+                                            }
+
+                                            // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
+                                            Offset = Marshal.ReadInt32(CurrentPointer);
+                                        }
+                                        while (Offset != 0);
                                     }
-                                    while (Offset != 0);
+                                }
+                                else
+                                {
+                                    break;
                                 }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                break;
+                                LogTracer.Log(ex, "An exception was threw when watching the directory");
+                            }
+                            finally
+                            {
+                                if (BufferPointer != IntPtr.Zero)
+                                {
+                                    Marshal.FreeHGlobal(BufferPointer);
+                                }
                             }
                         }
-                        catch (Exception e)
-                        {
-                            LogTracer.Log("Exception happened when watching directory. Message: " + e.Message);
-                        }
-                        finally
-                        {
-                            if (BufferPointer != IntPtr.Zero)
-                            {
-                                Marshal.FreeHGlobal(BufferPointer);
-                            }
-                        }
-                    }
-                }, (hDir, Added, Removed, Renamed, Modified), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    }, (hDir, Added, Removed, Renamed, Modified), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-                return hDir;
+                    return hDir;
+                }
+                else
+                {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{FolderPath}\"");
+                    return IntPtr.Zero;
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "An exception was threw when creating directory watcher");
+                LogTracer.Log(ex, $"An exception was threw when creating directory watcher. Path: \"{FolderPath}\"");
                 return IntPtr.Zero;
             }
         }
@@ -676,12 +679,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not check if has any items in folder. Path: \"{FolderPath}\"");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"Could not check if has any items in folder. Path: \"{FolderPath}\"");
                 return false;
             }
             finally
@@ -778,9 +782,14 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the size. Path: \"{Path}\"");
                     return 0;
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not calculate the size. Path: \"{Path}\"");
+                return 0;
             }
             finally
             {
@@ -823,13 +832,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the folder size. Path: \"{FolderPath}\"");
                     return 0;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"Could not calculate the folder size. Path: \"{FolderPath}\"");
                 return 0;
             }
             finally
@@ -862,13 +871,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the file size. Path: \"{FilePath}\"");
                     return 0;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"Could not calculate the file size. Path: \"{FilePath}\"");
                 return 0;
             }
             finally
@@ -915,13 +924,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the num of subfolders and subfiles. Path: \"{FolderPath}\"");
                     return (0, 0);
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"Could not calculate the num of subfolders and subfiles. Path: \"{FolderPath}\"");
                 return (0, 0);
             }
             finally
@@ -1006,6 +1015,10 @@ namespace RX_Explorer.Class
                         }
                         while (FindNextFile(SearchPtr, out Data) && !CancelToken.IsCancellationRequested);
                     }
+                    else
+                    {
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not search the folder. Path: \"{FolderPath}\"");
+                    }
 
                     return SearchResult;
                 }
@@ -1016,7 +1029,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"Could not search the folder. Path: \"{FolderPath}\"");
                 return new List<FileSystemStorageItemBase>(0);
             }
         }
@@ -1119,7 +1132,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{FolderPath}\"");
                     return new List<FileSystemStorageItemBase>(0);
                 }
             }
@@ -1189,7 +1202,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{ItemPath}\"");
                         return null;
                     }
                 }
@@ -1262,7 +1275,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{Path}\"");
                         }
                     }
                     finally
@@ -1299,7 +1312,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{ItemPath}\"");
                         return default;
                     }
                 }

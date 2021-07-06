@@ -949,6 +949,27 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            Click="AQSGuide_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Height="30"
+                                     Width="30"
+                                     VerticalAlignment="Center">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Foreground="{ThemeResource SystemAccentColor}"
+                                          Glyph="&#xE816;" />
+                            </Viewbox>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="高级查询语法(AQS)指南" />
+                                <TextBlock Foreground="Gray"
+                                           FontSize="12"
+                                           Text="AQS语法和结构说明" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
                             Click="ShortcutGuide_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"

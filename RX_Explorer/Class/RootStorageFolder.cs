@@ -74,13 +74,32 @@ namespace RX_Explorer.Class
             return Task.FromResult(false);
         }
 
-        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public override async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
+                                                                                         bool SearchInSubFolders = false,
+                                                                                         bool IncludeHiddenItem = false,
+                                                                                         bool IncludeSystemItem = false,
+                                                                                         bool IsRegexExpression = false,
+                                                                                         bool IsAQSExpression = false,
+                                                                                         bool IgnoreCase = true,
+                                                                                         CancellationToken CancelToken = default)
         {
+            if (IsRegexExpression && IsAQSExpression)
+            {
+                throw new ArgumentException($"{nameof(IsRegexExpression)} and {nameof(IsAQSExpression)} could not be true at the same time");
+            }
+
             foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
             {
-                if (WIN_Native_API.CheckLocationAvailability(Drive.Path))
+                if (WIN_Native_API.CheckLocationAvailability(Drive.Path) && !IsAQSExpression)
                 {
-                    return await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning);
+                    return await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path,
+                                                                                   SearchWord,
+                                                                                   SearchInSubFolders,
+                                                                                   IncludeHiddenItem,
+                                                                                   IncludeSystemItem,
+                                                                                   IsRegexExpression,
+                                                                                   IgnoreCase,
+                                                                                   CancelToken), TaskCreationOptions.LongRunning);
                 }
                 else
                 {
@@ -94,9 +113,13 @@ namespace RX_Explorer.Class
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
                         Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
-                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
+                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
 
-                        if (!IsRegexExpresstion)
+                        if (IsAQSExpression)
+                        {
+                            Options.UserSearchFilter = SearchWord;
+                        }
+                        else if (!IsRegexExpression)
                         {
                             Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
                         }
@@ -109,9 +132,9 @@ namespace RX_Explorer.Class
 
                             if (ReadOnlyItemList.Count > 0)
                             {
-                                foreach (IStorageItem Item in IsRegexExpresstion
+                                foreach (IStorageItem Item in IsRegexExpression
                                                               ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                              : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                              : (IsAQSExpression ? ReadOnlyItemList : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))))
                                 {
                                     if (CancelToken.IsCancellationRequested)
                                     {

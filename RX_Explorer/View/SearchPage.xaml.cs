@@ -143,7 +143,14 @@ namespace RX_Explorer
                 {
                     case SearchCategory.BuiltInEngine:
                         {
-                            IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText, Options.DeepSearch, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Options.UseRegexExpression, Options.IgnoreCase, Cancellation.Token);
+                            IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText,
+                                                                                                                     Options.DeepSearch,
+                                                                                                                     SettingControl.IsDisplayHiddenItem,
+                                                                                                                     SettingControl.IsDisplayProtectedSystemItems,
+                                                                                                                     Options.UseRegexExpression,
+                                                                                                                     Options.UseAQSExpression.GetValueOrDefault(),
+                                                                                                                     Options.IgnoreCase,
+                                                                                                                     Cancellation.Token);
 
                             if (Result.Count == 0)
                             {
@@ -171,7 +178,11 @@ namespace RX_Explorer
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path, Options.SearchText, Options.UseRegexExpression, Options.IgnoreCase, Options.NumLimit);
+                                IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
+                                                                                                                                          Options.SearchText,
+                                                                                                                                          Options.UseRegexExpression,
+                                                                                                                                          Options.IgnoreCase,
+                                                                                                                                          Options.NumLimit);
 
                                 if (SearchItems.Count == 0)
                                 {
@@ -950,7 +961,7 @@ namespace RX_Explorer
             }
         }
 
-        private void MuiltSelect_Click(object sender, RoutedEventArgs e)
+        private void MultiSelect_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 

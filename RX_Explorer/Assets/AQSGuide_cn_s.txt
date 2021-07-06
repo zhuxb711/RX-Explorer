@@ -1,0 +1,50 @@
+﻿### 基本语法格式
+#### AQS语句结构
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query> AND <Query>` 或 `<Query> <Query>`
+
+`<Query> OR <Query>`
+
+`NOT <Query>`
+
+● <Query>指AQS语句
+
+● AQS是大小写不敏感的语句，但"AND"、"OR"、"NOT"除外，这些语句必须使用大写
+
+● AQS的默认结合顺序为从左至右，可以使用小括号来更改结合顺序
+
+&nbsp;
+&nbsp;
+
+#### <Query>结构
+*****
+`<Prop>:<Basic Restr>`
+
+● <Prop>指属性
+
+● <Basic Restr>指限制语句
+
+&nbsp;
+&nbsp;
+
+#### <Prop>结构
+*****
+`<Canonical Property Name>` 或 `<Property Label In UI Language>`
+
+&nbsp;
+&nbsp;
+
+#### 注意
+*****
+##### 若AQS中不包含任何运算符，将根据以下规则选择最合适的运算符
+
+> 若该属性存储的值为字符串，则假定"COP_WORD_STARTSWITH"操作符
+
+> 若该属性存储的值不为字符串，则假定"COP_EQUAL"操作符
+
+### 参考文档
+[Advanced Query Syntax (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

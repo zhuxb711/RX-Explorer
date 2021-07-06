@@ -60,7 +60,9 @@ namespace FullTrustProcess
                     Connection.RequestReceived += Connection_RequestReceived;
                     Connection.ServiceClosed += Connection_ServiceClosed;
 
-                    if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                    AppServiceConnectionStatus Status = await Connection.OpenAsync();
+
+                    if (Status == AppServiceConnectionStatus.Success)
                     {
                         AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
 
@@ -81,6 +83,7 @@ namespace FullTrustProcess
                     }
                     else
                     {
+                        LogTracer.Log($"Could not connect to the appservice. Reason: {Enum.GetName(typeof(AppServiceConnectionStatus), Status)}. Exiting...");
                         ExitLocker.Set();
                     }
 

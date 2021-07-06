@@ -2694,11 +2694,11 @@ Invalid names include
           <target state="translated">使用正則表達式</target>
         </trans-unit>
         <trans-unit id="SearchInDefaultEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use built-in search engine (default)</source>
+          <source>Use Built-in search engine (Default)</source>
           <target state="translated">使用內置的搜索引擎 (默認)</target>
         </trans-unit>
         <trans-unit id="SearchInEverythingEngine.Content" translate="yes" xml:space="preserve">
-          <source>Use Everything search engine (faster)</source>
+          <source>Use Everything search engine (Faster)</source>
           <target state="translated">使用Everything搜索引擎 (更快)</target>
         </trans-unit>
         <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
@@ -4149,6 +4149,10 @@ Invalid names include
         <trans-unit id="QueueDialog_DeleteFolderPermanent_Content" translate="yes" xml:space="preserve">
           <source>This will permanently delete everything in the folder. Whether to continue?</source>
           <target state="translated">這將永久刪除文件夾中的所有內容。 是否繼續？</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
+          <source>Use Advanced Query Syntax(AQS)</source>
+          <target state="translated">使用高級查詢語法 (AQS)</target>
         </trans-unit>
       </group>
     </body>

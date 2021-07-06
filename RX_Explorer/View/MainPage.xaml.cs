@@ -414,7 +414,7 @@ namespace RX_Explorer
                     }
                 }
 
-                bool ShouldKeepClipboardTipShow = false;
+                bool ShouldPopKeepClipboardTip = false;
 
                 try
                 {
@@ -422,15 +422,15 @@ namespace RX_Explorer
 
                     if (Package.Properties.PackageFamilyName == Windows.ApplicationModel.Package.Current.Id.FamilyName)
                     {
-                        ShouldKeepClipboardTipShow = await Package.CheckIfContainsAvailableDataAsync();
+                        ShouldPopKeepClipboardTip = await Package.CheckIfContainsAvailableDataAsync();
                     }
                 }
                 catch
                 {
-                    ShouldKeepClipboardTipShow = false;
+                    ShouldPopKeepClipboardTip = false;
                 }
 
-                if (ShouldKeepClipboardTipShow)
+                if (ShouldPopKeepClipboardTip)
                 {
                     if (ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] is bool IsFlush)
                     {
@@ -559,21 +559,18 @@ namespace RX_Explorer
 
         private async Task ShowUpdateTipsIfNeeded()
         {
-            if (!Package.Current.IsDevelopmentMode)
+            if (await MSStoreHelper.Current.CheckHasUpdateAsync())
             {
-                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                Button ActionButton = new Button
                 {
-                    Button ActionButton = new Button
-                    {
-                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                    };
-                    ActionButton.Click += async (s, e) =>
-                    {
-                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                    };
+                    Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                };
+                ActionButton.Click += async (s, e) =>
+                {
+                    await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
+                };
 
-                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
-                }
+                ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
             }
         }
 

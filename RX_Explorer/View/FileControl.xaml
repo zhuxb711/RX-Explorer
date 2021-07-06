@@ -562,7 +562,8 @@
                                     <CheckBox Content="忽略大小写"
                                               FontSize="13"
                                               x:Uid="SearchEngineIgnoreCase"
-                                              IsChecked="True"
+                                              IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                              IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               x:Name="BuiltInEngineIgnoreCase"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
@@ -570,8 +571,16 @@
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
                                               FontSize="13"
+                                              IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
+                                    <CheckBox Content="使用高级查询语法(AQS)"
+                                              x:Uid="SearchEngineUseAQS"
+                                              x:Name="BuiltInEngineIncludeAQS"
+                                              FontSize="13"
+                                              IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
                                               FontSize="13"

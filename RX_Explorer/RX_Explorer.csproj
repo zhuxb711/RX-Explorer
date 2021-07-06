@@ -211,6 +211,9 @@
     <Compile Include="CustomControl\MenuFlyoutItemWithImage.xaml.cs">
       <DependentUpon>MenuFlyoutItemWithImage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\AQSGuide.xaml.cs">
+      <DependentUpon>AQSGuide.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\DecompressDialog.xaml.cs">
       <DependentUpon>DecompressDialog.xaml</DependentUpon>
     </Compile>
@@ -409,6 +412,7 @@
     <Content Include="Assets\AddImage_Dark.png" />
     <Content Include="Assets\AddImage_Light.png" />
     <Content Include="Assets\AlphaPNG.png" />
+    <Content Include="Assets\AQSGuide_cn_s.txt" />
     <Content Include="Assets\BmpFileIcon.png" />
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />
@@ -564,6 +568,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControl\MenuFlyoutItemWithImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\AQSGuide.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

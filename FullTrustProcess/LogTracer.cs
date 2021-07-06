@@ -35,7 +35,7 @@ namespace FullTrustProcess
         /// <param name="Ex">错误</param>
         /// <param name="AdditionalComment">附加信息</param>
         /// <returns></returns>
-        public static void Log(Exception Ex, string AdditionalComment = null, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
+        public static void Log(Exception Ex, string AdditionalComment = null, [CallerMemberName] string MemberName = null, [CallerFilePath] string SourceFilePath = null, [CallerLineNumber] int SourceLineNumber = 0)
         {
             if (Ex == null)
             {
@@ -82,9 +82,10 @@ namespace FullTrustProcess
 
                 StringBuilder Builder = new StringBuilder()
                                         .AppendLine("------------------------------------")
-                                        .AppendLine($"AdditionalComment: {AdditionalComment ?? "<Empty>"}")
-                                        .AppendLine($"------------------------------------")
-                                        .AppendLine($"Source: FullTrustProcess")
+                                        .AppendLine("AdditionalComment:")
+                                        .AppendLine(AdditionalComment ?? "-----<Empty>-----")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine("Source: FullTrustProcess")
                                         .AppendLine()
                                         .AppendLine($"Exception: {Ex}")
                                         .AppendLine()
@@ -101,7 +102,53 @@ namespace FullTrustProcess
                                         .AppendLine("------------------------------------")
                                         .AppendLine();
 
-                Log(Builder.ToString());
+                LogInternal(Builder.ToString());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+            }
+        }
+
+        public static void Log(string Message, [CallerMemberName] string MemberName = null, [CallerFilePath] string SourceFilePath = null, [CallerLineNumber] int SourceLineNumber = 0)
+        {
+            try
+            {
+                string[] MessageSplit;
+
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(Message))
+                    {
+                        MessageSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        MessageSplit = Message.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch
+                {
+                    MessageSplit = Array.Empty<string>();
+                }
+
+                StringBuilder Builder = new StringBuilder()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine("Plain Text Error Record")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine("Source: FullTrustProcess")
+                                        .AppendLine()
+                                        .AppendLine("Message:")
+                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine()
+                                        .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerMemberName: {MemberName}")
+                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
+                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine();
+
+                LogInternal(Builder.ToString());
             }
             catch (Exception ex)
             {
@@ -114,7 +161,7 @@ namespace FullTrustProcess
         /// </summary>
         /// <param name="Message">错误消息</param>
         /// <returns></returns>
-        public static void Log(string Message)
+        public static void LogInternal(string Message)
         {
             try
             {
@@ -127,7 +174,7 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
+                Debug.WriteLine($"An error was threw in {nameof(LogInternal)}, message: {ex.Message}");
             }
         }
 

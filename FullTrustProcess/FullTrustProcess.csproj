@@ -179,9 +179,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Everything32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Everything64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

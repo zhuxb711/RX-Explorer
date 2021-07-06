@@ -126,7 +126,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not create a new file stream");
+                LogTracer.Log(ex, $"Could not create a new file stream, Path: \"{Path}\"");
                 return null;
             }
         }

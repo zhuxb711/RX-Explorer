@@ -3126,4 +3126,7 @@ Les noms non valides incluent
   <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
     <value>Cela supprimera définitivement tout dans le dossier. Faut-il continuer ?</value>
   </data>
+  <data name="SearchEngineUseAQS.Content" xml:space="preserve">
+    <value>Utiliser La syntaxe de requête avancée (AQS)</value>
+  </data>
 </root>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -261,11 +260,30 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
+                                                                                        bool SearchInSubFolders = false,
+                                                                                        bool IncludeHiddenItem = false,
+                                                                                        bool IncludeSystemItem = false,
+                                                                                        bool IsRegexExpression = false,
+                                                                                        bool IsAQSExpression = false,
+                                                                                        bool IgnoreCase = true,
+                                                                                        CancellationToken CancelToken = default)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (IsRegexExpression && IsAQSExpression)
             {
-                return await Task.Factory.StartNew(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning);
+                throw new ArgumentException($"{nameof(IsRegexExpression)} and {nameof(IsAQSExpression)} could not be true at the same time");
+            }
+
+            if (WIN_Native_API.CheckLocationAvailability(Path) && !IsAQSExpression)
+            {
+                return await Task.Factory.StartNew(() => WIN_Native_API.Search(Path,
+                                                                               SearchWord,
+                                                                               SearchInSubFolders,
+                                                                               IncludeHiddenItem,
+                                                                               IncludeSystemItem,
+                                                                               IsRegexExpression,
+                                                                               IgnoreCase,
+                                                                               CancelToken), TaskCreationOptions.LongRunning);
             }
             else
             {
@@ -279,9 +297,13 @@ namespace RX_Explorer.Class
                         IndexerOption = IndexerOption.DoNotUseIndexer
                     };
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
-                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
 
-                    if (!IsRegexExpresstion)
+                    if (IsAQSExpression)
+                    {
+                        Options.UserSearchFilter = SearchWord;
+                    }
+                    else if (!IsRegexExpression)
                     {
                         Options.ApplicationSearchFilter = $"System.FileName:~~\"{SearchWord}\"";
                     }
@@ -294,9 +316,9 @@ namespace RX_Explorer.Class
 
                         if (ReadOnlyItemList.Any())
                         {
-                            foreach (IStorageItem Item in IsRegexExpresstion
+                            foreach (IStorageItem Item in IsRegexExpression
                                                           ? ReadOnlyItemList.Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                                          : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                                                          : (IsAQSExpression ? ReadOnlyItemList : ReadOnlyItemList.Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))))
                             {
                                 if (CancelToken.IsCancellationRequested)
                                 {
@@ -349,7 +371,7 @@ namespace RX_Explorer.Class
                             IndexerOption = IndexerOption.DoNotUseIndexer
                         };
                         Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
-                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size", "System.DateModified" });
+                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });
 
                         StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 

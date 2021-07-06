@@ -59,7 +59,7 @@ namespace RX_Explorer.Class
                         {
                             return Bool ? Visibility.Collapsed : Visibility.Visible;
                         }
-                        else if (targetType == typeof(bool))
+                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
                         {
                             return !Bool;
                         }
@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
                         {
                             return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
                         }
-                        else if (targetType == typeof(bool))
+                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
                         {
                             return Vis == Visibility.Visible;
                         }
@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
                         {
                             return Bool ? Visibility.Collapsed : Visibility.Visible;
                         }
-                        else if (targetType == typeof(bool))
+                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
                         {
                             return !Bool;
                         }
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
                         {
                             return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
                         }
-                        else if (targetType == typeof(bool))
+                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
                         {
                             return Vis == Visibility.Visible;
                         }

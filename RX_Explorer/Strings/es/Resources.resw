@@ -3126,4 +3126,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_DeleteFolderPermanent_Content" xml:space="preserve">
     <value>Esto eliminará permanentemente todo en la carpeta. ¿Continuar?</value>
   </data>
+  <data name="SearchEngineUseAQS.Content" xml:space="preserve">
+    <value>Usar La sintaxis de consulta avanzada (AQS)</value>
+  </data>
 </root>
