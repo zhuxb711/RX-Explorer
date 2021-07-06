@@ -905,7 +905,8 @@
                     </Button>
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left">
+                            HorizontalContentAlignment="Left"
+                            Click="ReviewButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
                                      Width="30"

@@ -5,46 +5,182 @@
 
 `(<Query>)`
 
-`<Query> AND <Query>` 或 `<Query> <Query>`
+`<Query>` `AND` `<Query>` (等价于`<Query>` `<Query>`)
 
-`<Query> OR <Query>`
+`<Query>` `OR` `<Query>`
 
-`NOT <Query>`
+`NOT` `<Query>`
 
-● <Query>指AQS语句
+&nbsp;
 
-● AQS是大小写不敏感的语句，但"AND"、"OR"、"NOT"除外，这些语句必须使用大写
+● `<Query>`指AQS语句
+
+● AQS是大小写不敏感的语句，但`AND`、`OR`、`NOT`除外，这些语句必须使用大写
+
+>   示例: A `AND` B
 
 ● AQS的默认结合顺序为从左至右，可以使用小括号来更改结合顺序
 
-&nbsp;
+ > 示例: A `OR` (B `AND` C) 
+
 &nbsp;
 
-#### <Query>结构
+#### Query结构
 *****
-`<Prop>:<Basic Restr>`
-
-● <Prop>指属性
-
-● <Basic Restr>指限制语句
+`<Prop>`:`<Basic Restr>`
 
 &nbsp;
+
+● `<Prop>`指属性
+
+● `<Basic Restr>`指限制语句
+
 &nbsp;
 
-#### <Prop>结构
+##### 注意
+`<Prop>`是可选项，若AQS中不包含`<Prop>`，则将搜索所有属性并寻找所有和`<Basic Restr>`匹配的文件。`<Basic Restr>`是必选项，该项必须指定。
+
+&nbsp;
+
+#### Prop结构
 *****
-`<Canonical Property Name>` 或 `<Property Label In UI Language>`
+`<Canonical Property Name>`
+
+`<Property Label In UI Language>`
 
 &nbsp;
+
+● `<Canonical Property Name>`指[规范属性名称](https://docs.microsoft.com/en-us/windows/win32/properties/props)
+
+● `<Property Label In UI Language>`指属性标签名称(随语言的变化而变化)
+
 &nbsp;
 
-#### 注意
+#### Basic Restr结构
 *****
-##### 若AQS中不包含任何运算符，将根据以下规则选择最合适的运算符
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>`指运算符
+
+● `<Value>`指表达式
+
+● `<Restr>`指子限制语句
+
+&nbsp;
+
+##### 注意
+`<Operation>`是可选项，若AQS中不包含`<Operation>`，将根据以下规则选择最合适的运算符。但仍然建议始终显式指定一个运算符，以免产生意料之外的结果。
 
 > 若该属性存储的值为字符串，则假定"COP_WORD_STARTSWITH"操作符
 
 > 若该属性存储的值不为字符串，则假定"COP_EQUAL"操作符
+
+&nbsp;
+
+#### Value结构
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]`指"空值"
+
+● `<Word>`指"一串不包含空格的连续字符串"
+
+● `<Number>`指"整数或浮点数"
+
+● `<DateTime>`指"相对时间或绝对时间"
+
+● `<Boolean>`指"真/假逻辑值"
+
+● `..`指"范围"
+
+● `<Enumeration Range>`指"枚举范围"，格式：`<Prop>`#`<Enumeration>`
+
+> 示例：System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### AQS示例
+
+属性值类型|示例属性|示例AQS
+---|---|---
+字符串|System.Author|System.Author:Jacobs
+枚举范围|System.Priority|System.Priority:System.Priority#High
+布尔值|System.IsDeleted|System.IsDeleted:System.StructuredQueryType.Boolean#True
+数值|System.Size|System.Size:<12345
+
+&nbsp;
+
+### AQS运算符
+
+名称|运算符|示例AQS|AQS描述
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|搜索扩展名为".txt"的文件
+COP_NOTEQUAL|≠|System.Kind:≠picture|搜索System.Kind不为图片类别的文件
+ |-|System.Photo.DateTaken:-[]|搜索System.Photo.DateTaken具有有效值的文件
+ |<>|System.Kind:<>picture|搜索System.Kind不为图片类别的文件
+ |NOT|System.Kind:NOT picture|搜索System.Kind不为图片类别的文件
+ |- -|System.Kind:- -picture|搜索System.Kind不为图片类别的文件
+COP_LESSTHAN|<|System.Size:<1kb|搜索大小小于1kb的文件
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|搜索时间在今天之后的文件
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|搜索大小小于或等于1kb的文件
+ |≤|System.Size:≤1kb|搜索大小小于或等于1kb的文件
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|搜索大小大于或等于1kb的文件
+ |≥|System.Size:≥1kb|搜索大小大于或等于1kb的文件
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|搜索文件名以"C++ Primer"开头的文件
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|搜索图片文件的相机型号以"non"结尾的文件
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|搜索文件名称包含"round"的文件
+ |~=|System.Subject.~=round|搜索文件标题包含"round"的文件
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|搜索文件作者不包含"sanjay"的文件
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?"代表仅匹配一个任意字符<br>"*"代表匹配0个或更多个任意字符
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|搜索文件名中包含"Sanjay Jacobs"的文件
+ |$=|System.Filename:$="Sanjay Jacobs"|搜索文件名中包含"Sanjay Jacobs"的文件
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|搜索文件名中以"Micro Exe"开头的文件
+
+&nbsp;
+
+### AQS值类型
+
+类型|示例|描述
+---|---|---
+字符串|Auto|任意不包含空白的字符串
+带双引号的字符串|"Conclusions: valid"|任意字符串，可以包含空白。若字符串中包含双引号，则需要使用连续两个双引号替换，如最后一个例子所示
+ |"Blue"|任意字符串，可以包含空白。若字符串中包含双引号，则需要使用连续两个双引号替换，如最后一个例子所示
+ |"Microsoft Office"|任意字符串，可以包含空白。若字符串中包含双引号，则需要使用连续两个双引号替换，如最后一个例子所示
+ |"That's ""what"" I said"|任意字符串，可以包含空白。若字符串中包含双引号，则需要使用连续两个双引号替换，如最后一个例子所示
+整数|5678|请勿使用任何分隔符
+浮点数|5678.1234|请勿使用任何分隔符
+布尔值|System.IsRead:=System.StructuredQueryType.Boolean#True|真
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|假
+[]|System.Keywords:=[]|表示没有值
+绝对日期|System.ItemDate:1/26/2010|搜索日期在1/26/2010这一天的文件
+相对日期|System.ItemDate:System.StructuredQueryType.DateTime#Today|搜索日期在今天的文件
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|搜索日期在去年的文件
+..|System.ItemDate:11/05/04..11/10/04|搜索日期在11/05/2020和11/10/2020之间的文件
+ |System.Size:5kb..10kb|搜索大小在5kb至10kb之间的文件
+
+&nbsp;
 
 ### 参考文档
 [Advanced Query Syntax (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

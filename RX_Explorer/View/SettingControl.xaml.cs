@@ -2739,7 +2739,18 @@ namespace RX_Explorer
 
         private async void ShortcutGuide_Click(object sender, RoutedEventArgs e)
         {
-            await new KeyboardShortcutGuideDialog().ShowAsync();
+            StorageFile File = Globalization.CurrentLanguage switch
+            {
+                LanguageEnum.Chinese_Simplified => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_cn_s.txt")),
+                LanguageEnum.English => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_en.txt")),
+                LanguageEnum.French => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_fr.txt")),
+                LanguageEnum.Chinese_Traditional => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_cn_t.txt")),
+                LanguageEnum.Spanish => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_es.txt")),
+                LanguageEnum.German => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/KeyboardShortcut_de.txt")),
+                _ => throw new Exception("Unsupported language")
+            };
+
+            await new KeyboardShortcutGuideDialog(await FileIO.ReadTextAsync(File)).ShowAsync();
         }
 
         private async void PurchaseApp_Click(object sender, RoutedEventArgs e)
@@ -2815,7 +2826,18 @@ namespace RX_Explorer
 
         private async void AQSGuide_Click(object sender, RoutedEventArgs e)
         {
-            await new AQSGuide().ShowAsync();
+            StorageFile File = Globalization.CurrentLanguage switch
+            {
+                LanguageEnum.Chinese_Simplified => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_cn_s.txt")),
+                LanguageEnum.English => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_en.txt")),
+                LanguageEnum.French => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_fr.txt")),
+                LanguageEnum.Chinese_Traditional => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_cn_t.txt")),
+                LanguageEnum.Spanish => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_es.txt")),
+                LanguageEnum.German => await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/AQSGuide_de.txt")),
+                _ => throw new Exception("Unsupported language")
+            };
+
+            await new AQSGuide(await FileIO.ReadTextAsync(File)).ShowAsync();
         }
     }
 }

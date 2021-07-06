@@ -19,10 +19,7 @@
                       IsVerticalScrollChainingEnabled="True"
                       VerticalScrollBarVisibility="Hidden">
             <control:MarkdownTextBlock x:Name="MarkDown"
-                                       Header5FontSize="14"
-                                       Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
-                                       Background="Transparent"
-                                       SchemeList="companyportal,randomscheme" />
+                                       Background="Transparent" />
         </ScrollViewer>
     </Grid>
 </Cls:QueueContentDialog>
