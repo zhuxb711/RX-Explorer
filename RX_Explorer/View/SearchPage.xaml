@@ -140,9 +140,10 @@
                   Header="{x:Bind ListViewDetailHeader}"
                   IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
-                  DoubleTapped="SearchResultList_DoubleTapped"
                   SelectionMode="Extended"
                   ShowsScrollingPlaceholders="False"
+                  PreviewKeyDown="SearchResultList_PreviewKeyDown"
+                  DoubleTapped="SearchResultList_DoubleTapped"
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
                   RightTapped="SearchResultList_RightTapped">

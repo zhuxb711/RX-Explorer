@@ -413,6 +413,11 @@
     <Content Include="Assets\AddImage_Light.png" />
     <Content Include="Assets\AlphaPNG.png" />
     <Content Include="Assets\AQSGuide_cn_s.txt" />
+    <Content Include="Assets\AQSGuide_cn_t.txt" />
+    <Content Include="Assets\AQSGuide_de.txt" />
+    <Content Include="Assets\AQSGuide_en.txt" />
+    <Content Include="Assets\AQSGuide_es.txt" />
+    <Content Include="Assets\AQSGuide_fr.txt" />
     <Content Include="Assets\BmpFileIcon.png" />
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />

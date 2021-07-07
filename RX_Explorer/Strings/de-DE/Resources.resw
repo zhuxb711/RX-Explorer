@@ -3129,4 +3129,19 @@ Inkorrekte Namen sind
   <data name="SearchEngineUseAQS.Content" xml:space="preserve">
     <value>Verwenden Die Erweiterte Abfrage Syntax (AQS)</value>
   </data>
+  <data name="SettingAQSGuideContent.Text" xml:space="preserve">
+    <value>Advanced Query Syntax Nutzung und Strukturbeschreibung</value>
+  </data>
+  <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
+    <value>Leitfaden zur erweiterten Abfragesyntax (AQS)</value>
+  </data>
+  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
+    <value>Durchsuchen Sie nur alle Dateien, die indiziert wurden. Wenn der aktuelle Speicherort von Windows indiziert wurde, erhöht die Verwendung dieser Option die Suchgeschwindigkeit erheblich. Achtung: Verwenden Sie diese Option nicht, wenn der Index nicht verwendet wird oder der Indexer deaktiviert wurde, da sonst die Suchergebnisse falsch sind</value>
+  </data>
+  <data name="IndexerQuestion.Title" xml:space="preserve">
+    <value>Nur nach Index suchen</value>
+  </data>
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+    <value>Nur nach Index suchen</value>
+  </data>
 </root>

@@ -1,0 +1,186 @@
+﻿### Grundlegendes Syntaxformat
+#### AQS-Anweisungsstruktur
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query>` `AND` `<Query>` (entspricht `<Query>` `<Query>`)
+
+`<Query>` `OR` `<Query>`
+
+`NOT` `<Query>`
+
+&nbsp;
+
+● `<Query>` bezieht sich auf "AQS-Statement"
+
+● AQS ist eine Anweisung, bei der die Groß-/Kleinschreibung nicht beachtet wird, mit Ausnahme von `AND`, `OR` und `NOT`, die großgeschrieben werden müssen
+
+> Beispiel: A `AND` B
+
+● AQS ist von links nach rechts gebunden, Sie können Klammern verwenden, um die Bindung zu ändern
+
+> Beispiel: A `OR` (B `AND` C)
+
+&nbsp;
+
+#### Struktur "Query"
+*****
+`<Prop>`:`<Basic Restr>`
+
+&nbsp;
+
+● `<Prop>` bezieht sich auf "Eigenschaften"
+
+● `<Basic Restr>` bezieht sich auf "Eingeschränkte Anweisungen"
+
+&nbsp;
+
+##### Hinweis
+`<Prop>` ist optional. Wenn AQS `<Prop>` nicht enthält, werden alle Dateieigenschaften durchsucht, die mit `<Basic Restr>` übereinstimmen. `<Basic Restr>` ist eine erforderliche Option, diese Option muss angegeben werden.
+
+&nbsp;
+
+#### Struktur "Prop"
+*****
+`<Canonical Property Name>`
+
+`<Property Label In UI Language>`
+
+&nbsp;
+
+● `<Canonical Property Name>` bezieht sich auf „[Canonical Property Name](https://docs.microsoft.com/en-us/windows/win32/properties/props)“
+
+● `<Property Label in UI Language>` bezieht sich auf "Der Name des Property Labels" (variiert mit Sprachänderungen)
+
+&nbsp;
+
+#### Struktur "Basic Restr"
+*****
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>` bezieht sich auf "Operator"
+
+● `<Value>` bezieht sich auf "Ausdruck"
+
+● `<Restr>` bezieht sich auf "Sub-Restriktionsanweisung"
+
+&nbsp;
+
+##### Hinweis
+`<Operation>` ist optional. Wenn AQS `<Operation>` nicht enthält, wird der am besten geeignete Operator nach den folgenden Regeln ausgewählt. Es wird jedoch dennoch empfohlen, immer explizit einen Operator anzugeben, um unerwartete Ergebnisse zu vermeiden.
+
+> Wenn der im Attribut gespeicherte Wert ein String ist, wird der Operator "COP_WORD_STARTSWITH" angenommen
+
+> Wenn der im Attribut gespeicherte Wert kein String ist, wird der Operator "COP_EQUAL" angenommen
+
+&nbsp;
+
+#### Struktur "Wert"
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]` bezieht sich auf „leer“ oder „null“
+
+● `<Word>` bezieht sich auf „Eine Zeichenfolge aufeinanderfolgender Zeichenfolgen ohne Leerzeichen“
+
+● `<Number>` bezieht sich auf "Ganzzahl- oder Gleitkommazahl"
+
+● `<DateTime>` bezieht sich auf "Relative Zeit oder absolute Zeit"
+
+● `<Boolean>` bezieht sich auf „Wahr/Falsch“
+
+● `..` bezieht sich auf "Bereich"
+
+● `<Enumeration Range>` bezieht sich auf "Aufzählungsbereich", Format: `<Prop>`#`<Enumeration>`
+
+> Beispiel: System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### AQS-Beispiel
+
+Art der kanonischen Eigenschaft|Beispiel|Beispiel AQS
+---|---|---
+Zeichenfolge|System.Autor|System.Autor:Jacobs
+Aufzählungsbereich|System.Priority|System.Priority:System.Priority#High
+Boolean|System.IsDeleted|System.IsDeleted:System.StructuredQueryType.Boolean#True
+Wert|System.Size|System.Size:<12345
+
+&nbsp;
+
+### AQS-Betreiber
+
+Name|Betreiber|Beispiel AQS|AQS-Beschreibung
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|Suche nach Dateien mit der Erweiterung ".txt"
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|Suche nach Dateien, deren System.Kind keine Bildkategorie ist
+ |-|System.Photo.DateTaken:-[]|Suche nach Dateien mit einem gültigen Wert für System.Photo.DateTaken
+ |<>|System.Kind:<>System.Kind#Picture|Suche nach Dateien, deren System.Kind keine Bildkategorie ist
+ |NOT|System.Kind:NOT System.Kind#Picture|Nach Dateien suchen, deren System.Kind keine Bildkategorie ist
+ |- -|System.Kind:- -picture|Suche nach Dateien, deren System.Kind keine Bildkategorie ist
+COP_LESSTHAN|<|System.Size:<1kb|Suche nach Dateien mit einer Größe von weniger als 1kb
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|Nach heute nach Dateien suchen
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Suche nach Dateien mit einer Größe kleiner oder gleich 1kb
+ |≤|System.Size:≤1kb|Suche nach Dateien, deren Größe kleiner oder gleich 1kb . ist
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Suche nach Dateien mit einer Größe größer oder gleich 1kb
+ |≥|System.Size:≥1kb|Suche nach Dateien mit einer Größe größer oder gleich 1kb
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Suche nach Dateien, deren Dateiname mit "C++ Primer" beginnt
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Nach Dateien suchen, deren Kameramodell mit "non" endet
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|Suche nach Dateien mit "rund" im Dateinamen
+ |~=|System.Subject~=round|Nach Dateien suchen, deren Titel "round" enthält
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|Nach Dateien suchen, deren Autor nicht "sanjay" enthält
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" bedeutet, dass nur ein beliebiges Zeichen gefunden wird. "*" bedeutet, dass 0 oder mehr beliebige Zeichen übereinstimmen
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Suche nach Dateien mit "Sanjay Jacobs" im Dateinamen
+ |$=|System.Filename:$="Sanjay Jacobs"|Suche nach Dateien, die "Sanjay Jacobs" im Dateinamen enthalten
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Suche nach Dateien, die mit "Micro Exe" im Dateinamen beginnen
+
+&nbsp;
+
+### AQS-Werttyp
+
+Typ|Beispiel|Beschreibung
+---|---|---
+String|Auto|Jeder String, der keine Leerzeichen enthält
+String in doppelten Anführungszeichen|"Conclusions: valid"|Jeder String, kann Leerzeichen enthalten. Wenn die Zeichenfolge doppelte Anführungszeichen enthält, müssen Sie zum Ersetzen zwei aufeinanderfolgende doppelte Anführungszeichen verwenden, wie im letzten Beispiel gezeigt
+ |"Blue"|Beliebiger String, kann Leerzeichen enthalten. Wenn die Zeichenfolge doppelte Anführungszeichen enthält, müssen Sie zum Ersetzen zwei aufeinanderfolgende doppelte Anführungszeichen verwenden, wie im letzten Beispiel gezeigt
+ |"Microsoft Office"|Beliebiger String, kann Leerzeichen enthalten. Wenn die Zeichenfolge doppelte Anführungszeichen enthält, müssen Sie zum Ersetzen zwei aufeinanderfolgende doppelte Anführungszeichen verwenden, wie im letzten Beispiel gezeigt
+ |"That ""was"" I said"|Jeder String kann Leerzeichen enthalten. Wenn die Zeichenfolge doppelte Anführungszeichen enthält, müssen Sie zum Ersetzen zwei aufeinanderfolgende doppelte Anführungszeichen verwenden, wie im letzten Beispiel gezeigt
+Integer|5678|Keine Trennzeichen verwenden
+Gleitkommazahl|5678.1234|Keine Trennzeichen verwenden
+Boolean|System.IsRead:=System.StructuredQueryType.Boolean#True|True
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|False
+[]|System.Keywords:=[]| bedeutet keinen Wert
+Absolutes Datum|System.ItemDate:1/26/2010|Nach Dateien suchen, deren Datum der 26.01.2010 ist
+Relatives Datum|System.ItemDate:System.StructuredQueryType.DateTime#Today|Nach Dateien suchen, deren Datum heute ist
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|Nach Dateien suchen, deren Datum das letzte Jahr ist
+..|System.ItemDate:05.11.04..10.11.04|Suche nach Dateien mit Datum zwischen dem 05.11.2020 und dem 10.11.2020
+ |System.Size:5kb..10kb|Suche nach Dateien mit einer Größe zwischen 5kb und 10kb
+
+&nbsp;
+
+### Referenzdokumentation
+[Erweiterte Abfragesyntax (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

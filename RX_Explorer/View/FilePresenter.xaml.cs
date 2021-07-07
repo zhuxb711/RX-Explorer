@@ -419,13 +419,13 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnable && SelectedItems.Count <= 1:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        string ViewPathWithQuicklook;
+                                        string ViewPathWithQuicklook = null;
 
                                         if (string.IsNullOrEmpty(SelectedItem?.Path))
                                         {
@@ -433,17 +433,16 @@ namespace RX_Explorer
                                             {
                                                 ViewPathWithQuicklook = CurrentFolder.Path;
                                             }
-                                            else
-                                            {
-                                                break;
-                                            }
                                         }
                                         else
                                         {
                                             ViewPathWithQuicklook = SelectedItem.Path;
                                         }
 
-                                        await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
+                                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                        {
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook);
+                                        }
                                     }
                                 }
 

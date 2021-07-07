@@ -1213,50 +1213,27 @@ namespace RX_Explorer
                 SearchInEverythingEngine.IsEnabled = false;
             }
 
-            switch (SettingControl.SearchEngineMode)
+            SearchOptions Options = SettingControl.SearchEngineMode switch
             {
-                case SearchEngineFlyoutMode.UseBuildInEngineAsDefault:
-                    {
-                        (bool IgnoreCase, bool UseRegexExpression, bool DeepSearch, bool? UseAQSExpression) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+                SearchEngineFlyoutMode.UseBuildInEngineAsDefault => LoadSearchConfiguration(SearchCategory.BuiltInEngine),
+                SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled => LoadSearchConfiguration(SearchCategory.EverythingEngine),
+                _ => null
+            };
 
-                        Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
-                        {
-                            SearchFolder = CurrentPresenter.CurrentFolder,
-                            IgnoreCase = IgnoreCase,
-                            UseRegexExpression = UseRegexExpression,
-                            UseAQSExpression = UseAQSExpression,
-                            DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = sender.Text,
-                            EngineCategory = SearchCategory.BuiltInEngine
-                        }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+            if (Options != null)
+            {
+                Options.SearchText = sender.Text;
+                Options.SearchFolder = CurrentPresenter.CurrentFolder;
+                Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootStorageFolder;
 
-                        break;
-                    }
-                case SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled:
-                    {
-                        (bool IgnoreCase, bool UseRegexExpression, bool DeepSearch, bool? UseAQSExpression) = LoadSearchConfiguration(SearchCategory.EverythingEngine);
+                Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, Options), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
 
-                        Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
-                        {
-                            SearchFolder = CurrentPresenter.CurrentFolder,
-                            IgnoreCase = IgnoreCase,
-                            UseRegexExpression = UseRegexExpression,
-                            UseAQSExpression = UseAQSExpression,
-                            DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = sender.Text,
-                            EngineCategory = SearchCategory.EverythingEngine
-                        }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
-
-                        break;
-                    }
-                default:
-                    {
-                        FlyoutBase.ShowAttachedFlyout(sender);
-                        break;
-                    }
+                SQLite.Current.SetSearchHistory(sender.Text);
             }
-
-            SQLite.Current.SetSearchHistory(sender.Text);
+            else
+            {
+                FlyoutBase.ShowAttachedFlyout(sender);
+            }
         }
 
         private void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -2323,6 +2300,11 @@ namespace RX_Explorer
                             ApplicationData.Current.LocalSettings.Values["BuiltInEngineIncludeAQS"] = true;
                             break;
                         }
+                    case "BuiltInSearchUseIndexer":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInSearchUseIndexer"] = true;
+                            break;
+                        }
                 }
             }
         }
@@ -2368,6 +2350,11 @@ namespace RX_Explorer
                             ApplicationData.Current.LocalSettings.Values["BuiltInEngineIncludeAQS"] = false;
                             break;
                         }
+                    case "BuiltInSearchUseIndexer":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInSearchUseIndexer"] = false;
+                            break;
+                        }
                 }
             }
         }
@@ -2402,7 +2389,14 @@ namespace RX_Explorer
                         {
                             SearchInDefaultEngine.IsChecked = true;
                             SearchInEverythingEngine.IsChecked = false;
-                            (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked, BuiltInEngineIncludeAQS.IsChecked) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                            SearchOptions Options = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                            BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                            BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                            BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+                            BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
+                            BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
 
                             break;
                         }
@@ -2412,13 +2406,25 @@ namespace RX_Explorer
                             {
                                 SearchInEverythingEngine.IsChecked = true;
                                 SearchInDefaultEngine.IsChecked = false;
-                                (EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked, _) = LoadSearchConfiguration(SearchCategory.EverythingEngine);
+
+                                SearchOptions Options = LoadSearchConfiguration(SearchCategory.EverythingEngine);
+
+                                EverythingEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                                EverythingEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                                EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
                             }
                             else
                             {
                                 SearchInDefaultEngine.IsChecked = true;
                                 SearchInEverythingEngine.IsChecked = false;
-                                (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked, _) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                                SearchOptions Options = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                                BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                                BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                                BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+                                BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
+                                BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
                             }
 
                             break;
@@ -2429,7 +2435,14 @@ namespace RX_Explorer
             {
                 SearchInDefaultEngine.IsChecked = true;
                 SearchInEverythingEngine.IsChecked = false;
-                (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked, BuiltInEngineIncludeAQS.IsChecked) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                SearchOptions Options = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                BuiltInEngineIgnoreCase.IsChecked = Options.IgnoreCase;
+                BuiltInEngineIncludeRegex.IsChecked = Options.UseRegexExpression;
+                BuiltInSearchAllSubFolders.IsChecked = Options.DeepSearch;
+                BuiltInEngineIncludeAQS.IsChecked = Options.UseAQSExpression;
+                BuiltInSearchUseIndexer.IsChecked = Options.UseIndexerOnly;
             }
 
             if (CurrentPresenter.CurrentFolder is RootStorageFolder)
@@ -2446,10 +2459,12 @@ namespace RX_Explorer
             }
         }
 
-        private (bool, bool, bool, bool?) LoadSearchConfiguration(SearchCategory Category)
+        private SearchOptions LoadSearchConfiguration(SearchCategory Category)
         {
-            bool IgnoreCase = false, UseRegexExpression = false, DeepSearch = false;
-            bool? UseAQSExpression = null;
+            SearchOptions Options = new SearchOptions
+            {
+                EngineCategory = Category
+            };
 
             switch (Category)
             {
@@ -2457,38 +2472,47 @@ namespace RX_Explorer
                     {
                         if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIgnoreCase", out object BuiltInIgnoreCase))
                         {
-                            IgnoreCase = Convert.ToBoolean(BuiltInIgnoreCase);
+                            Options.IgnoreCase = Convert.ToBoolean(BuiltInIgnoreCase);
                         }
                         else
                         {
-                            IgnoreCase = true;
+                            Options.IgnoreCase = true;
                         }
 
-                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeRegex", out object BuiltInIncludeRegex))
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeRegex", out object BuiltInUseRegex))
                         {
-                            UseRegexExpression = Convert.ToBoolean(BuiltInIncludeRegex);
+                            Options.UseRegexExpression = Convert.ToBoolean(BuiltInUseRegex);
                         }
                         else
                         {
-                            UseRegexExpression = false;
+                            Options.UseRegexExpression = false;
                         }
 
                         if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
                         {
-                            DeepSearch = Convert.ToBoolean(BuiltInSearchSubFolders);
+                            Options.DeepSearch = Convert.ToBoolean(BuiltInSearchSubFolders);
                         }
                         else
                         {
-                            DeepSearch = false;
+                            Options.DeepSearch = false;
                         }
 
-                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeAQS", out object BuiltInIncludeAQS))
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeAQS", out object BuiltInUseAQS))
                         {
-                            UseAQSExpression = Convert.ToBoolean(BuiltInIncludeAQS);
+                            Options.UseAQSExpression = Convert.ToBoolean(BuiltInUseAQS);
                         }
                         else
                         {
-                            UseAQSExpression = false;
+                            Options.UseAQSExpression = false;
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchUseIndexer", out object BuiltInUseIndexer))
+                        {
+                            Options.UseIndexerOnly = Convert.ToBoolean(BuiltInUseIndexer);
+                        }
+                        else
+                        {
+                            Options.UseIndexerOnly = false;
                         }
 
                         break;
@@ -2497,36 +2521,36 @@ namespace RX_Explorer
                     {
                         if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIgnoreCase", out object EverythingIgnoreCase))
                         {
-                            IgnoreCase = Convert.ToBoolean(EverythingIgnoreCase);
+                            Options.IgnoreCase = Convert.ToBoolean(EverythingIgnoreCase);
                         }
                         else
                         {
-                            IgnoreCase = true;
+                            Options.IgnoreCase = true;
                         }
 
                         if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIncludeRegex", out object EverythingIncludeRegex))
                         {
-                            UseRegexExpression = Convert.ToBoolean(EverythingIncludeRegex);
+                            Options.UseRegexExpression = Convert.ToBoolean(EverythingIncludeRegex);
                         }
                         else
                         {
-                            UseRegexExpression = false;
+                            Options.UseRegexExpression = false;
                         }
 
                         if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
                         {
-                            DeepSearch = Convert.ToBoolean(EverythingSearchGloble);
+                            Options.DeepSearch = Convert.ToBoolean(EverythingSearchGloble);
                         }
                         else
                         {
-                            DeepSearch = false;
+                            Options.DeepSearch = false;
                         }
 
                         break;
                     }
             }
 
-            return (IgnoreCase, UseRegexExpression, DeepSearch, UseAQSExpression);
+            return Options;
         }
 
         public async Task CreateNewBladeAsync(string FolderPath)
@@ -3212,6 +3236,11 @@ namespace RX_Explorer
                     await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.LibFolder);
                 }
             }
+        }
+
+        private void IndexerQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            UseIndexerTip.IsOpen = true;
         }
 
         public void Dispose()

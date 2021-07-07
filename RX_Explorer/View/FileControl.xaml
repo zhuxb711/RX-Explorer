@@ -72,12 +72,12 @@
                 Closing="AddressExtentionFlyout_Closing">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
-                    <Setter Property="CornerRadius"
-                            Value="0" />
                     <Setter Property="Background"
                             Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                     <Setter Property="Padding" 
                             Value="0"/>
+                    <Setter Property="CornerRadius"
+                            Value="4" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="400"
@@ -118,12 +118,12 @@
                 Placement="BottomEdgeAlignedLeft">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
-                    <Setter Property="CornerRadius"
-                            Value="0" />
                     <Setter Property="Background"
                             Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                     <Setter Property="Padding" 
                             Value="0"/>
+                    <Setter Property="CornerRadius"
+                            Value="4" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="500"
@@ -242,6 +242,13 @@
                                  NavigateUri="https://www.voidtools.com/zh-cn/downloads/" />
             </StackPanel>
         </muxc:TeachingTip>
+
+        <muxc:TeachingTip Title="仅通过索引执行搜索"
+                          IsLightDismissEnabled="True"
+                          x:Uid="IndexerQuestion"
+                          Target="{x:Bind IndexerQuestion}"
+                          x:Name="UseIndexerTip" 
+                          Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确"/>
 
         <muxc:TeachingTip Title="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionTitle')}"
                           Target="{x:Bind VerticalSplitViewButton}"
@@ -543,6 +550,14 @@
                             Opening="SearchEngineFlyout_Opening"
                             Opened="SearchEngineFlyout_Opened"
                             Closed="SearchEngineFlyout_Closed">
+                        <Flyout.FlyoutPresenterStyle>
+                            <Style TargetType="FlyoutPresenter">
+                                <Setter Property="CornerRadius" 
+                                        Value="4"/>
+                                <Setter Property="Background"
+                                        Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                            </Style>
+                        </Flyout.FlyoutPresenterStyle>
                         <StackPanel MinWidth="240"
                                     ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions, Mode=OneWay}">
                             <RadioButton Content="使用内置搜索引擎 (默认)"
@@ -555,12 +570,11 @@
                                 <Line X1="10"
                                       X2="10"
                                       Y1="0"
-                                      Y2="100"
+                                      Y2="160"
                                       StrokeThickness="3"
                                       Stroke="Gray" />
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
-                                              FontSize="13"
                                               x:Uid="SearchEngineIgnoreCase"
                                               IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
@@ -570,20 +584,31 @@
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
-                                              FontSize="13"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="使用高级查询语法(AQS)"
                                               x:Uid="SearchEngineUseAQS"
                                               x:Name="BuiltInEngineIncludeAQS"
-                                              FontSize="13"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox Content="仅通过索引执行搜索"
+                                                  Name="BuiltInSearchUseIndexer"
+                                                  x:Uid="SearchEngineUseIndexer"
+                                                  Checked="SeachEngineOptionSave_Checked"
+                                                  Unchecked="SeachEngineOptionSave_UnChecked" />
+                                        <Viewbox Margin="10,0,0,0"
+                                                 Height="15"
+                                                 VerticalAlignment="Center">
+                                            <FontIcon Glyph="&#xE9CE;"
+                                                      Name="IndexerQuestion"
+                                                      Tapped="IndexerQuestion_Tapped"/>
+                                        </Viewbox>
+                                    </StackPanel>
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
-                                              FontSize="13"
                                               x:Uid="SearchEngineAllSubFolders"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
@@ -616,7 +641,6 @@
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
                                               x:Uid="SearchEngineIgnoreCase"
-                                              FontSize="13"
                                               IsChecked="True"
                                               x:Name="EverythingEngineIgnoreCase"
                                               Checked="SeachEngineOptionSave_Checked"
@@ -625,21 +649,18 @@
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="EverythingEngineIncludeRegex"
                                               Checked="SeachEngineOptionSave_Checked"
-                                              Unchecked="SeachEngineOptionSave_UnChecked"
-                                              FontSize="13" />
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="全局搜索"
                                               x:Uid="SearchEngineGlobeSearch"
                                               IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                               IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
                                               x:Name="EverythingEngineSearchGloble"
-                                              FontSize="13"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <ComboBox IsEditable="True"
                                               Header="搜索结果限制"
                                               x:Uid="SearchEngineLimitResult"
                                               x:Name="EverythingEngineResultLimit"
-                                              FontSize="13"
                                               SelectedIndex="0"
                                               MinWidth="150">
                                         <x:String>300</x:String>

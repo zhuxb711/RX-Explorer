@@ -3129,4 +3129,19 @@
   <data name="SearchEngineUseAQS.Content" xml:space="preserve">
     <value>使用高級查詢語法 (AQS)</value>
   </data>
+  <data name="SettingAQSGuideContent.Text" xml:space="preserve">
+    <value>高級查詢語法(AQS)用法和結構說明</value>
+  </data>
+  <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
+    <value>高級查詢語法 (AQS) 指南</value>
+  </data>
+  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
+    <value>僅搜索已編入索引的所有文件。 如果當前位置已被 Windows 編入索引，使用此選項將大大提高搜索速度。 注意：當沒有使用索引或索引器已被禁用時不要使用此選項，否則搜索結果將不正確</value>
+  </data>
+  <data name="IndexerQuestion.Title" xml:space="preserve">
+    <value>僅按索引搜索</value>
+  </data>
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+    <value>僅按索引搜索</value>
+  </data>
 </root>

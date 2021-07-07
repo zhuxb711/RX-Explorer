@@ -4151,8 +4151,28 @@ Invalid names include
           <target state="translated">這將永久刪除文件夾中的所有內容。 是否繼續？</target>
         </trans-unit>
         <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
-          <source>Use Advanced Query Syntax(AQS)</source>
+          <source>Use Advanced Query Syntax (AQS)</source>
           <target state="translated">使用高級查詢語法 (AQS)</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax usage and structure description</source>
+          <target state="translated">高級查詢語法(AQS)用法和結構說明</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax (AQS) guide</source>
+          <target state="translated">高級查詢語法 (AQS) 指南</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Subtitle" translate="yes" xml:space="preserve">
+          <source>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</source>
+          <target state="translated">僅搜索已編入索引的所有文件。 如果當前位置已被 Windows 編入索引，使用此選項將大大提高搜索速度。 注意：當沒有使用索引或索引器已被禁用時不要使用此選項，否則搜索結果將不正確</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">僅按索引搜索</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">僅按索引搜索</target>
         </trans-unit>
       </group>
     </body>

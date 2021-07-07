@@ -4149,8 +4149,28 @@ Inkorrekte Namen sind
           <target state="translated">Dadurch wird alles im Ordner dauerhaft gelöscht. Ob weitermachen?</target>
         </trans-unit>
         <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
-          <source>Use Advanced Query Syntax(AQS)</source>
+          <source>Use Advanced Query Syntax (AQS)</source>
           <target state="translated">Verwenden Die Erweiterte Abfrage Syntax (AQS)</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax usage and structure description</source>
+          <target state="translated">Advanced Query Syntax Nutzung und Strukturbeschreibung</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax (AQS) guide</source>
+          <target state="translated">Leitfaden zur erweiterten Abfragesyntax (AQS)</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Subtitle" translate="yes" xml:space="preserve">
+          <source>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</source>
+          <target state="translated">Durchsuchen Sie nur alle Dateien, die indiziert wurden. Wenn der aktuelle Speicherort von Windows indiziert wurde, erhöht die Verwendung dieser Option die Suchgeschwindigkeit erheblich. Achtung: Verwenden Sie diese Option nicht, wenn der Index nicht verwendet wird oder der Indexer deaktiviert wurde, da sonst die Suchergebnisse falsch sind</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">Nur nach Index suchen</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">Nur nach Index suchen</target>
         </trans-unit>
       </group>
     </body>

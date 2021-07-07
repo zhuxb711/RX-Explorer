@@ -4151,8 +4151,28 @@ Invalid names include
           <target state="translated">这将永久删除文件夹中的所有内容，是否继续？</target>
         </trans-unit>
         <trans-unit id="SearchEngineUseAQS.Content" translate="yes" xml:space="preserve">
-          <source>Use Advanced Query Syntax(AQS)</source>
-          <target state="translated">使用高级查询语法(AQS)</target>
+          <source>Use Advanced Query Syntax (AQS)</source>
+          <target state="translated">使用高级查询语法 (AQS)</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideContent.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax usage and structure description</source>
+          <target state="translated">Advanced Query Syntax 使用方法和结构说明</target>
+        </trans-unit>
+        <trans-unit id="SettingAQSGuideTitle.Text" translate="yes" xml:space="preserve">
+          <source>Advanced Query Syntax (AQS) guide</source>
+          <target state="translated">高级查询语法(AQS)指南</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Subtitle" translate="yes" xml:space="preserve">
+          <source>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</source>
+          <target state="translated">仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确</target>
+        </trans-unit>
+        <trans-unit id="IndexerQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">仅通过索引执行搜索</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+          <source>Search by index only</source>
+          <target state="translated">仅通过索引执行搜索</target>
         </trans-unit>
       </group>
     </body>

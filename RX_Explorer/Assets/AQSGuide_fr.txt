@@ -1,0 +1,186 @@
+﻿### Format de syntaxe de base
+#### Structure de l'instruction AQS
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query>` `AND` `<Query>` (équivalent à `<Query>` `<Query>`)
+
+`<Query>` `OR` `<Query>`
+
+`NOT` `<Query>`
+
+&nbsp;
+
+● `<Query>` fait référence à une « instruction AQS »
+
+● AQS est une instruction insensible à la casse, à l'exception de `AND`, `OR`, and `NOT`, qui doit être en majuscule
+
+> Exemple: A `AND` B
+
+● AQS est lié de gauche à droite, vous pouvez utiliser des parenthèses pour modifier le lien
+
+> Exemple: A `OR` (B `AND` C)
+
+&nbsp;
+
+#### Structure "Query"
+*****
+`<Prop>`:`<Basic Rest>`
+
+&nbsp;
+
+● `<Prop>` fait référence aux "Propriétés"
+
+● `<Basic Rest>` fait référence à des « instructions restreintes »
+
+&nbsp;
+
+##### Noter
+`<Prop>` est facultatif. Si AQS ne contient pas `<Prop>`, toutes les propriétés de fichiers correspondant à `<Basic Restr>` seront recherchées. `<Basic Restr>` est une option obligatoire, cette option doit être spécifiée.
+
+&nbsp;
+
+#### Structure "Prop"
+*****
+`<Canonical Property Name>`
+
+`<Property Label In UI Language>`
+
+&nbsp;
+
+● `<Canonical Property Name>` fait référence à "[Nom de la propriété canonique](https://docs.microsoft.com/en-us/windows/win32/properties/props)"
+
+● `<Property Label In UI Language>` fait référence à "Le nom de l'étiquette de propriété" (varie selon les changements de langue)
+
+&nbsp;
+
+#### Structure "Basic Restr"
+*****
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>` fait référence à « Opérateur »
+
+● `<Value>` fait référence à « Expression »
+
+● `<Restr>` fait référence à une « instruction de sous-restriction »
+
+&nbsp;
+
+##### Noter
+`<Operation>` est facultatif. Si AQS ne contient pas `<Operation>`, l'opérateur le plus approprié sera sélectionné selon les règles suivantes. Cependant, il est toujours recommandé de toujours spécifier un opérateur explicitement pour éviter des résultats inattendus.
+
+> Si la valeur stockée dans l'attribut est une chaîne, l'opérateur "COP_WORD_STARTSWITH" est supposé
+
+> Si la valeur stockée dans l'attribut n'est pas une chaîne, l'opérateur "COP_EQUAL" est supposé
+
+&nbsp;
+
+#### Structure "Valeur"
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]` fait référence à « Vide » ou « Null »
+
+● `<Word>` fait référence à "Une chaîne de chaînes consécutives sans espaces"
+
+● `<Number>` fait référence à un « nombre entier ou à virgule flottante »
+
+● `<DateTime>` fait référence à « l'heure relative ou l'heure absolue »
+
+● `<Boolean>` fait référence à « Vrai/Faux »
+
+● `..` fait référence à la « plage »
+
+● `<Enumeration Range>` fait référence à la "Plage d'énumération", format : `<Prop>`#`<Enumeration>`
+
+> Exemple: System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### Exemple d'AQS
+
+Type de propriété canonique|Exemple|Exemple AQS
+---|---|---
+Chaîne|System.Author|Système.Auteur:Jacobs
+Plage d'énumération|System.Priority|System.Priority:System.Priority#High
+Boolean|System.IsDeleted|System.IsDeleted:System.StructuredQueryType.Boolean#True
+Valeur|System.Size|System.Size:<12345
+
+&nbsp;
+
+### Opérateur AQS
+
+Nom|Opérateur|Exemple AQS|AQS Description
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|Rechercher les fichiers avec l'extension ".txt"
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|Rechercher les fichiers dont System.Kind n'est pas une catégorie d'image
+ |-|System.Photo.DateTaken:-[]|Rechercher des fichiers avec une valeur valide pour System.Photo.DateTaken
+ |<>|System.Kind:<>System.Kind#Picture|Rechercher les fichiers dont System.Kind n'est pas une catégorie d'image
+ |NOT|System.Kind:NOT System.Kind#Picture|Rechercher les fichiers dont System.Kind n'est pas une catégorie d'image
+ |- -|System.Kind:- -System.Kind#Picture|Rechercher les fichiers dont System.Kind n'est pas une catégorie d'image
+COP_LESSTHAN|<|System.Size:<1kb|Rechercher des fichiers de moins de 1kb
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|Rechercher des fichiers après aujourd'hui
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Rechercher les fichiers d'une taille inférieure ou égale à 1kb
+ |≤|System.Size:≤1kb|Rechercher les fichiers dont la taille est inférieure ou égale à 1kb
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Rechercher des fichiers d'une taille supérieure ou égale à 1kb
+ |≥|System.Size:≥1kb|Rechercher des fichiers d'une taille supérieure ou égale à 1kb
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Rechercher les fichiers dont le nom de fichier commence par "C++ Primer"
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Rechercher les fichiers dont le modèle d'appareil photo se termine par "non"
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|Rechercher les fichiers avec "round" dans le nom de fichier
+ |~=|System.Subject~=round|Rechercher les fichiers dont le titre contient "round"
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|Rechercher les fichiers dont l'auteur ne contient pas "sanjay"
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" signifie correspondre à un seul caractère arbitraire. "*" signifie correspondre à 0 ou plusieurs caractères arbitraires
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Rechercher les fichiers avec "Sanjay Jacobs" dans le nom de fichier
+ |$=|System.Filename:$="Sanjay Jacobs"|Rechercher les fichiers contenant "Sanjay Jacobs" dans le nom de fichier
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Rechercher les fichiers commençant par "Micro Exe" dans le nom de fichier
+
+&nbsp;
+
+### Type de valeur AQS
+
+Type|Exemple|Description
+---|---|---
+Chaîne|Auto|Toute chaîne qui ne contient pas d'espaces
+Chaîne entre guillemets|"Conclusions: valid"|Toute chaîne peut contenir des espaces. Si la chaîne contient des guillemets doubles, vous devez utiliser deux guillemets doubles consécutifs pour remplacer, comme indiqué dans le dernier exemple
+ |"Blue"|Toute chaîne peut contenir des espaces. Si la chaîne contient des guillemets doubles, vous devez utiliser deux guillemets doubles consécutifs pour remplacer, comme indiqué dans le dernier exemple
+ |"Microsoft Office"|Toute chaîne peut contenir des espaces. Si la chaîne contient des guillemets doubles, vous devez utiliser deux guillemets doubles consécutifs pour remplacer, comme indiqué dans le dernier exemple
+ |"That's ""what"" I said"|Toute chaîne peut contenir des espaces. Si la chaîne contient des guillemets doubles, vous devez utiliser deux guillemets doubles consécutifs pour remplacer, comme indiqué dans le dernier exemple
+Entier|5678|Ne pas utiliser de séparateurs
+Nombre à virgule flottante|5678.1234|Ne pas utiliser de séparateurs
+Boolean|System.IsRead:=System.StructuredQueryType.Boolean#True|True
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|False
+[]|System.Keywords:=[]|signifie aucune valeur
+Date absolue|System.ItemDate:1/26/2010|Rechercher les fichiers dont la date est 1/26/2010
+Date relative|System.ItemDate:System.StructuredQueryType.DateTime#Today|Rechercher les fichiers dont la date est aujourd'hui
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|Rechercher les fichiers dont la date est l'année dernière
+..|System.ItemDate:11/05/04..11/10/04|Rechercher des fichiers avec des dates comprises entre le 11/05/2020 et le 11/10/2020
+ |System.Size:5kb..10kb|Rechercher des fichiers dont la taille est comprise entre 5kb et 10kb
+
+&nbsp;
+
+### Documentation de référence
+[Syntaxe de requête avancée (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

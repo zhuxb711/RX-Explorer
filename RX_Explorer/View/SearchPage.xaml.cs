@@ -42,6 +42,9 @@ namespace RX_Explorer
         private SortTarget STarget;
         private SortDirection SDirection;
 
+        private DateTimeOffset LastPressTime;
+        private string LastPressString;
+
 
         public SearchPage()
         {
@@ -83,13 +86,19 @@ namespace RX_Explorer
             MixCommandFlyout.Hide();
         }
 
-        private void SearchPage_KeyDown(CoreWindow sender, KeyEventArgs args)
+        private async void SearchPage_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             CloseAllFlyout();
 
             if (!BlockKeyboardShortCutInput)
             {
                 CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+                CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+
+                if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    NavigateToStorageItem(args.VirtualKey);
+                }
 
                 switch (args.VirtualKey)
                 {
@@ -119,6 +128,90 @@ namespace RX_Explorer
                             Delete_Click(null, null);
                             break;
                         }
+                    case VirtualKey.Space when SettingControl.IsQuicklookEnable && SearchResultList.SelectedItems.Count <= 1:
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            {
+                                if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                {
+                                    if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                    {
+                                        await Exclusive.Controller.ViewWithQuicklookAsync(Item.Path);
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void NavigateToStorageItem(VirtualKey Key)
+        {
+            if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
+            {
+                string SearchString = Convert.ToChar(Key).ToString();
+
+                try
+                {
+                    if (LastPressString != SearchString && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
+                    {
+                        SearchString = LastPressString + SearchString;
+
+                        IEnumerable<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+
+                        if (Group.Any() && (SearchResultList.SelectedItem == null || !Group.Contains(SearchResultList.SelectedItem)))
+                        {
+                            SearchResultList.SelectedItem = Group.FirstOrDefault();
+                            SearchResultList.ScrollIntoView(SearchResultList.SelectedItem);
+                        }
+                    }
+                    else
+                    {
+                        IEnumerable<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+
+                        if (Group.Any())
+                        {
+                            if (SearchResultList.SelectedItem != null)
+                            {
+                                FileSystemStorageItemBase[] ItemArray = Group.ToArray();
+
+                                int NextIndex = Array.IndexOf(ItemArray, SearchResultList.SelectedItem);
+
+                                if (NextIndex != -1)
+                                {
+                                    if (NextIndex < ItemArray.Length - 1)
+                                    {
+                                        SearchResultList.SelectedItem = ItemArray[NextIndex + 1];
+                                    }
+                                    else
+                                    {
+                                        SearchResultList.SelectedItem = ItemArray.FirstOrDefault();
+                                    }
+                                }
+                                else
+                                {
+                                    SearchResultList.SelectedItem = ItemArray.FirstOrDefault();
+                                }
+                            }
+                            else
+                            {
+                                SearchResultList.SelectedItem = Group.FirstOrDefault();
+                            }
+
+                            SearchResultList.ScrollIntoView(SearchResultList.SelectedItem);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
+                }
+                finally
+                {
+                    LastPressString = SearchString;
+                    LastPressTime = DateTimeOffset.Now;
                 }
             }
         }
@@ -148,7 +241,8 @@ namespace RX_Explorer
                                                                                                                      SettingControl.IsDisplayHiddenItem,
                                                                                                                      SettingControl.IsDisplayProtectedSystemItems,
                                                                                                                      Options.UseRegexExpression,
-                                                                                                                     Options.UseAQSExpression.GetValueOrDefault(),
+                                                                                                                     Options.UseAQSExpression,
+                                                                                                                     Options.UseIndexerOnly,
                                                                                                                      Options.IgnoreCase,
                                                                                                                      Cancellation.Token);
 
@@ -199,7 +293,7 @@ namespace RX_Explorer
                 }
 
                 ListViewDetailHeader.Filter.SetDataSource(SearchResult);
-                SearchStatus.Text = Globalization.GetString("SearchCompletedText");
+                SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
                 SearchStatusBar.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
@@ -915,12 +1009,12 @@ namespace RX_Explorer
                 {
                     if (DeleteConfirm)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog 
-                        { 
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                             PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
-                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                            Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
                         };
 
                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
@@ -935,12 +1029,12 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog 
-                    { 
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"), 
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"), 
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"), 
-                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content") 
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                        Content = PermanentDelete ? Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content") : Globalization.GetString("QueueDialog_DeleteFiles_Content")
                     };
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
@@ -972,6 +1066,21 @@ namespace RX_Explorer
             else
             {
                 SearchResultList.SelectionMode = ListViewSelectionMode.Extended;
+            }
+        }
+
+        private void SearchResultList_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.OriginalSource is not TextBox)
+            {
+                switch (e.Key)
+                {
+                    case VirtualKey.Space:
+                        {
+                            e.Handled = true;
+                            break;
+                        }
+                }
             }
         }
     }

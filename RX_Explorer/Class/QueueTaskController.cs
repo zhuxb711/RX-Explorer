@@ -750,7 +750,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    OperationListBaseModel[] Models = ListItemSource.Where((Model) => Model.Status != OperationStatus.Error && Model.Status != OperationStatus.Cancelled && Model.Status != OperationStatus.Completed).ToArray();
+                    OperationListBaseModel[] Models = ListItemSource.Where((Model) => Model.Status is not OperationStatus.Error and not OperationStatus.Cancelled and not OperationStatus.Completed).ToArray();
 
                     if (Models.Length > 0)
                     {

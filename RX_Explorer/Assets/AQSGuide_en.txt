@@ -1,0 +1,186 @@
+﻿### Basic syntax format
+#### AQS statement structure
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query>` `AND` `<Query>` (equivalent to `<Query>` `<Query>`)
+
+`<Query>` `OR` `<Query>`
+
+`NOT` `<Query>`
+
+&nbsp;
+
+● `<Query>` refers to "AQS statement"
+
+● AQS is a case-insensitive statement, except for `AND`, `OR`, and `NOT`, which must be capitalized
+
+> Example: A `AND` B
+
+● AQS is bind from left to right, you can use parentheses to change the bind
+
+> Example: A `OR` (B `AND` C)
+
+&nbsp;
+
+#### "Query" structure
+*****
+`<Prop>`:`<Basic Restr>`
+
+&nbsp;
+
+● `<Prop>` refers to "Properties"
+
+● `<Basic Restr>` refers to "Restricted statements"
+
+&nbsp;
+
+##### Note
+`<Prop>` is optional. If AQS does not contains `<Prop>`, all files properties matching `<Basic Restr>` will be searched. `<Basic Restr>` is a required option, this option must be specified.
+
+&nbsp;
+
+#### "Prop" structure
+*****
+`<Canonical Property Name>`
+
+`<Property Label In UI Language>`
+
+&nbsp;
+
+● `<Canonical Property Name>` refers to "[Canonical Property Name](https://docs.microsoft.com/en-us/windows/win32/properties/props)"
+
+● `<Property Label In UI Language>` refers to "The name of the property label" (varies with language changes)
+
+&nbsp;
+
+#### "Basic Restr" structure
+*****
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>` refers to "Operator"
+
+● `<Value>` refers to "Expression"
+
+● `<Restr>` refers to "Sub restriction statement"
+
+&nbsp;
+
+##### Note
+`<Operation>` is optional. If AQS does not contains `<Operation>`, the most suitable operator will be selected according to the following rules. However, it is still recommended to always specify an operator explicitly to avoid unexpected results.
+
+> If the value stored in the attribute is a string, the "COP_WORD_STARTSWITH" operator is assumed
+
+> If the value stored in the attribute is not a string, the "COP_EQUAL" operator is assumed
+
+&nbsp;
+
+#### "Value" structure
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]` refers to "Empty" or "Null"
+
+● `<Word>` refers to "A string of consecutive strings without spaces"
+
+● `<Number>` refers to "Integer or floating point number"
+
+● `<DateTime>` refers to "Relative time or absolute time"
+
+● `<Boolean>` refers to "True/False"
+
+● `..` refers to "Range"
+
+● `<Enumeration Range>` refers to "Enumeration range", format: `<Prop>`#`<Enumeration>`
+
+> Example: System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### AQS example
+
+Type of canonical property|Example|Example AQS
+---|---|---
+String|System.Author|System.Author:Jacobs
+Enumeration Range|System.Priority|System.Priority:System.Priority#High
+Boolean|System.IsDeleted|System.IsDeleted:System.StructuredQueryType.Boolean#True
+Value|System.Size|System.Size:<12345
+
+&nbsp;
+
+### AQS operator
+
+Name|Operator|Example AQS|AQS Description
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|Search for files with the extension ".txt"
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|Search for files whose System.Kind is not a picture category
+ |-|System.Photo.DateTaken:-[]|Search for files with a valid value for System.Photo.DateTaken
+ |<>|System.Kind:<>System.Kind#Picture|Search for files whose System.Kind is not a picture category
+ |NOT|System.Kind:NOT System.Kind#Picture|Search for files whose System.Kind is not a picture category
+ |- -|System.Kind:- -System.Kind#Picture|Search for files whose System.Kind is not a picture category
+COP_LESSTHAN|<|System.Size:<1kb|Search for files less than 1kb in size
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|Search for files after today
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Search for files with a size less than or equal to 1kb
+ |≤|System.Size:≤1kb|Search for files whose size is less than or equal to 1kb
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Search for files with a size greater than or equal to 1kb
+ |≥|System.Size:≥1kb|Search for files with a size greater than or equal to 1kb
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Search for files whose file name starts with "C++ Primer"
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Search for files whose camera model ends with "non"
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|Search for files with "round" in the file name
+ |~=|System.Subject~=round|Search for files whose title contains "round"
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|Search for files whose author does not contain "sanjay"
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" means matching only one arbitrary character. "*" means matching 0 or more arbitrary characters
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Search for files with "Sanjay Jacobs" in the file name
+ |$=|System.Filename:$="Sanjay Jacobs"|Search for files containing "Sanjay Jacobs" in the file name
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Search for files starting with "Micro Exe" in the file name
+
+&nbsp;
+
+### AQS value type
+
+Type|Example|Description
+---|---|---
+String|Auto|Any string that does not contain whitespaces
+Double-quoted string|"Conclusions: valid"|Any string, can contain whitespaces. If the string contains double quotation marks, you need to use two consecutive double quotation marks to replace, as shown in the last example
+ |"Blue"|Any string, can contain whitespaces. If the string contains double quotation marks, you need to use two consecutive double quotation marks to replace, as shown in the last example
+ |"Microsoft Office"|Any string, can contain whitespaces. If the string contains double quotation marks, you need to use two consecutive double quotation marks to replace, as shown in the last example
+ |"That's ""what"" I said"|Any string, can contain whitespaces. If the string contains double quotation marks, you need to use two consecutive double quotation marks to replace, as shown in the last example
+Integer|5678|Do not use any separators
+Floating point number|5678.1234|Do not use any separators
+Boolean|System.IsRead:=System.StructuredQueryType.Boolean#True|True
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|False
+[]|System.Keywords:=[]| means no value
+Absolute date|System.ItemDate:1/26/2010|Search for files whose date is 1/26/2010
+Relative Date|System.ItemDate:System.StructuredQueryType.DateTime#Today|Search for files whose date is today
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|Search for files whose date is last year
+..|System.ItemDate:11/05/04..11/10/04|Search for files with dates between 11/05/2020 and 11/10/2020
+ |System.Size:5kb..10kb|Search for files with a size between 5kb and 10kb
+
+&nbsp;
+
+### Reference documentation
+[Advanced Query Syntax (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

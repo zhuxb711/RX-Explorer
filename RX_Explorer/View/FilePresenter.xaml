@@ -42,13 +42,6 @@
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                                  Click="MultiSelect_Click">
-                        <AppBarButton.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE762;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
                     <AppBarButton Icon="Copy"
                                   ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                                   Click="Copy_Click" />
@@ -165,13 +158,6 @@
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="FileStandardBar">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                                  Click="MultiSelect_Click">
-                        <AppBarButton.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE762;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
                     <AppBarButton Icon="Copy"
                                   ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                                   Name="Copy"
@@ -436,13 +422,6 @@
                                Placement="RightEdgeAlignedTop">
             <AppBarElementContainer x:Name="MixedStandardBar">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                                  Click="MultiSelect_Click">
-                        <AppBarButton.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE762;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
                     <AppBarButton Icon="Copy"
                                   ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                                   Click="Copy_Click" />
@@ -592,13 +571,6 @@
                                Closed="CommandBarFlyout_Closed">
             <AppBarElementContainer x:Name="FolderStandardBar">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                                  Click="MultiSelect_Click">
-                        <AppBarButton.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE762;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
                     <AppBarButton Icon="Copy"
                                   ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                                   Click="Copy_Click" />

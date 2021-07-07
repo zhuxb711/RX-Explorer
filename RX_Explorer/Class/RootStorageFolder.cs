@@ -80,6 +80,7 @@ namespace RX_Explorer.Class
                                                                                          bool IncludeSystemItem = false,
                                                                                          bool IsRegexExpression = false,
                                                                                          bool IsAQSExpression = false,
+                                                                                         bool UseIndexerOnly = false,
                                                                                          bool IgnoreCase = true,
                                                                                          CancellationToken CancelToken = default)
         {
@@ -110,7 +111,7 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
-                            IndexerOption = IndexerOption.DoNotUseIndexer
+                            IndexerOption = UseIndexerOnly ? IndexerOption.OnlyUseIndexer : IndexerOption.DoNotUseIndexer
                         };
                         Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
                         Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated", "System.ParsingPath" });

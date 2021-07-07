@@ -3129,4 +3129,19 @@ Las denominaciones no válidas son:
   <data name="SearchEngineUseAQS.Content" xml:space="preserve">
     <value>Usar La sintaxis de consulta avanzada (AQS)</value>
   </data>
+  <data name="SettingAQSGuideContent.Text" xml:space="preserve">
+    <value>El uso de sintaxis de consulta avanzada y la descripción de la estructura</value>
+  </data>
+  <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
+    <value>Sintaxis de consulta avanzada (AQS) guía</value>
+  </data>
+  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
+    <value>Busque solo todos los archivos que se hayan indexado. Si Windows ha indexado la ubicación actual, el uso de esta opción aumentará considerablemente la velocidad de búsqueda. Atención: No utilice esta opción cuando no se utilice el índice o el indexador esté desactivado, de lo contrario los resultados de la búsqueda serán incorrectos.</value>
+  </data>
+  <data name="IndexerQuestion.Title" xml:space="preserve">
+    <value>Buscar solo por índice</value>
+  </data>
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+    <value>Buscar solo por índice</value>
+  </data>
 </root>

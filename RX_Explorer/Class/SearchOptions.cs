@@ -12,7 +12,9 @@
 
         public bool DeepSearch { get; set; }
 
-        public bool? UseAQSExpression { get; set; }
+        public bool UseIndexerOnly { get; set; }
+
+        public bool UseAQSExpression { get; set; }
 
         public uint NumLimit { get; set; } = 300;
 

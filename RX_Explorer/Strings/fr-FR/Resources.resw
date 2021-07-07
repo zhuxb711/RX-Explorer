@@ -3129,4 +3129,19 @@ Les noms non valides incluent
   <data name="SearchEngineUseAQS.Content" xml:space="preserve">
     <value>Utiliser La syntaxe de requête avancée (AQS)</value>
   </data>
+  <data name="SettingAQSGuideContent.Text" xml:space="preserve">
+    <value>Utilisation de la syntaxe de requête avancée et description de la structure</value>
+  </data>
+  <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
+    <value>Guide de la syntaxe de requête avancée (AQS)</value>
+  </data>
+  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
+    <value>Recherchez uniquement tous les fichiers qui ont été indexés. Si l'emplacement actuel a été indexé par Windows, l'utilisation de cette option augmentera considérablement la vitesse de recherche. Attention : N'utilisez pas cette option lorsque l'index n'est pas utilisé ou que l'indexeur a été désactivé, sinon les résultats de la recherche seront incorrects</value>
+  </data>
+  <data name="IndexerQuestion.Title" xml:space="preserve">
+    <value>Recherche par index uniquement</value>
+  </data>
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+    <value>Recherche par index uniquement</value>
+  </data>
 </root>

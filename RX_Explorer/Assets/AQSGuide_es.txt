@@ -1,0 +1,186 @@
+﻿### Formato de sintaxis básica
+#### Estructura de la declaración AQS
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query>` `AND` `<Query>` (equivalente a `<Query>` `<Query>`)
+
+`<Query>` `OR` `<Query>`
+
+`NO` `<Query>`
+
+&nbsp;
+
+● `<Query>` se refiere a la "declaración AQS"
+
+● AQS es una declaración que no distingue entre mayúsculas y minúsculas, excepto para "AND", "OR" y "NOT", que deben escribirse en mayúscula.
+
+> Ejemplo: A `AND` B
+
+● AQS está enlazado de izquierda a derecha, puede usar paréntesis para cambiar el enlace
+
+> Ejemplo: A `OR` (B `AND` C)
+
+&nbsp;
+
+#### Estructura de "Query"
+*****
+`<Prop>`:`<Basic Restr>`
+
+&nbsp;
+
+● `<Prop>` se refiere a "Propiedades"
+
+● `<Basic Restr>` se refiere a "Declaraciones restringidas"
+
+&nbsp;
+
+##### Nota
+`<Prop>` es opcional. Si AQS no contiene `<Prop>`, se buscarán todas las propiedades de los archivos que coincidan con `<Basic Restr>`. `<Basic Restr>` es una opción obligatoria, esta opción debe especificarse.
+
+&nbsp;
+
+#### Estructura "Prop"
+*****
+`<Nombre de propiedad canónica>`
+
+`<Etiqueta de propiedad en el idioma de la interfaz de usuario>`
+
+&nbsp;
+
+● `<Canonical Property Name>` se refiere a "[Nombre de propiedad canónica](https://docs.microsoft.com/en-us/windows/win32/properties/props)"
+
+● `<Property Label In UI Language>` se refiere a "El nombre de la etiqueta de propiedad" (varía con los cambios de idioma)
+
+&nbsp;
+
+#### Estructura "Basic Restr"
+*****
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>` se refiere a "Operador"
+
+● `<Value>` se refiere a "Expresión"
+
+● `<Restr>` se refiere a "Declaración de subrestricción"
+
+&nbsp;
+
+##### Nota
+`<Operation>` es opcional. Si AQS no contiene `<Operation>`, se seleccionará el operador más adecuado de acuerdo con las siguientes reglas. Sin embargo, se recomienda siempre especificar un operador de forma explícita para evitar resultados inesperados.
+
+> Si el valor almacenado en el atributo es una cadena, se asume el operador "COP_WORD_STARTSWITH"
+
+> Si el valor almacenado en el atributo no es una cadena, se asume el operador "COP_EQUAL"
+
+&nbsp;
+
+#### Estructura de "Value"
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]` se refiere a "Vacío" o "Nulo"
+
+● `<Word>` se refiere a "Una cadena de cadenas consecutivas sin espacios"
+
+● `<Number>` se refiere a "Número entero o de punto flotante"
+
+● `<DateTime>` se refiere a "Tiempo relativo o tiempo absoluto"
+
+● `<Boolean>` se refiere a "Verdadero/Falso"
+
+● `..` se refiere a "Rango"
+
+● `<Enumeration Range>` se refiere a "Rango de enumeración", formato: `<Prop>`#`<Enumeration>`
+
+> Ejemplo: System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### Ejemplo de AQS
+
+Tipo de propiedad canónica|Ejemplo|Ejemplo AQS
+---|---|---
+Cadena|System.Author|System.Author: Jacobs
+Rango de enumeración|System.Priority|System.Priority: System.Priority # High
+Booleano|System.IsDeleted|System.IsDeleted: System.StructuredQueryType.Boolean # True
+Valor|Tamaño del sistema|Tamaño del sistema: <12345
+
+&nbsp;
+
+### Operador AQS
+
+Nombre|Operador|Ejemplo AQS|AQS Descripción
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|Buscar archivos con la extensión ".txt"
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|Buscar archivos cuyo System.Kind no sea una categoría de imagen
+ |-|System.Photo.DateTaken:-[]|Buscar archivos con un valor válido para System.Photo.DateTaken
+ |<>|System.Kind:<>System.Kind#Picture|Buscar archivos cuyo System.Kind no sea una categoría de imagen
+ |NOT|System.Kind:NOT System.Kind#Picture|Busque archivos cuyo Tipo de sistema no sea una categoría de imagen
+ |- -|System.Kind:- -System.Kind#Picture|Buscar archivos cuyo System.Kind no sea una categoría de imagen
+COP_LESSTHAN|<|System.Size:<1kb|Busca archivos de menos de 1kb de tamaño
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime # Today|Buscar archivos posteriores a hoy
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Busca archivos con un tamaño menor o igual a 1kb
+ |≤|System.Size:≤1kb|Busca archivos cuyo tamaño sea menor o igual a 1kb
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Buscar archivos con un tamaño mayor o igual a 1kb
+ |≥|System.Size:≥1kb|Busca archivos con un tamaño mayor o igual a 1kb
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C ++ Primer"|Busque archivos cuyo nombre de archivo comience con "C ++ Primer"
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Buscar archivos cuyo modelo de cámara termine con "non"
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|Busque archivos con "round" en el nombre del archivo
+ |~=|System.Subject~=Round|Buscar archivos cuyo título contenga "round"
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"Sanjay"|Buscar archivos cuyo autor no contenga "sanjay"
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" significa hacer coincidir solo un carácter arbitrario. "*" significa que coinciden con 0 o más caracteres arbitrarios
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Buscar archivos con "Sanjay Jacobs" en el nombre del archivo
+ |$=|System.Filename:$="Sanjay Jacobs"|Busque archivos que contengan "Sanjay Jacobs" en el nombre del archivo
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Busque archivos que comiencen con "Micro Exe" en el nombre del archivo
+
+&nbsp;
+
+### Tipo de valor AQS
+
+Tipo|Ejemplo|Descripción
+---|---|---
+Cadena|Auto|Cualquier cadena que no contenga espacios en blanco
+Cadena entre comillas dobles|"Conclusions: valid"|Cualquier cadena, puede contener espacios en blanco. Si la cadena contiene comillas dobles, debe usar dos comillas dobles consecutivas para reemplazar, como se muestra en el último ejemplo
+ |"Blue"|Cualquier cadena, puede contener espacios en blanco. Si la cadena contiene comillas dobles, debe usar dos comillas dobles consecutivas para reemplazar, como se muestra en el último ejemplo
+ |"Microsoft Office"|Cualquier cadena, puede contener espacios en blanco. Si la cadena contiene comillas dobles, debe usar dos comillas dobles consecutivas para reemplazar, como se muestra en el último ejemplo
+ |"That's ""what"" I said"|Cualquier cadena, puede contener espacios en blanco. Si la cadena contiene comillas dobles, debe usar dos comillas dobles consecutivas para reemplazar, como se muestra en el último ejemplo
+Entero|5678|No utilice separadores
+Número de coma flotante|5678.1234|No utilice separadores
+Boolean|System.IsRead:=System.StructuredQueryType.Boolean#True|True
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|False
+[]|System.Keywords:=[]|Significa que no tiene valor
+Fecha absoluta|System.ItemDate:26/1/2010|Buscar archivos cuya fecha es 26/1/2010
+Fecha relativa|System.ItemDate:System.StructuredQueryType.DateTime#Today|Buscar archivos cuya fecha sea hoy
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|Buscar archivos cuya fecha sea el año pasado
+..|System.ItemDate:11/05/04..11/10/04|Buscar archivos con fechas entre 11/05/2020 y 11/10/2020
+ |System.Size:5kb..10kb|Busque archivos con un tamaño entre 5kb y 10kb
+
+&nbsp;
+
+### Documentación de referencia
+[Sintaxis de consulta avanzada (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

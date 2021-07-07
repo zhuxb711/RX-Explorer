@@ -3232,6 +3232,21 @@ Invalid names include
     <value>This will permanently delete everything in the folder. Whether to continue?</value>
   </data>
   <data name="SearchEngineUseAQS.Content" xml:space="preserve">
-    <value>Use Advanced Query Syntax(AQS)</value>
+    <value>Use Advanced Query Syntax (AQS)</value>
+  </data>
+  <data name="SettingAQSGuideContent.Text" xml:space="preserve">
+    <value>Advanced Query Syntax usage and structure description</value>
+  </data>
+  <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
+    <value>Advanced Query Syntax (AQS) guide</value>
+  </data>
+  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
+    <value>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</value>
+  </data>
+  <data name="IndexerQuestion.Title" xml:space="preserve">
+    <value>Search by index only</value>
+  </data>
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+    <value>Search by index only</value>
   </data>
 </root>

@@ -1,0 +1,186 @@
+﻿### 基本語法格式
+#### AQS語句結構
+*****
+`<Query>`
+
+`(<Query>)`
+
+`<Query>` `AND` `<Query>`（等價於 `<Query>` `<Query>`）
+
+`<Query>` `OR` `<Query>`
+
+`NOT` `<Query>`
+
+&nbsp;
+
+● `<Query>`指的是“AQS語句”
+
+● AQS是不區分大小寫的語句，除了`AND`、`OR` 和`NOT`必須大寫
+
+> 示例：A `AND` B
+
+● AQS 是從左到右綁定，可以用括號改變綁定
+
+> 示例：A `OR` (B `AND` C)
+
+&nbsp;
+
+#### "Query"結構
+*****
+`<Prop>`:`<基本限制>`
+
+&nbsp;
+
+● `<Prop>` 指的是“屬性”
+
+● `<Basic Restr>` 指的是“受限語句”
+
+&nbsp;
+
+##### 注意
+`<Prop>` 是可選的。如果 AQS 不包含 `<Prop>`，則將搜索與 `<Basic Restr>` 匹配的所有文件屬性。`<Basic Restr>` 是必需選項，必須指定此選項。
+
+&nbsp;
+
+#### "Prop"結構
+*****
+`<Canonical Property Name>`
+
+`<Property Label In UI Language>`
+
+&nbsp;
+
+● `<Canonical Property Name>` 指的是“[Canonical Property Name](https://docs.microsoft.com/en-us/windows/win32/properties/props)”
+
+● `<Property Label In UI Language>`指的是“屬性標籤的名稱”（隨語言變化而變化）
+
+&nbsp;
+
+#### "Basic Restr"結構
+*****
+`<Value>`
+
+`<Operation>`<Value>`
+
+`NOT` `<Basic Restr>`
+
+`(<Restr>)`
+
+&nbsp;
+
+● `<Operation>` 指的是“操作員”
+
+● `<Value>` 指的是“表達式”
+
+● `<Restr>` 指的是“Sub 限制語句”
+
+&nbsp;
+
+##### 注意
+`<Operation>` 是可選的。如果 AQS 不包含 `<Operation>`，將根據以下規則選擇最合適的運算符。但是，仍然建議始終明確指定運算符以避免出現意外結果。
+
+> 如果存儲在屬性中的值是字符串，則假定為“COP_WORD_STARTSWITH”運算符
+
+> 如果存儲在屬性中的值不是字符串，則假定為“COP_EQUAL”運算符
+
+&nbsp;
+
+#### "Value"結構
+*****
+`[]`
+
+`<Word>`
+
+`<Number>`
+
+`<DateTime>`
+
+`<Boolean>`
+
+`..`
+
+`<Enumeration Range>`
+
+&nbsp;
+
+● `[]` 指的是“Empty”或“Null”
+
+● `<Word>` 指的是“一串沒有空格的連續字符串”
+
+● `<Number>` 指的是“整數或浮點數”
+
+● `<DateTime>` 指的是“相對時間或絕對時間”
+
+● `<Boolean>` 指的是“真/假”
+
+● `..` 指的是“範圍”
+
+● `<Enumeration Range>`指的是“枚舉範圍”，格式：`<Prop>`#`<Enumeration>`
+
+> 示例：System.Photo.LightSource#Daylight
+
+&nbsp;
+
+### AQS示例
+
+規範屬性的類型|示例|示例 AQS
+---|---|---
+字符串|System.Author|System.Author:Jacobs
+枚舉範圍|System.Priority|System.Priority:System.Priority#High
+布爾值|System.IsDeleted|System.IsDeleted:System.StructuredQueryType.Boolean#True
+值|System.Size|System.Size:<12345
+
+&nbsp;
+
+### AQS运算元
+
+名稱|运算元|示例 AQS|AQS 描述
+---|---|---|---
+COP_EQUAL|=|System.FileExtension:=".txt"|搜索擴展名為“.txt”的文件
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|搜索 System.Kind 不是圖片類別的文件
+ |-|System.Photo.DateTaken:-[]|搜索具有有效 System.Photo.DateTaken 值的文件
+ |<>|System.Kind:<>picture|搜索 System.Kind 不是圖片類別的文件
+ |NOT|System.Kind:NOT System.Kind#Picture|搜索 System.Kind 不是圖片類別的文件
+ |- -|System.Kind:- -System.Kind#Picture|搜索 System.Kind 不是圖片類別的文件
+COP_LESSTHAN|<|System.Size:<1kb|搜索小於 1kb 的文件
+COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|搜索今天之後的文件
+COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|搜索小於等於1kb的文件
+ |≤|System.Size:≤1kb|搜索小於等於1kb的文件
+COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|搜索大小大於或等於 1kb 的文件
+ |≥|System.Size:≥1kb|搜索大小大於或等於1kb的文件
+COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|搜索文件名以“C++ Primer”開頭的文件
+COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|搜索相機型號以“non”結尾的文件
+COP_VALUE_CONTAINS|~~|System.FileName:~~round|搜索文件名中帶有“round”的文件
+ |~=|System.Subject~=round|搜索標題包含“round”的文件
+COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|搜索作者不包含“sanjay”的文件
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?"表示只匹配一個任意字符。 “*”表示匹配0個或多個任意字符
+COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|搜索文件名中帶有“Sanjay Jacobs”的文件
+ |$=|System.Filename:$="Sanjay Jacobs"|搜索文件名中包含“Sanjay Jacobs”的文件
+COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|搜索文件名中以“Micro Exe”開頭的文件
+
+&nbsp;
+
+### AQS 值類型
+
+類型|示例|描述
+---|---|---
+字符串|Auto|任何不包含空格的字符串
+雙引號字符串|"Conclusions: valid"|任何字符串，可以包含空格。如果字符串包含雙引號，則需要用兩個連續的雙引號替換，如上例所示
+ |"Blue"|任何字符串，可以包含空格。如果字符串包含雙引號，則需要用兩個連續的雙引號替換，如上例所示
+ |"Microsoft Office"|任何字符串，可以包含空格。如果字符串包含雙引號，則需要用兩個連續的雙引號替換，如上例所示
+ |"That's ""what"" I said"|任何字符串，都可以包含空格。如果字符串包含雙引號，則需要用兩個連續的雙引號替換，如上例所示
+整數|5678|不使用任何分隔符
+浮點數|5678.1234|不使用任何分隔符
+布爾值|System.IsRead:=System.StructuredQueryType.Boolean#True|真
+ |System.IsEncrypted:-System.StructuredQueryType.Boolean#False|假
+[]|System.Keywords:=[]|意味著沒有價值
+絕對日期|System.ItemDate:1/26/2010|搜索日期為 1/26/2010 的文件
+相對日期|System.ItemDate:System.StructuredQueryType.DateTime#Today|搜索日期為今天的文件
+ |System.Message.DateReceived:System.StructuredQueryType.DateTime#LastYear|搜索日期為去年的文件
+..|System.ItemDate:11/05/04..11/10/04|搜索日期在 11/05/2020 和 11/10/2020 之間的文件
+ |System.Size:5kb..10kb|搜索大小在 5kb 到 10kb 之間的文件
+
+&nbsp;
+
+### 參考文檔
+[高級查詢語法 (AQS)](https://docs.microsoft.com/en-us/windows/win32/search/-search-3x-advancedquerysyntax)

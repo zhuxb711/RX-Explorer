@@ -13,27 +13,27 @@
 
 &nbsp;
 
-● `<Query>`指AQS语句
+● `<Query>` 指"AQS语句"
 
 ● AQS是大小写不敏感的语句，但`AND`、`OR`、`NOT`除外，这些语句必须使用大写
 
->   示例: A `AND` B
+> 示例: A `AND` B
 
 ● AQS的默认结合顺序为从左至右，可以使用小括号来更改结合顺序
 
- > 示例: A `OR` (B `AND` C) 
+> 示例: A `OR` (B `AND` C) 
 
 &nbsp;
 
-#### Query结构
+#### "Query"结构
 *****
 `<Prop>`:`<Basic Restr>`
 
 &nbsp;
 
-● `<Prop>`指属性
+● `<Prop>` 指"属性"
 
-● `<Basic Restr>`指限制语句
+● `<Basic Restr>` 指"限制语句"
 
 &nbsp;
 
@@ -42,7 +42,7 @@
 
 &nbsp;
 
-#### Prop结构
+#### "Prop"结构
 *****
 `<Canonical Property Name>`
 
@@ -50,13 +50,13 @@
 
 &nbsp;
 
-● `<Canonical Property Name>`指[规范属性名称](https://docs.microsoft.com/en-us/windows/win32/properties/props)
+● `<Canonical Property Name>`指"[规范属性名称](https://docs.microsoft.com/en-us/windows/win32/properties/props)"
 
-● `<Property Label In UI Language>`指属性标签名称(随语言的变化而变化)
+● `<Property Label In UI Language>`指"属性标签名称"(随语言的变化而变化)
 
 &nbsp;
 
-#### Basic Restr结构
+#### "Basic Restr"结构
 *****
 `<Value>`
 
@@ -68,11 +68,11 @@
 
 &nbsp;
 
-● `<Operation>`指运算符
+● `<Operation>` 指"运算符"
 
-● `<Value>`指表达式
+● `<Value>` 指"表达式"
 
-● `<Restr>`指子限制语句
+● `<Restr>` 指"子限制语句"
 
 &nbsp;
 
@@ -85,7 +85,7 @@
 
 &nbsp;
 
-#### Value结构
+#### "Value"结构
 *****
 `[]`
 
@@ -103,19 +103,19 @@
 
 &nbsp;
 
-● `[]`指"空值"
+● `[]` 指"空值"
 
-● `<Word>`指"一串不包含空格的连续字符串"
+● `<Word>` 指"一串不包含空格的连续字符串"
 
-● `<Number>`指"整数或浮点数"
+● `<Number>` 指"整数或浮点数"
 
-● `<DateTime>`指"相对时间或绝对时间"
+● `<DateTime>` 指"相对时间或绝对时间"
 
-● `<Boolean>`指"真/假逻辑值"
+● `<Boolean>` 指"真/假逻辑值"
 
-● `..`指"范围"
+● `..` 指"范围"
 
-● `<Enumeration Range>`指"枚举范围"，格式：`<Prop>`#`<Enumeration>`
+● `<Enumeration Range>` 指"枚举范围"，格式：`<Prop>`#`<Enumeration>`
 
 > 示例：System.Photo.LightSource#Daylight
 
@@ -137,11 +137,11 @@
 名称|运算符|示例AQS|AQS描述
 ---|---|---|---
 COP_EQUAL|=|System.FileExtension:=".txt"|搜索扩展名为".txt"的文件
-COP_NOTEQUAL|≠|System.Kind:≠picture|搜索System.Kind不为图片类别的文件
+COP_NOTEQUAL|≠|System.Kind:≠System.Kind#Picture|搜索System.Kind不为图片类别的文件
  |-|System.Photo.DateTaken:-[]|搜索System.Photo.DateTaken具有有效值的文件
  |<>|System.Kind:<>picture|搜索System.Kind不为图片类别的文件
- |NOT|System.Kind:NOT picture|搜索System.Kind不为图片类别的文件
- |- -|System.Kind:- -picture|搜索System.Kind不为图片类别的文件
+ |NOT|System.Kind:NOT System.Kind#Picture|搜索System.Kind不为图片类别的文件
+ |- -|System.Kind:- -System.Kind#Picture|搜索System.Kind不为图片类别的文件
 COP_LESSTHAN|<|System.Size:<1kb|搜索大小小于1kb的文件
 COP_GREATERTHAN|>|System.ItemDate:>System.StructuredQueryType.DateTime#Today|搜索时间在今天之后的文件
 COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|搜索大小小于或等于1kb的文件
@@ -151,9 +151,9 @@ COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|搜索大小大于或等于1kb的文
 COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|搜索文件名以"C++ Primer"开头的文件
 COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|搜索图片文件的相机型号以"non"结尾的文件
 COP_VALUE_CONTAINS|~~|System.FileName:~~round|搜索文件名称包含"round"的文件
- |~=|System.Subject.~=round|搜索文件标题包含"round"的文件
+ |~=|System.Subject~=round|搜索文件标题包含"round"的文件
 COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|搜索文件作者不包含"sanjay"的文件
-COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?"代表仅匹配一个任意字符<br>"*"代表匹配0个或更多个任意字符
+COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?"代表仅匹配一个任意字符, "*"代表匹配0个或更多个任意字符
 COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|搜索文件名中包含"Sanjay Jacobs"的文件
  |$=|System.Filename:$="Sanjay Jacobs"|搜索文件名中包含"Sanjay Jacobs"的文件
 COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|搜索文件名中以"Micro Exe"开头的文件
