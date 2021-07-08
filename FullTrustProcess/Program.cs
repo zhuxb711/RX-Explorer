@@ -678,6 +678,28 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_GetTooltipText":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["Path"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(Path) || Directory.Exists(Path))
+                            {
+                                using (ShellItem Item = new ShellItem(Path))
+                                {
+                                    Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Path is not exists");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_CheckIfEverythingAvailable":
                         {
                             ValueSet Value = new ValueSet();

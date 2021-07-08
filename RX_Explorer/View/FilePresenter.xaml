@@ -31,6 +31,28 @@
                           Title="错误"
                           Subtitle="名称不能为空且不能包含无效的名称" />
 
+        <Flyout x:Name="TooltipFlyout"
+                ShouldConstrainToRootBounds="False">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="Background"
+                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                    <Setter Property="Padding"
+                            Value="5" />
+                    <Setter Property="CornerRadius"
+                            Value="4" />
+                    <Setter Property="MinHeight"
+                            Value="0" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <StackPanel>
+                <TextBlock x:Name="TooltipFlyoutText" 
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="Wrap"
+                           MaxWidth="400"/>
+            </StackPanel>
+        </Flyout>
+
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
         <Cls:SyncStatusIconConverter x:Key="SyncStatusIconConverter" />
@@ -739,13 +761,6 @@
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                Placement="RightEdgeAlignedTop"
                                Opening="EmptyFlyout_Opening">
-            <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                          Click="MultiSelect_Click">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE762;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
             <AppBarButton Icon="Paste"
                           ToolTipService.ToolTip="{x:Bind Paste.Label}"
                           Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Paste')}"
@@ -758,6 +773,13 @@
                           Name="Undo"
                           Click="Undo_Click"
                           IsEnabled="False" />
+            <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
+                          Click="MultiSelect_Click">
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              Glyph="&#xE762;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Create')}"
@@ -1395,7 +1417,7 @@
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
                                                        FontSize="14"
-                                                       Text="{x:Bind Description}" />
+                                                       Text="{x:Bind Description,Mode=OneWay}" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </GroupStyle.HeaderTemplate>
@@ -1954,7 +1976,7 @@
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
                                                FontSize="14"
-                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
+                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -2004,7 +2026,7 @@
                                                        FontSize="18" />
                                             <TextBlock Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
-                                                       Text="{x:Bind Description}" />
+                                                       Text="{x:Bind Description,Mode=OneWay}" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </GroupStyle.HeaderTemplate>
@@ -2022,7 +2044,7 @@
                                                FontSize="18" />
                                     <TextBlock Margin="5,0,0,0"
                                                VerticalAlignment="Center"
-                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description)}" />
+                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>

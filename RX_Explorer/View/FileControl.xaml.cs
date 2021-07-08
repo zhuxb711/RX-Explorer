@@ -168,7 +168,7 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -195,7 +195,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangedDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveAdded(object sender, DriveChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -565,7 +565,7 @@ namespace RX_Explorer
             }
         }
 
-        private void CommonAccessCollection_LibraryRemoved(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
+        private void CommonAccessCollection_LibraryRemoved(object sender, LibraryChangedDeferredEventArgs e)
         {
             try
             {
@@ -583,7 +583,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_LibraryAdded(object sender, CommonAccessCollection.LibraryChangedDeferredEventArgs e)
+        private async void CommonAccessCollection_LibraryAdded(object sender, LibraryChangedDeferredEventArgs e)
         {
             EventDeferral Deferral = e.GetDeferral();
 

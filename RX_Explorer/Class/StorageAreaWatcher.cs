@@ -1,338 +1,179 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using RX_Explorer.Interface;
+﻿using Microsoft.Toolkit.Deferred;
 using ShareClassLibrary;
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
+using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     public sealed class StorageAreaWatcher : IDisposable
     {
-        private ObservableCollection<FileSystemStorageItemBase> CurrentCollection;
+        private IntPtr WatcherPtr;
+        private Thread BackgroundThread;
 
-        private TreeView TreeView;
-
-        private IntPtr WatchPtr = IntPtr.Zero;
-
-        private SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+        public event EventHandler<FileChangedDeferredEventArgs> FileChanged;
 
         public string CurrentLocation { get; private set; }
+
+        private enum StateChangeType
+        {
+            Unknown_Action = 0,
+            Added_Action = 1,
+            Removed_Action = 2,
+            Modified_Action = 3,
+            Rename_Action_OldName = 4,
+            Rename_Action_NewName = 5
+        }
 
         public void StartWatchDirectory(string Path)
         {
             if (!string.IsNullOrWhiteSpace(Path))
             {
-                CurrentLocation = Path;
-
                 StopWatchDirectory();
 
-                WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Path, Added, Removed, Renamed, Modified);
+                CurrentLocation = Path;
+
+                WatcherPtr = WIN_Native_API.CreateDirectoryWatcher(Path);
+
+                if (WatcherPtr.CheckIfValidPtr())
+                {
+                    BackgroundThread = new Thread(ThreadProcess)
+                    {
+                        IsBackground = true,
+                        Priority = ThreadPriority.BelowNormal
+                    };
+                    BackgroundThread.Start();
+                }
+                else
+                {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a watcher on directory. Path: \"{Path}\"");
+                }
             }
         }
 
         public void StopWatchDirectory()
         {
-            if (WatchPtr.CheckIfValidPtr())
+            if (WatcherPtr.CheckIfValidPtr())
             {
-                WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
+                WIN_Native_API.StopDirectoryWatcher(ref WatcherPtr);
             }
         }
 
-        private async void Modified(string Path)
+        private void ThreadProcess()
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            while (true)
             {
+                IntPtr BufferPtr = Marshal.AllocHGlobal(4096);
+
                 try
                 {
-                    await Locker.WaitAsync();
-
-                    try
+                    if (WIN_Native_API.ReadDirectoryChangesW(WatcherPtr,
+                                                             BufferPtr,
+                                                             4096,
+                                                             false,
+                                                             WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_FILE_NAME
+                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_DIR_NAME
+                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_LAST_WRITE
+                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_SIZE
+                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_ATTRIBUTES,
+                                                             out uint BytesReturned,
+                                                             IntPtr.Zero,
+                                                             IntPtr.Zero))
                     {
-                        if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
+                        if (BytesReturned > 0)
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase ModifiedItem)
+                            int Offset = 0;
+                            string OldPath = null;
+                            IntPtr CurrentPointer = BufferPtr;
+
+                            do
                             {
-                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
+                                CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
 
-                                FileSystemStorageItemBase OldItem = CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase));
+                                // Read file length (in bytes) at offset 8
+                                int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
+                                // Read file name (fileLen/2 characters) from offset 12
+                                string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
+                                // Read action at offset 4
+                                int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
 
-                                if (OldItem != null)
+                                if (ActionIndex < 1 || ActionIndex > 5)
                                 {
-                                    if (ModifiedItem.GetType() == OldItem.GetType())
-                                    {
-                                        await OldItem.RefreshAsync();
-                                    }
-                                    else
-                                    {
-                                        CurrentCollection.Remove(OldItem);
-
-                                        if (!SettingControl.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
-                                        {
-                                            if ((ModifiedItem is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
-                                            {
-                                                if (CurrentCollection.Any())
-                                                {
-                                                    int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                                    if (Index >= 0)
-                                                    {
-                                                        CurrentCollection.Insert(Index, ModifiedItem);
-                                                    }
-                                                    else
-                                                    {
-                                                        CurrentCollection.Add(ModifiedItem);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    CurrentCollection.Add(ModifiedItem);
-                                                }
-                                            }
-                                        }
-                                    }
+                                    ActionIndex = 0;
                                 }
-                                else if (ModifiedItem is not IHiddenStorageItem)
+
+                                switch ((StateChangeType)ActionIndex)
                                 {
-                                    if (CurrentCollection.Any())
-                                    {
-                                        int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, ModifiedItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                        if (Index >= 0)
+                                    case StateChangeType.Unknown_Action:
                                         {
-                                            CurrentCollection.Insert(Index, ModifiedItem);
+                                            break;
                                         }
-                                        else
+                                    case StateChangeType.Added_Action:
                                         {
-                                            CurrentCollection.Add(ModifiedItem);
+                                            FileChanged.InvokeAsync(this, new FileAddedDeferredEventArgs(Path.Combine(CurrentLocation, FileName))).Wait();
+                                            break;
                                         }
-                                    }
-                                    else
-                                    {
-                                        CurrentCollection.Add(ModifiedItem);
-                                    }
+                                    case StateChangeType.Removed_Action:
+                                        {
+                                            FileChanged.InvokeAsync(this, new FileRemovedDeferredEventArgs(Path.Combine(CurrentLocation, FileName))).Wait();
+                                            break;
+                                        }
+                                    case StateChangeType.Modified_Action:
+                                        {
+                                            FileChanged.InvokeAsync(this, new FileModifiedDeferredEventArgs(Path.Combine(CurrentLocation, FileName))).Wait();
+                                            break;
+                                        }
+                                    case StateChangeType.Rename_Action_OldName:
+                                        {
+                                            OldPath = Path.Combine(CurrentLocation, FileName);
+                                            break;
+                                        }
+                                    case StateChangeType.Rename_Action_NewName:
+                                        {
+                                            FileChanged.InvokeAsync(this, new FileRenamedDeferredEventArgs(OldPath, FileName)).Wait();
+                                            break;
+                                        }
                                 }
+
+                                // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
+                                Offset = Marshal.ReadInt32(CurrentPointer);
                             }
+                            while (Offset != 0);
                         }
                     }
-                    finally
+                    else
                     {
-                        Locker.Release();
+                        break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
+                    LogTracer.Log(ex, "An exception was threw when watching the directory");
                 }
-            });
-        }
-
-        private async void Renamed(string OldPath, string NewPath)
-        {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                try
+                finally
                 {
-                    await Locker.WaitAsync();
-
-                    try
+                    if (BufferPtr != IntPtr.Zero)
                     {
-                        if (CurrentLocation == System.IO.Path.GetDirectoryName(NewPath))
-                        {
-                            if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
-                            {
-                                if (!SettingControl.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
-                                {
-                                    if ((Item is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
-                                    {
-                                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase) || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
-                                        {
-                                            CurrentCollection.Remove(ExistItem);
-                                        }
-
-                                        if (CurrentCollection.Any())
-                                        {
-                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
-
-                                            int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                            if (Index >= 0)
-                                            {
-                                                CurrentCollection.Insert(Index, Item);
-                                            }
-                                            else
-                                            {
-                                                CurrentCollection.Add(Item);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CurrentCollection.Add(Item);
-                                        }
-
-                                        if (Item is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                                        {
-                                            if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                            {
-                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
-                                                {
-                                                    await CurrentNode.UpdateAllSubNodeAsync();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Locker.Release();
+                        Marshal.FreeHGlobal(BufferPtr);
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Rename item to collection failed");
-                }
-            });
-        }
-
-        private async void Removed(string Path)
-        {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-            {
-                try
-                {
-                    await Locker.WaitAsync();
-
-                    try
-                    {
-                        if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
-                        {
-                            FileSystemStorageItemBase Item = CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase));
-
-                            if (Item != null)
-                            {
-                                CurrentCollection.Remove(Item);
-
-                                if (Item is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                                {
-                                    if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                    {
-                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
-                                        {
-                                            await CurrentNode.UpdateAllSubNodeAsync();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Locker.Release();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Remove item to collection failed");
-                }
-            });
-        }
-
-        private async void Added(string Path)
-        {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                try
-                {
-                    await Locker.WaitAsync();
-
-                    try
-                    {
-                        if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
-                        {
-                            if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase NewItem)
-                            {
-                                if (!SettingControl.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
-                                {
-                                    if ((NewItem is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || NewItem is not IHiddenStorageItem)
-                                    {
-                                        if (CurrentCollection.Any())
-                                        {
-                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
-
-                                            int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-
-                                            if (Index >= 0)
-                                            {
-                                                CurrentCollection.Insert(Index, NewItem);
-                                            }
-                                            else
-                                            {
-                                                CurrentCollection.Add(NewItem);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CurrentCollection.Add(NewItem);
-                                        }
-
-                                        if (NewItem is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                                        {
-                                            if (TreeView.RootNodes.FirstOrDefault((Node) => System.IO.Path.GetPathRoot(CurrentLocation).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
-                                            {
-                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
-                                                {
-                                                    await CurrentNode.UpdateAllSubNodeAsync();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Locker.Release();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Add item to collection failed");
-                }
-            });
+            }
         }
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
 
-            if (WatchPtr.CheckIfValidPtr())
-            {
-                WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
-            }
-
-            Locker.Dispose();
-            Locker = null;
-
-            CurrentCollection = null;
-            TreeView = null;
+            StopWatchDirectory();
             CurrentLocation = string.Empty;
         }
 
-        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItemBase> InitList)
+        public StorageAreaWatcher()
         {
-            CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
-        }
-
-        public void SetTreeView(TreeView TreeView)
-        {
-            this.TreeView = TreeView ?? throw new ArgumentNullException(nameof(TreeView), "Parameter could not be null");
+            WatcherPtr = IntPtr.Zero;
         }
 
         ~StorageAreaWatcher()

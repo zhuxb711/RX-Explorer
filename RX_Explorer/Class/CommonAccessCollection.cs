@@ -542,36 +542,6 @@ namespace RX_Explorer.Class
                         break;
                     }
             }
-        }
-
-        public sealed class DriveChangedDeferredEventArgs : DeferredEventArgs
-        {
-            public FileSystemStorageFolder StorageItem { get; }
-
-            public static async Task<DriveChangedDeferredEventArgs> CreateAsync(DriveDataBase Data)
-            {
-                return new DriveChangedDeferredEventArgs(await FileSystemStorageItemBase.CreateFromStorageItemAsync(Data.DriveFolder));
-            }
-
-            private DriveChangedDeferredEventArgs(FileSystemStorageFolder StorageItem)
-            {
-                this.StorageItem = StorageItem;
-            }
-        }
-
-        public sealed class LibraryChangedDeferredEventArgs : DeferredEventArgs
-        {
-            public FileSystemStorageFolder StorageItem { get; }
-
-            public static async Task<LibraryChangedDeferredEventArgs> CreateAsync(LibraryFolder Lib)
-            {
-                return new LibraryChangedDeferredEventArgs(await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder));
-            }
-
-            private LibraryChangedDeferredEventArgs(FileSystemStorageFolder StorageItem)
-            {
-                this.StorageItem = StorageItem;
-            }
-        }
+        } 
     }
 }

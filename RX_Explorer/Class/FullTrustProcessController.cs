@@ -107,6 +107,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_RemoveTopMostWindow = "Execute_RemoveTopMostWindow";
 
+        private const string ExecuteType_GetTooltipText = "Execute_GetTooltipText";
+
         public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
@@ -557,6 +559,61 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
+                return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<string> GetTooltipTextAsync(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetTooltipText},
+                        {"Path", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Tooltip))
+                        {
+                            return Convert.ToString(Tooltip);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetTooltipTextAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetTooltipTextAsync)}: Failed to connect AppService ");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetTooltipTextAsync)} throw an error");
                 return string.Empty;
             }
             finally
