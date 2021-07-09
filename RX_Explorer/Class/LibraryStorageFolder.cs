@@ -12,9 +12,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (WIN_Native_API.CheckLocationAvailability(Path))
+                if (Win32_Native_API.CheckLocationAvailability(Path))
                 {
-                    return new LibraryStorageFolder(LibType, Path, WIN_Native_API.GetStorageItemRawData(Path));
+                    return new LibraryStorageFolder(LibType, Path);
                 }
                 else
                 {
@@ -33,7 +33,14 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
+                if (Folder != null)
+                {
+                    return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception)
             {
@@ -62,7 +69,7 @@ namespace RX_Explorer.Class
             this.LibType = LibType;
         }
 
-        private LibraryStorageFolder(LibraryType LibType, string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        private LibraryStorageFolder(LibraryType LibType, string Path) : base(Win32_Native_API.GetStorageItemRawData(Path))
         {
             this.LibType = LibType;
         }

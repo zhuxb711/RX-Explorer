@@ -210,7 +210,7 @@ namespace RX_Explorer.Class
             return RawData != null;
         }
 
-        public LinkStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public LinkStorageFile(Win32_File_Data Data) : base(Data)
         {
             LinkType = ShellLinkType.Normal;
         }

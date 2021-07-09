@@ -111,22 +111,23 @@ namespace RX_Explorer.Class
 
         public FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
+            StorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
         }
 
-        public FileSystemStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public FileSystemStorageFolder(Win32_File_Data Data) : base(Data)
         {
 
         }
 
         public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (Win32_Native_API.CheckLocationAvailability(Path))
             {
                 return await Task.Run(() =>
                 {
-                    return WIN_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
+                    return Win32_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
                 });
             }
             else
@@ -160,11 +161,11 @@ namespace RX_Explorer.Class
 
         public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (Win32_Native_API.CheckLocationAvailability(Path))
             {
                 return await Task.Factory.StartNew(() =>
                 {
-                    return WIN_Native_API.CalulateSize(Path, CancelToken);
+                    return Win32_Native_API.CalulateSize(Path, CancelToken);
                 }, TaskCreationOptions.LongRunning);
             }
             else
@@ -227,11 +228,11 @@ namespace RX_Explorer.Class
 
         public virtual async Task<(uint, uint)> GetFolderAndFileNumAsync(CancellationToken CancelToken = default)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (Win32_Native_API.CheckLocationAvailability(Path))
             {
                 return await Task.Factory.StartNew(() =>
                 {
-                    return WIN_Native_API.CalculateFolderAndFileCount(Path, CancelToken);
+                    return Win32_Native_API.CalculateFolderAndFileCount(Path, CancelToken);
                 }, TaskCreationOptions.LongRunning);
             }
             else
@@ -283,9 +284,9 @@ namespace RX_Explorer.Class
                 throw new ArgumentException($"{nameof(IsRegexExpression)} and {nameof(IsAQSExpression)} could not be true at the same time");
             }
 
-            if (WIN_Native_API.CheckLocationAvailability(Path) && !IsAQSExpression)
+            if (Win32_Native_API.CheckLocationAvailability(Path) && !IsAQSExpression)
             {
-                return await Task.Factory.StartNew(() => WIN_Native_API.Search(Path,
+                return await Task.Factory.StartNew(() => Win32_Native_API.Search(Path,
                                                                                SearchWord,
                                                                                SearchInSubFolders,
                                                                                IncludeHiddenItem,
@@ -362,9 +363,9 @@ namespace RX_Explorer.Class
 
         public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (Win32_Native_API.CheckLocationAvailability(Path))
             {
-                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter, AdvanceFilter);
+                return Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter, AdvanceFilter);
             }
             else
             {

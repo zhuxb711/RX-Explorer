@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
                 case NamedPipeReadController:
                     {
                         PipeUniqueId = $"Read_{Guid.NewGuid():D}";
-                        SafePipeHandle Handle = WIN_Native_API.CreateHandleForNamedPipe($"Explorer_NamedPipe_{PipeUniqueId}", NamedPipeMode.Read);
+                        SafePipeHandle Handle = Win32_Native_API.CreateHandleForNamedPipe($"Explorer_NamedPipe_{PipeUniqueId}", NamedPipeMode.Read);
 
                         if (!Handle.IsInvalid && !Handle.IsClosed)
                         {
@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
                 case NamedPipeWriteController:
                     {
                         PipeUniqueId = $"Write_{Guid.NewGuid():D}";
-                        SafePipeHandle Handle = WIN_Native_API.CreateHandleForNamedPipe($"Explorer_NamedPipe_{PipeUniqueId}", NamedPipeMode.Write);
+                        SafePipeHandle Handle = Win32_Native_API.CreateHandleForNamedPipe($"Explorer_NamedPipe_{PipeUniqueId}", NamedPipeMode.Write);
 
                         if (!Handle.IsInvalid && !Handle.IsClosed)
                         {

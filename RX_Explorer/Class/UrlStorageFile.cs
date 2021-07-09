@@ -102,7 +102,7 @@ namespace RX_Explorer.Class
             return RawData != null;
         }
 
-        public UrlStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public UrlStorageFile(Win32_File_Data Data) : base(Data)
         {
 
         }

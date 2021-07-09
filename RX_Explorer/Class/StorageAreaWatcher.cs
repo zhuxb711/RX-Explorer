@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
 
                 CurrentLocation = Path;
 
-                WatcherPtr = WIN_Native_API.CreateDirectoryWatcher(Path);
+                WatcherPtr = Win32_Native_API.CreateDirectoryWatcher(Path);
 
                 if (WatcherPtr.CheckIfValidPtr())
                 {
@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
         {
             if (WatcherPtr.CheckIfValidPtr())
             {
-                WIN_Native_API.StopDirectoryWatcher(ref WatcherPtr);
+                Win32_Native_API.StopDirectoryWatcher(ref WatcherPtr);
             }
         }
 
@@ -70,15 +70,15 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (WIN_Native_API.ReadDirectoryChangesW(WatcherPtr,
+                    if (Win32_Native_API.ReadDirectoryChangesW(WatcherPtr,
                                                              BufferPtr,
                                                              4096,
                                                              false,
-                                                             WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_FILE_NAME
-                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_DIR_NAME
-                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_LAST_WRITE
-                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_SIZE
-                                                             | WIN_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_ATTRIBUTES,
+                                                             Win32_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_FILE_NAME
+                                                             | Win32_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_DIR_NAME
+                                                             | Win32_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_LAST_WRITE
+                                                             | Win32_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_SIZE
+                                                             | Win32_Native_API.FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_ATTRIBUTES,
                                                              out uint BytesReturned,
                                                              IntPtr.Zero,
                                                              IntPtr.Zero))

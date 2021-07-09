@@ -101,12 +101,13 @@ namespace RX_Explorer.Class
 
         public FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
+            StorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
             SizeRaw = Size;
         }
 
-        public FileSystemStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
         {
 
         }
@@ -115,7 +116,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (WIN_Native_API.CreateFileStreamFromExistingPath(Path, Mode) is FileStream Stream)
+                if (Win32_Native_API.CreateFileStreamFromExistingPath(Path, Mode) is FileStream Stream)
                 {
                     return Stream;
                 }

@@ -91,9 +91,9 @@ namespace RX_Explorer.Class
 
             foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
             {
-                if (WIN_Native_API.CheckLocationAvailability(Drive.Path) && !IsAQSExpression)
+                if (Win32_Native_API.CheckLocationAvailability(Drive.Path) && !IsAQSExpression)
                 {
-                    return await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path,
+                    return await Task.Factory.StartNew(() => Win32_Native_API.Search(Drive.Path,
                                                                                    SearchWord,
                                                                                    SearchInSubFolders,
                                                                                    IncludeHiddenItem,
@@ -171,7 +171,7 @@ namespace RX_Explorer.Class
             return new List<FileSystemStorageItemBase>(0);
         }
 
-        private RootStorageFolder() : base("RootFolderUniquePath", default)
+        private RootStorageFolder() : base(new Win32_File_Data("RootFolderUniquePath", default))
         {
 
         }

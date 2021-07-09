@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
@@ -148,7 +148,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {

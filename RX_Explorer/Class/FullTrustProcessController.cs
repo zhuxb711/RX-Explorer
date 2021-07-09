@@ -985,7 +985,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                return WIN_Native_API.GetStorageItemInBatch(SearchResult);
+                                return Win32_Native_API.GetStorageItemInBatch(SearchResult);
                             }
                         }
                         else
@@ -2355,13 +2355,9 @@ namespace RX_Explorer.Class
 
                                 foreach (Dictionary<string, string> PropertyDic in JsonList)
                                 {
-                                    WIN_Native_API.WIN32_FIND_DATA FData = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
-
                                     IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], FData)
-                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], FData);
-
-                                    Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
 
                                     RecycleItems.Add(Item);
                                 }
@@ -2413,13 +2409,9 @@ namespace RX_Explorer.Class
 
                                 foreach (Dictionary<string, string> PropertyDic in JsonList)
                                 {
-                                    WIN_Native_API.WIN32_FIND_DATA Data = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
-
                                     IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], Data)
-                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], Data);
-
-                                    Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
 
                                     RecycleItems.Add(Item);
                                 }

@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
 
                     if (await CheckIfNeedToUpdate())
                     {
-                        if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                         {
                             using (FileStream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
                             {
@@ -94,7 +94,7 @@ namespace RX_Explorer.Class
                         return null;
                     }
 
-                    if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                     {
                         using (Stream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
                         {
@@ -108,7 +108,7 @@ namespace RX_Explorer.Class
                                 await ResponseStream.CopyToAsync(TempFileStream);
                             }
 
-                            if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg"), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile BingDailyPictureFile)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg"), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile BingDailyPictureFile)
                             {
                                 using (StorageStreamTransaction Transaction = await BingDailyPictureFile.GetTransactionStreamFromFileAsync())
                                 {

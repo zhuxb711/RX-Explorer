@@ -2384,7 +2384,7 @@ namespace RX_Explorer
                                 {
                                     string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
 
-                                    if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                    if (await FileSystemStorageItemBase.CreateNewAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                     {
                                         if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                         {
@@ -2635,7 +2635,7 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
                     FileSystemStorageItemBase TargetItem = null;
 
@@ -3379,7 +3379,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
                                 {
                                     NewFile = File;
                                 }
@@ -4878,7 +4878,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
 
                         if (TargetFolder == null)
                         {

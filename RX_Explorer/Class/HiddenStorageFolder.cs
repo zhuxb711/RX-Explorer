@@ -68,7 +68,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public HiddenStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public HiddenStorageFolder(Win32_File_Data Data) : base(Data)
         {
             base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }

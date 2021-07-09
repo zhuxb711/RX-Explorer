@@ -331,7 +331,7 @@ namespace RX_Explorer
 
             if (SecureAreaFolderPath.Equals(DefaultSecureAreaFolderPath, StringComparison.OrdinalIgnoreCase))
             {
-                SItem = await FileSystemStorageItemBase.CreateAsync(SecureAreaFolderPath, StorageItemTypes.Folder, CreateOption.OpenIfExist);
+                SItem = await FileSystemStorageItemBase.CreateNewAsync(SecureAreaFolderPath, StorageItemTypes.Folder, CreateOption.OpenIfExist);
             }
             else
             {
@@ -404,7 +404,7 @@ namespace RX_Explorer
                     {
                         string EncryptedFilePath = Path.Combine(SecureFolder.Path, $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle");
 
-                        if (await FileSystemStorageItemBase.CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                         {
                             using (FileStream OriginFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
                             using (FileStream EncryptFStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
@@ -640,7 +640,7 @@ namespace RX_Explorer
                     {
                         string DecryptedFilePath = Path.Combine(Folder.Path, Path.GetRandomFileName());
 
-                        if (await FileSystemStorageItemBase.CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                         {
                             using (FileStream EncryptedFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
                             using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))

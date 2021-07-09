@@ -168,9 +168,9 @@ namespace RX_Explorer.Class
         {
             if (!string.IsNullOrEmpty(Path) && System.IO.Path.IsPathRooted(Path))
             {
-                if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
+                if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
                 {
-                    return WIN_Native_API.CheckExist(Path);
+                    return Win32_Native_API.CheckExist(Path);
                 }
                 else
                 {
@@ -212,9 +212,9 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
+            if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
             {
-                return WIN_Native_API.GetStorageItem(Path);
+                return Win32_Native_API.GetStorageItem(Path);
             }
             else
             {
@@ -259,13 +259,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FileSystemStorageItemBase> CreateAsync(string Path, StorageItemTypes ItemTypes, CreateOption Option)
+        public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, StorageItemTypes ItemTypes, CreateOption Option)
         {
             switch (ItemTypes)
             {
                 case StorageItemTypes.File:
                     {
-                        if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                        if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
                         {
                             return await OpenAsync(NewPath);
                         }
@@ -309,7 +309,7 @@ namespace RX_Explorer.Class
                     }
                 case StorageItemTypes.Folder:
                     {
-                        if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                        if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                         {
                             return await OpenAsync(NewPath);
                         }
@@ -363,23 +363,14 @@ namespace RX_Explorer.Class
             this.Path = Path;
         }
 
-        protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data)
+        protected FileSystemStorageItemBase(Win32_File_Data Data)
         {
-            this.Path = Path;
-
-            if (Data != default)
-            {
-                IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
-                IsSystemItem = IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.System);
-
-                SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-
-                WIN_Native_API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out WIN_Native_API.SYSTEMTIME ModTime);
-                ModifiedTimeRaw = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
-
-                WIN_Native_API.FileTimeToSystemTime(ref Data.ftCreationTime, out WIN_Native_API.SYSTEMTIME CreTime);
-                CreationTimeRaw = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
-            }
+            Path = Data.Path;
+            IsReadOnly = Data.IsReadOnly;
+            IsSystemItem = Data.IsSystemItem;
+            SizeRaw = Data.Size;
+            ModifiedTimeRaw = Data.ModifiedTime;
+            CreationTimeRaw = Data.CreationTime;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
@@ -840,7 +831,7 @@ namespace RX_Explorer.Class
             return File.StorageItem as StorageFolder;
         }
 
-        public sealed class SpecialPath
+        public static class SpecialPath
         {
             public static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>
             {

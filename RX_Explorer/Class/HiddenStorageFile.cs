@@ -76,7 +76,7 @@ namespace RX_Explorer.Class
             return await Controller.GetHiddenItemDataAsync(Path);
         }
 
-        public HiddenStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        public HiddenStorageFile(Win32_File_Data Data) : base(Data)
         {
             base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }
