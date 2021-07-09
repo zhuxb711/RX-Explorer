@@ -319,7 +319,7 @@
     <Compile Include="Class\Globalization.cs" />
     <Compile Include="Class\DriveDataBase.cs" />
     <Compile Include="Class\KeyGenerator.cs" />
-    <Compile Include="Class\LibraryFolder.cs" />
+    <Compile Include="Class\LibraryStorageFolder.cs" />
     <Compile Include="Class\ObexServiceProvider.cs" />
     <Compile Include="Class\PathAnalysis.cs" />
     <Compile Include="Class\PhotoDisplaySupport.cs" />

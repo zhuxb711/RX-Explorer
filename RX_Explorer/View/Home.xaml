@@ -257,7 +257,7 @@
                               ContainerContentChanging="LibraryGrid_ContainerContentChanging"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="Cls:LibraryFolder">
+                            <DataTemplate x:DataType="Cls:LibraryStorageFolder">
                                 <Grid Padding="5"
                                       Width="250">
                                     <Grid.ColumnDefinitions>

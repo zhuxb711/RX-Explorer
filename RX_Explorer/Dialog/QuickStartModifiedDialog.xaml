@@ -52,7 +52,7 @@
         </controls:TeachingTip>
         <controls:TeachingTip x:Name="UWPPickerTip"
                               IsLightDismissEnabled="True"
-                              PreferredPlacement="Bottom"
+                              PreferredPlacement="Top"
                               Title="选取UWP应用"
                               ActionButtonContent="确定"
                               CloseButtonContent="取消"

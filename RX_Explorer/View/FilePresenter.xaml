@@ -49,6 +49,7 @@
                 <TextBlock x:Name="TooltipFlyoutText" 
                            TextTrimming="CharacterEllipsis"
                            TextWrapping="Wrap"
+                           IsTextSelectionEnabled="True"
                            MaxWidth="400"/>
             </StackPanel>
         </Flyout>

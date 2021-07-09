@@ -200,7 +200,7 @@ namespace RX_Explorer
                                                     {
                                                         await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
                                                     }
-                                                    else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Path))
+                                                    else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
                                                     {
                                                         await Exclusive.Controller.ViewWithQuicklookAsync(Library.Path);
                                                     }
@@ -234,7 +234,7 @@ namespace RX_Explorer
                                                     }
                                                 }
                                             }
-                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                             {
                                                 args.Handled = true;
 
@@ -282,7 +282,7 @@ namespace RX_Explorer
                                                     await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]> { new string[] { Drive.Path } }))}"));
                                                 }
                                             }
-                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                             {
                                                 args.Handled = true;
 
@@ -327,7 +327,7 @@ namespace RX_Explorer
                                                     await CreateNewTabAsync(Drive.Path);
                                                 }
                                             }
-                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                             {
                                                 args.Handled = true;
 
@@ -369,10 +369,10 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    await HomeControl.OpenTargetFolder(Drive.DriveFolder);
+                                                    await HomeControl.OpenTargetFolder(Drive.Path);
                                                 }
                                             }
-                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                            else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library)
                                             {
                                                 args.Handled = true;
 
@@ -389,7 +389,7 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    await HomeControl.OpenTargetFolder(Library.LibFolder);
+                                                    await HomeControl.OpenTargetFolder(Library.Path);
                                                 }
                                             }
 

@@ -155,7 +155,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task RemoveItem(JumpListGroup Group, params StorageFolder[] FolderList)
+        public Task RemoveItemAsync(JumpListGroup Group, params StorageFolder[] FolderList)
         {
             return RemoveItemAsync(Group, FolderList.Select((Item) => Item.Path).ToArray());
         }

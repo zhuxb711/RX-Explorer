@@ -110,9 +110,9 @@ namespace RX_Explorer
 
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
-                    if (e.Item is LibraryFolder Item)
+                    if (e.Item is LibraryStorageFolder Item)
                     {
-                        await Item.LoadThumbnailAsync().ConfigureAwait(false);
+                        await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
             }
@@ -124,7 +124,7 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
                 {
-                    if (Item is LibraryFolder)
+                    if (Item is LibraryStorageFolder)
                     {
                         LibraryGrid.SelectedItem = Item;
                         DriveGrid.SelectedIndex = -1;
@@ -207,22 +207,17 @@ namespace RX_Explorer
                 case WslDriveData:
                 case NormalDriveData:
                     {
-                        await OpenTargetFolder(Drive.DriveFolder).ConfigureAwait(false);
+                        await OpenTargetFolder(Drive.Path);
                         break;
                     }
             }
         }
 
-        public async Task OpenTargetFolder(StorageFolder Folder)
+        public async Task OpenTargetFolder(string Path)
         {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
-            }
-
             try
             {
-                if (string.IsNullOrEmpty(Folder.Path))
+                if (string.IsNullOrWhiteSpace(Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -235,7 +230,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    EnterActionRequested?.Invoke(this, Folder.Path);
+                    EnterActionRequested?.Invoke(this, Path);
                 }
             }
             catch (Exception ex)
@@ -258,9 +253,9 @@ namespace RX_Explorer
         {
             DriveGrid.SelectedIndex = -1;
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.LibFolder);
+                await OpenTargetFolder(Library.Path);
             }
         }
 
@@ -344,10 +339,10 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryFolder>().Select((Lib) => Lib.Path).ToArray());
+                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
                 }
                 else
                 {
@@ -366,9 +361,9 @@ namespace RX_Explorer
 
             DriveGrid.SelectedIndex = -1;
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.LibFolder);
+                await OpenTargetFolder(Library.Path);
             }
         }
 
@@ -376,11 +371,11 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
                 CommonAccessCollection.LibraryFolderList.Remove(Library);
                 SQLite.Current.DeleteLibrary(Library.Path);
-                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.LibFolder);
+                await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, Library.Path);
             }
         }
 
@@ -388,29 +383,24 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
-                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Library.LibFolder);
+                await Library.LoadAsync();
 
-                if (Folder != null)
-                {
-                    await Folder.LoadAsync();
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                    NewWindow.RequestSize(new Size(420, 600));
-                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                    NewWindow.PersistedStateId = "Properties";
-                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Library));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Folder));
-                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                    await NewWindow.TryShowAsync();
-                }
+                await NewWindow.TryShowAsync();
             }
         }
 
@@ -433,9 +423,9 @@ namespace RX_Explorer
         {
             DriveGrid.SelectedIndex = -1;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.LibFolder).ConfigureAwait(false);
+                await OpenTargetFolder(Library.Path);
             }
         }
 
@@ -501,10 +491,10 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryFolder>().Select((Lib) => Lib.Path).ToArray());
+                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
                 }
                 else
                 {
@@ -646,9 +636,9 @@ namespace RX_Explorer
         {
             SQLite.Current.ClearTable("Library");
 
-            foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
+            foreach (LibraryStorageFolder Item in CommonAccessCollection.LibraryFolderList)
             {
-                SQLite.Current.SetLibraryPath(Item.Type, Item.Path);
+                SQLite.Current.SetLibraryPath(Item.LibType, Item.Path);
             }
         }
 
@@ -678,7 +668,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(LibraryType.UserCustom, Folder));
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }
@@ -719,14 +709,9 @@ namespace RX_Explorer
 
                     List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
 
-                    foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
+                    foreach (LibraryStorageFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>())
                     {
-                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
-
-                        if (Folder != null)
-                        {
-                            TransformList.Add(Folder);
-                        }
+                        TransformList.Add(Lib);
                     }
 
                     Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Copy));
@@ -757,14 +742,9 @@ namespace RX_Explorer
 
                     List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
 
-                    foreach (LibraryFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryFolder>())
+                    foreach (LibraryStorageFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>())
                     {
-                        FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Lib.LibFolder);
-
-                        if (Folder != null)
-                        {
-                            TransformList.Add(Folder);
-                        }
+                        TransformList.Add(Lib);
                     }
 
                     Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Move));
@@ -787,7 +767,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
                 await TabViewContainer.ThisPage.CreateNewTabAsync(Lib.Path);
             }
@@ -797,7 +777,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
                 string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
                 {
@@ -812,7 +792,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (LibraryGrid.SelectedItem is LibraryFolder Lib)
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
                 await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Lib.Path);
             }
@@ -877,7 +857,7 @@ namespace RX_Explorer
 
             if (sender is MenuFlyoutItemWithImage Item)
             {
-                if (LibraryGrid.SelectedItem is LibraryFolder SItem)
+                if (LibraryGrid.SelectedItem is LibraryStorageFolder SItem)
                 {
                     switch (Item.Name)
                     {

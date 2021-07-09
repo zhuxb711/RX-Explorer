@@ -656,39 +656,36 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder);
+                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
 
-                        if (DeviceFolder != null)
+                        if (DriveData.DriveType == DriveType.Network)
                         {
-                            if (DriveData.DriveType == DriveType.Network)
+                            await Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
                             {
-                                await Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
-                                {
-                                    TreeViewNode RootNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = task.Result
-                                    };
-
-                                    FolderTree.RootNodes.Add(RootNode);
-                                    FolderTree.UpdateLayout();
-                                }, TaskScheduler.FromCurrentSynchronizationContext());
-                            }
-                            else
-                            {
-                                bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(DriveData.DriveFolder),
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
+                                    HasUnrealizedChildren = task.Result
                                 };
 
                                 FolderTree.RootNodes.Add(RootNode);
                                 FolderTree.UpdateLayout();
-                            }
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
+                        else
+                        {
+                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+
+                            FolderTree.RootNodes.Add(RootNode);
+                            FolderTree.UpdateLayout();
                         }
                     }
                 }
@@ -753,15 +750,26 @@ namespace RX_Explorer
             {
                 for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
                 {
-                    StorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i].LibFolder;
+                    LibraryStorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i];
 
-                    if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(LibFolder) is FileSystemStorageFolder LibObject)
+                    if (await LibFolder.GetStorageItemAsync() is StorageFolder Folder)
                     {
                         TreeViewNode LibNode = new TreeViewNode
                         {
-                            Content = new TreeViewNodeContent(LibFolder),
+                            Content = new TreeViewNodeContent(Folder),
                             IsExpanded = false,
-                            HasUnrealizedChildren = await LibObject.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                            HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                        };
+
+                        args.Node.Children.Add(LibNode);
+                    }
+                    else
+                    {
+                        TreeViewNode LibNode = new TreeViewNode
+                        {
+                            Content = new TreeViewNodeContent(LibFolder.Path),
+                            IsExpanded = false,
+                            HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
                         };
 
                         args.Node.Children.Add(LibNode);
@@ -2998,7 +3006,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(LibraryType.UserCustom, Folder));
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
 
                     if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                     {
@@ -3223,7 +3231,7 @@ namespace RX_Explorer
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryFolder TargetLib)
+                if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryStorageFolder TargetLib)
                 {
                     CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
 
@@ -3233,7 +3241,7 @@ namespace RX_Explorer
                     }
 
                     SQLite.Current.DeleteLibrary(Content.Path);
-                    await JumpListController.Current.RemoveItem(JumpListGroup.Library, TargetLib.LibFolder);
+                    await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }
             }
         }

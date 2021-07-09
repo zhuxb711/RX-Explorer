@@ -146,12 +146,12 @@ namespace RX_Explorer.Class
                                     {
                                         case StorageFolder SubFolder:
                                             {
-                                                Result.Add(await CreateFromStorageItemAsync(SubFolder));
+                                                Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
                                                 break;
                                             }
                                         case StorageFile SubFile:
                                             {
-                                                Result.Add(await CreateFromStorageItemAsync(SubFile));
+                                                Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetModifiedTimeAsync(), await SubFile.GetSizeRawDataAsync()));
                                                 break;
                                             }
                                     }

@@ -3856,10 +3856,10 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDoubleClickEnable
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
+                    && !Container.BlockKeyboardShortCutInput
                     && !SelectedItems.Contains(Item)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
-                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift)
-                    && !Container.BlockKeyboardShortCutInput)
+                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
                     DelaySelectionCancel?.Cancel();
                     DelaySelectionCancel?.Dispose();
@@ -3883,12 +3883,15 @@ namespace RX_Explorer
                     {
                         if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
+                            TooltipFlyout.Hide();
+
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
                                 TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
                                 if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
                                     && !Cancel.IsCancellationRequested
+                                    && !Container.BlockKeyboardShortCutInput
                                     && !FileFlyout.IsOpen
                                     && !FolderFlyout.IsOpen
                                     && !EmptyFlyout.IsOpen

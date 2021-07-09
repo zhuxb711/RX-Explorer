@@ -101,7 +101,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
+        protected override bool IsThumbnailOverlayNeeded
+        {
+            get
+            {
+                return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
+            }
+        }
+
+        public FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
@@ -335,7 +343,7 @@ namespace RX_Explorer.Class
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            Result.Add(await CreateFromStorageItemAsync(SubFile));
+                                            Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetModifiedTimeAsync(), await SubFile.GetSizeRawDataAsync()));
                                             break;
                                         }
                                 }
@@ -402,7 +410,7 @@ namespace RX_Explorer.Class
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(await CreateFromStorageItemAsync(SubFile));
+                                        Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetModifiedTimeAsync(), await SubFile.GetSizeRawDataAsync()));
                                     }
                                 }
                             }
@@ -459,11 +467,6 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
                 return null;
             }
-        }
-
-        protected override bool CheckIfNeedLoadThumbnailOverlay()
-        {
-            return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
         }
 
         protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)

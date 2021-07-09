@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
     public static class CommonAccessCollection
     {
         public static ObservableCollection<DriveDataBase> DriveList { get; } = new ObservableCollection<DriveDataBase>();
-        public static ObservableCollection<LibraryFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryFolder>();
+        public static ObservableCollection<LibraryStorageFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryStorageFolder>();
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
         public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
 
@@ -241,19 +241,20 @@ namespace RX_Explorer.Class
 
                         foreach ((string, LibraryType) Library in SQLite.Current.GetLibraryPath())
                         {
-                            try
+                            LibraryStorageFolder Lib = await LibraryStorageFolder.CreateAsync(Library.Item2, Library.Item1);
+
+                            if (Lib != null)
                             {
-                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
-                                LibraryFolderList.Add(new LibraryFolder(Library.Item2, Folder));
+                                LibraryFolderList.Add(Lib);
                             }
-                            catch (Exception)
+                            else
                             {
                                 ErrorList.Enqueue(Library.Item1);
                                 SQLite.Current.DeleteLibrary(Library.Item1);
                             }
                         }
 
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.LibType == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
 
                         if (ErrorList.Count > 0)
                         {
@@ -521,9 +522,9 @@ namespace RX_Explorer.Class
                     {
                         if (DriveAdded != null)
                         {
-                            foreach (LibraryFolder Lib in e.NewItems)
+                            foreach (LibraryStorageFolder Lib in e.NewItems)
                             {
-                                await LibraryAdded.InvokeAsync(null, await LibraryChangedDeferredEventArgs.CreateAsync(Lib));
+                                await LibraryAdded.InvokeAsync(null, new LibraryChangedDeferredEventArgs(Lib));
                             }
                         }
 
@@ -533,15 +534,15 @@ namespace RX_Explorer.Class
                     {
                         if (DriveRemoved != null)
                         {
-                            foreach (LibraryFolder Lib in e.OldItems)
+                            foreach (LibraryStorageFolder Lib in e.OldItems)
                             {
-                                await LibraryRemoved.InvokeAsync(null, await LibraryChangedDeferredEventArgs.CreateAsync(Lib));
+                                await LibraryRemoved.InvokeAsync(null, new LibraryChangedDeferredEventArgs(Lib));
                             }
                         }
 
                         break;
                     }
             }
-        } 
+        }
     }
 }

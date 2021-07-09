@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -16,7 +15,6 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using ColorHelper = Microsoft.Toolkit.Uwp.Helpers.ColorHelper;
 
 namespace RX_Explorer.Class
 {
@@ -152,7 +150,9 @@ namespace RX_Explorer.Class
 
         protected abstract bool IsFullTrustProcessNeeded { get; }
 
-        private ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
+        protected abstract bool IsThumbnailOverlayNeeded { get; }
+
+        protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
@@ -210,58 +210,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<FileSystemStorageFolder> CreateFromStorageItemAsync(StorageFolder Folder)
-        {
-            try
-            {
-                if (Folder != null)
-                {
-                    foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                    {
-                        ParameterInfo[] Parameters = Info.GetParameters();
-
-                        if (Parameters[0].ParameterType == typeof(StorageFolder))
-                        {
-                            return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
-                        }
-                    }
-                }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CreateFromStorageItemAsync)} threw an exception");
-                return null;
-            }
-        }
-
-        public static async Task<FileSystemStorageFile> CreateFromStorageItemAsync(StorageFile File)
-        {
-            try
-            {
-                if (File != null)
-                {
-                    foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                    {
-                        ParameterInfo[] Parameters = Info.GetParameters();
-
-                        if (Parameters[0].ParameterType == typeof(StorageFile))
-                        {
-                            return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
-                        }
-                    }
-                }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CreateFromStorageItemAsync)} threw an exception");
-                return null;
-            }
-        }
-
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
             if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
@@ -279,7 +227,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return await CreateFromStorageItemAsync(Folder);
+                        return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync());
                     }
                     else
                     {
@@ -289,11 +237,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return await CreateFromStorageItemAsync(Folder);
+                                    return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync());
                                 }
                             case StorageFile File:
                                 {
-                                    return await CreateFromStorageItemAsync(File);
+                                    return new FileSystemStorageFile(File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync());
                                 }
                             default:
                                 {
@@ -334,17 +282,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateFromStorageItemAsync(NewFile);
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     default:
                                         {
@@ -378,17 +326,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await CreateFromStorageItemAsync(NewFolder);
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     default:
                                         {
@@ -476,7 +424,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task LoadAsync()
+        public virtual async Task LoadAsync()
         {
             if (CheckIfPropertiesLoaded())
             {
@@ -517,7 +465,7 @@ namespace RX_Explorer.Class
                                     await LoadThumbnailAsync(ThumbnailMode);
                                 }
 
-                                if (CheckIfNeedLoadThumbnailOverlay())
+                                if (IsThumbnailOverlayNeeded)
                                 {
                                     await LoadThumbnailOverlayAsync(Exclusive.Controller);
                                 }
@@ -531,7 +479,7 @@ namespace RX_Explorer.Class
                                 await LoadThumbnailAsync(ThumbnailMode);
                             }
 
-                            if (CheckIfNeedLoadThumbnailOverlay())
+                            if (IsThumbnailOverlayNeeded)
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
@@ -701,8 +649,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        protected abstract bool CheckIfNeedLoadThumbnailOverlay();
 
         //Use this overload if subclass has no need for FullTrustProcessController.
         //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture false.

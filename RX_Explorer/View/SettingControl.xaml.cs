@@ -1822,30 +1822,27 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
-                                FileSystemStorageFolder Folder = await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveFolder);
+                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync());
 
-                                if (Folder != null)
+                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                                TreeViewNode RootNode = new TreeViewNode
                                 {
-                                    bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                    Content = new TreeViewNodeContent(DriveFolder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
 
-                                    TreeViewNode RootNode = new TreeViewNode
+                                Control.FolderTree.RootNodes.Add(RootNode);
+
+                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
+                                {
+                                    if (HasAnyFolder)
                                     {
-                                        Content = new TreeViewNodeContent(DriveFolder),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = HasAnyFolder
-                                    };
-
-                                    Control.FolderTree.RootNodes.Add(RootNode);
-
-                                    if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
-                                    {
-                                        if (HasAnyFolder)
-                                        {
-                                            RootNode.IsExpanded = true;
-                                        }
-
-                                        Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                                        RootNode.IsExpanded = true;
                                     }
+
+                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                                 }
                             }
                         }

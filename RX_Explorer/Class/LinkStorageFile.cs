@@ -89,6 +89,14 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override bool IsThumbnailOverlayNeeded
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public async Task LaunchAsync()
         {
             try
@@ -200,11 +208,6 @@ namespace RX_Explorer.Class
         protected override bool CheckIfPropertiesLoaded()
         {
             return RawData != null;
-        }
-
-        protected override bool CheckIfNeedLoadThumbnailOverlay()
-        {
-            return true;
         }
 
         public LinkStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)

@@ -90,7 +90,16 @@ namespace RX_Explorer.Class
                 return false;
             }
         }
-        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
+
+        protected override bool IsThumbnailOverlayNeeded
+        {
+            get
+            {
+                return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
+            }
+        }
+
+        public FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
@@ -188,11 +197,6 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
                 return null;
             }
-        }
-
-        protected override bool CheckIfNeedLoadThumbnailOverlay()
-        {
-            return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
         }
 
         protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
