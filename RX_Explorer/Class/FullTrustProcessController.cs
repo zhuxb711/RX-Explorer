@@ -471,7 +471,10 @@ namespace RX_Explorer.Class
                     if (PipeReadController != null && PipeWriteController != null)
                     {
                         Value.Add("PipeWriteId", PipeWriteController.PipeUniqueId);
-                        Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
+                        if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                        {
+                            Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
+                        }
                     }
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -2537,7 +2540,10 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    }
 
                     ValueSet Value = new ValueSet
                     {
@@ -2548,7 +2554,10 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value).AsTask();
 
-                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2650,7 +2659,10 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    }
 
                     ValueSet Value = new ValueSet
                     {
@@ -2662,7 +2674,10 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -2819,7 +2834,10 @@ namespace RX_Explorer.Class
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
                     }
 
-                    PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    }
 
                     ValueSet Value = new ValueSet
                     {
@@ -2831,7 +2849,10 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {

@@ -1,4 +1,51 @@
 ﻿*****
+###Quoi de neuf dans la version 6.8.1.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de nouvelles options de recherche
+
+>>#####"Utiliser la syntaxe de requête avancée (AQS)" permet aux utilisateurs d'effectuer des recherches complexes
+
+>>#####"Seul l'option de recherche par index" peut accélérer la vitesse de recherche des utilisateurs qui utilisent l'index
+
+>#####La page de recherche prend désormais en charge Quicklook
+
+>#####La page de recherche prend désormais en charge la fonction de sauter au fichier correspondant en appuyant sur la première lettre
+
+>#####Suppression de la prise en charge de l'architecture X86 et conservation uniquement de l'architecture X64 et de l'architecture ARM
+
+>#####Ajout de nouvelles touches de raccourci, vous pouvez maintenant utiliser Ctrl+PageUp et Ctrl+PageDown pour changer d'onglet
+
+>#####Un aperçu du texte sera affiché lorsque la souris survolant le fichier dépasse 1200ms
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La page de recherche affichera désormais le nombre de résultats de recherche
+
+>#####Ajout d'un guide de syntaxe de requête avancée (AQS) sur la page des paramètres
+
+#####Amélioration des performances
+
+>#####Amélioration des performances de chargement des "Bibliothèques"
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le bouton « Examiner cette application » dans la page des paramètres ne fonctionne pas lorsqu'il est enfoncé
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de l'ouverture de la fenêtre Propriétés
+
+>#####Correction du problème selon lequel le regroupement ne sera pas automatiquement modifié si certaines propriétés du fichier sont modifiées afin qu'il ne réponde pas aux exigences du regroupement actuel en mode regroupement
+
+>#####Correction du problème selon lequel le fichier peut toujours être affiché après la suppression d'un fichier en mode groupe
+
+>#####Correction du problème selon lequel le fichier pouvait être mal groupé après avoir collé le fichier en mode groupe
+
+>#####Correction du problème selon lequel les « fichiers système » ne peuvent pas être filtrés dans certaines circonstances
+
+>#####Correction du problème selon lequel l'indicateur de quantité dans le groupe ne se mettait pas à jour après la suppression ou l'ajout de fichiers en mode groupe
+
+*****
 ###Quoi de neuf dans la version 6.7.8.0
 
 #####Mise à jour des fonctionnalités

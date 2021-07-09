@@ -1,4 +1,51 @@
 ﻿*****
+###Novedades de la versión 6.8.1.0
+
+#####Actualización de funciones
+
+>#####Añadidas nuevas opciones de búsqueda
+
+>>#####La opción "Usar sintaxis de consulta avanzada (AQS)" permite a los usuarios realizar búsquedas complejas
+
+>>#####La opción "Buscar solo por índice" puede acelerar la velocidad de búsqueda de los usuarios que utilizan el índice.
+
+>#####La página de búsqueda ahora es compatible con Quicklook
+
+>#####La página de búsqueda ahora admite la función de saltar al archivo correspondiente presionando la primera letra
+
+>#####Se eliminó el soporte para la arquitectura X86 y solo se retuvo la arquitectura X64 y la arquitectura ARM
+
+>#####Se agregaron nuevas teclas de acceso directo, ahora puede usar Ctrl + PageUp y Ctrl + PageDown para cambiar de pestaña
+
+>#####Se mostrará una descripción general del texto cuando el mouse sobre el archivo supere los 1200ms
+
+##### actualización de la interfaz de usuario
+
+>#####La página de búsqueda ahora mostrará el número de resultados de búsqueda
+
+>#####Se agregó la guía de sintaxis de consulta avanzada (AQS) en la página de configuración
+
+#####Mejora del rendimiento
+
+>#####Se mejoró el rendimiento de la carga de "Bibliotecas"
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el botón "Revisar esta aplicación" en la página de configuración no funciona cuando se presiona
+
+>#####Se solucionó un problema que podía causar un bloqueo al abrir la ventana Propiedades
+
+>#####Se solucionó el problema de que la agrupación no se cambiará automáticamente si se cambian algunas propiedades del archivo para que no cumpla con los requisitos de la agrupación actual en el modo de agrupación
+
+>#####Se solucionó el problema de que el archivo aún se mostrara después de eliminar un archivo en el modo de grupo
+
+>#####Se solucionó el problema de que el archivo se podía agrupar incorrectamente después de pegar el archivo en modo de grupo
+
+>#####Se solucionó el problema de que los "archivos del sistema" no se pueden filtrar en determinadas circunstancias
+
+>#####Se solucionó el problema de que el indicador de cantidad en el grupo no se actualizaba después de eliminar o agregar archivos en el modo de grupo
+
+*****
 ###Novedades de la versión 6.7.8.0
 
 #####Actualización de funciones

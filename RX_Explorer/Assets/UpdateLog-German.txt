@@ -1,4 +1,51 @@
 ﻿*****
+###Was ist neu in Ver.6.8.1.0
+
+#####Funktionsupdate
+
+>#####Neue Suchoptionen hinzugefügt
+
+>>#####Die Option "Erweiterte Abfragesyntax (AQS) verwenden" ermöglicht Benutzern die Durchführung komplexer Suchen
+
+>>#####Die Option "Nur nach Index suchen" kann die Suchgeschwindigkeit von Benutzern beschleunigen, die den Index verwenden
+
+>#####Suchseite unterstützt jetzt Quicklook
+
+>#####Suchseite unterstützt jetzt die Funktion, durch Drücken des ersten Buchstabens zur entsprechenden Datei zu springen
+
+>#####Unterstützung für X86-Architektur entfernt und nur X64-Architektur und ARM-Architektur beibehalten
+
+>#####Neue Tastenkombinationen hinzugefügt, jetzt können Sie mit Strg+Bildauf und Strg+Bildabwärts zwischen den Tabs wechseln
+
+>#####Eine Textübersicht wird angezeigt, wenn der Mauszeiger über der Datei 1200ms überschreitet
+
+#####UI-Update
+
+>#####Suchseite zeigt jetzt die Anzahl der Suchergebnisse an
+
+>#####Leitfaden zur erweiterten Abfragesyntax (AQS) auf der Einstellungsseite hinzugefügt
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Leistung beim Laden von "Bibliotheken"
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass die Schaltfläche "Diese App überprüfen" auf der Einstellungsseite nicht funktioniert, wenn sie gedrückt wird
+
+>#####Es wurde ein Problem behoben, das beim Öffnen des Eigenschaftenfensters zu einem Absturz führen konnte
+
+>#####Problem behoben, dass die Gruppierung nicht automatisch geändert wird, wenn einige Eigenschaften der Datei so geändert werden, dass sie im Gruppierungsmodus nicht den Anforderungen der aktuellen Gruppierung entspricht
+
+>#####Problem behoben, dass die Datei nach dem Löschen einer Datei im Gruppenmodus möglicherweise noch angezeigt wird
+
+>#####Das Problem wurde behoben, dass die Datei nach dem Einfügen der Datei im Gruppenmodus möglicherweise falsch gruppiert wurde
+
+>#####Problem behoben, dass "Systemdateien" unter Umständen nicht gefiltert werden können
+
+>#####Problem behoben, dass die Mengenanzeige in der Gruppe nach dem Löschen oder Hinzufügen von Dateien im Gruppenmodus nicht aktualisiert wurde update
+
+*****
 ###Was ist neu in Ver.6.7.8.0
 
 #####Funktionsupdate

@@ -1,4 +1,51 @@
 ﻿*****
+###What's new in Ver.6.8.1.0
+
+#####Feature update
+
+>#####Added new search options
+
+>>#####"Use Advanced Query Syntax (AQS)" option allows users to perform complex searches
+
+>>#####"Only search by index" option can speed up the search speed of users who use the index
+
+>#####Search page now supports Quicklook
+
+>#####Search page now supports the function of jumping to the corresponding file by pressing the first letter
+
+>#####Removed support for X86 architecture and only retained X64 architecture and ARM architecture
+
+>#####Added new shortcut keys, now you can use Ctrl+PageUp and Ctrl+PageDown to switch tabs
+
+>#####A text overview will be displayed when the mouse hovering over the file exceeds 1200ms
+
+#####UI update
+
+>#####Search page will now display the number of search results
+
+>#####Added Advanced Query Syntax (AQS) Guide on Settings Page
+
+#####Performance improvement
+
+>#####Improved the performance of loading "Libraries"
+
+#####Bug fix
+
+>#####Fixed the problem that the "Review this app" button in the settings page does not work when pressed
+
+>#####Fixed a problem that may cause a crash when opening the Properties window
+
+>#####Fixed the problem that the grouping will not be automatically changed if some properties of the file are changed so that it does not meet the requirements of the current grouping when in grouping mode
+
+>#####Fixed the problem that the file may still be displayed after deleting a file in group mode
+
+>#####Fixed the problem that the file may be grouped incorrectly after pasting the file in group mode
+
+>#####Fixed the problem that "System files" cannot be filtered under certain circumstances
+
+>#####Fixed the problem that the quantity indicator in the group would not update after deleting or adding files in group mode
+
+*****
 ###What's new in Ver.6.7.8.0
 
 #####Feature update
