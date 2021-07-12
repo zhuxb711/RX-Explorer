@@ -120,33 +120,25 @@ namespace RX_Explorer
 
                     if (itemPresenter is GridView)
                     {
-                        if (ListViewSemantic != null)
-                        {
-                            ListViewSemantic.Visibility = Visibility.Collapsed;
-                            ListCollectionVS.Source = null;
-                        }
+                        ListCollectionVS.Source = null;
 
                         if (GridCollectionVS.Source == null)
                         {
                             GridCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
                         }
 
-                        GridViewSemantic.Visibility = Visibility.Visible;
+                        ViewModeSwitcher.Value = "GridView";
                     }
                     else
                     {
-                        if (GridViewSemantic != null)
-                        {
-                            GridViewSemantic.Visibility = Visibility.Collapsed;
-                            GridCollectionVS.Source = null;
-                        }
+                        GridCollectionVS.Source = null;
 
                         if (ListCollectionVS.Source == null)
                         {
                             ListCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
                         }
 
-                        ListViewSemantic.Visibility = Visibility.Visible;
+                        ViewModeSwitcher.Value = "ListView";
                     }
                 }
             }
@@ -180,6 +172,8 @@ namespace RX_Explorer
                     Container.GoBackRecord.IsEnabled = RecordIndex > 0;
                     Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
                     Container.CurrentTabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
+
+                    PageSwitcher.Value = value.Path;
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
@@ -871,12 +865,22 @@ namespace RX_Explorer
                     {
                         case 0:
                             {
-                                FindName("GridViewSemantic");
-
                                 ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewTileDataTemplate;
-                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
+                                    {
+                                        Panel.Orientation = Orientation.Horizontal;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
 
                                 while (true)
                                 {
@@ -898,18 +902,27 @@ namespace RX_Explorer
                             }
                         case 1:
                             {
-                                FindName("ListViewSemantic");
                                 ItemPresenter = ListViewControl;
                                 break;
                             }
                         case 2:
                             {
-                                FindName("GridViewSemantic");
-
                                 ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewListDataTemplate;
-                                GridViewControl.ItemsPanel = VerticalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
+                                    {
+                                        Panel.Orientation = Orientation.Vertical;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
 
                                 while (true)
                                 {
@@ -931,12 +944,22 @@ namespace RX_Explorer
                             }
                         case 3:
                             {
-                                FindName("GridViewSemantic");
-
                                 ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewLargeImageDataTemplate;
-                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
+                                    {
+                                        Panel.Orientation = Orientation.Horizontal;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
 
                                 while (true)
                                 {
@@ -958,12 +981,22 @@ namespace RX_Explorer
                             }
                         case 4:
                             {
-                                FindName("GridViewSemantic");
-
                                 ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewMediumImageDataTemplate;
-                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
+                                    {
+                                        Panel.Orientation = Orientation.Horizontal;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
 
                                 while (true)
                                 {
@@ -985,12 +1018,22 @@ namespace RX_Explorer
                             }
                         case 5:
                             {
-                                FindName("GridViewSemantic");
-
                                 ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewSmallImageDataTemplate;
-                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
+                                    {
+                                        Panel.Orientation = Orientation.Horizontal;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
 
                                 while (true)
                                 {
@@ -1102,11 +1145,16 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
+                DelayDragCancel?.Cancel();
+                DelayEnterCancel?.Cancel();
+                DelayRenameCancel?.Cancel();
+                DelaySelectionCancel?.Cancel();
+                DelayTooltipCancel?.Cancel();
+
                 if (FolderPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentFolder = RootStorageFolder.Instance;
                     Container.ViewModeComboBox.IsEnabled = false;
-                    RootFolderControl.Visibility = Visibility.Visible;
                     FileCollection.Clear();
                     GroupCollection.Clear();
                 }
@@ -1127,7 +1175,6 @@ namespace RX_Explorer
                     }
 
                     Container.ViewModeComboBox.IsEnabled = true;
-                    RootFolderControl.Visibility = Visibility.Collapsed;
 
                     SQLite.Current.SetPathHistory(FolderPath);
 

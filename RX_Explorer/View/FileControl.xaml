@@ -395,17 +395,17 @@
                     </DataTemplate>
                 </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>
-            <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                      ScrollViewer.HorizontalScrollMode="Enabled"
-                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                      ScrollViewer.VerticalScrollMode="Disabled"
-                      HorizontalAlignment="Left"
+            <ListView HorizontalAlignment="Left"
                       Grid.Column="4"
                       Margin="3,0,0,0"
                       Padding="5,0,0,0"
                       SelectionMode="None"
                       x:Name="AddressButtonContainer"
-                      ItemsSource="{x:Bind AddressButtonList}">
+                      ItemsSource="{x:Bind AddressButtonList}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      ScrollViewer.VerticalScrollMode="Disabled">
                 <ListView.ItemContainerTransitions>
                     <TransitionCollection>
                         <AddDeleteThemeTransition />
@@ -472,25 +472,6 @@
                 </ListView.ItemContainerStyle>
             </ListView>
             
-            <Button HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    CornerRadius="0"
-                    Padding="2,0,0,0"
-                    Grid.Column="8"
-                    Margin="3,0"
-                    BorderBrush="{ThemeResource TextControlBorderBrush}"
-                    Style="{ThemeResource ButtonRevealStyle}"
-                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                    Click="VerticalSplitViewButton_Click"
-                    x:Name="VerticalSplitViewButton"
-                    x:Uid="VerticalSplitViewButton"
-                    ToolTipService.ToolTip="创建新的垂直拆分视图">
-                <Viewbox>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE140;" />
-                </Viewbox>
-            </Button>
-
             <ComboBox Grid.Column="6"
                       Margin="3,0"
                       HorizontalAlignment="Stretch"
@@ -694,6 +675,25 @@
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
             </AutoSuggestBox>
+            
+            <Button HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    CornerRadius="0"
+                    Padding="2,0,0,0"
+                    Grid.Column="8"
+                    Margin="3,0"
+                    BorderBrush="{ThemeResource TextControlBorderBrush}"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                    Click="VerticalSplitViewButton_Click"
+                    x:Name="VerticalSplitViewButton"
+                    x:Uid="VerticalSplitViewButton"
+                    ToolTipService.ToolTip="创建新的垂直拆分视图">
+                <Viewbox>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              Glyph="&#xE140;" />
+                </Viewbox>
+            </Button>
         </Grid>
         <Grid Grid.Row="1"
               Margin="0,5,0,0">

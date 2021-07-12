@@ -113,6 +113,25 @@ namespace RX_Explorer.Class
             }
         }
 
+        public TransitionCollection ContentTransitions
+        {
+            get
+            {
+                if (IsEnableAnimation)
+                {
+                    return new TransitionCollection
+                    {
+                        new ContentThemeTransition()
+                    };
+                }
+                else
+                {
+                    return new TransitionCollection();
+                }
+            }
+        }
+
+
         public TransitionCollection RepositionTransitions
         {
             get
@@ -194,6 +213,7 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(PaneTopTransitions));
                     OnPropertyChanged(nameof(RepositionTransitions));
                     OnPropertyChanged(nameof(BladeViewTransitions));
+                    OnPropertyChanged(nameof(ContentTransitions));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                     ApplicationData.Current.SignalDataChanged();
@@ -227,7 +247,7 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private volatile static AnimationController Instance;
+        private static AnimationController Instance;
 
         private static readonly object Locker = new object();
 

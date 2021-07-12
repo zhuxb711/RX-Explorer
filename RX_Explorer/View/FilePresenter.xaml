@@ -9,6 +9,7 @@
       xmlns:Custom="using:RX_Explorer.CustomControl"
       xmlns:local="using:RX_Explorer"
       xmlns:Data="using:Windows.UI.Xaml.Data"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       mc:Ignorable="d"
       Background="Transparent">
 
@@ -1259,19 +1260,7 @@
                          x:Load="False" />
             </Grid>
         </DataTemplate>
-
-        <ItemsPanelTemplate x:Name="HorizontalGridViewPanel">
-            <ItemsWrapGrid Orientation="Horizontal"
-                           AreStickyGroupHeadersEnabled="True"
-                           HorizontalAlignment="Stretch" />
-        </ItemsPanelTemplate>
-
-        <ItemsPanelTemplate x:Name="VerticalGridViewPanel">
-            <ItemsWrapGrid Orientation="Vertical"
-                           AreStickyGroupHeadersEnabled="True"
-                           HorizontalAlignment="Stretch" />
-        </ItemsPanelTemplate>
-
+        
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
             <Grid Margin="2,1.5,1,2"
@@ -1373,726 +1362,745 @@
     </Page.Resources>
 
     <Grid>
-        <Grid PointerWheelChanged="Presenter_PointerWheelChanged"
-              Visibility="{x:Bind RootFolderControl.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition Height="50" />
-            </Grid.RowDefinitions>
-            <SemanticZoom x:Load="False"
-                          x:Name="ListViewSemantic">
-                <SemanticZoom.ZoomedInView>
-                    <ListView Background="Transparent"
-                              Style="{StaticResource ListViewStyleWithFixedHeader}"
-                              x:Name="ListViewControl"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              RightTapped="ViewControl_RightTapped"
-                              SelectionChanged="ViewControl_SelectionChanged"
-                              SelectionMode="Extended"
-                              ItemClick="ViewControl_ItemClick"
-                              ContainerContentChanging="ViewControl_ContainerContentChanging"
-                              CanDrag="False"
-                              CanReorderItems="False"
-                              AllowDrop="True"
-                              DragOver="ViewControl_DragOver"
-                              Drop="ViewControl_Drop"
-                              IsHoldingEnabled="True"
-                              IsItemClickEnabled="True"
-                              IsDoubleTapEnabled="True"
-                              Holding="ViewControl_Holding"
-                              DoubleTapped="ViewControl_DoubleTapped"
-                              PreviewKeyDown="ViewControl_PreviewKeyDown"
-                              ShowsScrollingPlaceholders="False"
-                              Header="{x:Bind ListViewDetailHeader}"
-                              ItemsSource="{x:Bind ListCollectionVS.View,Mode=OneWay}"
-                              ItemTemplate="{StaticResource ListViewDetailContent}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                        <ListView.GroupStyle>
-                            <GroupStyle HidesIfEmpty="True">
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{x:Bind Key}"
-                                                       FontSize="18" />
-                                            <TextBlock Margin="5,0,0,0"
-                                                       VerticalAlignment="Center"
-                                                       FontSize="14"
-                                                       Text="{x:Bind Description,Mode=OneWay}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </ListView.GroupStyle>
-                        <ListView.HeaderTemplate>
-                            <DataTemplate x:DataType="Cls:ListViewHeaderController">
-                                <Grid Height="35">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="6*" />
-                                        <ColumnDefinition Width="2.5*" />
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="1.5*" />
-                                        <ColumnDefinition MinWidth="50"
-                                                          Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <RelativePanel Grid.Column="0"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
-                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
-                                        <Button HorizontalContentAlignment="Stretch"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                IsDoubleTapEnabled="True"
-                                                DoubleTapped="ListHeader_DoubleTapped"
-                                                x:Name="ListHeaderName"
-                                                Click="ListHeader_Click"
-                                                Height="35"
-                                                RelativePanel.LeftOf="NameFilterHeader"
-                                                RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}">
-                                            <RelativePanel>
-                                                <TextBlock Text="名称"
-                                                           x:Uid="SearchName"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           RelativePanel.LeftOf="SortIndicator1"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                         x:Name="SortIndicator1"
-                                                         Height="12"
-                                                         Width="12"
-                                                         Child="{x:Bind Indicator.NameIndicatorIcon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
-                                            </RelativePanel>
-                                        </Button>
-                                        <Button HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                x:Name="NameFilterHeader"
-                                                Visibility="Collapsed"
-                                                Height="35"
-                                                Width="25"
-                                                Padding="2"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}"
-                                                RelativePanel.AlignRightWithPanel="True">
-                                            <Viewbox Width="10">
-                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                          Glyph="&#xE96E;" />
-                                            </Viewbox>
-                                            <Button.Flyout>
-                                                <Flyout Placement="BottomEdgeAlignedLeft"
-                                                        x:Name="NameFilterFlyout"
-                                                        ShouldConstrainToRootBounds="False"
-                                                        Opened="FilterFlyout_Opened"
-                                                        Closing="FilterFlyout_Closing">
-                                                    <Flyout.FlyoutPresenterStyle>
-                                                        <Style TargetType="FlyoutPresenter">
-                                                            <Setter Property="CornerRadius"
-                                                                    Value="0" />
-                                                            <Setter Property="Background"
-                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                                        </Style>
-                                                    </Flyout.FlyoutPresenterStyle>
-                                                    <StackPanel MinWidth="230">
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="Orange" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#22B324" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#CC6EFF" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xF127;"
-                                                                              Foreground="#42C5FF" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="A - G" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox2,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="H - N" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox3,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="O - T" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox4,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="U - Z" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox5,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="其他"
-                                                                           x:Uid="NameFilterCheckBox5Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Top">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBox Margin="10,0,0,0"
-                                                                         Header="正则表达式"
-                                                                         MinWidth="180"
-                                                                         IsSpellCheckEnabled="False"
-                                                                         PlaceholderText="请输入正则表达式"
-                                                                         x:Uid="NameFilterCheckBox6Text"
-                                                                         Text="{x:Bind Filter.RegexExpression,Mode=TwoWay}" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </RelativePanel>
-                                    <RelativePanel Grid.Column="1"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
-                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
-                                        <Button HorizontalContentAlignment="Stretch"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                Height="35"
-                                                IsDoubleTapEnabled="True"
-                                                DoubleTapped="ListHeader_DoubleTapped"
-                                                Name="ListHeaderModifiedTime"
-                                                Click="ListHeader_Click"
-                                                RelativePanel.LeftOf="ModTimeFilterHeader"
-                                                RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}">
-                                            <RelativePanel>
-                                                <TextBlock Text="修改日期"
-                                                           x:Uid="SearchModified"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           RelativePanel.LeftOf="SortIndicator2"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                         x:Name="SortIndicator2"
-                                                         Height="12"
-                                                         Width="12"
-                                                         Child="{x:Bind Indicator.ModifiedTimeIndicatorIcon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
-                                            </RelativePanel>
-                                        </Button>
-                                        <Button HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                x:Name="ModTimeFilterHeader"
-                                                Visibility="Collapsed"
-                                                Height="35"
-                                                Width="25"
-                                                Padding="2"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}"
-                                                RelativePanel.AlignRightWithPanel="True">
-                                            <Viewbox Width="10">
-                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                          Glyph="&#xE96E;" />
-                                            </Viewbox>
-                                            <Button.Flyout>
-                                                <Flyout Placement="BottomEdgeAlignedLeft"
-                                                        x:Name="ModTimeFilterFlyout"
-                                                        ShouldConstrainToRootBounds="False"
-                                                        Opened="FilterFlyout_Opened"
-                                                        Closing="FilterFlyout_Closing">
-                                                    <Flyout.FlyoutPresenterStyle>
-                                                        <Style TargetType="FlyoutPresenter">
-                                                            <Setter Property="CornerRadius"
-                                                                    Value="0" />
-                                                            <Setter Property="Background"
-                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                                        </Style>
-                                                    </Flyout.FlyoutPresenterStyle>
-                                                    <StackPanel MinWidth="230">
-                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         Margin="0,2,0,0"
-                                                                         VerticalAlignment="Top">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <StackPanel Margin="10,0,0,0">
-                                                                    <CalendarDatePicker Header="起始日期:"
-                                                                                        Width="180"
-                                                                                        x:Uid="ModTimeFilterFromDate"
-                                                                                        Date="{x:Bind Filter.FromDate,Mode=TwoWay}"
-                                                                                        MaxDate="{x:Bind Filter.FromDateMax,Mode=OneWay}"
-                                                                                        x:Name="ModTimeFilterFromDatePicker" />
-                                                                    <CalendarDatePicker Header="结束日期:"
-                                                                                        Width="180"
-                                                                                        x:Uid="ModTimeFilterToDate"
-                                                                                        Margin="0,5,0,0"
-                                                                                        Date="{x:Bind Filter.ToDate,Mode=TwoWay}"
-                                                                                        MaxDate="{x:Bind System:DateTimeOffset.Now}"
-                                                                                        x:Name="ModTimeFilterToDatePicker" />
-                                                                </StackPanel>
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox2,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="近一个月"
-                                                                           x:Uid="ModTimeFilterCheckBox2Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="近三个月"
-                                                                           x:Uid="ModTimeFilterCheckBox3Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="很久之前"
-                                                                           x:Uid="ModTimeFilterCheckBox4Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </RelativePanel>
-                                    <RelativePanel Grid.Column="2"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
-                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
-                                        <Button HorizontalContentAlignment="Stretch"
-                                                IsDoubleTapEnabled="True"
-                                                DoubleTapped="ListHeader_DoubleTapped"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                Height="35"
-                                                Name="ListHeaderType"
-                                                Click="ListHeader_Click"
-                                                RelativePanel.LeftOf="TypeFilterHeader"
-                                                RelativePanel.AlignLeftWithPanel="True"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}">
-                                            <RelativePanel>
-                                                <TextBlock Text="类型"
-                                                           x:Uid="SearchType"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           RelativePanel.LeftOf="SortIndicator3"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                         x:Name="SortIndicator3"
-                                                         Height="12"
-                                                         Width="12"
-                                                         Child="{x:Bind Indicator.TypeIndicatorIcon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
-                                            </RelativePanel>
-                                        </Button>
-                                        <Button HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                x:Name="TypeFilterHeader"
-                                                Visibility="Collapsed"
-                                                Height="35"
-                                                Width="25"
-                                                Padding="2"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}"
-                                                RelativePanel.AlignRightWithPanel="True">
-                                            <Viewbox Width="10">
-                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                          Glyph="&#xE96E;" />
-                                            </Viewbox>
-                                            <Button.Flyout>
-                                                <Flyout Placement="BottomEdgeAlignedLeft"
-                                                        x:Name="TypeFilterFlyout"
-                                                        ShouldConstrainToRootBounds="False"
-                                                        Opened="FilterFlyout_Opened"
-                                                        Closing="FilterFlyout_Closing">
-                                                    <Flyout.FlyoutPresenterStyle>
-                                                        <Style TargetType="FlyoutPresenter">
-                                                            <Setter Property="CornerRadius"
-                                                                    Value="0" />
-                                                            <Setter Property="Background"
-                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                                        </Style>
-                                                    </Flyout.FlyoutPresenterStyle>
-                                                    <ScrollViewer VerticalScrollMode="Enabled"
-                                                                  HorizontalScrollMode="Disabled"
-                                                                  VerticalScrollBarVisibility="Auto"
-                                                                  MaxHeight="350"
-                                                                  MinWidth="200"
-                                                                  Content="{x:Bind Filter.TypeCheckBoxPanel,Mode=OneWay}" />
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </RelativePanel>
-                                    <RelativePanel Grid.Column="3"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
-                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
-                                        <Button HorizontalContentAlignment="Stretch"
-                                                HorizontalAlignment="Stretch"
-                                                IsDoubleTapEnabled="True"
-                                                DoubleTapped="ListHeader_DoubleTapped"
-                                                VerticalAlignment="Stretch"
-                                                Name="ListHeaderSize"
-                                                RelativePanel.LeftOf="SizeFilterHeader"
-                                                RelativePanel.AlignLeftWithPanel="True"
-                                                Height="35"
-                                                Click="ListHeader_Click"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}">
-                                            <RelativePanel>
-                                                <TextBlock Text="大小"
-                                                           x:Uid="SearchSize"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           RelativePanel.LeftOf="SortIndicator4"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                         x:Name="SortIndicator4"
-                                                         Height="12"
-                                                         Width="12"
-                                                         Child="{x:Bind Indicator.SizeIndicatorIcon,Mode=OneWay}"
-                                                         Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
-                                            </RelativePanel>
-                                        </Button>
-                                        <Button HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                x:Name="SizeFilterHeader"
-                                                Visibility="Collapsed"
-                                                Height="35"
-                                                Width="25"
-                                                Padding="2"
-                                                Background="{ThemeResource ElementAcrylicBrush}"
-                                                Style="{StaticResource ListHeaderButtonStyle}"
-                                                RelativePanel.AlignRightWithPanel="True">
-                                            <Viewbox Width="10">
-                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                          Glyph="&#xE96E;" />
-                                            </Viewbox>
-                                            <Button.Flyout>
-                                                <Flyout Placement="BottomEdgeAlignedLeft"
-                                                        x:Name="SizeFilterFlyout"
-                                                        ShouldConstrainToRootBounds="False"
-                                                        Opened="FilterFlyout_Opened"
-                                                        Closing="FilterFlyout_Closing">
-                                                    <Flyout.FlyoutPresenterStyle>
-                                                        <Style TargetType="FlyoutPresenter">
-                                                            <Setter Property="CornerRadius"
-                                                                    Value="0" />
-                                                            <Setter Property="Background"
-                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                                        </Style>
-                                                    </Flyout.FlyoutPresenterStyle>
-                                                    <StackPanel MinWidth="200">
-                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox1,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="较小 (≤1MB)"
-                                                                           x:Uid="SizeFilterCheckBox1Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="中等 (1MB - 128MB)"
-                                                                           x:Uid="SizeFilterCheckBox2Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="较大 (128MB - 1GB)"
-                                                                           x:Uid="SizeFilterCheckBox3Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Viewbox Height="16"
-                                                                         VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                              Glyph="&#xE81E;" />
-                                                                </Viewbox>
-                                                                <TextBlock Margin="10,0,0,0"
-                                                                           Text="超大 (≥1GB)"
-                                                                           x:Uid="SizeFilterCheckBox4Text" />
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </RelativePanel>
-                                    <Button VerticalAlignment="Stretch"
-                                            HorizontalAlignment="Stretch"
-                                            Grid.Column="4"
-                                            IsDoubleTapEnabled="True"
-                                            DoubleTapped="ListHeader_DoubleTapped"
-                                            Background="{ThemeResource ElementAcrylicBrush}"
-                                            Style="{StaticResource ListHeaderButtonStyle}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.HeaderTemplate>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsStackPanel AreStickyGroupHeadersEnabled="True" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch" />
-                                <Setter Property="VerticalContentAlignment"
-                                        Value="Stretch" />
-                                <Setter Property="Padding"
-                                        Value="0" />
-                                <Setter Property="UseSystemFocusVisuals"
-                                        Value="False" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
-                </SemanticZoom.ZoomedInView>
-                <SemanticZoom.ZoomedOutView>
-                    <ListView ItemsSource="{x:Bind ListCollectionVS.View.CollectionGroups,Mode=OneWay}"
-                              SelectionMode="None">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
-                                               FontSize="18" />
-                                    <TextBlock Margin="5,0,0,0"
-                                               VerticalAlignment="Center"
-                                               FontSize="14"
-                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </SemanticZoom.ZoomedOutView>
-            </SemanticZoom>
-            <SemanticZoom x:Load="False"
-                          x:Name="GridViewSemantic">
-                <SemanticZoom.ZoomedInView>
-                    <GridView Name="GridViewControl"
-                              Background="Transparent"
-                              ContainerContentChanging="ViewControl_ContainerContentChanging"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              RightTapped="ViewControl_RightTapped"
-                              Holding="ViewControl_Holding"
-                              SelectionChanged="ViewControl_SelectionChanged"
-                              SelectionMode="Extended"
-                              ItemClick="ViewControl_ItemClick"
-                              CanDrag="False"
-                              CanReorderItems="False"
-                              AllowDrop="True"
-                              IsHoldingEnabled="True"
-                              DragOver="ViewControl_DragOver"
-                              Drop="ViewControl_Drop"
-                              IsItemClickEnabled="True"
-                              IsDoubleTapEnabled="True"
-                              PreviewKeyDown="ViewControl_PreviewKeyDown"
-                              DoubleTapped="ViewControl_DoubleTapped"
-                              ShowsScrollingPlaceholders="False"
-                              ItemsSource="{x:Bind GridCollectionVS.View,Mode=OneWay}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="GridViewItem">
-                                <Setter Property="UseSystemFocusVisuals"
-                                        Value="False" />
-                                <Setter Property="VerticalContentAlignment"
-                                        Value="Stretch" />
-                            </Style>
-                        </GridView.ItemContainerStyle>
-                        <GridView.GroupStyle>
-                            <GroupStyle HidesIfEmpty="True">
-                                <GroupStyle.HeaderTemplate>
-                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{x:Bind Key}"
-                                                       FontSize="18" />
-                                            <TextBlock Margin="5,0,0,0"
-                                                       VerticalAlignment="Center"
-                                                       Text="{x:Bind Description,Mode=OneWay}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GroupStyle.HeaderTemplate>
-                            </GroupStyle>
-                        </GridView.GroupStyle>
-                    </GridView>
-                </SemanticZoom.ZoomedInView>
-                <SemanticZoom.ZoomedOutView>
-                    <ListView ItemsSource="{x:Bind GridCollectionVS.View.CollectionGroups,Mode=OneWay}"
-                              SelectionMode="None">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
-                                               FontSize="18" />
-                                    <TextBlock Margin="5,0,0,0"
-                                               VerticalAlignment="Center"
-                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </SemanticZoom.ZoomedOutView>
-            </SemanticZoom>
-            <TextBlock Name="HasFile"
-                       x:FieldModifier="public"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       x:Uid="HasFile"
-                       Text="无文件"
-                       FontSize="18"
-                       Visibility="Collapsed" />
-            <Canvas>
-                <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
-                           Stroke="{ThemeResource SystemAccentColorLight2}"
-                           x:Name="DrawRectangle"
-                           Opacity="0.4" />
-            </Canvas>
-            <StackPanel Grid.Row="1"
-                        VerticalAlignment="Bottom">
-                <TextBlock x:Name="StatusTips"
-                           x:FieldModifier="public"
-                           Padding="5,0,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           HorizontalAlignment="Stretch"
-                           VerticalAlignment="Center"
-                           IsDoubleTapEnabled="True"
-                           DoubleTapped="StatusTips_DoubleTapped" />
-                <Border Height="3"
-                        Margin="0,2,0,0"
-                        HorizontalAlignment="Stretch"
-                        x:FieldModifier="public"
-                        x:Name="FocusIndicator" />
-                <CommandBar IsOpen="False"
-                            ClosedDisplayMode="Minimal"
-                            DefaultLabelPosition="Right"
-                            Name="BottomCommandBar"
-                            Opening="BottomCommandBar_Opening"
-                            Background="{ThemeResource ElementAcrylicBrush}" />
-            </StackPanel>
-        </Grid>
-        <local:Home HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    x:Name="RootFolderControl"
-                    x:FieldModifier="public"
-                    Visibility="Collapsed" />
+        <controls:SwitchPresenter Name="PageSwitcher"
+                                  ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+            <controls:Case Value="{x:Bind Cls:RootStorageFolder.Instance.Path}">
+                <local:Home HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            x:Name="RootFolderControl"
+                            x:FieldModifier="public" />
+            </controls:Case>
+            <controls:Case IsDefault="True">
+                <Grid PointerWheelChanged="Presenter_PointerWheelChanged">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+                    
+                    <controls:SwitchPresenter Name="ViewModeSwitcher"
+                                              ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                        <controls:Case Value="GridView">
+                            <SemanticZoom x:Name="GridViewSemantic">
+                                <SemanticZoom.ZoomedInView>
+                                    <GridView Name="GridViewControl"
+                                              Background="Transparent"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              SelectionMode="Extended"
+                                              ItemClick="ViewControl_ItemClick"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              IsHoldingEnabled="True"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              ShowsScrollingPlaceholders="False"
+                                              ItemsSource="{x:Bind GridCollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Horizontal"
+                                                               AreStickyGroupHeadersEnabled="True"
+                                                               HorizontalAlignment="Stretch" />
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </GridView.GroupStyle>
+                                    </GridView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind GridCollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                        <controls:Case Value="ListView">
+                            <SemanticZoom x:Name="ListViewSemantic">
+                                <SemanticZoom.ZoomedInView>
+                                    <ListView Background="Transparent"
+                                              Style="{StaticResource ListViewStyleWithFixedHeader}"
+                                              x:Name="ListViewControl"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              RightTapped="ViewControl_RightTapped"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              SelectionMode="Extended"
+                                              ItemClick="ViewControl_ItemClick"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              IsHoldingEnabled="True"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              Holding="ViewControl_Holding"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              ShowsScrollingPlaceholders="False"
+                                              Header="{x:Bind ListViewDetailHeader}"
+                                              ItemsSource="{x:Bind ListCollectionVS.View,Mode=OneWay}"
+                                              ItemTemplate="{StaticResource ListViewDetailContent}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                        <ListView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       FontSize="14"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </ListView.GroupStyle>
+                                        <ListView.HeaderTemplate>
+                                            <DataTemplate x:DataType="Cls:ListViewHeaderController">
+                                                <Grid Height="35">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="6*" />
+                                                        <ColumnDefinition Width="2.5*" />
+                                                        <ColumnDefinition Width="2*" />
+                                                        <ColumnDefinition Width="1.5*" />
+                                                        <ColumnDefinition MinWidth="50"
+                                                                          Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <RelativePanel Grid.Column="0"
+                                                                   VerticalAlignment="Stretch"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
+                                                        <Button HorizontalContentAlignment="Stretch"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                IsDoubleTapEnabled="True"
+                                                                DoubleTapped="ListHeader_DoubleTapped"
+                                                                x:Name="ListHeaderName"
+                                                                Click="ListHeader_Click"
+                                                                Height="35"
+                                                                RelativePanel.LeftOf="NameFilterHeader"
+                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}">
+                                                            <RelativePanel>
+                                                                <TextBlock Text="名称"
+                                                                           x:Uid="SearchName"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           RelativePanel.LeftOf="SortIndicator1"
+                                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                         x:Name="SortIndicator1"
+                                                                         Height="12"
+                                                                         Width="12"
+                                                                         Child="{x:Bind Indicator.NameIndicatorIcon,Mode=OneWay}"
+                                                                         Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
+                                                            </RelativePanel>
+                                                        </Button>
+                                                        <Button HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                x:Name="NameFilterHeader"
+                                                                Visibility="Collapsed"
+                                                                Height="35"
+                                                                Width="25"
+                                                                Padding="2"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}"
+                                                                RelativePanel.AlignRightWithPanel="True">
+                                                            <Viewbox Width="10">
+                                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                          Glyph="&#xE96E;" />
+                                                            </Viewbox>
+                                                            <Button.Flyout>
+                                                                <Flyout Placement="BottomEdgeAlignedLeft"
+                                                                        x:Name="NameFilterFlyout"
+                                                                        ShouldConstrainToRootBounds="False"
+                                                                        Opened="FilterFlyout_Opened"
+                                                                        Closing="FilterFlyout_Closing">
+                                                                    <Flyout.FlyoutPresenterStyle>
+                                                                        <Style TargetType="FlyoutPresenter">
+                                                                            <Setter Property="CornerRadius"
+                                                                                    Value="0" />
+                                                                            <Setter Property="Background"
+                                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                                        </Style>
+                                                                    </Flyout.FlyoutPresenterStyle>
+                                                                    <StackPanel MinWidth="230">
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xF127;"
+                                                                                              Foreground="Orange" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xF127;"
+                                                                                              Foreground="#22B324" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xF127;"
+                                                                                              Foreground="#CC6EFF" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xF127;"
+                                                                                              Foreground="#42C5FF" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="A - G" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox2,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="H - N" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox3,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="O - T" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox4,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="U - Z" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox5,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="其他"
+                                                                                           x:Uid="NameFilterCheckBox5Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         Margin="0,2,0,0"
+                                                                                         VerticalAlignment="Top">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBox Margin="10,0,0,0"
+                                                                                         Header="正则表达式"
+                                                                                         MinWidth="180"
+                                                                                         IsSpellCheckEnabled="False"
+                                                                                         PlaceholderText="请输入正则表达式"
+                                                                                         x:Uid="NameFilterCheckBox6Text"
+                                                                                         Text="{x:Bind Filter.RegexExpression,Mode=TwoWay}" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                    </StackPanel>
+                                                                </Flyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+                                                    </RelativePanel>
+                                                    <RelativePanel Grid.Column="1"
+                                                                   VerticalAlignment="Stretch"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
+                                                        <Button HorizontalContentAlignment="Stretch"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                Height="35"
+                                                                IsDoubleTapEnabled="True"
+                                                                DoubleTapped="ListHeader_DoubleTapped"
+                                                                Name="ListHeaderModifiedTime"
+                                                                Click="ListHeader_Click"
+                                                                RelativePanel.LeftOf="ModTimeFilterHeader"
+                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}">
+                                                            <RelativePanel>
+                                                                <TextBlock Text="修改日期"
+                                                                           x:Uid="SearchModified"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           RelativePanel.LeftOf="SortIndicator2"
+                                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                         x:Name="SortIndicator2"
+                                                                         Height="12"
+                                                                         Width="12"
+                                                                         Child="{x:Bind Indicator.ModifiedTimeIndicatorIcon,Mode=OneWay}"
+                                                                         Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
+                                                            </RelativePanel>
+                                                        </Button>
+                                                        <Button HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                x:Name="ModTimeFilterHeader"
+                                                                Visibility="Collapsed"
+                                                                Height="35"
+                                                                Width="25"
+                                                                Padding="2"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}"
+                                                                RelativePanel.AlignRightWithPanel="True">
+                                                            <Viewbox Width="10">
+                                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                          Glyph="&#xE96E;" />
+                                                            </Viewbox>
+                                                            <Button.Flyout>
+                                                                <Flyout Placement="BottomEdgeAlignedLeft"
+                                                                        x:Name="ModTimeFilterFlyout"
+                                                                        ShouldConstrainToRootBounds="False"
+                                                                        Opened="FilterFlyout_Opened"
+                                                                        Closing="FilterFlyout_Closing">
+                                                                    <Flyout.FlyoutPresenterStyle>
+                                                                        <Style TargetType="FlyoutPresenter">
+                                                                            <Setter Property="CornerRadius"
+                                                                                    Value="0" />
+                                                                            <Setter Property="Background"
+                                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                                        </Style>
+                                                                    </Flyout.FlyoutPresenterStyle>
+                                                                    <StackPanel MinWidth="230">
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         Margin="0,2,0,0"
+                                                                                         VerticalAlignment="Top">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <StackPanel Margin="10,0,0,0">
+                                                                                    <CalendarDatePicker Header="起始日期:"
+                                                                                                        Width="180"
+                                                                                                        x:Uid="ModTimeFilterFromDate"
+                                                                                                        Date="{x:Bind Filter.FromDate,Mode=TwoWay}"
+                                                                                                        MaxDate="{x:Bind Filter.FromDateMax,Mode=OneWay}"
+                                                                                                        x:Name="ModTimeFilterFromDatePicker" />
+                                                                                    <CalendarDatePicker Header="结束日期:"
+                                                                                                        Width="180"
+                                                                                                        x:Uid="ModTimeFilterToDate"
+                                                                                                        Margin="0,5,0,0"
+                                                                                                        Date="{x:Bind Filter.ToDate,Mode=TwoWay}"
+                                                                                                        MaxDate="{x:Bind System:DateTimeOffset.Now}"
+                                                                                                        x:Name="ModTimeFilterToDatePicker" />
+                                                                                </StackPanel>
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox2,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="近一个月"
+                                                                                           x:Uid="ModTimeFilterCheckBox2Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="近三个月"
+                                                                                           x:Uid="ModTimeFilterCheckBox3Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="很久之前"
+                                                                                           x:Uid="ModTimeFilterCheckBox4Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                    </StackPanel>
+                                                                </Flyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+                                                    </RelativePanel>
+                                                    <RelativePanel Grid.Column="2"
+                                                                   VerticalAlignment="Stretch"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
+                                                        <Button HorizontalContentAlignment="Stretch"
+                                                                IsDoubleTapEnabled="True"
+                                                                DoubleTapped="ListHeader_DoubleTapped"
+                                                                HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                Height="35"
+                                                                Name="ListHeaderType"
+                                                                Click="ListHeader_Click"
+                                                                RelativePanel.LeftOf="TypeFilterHeader"
+                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}">
+                                                            <RelativePanel>
+                                                                <TextBlock Text="类型"
+                                                                           x:Uid="SearchType"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           RelativePanel.LeftOf="SortIndicator3"
+                                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                         x:Name="SortIndicator3"
+                                                                         Height="12"
+                                                                         Width="12"
+                                                                         Child="{x:Bind Indicator.TypeIndicatorIcon,Mode=OneWay}"
+                                                                         Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
+                                                            </RelativePanel>
+                                                        </Button>
+                                                        <Button HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                x:Name="TypeFilterHeader"
+                                                                Visibility="Collapsed"
+                                                                Height="35"
+                                                                Width="25"
+                                                                Padding="2"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}"
+                                                                RelativePanel.AlignRightWithPanel="True">
+                                                            <Viewbox Width="10">
+                                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                          Glyph="&#xE96E;" />
+                                                            </Viewbox>
+                                                            <Button.Flyout>
+                                                                <Flyout Placement="BottomEdgeAlignedLeft"
+                                                                        x:Name="TypeFilterFlyout"
+                                                                        ShouldConstrainToRootBounds="False"
+                                                                        Opened="FilterFlyout_Opened"
+                                                                        Closing="FilterFlyout_Closing">
+                                                                    <Flyout.FlyoutPresenterStyle>
+                                                                        <Style TargetType="FlyoutPresenter">
+                                                                            <Setter Property="CornerRadius"
+                                                                                    Value="0" />
+                                                                            <Setter Property="Background"
+                                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                                        </Style>
+                                                                    </Flyout.FlyoutPresenterStyle>
+                                                                    <ScrollViewer VerticalScrollMode="Enabled"
+                                                                                  HorizontalScrollMode="Disabled"
+                                                                                  VerticalScrollBarVisibility="Auto"
+                                                                                  MaxHeight="350"
+                                                                                  MinWidth="200"
+                                                                                  Content="{x:Bind Filter.TypeCheckBoxPanel,Mode=OneWay}" />
+                                                                </Flyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+                                                    </RelativePanel>
+                                                    <RelativePanel Grid.Column="3"
+                                                                   VerticalAlignment="Stretch"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                                                   PointerExited="ListHeaderRelativePanel_PointerExited">
+                                                        <Button HorizontalContentAlignment="Stretch"
+                                                                HorizontalAlignment="Stretch"
+                                                                IsDoubleTapEnabled="True"
+                                                                DoubleTapped="ListHeader_DoubleTapped"
+                                                                VerticalAlignment="Stretch"
+                                                                Name="ListHeaderSize"
+                                                                RelativePanel.LeftOf="SizeFilterHeader"
+                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                Height="35"
+                                                                Click="ListHeader_Click"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}">
+                                                            <RelativePanel>
+                                                                <TextBlock Text="大小"
+                                                                           x:Uid="SearchSize"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           RelativePanel.LeftOf="SortIndicator4"
+                                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                                           RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                                <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                         x:Name="SortIndicator4"
+                                                                         Height="12"
+                                                                         Width="12"
+                                                                         Child="{x:Bind Indicator.SizeIndicatorIcon,Mode=OneWay}"
+                                                                         Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
+                                                            </RelativePanel>
+                                                        </Button>
+                                                        <Button HorizontalAlignment="Stretch"
+                                                                VerticalAlignment="Stretch"
+                                                                x:Name="SizeFilterHeader"
+                                                                Visibility="Collapsed"
+                                                                Height="35"
+                                                                Width="25"
+                                                                Padding="2"
+                                                                Background="{ThemeResource ElementAcrylicBrush}"
+                                                                Style="{StaticResource ListHeaderButtonStyle}"
+                                                                RelativePanel.AlignRightWithPanel="True">
+                                                            <Viewbox Width="10">
+                                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                          Glyph="&#xE96E;" />
+                                                            </Viewbox>
+                                                            <Button.Flyout>
+                                                                <Flyout Placement="BottomEdgeAlignedLeft"
+                                                                        x:Name="SizeFilterFlyout"
+                                                                        ShouldConstrainToRootBounds="False"
+                                                                        Opened="FilterFlyout_Opened"
+                                                                        Closing="FilterFlyout_Closing">
+                                                                    <Flyout.FlyoutPresenterStyle>
+                                                                        <Style TargetType="FlyoutPresenter">
+                                                                            <Setter Property="CornerRadius"
+                                                                                    Value="0" />
+                                                                            <Setter Property="Background"
+                                                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                                        </Style>
+                                                                    </Flyout.FlyoutPresenterStyle>
+                                                                    <StackPanel MinWidth="200">
+                                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox1,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="较小 (≤1MB)"
+                                                                                           x:Uid="SizeFilterCheckBox1Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="中等 (1MB - 128MB)"
+                                                                                           x:Uid="SizeFilterCheckBox2Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="较大 (128MB - 1GB)"
+                                                                                           x:Uid="SizeFilterCheckBox3Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                        <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Viewbox Height="16"
+                                                                                         VerticalAlignment="Bottom">
+                                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                              Glyph="&#xE81E;" />
+                                                                                </Viewbox>
+                                                                                <TextBlock Margin="10,0,0,0"
+                                                                                           Text="超大 (≥1GB)"
+                                                                                           x:Uid="SizeFilterCheckBox4Text" />
+                                                                            </StackPanel>
+                                                                        </CheckBox>
+                                                                    </StackPanel>
+                                                                </Flyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+                                                    </RelativePanel>
+                                                    <Button VerticalAlignment="Stretch"
+                                                            HorizontalAlignment="Stretch"
+                                                            Grid.Column="4"
+                                                            IsDoubleTapEnabled="True"
+                                                            DoubleTapped="ListHeader_DoubleTapped"
+                                                            Background="{ThemeResource ElementAcrylicBrush}"
+                                                            Style="{StaticResource ListHeaderButtonStyle}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.HeaderTemplate>
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsStackPanel AreStickyGroupHeadersEnabled="True" />
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment"
+                                                        Value="Stretch" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                                <Setter Property="Padding"
+                                                        Value="0" />
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind ListCollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="14"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                    </controls:SwitchPresenter>
+
+                    <TextBlock Name="HasFile"
+                               x:FieldModifier="public"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               x:Uid="HasFile"
+                               Text="无文件"
+                               FontSize="18"
+                               Visibility="Collapsed" />
+                    <Canvas>
+                        <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                                   Stroke="{ThemeResource SystemAccentColorLight2}"
+                                   x:Name="DrawRectangle"
+                                   Opacity="0.4" />
+                    </Canvas>
+                    <StackPanel Grid.Row="1"
+                                VerticalAlignment="Bottom">
+                        <TextBlock x:Name="StatusTips"
+                                   x:FieldModifier="public"
+                                   Padding="5,0,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Center"
+                                   IsDoubleTapEnabled="True"
+                                   DoubleTapped="StatusTips_DoubleTapped" />
+                        <Border Height="3"
+                                Margin="0,2,0,0"
+                                HorizontalAlignment="Stretch"
+                                x:FieldModifier="public"
+                                x:Name="FocusIndicator" />
+                        <CommandBar IsOpen="False"
+                                    ClosedDisplayMode="Minimal"
+                                    DefaultLabelPosition="Right"
+                                    Name="BottomCommandBar"
+                                    Opening="BottomCommandBar_Opening"
+                                    Background="{ThemeResource ElementAcrylicBrush}" />
+                    </StackPanel>
+                </Grid>
+            </controls:Case>
+        </controls:SwitchPresenter>
     </Grid>
 </Page>
