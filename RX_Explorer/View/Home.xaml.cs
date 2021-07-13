@@ -572,13 +572,13 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
+                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.Current.TabCollection.Where((Tab) => Tab.Tag is FileControl)
                                                                                                              .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
                     {
                         if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
                                   .All((BladePath) => Item.Path.Equals(Path.GetPathRoot(BladePath), StringComparison.OrdinalIgnoreCase)))
                         {
-                            await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                            await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
                         }
                         else
                         {
@@ -769,7 +769,7 @@ namespace RX_Explorer
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(Lib.Path);
+                await TabViewContainer.Current.CreateNewTabAsync(Lib.Path);
             }
         }
 

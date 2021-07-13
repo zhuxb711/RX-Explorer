@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="RX_Explorer.SettingControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:RX_Explorer.Class"
+             xmlns:Cls="using:RX_Explorer.Class"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -13,7 +13,8 @@
              d:DesignWidth="1280">
 
     <UserControl.Resources>
-        <local:ThemeToIndexConverter x:Key="ThemeConverter" />
+        <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
+        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
         <muxc:TeachingTip x:Name="ColorPickerTeachTip"
                           IsLightDismissEnabled="True"
@@ -23,10 +24,17 @@
             <muxc:TeachingTip.Content>
                 <control:ColorPicker ColorSpectrumShape="Box"
                                      IsAlphaEnabled="True"
-                                     Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
+                                     Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
                                      x:Name="AcrylicColorPicker" />
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>
+
+        <muxc:TeachingTip Title="仅通过索引执行搜索"
+                          IsLightDismissEnabled="True"
+                          x:Uid="IndexerQuestion"
+                          Target="{x:Bind IndexerQuestion}"
+                          x:Name="UseIndexerTip"
+                          Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确" />
 
         <muxc:TeachingTip x:Name="OpacityTip"
                           IsLightDismissEnabled="True"
@@ -135,7 +143,7 @@
                       Padding="20"
                       x:Name="Scroll">
             <StackPanel Name="LeftPanel"
-                        ChildrenTransitions="{x:Bind local:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                        ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                 <TextBlock Text="基本"
                            FontSize="22"
                            x:Uid="SettingBasicText" />
@@ -190,7 +198,14 @@
                           MinWidth="150"
                           Name="LanguageComboBox"
                           x:Uid="LanguageComboBox"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
+                    <x:String>中文(简体)</x:String>
+                    <x:String>English (United States)</x:String>
+                    <x:String>Français</x:String>
+                    <x:String>中文(繁體)</x:String>
+                    <x:String>Español</x:String>
+                    <x:String>Deutsche</x:String>
+                </ComboBox>
 
                 <TextBlock Text="高级"
                            x:Uid="SettingAdvance"
@@ -312,8 +327,78 @@
                           MinWidth="150"
                           x:Uid="SettingPageSearchEngineConfig"
                           Name="SearchEngineConfig"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                          SelectionChanged="SearchEngineConfig_SelectionChanged"/>
 
+                <control:SwitchPresenter Value="{x:Bind SearchEngineConfig.SelectedItem,Mode=OneWay}"
+                                         ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseBuildInAsDefault')}">
+                        <StackPanel Orientation="Horizontal"
+                                    Name="DefaultSearchEngineConfig">
+                            <Line X1="15"
+                                  X2="15"
+                                  Y1="8"
+                                  Y2="162"
+                                  StrokeThickness="3"
+                                  Stroke="Gray" />
+                            <StackPanel Margin="20,5,0,0">
+                                <CheckBox Content="忽略大小写"
+                                          x:Uid="SearchEngineIgnoreCase"
+                                          IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                          IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                          x:Name="BuiltInEngineIgnoreCase" />
+                                <CheckBox Content="使用正则表达式"
+                                          x:Uid="SearchEngineUseRegex"
+                                          x:Name="BuiltInEngineIncludeRegex"
+                                          IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
+                                <CheckBox Content="使用高级查询语法(AQS)"
+                                          x:Uid="SearchEngineUseAQS"
+                                          x:Name="BuiltInEngineIncludeAQS"
+                                          IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox Content="仅通过索引执行搜索"
+                                              Name="BuiltInSearchUseIndexer"
+                                              x:Uid="SearchEngineUseIndexer"/>
+                                    <Viewbox Margin="10,0,0,0"
+                                             Height="15"
+                                             VerticalAlignment="Center">
+                                        <FontIcon Glyph="&#xE9CE;"
+                                                  Name="IndexerQuestion"
+                                                  Tapped="IndexerQuestion_Tapped" />
+                                    </Viewbox>
+                                </StackPanel>
+                                <CheckBox Content="搜索所有子文件夹"
+                                          Name="BuiltInSearchAllSubFolders"
+                                          x:Uid="SearchEngineAllSubFolders" />
+                            </StackPanel>
+                        </StackPanel>
+                    </control:Case>
+                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseEverythingAsDefault')}">
+                        <StackPanel Orientation="Horizontal">
+                            <Line X1="15"
+                                  X2="15"
+                                  Y1="8"
+                                  Y2="98"
+                                  StrokeThickness="3"
+                                  Stroke="Gray" />
+                            <StackPanel Margin="20,5,0,0">
+                                <CheckBox Content="忽略大小写"
+                                          x:Uid="SearchEngineIgnoreCase"
+                                          IsChecked="True"
+                                          x:Name="EverythingEngineIgnoreCase" />
+                                <CheckBox Content="使用正则表达式"
+                                          x:Uid="SearchEngineUseRegex"
+                                          x:Name="EverythingEngineIncludeRegex"/>
+                                <CheckBox Content="全局搜索"
+                                          x:Uid="SearchEngineGlobeSearch"
+                                          IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
+                                          IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+                                          x:Name="EverythingEngineSearchGloble" />
+                            </StackPanel>
+                        </StackPanel>
+                    </control:Case>
+                </control:SwitchPresenter>
+                
                 <ComboBox Header="图标加载模式"
                           Margin="0,20,0,0"
                           MinWidth="150"
@@ -350,7 +435,7 @@
                               x:Uid="SettingPageAnimationSwitch"
                               Name="AnimationSwitch"
                               Toggled="AnimationSwitch_Toggled"
-                              IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
+                              IsOn="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
 
                 <StackPanel Orientation="Horizontal"
                             Name="ExceptAnimationArea">
@@ -363,7 +448,7 @@
                     <CheckBox Content="关闭初始动画以加快启动速度"
                               Margin="20,0,0,0"
                               x:Uid="SettingPageExceptAnimation"
-                              IsChecked="{x:Bind local:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
+                              IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
                               Name="ExceptAnimation" />
                 </StackPanel>
 
@@ -375,266 +460,274 @@
                           MinWidth="120"
                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
-                <StackPanel Margin="10,10,0,0"
-                            Name="SolidColorArea">
-                    <RadioButton Content="Windows默认"
-                                 Name="SolidColor_FollowSystem"
-                                 x:Uid="SolidColor_FollowSystem"
-                                 Checked="SolidColor_FollowSystem_Checked" />
-                    <RadioButton Content="白色"
-                                 x:Uid="SolidColor_White"
-                                 Name="SolidColor_White"
-                                 Checked="SolidColor_White_Checked" />
-                    <RadioButton Content="黑色"
-                                 x:Uid="SolidColor_Black"
-                                 Name="SolidColor_Black"
-                                 Checked="SolidColor_Black_Checked" />
-                </StackPanel>
-                <StackPanel Margin="10,10,0,0"
-                            Name="CustomUIArea">
-                    <ComboBox Header="主题颜色"
-                              MinWidth="120"
-                              SelectedIndex="{x:Bind local:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
-                              x:Uid="ThemeColor"
-                              Name="ThemeColor"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-                    <RadioButton Content="Acrylic背景"
-                                 x:Uid="CustomUISubtype1"
-                                 Name="AcrylicMode"
-                                 Margin="0,10,0,0"
-                                 Checked="AcrylicMode_Checked"
-                                 GroupName="CustomSubRadio" />
-                    <StackPanel Orientation="Horizontal"
-                                x:Name="CustomAcrylicArea">
-                        <Line X1="10"
-                              X2="10"
-                              Y1="5"
-                              Y2="240"
-                              x:Name="CustomUIAreaLine"
-                              StrokeThickness="3"
-                              Stroke="Gray" />
-                        <StackPanel Margin="15,10,0,0">
-                            <Button Content="Acrylic主题颜色"
-                                    Margin="0,0,0,0"
-                                    x:Uid="SettingPageThemeColorButton"
-                                    Name="AcrylicColor"
-                                    Style="{ThemeResource ButtonRevealStyle}"
-                                    Click="AcrylicColor_Click" />
+                <control:SwitchPresenter Margin="10,0,0,0"
+                                         Value="{x:Bind UIMode.SelectedItem,Mode=OneWay}"
+                                         ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                    <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_SolidColor')}">
+                        <StackPanel Margin="0,10,0,0"
+                                    Name="SolidColorArea">
+                            <RadioButton Content="Windows默认"
+                                         Name="SolidColor_FollowSystem"
+                                         x:Uid="SolidColor_FollowSystem"
+                                         Checked="SolidColor_FollowSystem_Checked" />
+                            <RadioButton Content="白色"
+                                         x:Uid="SolidColor_White"
+                                         Name="SolidColor_White"
+                                         Checked="SolidColor_White_Checked" />
+                            <RadioButton Content="黑色"
+                                         x:Uid="SolidColor_Black"
+                                         Name="SolidColor_Black"
+                                         Checked="SolidColor_Black_Checked" />
+                        </StackPanel>
+                    </control:Case>
+                    <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Custom')}">
+                        <StackPanel Margin="0,10,0,0"
+                                    Name="CustomUIArea">
+                            <ComboBox Header="主题颜色"
+                                      MinWidth="120"
+                                      SelectedIndex="{x:Bind Cls:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
+                                      x:Uid="ThemeColor"
+                                      Name="ThemeColor"
+                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                            <RadioButton Content="Acrylic背景"
+                                         x:Uid="CustomUISubtype1"
+                                         Name="AcrylicMode"
+                                         Margin="0,10,0,0"
+                                         Checked="AcrylicMode_Checked"
+                                         GroupName="CustomSubRadio" />
                             <StackPanel Orientation="Horizontal"
-                                        Margin="0,20,0,0">
-                                <CheckBox x:Name="PreventFallBack"
-                                          Content="始终应用Acrylic效果"
-                                          x:Uid="PreventFallBack"
-                                          Checked="PreventFallBack_Checked"
-                                          Unchecked="PreventFallBack_Unchecked" />
-                                <Viewbox Margin="10,0,0,0"
-                                         Height="15"
-                                         VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE9CE;"
-                                              Name="PreventFallBackQuestion"
-                                              PointerPressed="PreventFallBackQuestion_PointerPressed" />
-                                </Viewbox>
-                            </StackPanel>
-                            <StackPanel Margin="0,20,0,0"
-                                        Orientation="Horizontal"
-                                        Name="TintOpacityArea">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Acrylic颜色透明度"
-                                                   x:Uid="SettingPageTintOpacitySliderHeader" />
+                                        x:Name="CustomAcrylicArea">
+                                <Line X1="10"
+                                      X2="10"
+                                      Y1="5"
+                                      Y2="240"
+                                      x:Name="CustomUIAreaLine"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <StackPanel Margin="15,10,0,0">
+                                    <Button Content="Acrylic主题颜色"
+                                            Margin="0,0,0,0"
+                                            x:Uid="SettingPageThemeColorButton"
+                                            Name="AcrylicColor"
+                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            Click="AcrylicColor_Click" />
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,20,0,0">
+                                        <CheckBox x:Name="PreventFallBack"
+                                                  Content="始终应用Acrylic效果"
+                                                  x:Uid="PreventFallBack"
+                                                  Checked="PreventFallBack_Checked"
+                                                  Unchecked="PreventFallBack_Unchecked" />
                                         <Viewbox Margin="10,0,0,0"
                                                  Height="15"
-                                                 VerticalAlignment="Bottom">
+                                                 VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE9CE;"
-                                                      Name="TintOpacityQuestion"
-                                                      PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                                      Name="PreventFallBackQuestion"
+                                                      PointerPressed="PreventFallBackQuestion_PointerPressed" />
                                         </Viewbox>
                                     </StackPanel>
-                                    <Slider Margin="0,5,0,0"
-                                            IsThumbToolTipEnabled="False"
-                                            Value="{x:Bind local:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                            x:Name="TintOpacitySlider"
-                                            StepFrequency="0.1"
-                                            Maximum="1"
-                                            Minimum="0"
-                                            Width="220"
-                                            HorizontalAlignment="Left" />
+                                    <StackPanel Margin="0,20,0,0"
+                                                Orientation="Horizontal"
+                                                Name="TintOpacityArea">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Acrylic颜色透明度"
+                                                           x:Uid="SettingPageTintOpacitySliderHeader" />
+                                                <Viewbox Margin="10,0,0,0"
+                                                         Height="15"
+                                                         VerticalAlignment="Bottom">
+                                                    <FontIcon Glyph="&#xE9CE;"
+                                                              Name="TintOpacityQuestion"
+                                                              PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                                </Viewbox>
+                                            </StackPanel>
+                                            <Slider Margin="0,5,0,0"
+                                                    IsThumbToolTipEnabled="False"
+                                                    Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                                    x:Name="TintOpacitySlider"
+                                                    StepFrequency="0.1"
+                                                    Maximum="1"
+                                                    Minimum="0"
+                                                    Width="220"
+                                                    HorizontalAlignment="Left" />
+                                        </StackPanel>
+                                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
+                                                   Margin="5,20,0,0"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,10,0,0"
+                                                Orientation="Horizontal">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Acrylic背景透光度"
+                                                           x:Uid="SettingPageTintLuminositySliderHeader" />
+                                                <Viewbox Margin="10,0,0,0"
+                                                         Height="15"
+                                                         VerticalAlignment="Bottom">
+                                                    <FontIcon Glyph="&#xE9CE;"
+                                                              Name="TintLuminosityQuestion"
+                                                              PointerPressed="TintLuminosityQuestion_PointerPressed" />
+                                                </Viewbox>
+                                            </StackPanel>
+                                            <Slider Margin="0,5,0,0"
+                                                    IsThumbToolTipEnabled="False"
+                                                    Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                                    x:Name="TintLuminositySlider"
+                                                    StepFrequency="0.1"
+                                                    Maximum="1"
+                                                    Minimum="0"
+                                                    Width="220"
+                                                    HorizontalAlignment="Left" />
+                                        </StackPanel>
+                                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
+                                                   Margin="5,20,0,0"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
                                 </StackPanel>
-                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                           Margin="5,20,0,0"
-                                           VerticalAlignment="Center" />
                             </StackPanel>
-                            <StackPanel Margin="0,10,0,0"
+                            <RadioButton Margin="0,10,0,0"
+                                         Name="BingPictureMode"
+                                         Checked="BingPictureMode_Checked"
+                                         GroupName="CustomSubRadio">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="必应图片"
+                                               x:Uid="CustomUISubtype3" />
+                                    <muxc:ProgressRing IsActive="True"
+                                                       Margin="10,0,0,0"
+                                                       Height="18"
+                                                       Width="18"
+                                                       Name="GetBingPhotoState"
+                                                       Visibility="Collapsed" />
+                                </StackPanel>
+                            </RadioButton>
+                            <StackPanel Name="BackgroundBlurSliderArea1"
                                         Orientation="Horizontal">
-                                <StackPanel>
+                                <Line X1="10"
+                                      X2="10"
+                                      Y1="5"
+                                      Y2="130"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <StackPanel Margin="15,10,0,0">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Acrylic背景透光度"
-                                                   x:Uid="SettingPageTintLuminositySliderHeader" />
-                                        <Viewbox Margin="10,0,0,0"
-                                                 Height="15"
-                                                 VerticalAlignment="Bottom">
-                                            <FontIcon Glyph="&#xE9CE;"
-                                                      Name="TintLuminosityQuestion"
-                                                      PointerPressed="TintLuminosityQuestion_PointerPressed" />
-                                        </Viewbox>
-                                    </StackPanel>
-                                    <Slider Margin="0,5,0,0"
-                                            IsThumbToolTipEnabled="False"
-                                            Value="{x:Bind local:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                            x:Name="TintLuminositySlider"
-                                            StepFrequency="0.1"
-                                            Maximum="1"
-                                            Minimum="0"
-                                            Width="220"
-                                            HorizontalAlignment="Left" />
-                                </StackPanel>
-                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                           Margin="5,20,0,0"
-                                           VerticalAlignment="Center" />
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-                    <RadioButton Margin="0,10,0,0"
-                                 Name="BingPictureMode"
-                                 Checked="BingPictureMode_Checked"
-                                 GroupName="CustomSubRadio">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="必应图片"
-                                       x:Uid="CustomUISubtype3" />
-                            <muxc:ProgressRing IsActive="True"
-                                               Margin="10,0,0,0"
-                                               Height="18"
-                                               Width="18"
-                                               Name="GetBingPhotoState"
-                                               Visibility="Collapsed" />
-                        </StackPanel>
-                    </RadioButton>
-                    <StackPanel Name="BackgroundBlurSliderArea1"
-                                Orientation="Horizontal">
-                        <Line X1="10"
-                              X2="10"
-                              Y1="5"
-                              Y2="130"
-                              StrokeThickness="3"
-                              Stroke="Gray" />
-                        <StackPanel Margin="15,10,0,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Slider Maximum="100"
-                                        Minimum="0"
-                                        Width="220"
-                                        Header="调整背景模糊效果"
-                                        x:Uid="SettingPageBackgroundBlurSlider"
-                                        Name="BackgroundBlurSlider1"
-                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                        StepFrequency="5"
-                                        VerticalAlignment="Center" />
-                                <TextBlock Margin="5,20,0,0"
-                                           VerticalAlignment="Center"
-                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider1.Value),Mode=OneWay}" />
+                                        <Slider Maximum="100"
+                                                Minimum="0"
+                                                Width="220"
+                                                Header="调整背景模糊效果"
+                                                x:Uid="SettingPageBackgroundBlurSlider"
+                                                Name="BackgroundBlurSlider1"
+                                                ValueChanged="BackgroundBlurSlider_ValueChanged"
+                                                StepFrequency="5"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Margin="5,20,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider1.Value),Mode=OneWay}" />
 
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Maximum="100"
+                                                Minimum="0"
+                                                Width="220"
+                                                Margin="0,10,0,0"
+                                                Header="调整背景亮度"
+                                                Name="BackgroundLightSlider1"
+                                                x:Uid="SettingPageBackgroundLightSlider"
+                                                ValueChanged="BackgroundLightSlider_ValueChanged"
+                                                StepFrequency="5"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Margin="5,20,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider1.Value),Mode=OneWay}" />
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Slider Maximum="100"
-                                        Minimum="0"
-                                        Width="220"
-                                        Margin="0,10,0,0"
-                                        Header="调整背景亮度"
-                                        Name="BackgroundLightSlider1"
-                                        x:Uid="SettingPageBackgroundLightSlider"
-                                        ValueChanged="BackgroundLightSlider_ValueChanged"
-                                        StepFrequency="5"
-                                        VerticalAlignment="Center" />
-                                <TextBlock Margin="5,20,0,0"
-                                           VerticalAlignment="Center"
-                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider1.Value),Mode=OneWay}" />
+                            <RadioButton Content="自定义图片背景"
+                                         x:Uid="CustomUISubtype2"
+                                         Margin="0,10,0,0"
+                                         Name="PictureMode"
+                                         GroupName="CustomSubRadio"
+                                         Checked="PictureMode_Checked" />
+                            <StackPanel Name="CustomPictureArea"
+                                        Orientation="Horizontal">
+                                <Line X1="10"
+                                      X2="10"
+                                      Y1="5"
+                                      Y2="215"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <StackPanel Margin="15,0,0,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <GridView Name="PictureGirdView"
+                                                  MaxWidth="275"
+                                                  Margin="0,15,0,0"
+                                                  VerticalAlignment="Top"
+                                                  IsRightTapEnabled="True"
+                                                  RightTapped="PictureGirdView_RightTapped"
+                                                  ScrollViewer.HorizontalScrollMode="Enabled"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                                  SelectionChanged="PictureGirdView_SelectionChanged">
+                                            <GridView.ItemTemplate>
+                                                <DataTemplate x:DataType="Cls:BackgroundPicture">
+                                                    <Image Width="70"
+                                                           Height="70"
+                                                           Stretch="UniformToFill"
+                                                           Source="{x:Bind Thumbnail}" />
+                                                </DataTemplate>
+                                            </GridView.ItemTemplate>
+                                            <GridView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ItemsStackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </GridView.ItemsPanel>
+                                        </GridView>
+                                        <Button Margin="5,15,0,0"
+                                                Width="70"
+                                                Height="70"
+                                                Name="AddImageToPictureButton"
+                                                Click="AddImageToPictureButton_Click"
+                                                VerticalAlignment="Top">
+                                            <Viewbox>
+                                                <SymbolIcon Symbol="Add" />
+                                            </Viewbox>
+                                        </Button>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,10,0,0"
+                                                Name="BackgroundBlurSliderArea2">
+                                        <Slider Maximum="100"
+                                                Minimum="0"
+                                                Width="220"
+                                                Header="调整背景模糊效果"
+                                                x:Uid="SettingPageBackgroundBlurSlider"
+                                                Name="BackgroundBlurSlider2"
+                                                ValueChanged="BackgroundBlurSlider_ValueChanged"
+                                                StepFrequency="5"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Margin="5,20,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider2.Value),Mode=OneWay}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Maximum="100"
+                                                Minimum="0"
+                                                Width="220"
+                                                Margin="0,10,0,0"
+                                                Header="调整背景亮度"
+                                                Name="BackgroundLightSlider2"
+                                                x:Uid="SettingPageBackgroundLightSlider"
+                                                ValueChanged="BackgroundLightSlider_ValueChanged"
+                                                StepFrequency="5"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Margin="5,20,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider2.Value),Mode=OneWay}" />
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                    <RadioButton Content="自定义图片背景"
-                                 x:Uid="CustomUISubtype2"
-                                 Margin="0,10,0,0"
-                                 Name="PictureMode"
-                                 GroupName="CustomSubRadio"
-                                 Checked="PictureMode_Checked" />
-                    <StackPanel Name="CustomPictureArea"
-                                Orientation="Horizontal">
-                        <Line X1="10"
-                              X2="10"
-                              Y1="5"
-                              Y2="215"
-                              StrokeThickness="3"
-                              Stroke="Gray" />
-                        <StackPanel Margin="15,0,0,0">
-                            <StackPanel Orientation="Horizontal">
-                                <GridView Name="PictureGirdView"
-                                          MaxWidth="275"
-                                          Margin="0,15,0,0"
-                                          VerticalAlignment="Top"
-                                          IsRightTapEnabled="True"
-                                          RightTapped="PictureGirdView_RightTapped"
-                                          ScrollViewer.HorizontalScrollMode="Enabled"
-                                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                          ScrollViewer.VerticalScrollMode="Disabled"
-                                          SelectionChanged="PictureGirdView_SelectionChanged">
-                                    <GridView.ItemTemplate>
-                                        <DataTemplate x:DataType="local:BackgroundPicture">
-                                            <Image Width="70"
-                                                   Height="70"
-                                                   Stretch="UniformToFill"
-                                                   Source="{x:Bind Thumbnail}" />
-                                        </DataTemplate>
-                                    </GridView.ItemTemplate>
-                                    <GridView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsStackPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </GridView.ItemsPanel>
-                                </GridView>
-                                <Button Margin="5,15,0,0"
-                                        Width="70"
-                                        Height="70"
-                                        Name="AddImageToPictureButton"
-                                        Click="AddImageToPictureButton_Click"
-                                        VerticalAlignment="Top">
-                                    <Viewbox>
-                                        <SymbolIcon Symbol="Add" />
-                                    </Viewbox>
-                                </Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,10,0,0"
-                                        Name="BackgroundBlurSliderArea2">
-                                <Slider Maximum="100"
-                                        Minimum="0"
-                                        Width="220"
-                                        Header="调整背景模糊效果"
-                                        x:Uid="SettingPageBackgroundBlurSlider"
-                                        Name="BackgroundBlurSlider2"
-                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                        StepFrequency="5"
-                                        VerticalAlignment="Center" />
-                                <TextBlock Margin="5,20,0,0"
-                                           VerticalAlignment="Center"
-                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider2.Value),Mode=OneWay}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Slider Maximum="100"
-                                        Minimum="0"
-                                        Width="220"
-                                        Margin="0,10,0,0"
-                                        Header="调整背景亮度"
-                                        Name="BackgroundLightSlider2"
-                                        x:Uid="SettingPageBackgroundLightSlider"
-                                        ValueChanged="BackgroundLightSlider_ValueChanged"
-                                        StepFrequency="5"
-                                        VerticalAlignment="Center" />
-                                <TextBlock Margin="5,20,0,0"
-                                           VerticalAlignment="Center"
-                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider2.Value),Mode=OneWay}" />
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
+                    </control:Case>
+                </control:SwitchPresenter>
 
                 <TextBlock Text="启动时"
                            FontSize="22"
@@ -742,7 +835,7 @@
                                 <TextBlock x:Name="Version" />
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
-                                           Text="{x:Bind local:Globalization.GetString('UpdateLatest')}"
+                                           Text="{x:Bind Cls:Globalization.GetString('UpdateLatest')}"
                                            Name="VersionTip" />
                             </StackPanel>
                         </StackPanel>

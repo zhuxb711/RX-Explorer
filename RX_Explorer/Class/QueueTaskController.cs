@@ -91,7 +91,7 @@ namespace RX_Explorer.Class
 
             if (OpenPanelWhenTaskIsCreated)
             {
-                TabViewContainer.ThisPage.TaskListPanel.IsPaneOpen = true;
+                TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
             }
 
             if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
@@ -181,7 +181,7 @@ namespace RX_Explorer.Class
 
             if (OpenPanelWhenTaskIsCreated)
             {
-                TabViewContainer.ThisPage.TaskListPanel.IsPaneOpen = true;
+                TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
             }
 
             if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))

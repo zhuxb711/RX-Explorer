@@ -33,15 +33,13 @@ namespace RX_Explorer
 
         public ObservableCollection<TabViewItem> TabCollection { get; private set; } = new ObservableCollection<TabViewItem>();
 
-        public static TabViewContainer ThisPage { get; private set; }
-
-        private bool ShouldCloseApplication;
+        public static TabViewContainer Current { get; private set; }
 
         public TabViewContainer()
         {
             InitializeComponent();
 
-            ThisPage = this;
+            Current = this;
             Loaded += TabViewContainer_Loaded;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
@@ -439,7 +437,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            MainPage.ThisPage.NavView_BackRequested(null, null);
+                            MainPage.Current.NavView_BackRequested(null, null);
                         }
                     }
                 }
@@ -459,7 +457,7 @@ namespace RX_Explorer
                 {
                     args.Handled = true;
 
-                    MainPage.ThisPage.NavView_BackRequested(null, null);
+                    MainPage.Current.NavView_BackRequested(null, null);
                 }
                 else if (ForwardButtonPressed)
                 {
@@ -552,13 +550,13 @@ namespace RX_Explorer
         {
             Loaded -= TabViewContainer_Loaded;
 
-            if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
+            if ((MainPage.Current.ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
                 await CreateNewTabAsync();
             }
             else
             {
-                await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
+                await CreateNewTabAsync(MainPage.Current.ActivatePathArray);
             }
 
             List<Task> LoadTaskList = new List<Task>(3)
@@ -584,7 +582,6 @@ namespace RX_Explorer
         {
             await CreateNewTabAsync();
             sender.SelectedIndex = TabCollection.Count - 1;
-            ShouldCloseApplication = false;
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
@@ -733,13 +730,13 @@ namespace RX_Explorer
                     TaskBarController.SetText(Convert.ToString(Item.Header));
                 }
 
-                MainPage.ThisPage.NavView.IsBackEnabled = (MainPage.ThisPage.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
+                MainPage.Current.NavView.IsBackEnabled = (MainPage.Current.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
             }
         }
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            MainPage.ThisPage.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
+            MainPage.Current.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
         }
 
         private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
@@ -956,16 +953,7 @@ namespace RX_Explorer
 
             if (TabCollection.Count == 0)
             {
-                if (ShouldCloseApplication)
-                {
-                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
-                }
-                else
-                {
-                    await CreateNewTabAsync();
-                    TabViewControl.SelectedIndex = 0;
-                    ShouldCloseApplication = true;
-                }
+                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
             }
         }
 

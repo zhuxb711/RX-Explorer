@@ -48,7 +48,7 @@ namespace RX_Explorer
 {
     public sealed partial class MainPage : Page
     {
-        public static MainPage ThisPage { get; private set; }
+        public static MainPage Current { get; private set; }
 
         private Dictionary<Type, string> PageDictionary;
 
@@ -62,7 +62,7 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            ThisPage = this;
+            Current = this;
 
             CoreApplicationViewTitleBar SystemBar = CoreApplication.GetCurrentView().TitleBar;
             TitleBar.Margin = new Thickness(SystemBar.SystemOverlayLeftInset, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);

@@ -14,10 +14,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <CollectionViewSource x:Name="ListCollectionVS"
-                              IsSourceGrouped="False" />
-
-        <CollectionViewSource x:Name="GridCollectionVS"
+        <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
 
         <muxc:TeachingTip x:Name="InvalidCharTip"
@@ -971,394 +968,6 @@
                 </StackPanel>
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>
-
-        <DataTemplate x:Name="GridViewTileDataTemplate"
-                      x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5,4,5,5"
-                  Width="220"
-                  Background="{x:Bind AccentColor,Mode=OneWay}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="60" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Border Padding="3,0"
-                        ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
-                        Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                    <Viewbox MaxWidth="15"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center">
-                        <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                  Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                    </Viewbox>
-                </Border>
-                <Image VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       Height="55"
-                       Width="55"
-                       Grid.Column="1"
-                       x:Phase="1" />
-                <Image x:Name="ThumbnailOverlay"
-                       Width="30"
-                       Height="30"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       Grid.Column="1"
-                       x:Phase="1"
-                       Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                       Stretch="Uniform" />
-                <StackPanel Orientation="Vertical"
-                            Grid.Column="2"
-                            VerticalAlignment="Top"
-                            Margin="5,0,0,0">
-                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               x:Phase="0"
-                               HorizontalTextAlignment="Left"
-                               HorizontalAlignment="Stretch"
-                               TextTrimming="CharacterEllipsis"
-                               x:Name="NameLabel"
-                               PointerPressed="NameLabel_PointerPressed" />
-                    <TextBox HorizontalAlignment="Stretch"
-                             VerticalAlignment="Center"
-                             x:Name="NameEditBox"
-                             IsSpellCheckEnabled="False"
-                             Visibility="Collapsed"
-                             x:Load="False" />
-                    <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
-                               FontSize="12"
-                               x:Phase="1"
-                               HorizontalTextAlignment="Left"
-                               TextTrimming="CharacterEllipsis"
-                               HorizontalAlignment="Left"
-                               MaxWidth="145" />
-                    <TextBlock Text="{x:Bind Size,Mode=OneWay}"
-                               FontSize="12"
-                               x:Phase="0"
-                               HorizontalTextAlignment="Left"
-                               HorizontalAlignment="Left"
-                               TextTrimming="CharacterEllipsis"
-                               MaxWidth="145" />
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Name="GridViewLargeImageDataTemplate"
-                      x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5"
-                  Background="{x:Bind AccentColor,Mode=OneWay}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="190" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Image HorizontalAlignment="Center"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       x:Phase="1"
-                       Width="240" />
-                <Image x:Name="ThumbnailOverlay"
-                       Margin="15,0,0,0"
-                       Width="60"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       x:Phase="1"
-                       Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                       Stretch="Uniform" />
-                <Grid Grid.Row="1"
-                      Margin="0,3,0,0"
-                      MaxWidth="240"
-                      HorizontalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Padding="8,0"
-                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
-                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                        <Viewbox MaxWidth="15"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                        </Viewbox>
-                    </Border>
-                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               FontSize="15"
-                               Grid.Column="1"
-                               x:Phase="0"
-                               HorizontalTextAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
-                </Grid>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Name="GridViewMediumImageDataTemplate"
-                      x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5"
-                  Background="{x:Bind AccentColor,Mode=OneWay}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="140" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Image HorizontalAlignment="Center"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       Width="180"
-                       x:Phase="1" />
-                <Image x:Name="ThumbnailOverlay"
-                       Margin="15,0,0,0"
-                       Width="50"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       x:Phase="1"
-                       Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                       Stretch="Uniform" />
-                <Grid Grid.Row="1"
-                      Margin="0,3,0,0"
-                      MaxWidth="180"
-                      HorizontalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Padding="8,0"
-                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
-                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                        <Viewbox MaxWidth="15"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                        </Viewbox>
-                    </Border>
-                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               FontSize="15"
-                               Grid.Column="1"
-                               x:Phase="0"
-                               HorizontalTextAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
-                </Grid>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Name="GridViewSmallImageDataTemplate"
-                      x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5"
-                  Background="{x:Bind AccentColor,Mode=OneWay}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="80" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Image HorizontalAlignment="Center"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       Width="120"
-                       x:Phase="1" />
-                <Image x:Name="ThumbnailOverlay"
-                       Margin="15,0,0,0"
-                       Width="40"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       x:Phase="1"
-                       Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                       Stretch="Uniform" />
-                <Grid Grid.Row="1"
-                      HorizontalAlignment="Center"
-                      Margin="0,3,0,0"
-                      MaxWidth="120">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Padding="8,0"
-                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
-                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                        <Viewbox MaxWidth="15"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                        </Viewbox>
-                    </Border>
-                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               Grid.Column="1"
-                               x:Phase="0"
-                               HorizontalTextAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
-                </Grid>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
-                      x:Name="GridViewListDataTemplate"
-                      x:FieldModifier="public">
-            <Grid Width="200"
-                  Background="{x:Bind AccentColor,Mode=OneWay}"
-                  Padding="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="40" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Border Padding="3,2,3,0"
-                        ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
-                        Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
-                    <Viewbox MaxWidth="15"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center">
-                        <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                  Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                    </Viewbox>
-                </Border>
-                <Image VerticalAlignment="Center"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       Height="30"
-                       Width="30"
-                       Grid.Column="1"
-                       x:Phase="1"
-                       PointerPressed="GetFocus_PointerPressed" />
-                <Image x:Name="ThumbnailOverlay"
-                       Margin="2,0,0,0"
-                       Width="23"
-                       Height="23"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom"
-                       Grid.Column="1"
-                       x:Phase="1"
-                       Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
-                       Stretch="Uniform" />
-                <TextBlock VerticalAlignment="Center"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind Name,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="2"
-                           x:Phase="0"
-                           PointerPressed="NameLabel_PointerPressed"
-                           x:Name="NameLabel" />
-                <TextBox VerticalAlignment="Center"
-                         HorizontalAlignment="Stretch"
-                         x:Name="NameEditBox"
-                         Grid.Column="2"
-                         IsSpellCheckEnabled="False"
-                         Visibility="Collapsed"
-                         x:Load="False" />
-            </Grid>
-        </DataTemplate>
-        
-        <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
-                      x:Key="ListViewDetailContent">
-            <Grid Margin="2,1.5,1,2"
-                  Background="{x:Bind AccentColor,Mode=OneWay}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6*" />
-                    <ColumnDefinition Width="2.5*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition MinWidth="50"
-                                      Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="45" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Image VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Stretch="Uniform"
-                           Source="{x:Bind Thumbnail,Mode=OneWay}"
-                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                           Height="30"
-                           Width="30"
-                           x:Phase="1"
-                           PointerPressed="GetFocus_PointerPressed" />
-                    <Image x:Name="ThumbnailOverlay"
-                           Margin="5,0,0,0"
-                           Width="23"
-                           Height="23"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Bottom"
-                           x:Phase="1"
-                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
-                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                           Stretch="Uniform" />
-                    <TextBlock VerticalAlignment="Center"
-                               HorizontalAlignment="Left"
-                               Grid.Column="1"
-                               x:Phase="0"
-                               Text="{x:Bind Name, Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               TextTrimming="CharacterEllipsis"
-                               PointerPressed="NameLabel_PointerPressed"
-                               x:Name="NameLabel" />
-                    <Border Padding="5,2,5,0"
-                            Grid.Column="2"
-                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}"
-                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}">
-                        <Viewbox MaxWidth="15"
-                                 VerticalAlignment="Center">
-                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
-                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
-                        </Viewbox>
-                    </Border>
-                    <TextBox VerticalAlignment="Center"
-                             HorizontalAlignment="Stretch"
-                             x:Name="NameEditBox"
-                             Grid.Column="1"
-                             Grid.ColumnSpan="2"
-                             IsSpellCheckEnabled="False"
-                             Visibility="Collapsed"
-                             x:Load="False" />
-                </Grid>
-                <TextBlock VerticalAlignment="Center"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind ModifiedTime, Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind ModifiedTime, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           Grid.Column="1"
-                           x:Phase="0"
-                           TextTrimming="CharacterEllipsis"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind DisplayType,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
-                           Grid.Column="2"
-                           x:Phase="1"
-                           TextTrimming="CharacterEllipsis"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind Size,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Size, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="3"
-                           x:Phase="0"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Stretch"
-                           HorizontalAlignment="Stretch"
-                           Grid.Column="4"
-                           Name="EmptyTextblock" />
-            </Grid>
-        </DataTemplate>
     </Page.Resources>
 
     <Grid>
@@ -1379,32 +988,36 @@
                     
                     <controls:SwitchPresenter Name="ViewModeSwitcher"
                                               ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                        <controls:Case Value="GridView">
-                            <SemanticZoom x:Name="GridViewSemantic">
+                        <controls:Case Value="GridViewTilesControl">
+                            <SemanticZoom>
                                 <SemanticZoom.ZoomedInView>
-                                    <GridView Name="GridViewControl"
+                                    <GridView Name="GridViewTilesControl"
                                               Background="Transparent"
-                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch"
-                                              RightTapped="ViewControl_RightTapped"
-                                              Holding="ViewControl_Holding"
-                                              SelectionChanged="ViewControl_SelectionChanged"
                                               SelectionMode="Extended"
-                                              ItemClick="ViewControl_ItemClick"
                                               CanDrag="False"
                                               CanReorderItems="False"
                                               AllowDrop="True"
                                               IsHoldingEnabled="True"
-                                              DragOver="ViewControl_DragOver"
-                                              Drop="ViewControl_Drop"
                                               IsItemClickEnabled="True"
                                               IsDoubleTapEnabled="True"
+                                              ShowsScrollingPlaceholders="False"
                                               PreviewKeyDown="ViewControl_PreviewKeyDown"
                                               DoubleTapped="ViewControl_DoubleTapped"
-                                              ShowsScrollingPlaceholders="False"
-                                              ItemsSource="{x:Bind GridCollectionVS.View,Mode=OneWay}"
-                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              ItemClick="ViewControl_ItemClick"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollMode="Auto">
                                         <GridView.ItemContainerStyle>
                                             <Style TargetType="GridViewItem">
                                                 <Setter Property="UseSystemFocusVisuals"
@@ -1420,6 +1033,80 @@
                                                                HorizontalAlignment="Stretch" />
                                             </ItemsPanelTemplate>
                                         </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Padding="5,4,5,5"
+                                                      Width="220"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="60" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Padding="3,0"
+                                                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
+                                                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
+                                                        <Viewbox MaxWidth="15"
+                                                                 HorizontalAlignment="Center"
+                                                                 VerticalAlignment="Center">
+                                                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                    <Image VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           Stretch="Uniform"
+                                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Height="55"
+                                                           Width="55"
+                                                           Grid.Column="1"
+                                                           x:Phase="1" />
+                                                    <Image x:Name="ThumbnailOverlay"
+                                                           Width="30"
+                                                           Height="30"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Bottom"
+                                                           Grid.Column="1"
+                                                           x:Phase="1"
+                                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Stretch="Uniform" />
+                                                    <StackPanel Orientation="Vertical"
+                                                                Grid.Column="2"
+                                                                VerticalAlignment="Top"
+                                                                Margin="5,0,0,0">
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   x:Phase="0"
+                                                                   HorizontalTextAlignment="Left"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   x:Name="NameLabel"
+                                                                   PointerPressed="NameLabel_PointerPressed" />
+                                                        <TextBox HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center"
+                                                                 x:Name="NameEditBox"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
+                                                        <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
+                                                                   FontSize="12"
+                                                                   x:Phase="1"
+                                                                   HorizontalTextAlignment="Left"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   HorizontalAlignment="Left"
+                                                                   MaxWidth="145" />
+                                                        <TextBlock Text="{x:Bind Size,Mode=OneWay}"
+                                                                   FontSize="12"
+                                                                   x:Phase="0"
+                                                                   HorizontalTextAlignment="Left"
+                                                                   HorizontalAlignment="Left"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   MaxWidth="145" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
                                         <GridView.GroupStyle>
                                             <GroupStyle HidesIfEmpty="True">
                                                 <GroupStyle.HeaderTemplate>
@@ -1438,7 +1125,7 @@
                                     </GridView>
                                 </SemanticZoom.ZoomedInView>
                                 <SemanticZoom.ZoomedOutView>
-                                    <ListView ItemsSource="{x:Bind GridCollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
                                               SelectionMode="None">
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="Data:ICollectionViewGroup">
@@ -1455,8 +1142,538 @@
                                 </SemanticZoom.ZoomedOutView>
                             </SemanticZoom>
                         </controls:Case>
-                        <controls:Case Value="ListView">
-                            <SemanticZoom x:Name="ListViewSemantic">
+                        <controls:Case Value="GridViewListControl">
+                            <SemanticZoom>
+                                <SemanticZoom.ZoomedInView>
+                                    <GridView Name="GridViewListControl"
+                                              Background="Transparent"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              SelectionMode="Extended"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              IsHoldingEnabled="True"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              ShowsScrollingPlaceholders="False"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              ItemClick="ViewControl_ItemClick"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              ScrollViewer.HorizontalScrollMode="Auto"
+                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                              ScrollViewer.VerticalScrollMode="Disabled">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Vertical"
+                                                               AreStickyGroupHeadersEnabled="True"
+                                                               HorizontalAlignment="Stretch" />
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Width="200"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                      Padding="5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="40" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Padding="3,2,3,0"
+                                                            ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
+                                                            Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
+                                                        <Viewbox MaxWidth="15"
+                                                                 HorizontalAlignment="Center"
+                                                                 VerticalAlignment="Center">
+                                                            <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                      Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                    <Image VerticalAlignment="Center"
+                                                           Stretch="Uniform"
+                                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Height="30"
+                                                           Width="30"
+                                                           Grid.Column="1"
+                                                           x:Phase="1"
+                                                           PointerPressed="GetFocus_PointerPressed" />
+                                                    <Image x:Name="ThumbnailOverlay"
+                                                           Margin="2,0,0,0"
+                                                           Width="23"
+                                                           Height="23"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Bottom"
+                                                           Grid.Column="1"
+                                                           x:Phase="1"
+                                                           Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
+                                                           Stretch="Uniform" />
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               HorizontalAlignment="Left"
+                                                               Text="{x:Bind Name,Mode=OneWay}"
+                                                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Grid.Column="2"
+                                                               x:Phase="0"
+                                                               PointerPressed="NameLabel_PointerPressed"
+                                                               x:Name="NameLabel" />
+                                                    <TextBox VerticalAlignment="Center"
+                                                             HorizontalAlignment="Stretch"
+                                                             x:Name="NameEditBox"
+                                                             Grid.Column="2"
+                                                             IsSpellCheckEnabled="False"
+                                                             Visibility="Collapsed"
+                                                             x:Load="False" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                        <GridView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </GridView.GroupStyle>
+                                    </GridView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                        <controls:Case Value="GridViewLargeIconControl">
+                            <SemanticZoom>
+                                <SemanticZoom.ZoomedInView>
+                                    <GridView Name="GridViewLargeIconControl"
+                                              Background="Transparent"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              SelectionMode="Extended"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              IsHoldingEnabled="True"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              ShowsScrollingPlaceholders="False"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              ItemClick="ViewControl_ItemClick"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollMode="Auto">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Horizontal"
+                                                               AreStickyGroupHeadersEnabled="True"
+                                                               HorizontalAlignment="Stretch" />
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Padding="5"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="190" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Image HorizontalAlignment="Center"
+                                                           Stretch="Uniform"
+                                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           x:Phase="1"
+                                                           Width="240" />
+                                                    <Image x:Name="ThumbnailOverlay"
+                                                           Margin="15,0,0,0"
+                                                           Width="60"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Bottom"
+                                                           x:Phase="1"
+                                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Stretch="Uniform" />
+                                                    <Grid Grid.Row="1"
+                                                          Margin="0,3,0,0"
+                                                          MaxWidth="240"
+                                                          HorizontalAlignment="Center">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Padding="8,0"
+                                                                ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
+                                                                Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
+                                                            <Viewbox MaxWidth="15"
+                                                                     HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center">
+                                                                <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                          Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                            </Viewbox>
+                                                        </Border>
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   FontSize="15"
+                                                                   Grid.Column="1"
+                                                                   x:Phase="0"
+                                                                   HorizontalTextAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                        <GridView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </GridView.GroupStyle>
+                                    </GridView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                        <controls:Case Value="GridViewMediumIconControl">
+                            <SemanticZoom>
+                                <SemanticZoom.ZoomedInView>
+                                    <GridView Name="GridViewMediumIconControl"
+                                              Background="Transparent"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              SelectionMode="Extended"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              IsHoldingEnabled="True"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              ShowsScrollingPlaceholders="False"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              ItemClick="ViewControl_ItemClick"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollMode="Auto">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Horizontal"
+                                                               AreStickyGroupHeadersEnabled="True"
+                                                               HorizontalAlignment="Stretch" />
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Padding="5"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="140" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Image HorizontalAlignment="Center"
+                                                           Stretch="Uniform"
+                                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Width="180"
+                                                           x:Phase="1" />
+                                                    <Image x:Name="ThumbnailOverlay"
+                                                           Margin="15,0,0,0"
+                                                           Width="50"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Bottom"
+                                                           x:Phase="1"
+                                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Stretch="Uniform" />
+                                                    <Grid Grid.Row="1"
+                                                          Margin="0,3,0,0"
+                                                          MaxWidth="180"
+                                                          HorizontalAlignment="Center">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Padding="8,0"
+                                                                ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
+                                                                Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
+                                                            <Viewbox MaxWidth="15"
+                                                                     HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center">
+                                                                <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                          Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                            </Viewbox>
+                                                        </Border>
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   FontSize="15"
+                                                                   Grid.Column="1"
+                                                                   x:Phase="0"
+                                                                   HorizontalTextAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                        <GridView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </GridView.GroupStyle>
+                                    </GridView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                        <controls:Case Value="GridViewSmallIconControl">
+                            <SemanticZoom>
+                                <SemanticZoom.ZoomedInView>
+                                    <GridView Name="GridViewSmallIconControl"
+                                              Background="Transparent"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              SelectionMode="Extended"
+                                              CanDrag="False"
+                                              CanReorderItems="False"
+                                              AllowDrop="True"
+                                              IsHoldingEnabled="True"
+                                              IsItemClickEnabled="True"
+                                              IsDoubleTapEnabled="True"
+                                              ShowsScrollingPlaceholders="False"
+                                              PreviewKeyDown="ViewControl_PreviewKeyDown"
+                                              DoubleTapped="ViewControl_DoubleTapped"
+                                              DragOver="ViewControl_DragOver"
+                                              Drop="ViewControl_Drop"
+                                              ItemClick="ViewControl_ItemClick"
+                                              RightTapped="ViewControl_RightTapped"
+                                              Holding="ViewControl_Holding"
+                                              SelectionChanged="ViewControl_SelectionChanged"
+                                              ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
+                                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollMode="Auto">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="UseSystemFocusVisuals"
+                                                        Value="False" />
+                                                <Setter Property="VerticalContentAlignment"
+                                                        Value="Stretch" />
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid Orientation="Horizontal"
+                                                               AreStickyGroupHeadersEnabled="True"
+                                                               HorizontalAlignment="Stretch" />
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Padding="5"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="80" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Image HorizontalAlignment="Center"
+                                                           Stretch="Uniform"
+                                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                           Width="120"
+                                                           x:Phase="1" />
+                                                    <Image x:Name="ThumbnailOverlay"
+                                                           Margin="15,0,0,0"
+                                                           Width="40"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Bottom"
+                                                           x:Phase="1"
+                                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                           Stretch="Uniform" />
+                                                    <Grid Grid.Row="1"
+                                                          HorizontalAlignment="Center"
+                                                          Margin="0,3,0,0"
+                                                          MaxWidth="120">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Padding="8,0"
+                                                                ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
+                                                                Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
+                                                            <Viewbox MaxWidth="15"
+                                                                     HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center">
+                                                                <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                          Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                            </Viewbox>
+                                                        </Border>
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   Grid.Column="1"
+                                                                   x:Phase="0"
+                                                                   HorizontalTextAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                        <GridView.GroupStyle>
+                                            <GroupStyle HidesIfEmpty="True">
+                                                <GroupStyle.HeaderTemplate>
+                                                    <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{x:Bind Key}"
+                                                                       FontSize="18" />
+                                                            <TextBlock Margin="5,0,0,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{x:Bind Description,Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupStyle.HeaderTemplate>
+                                            </GroupStyle>
+                                        </GridView.GroupStyle>
+                                    </GridView>
+                                </SemanticZoom.ZoomedInView>
+                                <SemanticZoom.ZoomedOutView>
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                              SelectionMode="None">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Key)}"
+                                                               FontSize="18" />
+                                                    <TextBlock Margin="5,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="{x:Bind Group.(Cls:FileSystemStorageGroupItem.Description),Mode=OneWay}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </SemanticZoom.ZoomedOutView>
+                            </SemanticZoom>
+                        </controls:Case>
+                        <controls:Case Value="ListViewControl">
+                            <SemanticZoom>
                                 <SemanticZoom.ZoomedInView>
                                     <ListView Background="Transparent"
                                               Style="{StaticResource ListViewStyleWithFixedHeader}"
@@ -1481,8 +1698,7 @@
                                               PreviewKeyDown="ViewControl_PreviewKeyDown"
                                               ShowsScrollingPlaceholders="False"
                                               Header="{x:Bind ListViewDetailHeader}"
-                                              ItemsSource="{x:Bind ListCollectionVS.View,Mode=OneWay}"
-                                              ItemTemplate="{StaticResource ListViewDetailContent}"
+                                              ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                         <ListView.GroupStyle>
                                             <GroupStyle HidesIfEmpty="True">
@@ -1500,6 +1716,105 @@
                                                 </GroupStyle.HeaderTemplate>
                                             </GroupStyle>
                                         </ListView.GroupStyle>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                                                <Grid Margin="2,1.5,1,2"
+                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="6*" />
+                                                        <ColumnDefinition Width="2.5*" />
+                                                        <ColumnDefinition Width="2*" />
+                                                        <ColumnDefinition Width="1.5*" />
+                                                        <ColumnDefinition MinWidth="50"
+                                                                          Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="45" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Image VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               Stretch="Uniform"
+                                                               Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                                               Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                               Height="30"
+                                                               Width="30"
+                                                               x:Phase="1"
+                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                        <Image x:Name="ThumbnailOverlay"
+                                                               Margin="5,0,0,0"
+                                                               Width="23"
+                                                               Height="23"
+                                                               HorizontalAlignment="Left"
+                                                               VerticalAlignment="Bottom"
+                                                               x:Phase="1"
+                                                               Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                                               Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                                               Stretch="Uniform" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Left"
+                                                                   Grid.Column="1"
+                                                                   x:Phase="0"
+                                                                   Text="{x:Bind Name, Mode=OneWay}"
+                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   PointerPressed="NameLabel_PointerPressed"
+                                                                   x:Name="NameLabel" />
+                                                        <Border Padding="5,2,5,0"
+                                                                Grid.Column="2"
+                                                                Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}"
+                                                                ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}">
+                                                            <Viewbox MaxWidth="15"
+                                                                     VerticalAlignment="Center">
+                                                                <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
+                                                                          Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
+                                                            </Viewbox>
+                                                        </Border>
+                                                        <TextBox VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 x:Name="NameEditBox"
+                                                                 Grid.Column="1"
+                                                                 Grid.ColumnSpan="2"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
+                                                    </Grid>
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Padding="10,0,0,0"
+                                                               HorizontalAlignment="Left"
+                                                               Text="{x:Bind ModifiedTime, Mode=OneWay}"
+                                                               ToolTipService.ToolTip="{x:Bind ModifiedTime, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                               Grid.Column="1"
+                                                               x:Phase="0"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Padding="10,0,0,0"
+                                                               HorizontalAlignment="Left"
+                                                               Text="{x:Bind DisplayType,Mode=OneWay}"
+                                                               ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
+                                                               Grid.Column="2"
+                                                               x:Phase="1"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Padding="10,0,0,0"
+                                                               HorizontalAlignment="Left"
+                                                               Text="{x:Bind Size,Mode=OneWay}"
+                                                               ToolTipService.ToolTip="{x:Bind Size, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Grid.Column="3"
+                                                               x:Phase="0"
+                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                    <TextBlock VerticalAlignment="Stretch"
+                                                               HorizontalAlignment="Stretch"
+                                                               Grid.Column="4"
+                                                               Name="EmptyTextblock" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
                                         <ListView.HeaderTemplate>
                                             <DataTemplate x:DataType="Cls:ListViewHeaderController">
                                                 <Grid Height="35">
@@ -2043,7 +2358,7 @@
                                     </ListView>
                                 </SemanticZoom.ZoomedInView>
                                 <SemanticZoom.ZoomedOutView>
-                                    <ListView ItemsSource="{x:Bind ListCollectionVS.View.CollectionGroups,Mode=OneWay}"
+                                    <ListView ItemsSource="{x:Bind CollectionVS.View.CollectionGroups,Mode=OneWay}"
                                               SelectionMode="None">
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="Data:ICollectionViewGroup">

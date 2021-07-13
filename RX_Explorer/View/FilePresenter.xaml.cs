@@ -116,30 +116,11 @@ namespace RX_Explorer
                     itemPresenter.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
                     SelectionExtention?.Dispose();
-                    SelectionExtention = new ListViewBaseSelectionExtention(itemPresenter, DrawRectangle);
+                    SelectionExtention = new ListViewBaseSelectionExtention(value, DrawRectangle);
 
-                    if (itemPresenter is GridView)
-                    {
-                        ListCollectionVS.Source = null;
+                    CollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
 
-                        if (GridCollectionVS.Source == null)
-                        {
-                            GridCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
-                        }
-
-                        ViewModeSwitcher.Value = "GridView";
-                    }
-                    else
-                    {
-                        GridCollectionVS.Source = null;
-
-                        if (ListCollectionVS.Source == null)
-                        {
-                            ListCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
-                        }
-
-                        ViewModeSwitcher.Value = "ListView";
-                    }
+                    ViewModeSwitcher.Value = value.Name;
                 }
             }
         }
@@ -200,14 +181,6 @@ namespace RX_Explorer
         private int CurrentViewModeIndex = -1;
         private bool GroupedEnable;
 
-        private CollectionViewSource CurrentCVS
-        {
-            get
-            {
-                return ItemPresenter is GridView ? GridCollectionVS : ListCollectionVS;
-            }
-        }
-
         private bool IsGroupedEnable
         {
             get
@@ -218,18 +191,10 @@ namespace RX_Explorer
             {
                 if (GroupedEnable != value)
                 {
-                    ListCollectionVS.IsSourceGrouped = value;
-                    GridCollectionVS.IsSourceGrouped = value;
                     GroupedEnable = value;
+                    CollectionVS.IsSourceGrouped = value;
 
-                    if (value)
-                    {
-                        CurrentCVS.Source = GroupCollection;
-                    }
-                    else
-                    {
-                        CurrentCVS.Source = FileCollection;
-                    }
+                    CollectionVS.Source = value ? GroupCollection : FileCollection;
                 }
             }
         }
@@ -600,7 +565,7 @@ namespace RX_Explorer
                 && args.KeyStatus.IsMenuKeyDown
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && Container.Frame == TabViewContainer.CurrentNavigationControl
-                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
+                && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 switch (args.VirtualKey)
@@ -659,7 +624,7 @@ namespace RX_Explorer
                 && CurrentFolder is not RootStorageFolder
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && Container.Frame == TabViewContainer.CurrentNavigationControl
-                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
+                && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
@@ -801,11 +766,11 @@ namespace RX_Explorer
 
                                 if (SelectedItem is FileSystemStorageFolder)
                                 {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
+                                    await TabViewContainer.Current.CreateNewTabAsync(SelectedItem.Path);
                                 }
                                 else
                                 {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync();
+                                    await TabViewContainer.Current.CreateNewTabAsync();
                                 }
 
                                 break;
@@ -851,219 +816,30 @@ namespace RX_Explorer
             }
         }
 
-        private async void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
+        private void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
         {
             if (e.Path.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase) && CurrentViewModeIndex != e.Index)
             {
-                EventDeferral Deferral = e.GetDeferral();
-
                 try
                 {
                     CurrentViewModeIndex = e.Index;
 
-                    switch (e.Index)
+                    ItemPresenter = e.Index switch
                     {
-                        case 0:
-                            {
-                                ItemPresenter = GridViewControl;
-
-                                GridViewControl.ItemTemplate = GridViewTileDataTemplate;
-
-                                while (true)
-                                {
-                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
-                                    {
-                                        Panel.Orientation = Orientation.Horizontal;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                while (true)
-                                {
-                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                    {
-                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case 1:
-                            {
-                                ItemPresenter = ListViewControl;
-                                break;
-                            }
-                        case 2:
-                            {
-                                ItemPresenter = GridViewControl;
-
-                                GridViewControl.ItemTemplate = GridViewListDataTemplate;
-
-                                while (true)
-                                {
-                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
-                                    {
-                                        Panel.Orientation = Orientation.Vertical;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                while (true)
-                                {
-                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                    {
-                                        Scroll.HorizontalScrollMode = ScrollMode.Auto;
-                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                        Scroll.VerticalScrollMode = ScrollMode.Disabled;
-                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case 3:
-                            {
-                                ItemPresenter = GridViewControl;
-
-                                GridViewControl.ItemTemplate = GridViewLargeImageDataTemplate;
-
-                                while (true)
-                                {
-                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
-                                    {
-                                        Panel.Orientation = Orientation.Horizontal;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                while (true)
-                                {
-                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                    {
-                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case 4:
-                            {
-                                ItemPresenter = GridViewControl;
-
-                                GridViewControl.ItemTemplate = GridViewMediumImageDataTemplate;
-
-                                while (true)
-                                {
-                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
-                                    {
-                                        Panel.Orientation = Orientation.Horizontal;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                while (true)
-                                {
-                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                    {
-                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case 5:
-                            {
-                                ItemPresenter = GridViewControl;
-
-                                GridViewControl.ItemTemplate = GridViewSmallImageDataTemplate;
-
-                                while (true)
-                                {
-                                    if (GridViewControl.ItemsPanelRoot is ItemsWrapGrid Panel)
-                                    {
-                                        Panel.Orientation = Orientation.Horizontal;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                while (true)
-                                {
-                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                    {
-                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-
-                                break;
-                            }
-                    }
+                        0 => GridViewTilesControl,
+                        1 => ListViewControl,
+                        2 => GridViewListControl,
+                        3 => GridViewLargeIconControl,
+                        4 => GridViewMediumIconControl,
+                        5 => GridViewSmallIconControl,
+                        _ => null
+                    };
 
                     SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, e.Index));
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, "Switch DisplayMode could not be completed successfully");
-                }
-                finally
-                {
-                    Deferral.Complete();
                 }
             }
         }
@@ -1764,7 +1540,7 @@ namespace RX_Explorer
                         PermanentDelete |= IsAvoidRecycleBin;
                     }
 
-                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
+                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.Current.TabCollection.Where((Tab) => Tab.Tag is FileControl)
                                                                                                              .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
                     {
                         foreach (string DeletePath in PathList)
@@ -1772,7 +1548,7 @@ namespace RX_Explorer
                             if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
                                       .All((BladePath) => BladePath.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)))
                             {
-                                await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                                await TabViewContainer.Current.CleanUpAndRemoveTabItem(Tab);
                             }
                             else
                             {
@@ -2053,7 +1829,7 @@ namespace RX_Explorer
                     {
                         SelectionExtention.Disable();
                         SelectedItem = Item;
-                        _ = TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path);
+                        _ = TabViewContainer.Current.CreateNewTabAsync(Item.Path);
                     }
                     else if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
                     {
@@ -2358,7 +2134,7 @@ namespace RX_Explorer
                 }
                 else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
                 {
-                    await TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path);
+                    await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
                 }
                 else
                 {
@@ -4274,7 +4050,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(Folder.Path);
+                await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
             }
         }
 
@@ -5127,7 +4903,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync(Folder.Path);
+                                    await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
                                 }
 
                                 break;

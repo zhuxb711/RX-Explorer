@@ -1074,9 +1074,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItem is LinkStorageFile Link)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
+                await TabViewContainer.Current.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
 
-                if (TabViewContainer.ThisPage.TabCollection.LastOrDefault()?.Tag is FileControl Control)
+                if (TabViewContainer.Current.TabCollection.LastOrDefault()?.Tag is FileControl Control)
                 {
                     do
                     {

@@ -937,7 +937,7 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 5000);
+                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 5000);
 
                         return null;
                     }
