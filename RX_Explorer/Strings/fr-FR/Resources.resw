@@ -3144,4 +3144,7 @@ Les noms non valides incluent
   <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Recherche par index uniquement</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>Personnaliser</value>
+  </data>
 </root>

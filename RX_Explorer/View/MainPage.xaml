@@ -11,60 +11,6 @@
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
-        <muxc:CommandBarFlyout x:Name="AppFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit"
-                              Label="编辑"
-                              x:Uid="AppEdit"
-                              Name="AppEdit"
-                              Click="QuickStartItemEdit_Click" />
-                <AppBarButton Icon="Delete"
-                              Name="AppDelete"
-                              x:Uid="AppDelete"
-                              Label="删除"
-                              Click="QuickStartItemDelete_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="WebFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit"
-                              Label="编辑"
-                              x:Uid="AppEdit"
-                              Name="WebEdit"
-                              Click="QuickStartItemEdit_Click" />
-                <AppBarButton Icon="Delete"
-                              Name="WebDelete"
-                              x:Uid="AppDelete"
-                              Label="删除"
-                              Click="QuickStartItemDelete_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Add"
-                              Label="添加"
-                              x:Uid="QuickStartAddButton"
-                              x:Name="AddQuickStartApp"
-                              Click="AddQuickStartItem_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Add"
-                              Label="添加"
-                              x:Uid="QuickStartAddButton"
-                              x:Name="AddQuickStartWeb"
-                              Click="AddQuickStartItem_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
         <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
@@ -100,6 +46,17 @@
                        Stretch="Uniform" />
             </StackPanel>
         </DataTemplate>
+
+        <muxc:CommandBarFlyout x:Name="NavigationViewFlyout"
+                               Placement="BottomEdgeAlignedLeft">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('CustomText')}"
+                              MinWidth="150"
+                              Icon="Edit"
+                              x:Name="EditNavItem"
+                              Click="EditNavItem_Click"/>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
@@ -226,6 +183,61 @@
                           ShouldConstrainToRootBounds="False"
                           IsLightDismissEnabled="True"
                           Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
+            <muxc:TeachingTip.Resources>
+                <muxc:CommandBarFlyout x:Name="AppFlyout"
+                                       Placement="RightEdgeAlignedTop">
+                    <muxc:CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Icon="Edit"
+                                      Label="编辑"
+                                      x:Uid="AppEdit"
+                                      Name="AppEdit"
+                                      Click="QuickStartItemEdit_Click" />
+                        <AppBarButton Icon="Delete"
+                                      Name="AppDelete"
+                                      x:Uid="AppDelete"
+                                      Label="删除"
+                                      Click="QuickStartItemDelete_Click" />
+                    </muxc:CommandBarFlyout.SecondaryCommands>
+                </muxc:CommandBarFlyout>
+
+                <muxc:CommandBarFlyout x:Name="WebFlyout"
+                                       Placement="RightEdgeAlignedTop">
+                    <muxc:CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Icon="Edit"
+                                      Label="编辑"
+                                      x:Uid="AppEdit"
+                                      Name="WebEdit"
+                                      Click="QuickStartItemEdit_Click" />
+                        <AppBarButton Icon="Delete"
+                                      Name="WebDelete"
+                                      x:Uid="AppDelete"
+                                      Label="删除"
+                                      Click="QuickStartItemDelete_Click" />
+                    </muxc:CommandBarFlyout.SecondaryCommands>
+                </muxc:CommandBarFlyout>
+
+                <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
+                                       Placement="RightEdgeAlignedTop">
+                    <muxc:CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Icon="Add"
+                                      Label="添加"
+                                      x:Uid="QuickStartAddButton"
+                                      x:Name="AddQuickStartApp"
+                                      Click="AddQuickStartItem_Click" />
+                    </muxc:CommandBarFlyout.SecondaryCommands>
+                </muxc:CommandBarFlyout>
+
+                <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
+                                       Placement="RightEdgeAlignedTop">
+                    <muxc:CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Icon="Add"
+                                      Label="添加"
+                                      x:Uid="QuickStartAddButton"
+                                      x:Name="AddQuickStartWeb"
+                                      Click="AddQuickStartItem_Click" />
+                    </muxc:CommandBarFlyout.SecondaryCommands>
+                </muxc:CommandBarFlyout>
+            </muxc:TeachingTip.Resources>
             <StackPanel>
                 <TextBlock Text="应用"
                            Margin="5"
@@ -338,10 +350,12 @@
                              PaneDisplayMode="Top"
                              IsTitleBarAutoPaddingEnabled="True"
                              SelectionFollowsFocus="Disabled"
+                             IsRightTapEnabled="True"
                              BackRequested="NavView_BackRequested"
                              ItemInvoked="NavView_ItemInvoked"
                              PaneClosing="NavView_PaneClosing"
                              PaneOpening="NavView_PaneOpening"
+                             RightTapped="NavView_RightTapped"
                              Loaded="NavView_Loaded">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
@@ -351,13 +365,14 @@
                                   Glyph="&#xE8CC;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}">
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
+                                         Name="RecycleBinItem">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE107;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="QuickStartNav"
+                <muxc:NavigationViewItem x:Name="QuickStartItem"
                                          Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                                          SelectsOnInvoked="False">
                     <muxc:NavigationViewItem.Icon>
@@ -366,12 +381,13 @@
                                   x:Name="QuickStartIcon" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
+                                         Name="SecureAreaItem">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="ProtectedDocument" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="BluetoothAudio"
+                <muxc:NavigationViewItem x:Name="BluetoothAudioItem"
                                          SelectsOnInvoked="False">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="蓝牙音频"

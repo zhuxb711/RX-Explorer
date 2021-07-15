@@ -3144,4 +3144,7 @@
   <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>僅按索引搜索</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>定制</value>
+  </data>
 </root>

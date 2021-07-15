@@ -3144,4 +3144,7 @@ Las denominaciones no válidas son:
   <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Buscar solo por índice</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>Personalizar</value>
+  </data>
 </root>

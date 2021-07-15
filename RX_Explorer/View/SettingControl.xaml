@@ -658,7 +658,7 @@
                                 <StackPanel Margin="15,0,0,0">
                                     <StackPanel Orientation="Horizontal">
                                         <GridView Name="PictureGirdView"
-                                                  MaxWidth="275"
+                                                  MaxWidth="320"
                                                   Margin="0,15,0,0"
                                                   VerticalAlignment="Top"
                                                   IsRightTapEnabled="True"

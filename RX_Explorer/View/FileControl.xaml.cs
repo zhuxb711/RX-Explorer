@@ -1932,33 +1932,14 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                    void OnFinished(object s, EventArgs e)
-                                    {
-                                        CompletionSource.TrySetResult(true);
-                                    }
-
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
-
-                                    await CompletionSource.Task;
-
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path);
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
                                     if (PathList.All((Item) => Path.GetDirectoryName(Item).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                        void OnFinished(object s, EventArgs e)
-                                        {
-                                            CompletionSource.TrySetResult(true);
-                                        }
-
-                                        QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
-
-                                        await CompletionSource.Task;
+                                        QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path);
                                     }
 
                                     break;
@@ -2000,17 +1981,18 @@ namespace RX_Explorer
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
                         }
                         else
                         {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
                         }
 
                         e.DragUIOverride.IsContentVisible = true;
                         e.DragUIOverride.IsCaptionVisible = true;
+                        e.DragUIOverride.IsGlyphVisible = true;
                     }
                     else
                     {

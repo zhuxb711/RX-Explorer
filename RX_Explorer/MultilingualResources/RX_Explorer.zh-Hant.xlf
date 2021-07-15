@@ -4174,6 +4174,10 @@ Invalid names include
           <source>Search by index only</source>
           <target state="translated">僅按索引搜索</target>
         </trans-unit>
+        <trans-unit id="CustomText" translate="yes" xml:space="preserve">
+          <source>Customize</source>
+          <target state="translated">定制</target>
+        </trans-unit>
       </group>
     </body>
   </file>

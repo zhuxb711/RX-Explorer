@@ -4172,6 +4172,10 @@ Las denominaciones no válidas son:
           <source>Search by index only</source>
           <target state="translated">Buscar solo por índice</target>
         </trans-unit>
+        <trans-unit id="CustomText" translate="yes" xml:space="preserve">
+          <source>Customize</source>
+          <target state="translated">Personalizar</target>
+        </trans-unit>
       </group>
     </body>
   </file>

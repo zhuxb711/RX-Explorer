@@ -39,7 +39,6 @@ using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
@@ -1911,6 +1910,11 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
+
                 if (ItemPresenter is GridView)
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
@@ -2136,7 +2140,7 @@ namespace RX_Explorer
                 {
                     await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
                 }
-                else
+                else if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                 {
                     await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                 }
@@ -2644,12 +2648,14 @@ namespace RX_Explorer
         {
             if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
+                DelaySelectionCancel?.Cancel();
+
                 CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
                 CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
 
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
+                    await EnterSelectedItemAsync(ReFile);
                 }
             }
         }
@@ -3333,17 +3339,18 @@ namespace RX_Explorer
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
-                        e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.Name}\"";
+                        e.AcceptedOperation = DataPackageOperation.Copy;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.Name}\"";
                     }
                     else
                     {
-                        e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.Name}\"";
+                        e.AcceptedOperation = DataPackageOperation.Move;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.Name}\"";
                     }
 
                     e.DragUIOverride.IsContentVisible = true;
                     e.DragUIOverride.IsCaptionVisible = true;
+                    e.DragUIOverride.IsGlyphVisible = true;
                 }
                 else
                 {
@@ -3382,32 +3389,12 @@ namespace RX_Explorer
                                 {
                                     case DataPackageOperation.Copy:
                                         {
-                                            TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                            void OnFinished(object s, EventArgs e)
-                                            {
-                                                CompletionSource.TrySetResult(true);
-                                            }
-
-                                            QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
-
-                                            await CompletionSource.Task;
-
+                                            QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path);
                                             break;
                                         }
                                     case DataPackageOperation.Move:
                                         {
-                                            TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                            void OnFinished(object s, EventArgs e)
-                                            {
-                                                CompletionSource.TrySetResult(true);
-                                            }
-
-                                            QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
-
-                                            await CompletionSource.Task;
-
+                                            QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path);
                                             break;
                                         }
                                 }
@@ -3618,17 +3605,18 @@ namespace RX_Explorer
                             {
                                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
                                 }
                                 else
                                 {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
                                 }
 
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
+                                e.DragUIOverride.IsGlyphVisible = true;
                             }
                             else
                             {
@@ -3648,6 +3636,7 @@ namespace RX_Explorer
 
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
+                                e.DragUIOverride.IsGlyphVisible = true;
                             }
                             else
                             {
@@ -3767,33 +3756,14 @@ namespace RX_Explorer
                     {
                         case DataPackageOperation.Copy:
                             {
-                                TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                void OnFinished(object s, EventArgs e)
-                                {
-                                    CompletionSource.TrySetResult(true);
-                                }
-
-                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);
-
-                                await CompletionSource.Task;
-
+                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
                                 break;
                             }
                         case DataPackageOperation.Move:
                             {
                                 if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
                                 {
-                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                    void OnFinished(object s, EventArgs e)
-                                    {
-                                        CompletionSource.TrySetResult(true);
-                                    }
-
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);
-
-                                    await CompletionSource.Task;
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                                 }
 
                                 break;
@@ -3828,6 +3798,11 @@ namespace RX_Explorer
             {
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
+
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
 
                 if (ItemPresenter is GridView)
                 {

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
@@ -36,6 +37,7 @@ namespace RX_Explorer
     public sealed partial class Home : Page
     {
         public event EventHandler<string> EnterActionRequested;
+        private CancellationTokenSource DelaySelectionCancel;
 
         public Home()
         {
@@ -73,10 +75,14 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
             }
             else
             {
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
 
                 if (AnimationController.Current.IsEnableAnimation)
                 {
@@ -103,10 +109,14 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
             }
             else
             {
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
 
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
@@ -118,22 +128,68 @@ namespace RX_Explorer
             }
         }
 
+        private void ItemContainer_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancel?.Cancel();
+        }
+
+        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancel?.Cancel();
+        }
+
         private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
+                switch (Item)
                 {
-                    if (Item is LibraryStorageFolder)
-                    {
-                        LibraryGrid.SelectedItem = Item;
-                        DriveGrid.SelectedIndex = -1;
-                    }
-                    else if (Item is DriveDataBase)
-                    {
-                        DriveGrid.SelectedItem = Item;
-                        LibraryGrid.SelectedIndex = -1;
-                    }
+                    case LibraryStorageFolder:
+                        {
+                            if (!SettingControl.IsDoubleClickEnable
+                                && LibraryGrid.SelectedItem != Item
+                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                            {
+                                DelaySelectionCancel?.Cancel();
+                                DelaySelectionCancel?.Dispose();
+                                DelaySelectionCancel = new CancellationTokenSource();
+
+                                Task.Delay(700).ContinueWith((task, input) =>
+                                {
+                                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                                    {
+                                        LibraryGrid.SelectedItem = Item;
+                                        DriveGrid.SelectedItem = null;
+                                    }
+                                }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+
+                            break;
+                        }
+                    case DriveDataBase:
+                        {
+                            if (!SettingControl.IsDoubleClickEnable
+                                && LibraryGrid.SelectedItem != Item
+                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                            {
+                                DelaySelectionCancel?.Cancel();
+                                DelaySelectionCancel?.Dispose();
+                                DelaySelectionCancel = new CancellationTokenSource();
+
+                                Task.Delay(700).ContinueWith((task, input) =>
+                                {
+                                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                                    {
+                                        DriveGrid.SelectedItem = Item;
+                                        LibraryGrid.SelectedItem = null;
+                                    }
+                                }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+
+                            break;
+                        }
                 }
             }
         }
@@ -230,6 +286,7 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    DelaySelectionCancel?.Cancel();
                     EnterActionRequested?.Invoke(this, Path);
                 }
             }
@@ -263,6 +320,11 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
+
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
                     DriveGrid.SelectedItem = Context;
@@ -339,6 +401,11 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
+
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
@@ -491,6 +558,11 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
+
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
@@ -511,6 +583,11 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
+                if (!SettingControl.IsDoubleClickEnable)
+                {
+                    DelaySelectionCancel?.Cancel();
+                }
+
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
                     DriveGrid.SelectedItem = Context;

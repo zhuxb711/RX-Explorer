@@ -225,6 +225,9 @@
     <Compile Include="Dialog\DecompressDialog.xaml.cs">
       <DependentUpon>DecompressDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\EditNavigationViewItemDialog.xaml.cs">
+      <DependentUpon>EditNavigationViewItemDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\KeyboardShortcutGuideDialog.xaml.cs">
       <DependentUpon>KeyboardShortcutGuideDialog.xaml</DependentUpon>
     </Compile>
@@ -596,6 +599,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\EditNavigationViewItemDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\KeyboardShortcutGuideDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -785,7 +792,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>5.0.7</Version>
+      <Version>5.0.8</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.10.0</Version>

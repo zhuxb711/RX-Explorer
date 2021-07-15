@@ -341,15 +341,6 @@
                               Name="FileShare">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
-                            <MenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SystemShare')}"
-                                            MinWidth="160"
-                                            Name="SystemShare"
-                                            Click="SystemShare_Click">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                              Glyph="&#xF3E2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
                             <MenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_WIFIShare')}"
                                             MinWidth="160"
                                             Name="WIFIShare"
@@ -363,6 +354,15 @@
                                             Click="BluetoothShare_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE702;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SystemShare')}"
+                                            MinWidth="160"
+                                            Name="SystemShare"
+                                            Click="SystemShare_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF3E2;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                         </MenuFlyout>

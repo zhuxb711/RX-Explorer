@@ -939,7 +939,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                QuickStartTip.Target = QuickStartNav;
+                                QuickStartTip.Target = QuickStartItem;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
                             }
 
@@ -959,7 +959,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    BluetoothAudioSelectionTip.Target = BluetoothAudio;
+                                    BluetoothAudioSelectionTip.Target = BluetoothAudioItem;
                                     BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
                                 }
 
@@ -1416,6 +1416,83 @@ namespace RX_Explorer
             if (NavView.FindChildOfName<ScrollViewer>("FooterItemsScrollViewer") is ScrollViewer Viewer)
             {
                 Viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+            {
+                RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                RecycleBinItem.Visibility = Visibility.Visible;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
+            {
+                QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                QuickStartItem.Visibility = Visibility.Visible;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
+            {
+                SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                SecureAreaItem.Visibility = Visibility.Visible;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
+            {
+                BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                BluetoothAudioItem.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void NavView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            switch (e.OriginalSource)
+            {
+                case Grid Gr when Gr.Name == "LayoutRoot" || Gr.Name == "PaneRoot":
+                case DependencyObject Obj when Obj.FindParentOfType<NavigationViewItem>() != null:
+                    {
+                        NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions { Position = e.GetPosition(NavView) });
+                        break;
+                    }
+            }
+        }
+
+        private async void EditNavItem_Click(object sender, RoutedEventArgs e)
+        {
+            EditNavigationViewItemDialog Dialog = new EditNavigationViewItemDialog();
+            
+            if(await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+                {
+                    RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
+                {
+                    QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
+                {
+                    SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
+                {
+                    BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
         }
     }

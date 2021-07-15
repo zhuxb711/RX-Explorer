@@ -3249,4 +3249,7 @@ Invalid names include
   <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Search by index only</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>Customize</value>
+  </data>
 </root>

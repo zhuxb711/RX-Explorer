@@ -4172,6 +4172,10 @@ Inkorrekte Namen sind
           <source>Search by index only</source>
           <target state="translated">Nur nach Index suchen</target>
         </trans-unit>
+        <trans-unit id="CustomText" translate="yes" xml:space="preserve">
+          <source>Customize</source>
+          <target state="translated">Anpassen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

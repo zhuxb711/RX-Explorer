@@ -3144,4 +3144,7 @@ Inkorrekte Namen sind
   <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Nur nach Index suchen</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>Anpassen</value>
+  </data>
 </root>

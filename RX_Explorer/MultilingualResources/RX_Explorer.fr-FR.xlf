@@ -4174,6 +4174,10 @@ Les noms non valides incluent
           <source>Search by index only</source>
           <target state="translated">Recherche par index uniquement</target>
         </trans-unit>
+        <trans-unit id="CustomText" translate="yes" xml:space="preserve">
+          <source>Customize</source>
+          <target state="translated">Personnaliser</target>
+        </trans-unit>
       </group>
     </body>
   </file>
