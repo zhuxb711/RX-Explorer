@@ -1333,12 +1333,12 @@ namespace RX_Explorer.Class
                         {
                             List<InstalledApplication> PackageList = new List<InstalledApplication>();
 
-                            foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<InstalledApplicationPackage[]>(Convert.ToString(Result)))
+                            foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Convert.ToString(Result)))
                             {
                                 PackageList.Add(await InstalledApplication.CreateAsync(Pack));
                             }
 
-                            return PackageList.ToArray();
+                            return PackageList;
                         }
                         else
                         {

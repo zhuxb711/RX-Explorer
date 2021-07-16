@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -295,20 +296,18 @@ namespace FullTrustProcess
         {
             PackageManager Manager = new PackageManager();
 
-            if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
+            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
             {
                 RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
                 using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
-                using (DataReader Reader = new DataReader(IconStream))
+                using (Stream Stream = IconStream.AsStream())
                 {
-                    byte[] Buffer = new byte[IconStream.Size];
+                    byte[] Logo = new byte[IconStream.Size];
 
-                    await Reader.LoadAsync(Convert.ToUInt32(IconStream.Size));
+                    Stream.Read(Logo, 0, (int)IconStream.Size);
 
-                    Reader.ReadBytes(Buffer);
-
-                    return Buffer;
+                    return Logo;
                 }
             }
             else
@@ -321,55 +320,10 @@ namespace FullTrustProcess
         {
             PackageManager Manager = new PackageManager();
 
-            return Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).Any();
+            return Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).Any();
         }
 
         public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
-        {
-            if (PathArray.Length > 0)
-            {
-                return ExecuteOnSTAThreadAsync(() =>
-                {
-                    List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
-
-                    try
-                    {
-                        if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
-                        {
-                            foreach (string Path in PathArray)
-                            {
-                                SItemList.Add(new ShellItem(Path));
-                            }
-
-                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
-                            {
-                                Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
-                            }
-
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                    finally
-                    {
-                        SItemList.ForEach((Item) => Item.Dispose());
-                    }
-                });
-            }
-            else
-            {
-                return LaunchApplicationFromAUMIDAsync(AppUserModelId);
-            }
-        }
-
-        public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId)
         {
             return ExecuteOnSTAThreadAsync(() =>
             {
@@ -377,7 +331,32 @@ namespace FullTrustProcess
                 {
                     if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
                     {
-                        Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+                        if (PathArray.Length > 0)
+                        {
+                            List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
+
+                            try
+                            {
+                                foreach (string Path in PathArray)
+                                {
+                                    SItemList.Add(new ShellItem(Path));
+                                }
+
+                                using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                                {
+                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                                }
+                            }
+                            finally
+                            {
+                                SItemList.ForEach((Item) => Item.Dispose());
+                            }
+                        }
+                        else
+                        {
+                            Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+                        }
+
                         return true;
                     }
                     else
@@ -396,27 +375,21 @@ namespace FullTrustProcess
         {
             PackageManager Manager = new PackageManager();
 
-            if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
+            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
             {
                 foreach (AppListEntry Entry in await Pack.GetAppListEntriesAsync())
                 {
-                    if (PathArray.Length > 0)
-                    {
-                        if (!string.IsNullOrEmpty(Entry.AppUserModelId))
-                        {
-                            return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId, PathArray);
-                        }
-                    }
-                    else
+                    if (PathArray.Length == 0)
                     {
                         if (await Entry.LaunchAsync())
                         {
                             return true;
                         }
-                        else if (!string.IsNullOrEmpty(Entry.AppUserModelId))
-                        {
-                            return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId);
-                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(Entry.AppUserModelId))
+                    {
+                        return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId, PathArray);
                     }
                 }
 
@@ -432,20 +405,18 @@ namespace FullTrustProcess
         {
             PackageManager Manager = new PackageManager();
 
-            if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
+            if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
             {
                 try
                 {
                     RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
                     using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
-                    using (DataReader Reader = new DataReader(IconStream))
+                    using (Stream Stream = IconStream.AsStream())
                     {
-                        await Reader.LoadAsync(Convert.ToUInt32(IconStream.Size));
-
                         byte[] Logo = new byte[IconStream.Size];
 
-                        Reader.ReadBytes(Logo);
+                        Stream.Read(Logo, 0, (int)IconStream.Size);
 
                         return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo);
                     }
@@ -461,37 +432,45 @@ namespace FullTrustProcess
             }
         }
 
-        public static async Task<InstalledApplicationPackage[]> GetInstalledApplicationAsync()
+        public static async Task<IEnumerable<InstalledApplicationPackage>> GetInstalledApplicationAsync()
         {
-            List<InstalledApplicationPackage> Result = new List<InstalledApplicationPackage>();
+            List<Task<InstalledApplicationPackage>> ParallelList = new List<Task<InstalledApplicationPackage>>();
 
             PackageManager Manager = new PackageManager();
 
-            foreach (Package Pack in Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).Where((Pack) => !Pack.DisplayName.Equals("XSurfUwp", StringComparison.OrdinalIgnoreCase) && !Pack.IsDevelopmentMode).OrderBy((Pack) => Pack.Id.Publisher))
+            foreach (Package Pack in Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageTypes.Main)
+                                            .Where((Pack) => !string.IsNullOrWhiteSpace(Pack.DisplayName)
+                                                                && Pack.Status.VerifyIsOK()
+                                                                && Pack.SignatureKind is PackageSignatureKind.Developer
+                                                                                      or PackageSignatureKind.Enterprise
+                                                                                      or PackageSignatureKind.Store))
             {
-                try
+                ParallelList.Add(Task.Run(() =>
                 {
-                    RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
-
-                    using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
-                    using (DataReader Reader = new DataReader(IconStream))
+                    try
                     {
-                        await Reader.LoadAsync(Convert.ToUInt32(IconStream.Size));
+                        RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                        byte[] Logo = new byte[IconStream.Size];
+                        using (IRandomAccessStreamWithContentType IconStream = Reference.OpenReadAsync().AsTask().Result)
+                        using (Stream Stream = IconStream.AsStream())
+                        {
+                            byte[] Logo = new byte[IconStream.Size];
 
-                        Reader.ReadBytes(Logo);
+                            Stream.Read(Logo, 0, (int)IconStream.Size);
 
-                        Result.Add(new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo));
+                            return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo);
+                        }
                     }
-                }
-                catch
-                {
-                    continue;
-                }
+                    catch
+                    {
+                        return null;
+                    }
+                }));
             }
 
-            return Result.ToArray();
+            return await Task.WhenAll(ParallelList).ContinueWith((PreTask) => PreTask.Result.OfType<InstalledApplicationPackage>()
+                                                                                            .OrderBy((Pack) => Pack.AppDescription)
+                                                                                            .ThenBy((Pack) => Pack.AppName));
         }
     }
 }
