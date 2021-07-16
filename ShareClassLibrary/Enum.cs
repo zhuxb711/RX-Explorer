@@ -1,5 +1,11 @@
 ﻿namespace ShareClassLibrary
 {
+    public enum CreateType
+    {
+        File,
+        Folder
+    }
+
     public enum CollisionOptions
     {
         None,

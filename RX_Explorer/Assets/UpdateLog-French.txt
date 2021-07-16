@@ -1,4 +1,45 @@
 ﻿*****
+###Quoi de neuf dans la version 6.8.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Certaines des configurations du moteur de recherche dans la page de configuration ont maintenant des sous-options
+
+>######Les modules de la vue de navigation peuvent désormais être personnalisés
+
+>#####Maintenant, RX peut automatiquement élever les autorisations lorsque vous n'avez pas suffisamment d'autorisations pour créer des fichiers
+
+>#####Maintenant, vous pouvez annuler l'opération de création d'un nouveau fichier
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Amélioration de l'animation lors du changement de mode de mise en page
+
+>#####Amélioration de l'animation lors du passage à la page d'accueil
+
+>#####Le comportement de glissement par défaut a été modifié de « Copier » à « Déplacer »
+
+>#####Mise à jour d'un fond d'écran intégré pour améliorer le contraste
+
+#####Amélioration des performances
+
+>#####Amélioration des performances de chargement des "Bibliothèques"
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la page des paramètres ne peut pas être synchronisée entre les processus et la configuration est perdue lorsque plusieurs fenêtres sont lancées en même temps
+
+>#####Correction du problème de réinitialisation du nom de fichier lors du changement de configuration dans la fenêtre d'option de compression
+
+>#####Correction du problème selon lequel l'icône pouvait rester bloquée lors du glisser-déposer de fichiers
+
+>#####Correction du problème selon lequel vous pouvez toujours changer de dossier en double-cliquant en mode multi-sélection
+
+>#####Correction du problème selon lequel le processus auxiliaire ne pouvait pas générer correctement le chemin unique dans certains cas
+
+>#####Correction du problème pouvant entraîner l'affichage de fichiers en double lorsque vous modifiez des documents Office
+
+*****
 ###Quoi de neuf dans la version 6.8.1.0
 
 #####Mise à jour des fonctionnalités

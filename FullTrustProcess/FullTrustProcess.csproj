@@ -89,7 +89,8 @@
   <ItemGroup>
     <Compile Include="ContextMenu.cs" />
     <Compile Include="ElevationCopyData.cs" />
-    <Compile Include="ElevationDataBase.cs" />
+    <Compile Include="ElevationCreateNewData.cs" />
+    <Compile Include="IElevationData.cs" />
     <Compile Include="ElevationDeleteData.cs" />
     <Compile Include="ElevationMoveData.cs" />
     <Compile Include="ElevationRenameData.cs" />

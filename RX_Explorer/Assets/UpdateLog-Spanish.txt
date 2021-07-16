@@ -1,4 +1,45 @@
 ﻿*****
+###Novedades de la versión 6.8.4.0
+
+#####Actualización de funciones
+
+>#####Algunas de las configuraciones del motor de búsqueda en la página de configuración ahora tienen subopciones
+
+>#####Los módulos en la vista de navegación ahora se pueden personalizar
+
+>#####Ahora RX puede elevar automáticamente los permisos cuando no tiene permisos suficientes para crear archivos
+
+>#####Ahora puedes deshacer la operación de crear un nuevo archivo
+
+#####actualización de la interfaz de usuario
+
+>#####Se mejoró la animación al cambiar el modo de diseño
+
+>#####Se mejoró la animación al cambiar a la página de inicio
+
+>#####El comportamiento de arrastre predeterminado se ha cambiado de "Copiar" a "Mover"
+
+>#####Se actualizó un fondo de pantalla incorporado para mejorar el contraste
+
+#####Mejora del rendimiento
+
+>#####Se mejoró el rendimiento de la carga de "Bibliotecas"
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la página de configuración no se puede sincronizar entre procesos y la configuración se pierde cuando se inician varias ventanas al mismo tiempo
+
+>#####Se solucionó el problema de que el nombre del archivo se restablecería al cambiar la configuración en la ventana de opciones de compresión
+
+>#####Se solucionó el problema de que el icono se atascaba al arrastrar y soltar archivos
+
+>#####Se solucionó el problema de que aún puede cambiar de carpeta haciendo doble clic en el modo de selección múltiple
+
+>#####Se solucionó el problema de que el proceso auxiliar no podía generar correctamente la ruta única en algunos casos
+
+>#####Se corrigió el problema que puede causar que se muestren archivos duplicados cuando modifica documentos de Office
+
+*****
 ###Novedades de la versión 6.8.1.0
 
 #####Actualización de funciones

@@ -42,6 +42,7 @@ namespace RX_Explorer.Class
                                 return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath)}";
                             }
                         }
+                    case OperationKind.New:
                     case OperationKind.Copy:
                         {
                             return string.Empty;

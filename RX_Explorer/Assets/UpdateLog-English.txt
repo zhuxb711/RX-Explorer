@@ -1,4 +1,45 @@
 ﻿*****
+###What's new in Ver.6.8.4.0
+
+#####Feature update
+
+>#####Some of the search engine configuration in setting page now have sub-options
+
+>#####Modules in the navigation view can now be customized
+
+>#####Now RX can automatically elevated permissions when you have insufficient permissions to create files
+
+>#####Now you can undo the operation of creating a new file
+
+#####UI update
+
+>#####Improved the animation when switching the layout mode
+
+>#####Improved the animation when switching to the homepage
+
+>#####The default drag behavior has been changed from "Copy" to "Move"
+
+>#####Updated a built-in wallpaper to improve contrast
+
+#####Performance improvement
+
+>#####Improved the performance of loading "Libraries"
+
+#####Bug fix
+
+>#####Fixed the problem that the settings page cannot be synchronized across processes and the configuration is lost when multiple windows are launched at the same time
+
+>#####Fixed the problem that the file name will be reset when switching the configuration in the compression option window
+
+>#####Fixed the problem that the icon may get stuck when dragging and dropping files
+
+>#####Fixed the problem that you can still switch folders by double-clicking when in multi-select mode
+
+>#####Fixed the problem that the auxiliary process could not correctly generate the unique path in some cases
+
+>#####Fixed the problem that may cause duplicate files displayed when you modify Office documents
+
+*****
 ###What's new in Ver.6.8.1.0
 
 #####Feature update

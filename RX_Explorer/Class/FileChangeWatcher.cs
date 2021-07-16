@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public sealed class StorageAreaWatcher : IDisposable
+    public sealed class FileChangeWatcher : IDisposable
     {
         private IntPtr WatcherPtr;
         private Thread BackgroundThread;
@@ -171,12 +171,12 @@ namespace RX_Explorer.Class
             CurrentLocation = string.Empty;
         }
 
-        public StorageAreaWatcher()
+        public FileChangeWatcher()
         {
             WatcherPtr = IntPtr.Zero;
         }
 
-        ~StorageAreaWatcher()
+        ~FileChangeWatcher()
         {
             Dispose();
         }

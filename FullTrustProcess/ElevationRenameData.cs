@@ -1,20 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
-
-namespace FullTrustProcess
+﻿namespace FullTrustProcess
 {
-    public sealed class ElevationRenameData : ElevationDataBase
+    public sealed class ElevationRenameData : IElevationData
     {
         public string DesireName { get; }
 
-        public ElevationRenameData(string Source, string DesireName) : this(new string[] { Source }, DesireName)
-        {
+        public string Path { get; }
 
-        }
-
-        [JsonConstructor]
-        public ElevationRenameData(IEnumerable<string> Source, string DesireName) : base(Source, null)
+        public ElevationRenameData(string Path, string DesireName)
         {
+            this.Path = Path;
             this.DesireName = DesireName;
         }
     }

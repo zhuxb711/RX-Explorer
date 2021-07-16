@@ -91,7 +91,7 @@ namespace RX_Explorer
 
         public int RecordIndex { get; set; }
 
-        private StorageAreaWatcher AreaWatcher;
+        private FileChangeWatcher AreaWatcher;
 
         private SemaphoreSlim EnterLock;
         private SemaphoreSlim CollectionChangeLock;
@@ -247,8 +247,8 @@ namespace RX_Explorer
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
 
-            AreaWatcher = new StorageAreaWatcher();
-            AreaWatcher.FileChanged += AreaWatcher_FileChanged;
+            AreaWatcher = new FileChangeWatcher();
+            AreaWatcher.FileChanged += DirectoryWatcher_FileChanged;
 
             EnterLock = new SemaphoreSlim(1, 1);
             CollectionChangeLock = new SemaphoreSlim(1, 1);
@@ -267,7 +267,7 @@ namespace RX_Explorer
             ViewModeController.ViewModeChanged += Current_ViewModeChanged;
         }
 
-        private async void AreaWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
+        private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -331,20 +331,25 @@ namespace RX_Explorer
                             {
                                 if (CurrentFolder.Path == Path.GetDirectoryName(RemovedArgs.Path))
                                 {
-                                    FileSystemStorageItemBase Item = FileCollection.FirstOrDefault((Item) => Item.Path.Equals(RemovedArgs.Path, StringComparison.OrdinalIgnoreCase));
+                                    bool ShouldRefreshTreeView = false;
 
-                                    if (Item != null)
+                                    foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => Item.Path.Equals(RemovedArgs.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
                                     {
                                         FileCollection.Remove(Item);
 
                                         if (Item is FileSystemStorageFolder && !SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(CurrentFolder.Path).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                            ShouldRefreshTreeView = true;
+                                        }
+                                    }
+
+                                    if (ShouldRefreshTreeView)
+                                    {
+                                        if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(CurrentFolder.Path).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
+                                        {
+                                            if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
                                             {
-                                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentFolder.Path, string.Empty), true) is TreeViewNode CurrentNode)
-                                                {
-                                                    await CurrentNode.UpdateAllSubNodeAsync();
-                                                }
+                                                await CurrentNode.UpdateAllSubNodeAsync();
                                             }
                                         }
                                     }
@@ -473,7 +478,8 @@ namespace RX_Explorer
                                         {
                                             if ((Item is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
                                             {
-                                                if (FileCollection.FirstOrDefault((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase) || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
+                                                foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
+                                                                                                                               || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
                                                 {
                                                     FileCollection.Remove(ExistItem);
                                                 }
@@ -519,7 +525,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Add item to collection failed");
+                    LogTracer.Log(ex, $"{ nameof(FileChangeWatcher)}: Add item to collection failed");
                 }
                 finally
                 {
@@ -746,7 +752,7 @@ namespace RX_Explorer
                             }
                         case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.IsNotEmpty:
                             {
-                                await Ctrl_Z_Click().ConfigureAwait(false);
+                                await Ctrl_Z_Click();
                                 break;
                             }
                         case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
@@ -1262,95 +1268,103 @@ namespace RX_Explorer
 
         private async Task Ctrl_Z_Click()
         {
-            if (OperationRecorder.Current.IsNotEmpty)
+            try
             {
-                try
+                IReadOnlyList<string> RecordList = OperationRecorder.Current.Pop();
+
+                if (RecordList.Count > 0)
                 {
-                    List<string> RecordList = OperationRecorder.Current.Pop();
+                    IEnumerable<string[]> SplitGroup = RecordList.Select((Item) => Item.Split("||", StringSplitOptions.RemoveEmptyEntries));
 
-                    if (RecordList.Count > 0)
+                    IEnumerable<string> OriginFolderPathList = SplitGroup.Select((Item) => Path.GetDirectoryName(Item[0]));
+
+                    string OriginFolderPath = OriginFolderPathList.FirstOrDefault();
+
+                    if (OriginFolderPathList.All((Item) => Item.Equals(OriginFolderPath, StringComparison.OrdinalIgnoreCase)))
                     {
-                        IEnumerable<string[]> SplitGroup = RecordList.Select((Item) => Item.Split("||", StringSplitOptions.RemoveEmptyEntries));
+                        IEnumerable<string> UndoModeList = SplitGroup.Select((Item) => Item[1]);
 
-                        IEnumerable<string> OriginFolderPathList = SplitGroup.Select((Item) => Path.GetDirectoryName(Item[0]));
+                        string UndoMode = UndoModeList.FirstOrDefault();
 
-                        string OriginFolderPath = OriginFolderPathList.FirstOrDefault();
-
-                        if (OriginFolderPathList.All((Item) => Item.Equals(OriginFolderPath, StringComparison.OrdinalIgnoreCase)))
+                        if (UndoModeList.All((Mode) => Mode.Equals(UndoMode, StringComparison.OrdinalIgnoreCase)))
                         {
-                            IEnumerable<string> UndoModeList = SplitGroup.Select((Item) => Item[1]);
-
-                            string UndoMode = UndoModeList.FirstOrDefault();
-
-                            if (UndoModeList.All((Mode) => Mode.Equals(UndoMode, StringComparison.OrdinalIgnoreCase)))
+                            switch (UndoMode)
                             {
-                                switch (UndoMode)
-                                {
-                                    case "Delete":
+                                case "Delete":
+                                    {
+                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
                                         {
-                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                                    {
-                                                        await RootNode.UpdateAllSubNodeAsync();
-                                                    }
+                                                    await RootNode.UpdateAllSubNodeAsync();
                                                 }
-                                            });
+                                            }
+                                        });
 
-                                            break;
-                                        }
-                                    case "Move":
+                                        break;
+                                    }
+                                case "Move":
+                                    {
+                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
                                         {
-                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                                    {
-                                                        await RootNode.UpdateAllSubNodeAsync();
-                                                    }
+                                                    await RootNode.UpdateAllSubNodeAsync();
                                                 }
-                                            });
+                                            }
+                                        });
 
-                                            break;
-                                        }
-                                    case "Copy":
+                                        break;
+                                    }
+                                case "Copy":
+                                    {
+                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
                                         {
-                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                                    {
-                                                        await RootNode.UpdateAllSubNodeAsync();
-                                                    }
+                                                    await RootNode.UpdateAllSubNodeAsync();
                                                 }
-                                            });
+                                            }
+                                        });
 
-                                            break;
-                                        }
-                                    case "Rename":
+                                        break;
+                                    }
+                                case "Rename":
+                                    {
+                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Rename, SplitGroup.Select((Item) => Item[2]).FirstOrDefault(), SplitGroup.Select((Item) => Item[0]).FirstOrDefault(), OnCompleted: async (s, e) =>
                                         {
-                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Rename, SplitGroup.Select((Item) => Item[2]).FirstOrDefault(), SplitGroup.Select((Item) => Item[0]).FirstOrDefault(), OnCompleted: async (s, e) =>
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
-                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                                    {
-                                                        await RootNode.UpdateAllSubNodeAsync();
-                                                    }
+                                                    await RootNode.UpdateAllSubNodeAsync();
                                                 }
-                                            });
+                                            }
+                                        });
 
-                                            break;
-                                        }
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception("Undo data format is invalid");
+                                        break;
+                                    }
+                                case "New":
+                                    {
+                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.New, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                        {
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                            {
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                                                {
+                                                    await RootNode.UpdateAllSubNodeAsync();
+                                                }
+                                            }
+                                        });
+
+                                        break;
+                                    }
                             }
                         }
                         else
@@ -1363,17 +1377,21 @@ namespace RX_Explorer
                         throw new Exception("Undo data format is invalid");
                     }
                 }
-                catch
+                else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync();
+                    throw new Exception("Undo data format is invalid");
                 }
+            }
+            catch
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync();
             }
         }
 
@@ -4221,7 +4239,10 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            await Ctrl_Z_Click().ConfigureAwait(false);
+            if (OperationRecorder.Current.IsNotEmpty)
+            {
+                await Ctrl_Z_Click();
+            }
         }
 
         private void OrderByName_Click(object sender, RoutedEventArgs e)
@@ -5345,7 +5366,7 @@ namespace RX_Explorer
             FileCollection.Clear();
             GroupCollection.Clear();
 
-            AreaWatcher.FileChanged -= AreaWatcher_FileChanged;
+            AreaWatcher.FileChanged -= DirectoryWatcher_FileChanged;
             AreaWatcher.Dispose();
 
             WiFiProvider?.Dispose();

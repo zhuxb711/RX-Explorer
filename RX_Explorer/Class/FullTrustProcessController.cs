@@ -109,6 +109,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetTooltipText = "Execute_GetTooltipText";
 
+        private const string ExecuteType_CreateNew = "Execute_CreateNew";
+
         public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
@@ -673,6 +675,70 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(GetThumbnailOverlayAsync)} throw an error");
                 return Array.Empty<byte>();
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<string> CreateNewAsync(CreateType Type, string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        { "ExecuteType", ExecuteType_CreateNew },
+                        { "NewPath", Path },
+                        { "Type", Enum.GetName(typeof(CreateType), Type) }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object NewPath))
+                        {
+                            return Convert.ToString(NewPath);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage2}");
+                            }
+                            else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage4}");
+                            }
+                            else if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(CreateNewAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(CreateNewAsync)}: Failed to connect AppService ");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(CreateNewAsync)} throw an error");
+                return string.Empty;
             }
             finally
             {
@@ -1416,7 +1482,7 @@ namespace RX_Explorer.Class
                             };
 
                             PipeWriteController.SendData(JsonSerializer.Serialize(Command));
-                            
+
                             return await CompletionSource.Task;
                         }
                         finally
@@ -1770,7 +1836,7 @@ namespace RX_Explorer.Class
                         else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
-                            throw new FileLoadException();
+                            throw new FileCaputureException();
                         }
                         else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {

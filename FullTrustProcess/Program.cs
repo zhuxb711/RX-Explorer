@@ -111,15 +111,35 @@ namespace FullTrustProcess
                                     {
                                         switch (JsonSerializer.Deserialize(InitData[1], Type.GetType(InitData[0])))
                                         {
+                                            case ElevationCreateNewData NewData:
+                                                {
+                                                    if (StorageController.CheckPermission(NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(NewData.Path) ?? NewData.Path))
+                                                    {
+                                                        if (StorageController.Create(NewData.Type, NewData.Path))
+                                                        {
+                                                            Writer.WriteLine("Success");
+                                                        }
+                                                        else
+                                                        {
+                                                            Writer.WriteLine("Error_Failure");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        Writer.WriteLine("Error_NoPermission");
+                                                    }
+
+                                                    break;
+                                                }
                                             case ElevationCopyData CopyData:
                                                 {
-                                                    if (CopyData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (StorageController.CheckPermission(FileSystemRights.Modify, CopyData.Destination))
+                                                        if (StorageController.CheckPermission(FileSystemRights.Modify, CopyData.DestinationPath))
                                                         {
                                                             List<string> OperationRecordList = new List<string>();
 
-                                                            if (StorageController.Copy(CopyData.Source, CopyData.Destination, CopyData.Option, PostCopyEvent: (se, arg) =>
+                                                            if (StorageController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, PostCopyEvent: (se, arg) =>
                                                             {
                                                                 if (arg.Result == HRESULT.S_OK)
                                                                 {
@@ -156,20 +176,20 @@ namespace FullTrustProcess
                                                 }
                                             case ElevationMoveData MoveData:
                                                 {
-                                                    if (MoveData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    if (MoveData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (MoveData.Source.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                        if (MoveData.SourcePath.Any((Item) => StorageController.CheckCaptured(Item)))
                                                         {
                                                             Writer.WriteLine("Error_Capture");
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.Destination)
-                                                                && MoveData.Source.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.DestinationPath)
+                                                                && MoveData.SourcePath.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
-                                                                if (StorageController.Move(MoveData.Source, MoveData.Destination, MoveData.Option, PostMoveEvent: (se, arg) =>
+                                                                if (StorageController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, PostMoveEvent: (se, arg) =>
                                                                 {
                                                                     if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                                     {
@@ -184,7 +204,7 @@ namespace FullTrustProcess
                                                                     }
                                                                 }))
                                                                 {
-                                                                    if (MoveData.Source.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    if (MoveData.SourcePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                     {
                                                                         Writer.WriteLine("Success");
                                                                         Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
@@ -214,19 +234,19 @@ namespace FullTrustProcess
                                                 }
                                             case ElevationDeleteData DeleteData:
                                                 {
-                                                    if (DeleteData.Source.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    if (DeleteData.DeletePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (DeleteData.Source.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                        if (DeleteData.DeletePath.Any((Item) => StorageController.CheckCaptured(Item)))
                                                         {
                                                             Writer.WriteLine("Error_Capture");
                                                         }
                                                         else
                                                         {
-                                                            if (DeleteData.Source.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
-                                                                if (StorageController.Delete(DeleteData.Source, DeleteData.PermanentDelete, PostDeleteEvent: (se, arg) =>
+                                                                if (StorageController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, PostDeleteEvent: (se, arg) =>
                                                                 {
                                                                     if (!DeleteData.PermanentDelete)
                                                                     {
@@ -234,7 +254,7 @@ namespace FullTrustProcess
                                                                     }
                                                                 }))
                                                                 {
-                                                                    if (DeleteData.Source.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                     {
                                                                         Writer.WriteLine("Success");
                                                                         Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
@@ -264,21 +284,19 @@ namespace FullTrustProcess
                                                 }
                                             case ElevationRenameData RenameData:
                                                 {
-                                                    string Path = RenameData.Source.FirstOrDefault();
-
-                                                    if (File.Exists(Path) || Directory.Exists(Path))
+                                                    if (File.Exists(RenameData.Path) || Directory.Exists(RenameData.Path))
                                                     {
-                                                        if (StorageController.CheckCaptured(Path))
+                                                        if (StorageController.CheckCaptured(RenameData.Path))
                                                         {
                                                             Writer.WriteLine("Error_Capture");
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path))
+                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path))
                                                             {
                                                                 string NewName = string.Empty;
 
-                                                                if (StorageController.Rename(Path, RenameData.DesireName, (s, e) =>
+                                                                if (StorageController.Rename(RenameData.Path, RenameData.DesireName, (s, e) =>
                                                                 {
                                                                     NewName = e.Name;
                                                                 }))
@@ -842,6 +860,76 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_CreateNew":
+                        {
+                            string CreateNewPath = Convert.ToString(args.Request.Message["NewPath"]);
+                            string UniquePath = StorageController.GenerateUniquePath(CreateNewPath);
+
+                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), Convert.ToString(args.Request.Message["Type"]));
+
+                            ValueSet Value = new ValueSet();
+
+                            if (StorageController.CheckPermission(Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(UniquePath) ?? UniquePath))
+                            {
+                                if (StorageController.Create(Type, UniquePath))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error_Failure", "Error happened when create new");
+                                }
+                            }
+                            else
+                            {
+                                using (Process AdminProcess = CreateNewProcessAsElevated(new ElevationCreateNewData(Type, UniquePath)))
+                                using (Process CurrentProcess = Process.GetCurrentProcess())
+                                {
+                                    AdminProcess.WaitForExit();
+
+                                    string TempFilePath = Path.Combine(Path.GetTempPath(), $"Template_{AdminProcess.Id}");
+
+                                    if (File.Exists(TempFilePath))
+                                    {
+                                        try
+                                        {
+                                            string OriginData = File.ReadAllText(TempFilePath, Encoding.UTF8).Replace(Environment.NewLine, string.Empty);
+
+                                            switch (OriginData)
+                                            {
+                                                case "Success":
+                                                    {
+                                                        Value.Add("Success", UniquePath);
+                                                        break;
+                                                    }
+                                                case "Error_NoPermission":
+                                                    {
+                                                        Value.Add("Error_NoPermission", "Do not have enough permission");
+                                                        break;
+                                                    }
+                                                case "Error_Failure":
+                                                    {
+                                                        Value.Add("Error_Failure", "Error happened when create new");
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            File.Delete(TempFilePath);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Could not found template file");
+                                    }
+                                }
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_Rename":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
@@ -902,7 +990,7 @@ namespace FullTrustProcess
                                                             }
                                                         case "Error_NoPermission":
                                                             {
-                                                                Value.Add("Error_Capture", "Do not have enough permission");
+                                                                Value.Add("Error_NoPermission", "Do not have enough permission");
                                                                 break;
                                                             }
                                                         case "Error_Failure":
@@ -2430,7 +2518,7 @@ namespace FullTrustProcess
             }
         }
 
-        private static Process CreateNewProcessAsElevated<T>(T Data) where T : ElevationDataBase
+        private static Process CreateNewProcessAsElevated<T>(T Data) where T : IElevationData
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {

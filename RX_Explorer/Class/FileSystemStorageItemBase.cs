@@ -265,9 +265,31 @@ namespace RX_Explorer.Class
             {
                 case StorageItemTypes.File:
                     {
-                        if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                        if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
                         {
-                            return await OpenAsync(NewPath);
+                            if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                            {
+                                OperationRecorder.Current.Push(new string[] { $"{NewPath}||New" });
+                                return await OpenAsync(NewPath);
+                            }
+                            else
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
+                                        return null;
+                                    }
+                                    else
+                                    {
+                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -282,16 +304,22 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     default:
@@ -300,18 +328,55 @@ namespace RX_Explorer.Class
                                         }
                                 }
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                LogTracer.Log($"UWP storage API could not create file: \"{Path}\"");
-                                return null;
+                                LogTracer.Log(ex, $"UWP storage API could not create file, path: \"{Path}\"");
+
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
+                                        return null;
+                                    }
+                                    else
+                                    {
+                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
                             }
                         }
                     }
                 case StorageItemTypes.Folder:
                     {
-                        if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                        if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
                         {
-                            return await OpenAsync(NewPath);
+                            if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                            {
+                                OperationRecorder.Current.Push(new string[] { $"{NewPath}||New" });
+                                return await OpenAsync(NewPath);
+                            }
+                            else
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
+                                        return null;
+                                    }
+                                    else
+                                    {
+                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -326,16 +391,22 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     default:
@@ -344,10 +415,25 @@ namespace RX_Explorer.Class
                                         }
                                 }
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                LogTracer.Log($"UWP storage API could not create folder: \"{Path}\"");
-                                return null;
+                                LogTracer.Log(ex, $"UWP storage API could not create folder, path: \"{Path}\"");
+
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
+                                        return null;
+                                    }
+                                    else
+                                    {
+                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
                             }
                         }
                     }

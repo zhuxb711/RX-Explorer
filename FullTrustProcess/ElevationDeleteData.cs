@@ -2,13 +2,16 @@
 
 namespace FullTrustProcess
 {
-    public sealed class ElevationDeleteData : ElevationDataBase
+    public sealed class ElevationDeleteData : IElevationData
     {
         public bool PermanentDelete { get; }
 
-        public ElevationDeleteData(IEnumerable<string> Source, bool PermanentDelete) : base(Source, null)
+        public IEnumerable<string> DeletePath { get; }
+
+        public ElevationDeleteData(IEnumerable<string> DeletePath, bool PermanentDelete)
         {
             this.PermanentDelete = PermanentDelete;
+            this.DeletePath = DeletePath;
         }
     }
 }

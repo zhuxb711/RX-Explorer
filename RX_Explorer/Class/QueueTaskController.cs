@@ -486,6 +486,7 @@ namespace RX_Explorer.Class
                                 {
                                     switch (UndoModel.UndoOperationKind)
                                     {
+                                        case OperationKind.New:
                                         case OperationKind.Copy:
                                             {
                                                 Exclusive.Controller.DeleteAsync(Model.FromPath, true, (s, e) =>

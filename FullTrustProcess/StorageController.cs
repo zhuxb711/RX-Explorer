@@ -43,18 +43,14 @@ namespace FullTrustProcess
 
                         if (Error == Win32Error.ERROR_MORE_DATA)
                         {
-                            // Create an array to store the process results
                             RstrtMgr.RM_PROCESS_INFO[] ProcessInfo = new RstrtMgr.RM_PROCESS_INFO[pnProcInfoNeeded];
 
                             pnProcInfo = pnProcInfoNeeded;
 
-                            // Get the list
                             if (RstrtMgr.RmGetList(SessionHandle, out pnProcInfoNeeded, ref pnProcInfo, ProcessInfo, out _).Succeeded)
                             {
                                 List<Process> LockProcesses = new List<Process>((int)pnProcInfo);
 
-                                // Enumerate all of the results and add them to the 
-                                // list to be returned
                                 for (int i = 0; i < pnProcInfo; i++)
                                 {
                                     try
@@ -63,7 +59,6 @@ namespace FullTrustProcess
                                     }
                                     catch (Exception ex)
                                     {
-                                        // catch the error -- in case the process is no longer running
                                         LogTracer.Log(ex, "Process is no longer running");
                                     }
                                 }
@@ -269,39 +264,69 @@ namespace FullTrustProcess
             {
                 string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
                 string Extension = System.IO.Path.GetExtension(Path);
-                string Directory = System.IO.Path.GetDirectoryName(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                for (ushort Count = 1; File.Exists(UniquePath); Count++)
+                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
                     }
                     else
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{NameWithoutExt} ({Count}){Extension}");
                     }
                 }
             }
             else if (Directory.Exists(Path))
             {
-                string Directory = System.IO.Path.GetDirectoryName(Path);
+                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
                 string Name = System.IO.Path.GetFileName(Path);
 
-                for (ushort Count = 1; System.IO.Directory.Exists(UniquePath); Count++)
+                for (ushort Count = 1; Directory.Exists(UniquePath) || File.Exists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
                     }
                     else
                     {
-                        UniquePath = System.IO.Path.Combine(Directory, $"{Name} ({Count})");
+                        UniquePath = System.IO.Path.Combine(DirectoryPath, $"{Name} ({Count})");
                     }
                 }
             }
 
             return UniquePath;
+        }
+
+        public static bool Create(CreateType Type, string Path)
+        {
+            try
+            {
+                switch (Type)
+                {
+                    case CreateType.File:
+                        {
+                            using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.GENERIC_READ, FileShare.None, null, FileMode.CreateNew, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                            {
+                                return !Handle.IsInvalid && !Handle.IsNull;
+                            }
+                        }
+                    case CreateType.Folder:
+                        {
+                            return Kernel32.CreateDirectory(Path);
+                        }
+                    default:
+                        {
+                            return false;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not create an item");
+                return false;
+            }
         }
 
         public static bool Rename(string Source, string DesireName, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostRenameEvent)

@@ -1,4 +1,45 @@
 ﻿*****
+###Was ist neu in Ver.6.8.4.0
+
+#####Funktionsupdate
+
+>#####Einige der Suchmaschinenkonfigurationen auf der Einstellungsseite haben jetzt Unteroptionen
+
+>#####Module in der Navigationsansicht können jetzt angepasst werden
+
+>#####Jetzt kann RX automatisch Berechtigungen erhöhen, wenn Sie nicht genügend Berechtigungen zum Erstellen von Dateien haben
+
+>#####Jetzt können Sie die Erstellung einer neuen Datei rückgängig machen
+
+#####UI-Update
+
+>#####Animation beim Umschalten des Layoutmodus verbessert
+
+>#####Animation beim Wechsel zur Startseite verbessert
+
+>#####Das standardmäßige Ziehverhalten wurde von "Kopieren" auf "Verschieben" geändert.
+
+>#####Eingebautes Hintergrundbild aktualisiert, um den Kontrast zu verbessern
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Leistung beim Laden von "Bibliotheken"
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass die Einstellungsseite nicht prozessübergreifend synchronisiert werden kann und die Konfiguration verloren geht, wenn mehrere Fenster gleichzeitig gestartet werden
+
+>#####Problem behoben, dass der Dateiname zurückgesetzt wird, wenn die Konfiguration im Komprimierungsoptionsfenster geändert wird
+
+>#####Das Problem wurde behoben, dass das Symbol beim Ziehen und Ablegen von Dateien hängen bleiben konnte
+
+>#####Problem behoben, dass Sie im Mehrfachauswahlmodus immer noch Ordner durch Doppelklick wechseln können switch
+
+>#####Problem behoben, dass der Hilfsprozess in einigen Fällen den eindeutigen Pfad nicht korrekt generieren konnte
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass doppelte Dateien angezeigt werden, wenn Sie Office-Dokumente ändern
+
+*****
 ###Was ist neu in Ver.6.8.1.0
 
 #####Funktionsupdate

@@ -7,7 +7,7 @@ namespace RX_Explorer.Class
 {
     public sealed class OperationRecorder
     {
-        private readonly ConcurrentStack<List<string>> Container;
+        private readonly ConcurrentStack<IReadOnlyList<string>> Container;
 
         private static OperationRecorder Instance;
 
@@ -34,9 +34,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<string> Pop()
+        public IReadOnlyList<string> Pop()
         {
-            if (Container.TryPop(out List<string> Result))
+            if (Container.TryPop(out IReadOnlyList<string> Result))
             {
                 return Result;
             }
@@ -61,7 +61,7 @@ namespace RX_Explorer.Class
 
         private OperationRecorder()
         {
-            Container = new ConcurrentStack<List<string>>();
+            Container = new ConcurrentStack<IReadOnlyList<string>>();
         }
     }
 }
