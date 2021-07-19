@@ -1147,6 +1147,8 @@ namespace RX_Explorer
         {
             if (e.ClickedItem is QuickStartItem Item)
             {
+                QuickStartTip.IsOpen = false;
+
                 if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
                     if (Item.Type == QuickStartType.AddButton)

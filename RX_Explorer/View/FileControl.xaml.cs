@@ -2897,22 +2897,8 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
-
-                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                    {
-                        if (QuickAccessNode.IsExpanded)
-                        {
-                            QuickAccessNode.Children.Add(new TreeViewNode
-                            {
-                                IsExpanded = false,
-                                Content = new TreeViewNodeContent(Folder),
-                                HasUnrealizedChildren = (await Folder.GetFoldersAsync(Windows.Storage.Search.CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                            });
-                        }
-                    }
-
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }
             }
@@ -3124,14 +3110,8 @@ namespace RX_Explorer
             {
                 if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryStorageFolder TargetLib)
                 {
-                    CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
-
-                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
-                    {
-                        QuickAccessNode.Children.Remove(Node);
-                    }
-
                     SQLite.Current.DeleteLibrary(Content.Path);
+                    CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
                     await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }
             }
