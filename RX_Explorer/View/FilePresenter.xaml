@@ -53,7 +53,7 @@
         </Flyout>
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
-        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:SyncStatusIconConverter x:Key="SyncStatusIconConverter" />
         <Cls:SyncStatusColorConverter x:Key="SyncStatusColorConverter" />
         <Cls:SyncStatusVisibilityConverter x:Key="SyncStatusVisibilityConverter" />

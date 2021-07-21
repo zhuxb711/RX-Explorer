@@ -17,7 +17,7 @@
 
     <local:QueueContentDialog.Resources>
         <local:TimespanConverter x:Key="Converter" />
-        <local:InverseBooleanConverter x:Key="BooleanConverter"/>
+        <local:InverseConverter x:Key="BooleanConverter"/>
         <control:TeachingTip x:Name="FormatErrorTip"
                              Title="提示"
                              x:Uid="VideoEditDialogErrorTip"

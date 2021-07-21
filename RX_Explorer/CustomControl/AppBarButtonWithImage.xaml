@@ -10,7 +10,7 @@
                              d:DesignWidth="400">
     <AppBarButton.Resources>
         <Cls:NullToVisibilityConverter x:Key="NullConverter" />
-        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:InverseConverter x:Key="InverseConverter" />
     </AppBarButton.Resources>
     <AppBarButton.Style>
         <Style TargetType="local:AppBarButtonWithImage">

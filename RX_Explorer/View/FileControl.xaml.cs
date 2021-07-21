@@ -631,64 +631,77 @@ namespace RX_Explorer
         /// </summary>
         public async Task Initialize(string[] InitFolderPathArray)
         {
-            if (InitFolderPathArray.Length > 0)
+            try
             {
-                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                if (InitFolderPathArray.Length > 0)
                 {
-                    await CreateNewBladeAsync(TargetPath);
-                }
-
-                if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                {
-                    TreeViewNode RootNode = new TreeViewNode
+                    foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
                     {
-                        Content = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")),
-                        IsExpanded = false,
-                        HasUnrealizedChildren = true
-                    };
+                        await CreateNewBladeAsync(TargetPath);
+                    }
 
-                    FolderTree.RootNodes.Add(RootNode);
-                }
-
-                DriveDataBase[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Path)).ToArray();
-
-                foreach (DriveDataBase DriveData in Drives.OrderBy((Dr) => (int)Dr.DriveType))
-                {
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
-
-                        if (DriveData.DriveType == DriveType.Network)
+                        TreeViewNode RootNode = new TreeViewNode
                         {
-                            await Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
+                            Content = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")),
+                            IsExpanded = false,
+                            HasUnrealizedChildren = true
+                        };
+
+                        FolderTree.RootNodes.Add(RootNode);
+                    }
+
+                    foreach (DriveDataBase DriveData in CommonAccessCollection.DriveList.OrderBy((Dr) => (int)Dr.DriveType))
+                    {
+                        if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
+
+                            if (DriveData.DriveType == DriveType.Network)
                             {
-                                TreeViewNode RootNode = new TreeViewNode
+                                _ = Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
                                 {
-                                    Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = task.Result
-                                };
-
-                                FolderTree.RootNodes.Add(RootNode);
-                                FolderTree.UpdateLayout();
-                            }, TaskScheduler.FromCurrentSynchronizationContext());
-                        }
-                        else
-                        {
-                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                            TreeViewNode RootNode = new TreeViewNode
+                                    try
+                                    {
+                                        FolderTree.RootNodes.Add(new TreeViewNode
+                                        {
+                                            Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                            IsExpanded = false,
+                                            HasUnrealizedChildren = task.Result
+                                        });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
+                                    }
+                                }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+                            else
                             {
-                                Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                                try
+                                {
+                                    bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
-                            FolderTree.RootNodes.Add(RootNode);
-                            FolderTree.UpdateLayout();
+                                    FolderTree.RootNodes.Add(new TreeViewNode
+                                    {
+                                        Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                        IsExpanded = false,
+                                        HasUnrealizedChildren = HasAnyFolder
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
+                                }
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not init the FileControl");
             }
         }
 

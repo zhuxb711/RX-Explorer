@@ -1282,18 +1282,7 @@ namespace RX_Explorer
 
         private async void ShowUpdateLog_Click(object sender, RoutedEventArgs e)
         {
-            string Text = Globalization.CurrentLanguage switch
-            {
-                LanguageEnum.Chinese_Simplified => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"))),
-                LanguageEnum.English => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"))),
-                LanguageEnum.French => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"))),
-                LanguageEnum.Chinese_Traditional => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"))),
-                LanguageEnum.Spanish => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"))),
-                LanguageEnum.German => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"))),
-                _ => throw new Exception("Unsupported language")
-            };
-
-            await new WhatIsNew(Text).ShowAsync();
+            await new WhatIsNew().ShowAsync();
         }
 
         private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)

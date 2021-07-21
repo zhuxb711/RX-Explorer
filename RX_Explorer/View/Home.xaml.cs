@@ -807,39 +807,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void Cut_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (LibraryGrid.SelectedItems.Count > 0)
-            {
-                try
-                {
-                    Clipboard.Clear();
-
-                    List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
-
-                    foreach (LibraryStorageFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>())
-                    {
-                        TransformList.Add(Lib);
-                    }
-
-                    Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Move));
-                }
-                catch
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                }
-            }
-        }
-
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();

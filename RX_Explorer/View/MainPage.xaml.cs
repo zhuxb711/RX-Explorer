@@ -52,7 +52,7 @@ namespace RX_Explorer
 
         private Dictionary<Type, string> PageDictionary;
 
-        public List<string[]> ActivatePathArray { get; private set; }
+        public List<string[]> ActivatePathArray { get; }
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
@@ -226,10 +226,28 @@ namespace RX_Explorer
 
         private async void Current_DataChanged(ApplicationData sender, object args)
         {
-            ApplicationData.Current.DataChanged -= Current_DataChanged;
-
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
+                {
+                    RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowQuickStartItem"] is bool ShowQuickStart)
+                {
+                    QuickStartItem.Visibility = ShowQuickStart ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowSecureAreaItem"] is bool ShowSecureArea)
+                {
+                    SecureAreaItem.Visibility = ShowSecureArea ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["ShouldShowBluetoothAudioItem"] is bool ShowBluetoothAudio)
+                {
+                    BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
+                }
+
                 await SettingControl.Initialize();
             });
         }
@@ -578,18 +596,7 @@ namespace RX_Explorer
         {
             if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
             {
-                string Text = Globalization.CurrentLanguage switch
-                {
-                    LanguageEnum.Chinese_Simplified => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"))),
-                    LanguageEnum.English => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"))),
-                    LanguageEnum.French => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"))),
-                    LanguageEnum.Chinese_Traditional => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"))),
-                    LanguageEnum.Spanish => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"))),
-                    LanguageEnum.German => await FileIO.ReadTextAsync(await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"))),
-                    _ => throw new Exception("Unsupported language")
-                };
-
-                await new WhatIsNew(Text).ShowAsync();
+                await new WhatIsNew().ShowAsync();
             }
         }
 
@@ -1473,8 +1480,8 @@ namespace RX_Explorer
         private async void EditNavItem_Click(object sender, RoutedEventArgs e)
         {
             EditNavigationViewItemDialog Dialog = new EditNavigationViewItemDialog();
-            
-            if(await Dialog.ShowAsync() == ContentDialogResult.Primary)
+
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
                 {
@@ -1495,6 +1502,8 @@ namespace RX_Explorer
                 {
                     BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
                 }
+
+                ApplicationData.Current.SignalDataChanged();
             }
         }
     }

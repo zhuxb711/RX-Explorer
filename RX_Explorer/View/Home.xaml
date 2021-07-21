@@ -28,9 +28,6 @@
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                           Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
-                          Click="Cut_Click" />
             <AppBarButton Icon="UnPin"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Unpin')}"
                           Click="RemovePin_Click" />

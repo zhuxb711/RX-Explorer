@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class InverseBooleanConverter : IValueConverter
+    public sealed class InverseConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {

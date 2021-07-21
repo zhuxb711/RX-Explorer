@@ -14,7 +14,7 @@
 
     <UserControl.Resources>
         <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
-        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:InverseConverter x:Key="InverseConverter" />
 
         <muxc:TeachingTip x:Name="ColorPickerTeachTip"
                           IsLightDismissEnabled="True"

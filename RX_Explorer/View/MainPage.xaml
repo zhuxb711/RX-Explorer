@@ -11,7 +11,7 @@
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
-        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:InverseConverter x:Key="InverseConverter" />
 
         <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
                                             NormalButtonTemplate="{StaticResource NormalButtonTemplate}"
