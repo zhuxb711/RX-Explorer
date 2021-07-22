@@ -24,7 +24,8 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="LibraryFlyout"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="RightEdgeAlignedTop"
+                               Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                           Click="Copy_Click" />

@@ -60,7 +60,8 @@
         <Cls:SyncStatusToolTipConverter x:Key="SyncStatusToolTipConverter" />
 
         <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="RightEdgeAlignedTop"
+                               Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Icon="Copy"
@@ -175,8 +176,9 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
+                               Placement="RightEdgeAlignedTop"
                                Closed="CommandBarFlyout_Closed"
-                               Placement="RightEdgeAlignedTop">
+                               Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="FileStandardBar">
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Icon="Copy"
@@ -439,8 +441,9 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               Placement="RightEdgeAlignedTop"
                                Closed="CommandBarFlyout_Closed"
-                               Placement="RightEdgeAlignedTop">
+                               Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="MixedStandardBar">
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton Icon="Copy"
@@ -589,6 +592,7 @@
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
                                Placement="RightEdgeAlignedTop"
+                               Closing="CommandBarFlyout_Closing"
                                Closed="CommandBarFlyout_Closed">
             <AppBarElementContainer x:Name="FolderStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -759,7 +763,8 @@
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                Placement="RightEdgeAlignedTop"
-                               Opening="EmptyFlyout_Opening">
+                               Opening="EmptyFlyout_Opening"
+                               Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Paste"
                           ToolTipService.ToolTip="{x:Bind Paste.Label}"
                           Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Paste')}"

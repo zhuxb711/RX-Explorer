@@ -152,28 +152,28 @@
       <Version>5.0.2</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.NtDll">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.RstrtMgr">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.SetupAPI">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UserEnv">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">
-      <Version>3.3.10</Version>
+      <Version>3.3.11</Version>
     </PackageReference>
     <PackageReference Include="Winista.MimeDetect">
       <Version>1.0.1</Version>

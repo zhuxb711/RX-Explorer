@@ -1,4 +1,27 @@
 ﻿*****
+###Quoi de neuf dans la version 6.8.6.0
+
+#####Amélioration des performances
+
+>#####Accélère l'acquisition des applications UWP et filtre les applications UWP invalides
+
+>#####Amélioration des performances lorsque le journal de mise à jour apparaît
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Les modifications de la vue de navigation seront désormais synchronisées entre les processus
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel plusieurs nœuds portant le même nom peuvent apparaître lors de l'ajout de nœuds enfants au nœud « Accès rapide »
+
+>#####Correction d'un problème qui pouvait bloquer le menu volant lors de l'ajout d'applications UWP au "Démarrage rapide""
+
+>#####Correction de certains problèmes pouvant provoquer un plantage
+
+>#####Correction du problème selon lequel le sous-menu pouvait ne pas être fermé correctement après la fermeture du menu contextuel
+
+*****
 ###Quoi de neuf dans la version 6.8.4.0
 
 #####Mise à jour des fonctionnalités

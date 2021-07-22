@@ -895,6 +895,17 @@ namespace RX_Explorer
             }
         }
 
+        private void CommandBarFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                foreach (AppBarButton Btn in Flyout.SecondaryCommands.OfType<AppBarButton>())
+                {
+                    Btn.Flyout?.Hide();
+                }
+            }
+        }
+
         private async void SendToItem_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();

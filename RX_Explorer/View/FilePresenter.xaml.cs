@@ -1148,12 +1148,12 @@ namespace RX_Explorer
 
         private async void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-
             await CollectionChangeLock.WaitAsync();
 
             try
             {
+                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
                 switch (e.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
@@ -4835,6 +4835,17 @@ namespace RX_Explorer
             }
         }
 
+        private void CommandBarFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                foreach (AppBarButton Btn in Flyout.SecondaryCommands.OfType<AppBarButton>())
+                {
+                    Btn.Flyout?.Hide();
+                }
+            }
+        }
+
         private void CommandBarFlyout_Closed(object sender, object e)
         {
             if (sender is CommandBarFlyout Flyout)
@@ -5097,10 +5108,8 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (sender is MenuFlyoutItemWithImage Item)
+            if (sender is MenuFlyoutItemWithImage Item && SelectedItem is FileSystemStorageItemBase SItem)
             {
-                FileSystemStorageItemBase SItem = SelectedItem;
-
                 switch (Item.Name)
                 {
                     case "SendLinkItem":

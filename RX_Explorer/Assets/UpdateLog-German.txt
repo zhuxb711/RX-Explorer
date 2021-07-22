@@ -1,4 +1,27 @@
 ﻿*****
+###Was ist neu in Ver.6.8.6.0
+
+#####Leistungsverbesserung
+
+>#####Beschleunigt die Erfassung von UWP-Anwendungen und filtert ungültige UWP-Anwendungen
+
+>#####Die Leistung wurde verbessert, wenn das Update-Protokoll angezeigt wird
+
+#####UI-Update
+
+>#####Die Änderungen der Navigationsansicht werden nun prozessübergreifend synchronisiert
+
+#####Fehlerbehebung
+
+>#####Das Problem, dass beim Hinzufügen von untergeordneten Knoten zum "Quick Access"-Knoten möglicherweise mehrere Knoten mit demselben Namen erscheinen, wurde behoben
+
+>#####Es wurde ein Problem behoben, das das Flyout blockieren kann, wenn UWP-Apps zum "Schnellstart" hinzugefügt werden.
+
+>#####Einige Probleme behoben, die zu einem Absturz führen können
+
+>#####Problem behoben, dass das Untermenü nach dem Schließen des Kontextmenüs möglicherweise nicht korrekt geschlossen wird
+
+*****
 ###Was ist neu in Ver.6.8.4.0
 
 #####Funktionsupdate

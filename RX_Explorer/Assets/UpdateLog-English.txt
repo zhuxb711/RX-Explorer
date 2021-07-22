@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.6.8.6.0
+
+#####Performance improvement
+
+>#####Speeds up the acquisition of UWP applications and filters invalid UWP applications
+
+>#####Improved the performance when the update log pops up
+
+#####UI update
+
+>#####The navigation view changes will now be synchronized across processes
+
+#####Bug fix
+
+>#####Fixed the problem that multiple nodes with the same name may appear when adding child nodes to the "Quick Access" node
+
+>#####Fixed an issue that may block the flyout when adding UWP apps to the "Quick Start""
+
+>#####Fixed some problems that may cause a crash
+
+>#####Fixed the problem that the submenu may not be closed correctly after the context menu is closed
+
+*****
 ###What's new in Ver.6.8.4.0
 
 #####Feature update
