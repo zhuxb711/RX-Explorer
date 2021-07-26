@@ -1,6 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace UpdateCheckBackgroundTask
 {
     public sealed class UpdateCheck : IBackgroundTask
     {
-        IBackgroundTaskInstance Instance;
+        private IBackgroundTaskInstance Instance;
 
         private CancellationTokenSource Cancellation;
 
@@ -79,7 +78,7 @@ namespace UpdateCheckBackgroundTask
                             Builder.AddText("针对RX文件管理器的更新已发布!", AdaptiveTextStyle.Title)
                                    .AddText("包含最新的功能和改进", AdaptiveTextStyle.Subtitle)
                                    .AddText("点击以立即更新", AdaptiveTextStyle.Subtitle);
-                            
+
                             break;
                         }
                     case 1:

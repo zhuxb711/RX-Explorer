@@ -80,8 +80,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             Tapped="ColorTag_Tapped"
-                            x:Uid="TagEntry"
-                            PointerEntered="ColorTag_PointerEntered">
+                            x:Uid="TagEntry">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
@@ -138,8 +137,7 @@
                     <Border Background="Transparent"
                             Padding="12"
                             IsTapEnabled="True"
-                            Tapped="ColorBarBack_Tapped"
-                            PointerEntered="ColorBarBack_PointerEntered">
+                            Tapped="ColorBarBack_Tapped">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
@@ -201,8 +199,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             Tapped="ColorTag_Tapped"
-                            x:Uid="TagEntry"
-                            PointerEntered="ColorTag_PointerEntered">
+                            x:Uid="TagEntry">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
@@ -259,8 +256,7 @@
                     <Border Background="Transparent"
                             Padding="12"
                             IsTapEnabled="True"
-                            Tapped="ColorBarBack_Tapped"
-                            PointerEntered="ColorBarBack_PointerEntered">
+                            Tapped="ColorBarBack_Tapped">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
@@ -462,8 +458,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             x:Uid="TagEntry"
-                            Tapped="ColorTag_Tapped"
-                            PointerEntered="ColorTag_PointerEntered">
+                            Tapped="ColorTag_Tapped">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
@@ -520,8 +515,7 @@
                     <Border Background="Transparent"
                             Padding="12"
                             IsTapEnabled="True"
-                            Tapped="ColorBarBack_Tapped"
-                            PointerEntered="ColorBarBack_PointerEntered">
+                            Tapped="ColorBarBack_Tapped">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
@@ -613,8 +607,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             Tapped="ColorTag_Tapped"
-                            x:Uid="TagEntry"
-                            PointerEntered="ColorTag_PointerEntered">
+                            x:Uid="TagEntry">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
@@ -671,8 +664,7 @@
                     <Border Background="Transparent"
                             Padding="12"
                             IsTapEnabled="True"
-                            Tapped="ColorBarBack_Tapped"
-                            PointerEntered="ColorBarBack_PointerEntered">
+                            Tapped="ColorBarBack_Tapped">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>

@@ -470,13 +470,14 @@ namespace RX_Explorer.Class
                         { "ProcessId", CurrentProcessId },
                     };
 
-                    if (PipeReadController != null && PipeWriteController != null)
+                    if (PipeWriteController != null)
                     {
                         Value.Add("PipeWriteId", PipeWriteController.PipeUniqueId);
-                        if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                        {
-                            Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
-                        }
+                    }
+
+                    if (PipeReadController != null)
+                    {
+                        Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
                     }
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

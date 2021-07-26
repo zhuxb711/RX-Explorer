@@ -601,20 +601,8 @@ namespace RX_Explorer
 
                             if (SelectedItem is FileSystemStorageItemBase Item)
                             {
-                                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                                NewWindow.RequestSize(new Size(420, 600));
-                                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                                NewWindow.PersistedStateId = "Properties";
-                                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
-                                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                                await NewWindow.TryShowAsync();
+                                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
+                                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                             }
 
                             break;
@@ -1838,7 +1826,7 @@ namespace RX_Explorer
         {
             if (e.OriginalSource is FrameworkElement Element && Element.DataContext is FileSystemStorageItemBase Item)
             {
-                if (Element.FindParentOfType<TextBox>() == null)
+                if (Element.FindParentOfType<TextBox>() is null)
                 {
                     PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
@@ -1878,28 +1866,36 @@ namespace RX_Explorer
                                     SelectedItem = Item;
                                 }
 
-                                if (e.OriginalSource is Grid || e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                switch (e.OriginalSource)
                                 {
-                                    SelectionExtention.Enable();
-                                }
-                                else
-                                {
-                                    SelectionExtention.Disable();
-
-                                    if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-                                    {
-                                        DelayDragCancel?.Cancel();
-                                        DelayDragCancel?.Dispose();
-                                        DelayDragCancel = new CancellationTokenSource();
-
-                                        Task.Delay(300).ContinueWith((task, input) =>
+                                    case Grid:
+                                    case ListViewItemPresenter:
+                                    case TextBlock Block when Block.Name == "EmptyTextblock":
                                         {
-                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                            SelectionExtention.Enable();
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            SelectionExtention.Disable();
+
+                                            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                             {
-                                                _ = Item.StartDragAsync(Point);
+                                                DelayDragCancel?.Cancel();
+                                                DelayDragCancel?.Dispose();
+                                                DelayDragCancel = new CancellationTokenSource();
+
+                                                Task.Delay(300).ContinueWith((task, input) =>
+                                                {
+                                                    if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                    {
+                                                        _ = Item.StartDragAsync(Point);
+                                                    }
+                                                }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                             }
-                                        }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
-                                    }
+
+                                            break;
+                                        }
                                 }
                             }
                         }
@@ -2063,20 +2059,8 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 600));
-                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, File));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                await NewWindow.TryShowAsync();
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(File);
+                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
 
@@ -2139,20 +2123,8 @@ namespace RX_Explorer
 
                 if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                    NewWindow.RequestSize(new Size(420, 600));
-                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                    NewWindow.PersistedStateId = "Properties";
-                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
-                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                    await NewWindow.TryShowAsync();
+                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
+                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                 }
                 else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
                 {
@@ -2310,20 +2282,8 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 600));
-                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Folder));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                await NewWindow.TryShowAsync();
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Folder);
+                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
 
@@ -2425,25 +2385,49 @@ namespace RX_Explorer
                 if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
                      && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Data)
                 {
-                    DeviceInfoDialog Dialog = new DeviceInfoDialog(Data);
-                    await Dialog.ShowAsync();
+                    await new DeviceInfoDialog(Data).ShowAsync();
                 }
                 else
                 {
-                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                    NewWindow.RequestSize(new Size(420, 600));
-                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                    NewWindow.PersistedStateId = "Properties";
-                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(CurrentFolder);
+                    NewWindow.HandleRenameAutomatically = false;
+                    NewWindow.RenameRequested += Content_RenameRequested;
 
-                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentFolder));
-                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                    async void Content_RenameRequested(object sender, FileRenamedDeferredEventArgs e)
+                    {
+                        EventDeferral Deferral = e.GetDeferral();
 
-                    await NewWindow.TryShowAsync();
+                        try
+                        {
+                            if (await FileSystemStorageItemBase.OpenAsync(e.Path) is FileSystemStorageFolder Folder)
+                            {
+                                string NewName = await Folder.RenameAsync(e.NewName);
+
+                                if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Path.GetDirectoryName(e.Path), NewName)) is FileSystemStorageFolder NewFolder)
+                                {
+                                    await DisplayItemsInFolder(NewFolder, SkipNavigationRecord: true);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Could not rename the item. Path: \"{e.Path}\"");
+                        }
+                        finally
+                        {
+                            Deferral.Complete();
+                        }
+                    }
+
+                    NewWindow.WindowClosed += NewWindow_WindowClosed;
+
+                    void NewWindow_WindowClosed(object sender, EventArgs e)
+                    {
+                        NewWindow.WindowClosed -= NewWindow_WindowClosed;
+                        NewWindow.RenameRequested -= Content_RenameRequested;
+                    }
+
+                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                 }
             }
             else
@@ -2455,7 +2439,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync();
+                await Dialog.ShowAsync();
             }
         }
 
@@ -4813,20 +4797,9 @@ namespace RX_Explorer
             SQLite.Current.SetFileColor(SelectedItem.Path, ForegroundColor.ToHex());
         }
 
-        private void ColorTag_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
-            {
-                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
-                {
-                    Container.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
         private void ColorTag_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            if (sender is FrameworkElement Element)
             {
                 if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
                 {
@@ -4857,20 +4830,9 @@ namespace RX_Explorer
             }
         }
 
-        private void ColorBarBack_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
-            {
-                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
-                {
-                    Container.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
         private void ColorBarBack_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            if (sender is FrameworkElement Element)
             {
                 if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
                 {

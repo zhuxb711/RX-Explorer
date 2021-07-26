@@ -307,21 +307,27 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                if (Model.Status == OperationStatus.Cancelled)
+                                if (Model.Status != OperationStatus.Cancelled)
                                 {
-                                    return;
-                                }
-
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
-                                {
-                                    Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
+                                    if (Model.Status == OperationStatus.NeedAttention)
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            Model.UpdateProgress(e.ProgressPercentage);
-                                            ProgressChangedCore();
+                                            Model.UpdateStatus(OperationStatus.Processing);
                                         }).AsTask().Wait();
-                                    }).Wait();
+                                    }
+
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                    {
+                                        Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
+                                        {
+                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                Model.UpdateProgress(e.ProgressPercentage);
+                                                ProgressChangedCore();
+                                            }).AsTask().Wait();
+                                        }).Wait();
+                                    }
                                 }
                             }
                             catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
@@ -379,21 +385,27 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                if (Model.Status == OperationStatus.Cancelled)
+                                if (Model.Status != OperationStatus.Cancelled)
                                 {
-                                    return;
-                                }
-
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
-                                {
-                                    Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
+                                    if (Model.Status == OperationStatus.NeedAttention)
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            Model.UpdateProgress(e.ProgressPercentage);
-                                            ProgressChangedCore();
+                                            Model.UpdateStatus(OperationStatus.Processing);
                                         }).AsTask().Wait();
-                                    }).Wait();
+                                    }
+
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                    {
+                                        Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, Option, ProgressHandler: (s, e) =>
+                                        {
+                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                Model.UpdateProgress(e.ProgressPercentage);
+                                                ProgressChangedCore();
+                                            }).AsTask().Wait();
+                                        }).Wait();
+                                    }
                                 }
                             }
                             catch (AggregateException Ae) when (Ae.InnerException is FileNotFoundException)
@@ -725,7 +737,7 @@ namespace RX_Explorer.Class
 
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    if (Model.Status != OperationStatus.Error)
+                    if (Model.Status is not OperationStatus.Error and not OperationStatus.Cancelled)
                     {
                         Model.UpdateProgress(100);
                         Model.UpdateStatus(OperationStatus.Completed);

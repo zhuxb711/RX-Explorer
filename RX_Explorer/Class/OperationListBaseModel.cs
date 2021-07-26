@@ -302,6 +302,11 @@ namespace RX_Explorer.Class
         {
             try
             {
+                if (Status != OperationStatus.NeedAttention)
+                {
+                    throw new ArgumentException("Status is not correct", nameof(Status));
+                }
+
                 while (ActionButtonIndex < 0 && Status != OperationStatus.Cancelled)
                 {
                     Thread.Sleep(500);

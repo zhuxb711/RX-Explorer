@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    class FileRemovedDeferredEventArgs : FileChangedDeferredEventArgs
+    public sealed class FileRemovedDeferredEventArgs : FileChangedDeferredEventArgs
     {
         public FileRemovedDeferredEventArgs(string Path) : base(Path)
         {

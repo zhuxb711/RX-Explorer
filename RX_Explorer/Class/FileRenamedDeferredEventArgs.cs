@@ -1,6 +1,6 @@
 ﻿namespace RX_Explorer.Class
 {
-    class FileRenamedDeferredEventArgs : FileChangedDeferredEventArgs
+    public sealed class FileRenamedDeferredEventArgs : FileChangedDeferredEventArgs
     {
         public string NewName { get; }
 

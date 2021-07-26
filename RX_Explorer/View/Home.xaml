@@ -147,7 +147,7 @@
                               MinWidth="160"
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
-                              Click="Attribute_Click" />
+                              Click="Properties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
@@ -180,7 +180,7 @@
                               Label="属性"
                               MinWidth="160"
                               x:Uid="DeviceAttribute"
-                              Click="Attribute_Click" />
+                              Click="Properties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 

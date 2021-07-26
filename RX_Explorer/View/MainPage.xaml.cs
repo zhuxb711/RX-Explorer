@@ -614,14 +614,13 @@ namespace RX_Explorer
                                 Registration.Unregister(true);
                             }
 
-                            SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
                             BackgroundTaskBuilder Builder = new BackgroundTaskBuilder
                             {
                                 Name = "UpdateTask",
                                 IsNetworkRequested = true,
                                 TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck"
                             };
-                            Builder.SetTrigger(Trigger);
+                            Builder.SetTrigger(new SystemTrigger(SystemTriggerType.SessionConnected, false));
                             Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
                             Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
                             Builder.Register();

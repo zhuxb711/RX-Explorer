@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using Microsoft.Toolkit.Deferred;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -20,16 +21,19 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.WindowManagement;
+using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.SeparateWindow.PropertyWindow
 {
-    public sealed partial class PropertyBase : Page
+    public sealed partial class PropertiesWindowBase : Page
     {
         private readonly AppWindow Window;
         private readonly FileSystemStorageItemBase StorageItem;
@@ -79,8 +83,42 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private readonly PointerEventHandler PointerCanceledHandler;
         private readonly PointerEventHandler PointerMovedHandler;
 
+        public event EventHandler WindowClosed;
+        public event EventHandler<FileRenamedDeferredEventArgs> RenameRequested;
 
-        public PropertyBase(AppWindow Window, FileSystemStorageItemBase StorageItem)
+        /// <summary>
+        /// If want to handle rename operation mannually. Please set this property to false and subscribe RenameRequested event
+        /// </summary>
+        public bool HandleRenameAutomatically { get; set; } = true;
+
+        public static async Task<PropertiesWindowBase> CreateAsync(FileSystemStorageItemBase StorageItem)
+        {
+            AppWindow NewWindow = await AppWindow.TryCreateAsync();
+            NewWindow.RequestSize(new Size(420, 600));
+            NewWindow.PersistedStateId = "Properties";
+            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+            await StorageItem.LoadAsync();
+
+            PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(NewWindow, StorageItem);
+
+            ElementCompositionPreview.SetAppWindowContent(NewWindow, PropertiesWindow);
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+            return PropertiesWindow;
+        }
+
+        public async Task ShowAsync(Point ShowAt)
+        {
+            Window.RequestMoveRelativeToCurrentViewContent(ShowAt);
+            await Window.TryShowAsync();
+        }
+
+        private PropertiesWindowBase(AppWindow Window, FileSystemStorageItemBase StorageItem)
         {
             InitializeComponent();
 
@@ -158,8 +196,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
 
             Window.Closed += Window_Closed;
-            Loading += PropertyBase_Loading;
-            Loaded += PropertyBase_Loaded;
+            Loading += PropertiesWindow_Loading;
+            Loaded += PropertiesWindow_Loaded;
         }
 
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)
@@ -239,16 +277,23 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (StorageItemName.Text != StorageItem.Name)
             {
-                await StorageItem.RenameAsync(StorageItemName.Text).ConfigureAwait(false);
+                if (HandleRenameAutomatically)
+                {
+                    await StorageItem.RenameAsync(StorageItemName.Text);
+                }
+                else
+                {
+                    await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, StorageItemName.Text));
+                }
             }
         }
 
-        private void PropertyBase_Loaded(object sender, RoutedEventArgs e)
+        private void PropertiesWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Window.RequestSize(new Size(420, 600));
         }
 
-        private async void PropertyBase_Loading(FrameworkElement sender, object args)
+        private async void PropertiesWindow_Loading(FrameworkElement sender, object args)
         {
             switch (StorageItem)
             {
@@ -974,8 +1019,18 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 finally
                 {
-                    Interlocked.Exchange(ref ConfirmButtonLockResource, 0);
-                    await Window.CloseAsync();
+                    try
+                    {
+                        await Window.CloseAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not close the window");
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref ConfirmButtonLockResource, 0);
+                    }
                 }
             }
         }

@@ -410,8 +410,8 @@
     <Compile Include="Class\Win10VersionChecker.cs" />
     <Compile Include="Class\WiFiShareProvider.cs" />
     <Compile Include="Class\WindowsHelloAuthenticator.cs" />
-    <Compile Include="SeparateWindow\PropertyWindow\PropertyBase.xaml.cs">
-      <DependentUpon>PropertyBase.xaml</DependentUpon>
+    <Compile Include="SeparateWindow\PropertyWindow\PropertiesWindowBase.xaml.cs">
+      <DependentUpon>PropertiesWindowBase.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -771,7 +771,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SeparateWindow\PropertyWindow\PropertyBase.xaml">
+    <Page Include="SeparateWindow\PropertyWindow\PropertiesWindowBase.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

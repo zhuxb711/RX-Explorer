@@ -18,6 +18,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
 using Windows.UI.WindowManagement;
@@ -302,7 +303,16 @@ namespace RX_Explorer
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Drive)
             {
-                await OpenTargetDriveAsync(Drive);
+                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+
+                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    await new DeviceInfoDialog(Drive).ShowAsync();
+                }
+                else
+                {
+                    await OpenTargetDriveAsync(Drive);
+                }
             }
         }
 
@@ -312,7 +322,17 @@ namespace RX_Explorer
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Library)
             {
-                await OpenTargetFolder(Library.Path);
+                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+
+                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
+                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                }
+                else
+                {
+                    await OpenTargetFolder(Library.Path);
+                }
             }
         }
 
@@ -452,22 +472,8 @@ namespace RX_Explorer
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
-                await Library.LoadAsync();
-
-                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 600));
-                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Library));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
-
-                await NewWindow.TryShowAsync();
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
+                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
 
@@ -548,10 +554,12 @@ namespace RX_Explorer
             }
         }
 
-        private async void Attribute_Click(object sender, RoutedEventArgs e)
+        private async void Properties_Click(object sender, RoutedEventArgs e)
         {
-            DeviceInfoDialog Dialog = new DeviceInfoDialog(DriveGrid.SelectedItem as DriveDataBase);
-            await Dialog.ShowAsync();
+            if (DriveGrid.SelectedItem is DriveDataBase Drive)
+            {
+                await new DeviceInfoDialog(Drive).ShowAsync();
+            }
         }
 
         private async void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
