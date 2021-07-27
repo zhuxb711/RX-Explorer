@@ -514,7 +514,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent = null)
+        public static bool Move(IDictionary<string, string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent = null)
         {
             try
             {
@@ -561,12 +561,12 @@ namespace FullTrustProcess
                         Operation.PostMoveItem += PostMoveEvent;
                     }
 
-                    foreach (string Source in SourcePath)
+                    foreach (KeyValuePair<string,string> Source in SourcePath)
                     {
-                        using (ShellItem SourceItem = new ShellItem(Source))
+                        using (ShellItem SourceItem = new ShellItem(Source.Key))
                         using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                         {
-                            Operation.QueueMoveOperation(SourceItem, DestItem);
+                            Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
                         }
                     }
 

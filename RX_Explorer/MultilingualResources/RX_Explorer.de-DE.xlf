@@ -4176,6 +4176,10 @@ Inkorrekte Namen sind
           <source>Customize</source>
           <target state="translated">Anpassen</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TaskCanceledByUser_Content" translate="yes" xml:space="preserve">
+          <source>The task has been cancelled by the user</source>
+          <target state="translated">Die Aufgabe wurde vom Benutzer abgebrochen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

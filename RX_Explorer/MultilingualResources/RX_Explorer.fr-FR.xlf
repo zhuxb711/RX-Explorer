@@ -4178,6 +4178,10 @@ Les noms non valides incluent
           <source>Customize</source>
           <target state="translated">Personnaliser</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TaskCanceledByUser_Content" translate="yes" xml:space="preserve">
+          <source>The task has been cancelled by the user</source>
+          <target state="translated">La tâche a été annulée par l'utilisateur</target>
+        </trans-unit>
       </group>
     </body>
   </file>

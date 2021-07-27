@@ -213,6 +213,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             LocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
             LocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
             LocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
+
+            WindowClosed?.Invoke(this, new EventArgs());
         }
 
         private async Task SaveConfiguration()

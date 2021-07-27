@@ -2686,7 +2686,7 @@ namespace RX_Explorer.Class
             return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(Dictionary<string,string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2699,13 +2699,13 @@ namespace RX_Explorer.Class
 
                 if (await ConnectRemoteAsync())
                 {
-                    List<string> MessageList = new List<string>();
+                    Dictionary<string, string> MessageList = new Dictionary<string, string>();
 
-                    foreach (string SourcePath in Source)
+                    foreach (KeyValuePair<string,string> SourcePair in Source)
                     {
-                        if (await FileSystemStorageItemBase.CheckExistAsync(SourcePath))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(SourcePair.Key))
                         {
-                            MessageList.Add(SourcePath);
+                            MessageList.Add(SourcePair.Key, SourcePair.Value);
                         }
                         else
                         {
@@ -2767,9 +2767,14 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
                             throw new InvalidOperationException();
                         }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
+                        else if (Response.Message.TryGetValue("Error_UserCancel", out object ErrorMessage5))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
+                            throw new TaskCanceledException();
+                        }
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage6))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
                             throw new Exception();
                         }
                         else
@@ -2796,6 +2801,18 @@ namespace RX_Explorer.Class
             }
         }
 
+        public Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            Dictionary<string, string> Dic = new Dictionary<string, string>();
+
+            foreach(string Path in Source)
+            {
+                Dic.Add(Path, null);
+            }
+
+            return MoveAsync(Dic, DestinationPath, Option, SkipOperationRecord, ProgressHandler);
+        }
+
         public Task MoveAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
@@ -2808,7 +2825,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
+            return MoveAsync(new string[] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
         }
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
@@ -2937,9 +2954,14 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
                             throw new InvalidOperationException();
                         }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
+                        else if (Response.Message.TryGetValue("Error_UserCancel", out object ErrorMessage4))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
+                            throw new TaskCanceledException();
+                        }
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
                             throw new Exception();
                         }
                         else

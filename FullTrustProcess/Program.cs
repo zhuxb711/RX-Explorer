@@ -176,16 +176,16 @@ namespace FullTrustProcess
                                                 }
                                             case ElevationMoveData MoveData:
                                                 {
-                                                    if (MoveData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                                    if (MoveData.SourcePath.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (MoveData.SourcePath.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                        if (MoveData.SourcePath.Keys.Any((Item) => StorageController.CheckCaptured(Item)))
                                                         {
                                                             Writer.WriteLine("Error_Capture");
                                                         }
                                                         else
                                                         {
                                                             if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.DestinationPath)
-                                                                && MoveData.SourcePath.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                                && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
@@ -204,7 +204,7 @@ namespace FullTrustProcess
                                                                     }
                                                                 }))
                                                                 {
-                                                                    if (MoveData.SourcePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                    if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
                                                                     {
                                                                         Writer.WriteLine("Success");
                                                                         Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
@@ -1794,9 +1794,16 @@ namespace FullTrustProcess
                                                 OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                             }
                                         }
+                                        else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                        {
+                                            Value.Add("Error_UserCancel", "User stop the operation");
+                                        }
                                     }))
                                     {
-                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                        if (!Value.ContainsKey("Error_UserCancel"))
+                                        {
+                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                        }
                                     }
                                     else
                                     {
@@ -1867,19 +1874,19 @@ namespace FullTrustProcess
 
                             CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(args.Request.Message["CollisionOptions"]));
 
-                            List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
+                            Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
-                            if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                            if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (SourcePathList.Any((Item) => StorageController.CheckCaptured(Item)))
+                                if (SourcePathList.Keys.Any((Item) => StorageController.CheckCaptured(Item)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
                                     if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath)
-                                        && SourcePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                     {
                                         if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
@@ -1898,15 +1905,22 @@ namespace FullTrustProcess
                                                     OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                 }
                                             }
+                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                            {
+                                                Value.Add("Error_UserCancel", "User stop the operation");
+                                            }
                                         }))
                                         {
-                                            if (SourcePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                            if (!Value.ContainsKey("Error_UserCancel"))
                                             {
-                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                            }
-                                            else
-                                            {
-                                                Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                {
+                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                }
                                             }
                                         }
                                         else

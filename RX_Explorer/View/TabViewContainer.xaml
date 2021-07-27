@@ -196,15 +196,15 @@
                                 <TextBlock Margin="0,5,0,0"
                                            FontSize="12"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind FromPathText, Converter={StaticResource VisibilityConverter}}"
-                                           ToolTipService.ToolTip="{x:Bind FromPathText}"
-                                           Text="{x:Bind FromPathText}" />
+                                           Visibility="{x:Bind FromDescription, Converter={StaticResource VisibilityConverter}}"
+                                           ToolTipService.ToolTip="{x:Bind FromDescription}"
+                                           Text="{x:Bind FromDescription}" />
                                 <TextBlock Margin="0,5,0,0"
                                            FontSize="12"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ToPathText, Converter={StaticResource VisibilityConverter}}"
-                                           ToolTipService.ToolTip="{x:Bind ToPathText}"
-                                           Text="{x:Bind ToPathText}" />
+                                           Visibility="{x:Bind ToDescription, Converter={StaticResource VisibilityConverter}}"
+                                           ToolTipService.ToolTip="{x:Bind ToDescription}"
+                                           Text="{x:Bind ToDescription}" />
                                 <RelativePanel Margin="0,5,0,0">
                                     <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
                                                       RelativePanel.LeftOf="ProgressText"

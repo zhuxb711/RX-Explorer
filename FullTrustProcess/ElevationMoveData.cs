@@ -7,11 +7,11 @@ namespace FullTrustProcess
     {
         public CollisionOptions Option { get; }
 
-        public IEnumerable<string> SourcePath { get; }
+        public Dictionary<string,string> SourcePath { get; }
 
         public string DestinationPath { get; }
 
-        public ElevationMoveData(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option)
+        public ElevationMoveData(Dictionary<string, string> SourcePath, string DestinationPath, CollisionOptions Option)
         {
             this.Option = Option;
             this.SourcePath = SourcePath;

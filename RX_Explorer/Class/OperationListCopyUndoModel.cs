@@ -4,29 +4,19 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public class OperationListDeleteModel : OperationListBaseModel
+    public sealed class OperationListCopyUndoModel : OperationListUndoModel
     {
-        public bool IsPermanentDelete { get; }
-
-        public override string OperationKindText
-        {
-            get
-            {
-                return Globalization.GetString("TaskList_OperationKind_Delete");
-            }
-        }
-
         public override string FromDescription
         {
             get
             {
-                if (DeleteFrom.Length > 5)
+                if (UndoFrom.Length > 5)
                 {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, DeleteFrom.Take(5))}{Environment.NewLine}({DeleteFrom.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
+                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, UndoFrom.Take(5))}{Environment.NewLine}({UndoFrom.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
                 }
                 else
                 {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, DeleteFrom)}";
+                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, UndoFrom)}";
                 }
             }
         }
@@ -39,13 +29,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public string[] DeleteFrom { get; }
+        public string[] UndoFrom { get; }
 
         public override async Task PrepareSizeDataAsync()
         {
             ulong TotalSize = 0;
 
-            foreach (string Path in DeleteFrom)
+            foreach (string Path in UndoFrom)
             {
                 switch (await FileSystemStorageItemBase.OpenAsync(Path))
                 {
@@ -65,10 +55,9 @@ namespace RX_Explorer.Class
             Calculator = new ProgressCalculator(TotalSize);
         }
 
-        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListCopyUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
-            this.DeleteFrom = DeleteFrom;
-            this.IsPermanentDelete = IsPermanentDelete;
+            this.UndoFrom = UndoFrom;
         }
     }
 }

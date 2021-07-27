@@ -4178,6 +4178,10 @@ Invalid names include
           <source>Customize</source>
           <target state="translated">自定义</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TaskCanceledByUser_Content" translate="yes" xml:space="preserve">
+          <source>The task has been cancelled by the user</source>
+          <target state="translated">用户已取消该任务</target>
+        </trans-unit>
       </group>
     </body>
   </file>

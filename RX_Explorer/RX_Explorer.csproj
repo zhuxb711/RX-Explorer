@@ -192,10 +192,15 @@
     <Compile Include="Class\OperationListBaseModel.cs" />
     <Compile Include="Class\OperationListCompressionModel.cs" />
     <Compile Include="Class\OperationListCopyModel.cs" />
+    <Compile Include="Class\OperationListCopyUndoModel.cs" />
     <Compile Include="Class\OperationListDecompressionModel.cs" />
     <Compile Include="Class\OperationListDeleteModel.cs" />
+    <Compile Include="Class\OperationListDeleteUndoModel.cs" />
     <Compile Include="Class\OperationListMoveModel.cs" />
+    <Compile Include="Class\OperationListMoveUndoModel.cs" />
+    <Compile Include="Class\OperationListNewUndoModel.cs" />
     <Compile Include="Class\OperationListRemoteModel.cs" />
+    <Compile Include="Class\OperationListRenameUndoModel.cs" />
     <Compile Include="Class\OperationListUndoModel.cs" />
     <Compile Include="Class\ProgressCalculator.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />

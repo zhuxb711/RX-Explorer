@@ -1280,7 +1280,7 @@ namespace RX_Explorer
                             {
                                 case "Delete":
                                     {
-                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                        QueueTaskController.EnqueueDeleteUndoOpeartion(SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
                                         {
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
@@ -1295,7 +1295,14 @@ namespace RX_Explorer
                                     }
                                 case "Move":
                                     {
-                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
+                                        Dictionary<string, string> Dic = new Dictionary<string, string>();
+
+                                        foreach(string[] Group in SplitGroup)
+                                        {
+                                            Dic.Add(Group[2], Path.GetFileName(Group[0]));
+                                        }
+
+                                        QueueTaskController.EnqueueMoveUndoOpeartion(Dic, OriginFolderPath, OnCompleted: async (s, e) =>
                                         {
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
@@ -1310,7 +1317,7 @@ namespace RX_Explorer
                                     }
                                 case "Copy":
                                     {
-                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                        QueueTaskController.EnqueueCopyUndoOpeartion(SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
                                         {
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
@@ -1325,7 +1332,7 @@ namespace RX_Explorer
                                     }
                                 case "Rename":
                                     {
-                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.Rename, SplitGroup.Select((Item) => Item[2]).FirstOrDefault(), SplitGroup.Select((Item) => Item[0]).FirstOrDefault(), OnCompleted: async (s, e) =>
+                                        QueueTaskController.EnqueueRenameUndoOpeartion(SplitGroup.Select((Item) => Item[2]).First(), SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
                                         {
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
@@ -1340,7 +1347,7 @@ namespace RX_Explorer
                                     }
                                 case "New":
                                     {
-                                        QueueTaskController.EnqueueUndoOpeartion(OperationKind.New, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                        QueueTaskController.EnqueueNewUndoOpeartion(SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
                                         {
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {

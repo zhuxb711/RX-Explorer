@@ -37,15 +37,6 @@ namespace RX_Explorer.Class
         Gray
     }
 
-    public enum OperationKind
-    {
-        Copy,
-        Move,
-        Delete,
-        Rename,
-        New
-    }
-
     public enum OperationStatus
     {
         Waiting,

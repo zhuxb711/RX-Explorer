@@ -12,32 +12,9 @@ namespace RX_Explorer.Class
     {
         public abstract string OperationKindText { get; }
 
-        public string[] FromPath { get; }
+        public abstract string FromDescription { get; }
 
-        public string ToPath { get; }
-
-        public virtual string FromPathText
-        {
-            get
-            {
-                if (FromPath.Length > 5)
-                {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath.Take(5))}{Environment.NewLine}({FromPath.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
-                }
-                else
-                {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath)}";
-                }
-            }
-        }
-
-        public virtual string ToPathText
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{ToPath}";
-            }
-        }
+        public abstract string ToDescription { get; }
 
         public int Progress { get; private set; }
 
@@ -235,31 +212,9 @@ namespace RX_Explorer.Class
         private event EventHandler OnErrorHappended;
         private event EventHandler OnCancelled;
 
-        private ProgressCalculator Calculator;
+        protected ProgressCalculator Calculator;
 
-        public async Task PrepareSizeDataAsync()
-        {
-            ulong TotalSize = 0;
-
-            foreach (string Path in FromPath)
-            {
-                switch (await FileSystemStorageItemBase.OpenAsync(Path))
-                {
-                    case FileSystemStorageFolder Folder:
-                        {
-                            TotalSize += await Folder.GetFolderSizeAsync();
-                            break;
-                        }
-                    case FileSystemStorageFile File:
-                        {
-                            TotalSize += File.SizeRaw;
-                            break;
-                        }
-                }
-            }
-
-            Calculator = new ProgressCalculator(TotalSize);
-        }
+        public abstract Task PrepareSizeDataAsync();
 
         public void UpdateProgress(int NewProgress)
         {
@@ -320,13 +275,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListBaseModel(string[] FromPath, string ToPath, EventHandler OnCompleted, EventHandler OnErrorHappended, EventHandler OnCancelled)
+        public OperationListBaseModel(EventHandler OnCompleted, EventHandler OnErrorHappended, EventHandler OnCancelled)
         {
             Status = OperationStatus.Waiting;
             ProgressIndeterminate = true;
 
-            this.FromPath = FromPath;
-            this.ToPath = ToPath;
             this.OnCompleted = OnCompleted;
             this.OnErrorHappended = OnErrorHappended;
             this.OnCancelled = OnCancelled;

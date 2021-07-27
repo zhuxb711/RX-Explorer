@@ -41,7 +41,7 @@ App 访问网络仅仅用于获取所需数据，不会上传任何用户文件�
 9、变更说明
 本隐私策略一旦发生变更，会在该页面及时更新，恕不另行通知。本策略的最终解析权归开发者所有。
 
-11、接受本策略
+10、接受本策略
 当您从 Windows 应用商店安装并使用应用，即表明您已同意该策略的各项声明。
 
 Ruofan
@@ -90,7 +90,7 @@ For the ink you input and the recognition results of the written content, the ap
 9. Change description
 Once this privacy policy is changed, it will be updated on this page without notice. The final analysis right of this strategy belongs to the developer.
 
-11. Accept this strategy
+10. Accept this strategy
 When you install and use the app from the Windows Store, it means that you have agreed to the statements of this policy.
 
 Ruofan

@@ -3252,4 +3252,7 @@ Invalid names include
   <data name="CustomText" xml:space="preserve">
     <value>Customize</value>
   </data>
+  <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
+    <value>The task has been cancelled by the user</value>
+  </data>
 </root>

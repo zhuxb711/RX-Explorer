@@ -4176,6 +4176,10 @@ Las denominaciones no válidas son:
           <source>Customize</source>
           <target state="translated">Personalizar</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_TaskCanceledByUser_Content" translate="yes" xml:space="preserve">
+          <source>The task has been cancelled by the user</source>
+          <target state="translated">La tarea ha sido cancelada por el usuario.</target>
+        </trans-unit>
       </group>
     </body>
   </file>
