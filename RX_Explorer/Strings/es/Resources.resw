@@ -3147,4 +3147,7 @@ Las denominaciones no válidas son:
   <data name="CustomText" xml:space="preserve">
     <value>Personalizar</value>
   </data>
+  <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
+    <value>La tarea ha sido cancelada por el usuario</value>
+  </data>
 </root>

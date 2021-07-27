@@ -111,7 +111,7 @@ namespace RX_Explorer.Dialog
                     ExistTip.IsOpen = true;
                     args.Cancel = true;
                 }
-                else if (Icon.Source == null || (Icon.Source as BitmapImage)?.UriSource?.OriginalString == "ms-appx:///Assets/AddImage.png")
+                else if ((Icon.Source as BitmapImage)?.UriSource?.OriginalString is "ms-appx:///Assets/AddImage_Light.png" or "ms-appx:///Assets/AddImage_Dark.png")
                 {
                     EmptyTip.Target = Icon;
                     EmptyTip.IsOpen = true;

@@ -3147,4 +3147,7 @@
   <data name="CustomText" xml:space="preserve">
     <value>定制</value>
   </data>
+  <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
+    <value>任務已被用戶取消</value>
+  </data>
 </root>

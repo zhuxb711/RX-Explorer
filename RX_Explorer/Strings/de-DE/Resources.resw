@@ -3147,4 +3147,7 @@ Inkorrekte Namen sind
   <data name="CustomText" xml:space="preserve">
     <value>Anpassen</value>
   </data>
+  <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
+    <value>Die Aufgabe wurde vom Benutzer abgebrochen</value>
+  </data>
 </root>
