@@ -202,6 +202,7 @@
     <Compile Include="Class\OperationListRemoteModel.cs" />
     <Compile Include="Class\OperationListRenameUndoModel.cs" />
     <Compile Include="Class\OperationListUndoModel.cs" />
+    <Compile Include="Class\PortableImageDataPackage.cs" />
     <Compile Include="Class\ProgressCalculator.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />
     <Compile Include="Class\HiddenStorageFile.cs" />

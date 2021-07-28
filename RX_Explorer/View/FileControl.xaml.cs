@@ -25,12 +25,9 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -652,15 +649,17 @@ namespace RX_Explorer
                         FolderTree.RootNodes.Add(RootNode);
                     }
 
-                    foreach (DriveDataBase DriveData in CommonAccessCollection.DriveList.OrderBy((Dr) => (int)Dr.DriveType))
+                    List<Task> LongLoadList = new List<Task>(CommonAccessCollection.DriveList.Count((Drive) => Drive.DriveType is DriveType.Removable or DriveType.Network));
+
+                    foreach (DriveDataBase DriveData in CommonAccessCollection.DriveList)
                     {
                         if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                         {
                             FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
 
-                            if (DriveData.DriveType == DriveType.Network)
+                            if (DriveData.DriveType is DriveType.Network or DriveType.Removable)
                             {
-                                _ = Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
+                                LongLoadList.Add(Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
                                 {
                                     try
                                     {
@@ -675,19 +674,17 @@ namespace RX_Explorer
                                     {
                                         LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
                                     }
-                                }, TaskScheduler.FromCurrentSynchronizationContext());
+                                }, TaskScheduler.FromCurrentSynchronizationContext()));
                             }
                             else
                             {
                                 try
                                 {
-                                    bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
                                     FolderTree.RootNodes.Add(new TreeViewNode
                                     {
                                         Content = new TreeViewNodeContent(DriveData.DriveFolder),
                                         IsExpanded = false,
-                                        HasUnrealizedChildren = HasAnyFolder
+                                        HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
                                     });
                                 }
                                 catch (Exception ex)
@@ -697,6 +694,8 @@ namespace RX_Explorer
                             }
                         }
                     }
+
+                    await Task.WhenAll(LongLoadList);
                 }
             }
             catch (Exception ex)

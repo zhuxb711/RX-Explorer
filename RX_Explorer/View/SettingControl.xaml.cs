@@ -2406,18 +2406,42 @@ namespace RX_Explorer
 
                                         SQLite.Current.ImportData(DatabaseFormattedArray);
 
-                                        await CommonAccessCollection.LoadLibraryFoldersAsync(true);
+                                        if (Dic.TryGetValue("CustomImageDataPackageArray", out string CustomImageData)
+                                            && Dic.TryGetValue("CustomImageDataPackageArrayHash", out string CustomImageDataHash))
+                                        {
+                                            string CustomImageDataDecryptedString = CustomImageData.Decrypt(Package.Current.Id.FamilyName);
+
+                                            if (MD5Alg.GetHash(CustomImageDataDecryptedString).Equals(CustomImageDataHash, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                StorageFolder CustomImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
+
+                                                foreach (PortableImageDataPackage DataPackage in JsonSerializer.Deserialize<List<PortableImageDataPackage>>(CustomImageDataDecryptedString))
+                                                {
+                                                    StorageFile NewImageFile = await CustomImageFolder.CreateFileAsync(DataPackage.Name, CreationCollisionOption.ReplaceExisting);
+
+                                                    using (Stream ImageFileStream = await NewImageFile.OpenStreamForWriteAsync())
+                                                    {
+                                                        await ImageFileStream.WriteAsync(DataPackage.Data, 0, DataPackage.Data.Length);
+                                                        await ImageFileStream.FlushAsync();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                LogTracer.Log("Import custom image data failed because database hash is incorrect");
+                                            }
+                                        }
 
                                         ApplicationData.Current.SignalDataChanged();
 
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        await CommonAccessCollection.LoadLibraryFoldersAsync(true);
+
+                                        await new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                             Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
+                                        }.ShowAsync();
 
                                         MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
                                     }
@@ -2502,18 +2526,39 @@ namespace RX_Explorer
                         DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
                     }
 
+                    List<PortableImageDataPackage> CustomImageDataPackageList = new List<PortableImageDataPackage>();
+
+                    if (await ApplicationData.Current.LocalFolder.TryGetItemAsync("CustomImageFolder") is StorageFolder ImageFolder)
+                    {
+                        foreach (StorageFile ImageFile in await ImageFolder.GetFilesAsync())
+                        {
+                            using (Stream ImageStream = await ImageFile.OpenStreamForReadAsync())
+                            using (BinaryReader Reader = new BinaryReader(ImageStream))
+                            {
+                                CustomImageDataPackageList.Add(new PortableImageDataPackage
+                                {
+                                    Name = ImageFile.Name,
+                                    Data = Reader.ReadBytes((int)ImageStream.Length)
+                                });
+                            }
+                        }
+                    }
+
                     string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
                     string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+                    string CustomImageString = JsonSerializer.Serialize(CustomImageDataPackageList);
 
                     using (MD5 MD5Alg = MD5.Create())
                     {
                         Dictionary<string, string> BaseDic = new Dictionary<string, string>
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
-                            { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName)},
+                            { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName) },
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
                             { "Database", DatabaseString.Encrypt(Package.Current.Id.FamilyName) },
-                            { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
+                            { "DatabaseHash", MD5Alg.GetHash(DatabaseString) },
+                            { "CustomImageDataPackageArray", CustomImageString.Encrypt(Package.Current.Id.FamilyName) },
+                            { "CustomImageDataPackageArrayHash", MD5Alg.GetHash(CustomImageString) }
                         };
 
                         await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
