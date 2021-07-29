@@ -63,12 +63,19 @@ namespace RX_Explorer
 
         private void CloseAllFlyout()
         {
-            LibraryEmptyFlyout.Hide();
-            DriveEmptyFlyout.Hide();
-            DriveFlyout.Hide();
-            LibraryFlyout.Hide();
-            PortableDeviceFlyout.Hide();
-            BitlockerDeviceFlyout.Hide();
+            try
+            {
+                LibraryEmptyFlyout.Hide();
+                DriveEmptyFlyout.Hide();
+                DriveFlyout.Hide();
+                LibraryFlyout.Hide();
+                PortableDeviceFlyout.Hide();
+                BitlockerDeviceFlyout.Hide();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not close the flyout for unknown reason");
+            }
         }
 
         private void DriveGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

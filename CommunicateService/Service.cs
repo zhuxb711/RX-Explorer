@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,7 +32,7 @@ namespace CommunicateService
 
                 IncomeConnection.RequestReceived += Connection_RequestReceived;
 
-                AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Identity" } });
+                AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "CommandType", Enum.GetName(typeof(CommandType), CommandType.Identity) } });
 
                 if (Response.Status == AppServiceResponseStatus.Success)
                 {
@@ -139,7 +140,7 @@ namespace CommunicateService
                         {
                             ValueSet Value = new ValueSet
                             {
-                                { "ExecuteType", "AppServiceCancelled" },
+                                { "CommandType", Enum.GetName(typeof(CommandType), CommandType.AppServiceCancelled) },
                                 { "Reason", Enum.GetName(typeof(BackgroundTaskCancellationReason), reason) }
                             };
 

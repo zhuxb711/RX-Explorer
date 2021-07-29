@@ -34,12 +34,9 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -567,6 +564,7 @@ namespace RX_Explorer
         private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
             if (Container.CurrentPresenter == this
+                && Enum.GetName(typeof(CoreAcceleratorKeyEventType), args.EventType).Contains("KeyUp")
                 && args.KeyStatus.IsMenuKeyDown
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && Container.Frame == TabViewContainer.CurrentNavigationControl
@@ -583,6 +581,7 @@ namespace RX_Explorer
                             {
                                 Container.GoBackRecord_Click(null, null);
                             }
+
                             break;
                         }
                     case VirtualKey.Right:
@@ -593,6 +592,7 @@ namespace RX_Explorer
                             {
                                 Container.GoForwardRecord_Click(null, null);
                             }
+
                             break;
                         }
                     case VirtualKey.Enter when SelectedItems.Count == 1:
@@ -1247,11 +1247,18 @@ namespace RX_Explorer
         /// </summary>
         private void CloseAllFlyout()
         {
-            FileFlyout.Hide();
-            FolderFlyout.Hide();
-            EmptyFlyout.Hide();
-            MixedFlyout.Hide();
-            LinkItemFlyout.Hide();
+            try
+            {
+                FileFlyout.Hide();
+                FolderFlyout.Hide();
+                EmptyFlyout.Hide();
+                MixedFlyout.Hide();
+                LinkItemFlyout.Hide();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not close the flyout for unknown reason");
+            }
         }
 
         private async Task Ctrl_Z_Click()
@@ -1297,7 +1304,7 @@ namespace RX_Explorer
                                     {
                                         Dictionary<string, string> Dic = new Dictionary<string, string>();
 
-                                        foreach(string[] Group in SplitGroup)
+                                        foreach (string[] Group in SplitGroup)
                                         {
                                             Dic.Add(Group[2], Path.GetFileName(Group[0]));
                                         }
@@ -3273,17 +3280,16 @@ namespace RX_Explorer
                         throw new UnauthorizedAccessException();
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    LogTracer.Log(ex, "Could not create a new file as expected");
+
+                    await new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                    };
-
-                    await dialog.ShowAsync();
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    }.ShowAsync();
                 }
             }
         }

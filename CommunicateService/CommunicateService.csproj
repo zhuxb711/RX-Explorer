@@ -134,6 +134,12 @@
       <Version>6.2.12</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj">
+      <Project>{57848D87-5F61-4150-B6DC-56A87AC0AEAE}</Project>
+      <Name>ShareClassLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

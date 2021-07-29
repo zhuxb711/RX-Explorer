@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -21,13 +22,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SendData(string Data)
+        private readonly Task WaitConnectionTask;
+
+        public async Task SendDataAsync(string Data)
         {
             try
             {
                 if (!PipeStream.IsConnected)
                 {
-                    PipeStream.WaitForConnection();
+                    await WaitConnectionTask;
                 }
 
                 using (StreamWriter Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 1024, true))
@@ -46,7 +49,7 @@ namespace RX_Explorer.Class
 
         private NamedPipeWriteController()
         {
-
+            WaitConnectionTask = PipeStream.WaitForConnectionAsync();
         }
     }
 }

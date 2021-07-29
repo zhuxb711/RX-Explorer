@@ -130,7 +130,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             this.Window = Window;
             this.StorageItem = StorageItem;
 
-            PropertiesTitleLeft.Text = StorageItem.DisplayName;
+            PropertiesTitleLeft.Text = StorageItem is FileSystemStorageFolder ? (string.IsNullOrEmpty(StorageItem.DisplayName)
+                                                                                  ? StorageItem.Name
+                                                                                  : StorageItem.DisplayName)
+                                                                              : StorageItem.Name;
             GeneralTab.Text = Globalization.GetString("Properties_General_Tab");
             ShortcutTab.Text = Globalization.GetString("Properties_Shortcut_Tab");
             DetailsTab.Text = Globalization.GetString("Properties_Details_Tab");

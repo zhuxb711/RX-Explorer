@@ -3665,7 +3665,7 @@ Invalid names include
         </trans-unit>
         <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Tag</source>
-          <target state="translated">標籤</target>
+          <target state="translated">标记</target>
         </trans-unit>
         <trans-unit id="PurpleTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Purple tag</source>

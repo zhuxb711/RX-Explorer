@@ -23,94 +23,6 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        private const string ExecuteType_RunExe = "Execute_RunExe";
-
-        private const string ExecuteType_Quicklook = "Execute_Quicklook";
-
-        private const string ExecuteType_Check_Quicklook = "Execute_Check_QuicklookIsAvaliable";
-
-        private const string ExecuteType_Get_Association = "Execute_Get_Association";
-
-        private const string ExecuteType_Default_Association = "Execute_Default_Association";
-
-        private const string ExecuteType_Get_RecycleBinItems = "Execute_Get_RecycleBinItems";
-
-        private const string ExecuteType_InterceptWinE = "Execute_Intercept_Win_E";
-
-        private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
-
-        private const string ExecuteType_GetLnkData = "Execute_GetLnkData";
-
-        private const string ExecuteType_GetUrlData = "Execute_GetUrlData";
-
-        private const string ExecuteType_Rename = "Execute_Rename";
-
-        private const string ExecuteType_EmptyRecycleBin = "Execute_Empty_RecycleBin";
-
-        private const string ExecuteType_UnlockOccupy = "Execute_Unlock_Occupy";
-
-        private const string ExecuteType_EjectUSB = "Execute_EjectUSB";
-
-        private const string ExecuteType_Copy = "Execute_Copy";
-
-        private const string ExecuteType_Move = "Execute_Move";
-
-        private const string ExecuteType_Delete = "Execute_Delete";
-
-        private const string ExecuteAuthority_Normal = "Normal";
-
-        private const string ExecuteAuthority_Administrator = "Administrator";
-
-        private const string ExecuteType_Restore_RecycleItem = "Execute_Restore_RecycleItem";
-
-        private const string ExecuteType_Delete_RecycleItem = "Execute_Delete_RecycleItem";
-
-        private const string ExecuteType_GetVariablePath = "Execute_GetVariable_Path";
-
-        private const string ExecuteType_CreateLink = "Execute_CreateLink";
-
-        private const string ExecuteType_UpdateLink = "Execute_UpdateLink";
-
-        private const string ExecuteType_UpdateUrl = "Execute_UpdateUrl";
-
-        private const string ExecuteType_PasteRemoteFile = "Paste_Remote_File";
-
-        private const string ExecuteType_Test_Connection = "Execute_Test_Connection";
-
-        private const string ExecuteType_GetContextMenuItems = "Execute_GetContextMenuItems";
-
-        private const string ExecuteType_InvokeContextMenuItem = "Execute_InvokeContextMenuItem";
-
-        private const string ExecuteType_CheckIfEverythingAvailable = "Execute_CheckIfEverythingAvailable";
-
-        private const string ExecuteType_SearchByEverything = "Execute_SearchByEverything";
-
-        private const string ExecuteType_GetHiddenItemInfo = "Execute_GetHiddenItemInfo";
-
-        private const string ExecuteType_SetFileAttribute = "Execute_SetFileAttribute";
-
-        private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
-
-        private const string ExecuteType_GetAllInstalledApplication = "Execute_GetAllInstalledApplication";
-
-        private const string ExecuteType_CheckPackageFamilyNameExist = "Execute_CheckPackageFamilyNameExist";
-
-        private const string ExecuteType_GetInstalledApplication = "Execute_GetInstalledApplication";
-
-        private const string ExecuteType_GetDocumentProperties = "Execute_GetDocumentProperties";
-
-        private const string ExecuteType_LaunchUWP = "Execute_LaunchUWP";
-
-        private const string ExecuteType_GetThumbnailOverlay = "Execute_GetThumbnailOverlay";
-
-        private const string ExecuteType_SetAsTopMostWindow = "Execute_SetAsTopMostWindow";
-
-        private const string ExecuteType_RemoveTopMostWindow = "Execute_RemoveTopMostWindow";
-
-        private const string ExecuteType_GetTooltipText = "Execute_GetTooltipText";
-
-        private const string ExecuteType_CreateNew = "Execute_CreateNew";
-
         public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
@@ -159,9 +71,11 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.Normal
         };
 
-        private readonly NamedPipeReadController PipeReadController;
+        private readonly NamedPipeReadController PipeProgressReadController;
 
-        private readonly NamedPipeWriteController PipeWriteController;
+        private readonly NamedPipeReadController PipeCommandReadController;
+
+        private readonly NamedPipeWriteController PipeCommandWriteController;
 
         private readonly AppServiceConnection Connection;
 
@@ -206,14 +120,19 @@ namespace RX_Explorer.Class
 
             if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
             {
-                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController ReadController))
+                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController CommandReadController))
                 {
-                    PipeReadController = ReadController;
+                    PipeCommandReadController = CommandReadController;
                 }
 
-                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController WriteController))
+                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController ProgressReadController))
                 {
-                    PipeWriteController = WriteController;
+                    PipeProgressReadController = ProgressReadController;
+                }
+
+                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController CommandWriteController))
+                {
+                    PipeCommandWriteController = CommandWriteController;
                 }
             }
 
@@ -410,14 +329,14 @@ namespace RX_Explorer.Class
 
             try
             {
-                switch (args.Request.Message["ExecuteType"])
+                switch (Enum.Parse<CommandType>(Convert.ToString(args.Request.Message["CommandType"])))
                 {
-                    case "Identity":
+                    case CommandType.Identity:
                         {
                             await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
                             break;
                         }
-                    case "AppServiceCancelled":
+                    case CommandType.AppServiceCancelled:
                         {
                             Dispose();
                             LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
@@ -466,25 +385,30 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        { "ExecuteType", ExecuteType_Test_Connection },
+                        { "CommandType", Enum.GetName(typeof(CommandType), CommandType.Test_Connection) },
                         { "ProcessId", CurrentProcessId },
                     };
 
-                    if (PipeWriteController != null)
+                    if (PipeCommandWriteController != null)
                     {
-                        Value.Add("PipeWriteId", PipeWriteController.PipeUniqueId);
+                        Value.Add("PipeCommandWriteId", PipeCommandWriteController.PipeUniqueId);
                     }
 
-                    if (PipeReadController != null)
+                    if (PipeCommandReadController != null)
                     {
-                        Value.Add("PipeReadId", PipeReadController.PipeUniqueId);
+                        Value.Add("PipeCommandReadId", PipeCommandReadController.PipeUniqueId);
+                    }
+
+                    if (PipeProgressReadController != null)
+                    {
+                        Value.Add("PipeProgressReadId", PipeProgressReadController.PipeUniqueId);
                     }
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
+                        if (Response.Message.ContainsKey(Enum.GetName(typeof(CommandType), CommandType.Test_Connection)))
                         {
                             return IsConnected = true;
                         }
@@ -518,1019 +442,637 @@ namespace RX_Explorer.Class
             LogTracer.Log("AppServiceConnection is closed, dispose this instance");
         }
 
-        public async Task<string> GetMIMEContentType(string Path)
+        private async Task<IDictionary<string, string>> SendCommandAsync(CommandType Type, params (string, string)[] Arguments)
         {
+            IsAnyActionExcutingInCurrentController = true;
+
             try
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if ((PipeCommandReadController?.IsConnected).GetValueOrDefault() && (PipeCommandWriteController?.IsConnected).GetValueOrDefault())
                 {
-                    ValueSet Value = new ValueSet
+                    Dictionary<string, string> Command = new Dictionary<string, string>
                     {
-                        {"ExecuteType", ExecuteType_GetMIMEContentType},
-                        {"ExecutePath", Path}
+                        { "CommandType", Enum.GetName(typeof(CommandType), Type) }
                     };
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    foreach ((string, object) Argument in Arguments)
                     {
-                        if (Response.Message.TryGetValue("Success", out object MIME))
+                        Command.Add(Argument.Item1, Convert.ToString(Argument.Item2));
+                    }
+
+                    TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
+
+                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+                    {
+                        try
                         {
-                            return Convert.ToString(MIME);
+                            CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                        }
+                        catch (Exception ex)
+                        {
+                            CompletionSource.SetException(ex);
+                        }
+                    }
+
+                    try
+                    {
+                        PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
+
+                        await PipeCommandWriteController.SendDataAsync(JsonSerializer.Serialize(Command));
+
+                        return await CompletionSource.Task;
+                    }
+                    finally
+                    {
+                        PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                    }
+                }
+                else
+                {
+                    if (await ConnectRemoteAsync())
+                    {
+                        ValueSet Command = new ValueSet
+                        {
+                            { "CommandType", Enum.GetName(typeof(CommandType), Type) }
+                        };
+
+                        foreach ((string, string) Argument in Arguments)
+                        {
+                            Command.Add(Argument.Item1, Argument.Item2);
+                        }
+
+                        AppServiceResponse Response = await Connection.SendMessageAsync(Command);
+
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            Dictionary<string, string> Result = new Dictionary<string, string>(Response.Message.Count);
+
+                            foreach (KeyValuePair<string, object> Pair in Response.Message)
+                            {
+                                Result.Add(Pair.Key, Convert.ToString(Pair.Value));
+                            }
+
+                            return Result;
                         }
                         else
                         {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentType)}, message: {ErrorMessage}");
-                            }
-
-                            return string.Empty;
+                            throw new Exception($"AppServiceResponse return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetMIMEContentType)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
+                        throw new Exception("Failed to connect the AppService");
                     }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetMIMEContentType)}: Failed to connect AppService ");
-                    return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
-                return string.Empty;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<string> GetTooltipTextAsync(string Path)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetTooltipText},
-                        {"Path", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Tooltip))
-                        {
-                            return Convert.ToString(Tooltip);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetTooltipTextAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetTooltipTextAsync)}: Failed to connect AppService ");
-                    return string.Empty;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(GetTooltipTextAsync)} throw an error");
-                return string.Empty;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<byte[]> GetThumbnailOverlayAsync(string Path)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetThumbnailOverlay},
-                        {"Path", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
-                        {
-                            return JsonSerializer.Deserialize<byte[]>(Convert.ToString(ThumbnailOverlayStr));
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailOverlayAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return Array.Empty<byte>();
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetThumbnailOverlayAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return Array.Empty<byte>();
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetThumbnailOverlayAsync)}: Failed to connect AppService ");
-                    return Array.Empty<byte>();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(GetThumbnailOverlayAsync)} throw an error");
-                return Array.Empty<byte>();
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<string> CreateNewAsync(CreateType Type, string Path)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        { "ExecuteType", ExecuteType_CreateNew },
-                        { "NewPath", Path },
-                        { "Type", Enum.GetName(typeof(CreateType), Type) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object NewPath))
-                        {
-                            return Convert.ToString(NewPath);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage2}");
-                            }
-                            else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage4}");
-                            }
-                            else if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CreateNewAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(CreateNewAsync)}: Failed to connect AppService ");
-                    return string.Empty;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(CreateNewAsync)} throw an error");
-                return string.Empty;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> SetAsTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_SetAsTopMostWindow},
-                        {"PackageFamilyName", PackageFamilyName}
-                    };
-
-                    if (WithPID != null)
-                    {
-                        Value.Add("WithPID", WithPID);
-                    }
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(SetAsTopMostWindowAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(SetAsTopMostWindowAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(SetAsTopMostWindowAsync)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(SetAsTopMostWindowAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> RemoveTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_RemoveTopMostWindow},
-                        {"PackageFamilyName", PackageFamilyName}
-                    };
-
-                    if (WithPID != null)
-                    {
-                        Value.Add("WithPID", WithPID);
-                    }
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveTopMostWindowAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveTopMostWindowAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(RemoveTopMostWindowAsync)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(RemoveTopMostWindowAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<Dictionary<string, string>> GetDocumentProperties(string Path)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetDocumentProperties},
-                        {"ExecutePath", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Properties))
-                        {
-                            return JsonSerializer.Deserialize<Dictionary<string, string>>(Convert.ToString(Properties));
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
-                            }
-
-                            return new Dictionary<string, string>(0);
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetDocumentProperties)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return new Dictionary<string, string>(0);
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetDocumentProperties)}: Failed to connect AppService ");
-                    return new Dictionary<string, string>(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(GetDocumentProperties)} throw an error");
-                return new Dictionary<string, string>(0);
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task SetFileAttribute(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_SetFileAttribute},
-                        {"ExecutePath", Path},
-                        {"Attributes", JsonSerializer.Serialize(Attribute)}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttribute)}, message: {ErrorMessage}");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(SetFileAttribute)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(SetFileAttribute)}: Failed to connect AppService ");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(SetFileAttribute)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> CheckIfEverythingIsAvailableAsync()
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_CheckIfEverythingAvailable}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfEverythingIsAvailableAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfEverythingIsAvailableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(CheckIfEverythingIsAvailableAsync)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(CheckIfEverythingIsAvailableAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_SearchByEverything},
-                        {"BaseLocation", BaseLocation },
-                        {"SearchWord", SearchWord },
-                        {"SearchAsRegex", SearchAsRegex },
-                        {"IgnoreCase", IgnoreCase },
-                        {"MaxCount", MaxCount }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            string[] SearchResult = JsonSerializer.Deserialize<string[]>(Convert.ToString(Result));
-
-                            if (SearchResult.Length == 0)
-                            {
-                                return new List<FileSystemStorageItemBase>(0);
-                            }
-                            else
-                            {
-                                return Win32_Native_API.GetStorageItemInBatch(SearchResult);
-                            }
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(SearchByEverythingAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return new List<FileSystemStorageItemBase>(0);
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(SearchByEverythingAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return new List<FileSystemStorageItemBase>(0);
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(SearchByEverythingAsync)}: Failed to connect AppService ");
-                    return new List<FileSystemStorageItemBase>(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(SearchByEverythingAsync)} throw an error");
-                return new List<FileSystemStorageItemBase>(0);
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_LaunchUWP},
-                        {"AppUserModelId", AppUserModelId },
-                        {"LaunchPathArray", JsonSerializer.Serialize(PathArray)}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromAUMIDAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPFromAUMIDAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(LaunchUWPFromAUMIDAsync)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(LaunchUWPFromAUMIDAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> LaunchUWPFromPfnAsync(string PackageFamilyName, params string[] PathArray)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_LaunchUWP},
-                        {"PackageFamilyName", PackageFamilyName },
-                        {"LaunchPathArray", JsonSerializer.Serialize(PathArray)}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromPfnAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPFromPfnAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(LaunchUWPFromPfnAsync)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(LaunchUWPFromPfnAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> CheckIfPackageFamilyNameExist(string PackageFamilyName)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_CheckPackageFamilyNameExist},
-                        {"PackageFamilyName", PackageFamilyName }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExist)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfPackageFamilyNameExist)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(CheckIfPackageFamilyNameExist)}: Failed to connect AppService ");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(CheckIfPackageFamilyNameExist)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<InstalledApplication> GetInstalledApplicationAsync(string PackageFamilyName)
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetInstalledApplication},
-                        {"PackageFamilyName", PackageFamilyName }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Convert.ToString(Result));
-
-                            return await InstalledApplication.CreateAsync(Pack);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetInstalledApplicationAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetInstalledApplicationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return null;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(GetInstalledApplicationAsync)}: Failed to connect AppService ");
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(GetInstalledApplicationAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw an error");
                 return null;
             }
             finally
             {
                 IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        private async Task<IDictionary<string, string>> SendCommandAndReportProgressAsync(CommandType Type, ProgressChangedEventHandler ProgressHandler, params (string, string)[] Arguments)
+        {
+            IsAnyActionExcutingInCurrentController = true;
+
+            try
+            {
+                void PipeProgressReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+                {
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                }
+
+                if ((PipeCommandReadController?.IsConnected).GetValueOrDefault() && (PipeCommandWriteController?.IsConnected).GetValueOrDefault())
+                {
+                    Dictionary<string, string> Command = new Dictionary<string, string>
+                    {
+                        { "CommandType", Enum.GetName(typeof(CommandType), Type) }
+                    };
+
+                    foreach ((string, string) Argument in Arguments)
+                    {
+                        Command.Add(Argument.Item1, Argument.Item2);
+                    }
+
+                    TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
+
+                    void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+                    {
+                        try
+                        {
+                            CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                        }
+                        catch (Exception ex)
+                        {
+                            CompletionSource.SetException(ex);
+                        }
+                    }
+
+                    if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                    {
+                        PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
+                    }
+
+                    try
+                    {
+                        PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
+
+                        await PipeCommandWriteController.SendDataAsync(JsonSerializer.Serialize(Command));
+
+                        return await CompletionSource.Task;
+                    }
+                    finally
+                    {
+                        PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
+
+                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                        {
+                            PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
+                        }
+                    }
+                }
+                else
+                {
+                    if (await ConnectRemoteAsync())
+                    {
+                        ValueSet Command = new ValueSet
+                        {
+                            { "CommandType", Enum.GetName(typeof(CommandType), Type) }
+                        };
+
+                        foreach ((string, string) Argument in Arguments)
+                        {
+                            Command.Add(Argument.Item1, Argument.Item2);
+                        }
+
+                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                        {
+                            PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
+                        }
+
+                        AppServiceResponse Response = await Connection.SendMessageAsync(Command);
+
+                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                        {
+                            PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
+                        }
+
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            Dictionary<string, string> Result = new Dictionary<string, string>(Response.Message.Count);
+
+                            foreach (KeyValuePair<string, object> Pair in Response.Message)
+                            {
+                                Result.Add(Pair.Key, Convert.ToString(Pair.Value));
+                            }
+
+                            return Result;
+                        }
+                        else
+                        {
+                            throw new Exception($"AppServiceResponse return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to connect the AppService");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(SendCommandAndReportProgressAsync)} throw an error");
+                return null;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+
+        public async Task<string> GetMIMEContentType(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetMIMEContentType, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string MIME))
+                {
+                    return MIME;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentType)}, message: {ErrorMessage}");
+                    }
+
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task<string> GetTooltipTextAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetTooltipText, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Tooltip))
+                {
+                    return Tooltip;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task<byte[]> GetThumbnailOverlayAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetThumbnailOverlay, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
+                {
+                    return JsonSerializer.Deserialize<byte[]>(Convert.ToString(ThumbnailOverlayStr));
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailOverlayAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return Array.Empty<byte>();
+                }
+            }
+            else
+            {
+                return Array.Empty<byte>();
+            }
+        }
+
+        public async Task<string> CreateNewAsync(CreateType Type, string Path)
+        {
+            if (await SendCommandAsync(CommandType.CreateNew, ("NewPath", Path), ("Type", Enum.GetName(typeof(CreateType), Type))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string NewPath))
+                {
+                    return Convert.ToString(NewPath);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage2}");
+                    }
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage4}");
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task<bool> SetAsTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
+        {
+            if (await SendCommandAsync(CommandType.SetAsTopMostWindow, ("PackageFamilyName", PackageFamilyName), ("WithPID", Convert.ToString(WithPID.GetValueOrDefault()))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetAsTopMostWindowAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
+        {
+            if (await SendCommandAsync(CommandType.RemoveTopMostWindow, ("PackageFamilyName", PackageFamilyName), ("WithPID", Convert.ToString(WithPID.GetValueOrDefault()))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string ThumbnailOverlayStr))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RemoveTopMostWindowAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<Dictionary<string, string>> GetDocumentProperties(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetDocumentProperties, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Properties))
+                {
+                    return JsonSerializer.Deserialize<Dictionary<string, string>>(Convert.ToString(Properties));
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
+                    }
+
+                    return new Dictionary<string, string>(0);
+                }
+            }
+            else
+            {
+                return new Dictionary<string, string>(0);
+            }
+        }
+
+        public async Task SetFileAttribute(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
+        {
+            if (await SendCommandAsync(CommandType.SetFileAttribute, ("ExecutePath", Path), ("Attributes", JsonSerializer.Serialize(Attribute))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttribute)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task<bool> CheckIfEverythingIsAvailableAsync()
+        {
+            if (await SendCommandAsync(CommandType.CheckIfEverythingAvailable) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfEverythingIsAvailableAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        {
+            if (await SendCommandAsync(CommandType.SearchByEverything, ("BaseLocation", BaseLocation), ("SearchWord", SearchWord), ("SearchAsRegex", Convert.ToString(SearchAsRegex)), ("IgnoreCase", Convert.ToString(IgnoreCase)), ("MaxCount", Convert.ToString(MaxCount))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    string[] SearchResult = JsonSerializer.Deserialize<string[]>(Convert.ToString(Result));
+
+                    if (SearchResult.Length == 0)
+                    {
+                        return new List<FileSystemStorageItemBase>(0);
+                    }
+                    else
+                    {
+                        return Win32_Native_API.GetStorageItemInBatch(SearchResult);
+                    }
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SearchByEverythingAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return new List<FileSystemStorageItemBase>(0);
+                }
+            }
+            else
+            {
+                return new List<FileSystemStorageItemBase>(0);
+            }
+        }
+
+        public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
+        {
+            if (await SendCommandAsync(CommandType.LaunchUWP, ("AppUserModelId", AppUserModelId), ("LaunchPathArray", JsonSerializer.Serialize(PathArray))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromAUMIDAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> LaunchUWPFromPfnAsync(string PackageFamilyName, params string[] PathArray)
+        {
+            if (await SendCommandAsync(CommandType.LaunchUWP, ("PackageFamilyName", PackageFamilyName), ("LaunchPathArray", JsonSerializer.Serialize(PathArray))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromPfnAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> CheckIfPackageFamilyNameExist(string PackageFamilyName)
+        {
+            if (await SendCommandAsync(CommandType.CheckPackageFamilyNameExist, ("PackageFamilyName", PackageFamilyName)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return Convert.ToBoolean(Result);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExist)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<InstalledApplication> GetInstalledApplicationAsync(string PackageFamilyName)
+        {
+            if (await SendCommandAsync(CommandType.GetInstalledApplication, ("PackageFamilyName", PackageFamilyName)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Convert.ToString(Result));
+
+                    return await InstalledApplication.CreateAsync(Pack);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetInstalledApplicationAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
             }
         }
 
 
         public async Task<IReadOnlyList<InstalledApplication>> GetAllInstalledApplicationAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.GetAllInstalledApplication) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    ValueSet Value = new ValueSet
+                    List<InstalledApplication> PackageList = new List<InstalledApplication>();
+
+                    foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Convert.ToString(Result)))
                     {
-                        {"ExecuteType", ExecuteType_GetAllInstalledApplication}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            List<InstalledApplication> PackageList = new List<InstalledApplication>();
-
-                            foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Convert.ToString(Result)))
-                            {
-                                PackageList.Add(await InstalledApplication.CreateAsync(Pack));
-                            }
-
-                            return PackageList;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledApplicationAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return Array.Empty<InstalledApplication>();
-                        }
+                        PackageList.Add(await InstalledApplication.CreateAsync(Pack));
                     }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetAllInstalledApplicationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return Array.Empty<InstalledApplication>();
-                    }
+
+                    return PackageList;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetAllInstalledApplicationAsync)}: Failed to connect AppService ");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledApplicationAsync)}, message: {ErrorMessage}");
+                    }
+
                     return Array.Empty<InstalledApplication>();
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{ nameof(GetAllInstalledApplicationAsync)} throw an error");
                 return Array.Empty<InstalledApplication>();
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
 
         public async Task<HiddenDataPackage> GetHiddenItemDataAsync(string Path)
         {
-            try
+            if (await SendCommandAsync(CommandType.GetHiddenItemInfo, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (Path.Any())
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    if (await ConnectRemoteAsync())
-                    {
-                        ValueSet Value = new ValueSet
-                        {
-                            {"ExecuteType", ExecuteType_GetHiddenItemInfo},
-                            {"ExecutePath", Path}
-                        };
-
-                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                        if (Response.Status == AppServiceResponseStatus.Success)
-                        {
-                            if (Response.Message.TryGetValue("Success", out object Result))
-                            {
-                                return JsonSerializer.Deserialize<HiddenDataPackage>(Convert.ToString(Result));
-                            }
-                            else
-                            {
-                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                                {
-                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
-                                }
-
-                                return null;
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log($"AppServiceResponse in {nameof(GetHiddenItemDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"{nameof(GetHiddenItemDataAsync)}: Failed to connect AppService ");
-                        return null;
-                    }
+                    return JsonSerializer.Deserialize<HiddenDataPackage>(Convert.ToString(Result));
                 }
                 else
                 {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
+                    }
+
                     return null;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{ nameof(GetHiddenItemDataAsync)} throw an error");
                 return null;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
         {
-            try
+            if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
+                if (await SendCommandAsync(CommandType.GetContextMenuItems, ("ExecutePath", JsonSerializer.Serialize(PathArray)), ("IncludeExtensionItem", Convert.ToString(IncludeExtensionItem))) is IDictionary<string, string> Response)
                 {
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault() && (PipeWriteController?.IsConnected).GetValueOrDefault())
+                    if (Response.TryGetValue("Success", out string Result))
                     {
-                        TaskCompletionSource<List<ContextMenuItem>> CompletionSource = new TaskCompletionSource<List<ContextMenuItem>>();
-
-                        void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                        {
-                            try
-                            {
-                                if (e.Data != "<<<Error>>>")
-                                {
-                                    CompletionSource.SetResult(JsonSerializer.Deserialize<ContextMenuPackage[]>(e.Data).Select((Item) => new ContextMenuItem(Item)).ToList());
-                                }
-                                else
-                                {
-                                    CompletionSource.SetResult(new List<ContextMenuItem>(0));
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                CompletionSource.SetException(ex);
-                            }
-                        }
-
-                        try
-                        {
-                            PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
-
-                            PipeCommand Command = new PipeCommand
-                            {
-                                CommandText = ExecuteType_GetContextMenuItems,
-                                ExtraData = new Dictionary<string, string>
-                                {
-                                    {"ExecutePath", JsonSerializer.Serialize(PathArray)},
-                                    {"IncludeExtensionItem", Convert.ToString(IncludeExtensionItem)}
-                                }
-                            };
-
-                            PipeWriteController.SendData(JsonSerializer.Serialize(Command));
-
-                            return await CompletionSource.Task;
-                        }
-                        finally
-                        {
-                            PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                        }
+                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
                     }
                     else
                     {
-                        if (await ConnectRemoteAsync())
+                        if (Response.TryGetValue("Error", out string ErrorMessage))
                         {
-                            ValueSet Value = new ValueSet
-                            {
-                                {"ExecuteType", ExecuteType_GetContextMenuItems},
-                                {"ExecutePath", JsonSerializer.Serialize(PathArray)},
-                                {"IncludeExtensionItem", IncludeExtensionItem }
-                            };
-
-                            AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                            if (Response.Status == AppServiceResponseStatus.Success)
-                            {
-                                if (Response.Message.TryGetValue("Success", out object Result))
-                                {
-                                    return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
-                                }
-                                else
-                                {
-                                    if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                                    {
-                                        LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
-                                    }
-
-                                    return new List<ContextMenuItem>(0);
-                                }
-                            }
-                            else
-                            {
-                                LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                                return new List<ContextMenuItem>(0);
-                            }
+                            LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
                         }
-                        else
-                        {
-                            LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
-                            return new List<ContextMenuItem>(0);
-                        }
+
+                        return new List<ContextMenuItem>(0);
                     }
                 }
                 else
@@ -1538,553 +1080,248 @@ namespace RX_Explorer.Class
                     return new List<ContextMenuItem>(0);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(GetContextMenuItemsAsync)} throw an error");
                 return new List<ContextMenuItem>(0);
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<bool> InvokeContextMenuItemAsync(ContextMenuPackage Package)
         {
-            if (Package == null)
+            if (Package != null)
             {
-                throw new ArgumentNullException(nameof(Package), "Argument could not be null");
-            }
-
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("RelatedPath", JsonSerializer.Serialize(Package.RelatedPath)), ("Verb", Package.Verb), ("Id", Convert.ToString(Package.Id)), ("IncludeExtensionItem", Convert.ToString(Package.IncludeExtensionItem))) is IDictionary<string, string> Response)
                 {
-                    ValueSet Value = new ValueSet
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        {"ExecuteType", ExecuteType_InvokeContextMenuItem},
-                        {"RelatedPath", JsonSerializer.Serialize(Package.RelatedPath) },
-                        {"Verb", Package.Verb },
-                        {"Id", Package.Id },
-                        {"IncludeExtensionItem", Package.IncludeExtensionItem }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
+                        return false;
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
+                        return true;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, params string[] LinkArgument)
         {
-            try
+            if (await SendCommandAsync(CommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, false, null, LinkArgument)))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.ContainsKey("Success"))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_CreateLink},
-                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, false, null, LinkArgument)) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateLinkAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CreateLinkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return true;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(CreateLinkAsync)}: Failed to connect AppService ");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CreateLinkAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{ nameof(CreateLinkAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task UpdateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, bool NeedRunAsAdmin, params string[] LinkArgument)
         {
-            try
+            if (await SendCommandAsync(CommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, NeedRunAsAdmin, null, LinkArgument)))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_UpdateLink},
-                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, NeedRunAsAdmin, null, LinkArgument)) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(UpdateLinkAsync)}, message: {ErrorMessage}");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(UpdateLinkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                    }
+                    LogTracer.Log($"An unexpected error was threw in {nameof(UpdateLinkAsync)}, message: {ErrorMessage}");
                 }
-                else
-                {
-                    LogTracer.Log($"{nameof(UpdateLinkAsync)}: Failed to connect AppService ");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(UpdateLinkAsync)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task UpdateUrlAsync(string UrlPath, string UrlTargetPath)
         {
-            try
+            if (await SendCommandAsync(CommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(new UrlDataPackage(UrlPath, UrlTargetPath, Array.Empty<byte>())))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_UpdateUrl},
-                        {"DataPackage", JsonSerializer.Serialize(new UrlDataPackage(UrlPath, UrlTargetPath, Array.Empty<byte>())) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(UpdateUrlAsync)}, message: {ErrorMessage}");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(UpdateUrlAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                    }
+                    LogTracer.Log($"An unexpected error was threw in {nameof(UpdateUrlAsync)}, message: {ErrorMessage}");
                 }
-                else
-                {
-                    LogTracer.Log($"{nameof(UpdateUrlAsync)}: Failed to connect AppService ");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(UpdateUrlAsync)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<string> GetVariablePathAsync(string Variable)
         {
-            try
+            if (await SendCommandAsync(CommandType.GetVariablePath, ("Variable", Variable)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetVariablePath},
-                        {"Variable", Variable }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return Convert.ToString(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePathAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetVariablePathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
-                    }
+                    return Convert.ToString(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetVariablePathAsync)}: Failed to connect AppService ");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePathAsync)}, message: {ErrorMessage}");
+                    }
+
                     return string.Empty;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{ nameof(GetVariablePathAsync)} throw an error");
                 return string.Empty;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false)
         {
-            try
+            if (await SendCommandAsync(CommandType.Rename, ("ExecutePath", Path), ("DesireName", DesireName)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string NewName))
                 {
-                    ValueSet Value = new ValueSet
+                    string NewNameString = Convert.ToString(NewName);
+
+                    if (!SkipOperationRecord)
                     {
-                        {"ExecuteType", ExecuteType_Rename},
-                        {"ExecutePath", Path},
-                        {"DesireName", DesireName}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object NewName))
-                        {
-                            string NewNameString = Convert.ToString(NewName);
-
-                            if (!SkipOperationRecord)
-                            {
-                                OperationRecorder.Current.Push($"{Path}||Rename||{System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewNameString)}");
-                            }
-
-                            return NewNameString;
-                        }
-                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
-                            throw new FileCaputureException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
-                            throw new InvalidOperationException();
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
+                        OperationRecorder.Current.Push($"{Path}||Rename||{System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewNameString)}");
                     }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RenameAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        throw new NoResponseException();
-                    }
+
+                    return NewNameString;
+                }
+                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
+                    throw new FileCaputureException();
+                }
+                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage4))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage4}");
+                    throw new InvalidOperationException();
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RenameAsync)}: Failed to connect AppService ");
-                    throw new NoResponseException();
+                    throw new Exception();
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                throw new NoResponseException();
             }
         }
 
         public async Task<LinkDataPackage> GetLnkDataAsync(string Path)
         {
-            try
+            if (await SendCommandAsync(CommandType.GetLnkData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetLnkData},
-                        {"ExecutePath", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(Result));
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetLnkDataAsync)}, message: {ErrorMessage}");
-                            }
-
-                            throw new InvalidOperationException();
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetLnkDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-
-                        throw new NoResponseException();
-                    }
+                    return JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(Result));
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetLnkDataAsync)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetLnkDataAsync)}, message: {ErrorMessage}");
+                    }
+
+                    throw new InvalidOperationException();
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                throw new NoResponseException();
             }
         }
 
         public async Task<UrlDataPackage> GetUrlDataAsync(string Path)
         {
-            try
+            if (await SendCommandAsync(CommandType.GetUrlData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_GetUrlData},
-                        {"ExecutePath", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(Result));
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlDataAsync)}, message: {ErrorMessage}");
-                            }
-
-                            throw new InvalidOperationException();
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetUrlDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-
-                        throw new NoResponseException();
-                    }
+                    return JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(Result));
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetUrlDataAsync)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlDataAsync)}, message: {ErrorMessage}");
+                    }
+
+                    throw new InvalidOperationException();
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                throw new NoResponseException();
             }
         }
 
         public async Task<bool> InterceptWindowsPlusEAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.InterceptWinE) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.ContainsKey("Success"))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_InterceptWinE}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusEAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(InterceptWindowsPlusEAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return true;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(InterceptWindowsPlusEAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusEAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(InterceptWindowsPlusEAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<bool> RestoreWindowsPlusEAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.RestoreWinE) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.ContainsKey("Success"))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_RestoreWinE}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreWindowsPlusEAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-
-                        return false;
-                    }
+                    return true;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RestoreWindowsPlusEAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(RestoreWindowsPlusEAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -2096,583 +1333,256 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<bool> RunAsync(string Path, string WorkDirectory = null, WindowState WindowStyle = WindowState.Normal, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
         {
-            try
+            if (await SendCommandAsync(CommandType.RunExecutable,
+                                       ("ExecutePath", Path),
+                                       ("ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))),
+                                       ("ExecuteAuthority", RunAsAdmin ? "Administrator" : "Normal"),
+                                       ("ExecuteCreateNoWindow", Convert.ToString(CreateNoWindow)),
+                                       ("ExecuteShouldWaitForExit", Convert.ToString(ShouldWaitForExit)),
+                                       ("ExecuteWorkDirectory", WorkDirectory ?? string.Empty),
+                                       ("ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Error", out string ErrorMessage2))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_RunExe},
-                        {"ExecutePath",Path },
-                        {"ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
-                        {"ExecuteAuthority", RunAsAdmin ? ExecuteAuthority_Administrator : ExecuteAuthority_Normal},
-                        {"ExecuteCreateNoWindow", CreateNoWindow },
-                        {"ExecuteShouldWaitForExit", ShouldWaitForExit },
-                        {"ExecuteWorkDirectory", WorkDirectory??string.Empty },
-                        {"ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RunAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
+                    return false;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RunAsync)}: Failed to connect AppService");
-                    return false;
+                    return true;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(RunAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task ViewWithQuicklookAsync(string Path)
         {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Quicklook},
-                        {"ExecutePath",Path }
-                    };
-
-                    await Connection.SendMessageAsync(Value);
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(ViewWithQuicklookAsync)}: Failed to connect AppService");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(ViewWithQuicklookAsync)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
+            await SendCommandAsync(CommandType.Quicklook, ("ExecutePath", Path));
         }
 
         public async Task<bool> CheckIfQuicklookIsAvaliableAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.Check_Quicklook) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Check_QuicklookIsAvaliable_Result", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Check_Quicklook}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Check_QuicklookIsAvaliable_Result", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfQuicklookIsAvaliableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return Convert.ToBoolean(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(CheckIfQuicklookIsAvaliableAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(CheckIfQuicklookIsAvaliableAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<string> GetDefaultAssociationFromPathAsync(string Path)
         {
-            try
+            if (await SendCommandAsync(CommandType.Default_Association, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Default_Association},
-                        {"ExecutePath", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Result))
-                        {
-                            return Convert.ToString(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDefaultAssociationFromPathAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetDefaultAssociationFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
-                    }
+                    return Convert.ToString(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetDefaultAssociationFromPathAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDefaultAssociationFromPathAsync)}, message: {ErrorMessage}");
+                    }
+
                     return string.Empty;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(GetDefaultAssociationFromPathAsync)} throw an error");
                 return string.Empty;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<IReadOnlyList<AssociationPackage>> GetAssociationFromPathAsync(string Path)
         {
-            try
+            if (await SendCommandAsync(CommandType.Get_Association, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Associate_Result", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Get_Association},
-                        {"ExecutePath", Path}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Associate_Result", out object Result))
-                        {
-                            return JsonSerializer.Deserialize<List<AssociationPackage>>(Convert.ToString(Result));
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromPathAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return new List<AssociationPackage>(0);
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetAssociationFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return new List<AssociationPackage>(0);
-                    }
+                    return JsonSerializer.Deserialize<List<AssociationPackage>>(Convert.ToString(Result));
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetAssociationFromPathAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromPathAsync)}, message: {ErrorMessage}");
+                    }
+
                     return new List<AssociationPackage>(0);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(GetAssociationFromPathAsync)} throw an error");
                 return new List<AssociationPackage>(0);
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<bool> EmptyRecycleBinAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.EmptyRecycleBin) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("RecycleBinItems_Clear_Result", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_EmptyRecycleBin}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("RecycleBinItems_Clear_Result", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(EmptyRecycleBinAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(EmptyRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return Convert.ToBoolean(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(EmptyRecycleBinAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(EmptyRecycleBinAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(EmptyRecycleBinAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
         {
-            try
+            if (await SendCommandAsync(CommandType.Get_RecycleBinItems) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if ((PipeReadController?.IsConnected).GetValueOrDefault() && (PipeWriteController?.IsConnected).GetValueOrDefault())
+                if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
                 {
-                    TaskCompletionSource<List<IRecycleStorageItem>> CompletionSource = new TaskCompletionSource<List<IRecycleStorageItem>>();
+                    List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
+                    List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
 
-                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+                    foreach (Dictionary<string, string> PropertyDic in JsonList)
                     {
-                        try
-                        {
-                            List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>();
+                        IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                    ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                    : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
 
-                            if (e.Data != "<<<Error>>>")
-                            {
-                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(e.Data);
-
-                                foreach (Dictionary<string, string> PropertyDic in JsonList)
-                                {
-                                    IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
-
-                                    RecycleItems.Add(Item);
-                                }
-                            }
-
-                            CompletionSource.SetResult(RecycleItems);
-                        }
-                        catch (Exception ex)
-                        {
-                            CompletionSource.SetException(ex);
-                        }
+                        RecycleItems.Add(Item);
                     }
 
-                    try
-                    {
-                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
-
-                        PipeCommand Command = new PipeCommand
-                        {
-                            CommandText = ExecuteType_Get_RecycleBinItems
-                        };
-
-                        PipeWriteController.SendData(JsonSerializer.Serialize(Command));
-
-                        return await CompletionSource.Task;
-                    }
-                    finally
-                    {
-                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                    }
+                    return RecycleItems;
                 }
                 else
                 {
-                    if (await ConnectRemoteAsync())
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        ValueSet Value = new ValueSet
-                        {
-                            {"ExecuteType", ExecuteType_Get_RecycleBinItems}
-                        };
-
-                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                        if (Response.Status == AppServiceResponseStatus.Success)
-                        {
-                            if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
-                            {
-                                List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
-                                List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
-
-                                foreach (Dictionary<string, string> PropertyDic in JsonList)
-                                {
-                                    IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                                ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                                : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
-
-                                    RecycleItems.Add(Item);
-                                }
-
-                                return RecycleItems;
-                            }
-                            else
-                            {
-                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                                {
-                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
-                                }
-
-                                return new List<IRecycleStorageItem>(0);
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log($"AppServiceResponse in {nameof(GetRecycleBinItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                            return new List<IRecycleStorageItem>(0);
-                        }
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
                     }
-                    else
-                    {
-                        LogTracer.Log($"{nameof(GetRecycleBinItemsAsync)}: Failed to connect AppService");
-                        return new List<IRecycleStorageItem>(0);
-                    }
+
+                    return new List<IRecycleStorageItem>(0);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(GetRecycleBinItemsAsync)} throw an error");
                 return new List<IRecycleStorageItem>(0);
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
         public async Task<bool> TryUnlockFileOccupy(string Path, bool ForceClose = false)
         {
-            try
+            if (await SendCommandAsync(CommandType.UnlockOccupy, ("ExecutePath", Path), ("ForceClose", Convert.ToString(ForceClose))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.ContainsKey("Success"))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_UnlockOccupy},
-                        {"ExecutePath", Path },
-                        {"ForceClose", ForceClose }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage1}");
-                            return false;
-                        }
-                        else if (Response.Message.TryGetValue("Error_NotOccupy", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage2}");
-                            throw new UnlockException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_NotFoundOrNotFile", out object ErrorMessage3))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage3}");
-                            throw new FileNotFoundException();
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage4}");
-                            return false;
-                        }
-                        else
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}");
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(TryUnlockFileOccupy)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        throw new NoResponseException();
-                    }
+                    return true;
+                }
+                if (Response.TryGetValue("Error_Failure", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage1}");
+                    return false;
+                }
+                else if (Response.TryGetValue("Error_NotOccupy", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage2}");
+                    throw new UnlockException();
+                }
+                else if (Response.TryGetValue("Error_NotFoundOrNotFile", out string ErrorMessage3))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage3}");
+                    throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage4))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage4}");
+                    return false;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(TryUnlockFileOccupy)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}");
+                    return false;
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                throw new NoResponseException();
             }
         }
 
         public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
-            try
+            if (await SendCommandAndReportProgressAsync(CommandType.Delete,
+                                                        ProgressHandler,
+                                                        ("ExecutePath", JsonSerializer.Serialize(Source)),
+                                                        ("PermanentDelete", Convert.ToString(PermanentDelete))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Success", out string Record))
                 {
-                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+                    if (!PermanentDelete)
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                     }
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
-                    }
-
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Delete},
-                        {"ExecutePath", JsonSerializer.Serialize(Source)},
-                        {"PermanentDelete", PermanentDelete}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value).AsTask();
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                    }
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Record))
-                        {
-                            if (!PermanentDelete)
-                            {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
-                            }
-                        }
-                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
-                            throw new FileNotFoundException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
-                            throw new InvalidOperationException("Fail to delete item");
-                        }
-                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
-                            throw new FileCaputureException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
-                            throw new InvalidOperationException("Fail to delete item");
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
-                            throw new Exception();
-                        }
-                        else
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
-                            throw new Exception("Unknown reason");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        throw new NoResponseException();
-                    }
+                }
+                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
+                    throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
+                    throw new InvalidOperationException("Fail to delete item");
+                }
+                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
+                    throw new FileCaputureException();
+                }
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
+                    throw new InvalidOperationException("Fail to delete item");
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
+                    throw new Exception();
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(DeleteAsync)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
+                    throw new Exception("Unknown reason");
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                throw new NoResponseException();
             }
         }
 
@@ -2686,118 +1596,79 @@ namespace RX_Explorer.Class
             return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
-        public async Task MoveAsync(Dictionary<string,string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(Dictionary<string, string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            try
+            Dictionary<string, string> MessageList = new Dictionary<string, string>();
+
+            foreach (KeyValuePair<string, string> SourcePair in Source)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if (await FileSystemStorageItemBase.CheckExistAsync(SourcePair.Key))
                 {
-                    Dictionary<string, string> MessageList = new Dictionary<string, string>();
-
-                    foreach (KeyValuePair<string,string> SourcePair in Source)
-                    {
-                        if (await FileSystemStorageItemBase.CheckExistAsync(SourcePair.Key))
-                        {
-                            MessageList.Add(SourcePair.Key, SourcePair.Value);
-                        }
-                        else
-                        {
-                            throw new FileNotFoundException();
-                        }
-                    }
-
-                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
-                    }
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
-                    }
-
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Move},
-                        {"SourcePath", JsonSerializer.Serialize(MessageList)},
-                        {"DestinationPath", DestinationPath},
-                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option) }
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                    }
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Record))
-                        {
-                            if (!SkipOperationRecord)
-                            {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
-                            }
-                        }
-                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
-                            throw new FileNotFoundException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
-                            throw new FileCaputureException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage4))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_UserCancel", out object ErrorMessage5))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
-                            throw new TaskCanceledException();
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage6))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
-                            throw new Exception();
-                        }
-                        else
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
-                            throw new Exception();
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(MoveAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        throw new NoResponseException();
-                    }
+                    MessageList.Add(SourcePair.Key, SourcePair.Value);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(MoveAsync)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    throw new FileNotFoundException();
                 }
             }
-            finally
+
+            if (await SendCommandAndReportProgressAsync(CommandType.Move,
+                                                        ProgressHandler,
+                                                        ("SourcePath", JsonSerializer.Serialize(MessageList)),
+                                                        ("DestinationPath", DestinationPath),
+                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = false;
+                if (Response.TryGetValue("Success", out string Record))
+                {
+                    if (!SkipOperationRecord)
+                    {
+                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                    }
+                }
+                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
+                    throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
+                    throw new FileCaputureException();
+                }
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage5))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
+                    throw new TaskCanceledException();
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage6))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
+                    throw new Exception();
+                }
+                else
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
+                    throw new Exception();
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
             }
         }
 
@@ -2805,7 +1676,7 @@ namespace RX_Explorer.Class
         {
             Dictionary<string, string> Dic = new Dictionary<string, string>();
 
-            foreach(string Path in Source)
+            foreach (string Path in Source)
             {
                 Dic.Add(Path, null);
             }
@@ -2830,51 +1701,25 @@ namespace RX_Explorer.Class
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
         {
-            try
+            if (await SendCommandAsync(CommandType.PasteRemoteFile, ("Path", DestinationPath)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if (Response.ContainsKey("Success"))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_PasteRemoteFile},
-                        {"Path", DestinationPath}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(PasteRemoteFile)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return true;
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(PasteRemoteFile)}: Failed to connect AppService ");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            finally
+            else
             {
-                IsAnyActionExcutingInCurrentController = false;
+                return false;
             }
         }
 
@@ -2885,106 +1730,67 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            try
+            List<string> ItemList = new List<string>();
+
+            foreach (string SourcePath in Source)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync())
+                if (await FileSystemStorageItemBase.CheckExistAsync(SourcePath))
                 {
-                    List<string> ItemList = new List<string>();
-
-                    foreach (string SourcePath in Source)
-                    {
-                        if (await FileSystemStorageItemBase.CheckExistAsync(SourcePath))
-                        {
-                            ItemList.Add(SourcePath);
-                        }
-                        else
-                        {
-                            throw new FileNotFoundException();
-                        }
-                    }
-
-                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
-                    }
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived += PipeReadController_OnDataReceived;
-                    }
-
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Copy},
-                        {"SourcePath", JsonSerializer.Serialize(ItemList)},
-                        {"DestinationPath", DestinationPath},
-                        {"CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option)}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if ((PipeReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                    }
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Success", out object Record))
-                        {
-                            if (!SkipOperationRecord)
-                            {
-                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
-                            }
-                        }
-                        else if (Response.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
-                            throw new FileNotFoundException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_NoPermission", out object ErrorMessage3))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error_UserCancel", out object ErrorMessage4))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
-                            throw new TaskCanceledException();
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage5))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
-                            throw new Exception();
-                        }
-                        else
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
-                            throw new Exception("Unknown reason");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CopyAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        throw new NoResponseException();
-                    }
+                    ItemList.Add(SourcePath);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(CopyAsync)}: Failed to connect AppService");
-                    throw new NoResponseException();
+                    throw new FileNotFoundException();
                 }
             }
-            finally
+
+            if (await SendCommandAndReportProgressAsync(CommandType.Copy,
+                                                        ProgressHandler,
+                                                        ("SourcePath", JsonSerializer.Serialize(ItemList)),
+                                                        ("DestinationPath", DestinationPath),
+                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = false;
+                if (Response.TryGetValue("Success", out string Record))
+                {
+                    if (!SkipOperationRecord)
+                    {
+                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                    }
+                }
+                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
+                    throw new FileNotFoundException();
+                }
+                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
+                    throw new InvalidOperationException();
+                }
+                else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage4))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
+                    throw new TaskCanceledException();
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
+                    throw new Exception();
+                }
+                else
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
+                    throw new Exception("Unknown reason");
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
             }
         }
 
@@ -3010,55 +1816,25 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(OriginPathList), "Parameter could not be null or empty");
             }
 
-            try
+            if (await SendCommandAsync(CommandType.Restore_RecycleItem, ("ExecutePath", JsonSerializer.Serialize(OriginPathList))) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Restore_Result", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Restore_RecycleItem},
-                        {"ExecutePath", JsonSerializer.Serialize(OriginPathList)}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Restore_Result", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreItemInRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return Convert.ToBoolean(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RestoreItemInRecycleBinAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch
+            else
             {
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -3069,56 +1845,25 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
             }
 
-            try
+            if (await SendCommandAsync(CommandType.Delete_RecycleItem, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("Delete_Result", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_Delete_RecycleItem},
-                        {"ExecutePath", Path},
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("Delete_Result", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(DeleteItemInRecycleBinAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteItemInRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return Convert.ToBoolean(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(DeleteItemInRecycleBinAsync)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteItemInRecycleBinAsync)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(DeleteItemInRecycleBinAsync)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -3129,56 +1874,25 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
             }
 
-            try
+            if (await SendCommandAsync(CommandType.EjectUSB, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                if (Response.TryGetValue("EjectResult", out string Result))
                 {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_EjectUSB},
-                        {"ExecutePath", Path},
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.TryGetValue("EjectResult", out object Result))
-                        {
-                            return Convert.ToBoolean(Result);
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(EjectPortableDevice)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(EjectPortableDevice)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
+                    return Convert.ToBoolean(Result);
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(EjectPortableDevice)}: Failed to connect AppService");
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(EjectPortableDevice)}, message: {ErrorMessage}");
+                    }
+
                     return false;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, $"{nameof(EjectPortableDevice)} throw an error");
                 return false;
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -3198,15 +1912,9 @@ namespace RX_Explorer.Class
                         Connection.Dispose();
                     }
 
-                    if (PipeReadController != null)
-                    {
-                        PipeReadController.Dispose();
-                    }
-
-                    if (PipeWriteController != null)
-                    {
-                        PipeWriteController.Dispose();
-                    }
+                    PipeCommandReadController?.Dispose();
+                    PipeCommandWriteController?.Dispose();
+                    PipeProgressReadController?.Dispose();
                 }
                 catch (Exception ex)
                 {

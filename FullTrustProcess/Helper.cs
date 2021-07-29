@@ -69,7 +69,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static WindowInformation GetUWPWindowInformation(string PackageFamilyName, uint? WithPID = null)
+        public static WindowInformation GetUWPWindowInformation(string PackageFamilyName, uint WithPID = 0)
         {
             WindowInformation Info = null;
 
@@ -126,7 +126,7 @@ namespace FullTrustProcess
                                 {
                                     if (User32.GetWindowThreadProcessId(hWndFind, out uint PID) > 0)
                                     {
-                                        if (WithPID != null && WithPID.Value != PID)
+                                        if (WithPID > 0 && WithPID != PID)
                                         {
                                             return true;
                                         }

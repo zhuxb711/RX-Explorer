@@ -82,8 +82,15 @@ namespace RX_Explorer
 
         private void CloseAllFlyout()
         {
-            SingleCommandFlyout.Hide();
-            MixCommandFlyout.Hide();
+            try
+            {
+                SingleCommandFlyout.Hide();
+                MixCommandFlyout.Hide();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not close the flyout for unknown reason");
+            }
         }
 
         private async void SearchPage_KeyDown(CoreWindow sender, KeyEventArgs args)
