@@ -2345,27 +2345,7 @@ namespace FullTrustProcess
         {
             try
             {
-                if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation Info && !Info.Handle.IsNull)
-                {
-                    User32.SetWindowPos(Info.Handle, new IntPtr(1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
-                }
-
-                bool IsTimeout = false;
-
-                try
-                {
-                    IsTimeout = OtherProcess.WaitForInputIdle(5000);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    LogTracer.Log(ex, "Error: WaitForInputIdle threw an exception.");
-                }
-
-                if (IsTimeout)
-                {
-                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
-                }
-                else
+                if (OtherProcess.WaitForInputIdle(5000))
                 {
                     IntPtr MainWindowHandle = IntPtr.Zero;
 
@@ -2384,21 +2364,51 @@ namespace FullTrustProcess
                         }
                     }
 
-                    if (MainWindowHandle != IntPtr.Zero)
+                    if (MainWindowHandle.CheckIfValidPtr())
                     {
+                        uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
+                        uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
+                        uint CurrentThreadId = Kernel32.GetCurrentThreadId();
+
+                        if (ForegroundThreadId != ExecuteThreadId)
+                        {
+                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
+                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
+                        }
+
                         User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                        User32.SetWindowPos(MainWindowHandle, new IntPtr(0), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        User32.SetWindowPos(MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        User32.SetWindowPos(MainWindowHandle, new IntPtr(-2), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
                         User32.SetForegroundWindow(MainWindowHandle);
+
+                        if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
+                        {
+                            User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                        }
+
+                        if (ForegroundThreadId != ExecuteThreadId)
+                        {
+                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
+                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
+                        }
                     }
                     else
                     {
                         LogTracer.Log("Error: Could not switch to window because MainWindowHandle is always invalid");
                     }
                 }
+                else
+                {
+                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                LogTracer.Log(ex, "Error: WaitForInputIdle threw an exception.");
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error: {nameof(SetWindowsZPosition)} threw an error, message: {ex.Message}");
+                LogTracer.Log(ex, $"Error: {nameof(SetWindowsZPosition)} threw an exception, message: {ex.Message}");
             }
         }
 
