@@ -148,10 +148,6 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
-        protected abstract bool IsFullTrustProcessNeeded { get; }
-
-        protected abstract bool IsThumbnailOverlayNeeded { get; }
-
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
@@ -532,40 +528,21 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (IsFullTrustProcessNeeded)
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                            {
-                                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
-                                {
-                                    await LoadPropertiesAsync(false, Exclusive.Controller);
-                                    await LoadThumbnailAsync(ThumbnailMode);
-                                }
-
-                                if (IsThumbnailOverlayNeeded)
-                                {
-                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
-                                }
-                            }
-                        }
-                        else
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
                             if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                             {
-                                await LoadPropertiesAsync(false);
+                                await LoadPropertiesAsync(Exclusive.Controller, false);
                                 await LoadThumbnailAsync(ThumbnailMode);
                             }
 
-                            if (IsThumbnailOverlayNeeded)
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
-                                }
-                            }
+                            await LoadThumbnailOverlayAsync(Exclusive.Controller);
                         }
 
-                        await LoadSyncStatusAsync();
+                        if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+                        {
+                            await LoadSyncStatusAsync();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -595,119 +572,112 @@ namespace RX_Explorer.Class
 
         private async Task LoadSyncStatusAsync()
         {
-            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+            switch (await GetStorageItemAsync())
             {
-                switch (await GetStorageItemAsync())
-                {
-                    case StorageFile File:
-                        {
-                            IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+                case StorageFile File:
+                    {
+                        IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
 
-                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out object StatusIndex))
+                        if (!Properties.TryGetValue("System.FilePlaceholderStatus", out object StatusIndex))
+                        {
+                            if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
                             {
-                                if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
+                                SyncStatus = SyncStatus.Unknown;
+                                break;
+                            }
+                        }
+
+                        switch (Convert.ToUInt32(StatusIndex))
+                        {
+                            case 0:
+                            case 1:
+                            case 8:
+                                {
+                                    SyncStatus = SyncStatus.AvailableOnline;
+                                    break;
+                                }
+                            case 2:
+                            case 3:
+                            case 14:
+                            case 15:
+                                {
+                                    SyncStatus = SyncStatus.AvailableOffline;
+                                    break;
+                                }
+                            case 9:
+                                {
+                                    SyncStatus = SyncStatus.Sync;
+                                    break;
+                                }
+                            case 4:
+                                {
+                                    SyncStatus = SyncStatus.Excluded;
+                                    break;
+                                }
+                            default:
                                 {
                                     SyncStatus = SyncStatus.Unknown;
                                     break;
                                 }
-                            }
-
-                            switch (Convert.ToUInt32(StatusIndex))
-                            {
-                                case 0:
-                                case 1:
-                                case 8:
-                                    {
-                                        SyncStatus = SyncStatus.AvailableOnline;
-                                        break;
-                                    }
-                                case 2:
-                                case 3:
-                                case 14:
-                                case 15:
-                                    {
-                                        SyncStatus = SyncStatus.AvailableOffline;
-                                        break;
-                                    }
-                                case 9:
-                                    {
-                                        SyncStatus = SyncStatus.Sync;
-                                        break;
-                                    }
-                                case 4:
-                                    {
-                                        SyncStatus = SyncStatus.Excluded;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        SyncStatus = SyncStatus.Unknown;
-                                        break;
-                                    }
-                            }
-
-                            break;
                         }
-                    case StorageFolder Folder:
+
+                        break;
+                    }
+                case StorageFolder Folder:
+                    {
+                        IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+
+                        if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out object StatusIndex))
                         {
-                            IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
-
-
-                            if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out object StatusIndex))
+                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
                             {
-                                if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                                SyncStatus = SyncStatus.Unknown;
+                                break;
+                            }
+                        }
+
+                        switch (Convert.ToUInt32(StatusIndex))
+                        {
+                            case 0:
+                            case 1:
+                            case 8:
+                                {
+                                    SyncStatus = SyncStatus.AvailableOnline;
+                                    break;
+                                }
+                            case 2:
+                            case 3:
+                            case 14:
+                            case 15:
+                                {
+                                    SyncStatus = SyncStatus.AvailableOffline;
+                                    break;
+                                }
+                            case 9:
+                                {
+                                    SyncStatus = SyncStatus.Sync;
+                                    break;
+                                }
+                            case 4:
+                                {
+                                    SyncStatus = SyncStatus.Excluded;
+                                    break;
+                                }
+                            default:
                                 {
                                     SyncStatus = SyncStatus.Unknown;
                                     break;
                                 }
-                            }
-
-                            switch (Convert.ToUInt32(StatusIndex))
-                            {
-                                case 0:
-                                case 1:
-                                case 8:
-                                    {
-                                        SyncStatus = SyncStatus.AvailableOnline;
-                                        break;
-                                    }
-                                case 2:
-                                case 3:
-                                case 14:
-                                case 15:
-                                    {
-                                        SyncStatus = SyncStatus.AvailableOffline;
-                                        break;
-                                    }
-                                case 9:
-                                    {
-                                        SyncStatus = SyncStatus.Sync;
-                                        break;
-                                    }
-                                case 4:
-                                    {
-                                        SyncStatus = SyncStatus.Excluded;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        SyncStatus = SyncStatus.Unknown;
-                                        break;
-                                    }
-                            }
-
-                            break;
                         }
-                    default:
-                        {
-                            SyncStatus = SyncStatus.Unknown;
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                SyncStatus = SyncStatus.Unknown;
+
+                        break;
+                    }
+                default:
+                    {
+                        SyncStatus = SyncStatus.Unknown;
+                        break;
+                    }
             }
 
             OnPropertyChanged(nameof(SyncStatus));
@@ -727,14 +697,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        //Use this overload if subclass has no need for FullTrustProcessController.
-        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture false.
-        protected abstract Task LoadPropertiesAsync(bool ForceUpdate);
-
-        //Use this overload to share common FullTrustProcessController. FileSystemStorageItemBase will create a common FullTrustProcessController for you.
-        //Subclass who want to use FullTrustProcessController should override this method.
-        //Make sure override FullTrustProcessIsNeeded() and reture true.
-        protected abstract Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller);
+        protected abstract Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate);
 
         protected abstract bool CheckIfPropertiesLoaded();
 
@@ -748,16 +711,9 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    if (IsFullTrustProcessNeeded)
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            await LoadPropertiesAsync(true, Exclusive.Controller);
-                        }
-                    }
-                    else
-                    {
-                        await LoadPropertiesAsync(true);
+                        await LoadPropertiesAsync(Exclusive.Controller, true);
                     }
 
                     OnPropertyChanged(nameof(Size));

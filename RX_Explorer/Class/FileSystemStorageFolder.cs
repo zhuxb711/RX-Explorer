@@ -93,22 +93,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool IsFullTrustProcessNeeded
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        protected override bool IsThumbnailOverlayNeeded
-        {
-            get
-            {
-                return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
-            }
-        }
-
         public FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
             StorageItem = Item;
@@ -436,7 +420,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadPropertiesAsync(bool ForceUpdate)
+        protected override async Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             if (ForceUpdate)
             {
@@ -445,11 +429,6 @@ namespace RX_Explorer.Class
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
                 }
             }
-        }
-
-        protected override Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
-        {
-            return LoadPropertiesAsync(ForceUpdate);
         }
 
         protected override bool CheckIfPropertiesLoaded()

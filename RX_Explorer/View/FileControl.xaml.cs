@@ -3110,6 +3110,14 @@ namespace RX_Explorer
             UseIndexerTip.IsOpen = true;
         }
 
+        private void AddressBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Tab)
+            {
+                e.Handled = true;
+            }
+        }
+
         public void Dispose()
         {
             AddressButtonList.Clear();

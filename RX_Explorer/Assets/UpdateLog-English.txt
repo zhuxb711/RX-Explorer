@@ -1,4 +1,43 @@
 ﻿*****
+###What's new in Ver.6.8.9.0
+
+#####Feature update
+
+>#####Custom background pictures can be exported and restored with the configuration file
+
+#####UI update
+
+>#####The tag button has now been changed to tap to switch
+
+>#####Optimized the permission detection mechanism when creating files and the prompt box when permissions are not gaint
+
+#####Performance improvement
+
+>#####Improved the efficiency of communication with auxiliary processes
+
+#####Bug fix
+
+>#####Fixed the problem that the progress of copy, move and delete operations could not be displayed correctly
+
+>#####Fixed the problem that if there is a file name conflict, the relevant option will not respond immediately after clicking
+
+>#####Fixed the problem that Alt+Double-click is invalid in "Drive" or "Libraries"
+
+>#####Fixed the problem that the file name will not be restored when the file name conflict is resolved and then the undo operation is executed after moving the file
+
+>#####Fixed the problem that may bypass the "Must add picture" restriction when adding Quick Start Item
+
+>#####Fixed the problem that the relevant information will not be automatically updated when the current folder is renamed through the properties window
+
+>#####Fixed the problem of two consecutive jumps after pressing Alt+Left or Alt+Right
+
+>#####Fixed the problem that the file name in the title of the properties window may be blank
+
+>#####Fixed the problem that a slow USB device may cause the UI to freeze
+
+>#####Fixed the problem that the .exe program will not be placed on top of other windows after launching
+
+*****
 ###What's new in Ver.6.8.6.0
 
 #####Performance improvement

@@ -357,6 +357,7 @@
                             QueryIcon="Forward"
                             x:FieldModifier="public"
                             IsRightTapEnabled="True"
+                            PreviewKeyDown="AddressBox_PreviewKeyDown"
                             RightTapped="AddressBox_RightTapped"
                             GotFocus="AddressBox_GotFocus"
                             LostFocus="AddressBox_LostFocus"

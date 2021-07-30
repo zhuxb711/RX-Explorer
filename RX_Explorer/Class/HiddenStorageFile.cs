@@ -21,15 +21,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool IsFullTrustProcessNeeded
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        protected override async Task LoadPropertiesAsync(bool ForceUpdate, FullTrustProcessController Controller)
+        protected override async Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             RawData = await GetRawDataAsync(Controller);
         }

@@ -1,4 +1,43 @@
 ﻿*****
+###Novedades de la versión 6.8.9.0
+
+#####Actualización de funciones
+
+>#####Las imágenes de fondo personalizadas se pueden exportar y restaurar con el archivo de configuración
+
+#####Actualización de la interfaz de usuario
+
+>#####El botón de etiqueta ahora se ha cambiado para tocar para cambiar
+
+>#####Optimizó el mecanismo de detección de permisos al crear archivos y el cuadro de aviso cuando los permisos no se obtienen
+
+#####Mejora del rendimiento
+
+>#####Mejoró la eficiencia de la comunicación con procesos auxiliares
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el progreso de las operaciones de copia, movimiento y eliminación no se podía mostrar correctamente
+
+>#####Se solucionó el problema de que si hay un conflicto de nombre de archivo, la opción relevante no responderá inmediatamente después de hacer clic
+
+>#####Se solucionó el problema de que Alt + Doble clic no es válido en "Unidad" o "Bibliotecas"
+
+>#####Se solucionó el problema de que el nombre del archivo no se restaurará cuando se resuelva el conflicto del nombre del archivo y luego se ejecute la operación de deshacer después de mover el archivo
+
+>#####Se solucionó el problema que podía omitir la restricción "Debe agregar una imagen" al agregar un elemento de inicio rápido
+
+>#####Se solucionó el problema de que la información relevante no se actualizara automáticamente cuando se cambia el nombre de la carpeta actual a través de la ventana de propiedades
+
+>#####Se solucionó el problema de dos saltos consecutivos después de presionar Alt + Izquierda o Alt + Derecha
+
+>#####Se solucionó el problema de que el nombre del archivo en el título de la ventana de propiedades podía estar en blanco
+
+>#####Se solucionó el problema de que un dispositivo USB lento podía hacer que la interfaz de usuario se congelara
+
+>#####Se solucionó el problema de que el programa .exe no se colocaba encima de otras ventanas después del inicio
+
+*****
 ###Novedades de la versión 6.8.6.0
 
 #####Mejora del rendimiento

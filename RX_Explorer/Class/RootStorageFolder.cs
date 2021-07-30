@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
             return true;
         }
 
-        protected override Task LoadPropertiesAsync(bool ForceUpdate)
+        protected override Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             return Task.CompletedTask;
         }

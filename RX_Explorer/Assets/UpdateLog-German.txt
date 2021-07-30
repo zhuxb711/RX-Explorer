@@ -1,4 +1,43 @@
 ﻿*****
+###Was ist neu in Ver.6.8.9.0
+
+#####Funktionsupdate
+
+>#####Benutzerdefinierte Hintergrundbilder können mit der Konfigurationsdatei exportiert und wiederhergestellt werden
+
+#####UI-Update
+
+>#####Die Tag-Schaltfläche wurde jetzt geändert, um zum Wechseln zu tippen
+
+>#####Der Berechtigungserkennungsmechanismus beim Erstellen von Dateien und die Eingabeaufforderung bei nicht erteilten Berechtigungen wurden optimiert
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Effizienz der Kommunikation mit Nebenprozessen
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass der Fortschritt von Kopier-, Verschiebe- und Löschvorgängen nicht korrekt angezeigt werden konnte
+
+>#####Das Problem wurde behoben, dass bei einem Dateinamenkonflikt die entsprechende Option nicht sofort nach dem Klicken reagiert
+
+>#####Problem behoben, dass Alt+Doppelklick in "Drive" oder "Libraries" ungültig ist
+
+>#####Das Problem wurde behoben, dass der Dateiname nicht wiederhergestellt wird, wenn der Dateinamenkonflikt gelöst ist und dann der Rückgängig-Vorgang nach dem Verschieben der Datei ausgeführt wird
+
+>#####Das Problem wurde behoben, das die Einschränkung "Muss Bild hinzufügen" beim Hinzufügen von Quick Start Item umgehen kann
+
+>#####Problem behoben, dass die relevanten Informationen nicht automatisch aktualisiert werden, wenn der aktuelle Ordner über das Eigenschaftenfenster umbenannt wird
+
+>#####Das Problem von zwei aufeinanderfolgenden Sprüngen nach dem Drücken von Alt+Links oder Alt+Rechts wurde behoben
+
+>#####Problem behoben, dass der Dateiname im Titel des Eigenschaftenfensters möglicherweise leer ist
+
+>#####Das Problem, dass ein langsames USB-Gerät zum Einfrieren der Benutzeroberfläche führen kann, wurde behoben
+
+>#####Problem behoben, dass das .exe-Programm nach dem Start nicht über anderen Fenstern platziert wird
+
+*****
 ###Was ist neu in Ver.6.8.6.0
 
 #####Leistungsverbesserung

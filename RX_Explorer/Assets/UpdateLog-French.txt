@@ -1,4 +1,43 @@
 ﻿*****
+###Quoi de neuf dans la version 6.8.9.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Les images d'arrière-plan personnalisées peuvent être exportées et restaurées avec le fichier de configuration
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Le bouton de balise a maintenant été modifié pour appuyer pour basculer
+
+>#####Optimisation du mécanisme de détection des autorisations lors de la création de fichiers et de la boîte de dialogue lorsque les autorisations ne sont pas acquises
+
+#####Amélioration des performances
+
+>#####Amélioration de l'efficacité de la communication avec les processus auxiliaires
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la progression des opérations de copie, de déplacement et de suppression ne pouvait pas s'afficher correctement
+
+>#####Correction du problème selon lequel s'il y a un conflit de nom de fichier, l'option appropriée ne répondra pas immédiatement après avoir cliqué
+
+>#####Correction du problème où Alt+Double-clic n'est pas valide dans "Drive" ou "Libraries"
+
+>#####Correction du problème selon lequel le nom de fichier ne sera pas restauré lorsque le conflit de nom de fichier est résolu, puis l'opération d'annulation est exécutée après le déplacement du fichier
+
+>#####Correction du problème qui pouvait contourner la restriction "Doit ajouter une image" lors de l'ajout d'un élément de démarrage rapide
+
+>#####Correction du problème selon lequel les informations pertinentes ne seront pas automatiquement mises à jour lorsque le dossier actuel est renommé via la fenêtre des propriétés
+
+>#####Correction du problème de deux sauts consécutifs après avoir appuyé sur Alt+Gauche ou Alt+Droite
+
+>#####Correction du problème selon lequel le nom de fichier dans le titre de la fenêtre des propriétés peut être vide
+
+>#####Correction du problème selon lequel un périphérique USB lent pouvait geler l'interface utilisateur
+
+>#####Correction du problème selon lequel le programme .exe ne serait pas placé au-dessus des autres fenêtres après le lancement
+
+*****
 ###Quoi de neuf dans la version 6.8.6.0
 
 #####Amélioration des performances
