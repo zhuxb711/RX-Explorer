@@ -107,27 +107,27 @@ namespace RX_Explorer.Class
 
         public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
-            if (Win32_Native_API.CheckLocationAvailability(Path))
+            try
             {
-                return await Task.Run(() =>
-                {
-                    return Win32_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
-                });
-            }
-            else
-            {
-                LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                 try
                 {
+                    return await Task.Run(() => Win32_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter));
+                }
+                catch (LocationNotAvailableException)
+                {
+                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
+
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
-                        if (Filter.HasFlag(BasicFilters.File))
+                        if (Filter.HasFlag(BasicFilters.File) && Filter.HasFlag(BasicFilters.Folder))
+                        {
+                            return (await Folder.GetItemsAsync(0, 1)).Any();
+                        }
+                        else if (Filter.HasFlag(BasicFilters.File))
                         {
                             return (await Folder.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 1)).Any();
                         }
-
-                        if (Filter.HasFlag(BasicFilters.Folder))
+                        else if (Filter.HasFlag(BasicFilters.Folder))
                         {
                             return (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Any();
                         }
@@ -135,26 +135,23 @@ namespace RX_Explorer.Class
 
                     return false;
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed for uwp API");
-                    return false;
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed for uwp API");
+                return false;
             }
         }
 
         public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
-            if (Win32_Native_API.CheckLocationAvailability(Path))
-            {
-                return await Task.Factory.StartNew(() =>
-                {
-                    return Win32_Native_API.CalulateSize(Path, CancelToken);
-                }, TaskCreationOptions.LongRunning);
-            }
-            else
+            try
             {
                 try
+                {
+                    return await Task.Factory.StartNew(() => Win32_Native_API.CalulateSize(Path, CancelToken), TaskCreationOptions.LongRunning);
+                }
+                catch (LocationNotAvailableException)
                 {
                     LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
 
@@ -194,7 +191,6 @@ namespace RX_Explorer.Class
                             }
                         }
 
-
                         return TotalSize;
                     }
                     else
@@ -202,26 +198,23 @@ namespace RX_Explorer.Class
                         return 0;
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(GetFolderSizeAsync)} failed for uwp API");
-                    return 0;
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(GetFolderSizeAsync)} failed for uwp API");
+                return 0;
             }
         }
 
         public virtual async Task<(uint, uint)> GetFolderAndFileNumAsync(CancellationToken CancelToken = default)
         {
-            if (Win32_Native_API.CheckLocationAvailability(Path))
-            {
-                return await Task.Factory.StartNew(() =>
-                {
-                    return Win32_Native_API.CalculateFolderAndFileCount(Path, CancelToken);
-                }, TaskCreationOptions.LongRunning);
-            }
-            else
+            try
             {
                 try
+                {
+                    return await Task.Factory.StartNew(() => Win32_Native_API.CalculateFolderAndFileCount(Path, CancelToken), TaskCreationOptions.LongRunning);
+                }
+                catch (LocationNotAvailableException)
                 {
                     LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
 
@@ -245,11 +238,11 @@ namespace RX_Explorer.Class
                         return (0, 0);
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(GetFolderAndFileNumAsync)} failed for uwp API");
-                    return (0, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(GetFolderAndFileNumAsync)} failed for uwp API");
+                return (0, 0);
             }
         }
 
@@ -268,18 +261,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException($"{nameof(IsRegexExpression)} and {nameof(IsAQSExpression)} could not be true at the same time");
             }
 
-            if (Win32_Native_API.CheckLocationAvailability(Path) && !IsAQSExpression)
-            {
-                return await Task.Factory.StartNew(() => Win32_Native_API.Search(Path,
-                                                                               SearchWord,
-                                                                               SearchInSubFolders,
-                                                                               IncludeHiddenItem,
-                                                                               IncludeSystemItem,
-                                                                               IsRegexExpression,
-                                                                               IgnoreCase,
-                                                                               CancelToken), TaskCreationOptions.LongRunning);
-            }
-            else
+            async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchInUwpApi()
             {
                 List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
 
@@ -343,20 +325,51 @@ namespace RX_Explorer.Class
 
                 return Result;
             }
+
+            try
+            {
+                if (IsAQSExpression)
+                {
+                    return await SearchInUwpApi();
+                }
+                else
+                {
+                    try
+                    {
+                        return await Task.Factory.StartNew(() => Win32_Native_API.Search(Path,
+                                                                                         SearchWord,
+                                                                                         SearchInSubFolders,
+                                                                                         IncludeHiddenItem,
+                                                                                         IncludeSystemItem,
+                                                                                         IsRegexExpression,
+                                                                                         IgnoreCase,
+                                                                                         CancelToken), TaskCreationOptions.LongRunning);
+                    }
+                    catch (LocationNotAvailableException)
+                    {
+                        return await SearchInUwpApi();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(SearchAsync)} failed for uwp API");
+                return new List<FileSystemStorageItemBase>(0);
+            }
         }
 
         public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
-            if (Win32_Native_API.CheckLocationAvailability(Path))
+            try
             {
-                return Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter, AdvanceFilter);
-            }
-            else
-            {
-                LogTracer.Log($"Native API could not enum subitems in path: \"{Path}\", fall back to UWP storage API");
-
                 try
                 {
+                    return await Task.Run(() => Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter, AdvanceFilter));
+                }
+                catch (LocationNotAvailableException)
+                {
+                    LogTracer.Log($"Native API could not enum subitems in path: \"{Path}\", fall back to UWP storage API");
+
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
@@ -409,14 +422,14 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return new List<FileSystemStorageItemBase>(0);
+                        throw new UnauthorizedAccessException();
                     }
                 }
-                catch
-                {
-                    LogTracer.Log($"UWP API could not enum subitems in path: \"{Path}\"");
-                    return new List<FileSystemStorageItemBase>(0);
-                }
+            }
+            catch
+            {
+                LogTracer.Log($"UWP API could not enum subitems in path: \"{Path}\"");
+                return new List<FileSystemStorageItemBase>(0);
             }
         }
 

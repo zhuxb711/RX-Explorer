@@ -12,18 +12,14 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Win32_Native_API.CheckLocationAvailability(Path))
-                {
-                    return new LibraryStorageFolder(LibType, Path);
-                }
-                else
-                {
-                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-
-                    return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
-                }
+                return new LibraryStorageFolder(LibType, Path);
             }
-            catch (Exception)
+            catch (LocationNotAvailableException)
+            {
+                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
+            }
+            catch
             {
                 return null;
             }

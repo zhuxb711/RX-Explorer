@@ -164,13 +164,13 @@ namespace RX_Explorer.Class
         {
             if (!string.IsNullOrEmpty(Path) && System.IO.Path.IsPathRooted(Path))
             {
-                if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
-                {
-                    return Win32_Native_API.CheckExist(Path);
-                }
-                else
+                try
                 {
                     try
+                    {
+                        return await Task.Run(() => Win32_Native_API.CheckExist(Path));
+                    }
+                    catch (LocationNotAvailableException)
                     {
                         string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
@@ -193,11 +193,11 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "CheckExist threw an exception");
-                        return false;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "CheckExist threw an exception");
+                    return false;
                 }
             }
             else
@@ -208,16 +208,16 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
+            try
             {
-                return Win32_Native_API.GetStorageItem(Path);
-            }
-            else
-            {
-                LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                 try
                 {
+                    return await Task.Run(() => Win32_Native_API.GetStorageItem(Path));
+                }
+                catch (LocationNotAvailableException)
+                {
+                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
+
                     string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
                     if (string.IsNullOrEmpty(DirectoryPath))
@@ -247,11 +247,11 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"UWP storage API could not found the path: \"{Path}\"");
-                    return null;
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"UWP storage API could not found the path: \"{Path}\"");
+                return null;
             }
         }
 
@@ -261,7 +261,7 @@ namespace RX_Explorer.Class
             {
                 case StorageItemTypes.File:
                     {
-                        if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
+                        try
                         {
                             if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
                             {
@@ -270,29 +270,8 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
+                                LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
 
-                                    if (string.IsNullOrEmpty(NewItemPath))
-                                    {
-                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
-                                        return null;
-                                    }
-                                    else
-                                    {
-                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
-                                        return await OpenAsync(NewItemPath);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
-
-                            try
-                            {
                                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
 
                                 switch (Option)
@@ -324,31 +303,31 @@ namespace RX_Explorer.Class
                                         }
                                 }
                             }
-                            catch (Exception ex)
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"UWP storage API could not create file, path: \"{Path}\"");
+
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                LogTracer.Log(ex, $"UWP storage API could not create file, path: \"{Path}\"");
+                                string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                if (string.IsNullOrEmpty(NewItemPath))
                                 {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
-
-                                    if (string.IsNullOrEmpty(NewItemPath))
-                                    {
-                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
-                                        return null;
-                                    }
-                                    else
-                                    {
-                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
-                                        return await OpenAsync(NewItemPath);
-                                    }
+                                    LogTracer.Log("Elevated FullTrustProcess could not create a new file");
+                                    return null;
+                                }
+                                else
+                                {
+                                    OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                    return await OpenAsync(NewItemPath);
                                 }
                             }
                         }
                     }
                 case StorageItemTypes.Folder:
                     {
-                        if (Win32_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
+                        try
                         {
                             if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                             {
@@ -357,29 +336,8 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
+                                LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
 
-                                    if (string.IsNullOrEmpty(NewItemPath))
-                                    {
-                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
-                                        return null;
-                                    }
-                                    else
-                                    {
-                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
-                                        return await OpenAsync(NewItemPath);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
-
-                            try
-                            {
                                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
 
                                 switch (Option)
@@ -411,24 +369,24 @@ namespace RX_Explorer.Class
                                         }
                                 }
                             }
-                            catch (Exception ex)
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"UWP storage API could not create folder, path: \"{Path}\"");
+
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                LogTracer.Log(ex, $"UWP storage API could not create folder, path: \"{Path}\"");
+                                string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                if (string.IsNullOrEmpty(NewItemPath))
                                 {
-                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
-
-                                    if (string.IsNullOrEmpty(NewItemPath))
-                                    {
-                                        LogTracer.Log("Elevated FullTrustProcess could not create new");
-                                        return null;
-                                    }
-                                    else
-                                    {
-                                        OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
-                                        return await OpenAsync(NewItemPath);
-                                    }
+                                    LogTracer.Log("Elevated FullTrustProcess could not create new");
+                                    return null;
+                                }
+                                else
+                                {
+                                    OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
+                                    return await OpenAsync(NewItemPath);
                                 }
                             }
                         }

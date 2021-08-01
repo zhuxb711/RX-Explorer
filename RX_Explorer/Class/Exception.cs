@@ -2,6 +2,23 @@
 
 namespace RX_Explorer.Class
 {
+    public sealed class LocationNotAvailableException : Exception
+    {
+        public LocationNotAvailableException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public LocationNotAvailableException() : base()
+        {
+        }
+
+        public LocationNotAvailableException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+
+
     /// <summary>
     /// 密码错误异常
     /// </summary>

@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.Storage;
 using FileAttributes = System.IO.FileAttributes;
 
@@ -581,14 +580,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not check if has any items in folder. Path: \"{FolderPath}\"");
-                    return false;
+                    throw new LocationNotAvailableException();
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not check if has any items in folder. Path: \"{FolderPath}\"");
-                return false;
             }
             finally
             {
@@ -611,47 +604,13 @@ namespace RX_Explorer.Class
                 {
                     return true;
                 }
-                else
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
                     return false;
                 }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        public static bool CheckIfHidden(string ItemPath)
-        {
-            if (string.IsNullOrWhiteSpace(ItemPath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
-            }
-
-            if (Path.GetPathRoot(ItemPath) == ItemPath)
-            {
-                return false;
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
                 else
                 {
-                    return false;
+                    throw new LocationNotAvailableException();
                 }
             }
             finally
@@ -684,14 +643,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the size. Path: \"{Path}\"");
-                    return 0;
+                    throw new LocationNotAvailableException();
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not calculate the size. Path: \"{Path}\"");
-                return 0;
             }
             finally
             {
@@ -732,16 +685,15 @@ namespace RX_Explorer.Class
 
                     return TotalSize;
                 }
-                else
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the folder size. Path: \"{FolderPath}\"");
                     return 0;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not calculate the folder size. Path: \"{FolderPath}\"");
-                return 0;
+                else
+                {
+                    throw new LocationNotAvailableException();
+                }
             }
             finally
             {
@@ -771,16 +723,15 @@ namespace RX_Explorer.Class
                         return 0;
                     }
                 }
-                else
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the file size. Path: \"{FilePath}\"");
                     return 0;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not calculate the file size. Path: \"{FilePath}\"");
-                return 0;
+                else
+                {
+                    throw new LocationNotAvailableException();
+                }
             }
             finally
             {
@@ -824,16 +775,14 @@ namespace RX_Explorer.Class
 
                     return (FolderCount, FileCount);
                 }
-                else
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the num of subfolders and subfiles. Path: \"{FolderPath}\"");
                     return (0, 0);
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not calculate the num of subfolders and subfiles. Path: \"{FolderPath}\"");
-                return (0, 0);
+                else
+                {
+                    throw new LocationNotAvailableException();
+                }
             }
             finally
             {
@@ -853,107 +802,82 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(SearchWord));
             }
 
+            IntPtr SearchPtr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+
             try
             {
-                List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
-
-                IntPtr SearchPtr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-                try
+                if (SearchPtr.CheckIfValidPtr())
                 {
-                    if (SearchPtr.CheckIfValidPtr())
+                    List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+
+                    do
                     {
-                        do
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                             {
-                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                                if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
+                                if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
+                                                       : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                                 {
-                                    if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
-                                                           : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                                    {
-                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                        if (Attribute.HasFlag(FileAttributes.Directory))
+                                    if (Attribute.HasFlag(FileAttributes.Directory))
+                                    {
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
-                                            if (Attribute.HasFlag(FileAttributes.Hidden))
-                                            {
-                                                SearchResult.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
-                                            else
-                                            {
-                                                SearchResult.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
+                                            SearchResult.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
                                         }
                                         else
                                         {
-                                            if (Attribute.HasFlag(FileAttributes.Hidden))
-                                            {
-                                                SearchResult.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
-                                            else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                SearchResult.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
-                                            else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                SearchResult.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
-                                            else
-                                            {
-                                                SearchResult.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                            }
+                                            SearchResult.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
                                         }
                                     }
-
-                                    if (Attribute.HasFlag(FileAttributes.Directory) && SearchInSubFolders)
+                                    else
                                     {
-                                        SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken));
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        {
+                                            SearchResult.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        }
+                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            SearchResult.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        }
+                                        else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            SearchResult.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        }
+                                        else
+                                        {
+                                            SearchResult.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                        }
                                     }
+                                }
+
+                                if (Attribute.HasFlag(FileAttributes.Directory) && SearchInSubFolders)
+                                {
+                                    SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken));
                                 }
                             }
                         }
-                        while (FindNextFile(SearchPtr, out Data) && !CancelToken.IsCancellationRequested);
                     }
-                    else
-                    {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not search the folder. Path: \"{FolderPath}\"");
-                    }
+                    while (FindNextFile(SearchPtr, out Data) && !CancelToken.IsCancellationRequested);
 
                     return SearchResult;
                 }
-                finally
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
-                    FindClose(SearchPtr);
+                    return new List<FileSystemStorageItemBase>(0);
+                }
+                else
+                {
+                    throw new LocationNotAvailableException();
                 }
             }
-            catch (Exception ex)
+            finally
             {
-                LogTracer.Log(ex, $"Could not search the folder. Path: \"{FolderPath}\"");
-                return new List<FileSystemStorageItemBase>(0);
-            }
-        }
-
-        public static bool CheckLocationAvailability(string FolderPath)
-        {
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                return false;
-            }
-            else
-            {
-                IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
-
-                try
-                {
-                    return Ptr.CheckIfValidPtr();
-                }
-                finally
-                {
-                    FindClose(Ptr);
-                }
+                FindClose(SearchPtr);
             }
         }
 
@@ -1032,16 +956,14 @@ namespace RX_Explorer.Class
 
                     return Result;
                 }
-                else
+                else if (Marshal.GetLastWin32Error() == 2)
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{FolderPath}\"");
                     return new List<FileSystemStorageItemBase>(0);
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return new List<FileSystemStorageItemBase>(0);
+                else
+                {
+                    throw new LocationNotAvailableException();
+                }
             }
             finally
             {
@@ -1056,9 +978,77 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+
             try
             {
-                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+                if (Ptr.CheckIfValidPtr())
+                {
+                    if (Data.cFileName != "." && Data.cFileName != "..")
+                    {
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (Attribute.HasFlag(FileAttributes.Directory))
+                        {
+                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            {
+                                return new HiddenStorageFolder(new Win32_File_Data(ItemPath, Data));
+                            }
+                            else
+                            {
+                                return new FileSystemStorageFolder(new Win32_File_Data(ItemPath, Data));
+                            }
+                        }
+                        else
+                        {
+                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            {
+                                return new HiddenStorageFile(new Win32_File_Data(ItemPath, Data));
+                            }
+                            else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return new UrlStorageFile(new Win32_File_Data(ItemPath, Data));
+                            }
+                            else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return new LinkStorageFile(new Win32_File_Data(ItemPath, Data));
+                            }
+                            else
+                            {
+                                return new FileSystemStorageFile(new Win32_File_Data(ItemPath, Data));
+                            }
+                        }
+                    }
+
+                    return null;
+                }
+                else if (Marshal.GetLastWin32Error() == 2)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw new LocationNotAvailableException();
+                }
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
+        {
+            if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(PathArray));
+            }
+
+            List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
+
+            foreach (string Path in PathArray)
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
                 try
                 {
@@ -1072,40 +1062,33 @@ namespace RX_Explorer.Class
                             {
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new HiddenStorageFolder(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new HiddenStorageFolder(new Win32_File_Data(Path, Data)));
                                 }
                                 else
                                 {
-                                    return new FileSystemStorageFolder(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new FileSystemStorageFolder(new Win32_File_Data(Path, Data)));
                                 }
                             }
                             else
                             {
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new HiddenStorageFile(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new HiddenStorageFile(new Win32_File_Data(Path, Data)));
                                 }
                                 else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    return new UrlStorageFile(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new UrlStorageFile(new Win32_File_Data(Path, Data)));
                                 }
                                 else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    return new LinkStorageFile(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new LinkStorageFile(new Win32_File_Data(Path, Data)));
                                 }
                                 else
                                 {
-                                    return new FileSystemStorageFile(new Win32_File_Data(ItemPath, Data));
+                                    Result.Add(new FileSystemStorageFile(new Win32_File_Data(Path, Data)));
                                 }
                             }
                         }
-
-                        return null;
-                    }
-                    else
-                    {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{ItemPath}\"");
-                        return null;
                     }
                 }
                 finally
@@ -1113,86 +1096,8 @@ namespace RX_Explorer.Class
                     FindClose(Ptr);
                 }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return null;
-            }
-        }
 
-        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
-        {
-            if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(PathArray));
-            }
-
-            try
-            {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
-
-                foreach (string Path in PathArray)
-                {
-                    IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-                    try
-                    {
-                        if (Ptr.CheckIfValidPtr())
-                        {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
-                            {
-                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                                if (Attribute.HasFlag(FileAttributes.Directory))
-                                {
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
-                                    {
-                                        Result.Add(new HiddenStorageFolder(new Win32_File_Data(Path, Data)));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageFolder(new Win32_File_Data(Path, Data)));
-                                    }
-                                }
-                                else
-                                {
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
-                                    {
-                                        Result.Add(new HiddenStorageFile(new Win32_File_Data(Path, Data)));
-                                    }
-                                    else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Result.Add(new UrlStorageFile(new Win32_File_Data(Path, Data)));
-                                    }
-                                    else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Result.Add(new LinkStorageFile(new Win32_File_Data(Path, Data)));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageFile(new Win32_File_Data(Path, Data)));
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{Path}\"");
-                        }
-                    }
-                    finally
-                    {
-                        FindClose(Ptr);
-                    }
-                }
-
-                return Result;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return new List<FileSystemStorageItemBase>();
-            }
+            return Result;
         }
 
         public static Win32_File_Data GetStorageItemRawData(string ItemPath)
@@ -1214,8 +1119,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{ItemPath}\"");
-                        return default;
+                        throw new LocationNotAvailableException();
                     }
                 }
                 finally

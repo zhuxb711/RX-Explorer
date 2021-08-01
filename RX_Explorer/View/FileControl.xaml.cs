@@ -165,30 +165,18 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
+        private void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
         {
-            EventDeferral Deferral = args.GetDeferral();
-
             try
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
-                    try
-                    {
-                        if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
-                        {
-                            FolderTree.RootNodes.Remove(Node);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw in DriveRemoved");
-                    }
-                });
+                    FolderTree.RootNodes.Remove(Node);
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                Deferral.Complete();
+                LogTracer.Log(ex, "An exception was threw in DriveRemoved");
             }
         }
 
@@ -196,55 +184,52 @@ namespace RX_Explorer
         {
             EventDeferral Deferral = args.GetDeferral();
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            try
             {
-                try
+                if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                 {
-                    if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
+                        bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                        TreeViewNode RootNode;
+
+                        if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                         {
-                            bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                            TreeViewNode RootNode;
-
-                            if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
+                            RootNode = new TreeViewNode
                             {
-                                RootNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(Folder),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-                            }
-                            else
+                                Content = new TreeViewNodeContent(Folder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+                        }
+                        else
+                        {
+                            RootNode = new TreeViewNode
                             {
-                                RootNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(args.StorageItem.Path),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-                            }
-
-                            FolderTree.RootNodes.Add(RootNode);
+                                Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
                         }
 
-                        if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                        {
-                            FolderTree.SelectNodeAndScrollToVertical(Node);
-                        }
+                        FolderTree.RootNodes.Add(RootNode);
+                    }
+
+                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
+                    {
+                        FolderTree.SelectNodeAndScrollToVertical(Node);
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw in DriveAdded");
-                }
-                finally
-                {
-                    Deferral.Complete();
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in DriveAdded");
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void FileControl_Loaded(object sender, RoutedEventArgs e)
@@ -659,7 +644,7 @@ namespace RX_Explorer
 
                             if (DriveData.DriveType is DriveType.Network or DriveType.Removable)
                             {
-                                LongLoadList.Add(Task.Factory.StartNew(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).Result, TaskCreationOptions.LongRunning).ContinueWith((task) =>
+                                LongLoadList.Add(DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
                                 {
                                     try
                                     {

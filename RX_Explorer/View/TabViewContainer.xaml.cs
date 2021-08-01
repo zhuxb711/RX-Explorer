@@ -560,10 +560,10 @@ namespace RX_Explorer
             }
 
             List<Task> LoadTaskList = new List<Task>(3)
-                {
-                    CommonAccessCollection.LoadQuickStartItemsAsync(),
-                    CommonAccessCollection.LoadDriveAsync()
-                };
+            {
+                CommonAccessCollection.LoadQuickStartItemsAsync(),
+                CommonAccessCollection.LoadDriveAsync()
+            };
 
             if (SettingControl.LibraryExpanderIsExpand)
             {

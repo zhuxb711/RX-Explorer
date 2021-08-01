@@ -542,7 +542,11 @@ namespace RX_Explorer
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
-                await ShowReleaseLogDialogAsync();
+                if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
+                {
+                    await new WhatIsNew().ShowAsync();
+                }
+
                 await RegisterBackgroundTaskAsync();
 
                 switch (SystemInformation.Instance.LaunchCount)
@@ -592,14 +596,6 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ShowReleaseLogDialogAsync()
-        {
-            if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
-            {
-                await new WhatIsNew().ShowAsync();
-            }
-        }
-
         private async Task RegisterBackgroundTaskAsync()
         {
             try
@@ -644,7 +640,7 @@ namespace RX_Explorer
                                 {
                                     case ContentDialogResult.Primary:
                                         {
-                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
+                                            await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
                                             break;
                                         }
                                     case ContentDialogResult.Secondary:
