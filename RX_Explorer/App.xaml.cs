@@ -32,7 +32,6 @@ namespace RX_Explorer
             InitializeComponent();
 
             Suspending += App_Suspending;
-            Resuming += App_Resuming;
             UnhandledException += App_UnhandledException;
             EnteredBackground += App_EnteredBackground;
             LeavingBackground += App_LeavingBackground;
@@ -89,21 +88,13 @@ namespace RX_Explorer
             }
         }
 
-        private void App_Resuming(object sender, object e)
-        {
-            AppInstanceIdContainer.RegisterId(AppInstanceIdContainer.CurrentId);
-        }
-
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            SQLite.Current.Dispose();
-            AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
             LogTracer.MakeSureLogIsFlushed(Math.Min((int)(e.SuspendingOperation.Deadline - DateTimeOffset.Now).TotalMilliseconds, 3000));
         }
 
         private async void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
-            SQLite.Current.Dispose();
             LogTracer.MakeSureLogIsFlushed(1000);
 
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
@@ -127,9 +118,7 @@ namespace RX_Explorer
         {
             if (IsInBackgroundMode)
             {
-                AppMemoryUsageLevel level = MemoryManager.AppMemoryUsageLevel;
-
-                if (level == AppMemoryUsageLevel.OverLimit || level == AppMemoryUsageLevel.High)
+                if (MemoryManager.AppMemoryUsageLevel is AppMemoryUsageLevel.OverLimit or AppMemoryUsageLevel.High)
                 {
                     ReduceMemoryUsage();
                 }
@@ -138,7 +127,6 @@ namespace RX_Explorer
 
         private void ReduceMemoryUsage()
         {
-            SQLite.Current.Dispose();
             GC.Collect();
         }
 
@@ -155,7 +143,6 @@ namespace RX_Explorer
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
-            SQLite.Current.Dispose();
             LogTracer.MakeSureLogIsFlushed(1000);
             await LeadToBlueScreen(e.Exception);
         }

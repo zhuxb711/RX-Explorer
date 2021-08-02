@@ -1098,8 +1098,7 @@
                                                                    x:Phase="0"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Left"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   MaxWidth="145" />
+                                                                   TextTrimming="CharacterEllipsis" />
                                                     </StackPanel>
                                                 </Grid>
                                             </DataTemplate>

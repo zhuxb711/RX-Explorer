@@ -106,12 +106,12 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
-                            {
-                                ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
-                            }
+                            bool AlwaysStartNew = true;
 
-                            bool AlwaysStartNew = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"]);
+                            if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool StartNew)
+                            {
+                                AlwaysStartNew = StartNew;
+                            }
 
                             if (AlwaysStartNew)
                             {
@@ -123,7 +123,15 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                                if (string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                                {
+                                    string InstanceId = Guid.NewGuid().ToString();
+                                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                                    AppInstanceIdContainer.RegisterId(InstanceId);
+
+                                    Application.Start((p) => new App());
+                                }
+                                else
                                 {
                                     do
                                     {
@@ -143,65 +151,6 @@ namespace RX_Explorer
                                     }
                                     while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
                                 }
-                                else
-                                {
-                                    string InstanceId = Guid.NewGuid().ToString();
-                                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                    AppInstanceIdContainer.RegisterId(InstanceId);
-
-                                    Application.Start((p) => new App());
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-                case LaunchActivatedEventArgs LaunchArg:
-                    {
-                        if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
-                        {
-                            ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
-                        }
-
-                        bool AlwaysStartNew = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"]);
-
-                        if (AlwaysStartNew)
-                        {
-                            string InstanceId = Guid.NewGuid().ToString();
-                            AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                            AppInstanceIdContainer.RegisterId(InstanceId);
-
-                            Application.Start((p) => new App());
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
-                            {
-                                do
-                                {
-                                    if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
-                                    {
-                                        if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
-                                        {
-                                            TargetInstance.RedirectActivationTo();
-                                        }
-
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
-                                    }
-                                }
-                                while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
-                            }
-                            else
-                            {
-                                string InstanceId = Guid.NewGuid().ToString();
-                                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                AppInstanceIdContainer.RegisterId(InstanceId);
-
-                                Application.Start((p) => new App());
                             }
                         }
 

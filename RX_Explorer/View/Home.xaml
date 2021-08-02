@@ -11,6 +11,8 @@
       Background="Transparent">
 
     <Page.Resources>
+        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
+
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -256,28 +258,43 @@
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:LibraryStorageFolder">
-                                <Grid Padding="5"
+                                <Grid Padding="5,4,5,5"
                                       Width="250">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="60" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Image Height="50"
-                                           Width="50"
-                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                    <Image VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
                                            Stretch="Uniform"
-                                           x:Phase="1"/>
+                                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                           Height="55"
+                                           Width="55"
+                                           x:Phase="1" />
+                                    <Image x:Name="ThumbnailOverlay"
+                                           Width="30"
+                                           Height="30"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Bottom"
+                                           x:Phase="1"
+                                           Source="{x:Bind ThumbnailOverlay,Mode=OneWay}"
+                                           Stretch="Uniform" />
                                     <StackPanel Orientation="Vertical"
-                                                Padding="5,2,0,2"
-                                                Grid.Column="1">
-                                        <TextBlock HorizontalAlignment="Left"
+                                                Grid.Column="2"
+                                                VerticalAlignment="Top"
+                                                Margin="5,0,0,0">
+                                        <TextBlock Text="{x:Bind Name}"
+                                                   ToolTipService.ToolTip="{x:Bind Name,Converter={StaticResource EmptyTextFiliter}}"
+                                                   x:Phase="0"
+                                                   HorizontalTextAlignment="Left"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{x:Bind DisplayType}"
+                                                   FontSize="12"
+                                                   x:Phase="1"
+                                                   HorizontalTextAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind Name}"
-                                                   ToolTipService.ToolTip="{x:Bind Name}" />
-                                        <TextBlock FontSize="12"
-                                                   HorizontalAlignment="Left"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind DisplayType}" />
+                                                   HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>

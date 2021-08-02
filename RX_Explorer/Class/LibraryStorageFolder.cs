@@ -8,6 +8,14 @@ namespace RX_Explorer.Class
     {
         public LibraryType LibType { get; }
 
+        protected override bool ShouldGenerateThumbnail
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public static async Task<LibraryStorageFolder> CreateAsync(LibraryType LibType, string Path)
         {
             try
@@ -41,22 +49,6 @@ namespace RX_Explorer.Class
             catch (Exception)
             {
                 return null;
-            }
-        }
-
-        public override async Task LoadAsync()
-        {
-            try
-            {
-                await LoadThumbnailAsync(ThumbnailMode);
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-            }
-            finally
-            {
-                OnPropertyChanged(nameof(Thumbnail));
             }
         }
 

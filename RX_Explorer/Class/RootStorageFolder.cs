@@ -38,12 +38,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override bool CheckIfPropertiesLoaded()
-        {
-            return true;
-        }
-
-        protected override Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             return Task.CompletedTask;
         }

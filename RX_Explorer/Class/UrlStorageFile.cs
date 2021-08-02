@@ -63,12 +63,12 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             RawData = await GetRawDataAsync(Controller);
         }
 
-        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> LoadThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
@@ -76,14 +76,13 @@ namespace RX_Explorer.Class
                 {
                     BitmapImage Image = new BitmapImage();
                     await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                    Thumbnail = Image;
+                    return Image;
                 }
             }
-        }
-
-        protected override bool CheckIfPropertiesLoaded()
-        {
-            return RawData != null;
+            else
+            {
+                return null;
+            }
         }
 
         public UrlStorageFile(Win32_File_Data Data) : base(Data)

@@ -178,7 +178,7 @@ namespace RX_Explorer
                             }
                         case 2:
                             {
-                                return LoadMode.FileAndFolder;
+                                return LoadMode.All;
                             }
                         default:
                             {

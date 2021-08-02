@@ -95,7 +95,7 @@ namespace RX_Explorer.Class
 
         public static event EventHandler AppServiceConnectionLost;
 
-        public static readonly AutoResetEvent ResizeLocker = new AutoResetEvent(true);
+        public static Task ResizeTask;
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
 
@@ -237,13 +237,18 @@ namespace RX_Explorer.Class
 
         public static void RequestResizeController(int RequestedTarget)
         {
-            _ = Task.Run(() => ResizeController(RequestedTarget));
+            if (ResizeTask == null || ResizeTask.IsCompleted)
+            {
+                ResizeTask = Task.Run(() => ResizeController(RequestedTarget));
+            }
+            else
+            {
+                ResizeTask = ResizeTask.ContinueWith((_) => ResizeController(RequestedTarget), TaskContinuationOptions.PreferFairness);
+            }
         }
 
         private static void ResizeController(int RequestedTarget)
         {
-            ResizeLocker.WaitOne();
-
             try
             {
                 using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
@@ -285,10 +290,6 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
-            }
-            finally
-            {
-                ResizeLocker.Set();
             }
         }
 
@@ -873,7 +874,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    string[] SearchResult = JsonSerializer.Deserialize<string[]>(Convert.ToString(Result));
+                    string[] SearchResult = JsonSerializer.Deserialize<string[]>(Result);
 
                     if (SearchResult.Length == 0)
                     {
@@ -978,7 +979,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Convert.ToString(Result));
+                    InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Result);
 
                     return await InstalledApplication.CreateAsync(Pack);
                 }
@@ -1007,7 +1008,7 @@ namespace RX_Explorer.Class
                 {
                     List<InstalledApplication> PackageList = new List<InstalledApplication>();
 
-                    foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Convert.ToString(Result)))
+                    foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<IEnumerable<InstalledApplicationPackage>>(Result))
                     {
                         PackageList.Add(await InstalledApplication.CreateAsync(Pack));
                     }
@@ -1033,11 +1034,11 @@ namespace RX_Explorer.Class
 
         public async Task<HiddenDataPackage> GetHiddenItemDataAsync(string Path)
         {
-            if (await SendCommandAsync(CommandType.GetHiddenItemInfo, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetHiddenItemData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<HiddenDataPackage>(Convert.ToString(Result));
+                    return JsonSerializer.Deserialize<HiddenDataPackage>(Result);
                 }
                 else
                 {
@@ -1055,6 +1056,30 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<byte[]> GetThumbnailAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetThumbnail, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return JsonSerializer.Deserialize<byte[]>(Result);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return Array.Empty<byte>();
+                }
+            }
+            else
+            {
+                return Array.Empty<byte>();
+            }
+        }
+
         public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
         {
             if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
@@ -1063,7 +1088,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Success", out string Result))
                     {
-                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
+                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).Select((Item) => new ContextMenuItem(Item)).ToList();
                     }
                     else
                     {
@@ -1235,7 +1260,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(Result));
+                    return JsonSerializer.Deserialize<LinkDataPackage>(Result);
                 }
                 else
                 {
@@ -1259,7 +1284,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(Result));
+                    return JsonSerializer.Deserialize<UrlDataPackage>(Result);
                 }
                 else
                 {
@@ -1417,7 +1442,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Associate_Result", out string Result))
                 {
-                    return JsonSerializer.Deserialize<List<AssociationPackage>>(Convert.ToString(Result));
+                    return JsonSerializer.Deserialize<List<AssociationPackage>>(Result);
                 }
                 else
                 {
@@ -1465,7 +1490,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
                 {
-                    List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
+                    List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Result);
                     List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
 
                     foreach (Dictionary<string, string> PropertyDic in JsonList)

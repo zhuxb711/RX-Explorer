@@ -142,7 +142,7 @@ namespace RX_Explorer.Class
     {
         None = 0,
         OnlyFile = 1,
-        FileAndFolder = 2,
+        All = 2,
         Unknown = 4
     }
 

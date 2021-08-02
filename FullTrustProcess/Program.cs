@@ -461,6 +461,23 @@ namespace FullTrustProcess
 
             switch (Enum.Parse(typeof(CommandType), Convert.ToString(CommandValue["CommandType"])))
             {
+                case CommandType.GetThumbnail:
+                    {
+                        string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+
+                        using (ShellItem Item = ShellItem.Open(ExecutePath))
+                        using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                        using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                        using (MemoryStream Stream = new MemoryStream())
+                        {
+                            OriginBitmap.MakeTransparent();
+                            OriginBitmap.Save(Stream, ImageFormat.Png);
+
+                            Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
+                        }
+
+                        break;
+                    }
                 case CommandType.LaunchUWP:
                     {
                         string[] PathArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["LaunchPathArray"]));
@@ -697,7 +714,7 @@ namespace FullTrustProcess
 
                         break;
                     }
-                case CommandType.GetHiddenItemInfo:
+                case CommandType.GetHiddenItemData:
                     {
                         string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
 

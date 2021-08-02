@@ -16,13 +16,13 @@ namespace RX_Explorer.Class
             {
                 string SavedInfo = Convert.ToString(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"]);
 
-                if (!string.IsNullOrEmpty(SavedInfo))
+                if (string.IsNullOrEmpty(SavedInfo))
                 {
-                    return JsonSerializer.Deserialize<List<string>>(SavedInfo).LastOrDefault();
+                    return string.Empty;
                 }
                 else
                 {
-                    return string.Empty;
+                    return JsonSerializer.Deserialize<List<string>>(SavedInfo).LastOrDefault();
                 }
             }
         }
@@ -30,7 +30,6 @@ namespace RX_Explorer.Class
         public static void RegisterId(string Id)
         {
             CurrentId = Id;
-
             SetCurrentIdAsLastActivateId();
         }
 
@@ -38,7 +37,11 @@ namespace RX_Explorer.Class
         {
             string SavedInfo = Convert.ToString(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"]);
 
-            if (!string.IsNullOrEmpty(SavedInfo))
+            if (string.IsNullOrEmpty(SavedInfo))
+            {
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new List<string>() { CurrentId });
+            }
+            else
             {
                 List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
 
@@ -50,10 +53,6 @@ namespace RX_Explorer.Class
                 Collection.Add(CurrentId);
 
                 ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new List<string>() { CurrentId });
             }
         }
 

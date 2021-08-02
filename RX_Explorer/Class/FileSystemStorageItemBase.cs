@@ -88,18 +88,6 @@ namespace RX_Explorer.Class
 
         private bool ThubmnalModeChanged;
 
-        public void SetAccentColorAsSpecific(Color Color)
-        {
-            AccentColor = new SolidColorBrush(Color);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
-        }
-
-        public void SetAccentColorAsNormal()
-        {
-            AccentColor = new SolidColorBrush(Colors.Transparent);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
-        }
-
         public double ThumbnailOpacity { get; protected set; } = 1d;
 
         public ulong SizeRaw { get; protected set; }
@@ -140,13 +128,23 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual BitmapImage Thumbnail { get; protected set; }
+        public virtual BitmapImage Thumbnail { get; private set; }
 
         public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
+
+        protected bool IsLoaded { get; private set; }
+
+        protected virtual bool ShouldGenerateThumbnail
+        {
+            get
+            {
+                return (this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.All;
+            }
+        }
 
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
@@ -216,8 +214,6 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                     string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
                     if (string.IsNullOrEmpty(DirectoryPath))
@@ -250,7 +246,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"UWP storage API could not found the path: \"{Path}\"");
+                LogTracer.Log(ex, $"{nameof(OpenAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return null;
             }
         }
@@ -270,8 +266,6 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
-
                                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
 
                                 switch (Option)
@@ -306,7 +300,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, $"UWP storage API could not create file, path: \"{Path}\"");
+                            LogTracer.Log(ex, $"{nameof(CreateNewAsync)} failed and could not create the storage item, path:\"{Path}\"");
 
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -336,8 +330,6 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
-
                                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
 
                                 switch (Option)
@@ -372,7 +364,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, $"UWP storage API could not create folder, path: \"{Path}\"");
+                            LogTracer.Log(ex, $"{nameof(CreateNewAsync)} failed and could not create the storage item, path:\"{Path}\"");
 
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -455,19 +447,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task LoadAsync()
+        public void SetAccentColorAsSpecific(Color Color)
         {
-            if (CheckIfPropertiesLoaded())
+            AccentColor = new SolidColorBrush(Color);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
+        }
+
+        public void SetAccentColorAsNormal()
+        {
+            AccentColor = new SolidColorBrush(Colors.Transparent);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
+        }
+
+        public async Task LoadAsync()
+        {
+            if (IsLoaded)
             {
                 if (ThubmnalModeChanged)
                 {
                     ThubmnalModeChanged = false;
 
-                    if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                    if (ShouldGenerateThumbnail)
                     {
                         try
                         {
-                            await LoadThumbnailAsync(ThumbnailMode);
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            {
+                                if (await LoadThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
+                                {
+                                    this.Thumbnail = Thumbnail;
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -488,10 +498,14 @@ namespace RX_Explorer.Class
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                            if (ShouldGenerateThumbnail)
                             {
-                                await LoadPropertiesAsync(Exclusive.Controller, false);
-                                await LoadThumbnailAsync(ThumbnailMode);
+                                await LoadCoreAsync(Exclusive.Controller, false);
+
+                                if (await LoadThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
+                                {
+                                    this.Thumbnail = Thumbnail;
+                                }
                             }
 
                             await LoadThumbnailOverlayAsync(Exclusive.Controller);
@@ -504,7 +518,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LocalLoadFunction)}, StorageType: {GetType().FullName}, Path: {Path}");
                     }
                     finally
                     {
@@ -514,6 +528,8 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ModifiedTime));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
+
+                        IsLoaded = true;
                     }
                 };
 
@@ -641,7 +657,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(SyncStatus));
         }
 
-        private async Task LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
+        protected virtual async Task<BitmapImage> LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
         {
             byte[] ThumbnailOverlayByteArray = await Controller.GetThumbnailOverlayAsync(Path);
 
@@ -649,19 +665,55 @@ namespace RX_Explorer.Class
             {
                 using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
                 {
-                    ThumbnailOverlay = new BitmapImage();
-                    await ThumbnailOverlay.SetSourceAsync(Ms.AsRandomAccessStream());
+                    BitmapImage Overlay = new BitmapImage();
+                    await Overlay.SetSourceAsync(Ms.AsRandomAccessStream());
+                    return Overlay;
                 }
+            }
+            else
+            {
+                return null;
             }
         }
 
-        protected abstract Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate);
-
-        protected abstract bool CheckIfPropertiesLoaded();
-
-        protected abstract Task LoadThumbnailAsync(ThumbnailMode Mode);
+        protected abstract Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
+
+        protected virtual async Task<BitmapImage> LoadThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
+        {
+            if (await GetStorageItemAsync() is IStorageItem Item)
+            {
+                BitmapImage LocalThumbnail = await Item.GetThumbnailBitmapAsync(Mode);
+
+                if (LocalThumbnail == null)
+                {
+                    byte[] ThumbnailData = await Controller.GetThumbnailAsync(Path);
+
+                    if (ThumbnailData.Length > 0)
+                    {
+                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                        {
+                            BitmapImage Image = new BitmapImage();
+                            await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                            return Image;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return LocalThumbnail;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         public async Task RefreshAsync()
         {
@@ -671,7 +723,7 @@ namespace RX_Explorer.Class
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        await LoadPropertiesAsync(Exclusive.Controller, true);
+                        await LoadCoreAsync(Exclusive.Controller, true);
                     }
 
                     OnPropertyChanged(nameof(Size));

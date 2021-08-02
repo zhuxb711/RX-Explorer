@@ -76,20 +76,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BitmapImage InnerThumbnail;
-
         public override BitmapImage Thumbnail
         {
             get
             {
-                return InnerThumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
-            }
-            protected set
-            {
-                if (value != null && value != InnerThumbnail)
-                {
-                    InnerThumbnail = value;
-                }
+                return base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
             }
         }
 
@@ -115,8 +106,6 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         if (Filter.HasFlag(BasicFilters.File) && Filter.HasFlag(BasicFilters.Folder))
@@ -138,7 +127,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed for uwp API");
+                LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return false;
             }
         }
@@ -153,8 +142,6 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
@@ -201,7 +188,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(GetFolderSizeAsync)} failed for uwp API");
+                LogTracer.Log(ex, $"{nameof(GetFolderSizeAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return 0;
             }
         }
@@ -216,8 +203,6 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
-
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
@@ -241,7 +226,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(GetFolderAndFileNumAsync)} failed for uwp API");
+                LogTracer.Log(ex, $"{nameof(GetFolderAndFileNumAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return (0, 0);
             }
         }
@@ -353,7 +338,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(SearchAsync)} failed for uwp API");
+                LogTracer.Log(ex, $"{nameof(SearchAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return new List<FileSystemStorageItemBase>(0);
             }
         }
@@ -368,8 +353,6 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    LogTracer.Log($"Native API could not enum subitems in path: \"{Path}\", fall back to UWP storage API");
-
                     if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
@@ -426,14 +409,14 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                LogTracer.Log($"UWP API could not enum subitems in path: \"{Path}\"");
+                LogTracer.Log(ex, $"{nameof(GetChildItemsAsync)} failed and could not get the storage item, path:\"{Path}\"");
                 return new List<FileSystemStorageItemBase>(0);
             }
         }
 
-        protected override async Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             if (ForceUpdate)
             {
@@ -442,11 +425,6 @@ namespace RX_Explorer.Class
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
                 }
             }
-        }
-
-        protected override bool CheckIfPropertiesLoaded()
-        {
-            return StorageItem != null && InnerThumbnail != null;
         }
 
         public override async Task<IStorageItem> GetStorageItemAsync()
@@ -459,14 +437,6 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
                 return null;
-            }
-        }
-
-        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
-        {
-            if (await GetStorageItemAsync() is StorageFolder Folder)
-            {
-                Thumbnail = await Folder.GetThumbnailBitmapAsync(Mode);
             }
         }
     }

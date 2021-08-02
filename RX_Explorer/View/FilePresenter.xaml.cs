@@ -929,7 +929,59 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (!await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
+                    if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
+                    {
+                        CurrentFolder = Folder;
+
+                        Container.ViewModeComboBox.IsEnabled = true;
+
+                        SQLite.Current.SetPathHistory(FolderPath);
+
+                        if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
+                        {
+                            Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                        }
+
+                        FileCollection.Clear();
+                        GroupCollection.Clear();
+
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(FolderPath);
+
+                        await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+
+                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
+
+                        if (ChildItems.Count > 0)
+                        {
+                            HasFile.Visibility = Visibility.Collapsed;
+
+                            if (Config.GroupTarget != GroupTarget.None)
+                            {
+                                foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                                {
+                                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                                }
+
+                                IsGroupedEnable = true;
+                            }
+                            else
+                            {
+                                IsGroupedEnable = false;
+                            }
+
+                            FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
+                        }
+                        else
+                        {
+                            HasFile.Visibility = Visibility.Visible;
+                        }
+
+                        StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
+
+                        ListViewDetailHeader.Filter.SetDataSource(FileCollection);
+                        ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                    }
+                    else
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -942,56 +994,6 @@ namespace RX_Explorer
 
                         return false;
                     }
-
-                    Container.ViewModeComboBox.IsEnabled = true;
-
-                    SQLite.Current.SetPathHistory(FolderPath);
-
-                    CurrentFolder = await FileSystemStorageItemBase.OpenAsync(FolderPath) as FileSystemStorageFolder;
-
-                    if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
-                    {
-                        Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                    }
-
-                    FileCollection.Clear();
-                    GroupCollection.Clear();
-
-                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(FolderPath);
-
-                    await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
-
-                    IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
-
-                    if (ChildItems.Count > 0)
-                    {
-                        HasFile.Visibility = Visibility.Collapsed;
-
-                        if (Config.GroupTarget != GroupTarget.None)
-                        {
-                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
-                            {
-                                GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
-                            }
-
-                            IsGroupedEnable = true;
-                        }
-                        else
-                        {
-                            IsGroupedEnable = false;
-                        }
-
-                        FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
-                    }
-                    else
-                    {
-                        HasFile.Visibility = Visibility.Visible;
-                    }
-
-                    StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-
-                    ListViewDetailHeader.Filter.SetDataSource(FileCollection);
-                    ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
                 }
 
                 return true;

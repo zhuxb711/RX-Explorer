@@ -66,20 +66,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BitmapImage InnerThumbnail;
-
         public override BitmapImage Thumbnail
         {
             get
             {
-                return InnerThumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
-            }
-            protected set
-            {
-                if (value != null && value != InnerThumbnail)
-                {
-                    InnerThumbnail = value;
-                }
+                return base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
             }
         }
 
@@ -149,7 +140,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadPropertiesAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             if (ForceUpdate)
             {
@@ -159,11 +150,6 @@ namespace RX_Explorer.Class
                     SizeRaw = await File.GetSizeRawDataAsync();
                 }
             }
-        }
-
-        protected override bool CheckIfPropertiesLoaded()
-        {
-            return StorageItem != null && InnerThumbnail != null;
         }
 
         public async override Task<IStorageItem> GetStorageItemAsync()
@@ -176,14 +162,6 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
                 return null;
-            }
-        }
-
-        protected override async Task LoadThumbnailAsync(ThumbnailMode Mode)
-        {
-            if (await GetStorageItemAsync() is StorageFile File)
-            {
-                Thumbnail = await File.GetThumbnailBitmapAsync(Mode);
             }
         }
     }
