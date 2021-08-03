@@ -4180,6 +4180,10 @@ Inkorrekte Namen sind
           <source>The task has been cancelled by the user</source>
           <target state="translated">Die Aufgabe wurde vom Benutzer abgebrochen</target>
         </trans-unit>
+        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+          <source>Preferred file layout mode</source>
+          <target state="translated">Bevorzugter Dateilayoutmodus</target>
+        </trans-unit>
       </group>
     </body>
   </file>

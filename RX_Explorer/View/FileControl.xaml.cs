@@ -646,7 +646,7 @@ namespace RX_Explorer
 
                             if (DriveData.DriveType is DriveType.Network or DriveType.Removable)
                             {
-                                LongLoadList.Add(DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
+                                LongLoadList.Add(DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task, _) =>
                                 {
                                     try
                                     {
@@ -661,7 +661,7 @@ namespace RX_Explorer
                                     {
                                         LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
                                     }
-                                }, TaskScheduler.FromCurrentSynchronizationContext()));
+                                }, null, CancellationToken.None, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext()));
                             }
                             else
                             {
@@ -1904,22 +1904,16 @@ namespace RX_Explorer
 
                     if (PathList.Count > 0)
                     {
-                        switch (e.AcceptedOperation)
+                        if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                         {
-                            case DataPackageOperation.Copy:
-                                {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path);
-                                    break;
-                                }
-                            case DataPackageOperation.Move:
-                                {
-                                    if (PathList.All((Item) => Path.GetDirectoryName(Item).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
-                                    {
-                                        QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path);
-                                    }
-
-                                    break;
-                                }
+                            if (PathList.All((Item) => Path.GetDirectoryName(Item).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path);
+                            }
+                        }
+                        else
+                        {
+                            QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path);
                         }
                     }
                 }

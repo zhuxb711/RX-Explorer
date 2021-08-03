@@ -4182,6 +4182,10 @@ Invalid names include
           <source>The task has been cancelled by the user</source>
           <target state="translated">用户已取消该任务</target>
         </trans-unit>
+        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+          <source>Preferred file layout mode</source>
+          <target state="translated">首选文件布局模式</target>
+        </trans-unit>
       </group>
     </body>
   </file>

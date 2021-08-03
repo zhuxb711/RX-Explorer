@@ -798,15 +798,7 @@ namespace RX_Explorer
                 try
                 {
                     Clipboard.Clear();
-
-                    List<FileSystemStorageFolder> TransformList = new List<FileSystemStorageFolder>();
-
-                    foreach (LibraryStorageFolder Lib in LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>())
-                    {
-                        TransformList.Add(Lib);
-                    }
-
-                    Clipboard.SetContent(await TransformList.GetAsDataPackageAsync(DataPackageOperation.Copy));
+                    Clipboard.SetContent(await LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().GetAsDataPackageAsync(DataPackageOperation.Copy));
                 }
                 catch
                 {

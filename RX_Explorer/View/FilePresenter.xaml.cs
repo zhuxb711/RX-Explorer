@@ -1432,7 +1432,7 @@ namespace RX_Explorer
                             QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                         }
                     }
-                    else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
+                    else
                     {
                         QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
                     }
@@ -3391,18 +3391,13 @@ namespace RX_Explorer
                     {
                         case FileSystemStorageFolder Folder:
                             {
-                                switch (e.AcceptedOperation)
+                                if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                                 {
-                                    case DataPackageOperation.Copy:
-                                        {
-                                            QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path);
-                                            break;
-                                        }
-                                    case DataPackageOperation.Move:
-                                        {
-                                            QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path);
-                                            break;
-                                        }
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path);
+                                }
+                                else
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path);
                                 }
 
                                 break;
@@ -3758,22 +3753,16 @@ namespace RX_Explorer
 
                 if (PathList.Count > 0)
                 {
-                    switch (e.AcceptedOperation)
+                    if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        case DataPackageOperation.Copy:
-                            {
-                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
-                                break;
-                            }
-                        case DataPackageOperation.Move:
-                            {
-                                if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
-                                {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
-                                }
-
-                                break;
-                            }
+                        if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
+                        {
+                            QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                        }
+                    }
+                    else
+                    {
+                        QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
                     }
                 }
             }

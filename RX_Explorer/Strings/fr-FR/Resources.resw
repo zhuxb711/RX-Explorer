@@ -3150,4 +3150,7 @@ Les noms non valides incluent
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>La tâche a été annulée par l'utilisateur</value>
   </data>
+  <data name="DefaultDisplayMode.Header" xml:space="preserve">
+    <value>Mode de disposition de fichier préféré</value>
+  </data>
 </root>

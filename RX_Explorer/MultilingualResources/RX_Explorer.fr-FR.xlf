@@ -4182,6 +4182,10 @@ Les noms non valides incluent
           <source>The task has been cancelled by the user</source>
           <target state="translated">La tâche a été annulée par l'utilisateur</target>
         </trans-unit>
+        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+          <source>Preferred file layout mode</source>
+          <target state="translated">Mode de disposition de fichier préféré</target>
+        </trans-unit>
       </group>
     </body>
   </file>

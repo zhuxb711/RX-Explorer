@@ -595,7 +595,8 @@ namespace RX_Explorer
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                 AllowDrop = true,
                 IsDoubleTapEnabled = true,
-                Content = BaseFrame
+                Content = BaseFrame,
+                HeaderTemplate = TabViewItemHeaderTemplate
             };
             Item.DragEnter += Item_DragEnter;
             Item.PointerPressed += Item_PointerPressed;

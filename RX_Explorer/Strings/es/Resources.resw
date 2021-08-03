@@ -3150,4 +3150,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>La tarea ha sido cancelada por el usuario</value>
   </data>
+  <data name="DefaultDisplayMode.Header" xml:space="preserve">
+    <value>Modo de diseño de archivo preferido</value>
+  </data>
 </root>

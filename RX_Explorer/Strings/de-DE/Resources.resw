@@ -3150,4 +3150,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>Die Aufgabe wurde vom Benutzer abgebrochen</value>
   </data>
+  <data name="DefaultDisplayMode.Header" xml:space="preserve">
+    <value>Bevorzugter Dateilayoutmodus</value>
+  </data>
 </root>

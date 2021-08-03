@@ -4180,6 +4180,10 @@ Las denominaciones no válidas son:
           <source>The task has been cancelled by the user</source>
           <target state="translated">La tarea ha sido cancelada por el usuario</target>
         </trans-unit>
+        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+          <source>Preferred file layout mode</source>
+          <target state="translated">Modo de diseño de archivo preferido</target>
+        </trans-unit>
       </group>
     </body>
   </file>

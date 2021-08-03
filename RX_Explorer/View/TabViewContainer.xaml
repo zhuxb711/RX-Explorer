@@ -13,6 +13,15 @@
     <Page.Resources>
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
 
+        <DataTemplate x:Name="TabViewItemHeaderTemplate">
+            <StackPanel HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding}"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="NoWrap"/>
+            </StackPanel>
+        </DataTemplate>
+
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>

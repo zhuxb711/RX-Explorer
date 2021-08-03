@@ -94,6 +94,8 @@ namespace RX_Explorer.Dialog
             {
                 args.Cancel = true;
 
+                LogTracer.Log(e);
+
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     Tips.Text = e.Message;
@@ -196,25 +198,18 @@ namespace RX_Explorer.Dialog
                 throw new ArgumentNullException(nameof(BL), "Parameter could not be null");
             }
 
-            try
+            using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id))
             {
-                using (Windows.Devices.Bluetooth.BluetoothDevice Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id))
-                {
-                    RfcommDeviceServicesResult Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
+                RfcommDeviceServicesResult Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
 
-                    if (Services.Services.Any())
-                    {
-                        return Services.Services.Select((Service) => Service.ConnectionHostName?.CanonicalName).Where((Name) => !string.IsNullOrEmpty(Name)).FirstOrDefault();
-                    }
-                    else
-                    {
-                        throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_3"));
-                    }
+                if (Services.Services.Any())
+                {
+                    return Services.Services.Select((Service) => Service.ConnectionHostName?.CanonicalName).Where((Name) => !string.IsNullOrEmpty(Name)).FirstOrDefault();
                 }
-            }
-            catch
-            {
-                throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
+                else
+                {
+                    throw new NotSupportedException(Globalization.GetString("BluetoothUI_Tips_Text_3"));
+                }
             }
         }
 
@@ -299,8 +294,7 @@ namespace RX_Explorer.Dialog
                             {
                                 Tips.Text = $"{Globalization.GetString("BluetoothUI_Tips_Text_5")}{Environment.NewLine}{args.Pin}";
                                 Tips.Visibility = Visibility.Visible;
-                                PinConfirm.Visibility = Visibility.Visible;
-                                PinRefuse.Visibility = Visibility.Visible;
+                                PinButtonArea.Visibility = Visibility.Visible;
                             });
 
                             if (await PairConfirmaion.Task)
@@ -316,8 +310,7 @@ namespace RX_Explorer.Dialog
                             {
                                 Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_6");
                                 Tips.Visibility = Visibility.Visible;
-                                PinConfirm.Visibility = Visibility.Visible;
-                                PinRefuse.Visibility = Visibility.Visible;
+                                PinButtonArea.Visibility = Visibility.Visible;
                             });
 
                             if (await PairConfirmaion.Task)
@@ -343,8 +336,7 @@ namespace RX_Explorer.Dialog
         {
             Tips.Text = string.Empty;
             Tips.Visibility = Visibility.Collapsed;
-            PinConfirm.Visibility = Visibility.Collapsed;
-            PinRefuse.Visibility = Visibility.Collapsed;
+            PinButtonArea.Visibility = Visibility.Collapsed;
 
             PairConfirmaion?.SetResult(true);
         }
@@ -353,8 +345,7 @@ namespace RX_Explorer.Dialog
         {
             Tips.Text = string.Empty;
             Tips.Visibility = Visibility.Collapsed;
-            PinConfirm.Visibility = Visibility.Collapsed;
-            PinRefuse.Visibility = Visibility.Collapsed;
+            PinButtonArea.Visibility = Visibility.Collapsed;
 
             PairConfirmaion?.SetResult(false);
         }
