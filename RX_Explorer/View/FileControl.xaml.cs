@@ -634,10 +634,12 @@ namespace RX_Explorer
                         FolderTree.RootNodes.Add(RootNode);
                     }
 
-                    List<Task> LongLoadList = new List<Task>(CommonAccessCollection.DriveList.Count((Drive) => Drive.DriveType is DriveType.Removable or DriveType.Network));
+                    List<Task> LongLoadList = new List<Task>();
 
-                    foreach (DriveDataBase DriveData in CommonAccessCollection.DriveList)
+                    for (int i = 0; i < CommonAccessCollection.DriveList.Count; i++)
                     {
+                        DriveDataBase DriveData = CommonAccessCollection.DriveList[i];
+
                         if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                         {
                             FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
@@ -1501,7 +1503,7 @@ namespace RX_Explorer
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                         };
 
@@ -1513,7 +1515,7 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
@@ -1525,7 +1527,7 @@ namespace RX_Explorer
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
+                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                 };
 
@@ -1629,7 +1631,7 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{DirectoryPath}\"",
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{DirectoryPath}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
@@ -1651,7 +1653,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
+                    CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.ItemPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
 
                     (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
 
@@ -1673,7 +1675,7 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{Path}\"",
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Path}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
@@ -1695,7 +1697,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
+                    CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.ItemPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
 
                     (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[++CurrentPresenter.RecordIndex];
 
@@ -1717,7 +1719,7 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{Path}\"",
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Path}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
@@ -1819,8 +1821,9 @@ namespace RX_Explorer
             {
                 if (Block.Path.Equals(RootStorageFolder.Instance.Path))
                 {
-                    foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
+                    for (int i = 0; i < CommonAccessCollection.DriveList.Count; i++)
                     {
+                        DriveDataBase Drive = CommonAccessCollection.DriveList[i];
                         AddressExtentionList.Add(new AddressBlock(Drive.Path, Drive.DisplayName));
                     }
                 }
@@ -2912,7 +2915,7 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendLinkItem);
 
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
                     MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
                     {

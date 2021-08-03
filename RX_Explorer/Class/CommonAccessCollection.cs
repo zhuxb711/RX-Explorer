@@ -366,42 +366,19 @@ namespace RX_Explorer.Class
         {
             try
             {
-                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network)
-                                                                  .Select((Info) => Info.RootDirectory.FullName).ToList();
-
-                List<StorageFolder> PortableDevice = new List<StorageFolder>();
-
-                foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
-                {
-                    try
-                    {
-                        PortableDevice.Add(StorageDevice.FromId(Device.Id));
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Error happened when get storagefolder from {Device.Name}");
-                    }
-                }
-
-                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))))
-                {
-                    AllBaseDevice.Remove(PortDevice);
-                }
-
-                List<DriveDataBase> OneStepDeviceList = DriveList.Where((Item) => !AllBaseDevice.Contains(Item.Path)).ToList();
-                List<DriveDataBase> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => !Item.Name.Equals(RemoveItem.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+                StorageFolder Folder = StorageDevice.FromId(args.Id);
 
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    foreach (DriveDataBase Device in TwoStepDeviceList)
+                    foreach (DriveDataBase Drive in DriveList.Where((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
                     {
-                        DriveList.Remove(Device);
+                        DriveList.Remove(Drive);
                     }
                 });
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error happened when remove device from HardDeviceList");
+                LogTracer.Log(ex, $"An exception was threw when removing drive from {nameof(DriveList)}");
             }
         }
 
@@ -411,7 +388,7 @@ namespace RX_Explorer.Class
             {
                 StorageFolder Folder = StorageDevice.FromId(args.Id);
 
-                if (!DriveList.Any((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                if (DriveList.All((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
@@ -421,7 +398,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error happened when add device to HardDeviceList");
+                LogTracer.Log(ex, $"An exception was threw when adding drive to {nameof(DriveList)}");
             }
         }
 

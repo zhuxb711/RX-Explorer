@@ -215,21 +215,6 @@ namespace RX_Explorer
             }
         }
 
-        public List<FileSystemStorageItemBase> SelectedItems
-        {
-            get
-            {
-                if (ItemPresenter != null)
-                {
-                    return ItemPresenter.SelectedItems.OfType<FileSystemStorageItemBase>().ToList();
-                }
-                else
-                {
-                    return new List<FileSystemStorageItemBase>(0);
-                }
-            }
-        }
-
         public FilePresenter()
         {
             InitializeComponent();
@@ -595,7 +580,7 @@ namespace RX_Explorer
 
                             break;
                         }
-                    case VirtualKey.Enter when SelectedItems.Count == 1:
+                    case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1:
                         {
                             args.Handled = true;
 
@@ -634,7 +619,7 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingControl.IsQuicklookEnable && SelectedItems.Count <= 1:
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnable && ItemPresenter.SelectedItems.Count <= 1:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
@@ -673,7 +658,7 @@ namespace RX_Explorer
                                 Refresh_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
+                        case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
                             {
                                 await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                                 break;
@@ -712,18 +697,18 @@ namespace RX_Explorer
                                 Clipboard.SetContent(Package);
                                 break;
                             }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
                             {
                                 Copy_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
+                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
                             {
                                 Cut_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Delete when SelectedItems.Count > 0:
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count > 0:
+                        case VirtualKey.Delete when ItemPresenter.SelectedItems.Count > 0:
+                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
                             {
                                 Delete_Click(null, null);
                                 break;
@@ -753,7 +738,7 @@ namespace RX_Explorer
                                 OpenInTerminal_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count <= 1:
+                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count <= 1:
                             {
                                 CloseAllFlyout();
 
@@ -768,7 +753,7 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItems.Count == 1:
+                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count == 1:
                             {
                                 OpenFolderInNewWindow_Click(null, null);
                                 break;
@@ -787,7 +772,7 @@ namespace RX_Explorer
                             {
                                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
-                                    if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                    if (ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
                                     {
                                         await Container.CreateNewBladeAsync(Folder.Path);
                                     }
@@ -904,7 +889,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, (ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
                             }
                         }
                     }
@@ -1403,7 +1388,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -1478,7 +1463,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -1488,7 +1473,11 @@ namespace RX_Explorer
                     Clipboard.SetContent(await SelectedItemsCopy.GetAsDataPackageAsync(DataPackageOperation.Move));
 
                     FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
-                    SelectedItemsCopy.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity));
+
+                    foreach (FileSystemStorageItemBase Item in SelectedItemsCopy)
+                    {
+                        Item.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
+                    }
                 }
                 catch
                 {
@@ -1508,10 +1497,10 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            if (ItemPresenter.SelectedItems.Count > 0)
             {
                 //We should take the path of what we want to delete first. Or we might delete some items incorrectly
-                string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
+                string[] PathList = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
                 bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
@@ -1590,7 +1579,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -1737,7 +1726,7 @@ namespace RX_Explorer
         {
             DelayRenameCancel?.Cancel();
 
-            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
             if (SelectedItemsCopy.Count == 1 && SelectedItemsCopy.First() is FileSystemStorageFile File)
             {
@@ -1856,7 +1845,7 @@ namespace RX_Explorer
                     {
                         if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                         {
-                            if (SelectedItems.Contains(Item))
+                            if (ItemPresenter.SelectedItems.Contains(Item))
                             {
                                 SelectionExtention.Disable();
 
@@ -1949,9 +1938,9 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                         {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                         }
                         else
                         {
@@ -1961,17 +1950,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                                 case FileSystemStorageFolder:
                                     {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                             }
@@ -1996,9 +1985,9 @@ namespace RX_Explorer
                         {
                             if (Element.DataContext is FileSystemStorageItemBase Context)
                             {
-                                if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                                if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                                 {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                 }
                                 else
                                 {
@@ -2008,17 +1997,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
                                                 {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                         }
@@ -2033,17 +2022,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
                                                     {
-                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                             }
@@ -3568,7 +3557,7 @@ namespace RX_Explorer
             {
                 DelayRenameCancel?.Cancel();
 
-                List<FileSystemStorageItemBase> DragList = SelectedItems;
+                IReadOnlyList<FileSystemStorageItemBase> DragList = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
                 foreach (FileSystemStorageItemBase Item in DragList)
                 {
@@ -3686,7 +3675,7 @@ namespace RX_Explorer
                 if (!SettingControl.IsDoubleClickEnable
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                     && !Container.BlockKeyboardShortCutInput
-                    && !SelectedItems.Contains(Item)
+                    && !ItemPresenter.SelectedItems.Contains(Item)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
@@ -3825,9 +3814,9 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                         {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                         }
                         else
                         {
@@ -3837,17 +3826,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                                 case FileSystemStorageFolder:
                                     {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                             }
@@ -3872,9 +3861,9 @@ namespace RX_Explorer
                         {
                             if (Element.DataContext is FileSystemStorageItemBase Context)
                             {
-                                if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                                if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                                 {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                 }
                                 else
                                 {
@@ -3884,17 +3873,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
                                                 {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                     break;
                                                 }
                                         }
@@ -3909,17 +3898,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
                                                     {
-                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), SelectedItems.Select((Item) => Item.Path).ToArray());
+                                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                                         break;
                                                     }
                                             }
@@ -3949,7 +3938,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -3963,16 +3952,16 @@ namespace RX_Explorer
                 return;
             }
 
-            if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+                QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
             }
             else
             {
@@ -3991,7 +3980,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -4009,7 +3998,7 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
             }
         }
 
@@ -4341,7 +4330,7 @@ namespace RX_Explorer
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
 
-            if (SelectedItems.Count > 1)
+            if (ItemPresenter.SelectedItems.Count > 1)
             {
                 AppBarButton CopyButton = new AppBarButton
                 {
@@ -4683,14 +4672,14 @@ namespace RX_Explorer
                 }
 
 
-                if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
                     DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
 
@@ -4734,7 +4723,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -4749,20 +4738,20 @@ namespace RX_Explorer
             }
 
 
-            if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
             {
                 DecompressDialog Dialog = new DecompressDialog(CurrentFolder.Path);
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
+                    QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
                 }
 
 
@@ -4795,7 +4784,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
             {
                 Item.SetAccentColorAsNormal();
                 SQLite.Current.DeleteFileColor(Item.Path);
@@ -4862,7 +4851,7 @@ namespace RX_Explorer
 
             Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
-            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
             {
                 Item.SetAccentColorAsSpecific(ForegroundColor);
                 SQLite.Current.SetFileColor(Item.Path, ForegroundColor.ToHex());
@@ -4873,9 +4862,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            if (ItemPresenter.SelectedItems.Count > 0)
             {
-                foreach (FileSystemStorageItemBase Item in SelectedItems)
+                foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
                 {
                     switch (Item)
                     {
@@ -5063,7 +5052,7 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendLinkItem);
 
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
                     MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
                     {

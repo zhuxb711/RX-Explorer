@@ -170,6 +170,17 @@ namespace RX_Explorer.Class
             Transaction.Commit();
         }
 
+        public void SetDefaultDisplayMode(int Index)
+        {
+            StringBuilder Builder = new StringBuilder().Append("Drop Table PathConfiguration;")
+                                                       .Append($"Create Table PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default {Index} Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size')), GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending')), Primary Key(Path));");
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection, Transaction);
+            Command.ExecuteNonQuery();
+
+            Transaction.Commit();
+        }
+
         public void SetPathConfiguration(PathConfiguration Configuration)
         {
             using SqliteCommand Command = new SqliteCommand
@@ -257,7 +268,14 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
+                        if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int DisplayModeIndex)
+                        {
+                            return new PathConfiguration(Path, DisplayModeIndex, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
+                        }
+                        else
+                        {
+                            return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
+                        }
                     }
                 }
             }

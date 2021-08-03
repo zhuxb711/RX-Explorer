@@ -406,6 +406,14 @@
                           Name="FileLoadMode"
                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
+                <ComboBox Header="首选文件布局模式"
+                          Margin="0,20,0,0"
+                          MinWidth="150"
+                          Name="DefaultDisplayMode"
+                          x:Uid="DefaultDisplayMode"
+                          ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
+                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+
                 <StackPanel Orientation="Horizontal"
                             Margin="0,20,0,0">
                     <ComboBox Header="默认终端应用"

@@ -150,8 +150,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
+                for (int i = 0; i < CommonAccessCollection.DriveList.Count; i++)
                 {
+                    DriveDataBase Drive = CommonAccessCollection.DriveList[i];
                     if (IsAQSExpression)
                     {
                         await SearchInUwpApi(Drive);

@@ -629,6 +629,7 @@ namespace RX_Explorer
             AutoBoot.Toggled -= AutoBoot_Toggled;
             HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
+            DefaultDisplayMode.SelectionChanged -= DefaultDisplayMode_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked -= SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked -= SeachEngineOptionSave_UnChecked;
@@ -680,6 +681,15 @@ namespace RX_Explorer
                 {
                     DefaultTerminal.SelectedIndex = 0;
                 }
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int DisplayModeIndex)
+            {
+                DefaultDisplayMode.SelectedIndex = DisplayModeIndex;
+            }
+            else
+            {
+                DefaultDisplayMode.SelectedIndex = 1;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
@@ -863,6 +873,7 @@ namespace RX_Explorer
             AutoBoot.Toggled += AutoBoot_Toggled;
             HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
+            DefaultDisplayMode.SelectionChanged += DefaultDisplayMode_SelectionChanged;
 
             BuiltInEngineIgnoreCase.Checked += SeachEngineOptionSave_Checked;
             BuiltInEngineIgnoreCase.Unchecked += SeachEngineOptionSave_UnChecked;
@@ -882,6 +893,23 @@ namespace RX_Explorer
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
         }
 
+        private void DefaultDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] = DefaultDisplayMode.SelectedIndex;
+                SQLite.Current.SetDefaultDisplayMode(DefaultDisplayMode.SelectedIndex);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(DefaultDisplayMode_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
         private void NavigationViewLayout_Toggled(object sender, RoutedEventArgs e)
         {
             try
@@ -899,7 +927,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(NavigationViewLayout_Toggled)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(NavigationViewLayout_Toggled)}");
             }
             finally
             {
@@ -1847,7 +1875,7 @@ namespace RX_Explorer
                         {
                             Control.FolderTree.RootNodes.Clear();
 
-                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
+                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                             {
                                 FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync());
 

@@ -892,7 +892,7 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendLinkItem);
 
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
                     MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
                     {

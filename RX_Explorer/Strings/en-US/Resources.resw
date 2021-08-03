@@ -3255,4 +3255,7 @@ Invalid names include
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>The task has been cancelled by the user</value>
   </data>
+  <data name="DefaultDisplayMode.Title" xml:space="preserve">
+    <value>Preferred file layout mode</value>
+  </data>
 </root>

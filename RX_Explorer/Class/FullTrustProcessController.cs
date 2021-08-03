@@ -339,9 +339,15 @@ namespace RX_Explorer.Class
                         }
                     case CommandType.AppServiceCancelled:
                         {
-                            Dispose();
-                            LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
-                            AppServiceConnectionLost?.Invoke(this, null);
+                            if (!(PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                                || !(PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                                || !(PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                            {
+                                Dispose();
+                                LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
+                                AppServiceConnectionLost?.Invoke(this, null);
+                            }
+
                             break;
                         }
                 }
@@ -438,9 +444,14 @@ namespace RX_Explorer.Class
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            Dispose();
-            AppServiceConnectionLost?.Invoke(this, null);
-            LogTracer.Log("AppServiceConnection is closed, dispose this instance");
+            if (!(PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                || !(PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                || !(PipeProgressReadController?.IsConnected).GetValueOrDefault())
+            {
+                Dispose();
+                AppServiceConnectionLost?.Invoke(this, null);
+                LogTracer.Log("AppServiceConnection is closed, dispose this instance");
+            }
         }
 
         private async Task<IDictionary<string, string>> SendCommandAsync(CommandType Type, params (string, string)[] Arguments)
