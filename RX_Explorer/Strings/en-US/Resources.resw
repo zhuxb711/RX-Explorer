@@ -3258,4 +3258,7 @@ Invalid names include
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Preferred file layout mode</value>
   </data>
+  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+    <value>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</value>
+  </data>
 </root>

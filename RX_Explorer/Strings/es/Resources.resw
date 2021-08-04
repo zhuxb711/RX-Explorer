@@ -3153,4 +3153,7 @@ Las denominaciones no válidas son:
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Modo de diseño de archivo preferido</value>
   </data>
+  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+    <value>Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</value>
+  </data>
 </root>

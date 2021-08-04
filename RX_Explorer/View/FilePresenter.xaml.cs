@@ -4982,7 +4982,6 @@ namespace RX_Explorer
         private void GroupAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
             GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending);
         }
@@ -4990,7 +4989,6 @@ namespace RX_Explorer
         private void GroupDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
             GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending);
         }

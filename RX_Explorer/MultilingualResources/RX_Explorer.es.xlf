@@ -4184,6 +4184,10 @@ Las denominaciones no válidas son:
           <source>Preferred file layout mode</source>
           <target state="translated">Modo de diseño de archivo preferido</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+          <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
+          <target state="translated">Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

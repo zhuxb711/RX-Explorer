@@ -351,6 +351,8 @@
                              IsTitleBarAutoPaddingEnabled="True"
                              SelectionFollowsFocus="Disabled"
                              IsRightTapEnabled="True"
+                             IsHoldingEnabled="True"
+                             Holding="NavView_Holding"
                              BackRequested="NavView_BackRequested"
                              ItemInvoked="NavView_ItemInvoked"
                              PaneClosing="NavView_PaneClosing"

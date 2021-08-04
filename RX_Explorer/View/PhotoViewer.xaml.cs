@@ -1,4 +1,5 @@
 ﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -16,6 +16,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System.UserProfile;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -223,49 +224,56 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
             {
-                ScrollViewer Viewer = (ScrollViewer)sender;
-                Point TapPoint = e.GetPosition(Viewer);
-                if (Math.Abs(Viewer.ZoomFactor - 1.0) < 1E-06)
+                if (sender is ScrollViewer Viewer)
                 {
-                    var ImageInSide = Viewer.FindChildOfType<Image>();
-                    _ = Viewer.ChangeView(TapPoint.X, TapPoint.Y - (Viewer.ActualHeight - ImageInSide.ActualHeight), 2);
-                }
-                else
-                {
-                    _ = Viewer.ChangeView(null, null, 1);
+                    Point TapPoint = e.GetPosition(Viewer);
+
+                    if (Math.Abs(Viewer.ZoomFactor - 1.0) < 1E-6)
+                    {
+                        Viewer.ChangeView(TapPoint.X, TapPoint.Y, 2);
+                    }
+                    else
+                    {
+                        Viewer.ChangeView(null, null, 1);
+                    }
                 }
             }
         }
 
         private void ScrollViewerMain_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            ScrollViewer Viewer = (ScrollViewer)sender;
-
-            if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            if (sender is ScrollViewer Viewer)
             {
-                var Point = e.GetCurrentPoint(Viewer);
-                if (Point.Properties.IsLeftButtonPressed)
+                if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
                 {
-                    var Position = Point.Position;
+                    PointerPoint Point = e.GetCurrentPoint(Viewer);
 
-                    Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Position.Y), null);
+                    if (Point.Properties.IsLeftButtonPressed)
+                    {
+                        Point Position = Point.Position;
+
+                        Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Position.Y), null);
+                    }
                 }
             }
         }
 
         private void ScrollViewerMain_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            ScrollViewer Viewer = (ScrollViewer)sender;
-
-            if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            if (sender is ScrollViewer Viewer)
             {
-                Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
-                var Point = e.GetCurrentPoint(Viewer);
-                if (Point.Properties.IsLeftButtonPressed)
+                if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
                 {
-                    OriginMousePosition = Point.Position;
-                    OriginHorizonOffset = Viewer.HorizontalOffset;
-                    OriginVerticalOffset = Viewer.VerticalOffset;
+                    Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
+
+                    PointerPoint Point = e.GetCurrentPoint(Viewer);
+
+                    if (Point.Properties.IsLeftButtonPressed)
+                    {
+                        OriginMousePosition = Point.Position;
+                        OriginHorizonOffset = Viewer.HorizontalOffset;
+                        OriginVerticalOffset = Viewer.VerticalOffset;
+                    }
                 }
             }
         }
@@ -279,8 +287,11 @@ namespace RX_Explorer
         {
             PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
 
-            if (Flip.ContainerFromItem(Item) is DependencyObject Container && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
+            if (Flip.ContainerFromItem(Item) is FlipViewItem Container
+                && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
             {
+                VisualExtensions.SetNormalizedCenterPoint(Viewer, "0.5");
+
                 switch (Item.RotateAngle % 360)
                 {
                     case 0:
@@ -288,23 +299,19 @@ namespace RX_Explorer
                         {
                             DoubleAnimation WidthAnimation = new DoubleAnimation
                             {
-                                From = Flip.ActualWidth,
-                                To = Flip.ActualHeight,
-                                Duration = TimeSpan.FromMilliseconds(500),
+                                From = Container.ActualWidth,
+                                To = Container.ActualHeight,
+                                Duration = TimeSpan.FromMilliseconds(300),
                                 EnableDependentAnimation = true,
-                                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                                EasingFunction = new PowerEase { Power = 1, EasingMode = EasingMode.EaseOut }
                             };
 
                             Storyboard.SetTarget(WidthAnimation, Viewer);
                             Storyboard.SetTargetProperty(WidthAnimation, "Width");
 
-                            Vector2 StartRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualWidth / 2), Convert.ToSingle(Flip.ActualHeight / 2));
-                            Vector2 EndRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualHeight / 2), Convert.ToSingle(Flip.ActualHeight / 2));
-
                             await AnimationBuilder.Create()
-                                                  .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
                                                   .ExternalAnimation(WidthAnimation)
-                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(300), easingType: EasingType.Linear, easingMode: EasingMode.EaseOut)
                                                   .StartAsync(Viewer);
 
                             break;
@@ -314,23 +321,19 @@ namespace RX_Explorer
                         {
                             DoubleAnimation HeightAnimation = new DoubleAnimation
                             {
-                                From = Flip.ActualHeight,
-                                To = Flip.ActualWidth,
-                                Duration = TimeSpan.FromMilliseconds(500),
+                                From = Container.ActualHeight,
+                                To = Container.ActualWidth,
+                                Duration = TimeSpan.FromMilliseconds(300),
                                 EnableDependentAnimation = true,
-                                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                                EasingFunction = new PowerEase { Power = 1, EasingMode = EasingMode.EaseOut }
                             };
 
                             Storyboard.SetTarget(HeightAnimation, Viewer);
                             Storyboard.SetTargetProperty(HeightAnimation, "Width");
 
-                            Vector2 StartRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualHeight / 2), Convert.ToSingle(Flip.ActualHeight / 2));
-                            Vector2 EndRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualWidth / 2), Convert.ToSingle(Flip.ActualHeight / 2));
-
                             await AnimationBuilder.Create()
-                                                  .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
                                                   .ExternalAnimation(HeightAnimation)
-                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(300), easingType: EasingType.Linear, easingMode: EasingMode.EaseOut)
                                                   .StartAsync(Viewer);
 
                             break;

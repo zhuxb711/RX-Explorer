@@ -4186,6 +4186,10 @@ Les noms non valides incluent
           <source>Preferred file layout mode</source>
           <target state="translated">Mode de disposition de fichier préféré</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+          <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
+          <target state="translated">Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</target>
+        </trans-unit>
       </group>
     </body>
   </file>

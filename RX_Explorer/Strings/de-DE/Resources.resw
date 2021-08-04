@@ -3153,4 +3153,7 @@ Inkorrekte Namen sind
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Bevorzugter Dateilayoutmodus</value>
   </data>
+  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+    <value>Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</value>
+  </data>
 </root>

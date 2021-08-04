@@ -436,8 +436,7 @@ namespace RX_Explorer.Class
                     {
                         Flyout?.ShowAt(RelatedTo, new FlyoutShowOptions
                         {
-                            Position = ShowAt,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                            Position = ShowAt
                         });
                     }
                     catch (Exception ex)

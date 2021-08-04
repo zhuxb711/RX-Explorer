@@ -75,12 +75,13 @@
                                   HorizontalScrollMode="Enabled"
                                   VerticalScrollMode="Enabled"
                                   HorizontalScrollBarVisibility="Hidden"
-                                  VerticalScrollBarVisibility="Hidden">
+                                  VerticalScrollBarVisibility="Hidden"
+                                  HorizontalContentAlignment="Stretch"
+                                  VerticalContentAlignment="Stretch">
                         <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
                                MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
                                Source="{x:Bind BitmapSource,Mode=OneWay}"
-                               Stretch="Uniform">
-                        </Image>
+                               Stretch="Uniform" />
                     </ScrollViewer>
                 </DataTemplate>
             </FlipView.ItemTemplate>

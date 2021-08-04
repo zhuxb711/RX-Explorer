@@ -570,7 +570,7 @@ namespace RX_Explorer
                         }
                 }
 
-                await ShowUpdateTipsIfNeeded();
+                await CheckUpdateIfExistAsync();
                 await PopDiscountPurchaseApplicationAsync();
             }
             catch (Exception ex)
@@ -579,20 +579,36 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ShowUpdateTipsIfNeeded()
+        private async Task CheckUpdateIfExistAsync()
         {
             if (await MSStoreHelper.Current.CheckHasUpdateAsync())
             {
-                Button ActionButton = new Button
+                if (await MSStoreHelper.Current.CheckIfUpdateIsMandatoryAsync())
                 {
-                    Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                };
-                ActionButton.Click += async (s, e) =>
-                {
-                    await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                };
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        Content = Globalization.GetString("QueueDialog_ForceUpdate_Content"),
+                        CloseButtonText = Globalization.GetString("CloseButton/Content")
+                    };
 
-                ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                    await Dialog.ShowAsync();
+
+                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                }
+                else
+                {
+                    Button ActionButton = new Button
+                    {
+                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                    };
+                    ActionButton.Click += async (s, e) =>
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
+                    };
+
+                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                }
             }
         }
 
@@ -1499,6 +1515,22 @@ namespace RX_Explorer
                 }
 
                 ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void NavView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                switch (e.OriginalSource)
+                {
+                    case Grid Gr when Gr.Name == "LayoutRoot" || Gr.Name == "PaneRoot":
+                    case DependencyObject Obj when Obj.FindParentOfType<NavigationViewItem>() != null:
+                        {
+                            NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions { Position = e.GetPosition(NavView) });
+                            break;
+                        }
+                }
             }
         }
     }

@@ -970,8 +970,7 @@ namespace RX_Explorer
                             {
                                 QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
                                 {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                    Position = e.GetPosition((FrameworkElement)sender)
                                 });
                             }
                             else
@@ -1997,8 +1996,7 @@ namespace RX_Explorer
                             {
                                 QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
                                 {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                    Position = e.GetPosition((FrameworkElement)sender)
                                 });
                             }
                             else

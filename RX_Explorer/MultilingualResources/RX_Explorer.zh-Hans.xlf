@@ -4186,6 +4186,10 @@ Invalid names include
           <source>Preferred file layout mode</source>
           <target state="translated">首选文件布局模式</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+          <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
+          <target state="translated">一个强制更新已发布，这表明您正在使用的版本可能存在严重问题，请停止使用当前版本并尽快更新至最新版</target>
+        </trans-unit>
       </group>
     </body>
   </file>

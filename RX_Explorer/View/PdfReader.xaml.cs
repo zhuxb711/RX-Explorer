@@ -67,23 +67,23 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            LastPageIndex = 0;
-            ZoomFactor = 100;
-
-            Cancellation = new CancellationTokenSource();
-            LoadQueue = new ConcurrentQueue<int>();
-            LoadTable = new HashSet<uint>();
-            PdfCollection = new ObservableCollection<BitmapImage>();
-
-            Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
-            Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
-
-            AddHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler, true);
-
             if (e.Parameter is FileSystemStorageFile Parameters)
             {
+                LastPageIndex = 0;
+                ZoomFactor = 100;
                 FileNameDisplay.Text = Parameters.Name;
+
+                Cancellation = new CancellationTokenSource();
+                LoadQueue = new ConcurrentQueue<int>();
+                LoadTable = new HashSet<uint>();
+                PdfCollection = new ObservableCollection<BitmapImage>();
+
                 await InitializeAsync(Parameters);
+
+                AddHandler(PointerWheelChangedEvent, PointerWheelChangedEventHandler, true);
+
+                Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
+                Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
             }
         }
 
@@ -282,7 +282,7 @@ namespace RX_Explorer
                 {
                     Point TapPoint = e.GetPosition(Viewer);
 
-                    if (Math.Abs(Viewer.ZoomFactor - 1f) <= 1E-6)
+                    if (Math.Abs(Viewer.ZoomFactor - 1f) < 1E-6)
                     {
                         ZoomFactor = 200;
                         Viewer.ChangeView(TapPoint.X, TapPoint.Y, 2f);
@@ -298,22 +298,23 @@ namespace RX_Explorer
 
         private void ScrollViewerMain_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            ScrollViewer Viewer = (ScrollViewer)sender;
-
-            if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            if (sender is ScrollViewer Viewer)
             {
-                PointerPoint Point = e.GetCurrentPoint(Viewer);
-
-                if (Point.Properties.IsLeftButtonPressed)
+                if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType != PointerDeviceType.Touch)
                 {
-                    Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Point.Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Point.Position.Y), null);
+                    PointerPoint Point = e.GetCurrentPoint(Viewer);
+
+                    if (Point.Properties.IsLeftButtonPressed)
+                    {
+                        Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Point.Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Point.Position.Y), null);
+                    }
                 }
             }
         }
 
         private void ScrollViewerMain_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            if (e.Pointer.PointerDeviceType != PointerDeviceType.Touch)
             {
                 if (sender is ScrollViewer Viewer)
                 {
@@ -376,13 +377,31 @@ namespace RX_Explorer
         private void PanelToggle_Checked(object sender, RoutedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["PdfPanelHorizontal"] = true;
+
+            int CurrentIndex = Flip.SelectedIndex;
+
+            Flip.SelectionChanged -= Flip_SelectionChanged_TaskOne;
+            Flip.SelectionChanged -= Flip_SelectionChanged_TaskTwo;
+            Flip.SelectedIndex = -1;
             Flip.ItemsPanel = HorizontalPanel;
+            Flip.SelectedIndex = CurrentIndex;
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
         }
 
         private void PanelToggle_Unchecked(object sender, RoutedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["PdfPanelHorizontal"] = false;
+
+            int CurrentIndex = Flip.SelectedIndex;
+
+            Flip.SelectionChanged -= Flip_SelectionChanged_TaskOne;
+            Flip.SelectionChanged -= Flip_SelectionChanged_TaskTwo;
+            Flip.SelectedIndex = -1;
             Flip.ItemsPanel = VerticalPanel;
+            Flip.SelectedIndex = CurrentIndex;
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskOne;
+            Flip.SelectionChanged += Flip_SelectionChanged_TaskTwo;
         }
 
         private void Flyout_Opening(object sender, object e)

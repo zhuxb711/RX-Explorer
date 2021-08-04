@@ -375,8 +375,7 @@ namespace RX_Explorer
 
                     DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
                     {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                        Position = e.GetPosition((FrameworkElement)sender)
                     });
                 }
             }
@@ -442,8 +441,7 @@ namespace RX_Explorer
                 {
                     LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
                     {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                        Position = e.GetPosition((FrameworkElement)sender)
                     });
                 }
             }
@@ -587,8 +585,7 @@ namespace RX_Explorer
                 {
                     LibraryFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
                     {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                        Position = e.GetPosition((FrameworkElement)sender)
                     });
                 }
             }
@@ -626,8 +623,7 @@ namespace RX_Explorer
 
                     DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
                     {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                        Position = e.GetPosition((FrameworkElement)sender)
                     });
                 }
             }

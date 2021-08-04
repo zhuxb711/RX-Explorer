@@ -97,6 +97,33 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<bool> CheckIfUpdateIsMandatoryAsync()
+        {
+            if (PreLoadTask == null)
+            {
+                PreLoadStoreData();
+            }
+
+            await PreLoadTask;
+
+            if (Updates != null)
+            {
+                foreach (StorePackageUpdate Update in Updates)
+                {
+                    if (Update.Mandatory)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task<StorePurchaseStatus> PurchaseAsync()
         {
             try

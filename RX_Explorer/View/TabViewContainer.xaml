@@ -18,7 +18,7 @@
                         VerticalAlignment="Center">
                 <TextBlock Text="{Binding}"
                            TextTrimming="CharacterEllipsis"
-                           TextWrapping="NoWrap"/>
+                           TextWrapping="NoWrap" />
             </StackPanel>
         </DataTemplate>
 
@@ -47,7 +47,7 @@
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
-               OpenPaneLength="350"
+               OpenPaneLength="330"
                x:FieldModifier="public">
         <SplitView.PaneBackground>
             <AcrylicBrush BackgroundSource="Backdrop"

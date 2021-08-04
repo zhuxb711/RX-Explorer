@@ -3153,4 +3153,7 @@
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>首選文件佈局模式</value>
   </data>
+  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+    <value>已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</value>
+  </data>
 </root>

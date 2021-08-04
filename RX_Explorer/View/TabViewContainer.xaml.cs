@@ -7,8 +7,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
@@ -21,6 +23,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
+using AnimationController = RX_Explorer.Class.AnimationController;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -34,6 +38,8 @@ namespace RX_Explorer
         public ObservableCollection<TabViewItem> TabCollection { get; private set; } = new ObservableCollection<TabViewItem>();
 
         public static TabViewContainer Current { get; private set; }
+
+        private CancellationTokenSource DelayPreviewCancel;
 
         public TabViewContainer()
         {
@@ -599,8 +605,23 @@ namespace RX_Explorer
                 HeaderTemplate = TabViewItemHeaderTemplate
             };
             Item.DragEnter += Item_DragEnter;
+            Item.PointerEntered += Item_PointerEntered;
+            Item.PointerExited += Item_PointerExited;
             Item.PointerPressed += Item_PointerPressed;
+            Item.PointerCanceled += Item_PointerCanceled;
             Item.DoubleTapped += Item_DoubleTapped;
+
+            Flyout PreviewFlyout = new Flyout
+            {
+                FlyoutPresenterStyle = new Style()
+            };
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxHeightProperty, 500));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxWidthProperty, 500));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(PaddingProperty, 0));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, 2));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(BackgroundProperty, Application.Current.Resources.ThemeDictionaries["SystemControlChromeHighAcrylicElementMediumBrush"]));
+
+            FlyoutBase.SetAttachedFlyout(Item, PreviewFlyout);
 
             List<string> ValidPathArray = new List<string>();
 
@@ -641,6 +662,87 @@ namespace RX_Explorer
             }
 
             return Item;
+        }
+
+        private void Item_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DelayPreviewCancel?.Cancel();
+        }
+
+        private void Item_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DelayPreviewCancel?.Cancel();
+        }
+
+        private void Item_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DelayPreviewCancel?.Cancel();
+            DelayPreviewCancel?.Dispose();
+            DelayPreviewCancel = new CancellationTokenSource();
+
+            Task.Delay(1200).ContinueWith(async (task, input) =>
+            {
+                try
+                {
+                    if (input is (CancellationTokenSource CancelSource, TabViewItem Item))
+                    {
+                        if (!CancelSource.IsCancellationRequested)
+                        {
+                            if (TabViewControl.SelectedItem == Item)
+                            {
+                                if (Item.Content is Frame Control)
+                                {
+                                    RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
+
+                                    await PreviewBitmap.RenderAsync(Control);
+
+                                    if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                                    {
+                                        if (PreviewFlyout.Content is Image ExistPreviewImage)
+                                        {
+                                            ExistPreviewImage.Source = PreviewBitmap;
+                                        }
+                                        else
+                                        {
+                                            PreviewFlyout.Content = new Image
+                                            {
+                                                Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
+                                                MaxHeight = 450,
+                                                MaxWidth = 450,
+                                                Source = PreviewBitmap
+                                            };
+                                        }
+
+                                        PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                        {
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                                {
+                                    if (PreviewFlyout.Content != null)
+                                    {
+                                        PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                        {
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not render a preview image");
+                }
+            }, (DelayPreviewCancel, (TabViewItem)sender), TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async void Item_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -707,7 +809,7 @@ namespace RX_Explorer
             }
         }
 
-        private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             foreach (Frame Nav in TabCollection.Select((Item) => Item.Content as Frame))
             {
@@ -732,6 +834,38 @@ namespace RX_Explorer
                 }
 
                 MainPage.Current.NavView.IsBackEnabled = (MainPage.Current.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
+
+                try
+                {
+                    if (Item.Content is Frame Control)
+                    {
+                        RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
+
+                        await PreviewBitmap.RenderAsync(Control);
+
+                        if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                        {
+                            if (PreviewFlyout.Content is Image ExistPreviewImage)
+                            {
+                                ExistPreviewImage.Source = PreviewBitmap;
+                            }
+                            else
+                            {
+                                PreviewFlyout.Content = new Image
+                                {
+                                    Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
+                                    MaxHeight = 450,
+                                    MaxWidth = 450,
+                                    Source = PreviewBitmap
+                                };
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not render a preview image");
+                }
             }
         }
 
@@ -946,7 +1080,10 @@ namespace RX_Explorer
             }
 
             Tab.DragEnter -= Item_DragEnter;
+            Tab.PointerEntered -= Item_PointerEntered;
+            Tab.PointerExited -= Item_PointerExited;
             Tab.PointerPressed -= Item_PointerPressed;
+            Tab.PointerCanceled -= Item_PointerCanceled;
             Tab.DoubleTapped -= Item_DoubleTapped;
             Tab.Content = null;
 
@@ -991,8 +1128,7 @@ namespace RX_Explorer
 
                 FlyoutShowOptions Option = new FlyoutShowOptions
                 {
-                    Position = e.GetPosition(Item),
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    Position = e.GetPosition(Item)
                 };
 
                 TabCommandFlyout?.ShowAt(Item, Option);
