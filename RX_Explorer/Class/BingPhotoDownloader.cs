@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.Storage;
+using Windows.Storage.Search;
 
 namespace RX_Explorer.Class
 {
@@ -178,23 +179,34 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (await FileSystemStorageItemBase.OpenAsync(ApplicationData.Current.TemporaryFolder.Path) is FileSystemStorageFolder TempFolder)
+                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions
                 {
-                    IEnumerable<FileSystemStorageItemBase> AllPreviousPictureList = await TempFolder.GetChildItemsAsync(false, false, Filter: BasicFilters.File, AdvanceFilter: (Name) => Name.StartsWith("BingDailyPicture_Cache", StringComparison.OrdinalIgnoreCase));
+                    FolderDepth = FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.DoNotUseIndexer,
+                    ApplicationSearchFilter = "System.FileName:~<\"BingDailyPicture_Cache\""
+                });
 
-                    if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
+                IReadOnlyList<StorageFile> AllPreviousPictureList = await Query.GetFilesAsync();
+
+                if (AllPreviousPictureList.All((Item) =>
+                {
+                    if (DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate))
                     {
-                        foreach (FileSystemStorageItemBase ToDelete in AllPreviousPictureList)
-                        {
-                            await ToDelete.DeleteAsync(true);
-                        }
-
-                        return true;
+                        return LastUpdateDate < DateTime.Now.Date;
                     }
                     else
                     {
+                        LogTracer.Log("Parse the download time failed, could not check if we need to update bing picture");
                         return false;
                     }
+                }))
+                {
+                    foreach (StorageFile ToDelete in AllPreviousPictureList)
+                    {
+                        await ToDelete.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+
+                    return true;
                 }
                 else
                 {

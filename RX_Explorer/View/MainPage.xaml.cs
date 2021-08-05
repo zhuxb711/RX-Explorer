@@ -91,20 +91,6 @@ namespace RX_Explorer
             {
                 AppName.Text += $" ({Globalization.GetString("Development_Version")})";
             }
-            else
-            {
-                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
-                {
-                    if (!Convert.ToBoolean(GrantState))
-                    {
-                        AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
-                    }
-                }
-                else
-                {
-                    AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
-                }
-            }
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
             NavView.PaneDisplayMode = SettingControl.LayoutMode;
@@ -570,8 +556,12 @@ namespace RX_Explorer
                         }
                 }
 
+                if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
+                }
+
                 await CheckUpdateIfExistAsync();
-                await PopDiscountPurchaseApplicationAsync();
             }
             catch (Exception ex)
             {

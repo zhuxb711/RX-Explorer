@@ -2330,40 +2330,43 @@ namespace RX_Explorer
 
                                     foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
                                     {
-                                        switch (Pair.Value.ValueKind)
+                                        if (Pair.Key != "LicenseGrant")
                                         {
-                                            case JsonValueKind.Number:
-                                                {
-                                                    if (Pair.Value.TryGetInt32(out int INT32))
+                                            switch (Pair.Value.ValueKind)
+                                            {
+                                                case JsonValueKind.Number:
                                                     {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
-                                                    }
-                                                    else if (Pair.Value.TryGetInt64(out long INT64))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
-                                                    }
-                                                    else if (Pair.Value.TryGetSingle(out float FL32))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
-                                                    }
-                                                    else if (Pair.Value.TryGetDouble(out double FL64))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
-                                                    }
+                                                        if (Pair.Value.TryGetInt32(out int INT32))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
+                                                        }
+                                                        else if (Pair.Value.TryGetInt64(out long INT64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
+                                                        }
+                                                        else if (Pair.Value.TryGetSingle(out float FL32))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
+                                                        }
+                                                        else if (Pair.Value.TryGetDouble(out double FL64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
+                                                        }
 
-                                                    break;
-                                                }
-                                            case JsonValueKind.String:
-                                                {
-                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
-                                                    break;
-                                                }
-                                            case JsonValueKind.True:
-                                            case JsonValueKind.False:
-                                                {
-                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
-                                                    break;
-                                                }
+                                                        break;
+                                                    }
+                                                case JsonValueKind.String:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
+                                                        break;
+                                                    }
+                                                case JsonValueKind.True:
+                                                case JsonValueKind.False:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
+                                                        break;
+                                                    }
+                                            }
                                         }
                                     }
 
@@ -2572,8 +2575,11 @@ namespace RX_Explorer
                         }
                     }
 
+                    Dictionary<string, object> ConfigDic = new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray());
+                    ConfigDic.Remove("LicenseGrant");
+
                     string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
-                    string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+                    string ConfigurationString = JsonSerializer.Serialize(ConfigDic);
                     string CustomImageString = JsonSerializer.Serialize(CustomImageDataPackageList);
 
                     using (MD5 MD5Alg = MD5.Create())

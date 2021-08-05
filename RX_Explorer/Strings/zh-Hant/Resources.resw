@@ -2854,7 +2854,7 @@
     <value>回到首頁</value>
   </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
-    <value>主页</value>
+    <value>主頁</value>
   </data>
   <data name="RootStorageFolderDisplayName" xml:space="preserve">
     <value>這台電腦</value>

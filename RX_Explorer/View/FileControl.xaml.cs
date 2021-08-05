@@ -54,8 +54,6 @@ namespace RX_Explorer
 
         private int CreateBladeLockResource;
 
-        private int SizeChangeLockResource;
-
         private readonly PointerEventHandler BladePointerPressedEventHandler;
         private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
         private readonly PointerEventHandler GoBackButtonPressedHandler;
@@ -2572,36 +2570,44 @@ namespace RX_Explorer
 
         private void BladeViewer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (Interlocked.Exchange(ref SizeChangeLockResource, 1) == 0)
+            try
             {
-                try
+                if (BladeViewer.Items.Count > 1)
                 {
-                    if (BladeViewer.Items.Count > 1)
+                    foreach (BladeItem Item in BladeViewer.Items.Cast<BladeItem>())
                     {
-                        foreach (BladeItem Item in BladeViewer.Items.Cast<BladeItem>())
+                        if (Item.Height != e.NewSize.Height)
                         {
                             Item.Height = e.NewSize.Height;
+                        }
 
-                            if (Item.IsExpanded)
+                        if (Item.IsExpanded)
+                        {
+                            double NewWidth = e.NewSize.Width / 2;
+
+                            if (Item.Width != NewWidth)
                             {
-                                Item.Width = e.NewSize.Width / 2;
+                                Item.Width = NewWidth;
                             }
                         }
                     }
-                    else if (BladeViewer.Items.FirstOrDefault() is BladeItem Item)
+                }
+                else if (BladeViewer.Items.FirstOrDefault() is BladeItem Item)
+                {
+                    if (Item.Height != e.NewSize.Height)
                     {
                         Item.Height = e.NewSize.Height;
+                    }
+
+                    if (Item.Width != e.NewSize.Width)
+                    {
                         Item.Width = e.NewSize.Width;
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not adjust the size of BladeItem");
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref SizeChangeLockResource, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not adjust the size of BladeItem");
             }
         }
 

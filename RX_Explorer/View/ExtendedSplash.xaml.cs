@@ -47,7 +47,7 @@ namespace RX_Explorer
 
             if (Package.Current.IsDevelopmentMode)
             {
-                AppName.Text += " (Development Mode)";
+                AppName.Text += $" ({Globalization.GetString("Development_Version")})";
             }
 
             Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");

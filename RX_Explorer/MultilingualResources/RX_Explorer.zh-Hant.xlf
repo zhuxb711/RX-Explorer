@@ -3789,7 +3789,7 @@ Invalid names include
         </trans-unit>
         <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
           <source>Home Page</source>
-          <target state="translated">主页</target>
+          <target state="translated">主頁</target>
         </trans-unit>
         <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
           <source>This PC</source>
