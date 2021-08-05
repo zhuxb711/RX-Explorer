@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.6.9.2.0
+
+#####Feature update
+
+>#####New tab preview flyout
+
+>#####New setting item "Preferred File Layout Mode"
+
+>#####Compatible with WeChat’s irregular behavior when copying files
+
+#####UI update
+
+>#####Provides a backup method for files that cannot get thumbnails to improve the success rate of getting thumbnails
+
+>#####Improved the UI design of Bluetooth sharing
+
+>#####Added a "..." suffix to the title of a tab that is too long
+
+>#####File infrastructure Updated
+
+#####Bug fix
+
+>#####Fixed the problem that may cause the UI to freeze in some cases
+
+>#####Fixed the problem that if Win+E is turned on and the "Always start a new process when activating" option is unchecked, the setting item may not be followed when RX is minimized
+
+>#####Fixed the problem that the normal startup behavior will be affected after unchecking the "Always start a new process on activation" option
+
+>#####Fixed the problem that may cause the number of nodes in the directory tree to be inconsistent with the number of drives
+
+>#####Fixed an issue that may cause the built-in PDF viewer to crash
+
+>#####Fixed the problem that may cause fast page turning when switching the scroll direction of the built-in PDF viewer
+
+>#####Fixed the problem that the built-in picture viewer may shake when rotating pictures
+
+*****
 ###What's new in Ver.6.8.9.0
 
 #####Feature update

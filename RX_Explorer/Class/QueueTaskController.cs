@@ -855,7 +855,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref ProgressChangedLockResource, 0);
+                    Interlocked.Exchange(ref ProgressChangedLockResource, 0);
                 }
             }
         }

@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -90,7 +91,20 @@ namespace RX_Explorer
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            LogTracer.MakeSureLogIsFlushed(Math.Min((int)(e.SuspendingOperation.Deadline - DateTimeOffset.Now).TotalMilliseconds, 3000));
+            SuspendingDeferral Deferral = e.SuspendingOperation.GetDeferral();
+
+            try
+            {
+                LogTracer.MakeSureLogIsFlushed(Math.Min((int)((e.SuspendingOperation.Deadline - DateTimeOffset.Now).TotalMilliseconds - 500), 3000));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"A exception was threw when suspending, message: {ex}");
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)

@@ -214,7 +214,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref LockResource, 0);
+                    Interlocked.Exchange(ref LockResource, 0);
                     ExitLocker.Set();
                 }
             }

@@ -1,4 +1,41 @@
 ﻿*****
+###Novedades de la versión 6.9.2.0
+
+#####Actualización de funciones
+
+>#####Nueva pestaña desplegable de vista previa
+
+>#####Nuevo elemento de configuración "Modo de diseño de archivo preferido"
+
+>#####Compatible con el comportamiento irregular de WeChat al copiar archivos
+
+#####Actualización de la interfaz de usuario
+
+>#####Proporciona un método de copia de seguridad para archivos que no pueden obtener miniaturas para mejorar la tasa de éxito al obtener miniaturas
+
+>#####Se mejoró el diseño de la interfaz de usuario del uso compartido de Bluetooth
+
+>#####Se agregó un sufijo "..." al título de una pestaña que es demasiado larga
+
+>#####Infraestructura de archivos actualizada
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema que podía hacer que la interfaz de usuario se congelara en algunos casos
+
+>#####Se solucionó el problema de que si Win + E está activado y la opción "Iniciar siempre un nuevo proceso al activar" no está marcada, el elemento de configuración puede no ser seguido cuando RX está minimizado.
+
+>#####Se solucionó el problema de que el comportamiento de inicio normal se vería afectado después de desmarcar la opción "Iniciar siempre un nuevo proceso en la activación"
+
+>#####Se solucionó el problema que podía causar que la cantidad de nodos en el árbol de directorios no coincidiera con la cantidad de unidades
+
+>#####Se solucionó un problema que podía hacer que el visor de PDF integrado se bloqueara
+
+>#####Se solucionó el problema que podía causar un cambio rápido de página al cambiar la dirección de desplazamiento del visor de PDF integrado
+
+>#####Se solucionó el problema de que el visor de imágenes incorporado podía temblar al girar las imágenes
+
+*****
 ###Novedades de la versión 6.8.9.0
 
 #####Actualización de funciones

@@ -1,6 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
-using Microsoft.Toolkit.Uwp.UI.Animations;
-using Microsoft.Toolkit.Uwp.UI.Controls;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
@@ -9,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Text.Json;
@@ -121,23 +118,13 @@ namespace RX_Explorer
                 {
                     RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
 
-                    await PreviewBitmap.RenderAsync(Element, 400, 250);
+                    await PreviewBitmap.RenderAsync(Element, 750, 450);
 
                     if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                     {
-                        if (PreviewFlyout.Content is Image ExistPreviewImage)
+                        if (PreviewFlyout.Content is Image PreviewImage)
                         {
-                            ExistPreviewImage.Source = PreviewBitmap;
-                        }
-                        else
-                        {
-                            PreviewFlyout.Content = new Image
-                            {
-                                Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
-                                Height = 250,
-                                Width = 400,
-                                Source = PreviewBitmap
-                            };
+                            PreviewImage.Source = PreviewBitmap;
                         }
                     }
                 }
@@ -668,20 +655,18 @@ namespace RX_Explorer
 
             Flyout PreviewFlyout = new Flyout
             {
-                FlyoutPresenterStyle = new Style(),
+                FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter)),
                 Content = new Image
                 {
                     Stretch = Stretch.Uniform,
-                    VerticalAlignment = VerticalAlignment.Stretch,
-                    HorizontalAlignment = HorizontalAlignment.Stretch
+                    Height = 300,
+                    Width = 500
                 }
             };
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxHeightProperty, 250));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxWidthProperty, 400));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(HeightProperty, 250));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(WidthProperty, 400));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxHeightProperty, 320));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxWidthProperty, 520));
             PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(PaddingProperty, 0));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, 2));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, 5));
             PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(BackgroundProperty, Application.Current.Resources.ThemeDictionaries["SystemControlChromeHighAcrylicElementMediumBrush"]));
             FlyoutBase.SetAttachedFlyout(Item, PreviewFlyout);
 
@@ -742,7 +727,7 @@ namespace RX_Explorer
             DelayPreviewCancel?.Dispose();
             DelayPreviewCancel = new CancellationTokenSource();
 
-            Task.Delay(1200).ContinueWith((task, input) =>
+            Task.Delay(1000).ContinueWith((task, input) =>
             {
                 try
                 {
@@ -752,14 +737,11 @@ namespace RX_Explorer
                         {
                             if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                             {
-                                if (PreviewFlyout.Content is Image PreviewImage && PreviewImage.Source != null)
+                                PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
                                 {
-                                    PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
-                                    {
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
-                                    });
-                                }
+                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
+                                });
                             }
                         }
                     }

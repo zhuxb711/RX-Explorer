@@ -1,4 +1,41 @@
 ﻿*****
+###Was ist neu in Ver.6.9.2.0
+
+#####Funktionsupdate
+
+>#####Vorschau-Flyout für neue Registerkarten
+
+>#####Neuer Einstellungspunkt "Bevorzugter Dateilayoutmodus"
+
+>#####Kompatibel mit dem unregelmäßigen Verhalten von WeChat beim Kopieren von Dateien
+
+#####UI-Update
+
+>#####Bietet eine Sicherungsmethode für Dateien, die keine Miniaturansichten erhalten können, um die Erfolgsrate beim Abrufen von Miniaturansichten zu verbessern
+
+>#####Das UI-Design der Bluetooth-Freigabe wurde verbessert
+
+>#####Ein "..."-Suffix zum Titel eines zu langen Tabs hinzugefügt
+
+>#####Dateiinfrastruktur aktualisiert
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, das in einigen Fällen zum Einfrieren der Benutzeroberfläche führen kann
+
+>#####Das Problem wurde behoben, dass, wenn Win+E eingeschaltet ist und die Option "Bei Aktivierung immer einen neuen Prozess starten" deaktiviert ist, der Einstellungspunkt möglicherweise nicht befolgt wird, wenn RX minimiert wird
+
+>#####Das Problem wurde behoben, dass das normale Startverhalten beeinträchtigt wird, wenn die Option "Bei Aktivierung immer einen neuen Prozess starten" deaktiviert wird
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass die Anzahl der Knoten im Verzeichnisbaum nicht mit der Anzahl der Laufwerke übereinstimmt
+
+>#####Es wurde ein Problem behoben, das zum Absturz des integrierten PDF-Viewers führen kann
+
+>#####Das Problem wurde behoben, das beim Wechseln der Bildlaufrichtung des integrierten PDF-Viewers zu einem schnellen Umblättern führen kann
+
+>#####Das Problem, dass der eingebaute Bildbetrachter beim Drehen von Bildern wackeln kann, wurde behoben
+
+*****
 ###Was ist neu in Ver.6.8.9.0
 
 #####Funktionsupdate

@@ -1,4 +1,41 @@
 ﻿*****
+###Quoi de neuf dans la version 6.9.2.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Nouvel onglet d'aperçu déroulant
+
+>#####Nouvel élément de réglage "Mode de disposition de fichier préféré"
+
+>#####Compatible avec le comportement irrégulier de WeChat lors de la copie de fichiers
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Fournit une méthode de sauvegarde pour les fichiers qui ne peuvent pas obtenir de vignettes afin d'améliorer le taux de réussite de l'obtention de vignettes
+
+>#####Amélioration de la conception de l'interface utilisateur du partage Bluetooth
+
+>#####Ajout d'un suffixe "..." au titre d'un onglet trop long
+
+>#####Infrastructure de fichiers mise à jour
+
+#####Correction d'un bug
+
+>#####Correction du problème pouvant entraîner le blocage de l'interface utilisateur dans certains cas
+
+>#####Correction du problème selon lequel si Win + E est activé et que l'option "Toujours démarrer un nouveau processus lors de l'activation" n'est pas cochée, l'élément de réglage peut ne pas être suivi lorsque RX est minimisé
+
+>#####Correction du problème selon lequel le comportement de démarrage normal sera affecté après avoir décoché l'option "Toujours démarrer un nouveau processus à l'activation"
+
+>#####Correction du problème qui pouvait entraîner une incohérence entre le nombre de nœuds dans l'arborescence de répertoires et le nombre de lecteurs
+
+>#####Correction d'un problème pouvant entraîner le blocage de la visionneuse PDF intégrée
+
+>#####Correction du problème pouvant entraîner une rotation rapide des pages lors du changement de sens de défilement de la visionneuse PDF intégrée
+
+>#####Correction du problème de tremblement de la visionneuse d'images intégrée lors de la rotation des images
+
+*****
 ###Quoi de neuf dans la version 6.8.9.0
 
 #####Mise à jour des fonctionnalités

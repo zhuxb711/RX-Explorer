@@ -2200,7 +2200,7 @@ namespace RX_Explorer
                 finally
                 {
                     ApplicationData.Current.SignalDataChanged();
-                    _ = Interlocked.Exchange(ref SliderValueChangeLock, 0);
+                    Interlocked.Exchange(ref SliderValueChangeLock, 0);
                 }
             }
         }
@@ -2824,7 +2824,7 @@ namespace RX_Explorer
                 finally
                 {
                     ApplicationData.Current.SignalDataChanged();
-                    _ = Interlocked.Exchange(ref SliderValueChangeLock, 0);
+                    Interlocked.Exchange(ref SliderValueChangeLock, 0);
                 }
             }
         }

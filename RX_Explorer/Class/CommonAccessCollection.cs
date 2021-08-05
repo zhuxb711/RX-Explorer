@@ -119,7 +119,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref LoadQuickStartLockResource, 0);
+                    Interlocked.Exchange(ref LoadQuickStartLockResource, 0);
                 }
             }
         }
@@ -264,7 +264,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref LoadLibraryLockResource, 0);
+                    Interlocked.Exchange(ref LoadLibraryLockResource, 0);
                 }
             }
         }
@@ -357,7 +357,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref LoadDriveLockResource, 0);
+                    Interlocked.Exchange(ref LoadDriveLockResource, 0);
                 }
             }
         }

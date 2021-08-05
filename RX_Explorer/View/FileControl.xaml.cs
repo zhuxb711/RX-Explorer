@@ -54,6 +54,8 @@ namespace RX_Explorer
 
         private int CreateBladeLockResource;
 
+        private int SizeChangeLockResource;
+
         private readonly PointerEventHandler BladePointerPressedEventHandler;
         private readonly RightTappedEventHandler AddressBoxRightTapEventHandler;
         private readonly PointerEventHandler GoBackButtonPressedHandler;
@@ -503,7 +505,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref AddressButtonLockResource, 0);
+                    Interlocked.Exchange(ref AddressButtonLockResource, 0);
                 }
             }
         }
@@ -542,7 +544,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                    Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
             }
         }
@@ -1243,7 +1245,7 @@ namespace RX_Explorer
                     }
                     finally
                     {
-                        _ = Interlocked.Exchange(ref SearchTextChangeLockResource, 0);
+                        Interlocked.Exchange(ref SearchTextChangeLockResource, 0);
                     }
                 }
             }
@@ -1596,7 +1598,7 @@ namespace RX_Explorer
                     }
                     finally
                     {
-                        _ = Interlocked.Exchange(ref AddressTextChangeLockResource, 0);
+                        Interlocked.Exchange(ref AddressTextChangeLockResource, 0);
                     }
                 }
             }
@@ -1638,7 +1640,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                    Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
             }
         }
@@ -1682,7 +1684,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                    Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
             }
         }
@@ -1728,7 +1730,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                    Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
             }
         }
@@ -2487,7 +2489,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    _ = Interlocked.Exchange(ref CreateBladeLockResource, 0);
+                    Interlocked.Exchange(ref CreateBladeLockResource, 0);
                 }
             }
         }
@@ -2570,20 +2572,35 @@ namespace RX_Explorer
 
         private void BladeViewer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            foreach (BladeItem Item in BladeViewer.Items.Cast<BladeItem>())
+            if (Interlocked.Exchange(ref SizeChangeLockResource, 1) == 0)
             {
-                Item.Height = e.NewSize.Height;
-
-                if (Item.IsExpanded)
+                try
                 {
                     if (BladeViewer.Items.Count > 1)
                     {
-                        Item.Width = e.NewSize.Width / 2;
+                        foreach (BladeItem Item in BladeViewer.Items.Cast<BladeItem>())
+                        {
+                            Item.Height = e.NewSize.Height;
+
+                            if (Item.IsExpanded)
+                            {
+                                Item.Width = e.NewSize.Width / 2;
+                            }
+                        }
                     }
-                    else
+                    else if (BladeViewer.Items.FirstOrDefault() is BladeItem Item)
                     {
+                        Item.Height = e.NewSize.Height;
                         Item.Width = e.NewSize.Width;
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not adjust the size of BladeItem");
+                }
+                finally
+                {
+                    Interlocked.Exchange(ref SizeChangeLockResource, 0);
                 }
             }
         }

@@ -41,7 +41,7 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
-        private int Locker = 0;
+        private int LockerResource = 0;
 
         private List<KeyValuePair<FileSystemStorageItemBase, Rect>> AbsItemLocationRecord = new List<KeyValuePair<FileSystemStorageItemBase, Rect>>();
 
@@ -118,7 +118,7 @@ namespace RX_Explorer.Class
         {
             if (IsEnabled && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
             {
-                if (Interlocked.Exchange(ref Locker, 1) == 0)
+                if (Interlocked.Exchange(ref LockerResource, 1) == 0)
                 {
                     try
                     {
@@ -194,7 +194,7 @@ namespace RX_Explorer.Class
                     }
                     finally
                     {
-                        _ = Interlocked.Exchange(ref Locker, 0);
+                        Interlocked.Exchange(ref LockerResource, 0);
                     }
                 }
             }
