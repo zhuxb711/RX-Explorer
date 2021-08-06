@@ -1,4 +1,11 @@
 ﻿*****
+###Novedades de la versión 6.9.4.0
+
+#####Arreglo del fallo
+
+>#####Se solucionó un problema que podía hacer que la verificación de la licencia de la tienda fallara
+
+*****
 ###Novedades de la versión 6.9.3.0
 
 #####Actualización de funciones

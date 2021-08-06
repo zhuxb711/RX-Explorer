@@ -1,4 +1,11 @@
 ﻿*****
+###What's new in Ver.6.9.4.0
+
+#####Bug fix
+
+>#####Fixed an issue that may cause store license verification to crash
+
+*****
 ###What's new in Ver.6.9.3.0
 
 #####Feature update

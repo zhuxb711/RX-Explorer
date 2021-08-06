@@ -22,23 +22,23 @@ namespace RX_Explorer.Class
 
         public Task<bool> CheckPurchaseStatusAsync()
         {
-            try
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
             {
-                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
-                {
-                    return Task.FromResult(true);
-                }
+                return Task.FromResult(true);
+            }
 
-                if (PreLoadTask == null)
-                {
-                    PreLoadStoreData();
-                }
+            if (PreLoadTask == null)
+            {
+                PreLoadStoreData();
+            }
 
-                return PreLoadTask.ContinueWith((_) =>
+            return PreLoadTask.ContinueWith((_) =>
+            {
+                try
                 {
                     if (License != null)
                     {
-                        if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                        if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault())
                         {
                             ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
                             return true;
@@ -70,25 +70,25 @@ namespace RX_Explorer.Class
                         ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                         return false;
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
-                return Task.FromResult(false);
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
+                    return false;
+                }
+            });
         }
 
         public Task<bool> CheckHasUpdateAsync()
         {
-            try
+            if (PreLoadTask == null)
             {
-                if (PreLoadTask == null)
-                {
-                    PreLoadStoreData();
-                }
+                PreLoadStoreData();
+            }
 
-                return PreLoadTask.ContinueWith((_) =>
+            return PreLoadTask.ContinueWith((_) =>
+            {
+                try
                 {
                     if (Updates != null)
                     {
@@ -98,25 +98,25 @@ namespace RX_Explorer.Class
                     {
                         return false;
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
-                return Task.FromResult(false);
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
+                    return false;
+                }
+            });
         }
 
         public Task<bool> CheckIfUpdateIsMandatoryAsync()
         {
-            try
+            if (PreLoadTask == null)
             {
-                if (PreLoadTask == null)
-                {
-                    PreLoadStoreData();
-                }
+                PreLoadStoreData();
+            }
 
-                return PreLoadTask.ContinueWith((_) =>
+            return PreLoadTask.ContinueWith((_) =>
+            {
+                try
                 {
                     if (Updates != null)
                     {
@@ -134,59 +134,60 @@ namespace RX_Explorer.Class
                     {
                         return false;
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
-                return Task.FromResult(false);
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
+                    return false;
+                }
+            });
         }
 
-        public async Task<StorePurchaseStatus> PurchaseAsync()
+        public Task<StorePurchaseStatus> PurchaseAsync()
         {
-            try
+            if (PreLoadTask == null)
             {
-                if (PreLoadTask == null)
-                {
-                    PreLoadStoreData();
-                }
+                PreLoadStoreData();
+            }
 
-                await PreLoadTask;
-
-                if (ProductResult != null && ProductResult.ExtendedError == null)
+            return PreLoadTask.ContinueWith((_) =>
+            {
+                try
                 {
-                    if (ProductResult.Product != null)
+                    if (ProductResult != null && ProductResult.ExtendedError == null)
                     {
-                        StorePurchaseResult Result = await ProductResult.Product.RequestPurchaseAsync();
-
-                        switch (Result.Status)
+                        if (ProductResult.Product != null)
                         {
-                            case StorePurchaseStatus.AlreadyPurchased:
-                            case StorePurchaseStatus.Succeeded:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                    break;
-                                }
-                        }
+                            StorePurchaseResult Result = ProductResult.Product.RequestPurchaseAsync().AsTask().Result;
 
-                        return Result.Status;
+                            switch (Result.Status)
+                            {
+                                case StorePurchaseStatus.AlreadyPurchased:
+                                case StorePurchaseStatus.Succeeded:
+                                    {
+                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                                        break;
+                                    }
+                            }
+
+                            return Result.Status;
+                        }
+                        else
+                        {
+                            return StorePurchaseStatus.NetworkError;
+                        }
                     }
                     else
                     {
                         return StorePurchaseStatus.NetworkError;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"{nameof(PurchaseAsync)} threw an exception");
                     return StorePurchaseStatus.NetworkError;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(PurchaseAsync)} threw an exception");
-                return StorePurchaseStatus.NetworkError;
-            }
+            });
         }
 
         public void PreLoadStoreData()

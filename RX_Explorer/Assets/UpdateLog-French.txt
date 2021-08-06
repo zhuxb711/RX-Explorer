@@ -1,4 +1,11 @@
 ﻿*****
+###Quoi de neuf dans la version 6.9.4.0
+
+#####Correction d'un bug
+
+>#####Correction d'un problème pouvant entraîner le blocage de la vérification de la licence du magasin
+
+*****
 ###Quoi de neuf dans la version 6.9.3.0
 
 #####Mise à jour des fonctionnalités

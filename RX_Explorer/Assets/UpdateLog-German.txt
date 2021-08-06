@@ -1,4 +1,11 @@
 ﻿*****
+###Was ist neu in Ver.6.9.4.0
+
+#####Fehlerbehebung
+
+>#####Es wurde ein Problem behoben, das zum Absturz der Überprüfung der Store-Lizenz führen kann
+
+*****
 ###Was ist neu in Ver.6.9.3.0
 
 #####Funktionsupdate
