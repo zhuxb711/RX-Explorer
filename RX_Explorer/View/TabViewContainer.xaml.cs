@@ -26,6 +26,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -110,32 +111,36 @@ namespace RX_Explorer
 
         private async void PreviewTimer_Tick(object sender, object e)
         {
-            try
+            if (MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
-                PreviewTimer.Stop();
-
-                if (TabViewControl.SelectedItem is TabViewItem Item && Item.Content is UIElement Element)
+                try
                 {
-                    RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
+                    PreviewTimer.Stop();
 
-                    await PreviewBitmap.RenderAsync(Element, 750, 450);
-
-                    if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                    if (TabViewControl.SelectedItem is TabViewItem Item && Item.Content is UIElement Element)
                     {
-                        if (PreviewFlyout.Content is Image PreviewImage)
+                        RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
+
+                        await PreviewBitmap.RenderAsync(Element, 750, 450);
+
+                        if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                         {
-                            PreviewImage.Source = PreviewBitmap;
+                            if (PreviewFlyout.Content is Image PreviewImage)
+                            {
+                                PreviewImage.Source = PreviewBitmap;
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not render a preview image");
-            }
-            finally
-            {
-                PreviewTimer.Start();
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not render a preview image");
+                }
+                finally
+                {
+                    PreviewTimer.Start();
+                }
             }
         }
 
@@ -737,11 +742,14 @@ namespace RX_Explorer
                         {
                             if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                             {
-                                PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                if (PreviewFlyout.Content is Image PreviewImage && PreviewImage.Source != null)
                                 {
-                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
-                                });
+                                    PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                    {
+                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
+                                    });
+                                }
                             }
                         }
                     }

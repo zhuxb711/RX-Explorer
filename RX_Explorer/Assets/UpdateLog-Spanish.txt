@@ -1,5 +1,5 @@
 ﻿*****
-###Novedades de la versión 6.9.2.0
+###Novedades de la versión 6.9.3.0
 
 #####Actualización de funciones
 

@@ -617,11 +617,6 @@ namespace RX_Explorer
             {
                 if (InitFolderPathArray.Length > 0)
                 {
-                    foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
-                    {
-                        await CreateNewBladeAsync(TargetPath);
-                    }
-
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                     {
                         TreeViewNode RootNode = new TreeViewNode
@@ -680,6 +675,11 @@ namespace RX_Explorer
                                 }
                             }
                         }
+                    }
+
+                    foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                    {
+                        await CreateNewBladeAsync(TargetPath);
                     }
 
                     await Task.WhenAll(LongLoadList);

@@ -682,27 +682,32 @@ namespace RX_Explorer.Class
 
         protected virtual async Task<BitmapImage> LoadThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
         {
+            async Task<BitmapImage> GetThumbnailTask()
+            {
+                byte[] ThumbnailData = await Controller.GetThumbnailAsync(Path);
+
+                if (ThumbnailData.Length > 0)
+                {
+                    using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                    {
+                        BitmapImage Image = new BitmapImage();
+                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        return Image;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
             if (await GetStorageItemAsync() is IStorageItem Item)
             {
                 BitmapImage LocalThumbnail = await Item.GetThumbnailBitmapAsync(Mode);
 
                 if (LocalThumbnail == null)
                 {
-                    byte[] ThumbnailData = await Controller.GetThumbnailAsync(Path);
-
-                    if (ThumbnailData.Length > 0)
-                    {
-                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
-                        {
-                            BitmapImage Image = new BitmapImage();
-                            await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                            return Image;
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return await GetThumbnailTask();
                 }
                 else
                 {
@@ -711,7 +716,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return null;
+                return await GetThumbnailTask();
             }
         }
 

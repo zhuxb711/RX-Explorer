@@ -20,13 +20,13 @@ namespace RX_Explorer.Class
 
         public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
 
-        public async Task<bool> CheckPurchaseStatusAsync()
+        public Task<bool> CheckPurchaseStatusAsync()
         {
             try
             {
                 if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
                 {
-                    return true;
+                    return Task.FromResult(true);
                 }
 
                 if (PreLoadTask == null)
@@ -34,93 +34,112 @@ namespace RX_Explorer.Class
                     PreLoadStoreData();
                 }
 
-                await PreLoadTask;
-
-                if (License != null)
+                return PreLoadTask.ContinueWith((_) =>
                 {
-                    if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                    if (License != null)
                     {
-                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                        return true;
-                    }
-                    else
-                    {
-                        if (License.IsActive)
+                        if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
                         {
-                            if (License.IsTrial)
+                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                            return true;
+                        }
+                        else
+                        {
+                            if (License.IsActive)
+                            {
+                                if (License.IsTrial)
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                                    return false;
+                                }
+                                else
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                                    return true;
+                                }
+                            }
+                            else
                             {
                                 ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                                 return false;
                             }
-                            else
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                            return false;
                         }
                     }
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                    return false;
-                }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                        return false;
+                    }
+                });
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> CheckHasUpdateAsync()
+        public Task<bool> CheckHasUpdateAsync()
         {
-            if (PreLoadTask == null)
+            try
             {
-                PreLoadStoreData();
-            }
-
-            await PreLoadTask;
-
-            if (Updates != null)
-            {
-                return Updates.Any();
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public async Task<bool> CheckIfUpdateIsMandatoryAsync()
-        {
-            if (PreLoadTask == null)
-            {
-                PreLoadStoreData();
-            }
-
-            await PreLoadTask;
-
-            if (Updates != null)
-            {
-                foreach (StorePackageUpdate Update in Updates)
+                if (PreLoadTask == null)
                 {
-                    if (Update.Mandatory)
-                    {
-                        return true;
-                    }
+                    PreLoadStoreData();
                 }
 
-                return false;
+                return PreLoadTask.ContinueWith((_) =>
+                {
+                    if (Updates != null)
+                    {
+                        return Updates.Any();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
             }
-            else
+            catch (Exception ex)
             {
-                return false;
+                LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
+                return Task.FromResult(false);
+            }
+        }
+
+        public Task<bool> CheckIfUpdateIsMandatoryAsync()
+        {
+            try
+            {
+                if (PreLoadTask == null)
+                {
+                    PreLoadStoreData();
+                }
+
+                return PreLoadTask.ContinueWith((_) =>
+                {
+                    if (Updates != null)
+                    {
+                        foreach (StorePackageUpdate Update in Updates)
+                        {
+                            if (Update.Mandatory)
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
+                return Task.FromResult(false);
             }
         }
 
