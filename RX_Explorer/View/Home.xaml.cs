@@ -44,18 +44,11 @@ namespace RX_Explorer
         public Home()
         {
             InitializeComponent();
-
-            LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
-            DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
-
             Loaded += Home_Loaded;
         }
 
         private async void Home_Loaded(object sender, RoutedEventArgs e)
         {
-            LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
-            DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
-
             if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
             {
                 OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
@@ -155,7 +148,7 @@ namespace RX_Explorer
                 {
                     case LibraryStorageFolder:
                         {
-                            if (!SettingControl.IsDoubleClickEnable
+                            if (!SettingControl.IsDoubleClickEnabled
                                 && LibraryGrid.SelectedItem != Item
                                 && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                                 && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
@@ -178,7 +171,7 @@ namespace RX_Explorer
                         }
                     case DriveDataBase:
                         {
-                            if (!SettingControl.IsDoubleClickEnable
+                            if (!SettingControl.IsDoubleClickEnabled
                                 && LibraryGrid.SelectedItem != Item
                                 && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                                 && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
@@ -348,7 +341,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -428,7 +421,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -492,7 +485,7 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is DriveDataBase Drive)
+            if (!SettingControl.IsDoubleClickEnabled && e.ClickedItem is DriveDataBase Drive)
             {
                 await OpenTargetDriveAsync(Drive);
             }
@@ -502,7 +495,7 @@ namespace RX_Explorer
         {
             DriveGrid.SelectedIndex = -1;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryStorageFolder Library)
+            if (!SettingControl.IsDoubleClickEnabled && e.ClickedItem is LibraryStorageFolder Library)
             {
                 await OpenTargetFolder(Library.Path);
             }
@@ -572,7 +565,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -596,7 +589,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -632,13 +625,11 @@ namespace RX_Explorer
 
         private void LibraryExpander_Collapsed(object sender, EventArgs e)
         {
-            SettingControl.LibraryExpanderIsExpand = false;
             LibraryGrid.SelectedIndex = -1;
         }
 
         private void DeviceExpander_Collapsed(object sender, EventArgs e)
         {
-            SettingControl.DeviceExpanderIsExpand = false;
             DriveGrid.SelectedIndex = -1;
         }
 
@@ -776,13 +767,11 @@ namespace RX_Explorer
 
         private async void LibraryExpander_Expanded(object sender, EventArgs e)
         {
-            SettingControl.LibraryExpanderIsExpand = true;
             await CommonAccessCollection.LoadLibraryFoldersAsync();
         }
 
         private async void DeviceExpander_Expanded(object sender, EventArgs e)
         {
-            SettingControl.DeviceExpanderIsExpand = true;
             await CommonAccessCollection.LoadDriveAsync();
         }
 

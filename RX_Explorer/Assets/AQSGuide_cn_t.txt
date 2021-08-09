@@ -148,15 +148,15 @@ COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|搜索小於等於1kb的文件
  |≤|System.Size:≤1kb|搜索小於等於1kb的文件
 COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|搜索大小大於或等於 1kb 的文件
  |≥|System.Size:≥1kb|搜索大小大於或等於1kb的文件
-COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|搜索文件名以“C++ Primer”開頭的文件
-COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|搜索相機型號以“non”結尾的文件
-COP_VALUE_CONTAINS|~~|System.FileName:~~round|搜索文件名中帶有“round”的文件
+COP\_VALUE\_STARTSWITH|~<|System.FileName:~<"C++ Primer"|搜索文件名以“C++ Primer”開頭的文件
+COP\_VALUE\_ENDSWITH|~>|System.Photo.CameraModel:~>non|搜索相機型號以“non”結尾的文件
+COP\_VALUE\_CONTAINS|~~|System.FileName:~~round|搜索文件名中帶有“round”的文件
  |~=|System.Subject~=round|搜索標題包含“round”的文件
-COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|搜索作者不包含“sanjay”的文件
+COP\_VALUE\_NOTCONTAINS|~!|System.Author:~!"sanjay"|搜索作者不包含“sanjay”的文件
 COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?"表示只匹配一個任意字符。 “*”表示匹配0個或多個任意字符
-COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|搜索文件名中帶有“Sanjay Jacobs”的文件
+COP\_WORD\_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|搜索文件名中帶有“Sanjay Jacobs”的文件
  |$=|System.Filename:$="Sanjay Jacobs"|搜索文件名中包含“Sanjay Jacobs”的文件
-COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|搜索文件名中以“Micro Exe”開頭的文件
+COP\_WORD\_STARTSWITH|$<|System.Filename:$<"Micro Exe"|搜索文件名中以“Micro Exe”開頭的文件
 
 &nbsp;
 

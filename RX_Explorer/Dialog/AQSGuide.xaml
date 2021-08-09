@@ -15,9 +15,7 @@
     </Cls:QueueContentDialog.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollMode="Enabled"
-                      IsVerticalScrollChainingEnabled="True"
-                      VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer VerticalScrollMode="Enabled">
             <control:MarkdownTextBlock x:Name="MarkDown"
                                        Background="Transparent"
                                        LinkClicked="MarkDown_LinkClicked"/>

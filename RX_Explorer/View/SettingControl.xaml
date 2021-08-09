@@ -164,6 +164,13 @@
                               Toggled="NavigationViewLayout_Toggled" />
 
                 <ToggleSwitch Margin="0,20,0,0"
+                              Header="标签页预览"
+                              OnContent="启用"
+                              OffContent="禁用"
+                              Name="TabPreviewSwitch"
+                              Toggled="TabPreviewSwitch_Toggled"/>
+
+                <ToggleSwitch Margin="0,20,0,0"
                               Header="显示隐藏文件/文件夹"
                               x:Uid="SettingDisplayHiddenItem"
                               OnContent="启用"

@@ -112,7 +112,8 @@ namespace RX_Explorer
         private async void PreviewTimer_Tick(object sender, object e)
         {
             if (MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
+                && SettingControl.IsTabPreviewEnabled)
             {
                 try
                 {
@@ -237,7 +238,7 @@ namespace RX_Explorer
 
                                 switch (args.VirtualKey)
                                 {
-                                    case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                                    case VirtualKey.Space when SettingControl.IsQuicklookEnabled:
                                         {
                                             args.Handled = true;
 
@@ -618,7 +619,7 @@ namespace RX_Explorer
                 CommonAccessCollection.LoadDriveAsync()
             };
 
-            if (SettingControl.LibraryExpanderIsExpand)
+            if (SettingControl.LibraryExpanderIsExpanded)
             {
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
@@ -728,37 +729,40 @@ namespace RX_Explorer
 
         private void Item_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            DelayPreviewCancel?.Cancel();
-            DelayPreviewCancel?.Dispose();
-            DelayPreviewCancel = new CancellationTokenSource();
-
-            Task.Delay(1000).ContinueWith((task, input) =>
+            if (SettingControl.IsTabPreviewEnabled)
             {
-                try
+                DelayPreviewCancel?.Cancel();
+                DelayPreviewCancel?.Dispose();
+                DelayPreviewCancel = new CancellationTokenSource();
+
+                Task.Delay(1000).ContinueWith((task, input) =>
                 {
-                    if (input is (CancellationTokenSource CancelSource, TabViewItem Item))
+                    try
                     {
-                        if (!CancelSource.IsCancellationRequested)
+                        if (input is (CancellationTokenSource CancelSource, TabViewItem Item))
                         {
-                            if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                            if (!CancelSource.IsCancellationRequested)
                             {
-                                if (PreviewFlyout.Content is Image PreviewImage && PreviewImage.Source != null)
+                                if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                                 {
-                                    PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                    if (PreviewFlyout.Content is Image PreviewImage && PreviewImage.Source != null)
                                     {
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
-                                    });
+                                        PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
+                                        {
+                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                            ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not render a preview image");
-                }
-            }, (DelayPreviewCancel, (TabViewItem)sender), TaskScheduler.FromCurrentSynchronizationContext());
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not render a preview image");
+                    }
+                }, (DelayPreviewCancel, (TabViewItem)sender), TaskScheduler.FromCurrentSynchronizationContext());
+            }
         }
 
         private async void Item_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)

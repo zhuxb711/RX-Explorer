@@ -135,7 +135,7 @@ namespace RX_Explorer
                             Delete_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Space when SettingControl.IsQuicklookEnable && SearchResultList.SelectedItems.Count <= 1:
+                    case VirtualKey.Space when SettingControl.IsQuicklookEnabled && SearchResultList.SelectedItems.Count <= 1:
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {

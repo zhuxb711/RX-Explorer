@@ -61,7 +61,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsDoubleClickEnable
+        public static bool IsDoubleClickEnabled
         {
             get
             {
@@ -101,7 +101,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsQuicklookEnable
+        public static bool IsQuicklookEnabled
         {
             get
             {
@@ -138,6 +138,26 @@ namespace RX_Explorer
             private set
             {
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = value;
+            }
+        }
+
+        public static bool IsTabPreviewEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnableTabPreview"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnableTabPreview"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableTabPreview"] = value;
             }
         }
 
@@ -226,7 +246,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool LibraryExpanderIsExpand
+        public static bool LibraryExpanderIsExpanded
         {
             get
             {
@@ -243,7 +263,7 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
         }
 
-        public static bool DeviceExpanderIsExpand
+        public static bool DeviceExpanderIsExpanded
         {
             get
             {
@@ -716,9 +736,10 @@ namespace RX_Explorer
                 TreeViewDetach.IsOn = !IsDetach;
             }
 
-            EnableQuicklook.IsOn = IsQuicklookEnable;
+            EnableQuicklook.IsOn = IsQuicklookEnabled;
             DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
             HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
+            TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
             NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
 
             if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
@@ -1921,7 +1942,7 @@ namespace RX_Explorer
 
         private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
         {
-            IsQuicklookEnable = EnableQuicklook.IsOn;
+            IsQuicklookEnabled = EnableQuicklook.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -2062,12 +2083,12 @@ namespace RX_Explorer
             {
                 case 0:
                     {
-                        IsDoubleClickEnable = false;
+                        IsDoubleClickEnabled = false;
                         break;
                     }
                 case 1:
                     {
-                        IsDoubleClickEnable = true;
+                        IsDoubleClickEnabled = true;
                         break;
                     }
             }
@@ -3051,6 +3072,12 @@ namespace RX_Explorer
         private void IndexerQuestion_Tapped(object sender, TappedRoutedEventArgs e)
         {
             UseIndexerTip.IsOpen = true;
+        }
+
+        private void TabPreviewSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            IsTabPreviewEnabled = TabPreviewSwitch.IsOn;
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }

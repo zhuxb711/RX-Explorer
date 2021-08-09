@@ -148,15 +148,15 @@ COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Search for files with a size less than 
  |≤|System.Size:≤1kb|Search for files whose size is less than or equal to 1kb
 COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Search for files with a size greater than or equal to 1kb
  |≥|System.Size:≥1kb|Search for files with a size greater than or equal to 1kb
-COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Search for files whose file name starts with "C++ Primer"
-COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Search for files whose camera model ends with "non"
-COP_VALUE_CONTAINS|~~|System.FileName:~~round|Search for files with "round" in the file name
+COP\_VALUE\_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Search for files whose file name starts with "C++ Primer"
+COP\_VALUE\_ENDSWITH|~>|System.Photo.CameraModel:~>non|Search for files whose camera model ends with "non"
+COP\_VALUE\_CONTAINS|~~|System.FileName:~~round|Search for files with "round" in the file name
  |~=|System.Subject~=round|Search for files whose title contains "round"
-COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|Search for files whose author does not contain "sanjay"
+COP\_VALUE\_NOTCONTAINS|~!|System.Author:~!"sanjay"|Search for files whose author does not contain "sanjay"
 COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" means matching only one arbitrary character. "*" means matching 0 or more arbitrary characters
-COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Search for files with "Sanjay Jacobs" in the file name
+COP\_WORD\_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Search for files with "Sanjay Jacobs" in the file name
  |$=|System.Filename:$="Sanjay Jacobs"|Search for files containing "Sanjay Jacobs" in the file name
-COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Search for files starting with "Micro Exe" in the file name
+COP\_WORD\_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Search for files starting with "Micro Exe" in the file name
 
 &nbsp;
 

@@ -148,15 +148,15 @@ COP_LESSTHANOREQUAL|<=|System.Size:<=1kb|Rechercher les fichiers d'une taille in
  |≤|System.Size:≤1kb|Rechercher les fichiers dont la taille est inférieure ou égale à 1kb
 COP_GREATERTHANOREQUAL|>=|System.Size:>=1kb|Rechercher des fichiers d'une taille supérieure ou égale à 1kb
  |≥|System.Size:≥1kb|Rechercher des fichiers d'une taille supérieure ou égale à 1kb
-COP_VALUE_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Rechercher les fichiers dont le nom de fichier commence par "C++ Primer"
-COP_VALUE_ENDSWITH|~>|System.Photo.CameraModel:~>non|Rechercher les fichiers dont le modèle d'appareil photo se termine par "non"
-COP_VALUE_CONTAINS|~~|System.FileName:~~round|Rechercher les fichiers avec "round" dans le nom de fichier
+COP\_VALUE\_STARTSWITH|~<|System.FileName:~<"C++ Primer"|Rechercher les fichiers dont le nom de fichier commence par "C++ Primer"
+COP\_VALUE\_ENDSWITH|~>|System.Photo.CameraModel:~>non|Rechercher les fichiers dont le modèle d'appareil photo se termine par "non"
+COP\_VALUE\_CONTAINS|~~|System.FileName:~~round|Rechercher les fichiers avec "round" dans le nom de fichier
  |~=|System.Subject~=round|Rechercher les fichiers dont le titre contient "round"
-COP_VALUE_NOTCONTAINS|~!|System.Author:~!"sanjay"|Rechercher les fichiers dont l'auteur ne contient pas "sanjay"
+COP\_VALUE\_NOTCONTAINS|~!|System.Author:~!"sanjay"|Rechercher les fichiers dont l'auteur ne contient pas "sanjay"
 COP_DOSWILDCARDS|~|System.FileName:~"Mic?osoft W*d"|"?" signifie correspondre à un seul caractère arbitraire. "*" signifie correspondre à 0 ou plusieurs caractères arbitraires
-COP_WORD_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Rechercher les fichiers avec "Sanjay Jacobs" dans le nom de fichier
+COP\_WORD\_EQUAL|$$|System.Filename:$$"Sanjay Jacobs"|Rechercher les fichiers avec "Sanjay Jacobs" dans le nom de fichier
  |$=|System.Filename:$="Sanjay Jacobs"|Rechercher les fichiers contenant "Sanjay Jacobs" dans le nom de fichier
-COP_WORD_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Rechercher les fichiers commençant par "Micro Exe" dans le nom de fichier
+COP\_WORD\_STARTSWITH|$<|System.Filename:$<"Micro Exe"|Rechercher les fichiers commençant par "Micro Exe" dans le nom de fichier
 
 &nbsp;
 

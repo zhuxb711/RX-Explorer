@@ -619,7 +619,7 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingControl.IsQuicklookEnable && ItemPresenter.SelectedItems.Count <= 1:
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
@@ -1930,7 +1930,7 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -1992,7 +1992,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnable)
+                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnabled)
                                     {
                                         switch (Context)
                                         {
@@ -2654,7 +2654,7 @@ namespace RX_Explorer
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
+            if (!SettingControl.IsDoubleClickEnabled && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 DelaySelectionCancel?.Cancel();
 
@@ -3668,7 +3668,7 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if (!SettingControl.IsDoubleClickEnable
+                if (!SettingControl.IsDoubleClickEnabled
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                     && !Container.BlockKeyboardShortCutInput
                     && !ItemPresenter.SelectedItems.Contains(Item)
@@ -3795,7 +3795,7 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancel?.Cancel();
                 }
@@ -3857,7 +3857,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnable)
+                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnabled)
                                     {
                                         switch (Context)
                                         {
@@ -4029,7 +4029,7 @@ namespace RX_Explorer
         {
             TextBlock NameLabel = (TextBlock)sender;
 
-            if (e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && SettingControl.IsDoubleClickEnable)
+            if (e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && SettingControl.IsDoubleClickEnabled)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {

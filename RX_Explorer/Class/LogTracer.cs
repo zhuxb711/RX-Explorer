@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Search;
 
@@ -171,6 +172,8 @@ namespace RX_Explorer.Class
                                         .AppendLine("------------------------------------")
                                         .AppendLine("Source: RX-Explorer")
                                         .AppendLine()
+                                        .AppendLine($"Version: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
+                                        .AppendLine()
                                         .AppendLine($"Exception: {Ex}")
                                         .AppendLine()
                                         .AppendLine("Message:")
@@ -221,6 +224,8 @@ namespace RX_Explorer.Class
                                         .AppendLine("Plain Text Error Record")
                                         .AppendLine("------------------------------------")
                                         .AppendLine("Source: RX-Explorer")
+                                        .AppendLine()
+                                        .AppendLine($"Version: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
                                         .AppendLine()
                                         .AppendLine("Message:")
                                         .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
