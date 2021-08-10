@@ -1167,7 +1167,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     try
                     {
-                        using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
+                        using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
                         using (MD5 MD5Alg = MD5.Create())
                         {
                             await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1203,7 +1203,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
                     using (SHA1 SHA1Alg = SHA1.Create())
                     {
                         await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1238,7 +1238,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
                     using (SHA256 SHA256Alg = SHA256.Create())
                     {
                         await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token).ContinueWith((beforeTask) =>

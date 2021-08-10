@@ -104,20 +104,22 @@
                           Click="Setting_Click" />
         </CommandBar>
         <GridView IsRightTapEnabled="True"
+                  Name="SecureGridView"
                   Grid.Row="1"
                   AllowDrop="True"
+                  ItemsSource="{x:Bind SecureCollection}"
+                  ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}"
+                  Padding="20,10,20,10"
                   SelectionMode="Extended"
-                  Drop="Grid_Drop"
                   IsHoldingEnabled="True"
+                  IsDoubleTapEnabled="True"
+                  Drop="Grid_Drop"
+                  DragEnter="SecureGridView_DragEnter"
+                  SelectionChanged="SecureGridView_SelectionChanged"
+                  DoubleTapped="SecureGridView_DoubleTapped"
                   Holding="SecureGridView_Holding"
                   RightTapped="SecureGridView_RightTapped"
-                  ContainerContentChanging="SecureGridView_ContainerContentChanging"
-                  Name="SecureGridView"
-                  DragEnter="SecureGridView_DragEnter"
-                  Padding="20,10,20,10"
-                  SelectionChanged="SecureGridView_SelectionChanged"
-                  ItemsSource="{x:Bind SecureCollection}"
-                  ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
+                  ContainerContentChanging="SecureGridView_ContainerContentChanging" >
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageFile">
                     <StackPanel Padding="5"

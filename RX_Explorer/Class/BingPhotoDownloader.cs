@@ -32,7 +32,7 @@ namespace RX_Explorer.Class
                     {
                         if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                         {
-                            using (FileStream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
+                            using (FileStream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite))
                             {
                                 HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
                                 Request.Timeout = 10000;
@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
                                     await ResponseStream.CopyToAsync(TempFileStream);
                                 }
 
-                                using (Stream FileStream = await ExistFile.GetFileStreamFromFileAsync(AccessMode.Read))
+                                using (Stream FileStream = await ExistFile.GetStreamFromFileAsync(AccessMode.Read))
                                 using (MD5 MD5Alg1 = MD5.Create())
                                 using (MD5 MD5Alg2 = MD5.Create())
                                 {
@@ -97,7 +97,7 @@ namespace RX_Explorer.Class
 
                     if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                     {
-                        using (Stream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
+                        using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite))
                         {
                             HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
                             Request.Timeout = 10000;

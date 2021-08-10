@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
     {
         Version_1_0_0 = 100,
         Version_1_1_0 = 110,
-        Version_1_2_0 = 120
+        Version_1_5_0 = 150
     }
 
     public enum SyncStatus

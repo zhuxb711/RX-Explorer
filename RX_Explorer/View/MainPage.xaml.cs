@@ -1218,6 +1218,7 @@ namespace RX_Explorer
                                         Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
+
                                     await Dialog.ShowAsync();
                                 }
                             }

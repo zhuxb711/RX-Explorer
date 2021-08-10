@@ -21,6 +21,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer
 {
@@ -407,8 +408,8 @@ namespace RX_Explorer
 
                         if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                         {
-                            using (FileStream OriginFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
-                            using (FileStream EncryptFStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                            using (FileStream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read))
+                            using (FileStream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                             {
                                 SLEVersion Version;
 
@@ -418,7 +419,7 @@ namespace RX_Explorer
                                 {
                                     Version = VersionNum switch
                                     {
-                                        > 694 => SLEVersion.Version_1_2_0,
+                                        > 694 => SLEVersion.Version_1_5_0,
                                         > 655 => SLEVersion.Version_1_1_0,
                                         _ => SLEVersion.Version_1_0_0
                                     };
@@ -665,10 +666,10 @@ namespace RX_Explorer
                         {
                             try
                             {
-                                using (FileStream EncryptedFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
+                                using (FileStream EncryptedFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read))
                                 using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
                                 {
-                                    using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                                    using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                     {
                                         await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, async (s, e) =>
                                         {
@@ -1065,5 +1066,56 @@ namespace RX_Explorer
                 DeleteFile.IsEnabled = false;
             }
         }
+
+        private async void SecureGridView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageFile File)
+            {
+                await TryOpenInternally(File);
+            }
+        }
+
+        private async Task<bool> TryOpenInternally(FileSystemStorageFile File)
+        {
+            using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+            {
+                SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                if (Header.Version >= SLEVersion.Version_1_5_0)
+                {
+                    Type InternalType = Path.GetExtension(Header.FileName.ToLower()) switch
+                    {
+                        ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                        ".mkv" or ".mp4" or ".mp3" or
+                        ".flac" or ".wma" or ".wmv" or
+                        ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
+                        ".txt" => typeof(TextViewer),
+                        ".pdf" => typeof(PdfReader),
+                        _ => null
+                    };
+
+
+                    if (InternalType != null)
+                    {
+                        NavigationTransitionInfo NavigationTransition = AnimationController.Current.IsEnableAnimation
+                                                                        ? new DrillInNavigationTransitionInfo()
+                                                                        : new SuppressNavigationTransitionInfo();
+
+                        Frame.Navigate(InternalType, File, NavigationTransition);
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
     }
 }

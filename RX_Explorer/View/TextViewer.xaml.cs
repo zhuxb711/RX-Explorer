@@ -84,7 +84,7 @@ namespace RX_Explorer
 
             try
             {
-                using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
+                using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
                 using (StreamReader Reader = new StreamReader(Stream, Enco, false))
                 {
                     EditText.Text = await Reader.ReadToEndAsync();
@@ -114,7 +114,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
-                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Write))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
                     {
                         await Writer.WriteAsync(EditText.Text);

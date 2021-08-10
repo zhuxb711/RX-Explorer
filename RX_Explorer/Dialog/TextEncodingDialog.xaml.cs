@@ -88,7 +88,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                using (FileStream DetectStream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read))
+                using (FileStream DetectStream = await TextFile.GetStreamFromFileAsync(AccessMode.Read))
                 {
                     return await Task.Run(() =>
                     {

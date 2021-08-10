@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Header.Version == SLEVersion.Version_1_2_0;
+                return Header.Version == SLEVersion.Version_1_5_0;
             }
         }
 
@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return BaseFileStream.Length - Header.HeaderLength;
+                return Math.Max(BaseFileStream.Length - Header.HeaderLength - BlockSize, 0);
             }
         }
 
@@ -48,9 +48,9 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (Header.Version == SLEVersion.Version_1_2_0)
+                if (Header.Version == SLEVersion.Version_1_5_0)
                 {
-                    return BaseFileStream.Position - Header.HeaderLength;
+                    return Math.Max(BaseFileStream.Position - Header.HeaderLength - BlockSize, 0);
                 }
                 else
                 {
@@ -59,9 +59,9 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (Header.Version == SLEVersion.Version_1_2_0)
+                if (Header.Version == SLEVersion.Version_1_5_0)
                 {
-                    BaseFileStream.Position = Convert.ToInt64(value) + Header.HeaderLength;
+                    BaseFileStream.Position = Convert.ToInt64(value) + Header.HeaderLength + BlockSize;
                 }
                 else
                 {
@@ -88,7 +88,7 @@ namespace RX_Explorer.Class
         {
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         long CurrentIndex = Position / BlockSize;
 
@@ -102,6 +102,8 @@ namespace RX_Explorer.Class
                         {
                             if (XorMask.Count == 0)
                             {
+                                Array.ConstrainedCopy(BitConverter.GetBytes(CurrentIndex++), 0, Counter, BlockSize / 2, 8);
+
                                 byte[] XorBuffer = new byte[BlockSize];
                                 Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
 
@@ -109,8 +111,6 @@ namespace RX_Explorer.Class
                                 {
                                     XorMask.Enqueue(Xor);
                                 }
-
-                                Array.ConstrainedCopy(BitConverter.GetBytes(++CurrentIndex), 0, Counter, BlockSize / 2, 8);
                             }
 
                             byte Mask = XorMask.Dequeue();
@@ -134,7 +134,7 @@ namespace RX_Explorer.Class
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            if (Header.Version == SLEVersion.Version_1_2_0)
+            if (Header.Version == SLEVersion.Version_1_5_0)
             {
                 switch (origin)
                 {
@@ -194,7 +194,7 @@ namespace RX_Explorer.Class
 
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
@@ -289,7 +289,7 @@ namespace RX_Explorer.Class
 
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         byte[] Nonce = new EasClientDeviceInformation().Id.ToByteArray().Take(8).ToArray();
                         Array.Resize(ref Nonce, 16);

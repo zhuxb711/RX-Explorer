@@ -215,7 +215,6 @@
     <Compile Include="Class\SearchOptions.cs" />
     <Compile Include="Class\SearchSuggestionItem.cs" />
     <Compile Include="Class\SLEHeader.cs" />
-    <Compile Include="Class\SLEInputRandomAccessStream.cs" />
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />

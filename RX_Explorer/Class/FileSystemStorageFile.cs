@@ -87,7 +87,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public async virtual Task<FileStream> GetFileStreamFromFileAsync(AccessMode Mode)
+        public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode)
         {
             try
             {

@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return BaseFileStream.Length - Header.HeaderLength;
+                return Math.Max(BaseFileStream.Length - Header.HeaderLength - BlockSize, 0);
             }
         }
 
@@ -48,9 +48,9 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (Header.Version == SLEVersion.Version_1_2_0)
+                if (Header.Version == SLEVersion.Version_1_5_0)
                 {
-                    return BaseFileStream.Position - Header.HeaderLength;
+                    return Math.Max(BaseFileStream.Position - Header.HeaderLength - BlockSize, 0);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace RX_Explorer.Class
         {
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         Queue<byte> XorMask = new Queue<byte>();
 
@@ -153,7 +153,7 @@ namespace RX_Explorer.Class
 
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
@@ -243,7 +243,7 @@ namespace RX_Explorer.Class
 
             switch (Header.Version)
             {
-                case SLEVersion.Version_1_2_0:
+                case SLEVersion.Version_1_5_0:
                     {
                         byte[] Nonce = new EasClientDeviceInformation().Id.ToByteArray().Take(8).ToArray();
                         Array.Resize(ref Nonce, 16);

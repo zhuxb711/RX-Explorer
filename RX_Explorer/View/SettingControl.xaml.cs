@@ -1089,10 +1089,10 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    using (FileStream EncryptedFStream = await Item.GetFileStreamFromFileAsync(AccessMode.Read))
+                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read))
                                     using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
                                     {
-                                        using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
