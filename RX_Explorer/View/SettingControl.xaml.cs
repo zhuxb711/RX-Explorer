@@ -1099,7 +1099,7 @@ namespace RX_Explorer
 
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                         {
-                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.FileName, true);
+                                            await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.FileName, true);
                                         }
                                     }
                                 }

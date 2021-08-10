@@ -38,11 +38,17 @@ namespace RX_Explorer.Dialog
             FileType = StorageItem.DisplayType;
 
             using (FileStream FStream = await StorageItem.GetFileStreamFromFileAsync(AccessMode.Read))
-            using (SLEInputStream SLEStream = new SLEInputStream(FStream, SecureArea.AESKey))
             {
-                SLEStream.LoadPropertiesOnly();
-                Level = SLEStream.KeySize == 128 ? "AES-128bit" : "AES-256bit";
-                Version = string.Join('.', Convert.ToString((int)SLEStream.Version).ToCharArray());
+                SLEHeader Header = SLEHeader.GetHeader(FStream);
+
+                Level = Header.KeySize switch
+                {
+                    128 => "AES-128bit",
+                    256 => "AES-256bit",
+                    _ => throw new NotSupportedException()
+                };
+
+                Version = string.Join('.', Convert.ToString((int)Header.Version).ToCharArray());
             }
 
             OnPropertyChanged(nameof(FileSize));

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -408,23 +409,43 @@ namespace RX_Explorer
                         {
                             using (FileStream OriginFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
                             using (FileStream EncryptFStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
-                            using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, OriginFile.Name, AESKey, AESKeySize))
                             {
-                                await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, async (s, e) =>
+                                SLEVersion Version;
+
+                                string VersionString = string.Format("{0}{1}{2}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build);
+
+                                if (ushort.TryParse(VersionString, out ushort VersionNum))
                                 {
+                                    Version = VersionNum switch
+                                    {
+                                        > 694 => SLEVersion.Version_1_2_0,
+                                        > 655 => SLEVersion.Version_1_1_0,
+                                        _ => SLEVersion.Version_1_0_0
+                                    };
+                                }
+                                else
+                                {
+                                    Version = SLEVersion.Version_1_0_0;
+                                }
+
+                                using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, new SLEHeader(Version, OriginFile.Name, AESKeySize), AESKey))
+                                {
+                                    await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            ProBar.IsIndeterminate = false;
+                                            ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
+                                        });
+                                    }, Cancellation.Token);
+
+                                    CurrentPosition += OriginFile.SizeRaw;
+
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        ProBar.IsIndeterminate = false;
-                                        ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
+                                        ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                     });
-                                }, Cancellation.Token);
-
-                                CurrentPosition += OriginFile.SizeRaw;
-
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
-                                });
+                                }
                             }
 
                             await EncryptedFile.RefreshAsync();
@@ -642,37 +663,45 @@ namespace RX_Explorer
 
                         if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                         {
-                            using (FileStream EncryptedFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
-                            using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
+                            try
                             {
-                                using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                                using (FileStream EncryptedFStream = await OriginFile.GetFileStreamFromFileAsync(AccessMode.Read))
+                                using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
                                 {
-                                    await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, async (s, e) =>
+                                    using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
                                     {
-                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, async (s, e) =>
                                         {
-                                            ProBar.IsIndeterminate = false;
-                                            ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
-                                        });
-                                    }, Cancellation.Token);
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
+                                            });
+                                        }, Cancellation.Token);
+                                    }
+
+                                    CurrentPosition += OriginFile.SizeRaw;
+
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
+                                    });
+
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.Version > SLEVersion.Version_1_0_0 ? SLEStream.Header.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.Header.FileName}", true);
+                                    }
                                 }
 
-                                CurrentPosition += OriginFile.SizeRaw;
+                                SecureCollection.Remove(OriginFile);
 
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
-                                });
-
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}", true);
-                                }
+                                await OriginFile.DeleteAsync(true);
                             }
-
-                            SecureCollection.Remove(OriginFile);
-
-                            await OriginFile.DeleteAsync(true);
+                            catch
+                            {
+                                await DecryptedFile.DeleteAsync(true);
+                                throw;
+                            }
                         }
                     }
 

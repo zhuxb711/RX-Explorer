@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 
 namespace RX_Explorer.Class
 {
     public sealed class SLEInputStream : Stream
     {
+        private const int BlockSize = 16;
+
         public override bool CanRead
         {
             get
@@ -20,7 +24,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return false;
+                return Header.Version == SLEVersion.Version_1_2_0;
             }
         }
 
@@ -36,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                throw new NotSupportedException();
+                return BaseFileStream.Length - Header.HeaderLength;
             }
         }
 
@@ -44,25 +48,36 @@ namespace RX_Explorer.Class
         {
             get
             {
-                throw new NotSupportedException();
+                if (Header.Version == SLEVersion.Version_1_2_0)
+                {
+                    return BaseFileStream.Position - Header.HeaderLength;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
             }
             set
             {
-                throw new NotSupportedException();
+                if (Header.Version == SLEVersion.Version_1_2_0)
+                {
+                    BaseFileStream.Position = Convert.ToInt64(value) + Header.HeaderLength;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
             }
         }
 
-        public SLEVersion Version { get; private set; }
+        public SLEHeader Header { get; }
 
-        public int KeySize { get; private set; }
-
-        public string FileName { get; private set; }
-
-        private Stream BaseFileStream;
+        private readonly Stream BaseFileStream;
+        private readonly CryptoStream TransformStream;
+        private readonly ICryptoTransform Transform;
         private readonly string Key;
-        private byte[] KeyArray;
-        private bool IsResourceInit;
-        private CryptoStream TransformStream;
+        private readonly byte[] Counter;
+        private bool IsDisposed;
 
         public override void Flush()
         {
@@ -71,21 +86,81 @@ namespace RX_Explorer.Class
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (!IsResourceInit)
+            switch (Header.Version)
             {
-                ReadHeader();
-                CreateAesDecryptor();
-                VerifyPassword();
+                case SLEVersion.Version_1_2_0:
+                    {
+                        long CurrentIndex = Position / BlockSize;
 
-                IsResourceInit = true;
+                        byte[] FileDataBuffer = new byte[count];
+
+                        int ByteRead = BaseFileStream.Read(FileDataBuffer, 0, FileDataBuffer.Length);
+
+                        Queue<byte> XorMask = new Queue<byte>();
+
+                        for (int Index = 0; Index < ByteRead; Index++)
+                        {
+                            if (XorMask.Count == 0)
+                            {
+                                byte[] XorBuffer = new byte[BlockSize];
+                                Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
+
+                                foreach (byte Xor in XorBuffer)
+                                {
+                                    XorMask.Enqueue(Xor);
+                                }
+
+                                Array.ConstrainedCopy(BitConverter.GetBytes(++CurrentIndex), 0, Counter, BlockSize / 2, 8);
+                            }
+
+                            byte Mask = XorMask.Dequeue();
+
+                            buffer[Index] = Convert.ToByte(FileDataBuffer[Index] ^ Mask);
+                        }
+
+                        return ByteRead;
+                    }
+                case SLEVersion.Version_1_1_0:
+                case SLEVersion.Version_1_0_0:
+                    {
+                        return TransformStream.Read(buffer, offset, count);
+                    }
+                default:
+                    {
+                        return 0;
+                    }
             }
-
-            return TransformStream.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotSupportedException();
+            if (Header.Version == SLEVersion.Version_1_2_0)
+            {
+                switch (origin)
+                {
+                    case SeekOrigin.Begin:
+                        {
+                            Position = offset;
+                            break;
+                        }
+                    case SeekOrigin.Current:
+                        {
+                            Position += offset;
+                            break;
+                        }
+                    case SeekOrigin.End:
+                        {
+                            Position = Length + offset;
+                            break;
+                        }
+                }
+
+                return Position;
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
         }
 
         public override void SetLength(long value)
@@ -98,135 +173,93 @@ namespace RX_Explorer.Class
             throw new NotSupportedException();
         }
 
-        private void CreateAesDecryptor()
+        private ICryptoTransform CreateAesDecryptor()
         {
-            using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+            int KeyLengthNeed = Header.KeySize / 8;
+
+            byte[] KeyArray;
+
+            if (Key.Length > KeyLengthNeed)
             {
-                Mode = CipherMode.CBC,
-                Padding = Version > SLEVersion.Version_1_0_0 ? PaddingMode.PKCS7 : PaddingMode.Zeros,
-                KeySize = KeySize,
-                Key = KeyArray,
-                IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
-            })
-            {
-                TransformStream = new CryptoStream(BaseFileStream, AES.CreateDecryptor(), CryptoStreamMode.Read);
+                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
             }
-        }
-
-        private void VerifyPassword()
-        {
-            byte[] PasswordConfirm = new byte[16];
-
-            TransformStream.Read(PasswordConfirm, 0, PasswordConfirm.Length);
-
-            if (Encoding.UTF8.GetString(PasswordConfirm) != "PASSWORD_CORRECT")
+            else if (Key.Length < KeyLengthNeed)
             {
-                throw new PasswordErrorException("Password is not correct");
-            }
-        }
-
-        private void ReadHeader()
-        {
-            StringBuilder Builder = new StringBuilder();
-
-            using (StreamReader Reader = new StreamReader(BaseFileStream, Encoding.UTF8, true, 256, true))
-            {
-                for (int Count = 0; Reader.Peek() >= 0; Count++)
-                {
-                    if (Count > 256)
-                    {
-                        throw new FileDamagedException("File damaged, could not be decrypted");
-                    }
-
-                    char NextChar = (char)Reader.Read();
-
-                    if (Builder.Length > 0 && NextChar == '$')
-                    {
-                        Builder.Append(NextChar);
-                        break;
-                    }
-                    else
-                    {
-                        Builder.Append(NextChar);
-                    }
-                }
-            }
-
-            string RawInfoData = Builder.ToString();
-
-            if (string.IsNullOrWhiteSpace(RawInfoData))
-            {
-                throw new FileDamagedException("File damaged, could not be decrypted");
+                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
             }
             else
             {
-                BaseFileStream.Seek(Encoding.UTF8.GetBytes(RawInfoData).Length, SeekOrigin.Begin);
+                KeyArray = Encoding.UTF8.GetBytes(Key);
+            }
 
-                if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
-                {
-                    string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-                    switch (FieldArray.Length)
+            switch (Header.Version)
+            {
+                case SLEVersion.Version_1_2_0:
                     {
-                        case 2:
-                            {
-                                Version = SLEVersion.Version_1_0_0;
-                                break;
-                            }
-                        case 3:
-                            {
-                                Version = (SLEVersion)Convert.ToInt32(FieldArray[2]);
-                                break;
-                            }
-                        default:
-                            {
-                                throw new FileDamagedException("File damaged, could not be decrypted");
-                            }
-                    }
-
-                    KeySize = Convert.ToInt32(FieldArray[0]);
-                    FileName = FieldArray[1];
-
-                    if ((KeySize != 128 && KeySize != 256) || string.IsNullOrWhiteSpace(FileName))
-                    {
-                        throw new FileDamagedException("File damaged, could not be decrypted");
-                    }
-                    else
-                    {
-                        int KeyLengthNeed = KeySize / 8;
-
-                        if (Key.Length > KeyLengthNeed)
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
-                        }
-                        else if (Key.Length < KeyLengthNeed)
+                            Mode = CipherMode.ECB,
+                            Padding = PaddingMode.None,
+                            KeySize = Header.KeySize,
+                            Key = KeyArray,
+                        })
                         {
-                            KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-                        }
-                        else
-                        {
-                            KeyArray = Encoding.UTF8.GetBytes(Key);
+                            return AES.CreateEncryptor();
                         }
                     }
-                }
-                else
-                {
-                    throw new FileDamagedException("File damaged, could not be decrypted");
-                }
+                case SLEVersion.Version_1_1_0:
+                    {
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                        {
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.PKCS7,
+                            KeySize = Header.KeySize,
+                            Key = KeyArray,
+                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                        })
+                        {
+                            return AES.CreateDecryptor();
+                        }
+                    }
+                case SLEVersion.Version_1_0_0:
+                    {
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                        {
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.Zeros,
+                            KeySize = Header.KeySize,
+                            Key = KeyArray,
+                            IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                        })
+                        {
+                            return AES.CreateDecryptor();
+                        }
+                    }
+                default:
+                    {
+                        return null;
+                    }
             }
         }
 
-        public void LoadPropertiesOnly()
+        private bool VerifyPassword()
         {
-            ReadHeader();
+            BaseFileStream.Seek(Header.HeaderLength, SeekOrigin.Begin);
+
+            byte[] PasswordConfirm = new byte[BlockSize];
+            Read(PasswordConfirm, 0, PasswordConfirm.Length);
+            return Encoding.UTF8.GetString(PasswordConfirm) == "PASSWORD_CORRECT";
         }
 
         protected override void Dispose(bool disposing)
         {
-            TransformStream?.Dispose();
-            BaseFileStream?.Dispose();
-            TransformStream = null;
-            BaseFileStream = null;
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                Transform?.Dispose();
+                TransformStream?.Dispose();
+                BaseFileStream?.Dispose();
+            }
         }
 
         public SLEInputStream(Stream BaseFileStream, string Key)
@@ -248,6 +281,33 @@ namespace RX_Explorer.Class
 
             this.Key = Key;
             this.BaseFileStream = BaseFileStream;
+            this.BaseFileStream.Seek(0, SeekOrigin.Begin);
+
+            Header = SLEHeader.GetHeader(this.BaseFileStream);
+
+            Transform = CreateAesDecryptor();
+
+            switch (Header.Version)
+            {
+                case SLEVersion.Version_1_2_0:
+                    {
+                        byte[] Nonce = new EasClientDeviceInformation().Id.ToByteArray().Take(8).ToArray();
+                        Array.Resize(ref Nonce, 16);
+                        Counter = Nonce;
+                        break;
+                    }
+                case SLEVersion.Version_1_1_0:
+                case SLEVersion.Version_1_0_0:
+                    {
+                        TransformStream = new CryptoStream(BaseFileStream, Transform, CryptoStreamMode.Read);
+                        break;
+                    }
+            }
+
+            if (!VerifyPassword())
+            {
+                throw new PasswordErrorException("Password is not correct");
+            }
         }
     }
 }
