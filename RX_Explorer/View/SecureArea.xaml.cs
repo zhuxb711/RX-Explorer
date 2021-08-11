@@ -22,6 +22,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer
 {
@@ -59,6 +60,8 @@ namespace RX_Explorer
 
         private bool IsNewStart = true;
 
+        private bool IsNavigatedFromInnerViewer;
+
         private CancellationTokenSource Cancellation;
 
         private ListViewBaseSelectionExtention SelectionExtention;
@@ -67,212 +70,233 @@ namespace RX_Explorer
         {
             InitializeComponent();
             PointerPressedHandler = new PointerEventHandler(SecureGridView_PointerPressed);
+            SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
             Loaded += SecureArea_Loaded;
             Unloaded += SecureArea_Unloaded;
-            SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            IsNavigatedFromInnerViewer = true;
         }
 
         private void SecureArea_Unloaded(object sender, RoutedEventArgs e)
         {
-            ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
             CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
-            SelectionExtention?.Dispose();
-            EmptyTips.Visibility = Visibility.Collapsed;
-            SecureCollection.Clear();
             SecureGridView.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+
+            if (!IsNavigatedFromInnerViewer)
+            {
+                ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
+                SelectionExtention?.Dispose();
+                EmptyTips.Visibility = Visibility.Collapsed;
+                SecureCollection.Clear();
+            }
         }
 
         private async void SecureArea_Loaded(object sender, RoutedEventArgs e)
         {
-            WholeArea.Visibility = Visibility.Collapsed;
-
+            CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
             SecureGridView.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
 
-            ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
-
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
+            if (IsNavigatedFromInnerViewer)
             {
-                AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
-
-                if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is not string LockMode || LockMode != nameof(CloseLockMode) || IsNewStart)
-                {
-                    if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
-                    {
-                    RETRY:
-                        switch (await WindowsHelloAuthenticator.VerifyUserAsync())
-                        {
-                            case AuthenticatorState.VerifyPassed:
-                                {
-                                    break;
-                                }
-                            case AuthenticatorState.UnknownError:
-                            case AuthenticatorState.VerifyFailed:
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_WinHelloAuthFail_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_TryAgain"),
-                                        SecondaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                                    };
-
-                                    ContentDialogResult Result = await Dialog.ShowAsync();
-
-                                    if (Result == ContentDialogResult.Primary)
-                                    {
-                                        goto RETRY;
-                                    }
-                                    else if (Result == ContentDialogResult.Secondary)
-                                    {
-                                        if (!await EnterByPassword())
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Frame.GoBack();
-                                        return;
-                                    }
-
-                                    break;
-                                }
-                            case AuthenticatorState.UserNotRegistered:
-                            case AuthenticatorState.CredentialNotFound:
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await Dialog.ShowAsync();
-
-                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
-
-                                    if (!await EnterByPassword())
-                                    {
-                                        return;
-                                    }
-
-                                    break;
-                                }
-                            case AuthenticatorState.WindowsHelloUnsupport:
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                        Content = Globalization.GetString("QueueDialog_WinHelloDisable_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                                    };
-
-                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
-
-                                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                                    {
-                                        if (!await EnterByPassword())
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Frame.GoBack();
-                                        return;
-                                    }
-
-                                    break;
-                                }
-                        }
-                    }
-                    else
-                    {
-                        if (!await EnterByPassword())
-                        {
-                            return;
-                        }
-                    }
-                }
+                IsNavigatedFromInnerViewer = false;
             }
             else
             {
-                try
+                WholeArea.Visibility = Visibility.Collapsed;
+
+                ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
+
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
                 {
-                    await ActivateLoading(true, false, Globalization.GetString("Progress_Tip_CheckingLicense"));
+                    AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
 
-                    if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                    if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode && LockMode == nameof(CloseLockMode) && !IsNewStart))
                     {
-                        await Task.Delay(500);
-                    }
-                    else
-                    {
-                        SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
+                        IsNavigatedFromInnerViewer = false;
 
-                        if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
+                        if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
                         {
-                            StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync();
-
-                            if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
+                        RETRY:
+                            switch (await WindowsHelloAuthenticator.VerifyUserAsync())
                             {
-                                QueueContentDialog SuccessDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                    Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                case AuthenticatorState.VerifyPassed:
+                                    {
+                                        break;
+                                    }
+                                case AuthenticatorState.UnknownError:
+                                case AuthenticatorState.VerifyFailed:
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloAuthFail_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_TryAgain"),
+                                            SecondaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                                        };
 
-                                await SuccessDialog.ShowAsync();
-                            }
-                            else
-                            {
-                                Frame.GoBack();
-                                return;
+                                        ContentDialogResult Result = await Dialog.ShowAsync();
+
+                                        if (Result == ContentDialogResult.Primary)
+                                        {
+                                            goto RETRY;
+                                        }
+                                        else if (Result == ContentDialogResult.Secondary)
+                                        {
+                                            if (!await EnterByPassword())
+                                            {
+                                                MainPage.Current.Nav.GoBack();
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            MainPage.Current.Nav.GoBack();
+                                            return;
+                                        }
+
+                                        break;
+                                    }
+                                case AuthenticatorState.UserNotRegistered:
+                                case AuthenticatorState.CredentialNotFound:
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+                                        _ = await Dialog.ShowAsync();
+
+                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
+                                        if (!await EnterByPassword())
+                                        {
+                                            MainPage.Current.Nav.GoBack();
+                                            return;
+                                        }
+
+                                        break;
+                                    }
+                                case AuthenticatorState.WindowsHelloUnsupport:
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloDisable_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                                        };
+
+                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
+                                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                        {
+                                            if (!await EnterByPassword())
+                                            {
+                                                MainPage.Current.Nav.GoBack();
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            MainPage.Current.Nav.GoBack();
+                                            return;
+                                        }
+
+                                        break;
+                                    }
                             }
                         }
                         else
                         {
-                            Frame.GoBack();
-                            return;
+                            if (!await EnterByPassword())
+                            {
+                                MainPage.Current.Nav.GoBack();
+                                return;
+                            }
                         }
                     }
                 }
-                finally
-                {
-                    await ActivateLoading(false);
-                }
-
-                SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
-
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                {
-                    AESKeySize = Dialog.AESKeySize;
-                    UnlockPassword = Dialog.Password;
-
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
-                    ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
-                }
                 else
                 {
-                    if (Dialog.IsEnableWindowsHello)
+                    try
                     {
-                        await WindowsHelloAuthenticator.DeleteUserAsync();
+                        ActivateLoading(true, false, Globalization.GetString("Progress_Tip_CheckingLicense"));
+
+                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                        {
+                            await Task.Delay(500);
+                        }
+                        else
+                        {
+                            SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
+
+                            if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
+                            {
+                                StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync();
+
+                                if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
+                                {
+                                    QueueContentDialog SuccessDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await SuccessDialog.ShowAsync();
+                                }
+                                else
+                                {
+                                    MainPage.Current.Nav.GoBack();
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                MainPage.Current.Nav.GoBack();
+                                return;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        ActivateLoading(false);
                     }
 
-                    Frame.GoBack();
-                    return;
+                    SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
+
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        AESKeySize = Dialog.AESKeySize;
+                        UnlockPassword = Dialog.Password;
+
+                        ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
+                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
+                        ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
+                    }
+                    else
+                    {
+                        if (Dialog.IsEnableWindowsHello)
+                        {
+                            await WindowsHelloAuthenticator.DeleteUserAsync();
+                        }
+
+                        MainPage.Current.Nav.GoBack();
+                        return;
+                    }
                 }
+
+                WholeArea.Visibility = Visibility.Visible;
+
+                SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
+
+                await LoadSecureFile();
             }
-
-            CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
-
-            WholeArea.Visibility = Visibility.Visible;
-
-            SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
-
-            await LoadSecureFile();
         }
 
         private void SecureArea_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -297,17 +321,7 @@ namespace RX_Explorer
 
         private async Task<bool> EnterByPassword()
         {
-            SecureAreaVerifyDialog Dialog = new SecureAreaVerifyDialog(UnlockPassword);
-
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-            {
-                return true;
-            }
-            else
-            {
-                Frame.GoBack();
-                return false;
-            }
+            return await new SecureAreaVerifyDialog(UnlockPassword).ShowAsync() is ContentDialogResult.Primary;
         }
 
         private async Task LoadSecureFile()
@@ -360,7 +374,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    Frame.GoBack();
+                    MainPage.Current.Nav.GoBack();
                 }
             }
         }
@@ -384,7 +398,7 @@ namespace RX_Explorer
         {
             if (FileList.Any())
             {
-                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
+                ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
 
                 Cancellation = new CancellationTokenSource();
 
@@ -479,7 +493,7 @@ namespace RX_Explorer
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await ActivateLoading(false);
+                    ActivateLoading(false);
                 }
             }
         }
@@ -644,7 +658,7 @@ namespace RX_Explorer
 
             if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
             {
-                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
+                ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
 
                 Cancellation = new CancellationTokenSource();
 
@@ -752,7 +766,7 @@ namespace RX_Explorer
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await ActivateLoading(false);
+                    ActivateLoading(false);
                 }
             }
         }
@@ -826,10 +840,8 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ActivateLoading(bool ActivateOrNot, bool ShowCancelButton = true, string DisplayString = null)
+        private void ActivateLoading(bool ActivateOrNot, bool ShowCancelButton = true, string DisplayString = null)
         {
-            await Task.Delay(500);
-
             if (ActivateOrNot)
             {
                 ProBar.IsIndeterminate = true;
@@ -967,7 +979,7 @@ namespace RX_Explorer
 
         private void SecureGridView_Holding(object sender, HoldingRoutedEventArgs e)
         {
-            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            if (e.HoldingState == HoldingState.Started)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageFile File)
                 {
@@ -1013,7 +1025,7 @@ namespace RX_Explorer
                 StorageLocation.Text = Folder.Path;
                 ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = Folder.Path;
 
-                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
+                ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Transfering"));
 
                 try
                 {
@@ -1048,7 +1060,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    await ActivateLoading(false);
+                    ActivateLoading(false);
                 }
             }
         }
@@ -1093,7 +1105,6 @@ namespace RX_Explorer
                         ".pdf" => typeof(PdfReader),
                         _ => null
                     };
-
 
                     if (InternalType != null)
                     {

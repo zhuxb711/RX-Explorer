@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -86,49 +85,84 @@ namespace RX_Explorer.Class
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            switch (Header.Version)
+            try
             {
-                case SLEVersion.Version_1_5_0:
-                    {
-                        long CurrentIndex = Position / BlockSize;
-
-                        byte[] FileDataBuffer = new byte[count];
-
-                        int ByteRead = BaseFileStream.Read(FileDataBuffer, 0, FileDataBuffer.Length);
-
-                        Queue<byte> XorMask = new Queue<byte>();
-
-                        for (int Index = 0; Index < ByteRead; Index++)
+                switch (Header.Version)
+                {
+                    case SLEVersion.Version_1_5_0:
                         {
-                            if (XorMask.Count == 0)
+                            if (Position + offset > Length)
                             {
-                                Array.ConstrainedCopy(BitConverter.GetBytes(CurrentIndex++), 0, Counter, BlockSize / 2, 8);
-
-                                byte[] XorBuffer = new byte[BlockSize];
-                                Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
-
-                                foreach (byte Xor in XorBuffer)
-                                {
-                                    XorMask.Enqueue(Xor);
-                                }
+                                return 0;
                             }
+                            else
+                            {
+                                long StartPosition = Position + offset;
+                                long CurrentBlockIndex = StartPosition / BlockSize;
 
-                            byte Mask = XorMask.Dequeue();
+                                byte[] FileDataBuffer = new byte[count];
+                                byte[] XorBuffer = new byte[BlockSize];
 
-                            buffer[Index] = Convert.ToByte(FileDataBuffer[Index] ^ Mask);
+                                int ByteRead = BaseFileStream.Read(FileDataBuffer, offset, FileDataBuffer.Length);
+
+                                long StartBlockOffset = StartPosition % BlockSize;
+                                long EndBlockOffset = (StartPosition + ByteRead) % BlockSize;
+
+                                long Index = 0;
+
+                                while (true)
+                                {
+                                    Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+
+                                    Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
+
+                                    if (Index == 0)
+                                    {
+                                        for (int Index2 = 0; Index2 < BlockSize - StartBlockOffset; Index2++)
+                                        {
+                                            buffer[Index2] = (byte)(XorBuffer[Index2 + StartBlockOffset] ^ FileDataBuffer[Index2]);
+                                        }
+
+                                        Index += BlockSize - StartBlockOffset;
+                                    }
+                                    else if (Index + BlockSize > ByteRead)
+                                    {
+                                        for (int Index2 = 0; Index2 < EndBlockOffset; Index2++)
+                                        {
+                                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ FileDataBuffer[Index + Index2]);
+                                        }
+
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        for (int Index2 = 0; Index2 < BlockSize; Index2++)
+                                        {
+                                            buffer[Index + Index2] = (byte)(XorBuffer[Index2] ^ FileDataBuffer[Index + Index2]);
+                                        }
+
+                                        Index += BlockSize;
+                                    }
+                                }
+
+                                return ByteRead;
+                            }
                         }
-
-                        return ByteRead;
-                    }
-                case SLEVersion.Version_1_1_0:
-                case SLEVersion.Version_1_0_0:
-                    {
-                        return TransformStream.Read(buffer, offset, count);
-                    }
-                default:
-                    {
-                        return 0;
-                    }
+                    case SLEVersion.Version_1_1_0:
+                    case SLEVersion.Version_1_0_0:
+                        {
+                            return TransformStream.Read(buffer, offset, count);
+                        }
+                    default:
+                        {
+                            return 0;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(SLEInputStream.Read)} threw an exception");
+                return 0;
             }
         }
 
@@ -251,17 +285,6 @@ namespace RX_Explorer.Class
             return Encoding.UTF8.GetString(PasswordConfirm) == "PASSWORD_CORRECT";
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (!IsDisposed)
-            {
-                IsDisposed = true;
-                Transform?.Dispose();
-                TransformStream?.Dispose();
-                BaseFileStream?.Dispose();
-            }
-        }
-
         public SLEInputStream(Stream BaseFileStream, string Key)
         {
             if (BaseFileStream == null)
@@ -307,6 +330,17 @@ namespace RX_Explorer.Class
             if (!VerifyPassword())
             {
                 throw new PasswordErrorException("Password is not correct");
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                TransformStream?.Dispose();
+                Transform?.Dispose();
+                BaseFileStream?.Dispose();
             }
         }
     }

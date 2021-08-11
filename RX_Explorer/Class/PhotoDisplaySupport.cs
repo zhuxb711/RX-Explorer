@@ -61,6 +61,12 @@ namespace RX_Explorer.Class
             PhotoFile = Item;
         }
 
+        public PhotoDisplaySupport(BitmapImage Image)
+        {
+            BitmapSource = Image;
+            IsThumbnailPicture = false;
+        }
+
         /// <summary>
         /// 使用原图替换缩略图
         /// </summary>

@@ -31,6 +31,8 @@
             <AppBarButton Icon="Save"
                           x:Uid="TextViewerSave"
                           Label="保存"
+                          Name="Save"
+                          IsEnabled="False"
                           Click="Save_Click" />
             <AppBarButton Icon="Cancel"
                           x:Uid="TextViewerCancel"

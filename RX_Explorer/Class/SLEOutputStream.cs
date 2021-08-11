@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -95,40 +94,46 @@ namespace RX_Explorer.Class
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            switch (Header.Version)
+            try
             {
-                case SLEVersion.Version_1_5_0:
-                    {
-                        Queue<byte> XorMask = new Queue<byte>();
-
-                        for (int Index = 0; Index < count; Index++)
+                switch (Header.Version)
+                {
+                    case SLEVersion.Version_1_5_0:
                         {
-                            if (XorMask.Count == 0)
-                            {
-                                Array.ConstrainedCopy(BitConverter.GetBytes(Position / BlockSize), 0, Counter, BlockSize / 2, 8);
+                            long StartPosition = Position + offset;
+                            long CurrentBlockIndex = StartPosition / BlockSize;
 
-                                byte[] XorBuffer = new byte[BlockSize];
+                            byte[] XorBuffer = new byte[BlockSize];
+
+                            for (int Index = 0; Index < count; Index += BlockSize)
+                            {
+                                Array.ConstrainedCopy(BitConverter.GetBytes(CurrentBlockIndex++), 0, Counter, BlockSize / 2, 8);
+
                                 Transform.TransformBlock(Counter, 0, Counter.Length, XorBuffer, 0);
 
-                                foreach (byte Xor in XorBuffer)
+                                int ValidDataLength = Math.Min(BlockSize, count - Index);
+
+                                for (int Index2 = 0; Index2 < ValidDataLength; Index2++)
                                 {
-                                    XorMask.Enqueue(Xor);
+                                    XorBuffer[Index2] = (byte)(XorBuffer[Index2] ^ buffer[Index + Index2]);
                                 }
+
+                                BaseFileStream.Write(XorBuffer, offset, ValidDataLength);
                             }
 
-                            byte Mask = XorMask.Dequeue();
-
-                            BaseFileStream.WriteByte(Convert.ToByte(buffer[Index] ^ Mask));
+                            break;
                         }
-
-                        break;
-                    }
-                case SLEVersion.Version_1_1_0:
-                case SLEVersion.Version_1_0_0:
-                    {
-                        TransformStream.Write(buffer, offset, count);
-                        break;
-                    }
+                    case SLEVersion.Version_1_1_0:
+                    case SLEVersion.Version_1_0_0:
+                        {
+                            TransformStream.Write(buffer, offset, count);
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(SLEOutputStream.Write)} threw an exception");
             }
         }
 
@@ -212,8 +217,8 @@ namespace RX_Explorer.Class
             if (!IsDisposed)
             {
                 IsDisposed = true;
-                Transform?.Dispose();
                 TransformStream?.Dispose();
+                Transform?.Dispose();
                 BaseFileStream?.Dispose();
             }
         }

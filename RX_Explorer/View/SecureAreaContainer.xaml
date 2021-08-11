@@ -1,0 +1,16 @@
+﻿<Page x:Class="RX_Explorer.SecureAreaContainer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      NavigationCacheMode="Required"
+      Background="Transparent">
+
+    <Grid>
+        <Frame x:Name="Nav"
+               x:FieldModifier="public" 
+               Navigated="Nav_Navigated"/>
+    </Grid>
+</Page>

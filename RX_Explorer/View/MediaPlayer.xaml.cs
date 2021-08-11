@@ -144,28 +144,52 @@ namespace RX_Explorer
         /// <returns>艺术家名称</returns>
         private async Task<BitmapImage> GetMusicCoverAsync(FileSystemStorageFile MediaFile)
         {
+            Stream FStream = null;
+
             try
             {
-                using (FileStream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read))
-                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
+                if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+
+                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                    if (Header.Version >= SLEVersion.Version_1_5_0)
                     {
-                        byte[] ImageData = TagFile.Tag.Pictures[0].Data.Data;
+                        FStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                    }
+                }
+                else
+                {
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                }
 
-                        if (ImageData != null && ImageData.Length != 0)
+                if (FStream != null)
+                {
+                    using (TagLib.File TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FStream, FStream)))
+                    {
+                        if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
                         {
-                            using (MemoryStream ImageStream = new MemoryStream(ImageData))
+                            byte[] ImageData = TagFile.Tag.Pictures[0].Data.Data;
+
+                            if (ImageData != null && ImageData.Length != 0)
                             {
-                                BitmapImage Bitmap = new BitmapImage
+                                using (MemoryStream ImageStream = new MemoryStream(ImageData))
                                 {
-                                    DecodePixelHeight = 250,
-                                    DecodePixelWidth = 250
-                                };
+                                    BitmapImage Bitmap = new BitmapImage
+                                    {
+                                        DecodePixelHeight = 250,
+                                        DecodePixelWidth = 250
+                                    };
 
-                                await Bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
+                                    await Bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
 
-                                return Bitmap;
+                                    return Bitmap;
+                                }
+                            }
+                            else
+                            {
+                                return null;
                             }
                         }
                         else
@@ -173,54 +197,88 @@ namespace RX_Explorer
                             return null;
                         }
                     }
-                    else
-                    {
-                        return null;
-                    }
+                }
+                else
+                {
+                    return null;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not get music cover");
                 return null;
+            }
+            finally
+            {
+                FStream?.Dispose();
             }
         }
 
         private async Task<string> GetArtistAsync(FileSystemStorageFile MediaFile)
         {
+            Stream FStream = null;
+
             try
             {
-                using (FileStream FileStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
-                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
+                if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)
-                    {
-                        string Artist = "";
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
 
-                        if (TagFile.Tag.AlbumArtists.Length == 1)
+                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                    if (Header.Version >= SLEVersion.Version_1_5_0)
+                    {
+                        FStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                    }
+                }
+                else
+                {
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                }
+
+                if (FStream != null)
+                {
+                    using (TagLib.File TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FStream, FStream)))
+                    {
+                        if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)
                         {
-                            return TagFile.Tag.AlbumArtists[0];
+                            string Artist = "";
+
+                            if (TagFile.Tag.AlbumArtists.Length == 1)
+                            {
+                                return TagFile.Tag.AlbumArtists[0];
+                            }
+                            else
+                            {
+                                Artist = TagFile.Tag.AlbumArtists[0];
+                            }
+
+                            foreach (var item in TagFile.Tag.AlbumArtists)
+                            {
+                                Artist = Artist + "/" + item;
+                            }
+
+                            return Artist;
                         }
                         else
                         {
-                            Artist = TagFile.Tag.AlbumArtists[0];
+                            return Globalization.GetString("UnknownText");
                         }
-
-                        foreach (var item in TagFile.Tag.AlbumArtists)
-                        {
-                            Artist = Artist + "/" + item;
-                        }
-
-                        return Artist;
-                    }
-                    else
-                    {
-                        return Globalization.GetString("UnknownText");
                     }
                 }
+                else
+                {
+                    return Globalization.GetString("UnknownText");
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not get artist");
                 return Globalization.GetString("UnknownText");
+            }
+            finally
+            {
+                FStream?.Dispose();
             }
         }
 

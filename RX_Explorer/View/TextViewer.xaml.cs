@@ -18,7 +18,7 @@ namespace RX_Explorer
     {
         private readonly ObservableCollection<Encoding> Encodings = new ObservableCollection<Encoding>();
 
-        private FileSystemStorageFile TextFile;
+        private string TextFilePath;
 
         private Encoding SaveEncoding;
 
@@ -46,8 +46,11 @@ namespace RX_Explorer
             }
         }
 
-        private async Task Initialize()
+        private async Task Initialize(FileSystemStorageFile TextFile)
         {
+            Title.Text = TextFile.Name;
+            TextFilePath = TextFile.Path;
+
             TextEncodingDialog EncodingDialog = new TextEncodingDialog(TextFile, Encodings);
 
             if (await EncodingDialog.ShowAsync() == ContentDialogResult.Primary)
@@ -65,16 +68,12 @@ namespace RX_Explorer
         {
             if (e?.Parameter is FileSystemStorageFile TextFile)
             {
-                Title.Text = TextFile.Name;
-                this.TextFile = TextFile;
-
-                await Initialize();
+                await Initialize(TextFile);
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            TextFile = null;
             EditText.Text = string.Empty;
         }
 
@@ -84,8 +83,34 @@ namespace RX_Explorer
 
             try
             {
-                using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
-                using (StreamReader Reader = new StreamReader(Stream, Enco, false))
+                Stream TextStream = null;
+
+                if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                {
+                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read);
+
+                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                    if (Header.Version >= SLEVersion.Version_1_5_0)
+                    {
+                        TextStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+                else if (File.Type.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    Save.IsEnabled = true;
+                    TextStream = await File.GetStreamFromFileAsync(AccessMode.Read);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+
+                using (StreamReader Reader = new StreamReader(TextStream, Enco, false))
                 {
                     EditText.Text = await Reader.ReadToEndAsync();
                 }
@@ -112,7 +137,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
+                if (await FileSystemStorageItemBase.CreateNewAsync(TextFilePath, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                 {
                     using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Write))
                     using (StreamWriter Writer = new StreamWriter(Stream, SaveEncoding))
@@ -125,7 +150,7 @@ namespace RX_Explorer
                     throw new FileNotFoundException();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not save the content to file");
 

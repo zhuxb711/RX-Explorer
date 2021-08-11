@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace RX_Explorer
         private HashSet<uint> LoadTable;
 
         private PdfDocument Pdf;
+        private IRandomAccessStream PdfStream;
         private int LastPageIndex;
         private CancellationTokenSource Cancellation;
         private double OriginHorizonOffset;
@@ -93,25 +95,46 @@ namespace RX_Explorer
             {
                 LoadingControl.IsLoading = true;
 
-                using (IRandomAccessStream PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                if (PdfFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream);
-                    }
-                    catch (Exception)
-                    {
-                        PdfPasswordDialog Dialog = new PdfPasswordDialog();
+                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read);
 
-                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                        {
-                            Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);
-                        }
-                        else
-                        {
-                            Frame.GoBack();
-                            return;
-                        }
+                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                    if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                    {
+                        PdfStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream();
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+                else if (PdfFile.Type.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+
+                try
+                {
+                    Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream);
+                }
+                catch (Exception)
+                {
+                    PdfPasswordDialog Dialog = new PdfPasswordDialog();
+
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);
+                    }
+                    else
+                    {
+                        Frame.GoBack();
+                        return;
                     }
                 }
 
@@ -145,8 +168,6 @@ namespace RX_Explorer
             }
             finally
             {
-                await Task.Delay(500);
-
                 LoadingControl.IsLoading = false;
             }
         }
@@ -163,6 +184,7 @@ namespace RX_Explorer
 
             LoadQueue?.Clear();
             PdfCollection?.Clear();
+            PdfStream?.Dispose();
         }
 
         private async Task JumpToPageIndexAsync(uint Index)
@@ -192,6 +214,7 @@ namespace RX_Explorer
                 }
             }
 
+            LastPageIndex = IndexINT;
             Flip.SelectedIndex = IndexINT;
         }
 
@@ -230,33 +253,28 @@ namespace RX_Explorer
                         //如果LastPageIndex < CurrentIndex，说明是向右翻页
                         if (LastPageIndex < CurrentIndex)
                         {
-                            CurrentLoading = (uint)(CurrentIndex + 4);
-
-                            if (!LoadTable.Contains(CurrentLoading) || CurrentLoading >= Pdf.PageCount)
-                            {
-                                continue;
-                            }
+                            CurrentLoading = Convert.ToUInt32(Math.Min(CurrentIndex + 4, Pdf.PageCount - 1));
                         }
                         else
                         {
-                            CurrentLoading = (uint)(CurrentIndex - 4);
-
-                            if (!LoadTable.Contains(CurrentLoading) || CurrentLoading < 0)
-                            {
-                                continue;
-                            }
+                            CurrentLoading = Convert.ToUInt32(Math.Max(CurrentIndex - 4, 0));
                         }
 
-                        using (PdfPage Page = Pdf.GetPage(CurrentLoading))
-                        using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
+                        if (LoadTable.Contains(CurrentLoading))
                         {
-                            await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
+                            using (PdfPage Page = Pdf.GetPage(CurrentLoading))
+                            using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
                             {
-                                DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
-                                DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
-                            });
+                                await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
+                                {
+                                    DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
+                                    DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
+                                });
 
-                            await PdfCollection[Convert.ToInt32(CurrentLoading)].SetSourceAsync(PageStream);
+                                await PdfCollection[Convert.ToInt32(CurrentLoading)].SetSourceAsync(PageStream);
+                            }
+
+                            LoadTable.Remove(CurrentLoading);
                         }
 
                         LastPageIndex = CurrentIndex;

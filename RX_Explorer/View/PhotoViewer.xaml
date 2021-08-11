@@ -60,6 +60,7 @@
         <FlipView x:Name="Flip"
                   Grid.Row="1"
                   Opacity="0"
+                  ItemsSource="{x:Bind PhotoCollection}"
                   Background="Transparent">
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="local:PhotoDisplaySupport">

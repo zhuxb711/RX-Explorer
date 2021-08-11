@@ -512,7 +512,7 @@ namespace RX_Explorer
                 {
                     {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
                     {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
-                    {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
+                    {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
@@ -681,6 +681,10 @@ namespace RX_Explorer
             if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
+            }
+            else if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
+            {
+                NavView.IsBackEnabled = (SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault();
             }
             else
             {
@@ -929,7 +933,7 @@ namespace RX_Explorer
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                     {
                         await SettingControl.Hide();
-                        Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo());
+                        Nav.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
                     {
@@ -1001,6 +1005,10 @@ namespace RX_Explorer
                     {
                         NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
                     }
+                    else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
+                    {
+                        NavView.IsBackEnabled = (SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault();
+                    }
                     else
                     {
                         NavView.IsBackEnabled = false;
@@ -1015,9 +1023,19 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (TabViewContainer.CurrentNavigationControl.CanGoBack)
+                    if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                     {
-                        TabViewContainer.CurrentNavigationControl.GoBack();
+                        if ((TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault())
+                        {
+                            TabViewContainer.CurrentNavigationControl.GoBack();
+                        }
+                    }
+                    else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
+                    {
+                        if ((SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault())
+                        {
+                            SecureAreaContainer.Current.Nav.GoBack();
+                        }
                     }
                 }
             }

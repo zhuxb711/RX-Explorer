@@ -368,6 +368,9 @@
     <Compile Include="View\SecureArea.xaml.cs">
       <DependentUpon>SecureArea.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SecureAreaContainer.xaml.cs">
+      <DependentUpon>SecureAreaContainer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SettingControl.xaml.cs">
       <DependentUpon>SettingControl.xaml</DependentUpon>
     </Compile>
@@ -722,6 +725,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\SecureAreaContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\SettingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -799,10 +806,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>5.0.8</Version>
+      <Version>5.0.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.10.0</Version>
+      <Version>3.11.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
