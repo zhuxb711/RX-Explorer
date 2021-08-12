@@ -4186,6 +4186,18 @@ Invalid names include
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</target>
         </trans-unit>
+        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+          <source>Tab preview</source>
+          <target state="translated">標籤頁預覽</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">啟用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

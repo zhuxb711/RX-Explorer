@@ -4184,6 +4184,18 @@ Las denominaciones no válidas son:
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</target>
         </trans-unit>
+        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+          <source>Tab preview</source>
+          <target state="translated">Vista previa de la pestaña</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Desactivado</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
+        </trans-unit>
       </group>
     </body>
   </file>

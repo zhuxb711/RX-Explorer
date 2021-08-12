@@ -4184,6 +4184,18 @@ Inkorrekte Namen sind
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</target>
         </trans-unit>
+        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+          <source>Tab preview</source>
+          <target state="translated">Registerkarten Vorschau</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Deaktiviert</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreview.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Ermöglicht</target>
+        </trans-unit>
       </group>
     </body>
   </file>

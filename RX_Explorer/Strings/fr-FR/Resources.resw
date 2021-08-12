@@ -3153,4 +3153,13 @@ Les noms non valides incluent
   <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
     <value>Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</value>
   </data>
+  <data name="SettingTabPreview.Header" xml:space="preserve">
+    <value>Aperçu de l'onglet</value>
+  </data>
+  <data name="SettingTabPreview.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="SettingTabPreview.OnContent" xml:space="preserve">
+    <value>Activé</value>
+  </data>
 </root>

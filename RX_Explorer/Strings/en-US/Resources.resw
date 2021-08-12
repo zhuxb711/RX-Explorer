@@ -3258,4 +3258,13 @@ Invalid names include
   <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
     <value>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</value>
   </data>
+  <data name="SettingTabPreview.Header" xml:space="preserve">
+    <value>Tab preview</value>
+  </data>
+  <data name="SettingTabPreview.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="SettingTabPreview.OnContent" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
 </root>

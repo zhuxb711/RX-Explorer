@@ -167,6 +167,7 @@
                               Header="标签页预览"
                               OnContent="启用"
                               OffContent="禁用"
+                              x:Uid="SettingTabPreview"
                               Name="TabPreviewSwitch"
                               Toggled="TabPreviewSwitch_Toggled"/>
 
