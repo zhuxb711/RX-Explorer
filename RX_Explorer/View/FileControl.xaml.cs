@@ -69,6 +69,8 @@ namespace RX_Explorer
         private CancellationTokenSource DelayGoBackHoldCancel;
         private CancellationTokenSource DelayGoForwardHoldCancel;
 
+        private readonly SemaphoreSlim LoadLocker = new SemaphoreSlim(1, 1);
+
         public bool BlockKeyboardShortCutInput;
 
         private volatile FilePresenter currentPresenter;
@@ -165,10 +167,14 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
         {
+            EventDeferral Deferral = args.GetDeferral();
+
             try
             {
+                await LoadLocker.WaitAsync();
+
                 if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
                     FolderTree.RootNodes.Remove(Node);
@@ -178,6 +184,11 @@ namespace RX_Explorer
             {
                 LogTracer.Log(ex, "An exception was threw in DriveRemoved");
             }
+            finally
+            {
+                LoadLocker.Release();
+                Deferral.Complete();
+            }
         }
 
         private async void CommonAccessCollection_DriveAdded(object sender, DriveChangedDeferredEventArgs args)
@@ -186,6 +197,8 @@ namespace RX_Explorer
 
             try
             {
+                await LoadLocker.WaitAsync();
+
                 if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                 {
                     if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
@@ -228,6 +241,7 @@ namespace RX_Explorer
             }
             finally
             {
+                LoadLocker.Release();
                 Deferral.Complete();
             }
         }
@@ -528,12 +542,12 @@ namespace RX_Explorer
 
                         ViewModeControl = new ViewModeController(ViewModeComboBox);
 
-                        await Initialize(Parameters.Item2);
-
                         CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
                         CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
                         CommonAccessCollection.LibraryAdded += CommonAccessCollection_LibraryAdded;
                         CommonAccessCollection.LibraryRemoved += CommonAccessCollection_LibraryRemoved;
+
+                        await Initialize(Parameters.Item2);
                     }
                 }
                 catch (Exception ex)
@@ -547,10 +561,14 @@ namespace RX_Explorer
             }
         }
 
-        private void CommonAccessCollection_LibraryRemoved(object sender, LibraryChangedDeferredEventArgs e)
+        private async void CommonAccessCollection_LibraryRemoved(object sender, LibraryChangedDeferredEventArgs e)
         {
+            EventDeferral Deferral = e.GetDeferral();
+
             try
             {
+                await LoadLocker.WaitAsync();
+
                 if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                 {
                     if (QuickAccessNode.IsExpanded)
@@ -563,6 +581,11 @@ namespace RX_Explorer
             {
                 LogTracer.Log(ex, "Sync Library change failed");
             }
+            finally
+            {
+                LoadLocker.Release();
+                Deferral.Complete();
+            }
         }
 
         private async void CommonAccessCollection_LibraryAdded(object sender, LibraryChangedDeferredEventArgs e)
@@ -571,17 +594,34 @@ namespace RX_Explorer
 
             try
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                await LoadLocker.WaitAsync();
+
+                TreeViewNode QuickAccessNode;
+
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode Node)
                 {
-                    if (QuickAccessNode.IsExpanded)
+                    QuickAccessNode = Node;
+                }
+                else
+                {
+                    QuickAccessNode = new TreeViewNode
                     {
-                        QuickAccessNode.Children.Add(new TreeViewNode
-                        {
-                            IsExpanded = false,
-                            Content = new TreeViewNodeContent(e.StorageItem.Path, e.StorageItem.DisplayName),
-                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        });
-                    }
+                        Content = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")),
+                        IsExpanded = false,
+                        HasUnrealizedChildren = true
+                    };
+
+                    FolderTree.RootNodes.Add(QuickAccessNode);
+                }
+
+                if (QuickAccessNode.IsExpanded)
+                {
+                    QuickAccessNode.Children.Add(new TreeViewNode
+                    {
+                        IsExpanded = false,
+                        Content = new TreeViewNodeContent(e.StorageItem.Path, e.StorageItem.DisplayName),
+                        HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                    });
                 }
             }
             catch (Exception ex)
@@ -590,6 +630,7 @@ namespace RX_Explorer
             }
             finally
             {
+                LoadLocker.Release();
                 Deferral.Complete();
             }
         }
@@ -615,6 +656,8 @@ namespace RX_Explorer
         {
             try
             {
+                await LoadLocker.WaitAsync();
+
                 if (InitFolderPathArray.Length > 0)
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
@@ -688,6 +731,10 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not init the FileControl");
+            }
+            finally
+            {
+                LoadLocker.Release();
             }
         }
 
@@ -2426,11 +2473,6 @@ namespace RX_Explorer
             {
                 try
                 {
-                    while (!BladeViewer.IsLoaded)
-                    {
-                        await Task.Delay(200);
-                    }
-
                     FilePresenter Presenter = new FilePresenter
                     {
                         Container = this
@@ -2443,8 +2485,6 @@ namespace RX_Explorer
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
-                        Height = BladeViewer.ActualHeight,
-                        Width = BladeViewer.ActualWidth / 2,
                         HorizontalAlignment = HorizontalAlignment.Stretch,
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalAlignment = VerticalAlignment.Stretch,
@@ -2454,28 +2494,34 @@ namespace RX_Explorer
                     Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
                     Blade.Expanded += Blade_Expanded;
 
-                    if (BladeViewer.Items.Count > 0)
+                    if (BladeViewer.IsLoaded)
                     {
-                        foreach (BladeItem Item in BladeViewer.Items)
-                        {
-                            Item.TitleBarVisibility = Visibility.Visible;
+                        Blade.Height = BladeViewer.ActualHeight;
 
-                            if (Item.IsExpanded)
+                        if (BladeViewer.Items.Count > 0)
+                        {
+                            Blade.Width = BladeViewer.ActualWidth / 2;
+                            Blade.TitleBarVisibility = Visibility.Visible;
+
+                            foreach (BladeItem Item in BladeViewer.Items)
                             {
-                                Item.Width = BladeViewer.ActualWidth / 2;
+                                Item.Height = BladeViewer.ActualHeight;
+                                Item.TitleBarVisibility = Visibility.Visible;
+
+                                if (Item.IsExpanded)
+                                {
+                                    Item.Width = BladeViewer.ActualWidth / 2;
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        Blade.TitleBarVisibility = Visibility.Collapsed;
-                        Blade.Width = BladeViewer.ActualWidth;
+                        else
+                        {
+                            Blade.Width = BladeViewer.ActualWidth;
+                            Blade.TitleBarVisibility = Visibility.Collapsed;
+                        }
                     }
 
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                    {
-                        BladeViewer.Items.Add(Blade);
-                    });
+                    BladeViewer.Items.Add(Blade);
 
                     await Presenter.DisplayItemsInFolder(FolderPath);
 
@@ -3121,6 +3167,29 @@ namespace RX_Explorer
             }
         }
 
+        private void BladeViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (BladeViewer.Items.Count > 1)
+            {
+                foreach (BladeItem Item in BladeViewer.Items)
+                {
+                    Item.Height = BladeViewer.ActualHeight;
+                    Item.TitleBarVisibility = Visibility.Visible;
+
+                    if (Item.IsExpanded)
+                    {
+                        Item.Width = BladeViewer.ActualWidth / 2;
+                    }
+                }
+            }
+            else if (BladeViewer.Items.FirstOrDefault() is BladeItem Item)
+            {
+                Item.Height = BladeViewer.ActualHeight;
+                Item.Width = BladeViewer.ActualWidth;
+                Item.TitleBarVisibility = Visibility.Collapsed;
+            }
+        }
+
         public void Dispose()
         {
             AddressButtonList.Clear();
@@ -3161,6 +3230,8 @@ namespace RX_Explorer
             DelayEnterCancel = null;
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
+
+            LoadLocker.Dispose();
 
             TaskBarController.SetText(null);
         }

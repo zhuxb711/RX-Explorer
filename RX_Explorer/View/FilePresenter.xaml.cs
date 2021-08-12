@@ -922,7 +922,7 @@ namespace RX_Explorer
 
                         SQLite.Current.SetPathHistory(FolderPath);
 
-                        if (Container.FolderTree.SelectedNode == null 
+                        if (Container.FolderTree.SelectedNode == null
                             && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(FolderPath).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                         {
                             Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
@@ -2085,7 +2085,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Decompression_Click(object sender, RoutedEventArgs e)
+        private void Decompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -2102,17 +2102,6 @@ namespace RX_Explorer
 
                 {
                     QueueTaskController.EnqueueDecompressionOpeartion(File.Path, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2");
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
                 }
             }
         }
@@ -3937,32 +3926,21 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync();
-
-                return;
-            }
-
-            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
-            {
-                QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+                await Dialog.ShowAsync();
             }
             else
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
+                    QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+                }
             }
         }
 
@@ -4662,14 +4640,14 @@ namespace RX_Explorer
                 }
 
 
-                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
                     DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
 
@@ -4695,17 +4673,6 @@ namespace RX_Explorer
                         }
                     }
                 }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
-                }
             }
         }
 
@@ -4728,14 +4695,14 @@ namespace RX_Explorer
             }
 
 
-            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
                 DecompressDialog Dialog = new DecompressDialog(CurrentFolder.Path);
 
@@ -4743,21 +4710,6 @@ namespace RX_Explorer
                 {
                     QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
                 }
-
-
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
-
-
             }
         }
 
@@ -5322,6 +5274,44 @@ namespace RX_Explorer
             }
 
             CreatNewFlyout.Items.Clear();
+        }
+
+        private void FileFlyout_Opening(object sender, object e)
+        {
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+            {
+                Decompression.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Decompression.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void MixedFlyout_Opening(object sender, object e)
+        {
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+            {
+                MixDecompression.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MixDecompression.Visibility = Visibility.Collapsed;
+            }
         }
 
         public void Dispose()

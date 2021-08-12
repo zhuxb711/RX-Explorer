@@ -170,7 +170,7 @@ namespace RX_Explorer.Class
 
         public static void EnqueueMoveUndoOpeartion(string UndoFrom, string UndoTo, string NewName = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueMoveUndoOpeartion(new Dictionary<string,string> { { UndoFrom, NewName } }, UndoTo, OnCompleted, OnErrorHappended, OnCancelled);
+            EnqueueMoveUndoOpeartion(new Dictionary<string, string> { { UndoFrom, NewName } }, UndoTo, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
         public static void EnqueueMoveUndoOpeartion(Dictionary<string, string> UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
@@ -747,28 +747,14 @@ namespace RX_Explorer.Class
                             {
                                 CompressionUtil.SetEncoding(DModel.Encoding);
 
-                                if (DModel.DecompressionFrom.All((Item) => Item.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                            || Item.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+                                CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, (s, e) =>
                                 {
-                                    CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, (s, e) =>
+                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                        {
-                                            DModel.UpdateProgress(e.ProgressPercentage);
-                                            ProgressChangedCore();
-                                        }).AsTask().Wait();
-                                    }).Wait();
-                                }
-                                else
-                                {
-                                    throw new Exception(Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"));
-                                }
+                                        DModel.UpdateProgress(e.ProgressPercentage);
+                                        ProgressChangedCore();
+                                    }).AsTask().Wait();
+                                }).Wait();
                             }
                             catch (AggregateException Ae) when (Ae.InnerException is UnauthorizedAccessException)
                             {

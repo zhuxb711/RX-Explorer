@@ -2261,9 +2261,6 @@ Les noms non valides incluent
   <data name="CommandBarFlyout_More_Item" xml:space="preserve">
     <value>Plus</value>
   </data>
-  <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
-    <value>Le type de fichier est incorrect, l'opération ne peut pas être effectuée</value>
-  </data>
   <data name="CompressDialogType.Header" xml:space="preserve">
     <value>Type de compression</value>
   </data>

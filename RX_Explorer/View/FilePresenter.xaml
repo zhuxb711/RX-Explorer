@@ -175,6 +175,7 @@
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                Placement="RightEdgeAlignedTop"
+                               Opening="FileFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="FileStandardBar">
@@ -438,6 +439,7 @@
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
                                Placement="RightEdgeAlignedTop"
+                               Opening="MixedFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="MixedStandardBar">

@@ -3000,10 +3000,6 @@ Inkorrekte Namen sind
           <source>More</source>
           <target state="translated">Mehr</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FileTypeIncorrect_Content" translate="yes" xml:space="preserve">
-          <source>File type is incorrect, operation cannot be performed</source>
-          <target state="translated">Der Dateityp ist inkorrekt. Vorgang kann nicht abgeschlossen werden</target>
-        </trans-unit>
         <trans-unit id="CompressDialogType.Header" translate="yes" xml:space="preserve">
           <source>Compression type</source>
           <target state="translated">Komprimierungstyp</target>

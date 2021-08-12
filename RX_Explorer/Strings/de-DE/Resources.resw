@@ -2264,9 +2264,6 @@ Inkorrekte Namen sind
   <data name="CommandBarFlyout_More_Item" xml:space="preserve">
     <value>Mehr</value>
   </data>
-  <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
-    <value>Der Dateityp ist inkorrekt. Vorgang kann nicht abgeschlossen werden</value>
-  </data>
   <data name="CompressDialogType.Header" xml:space="preserve">
     <value>Komprimierungstyp</value>
   </data>

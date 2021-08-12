@@ -2996,10 +2996,6 @@ Las denominaciones no válidas son:
           <source>More</source>
           <target state="translated">Más</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FileTypeIncorrect_Content" translate="yes" xml:space="preserve">
-          <source>File type is incorrect, operation cannot be performed</source>
-          <target state="translated">Tipo de archivo incorrecto; la operación no se ha podido completar.</target>
-        </trans-unit>
         <trans-unit id="CompressDialogType.Header" translate="yes" xml:space="preserve">
           <source>Compression type</source>
           <target state="translated">Tipo de compresión</target>

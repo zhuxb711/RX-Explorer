@@ -2998,10 +2998,6 @@ Les noms non valides incluent
           <source>More</source>
           <target state="translated">Plus</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FileTypeIncorrect_Content" translate="yes" xml:space="preserve">
-          <source>File type is incorrect, operation cannot be performed</source>
-          <target state="translated">Le type de fichier est incorrect, l'opération ne peut pas être effectuée</target>
-        </trans-unit>
         <trans-unit id="CompressDialogType.Header" translate="yes" xml:space="preserve">
           <source>Compression type</source>
           <target state="translated">Type de compression</target>
