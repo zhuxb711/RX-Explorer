@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 6.9.7.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Maintenant, vous pouvez activer ou désactiver l'"aperçu de l'onglet" dans la page des paramètres
+
+>#####Le mécanisme de cryptage de la zone de sécurité est mis à jour, vous pouvez maintenant utiliser la visionneuse intégrée pour prévisualiser directement les fichiers cryptés
+
+>>#####Cette fonctionnalité nécessite la version 1.5 ou supérieure du fichier SLE, les fichiers existants peuvent être mis à niveau en réimportant
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Suppression du bouton "Décompresser" dans le menu contextuel des fichiers non compressés
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la visionneuse PDF pouvait ne pas charger certaines pages après avoir utilisé la fonction « Aller à »
+
+>#####Correction du problème de chargement répété des pages dans la visionneuse PDF
+
+>#####Correction du problème selon lequel l'arborescence de répertoires ne peut pas charger tous les nœuds de lecteur dans certains cas
+
+>#####Correction d'autres problèmes subtils
+
+*****
 ###Quoi de neuf dans la version 6.9.4.0
 
 #####Correction d'un bug

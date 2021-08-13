@@ -465,15 +465,22 @@ namespace FullTrustProcess
                     {
                         string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
 
-                        using (ShellItem Item = ShellItem.Open(ExecutePath))
-                        using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                        using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
-                        using (MemoryStream Stream = new MemoryStream())
+                        if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                         {
-                            OriginBitmap.MakeTransparent();
-                            OriginBitmap.Save(Stream, ImageFormat.Png);
+                            using (ShellItem Item = ShellItem.Open(ExecutePath))
+                            using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                            using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                            using (MemoryStream Stream = new MemoryStream())
+                            {
+                                OriginBitmap.MakeTransparent();
+                                OriginBitmap.Save(Stream, ImageFormat.Png);
 
-                            Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
+                                Value.Add("Success", JsonSerializer.Serialize(Stream.ToArray()));
+                            }
+                        }
+                        else
+                        {
+                            Value.Add("Error", "File or directory not found");
                         }
 
                         break;

@@ -1,4 +1,29 @@
 ﻿*****
+###Was ist neu in Ver.6.9.7.0
+
+#####Funktionsupdate
+
+>#####Jetzt können Sie die "Tab-Vorschau" auf der Einstellungsseite ein- oder ausschalten
+
+>#####Der Verschlüsselungsmechanismus des Sicherheitsbereichs wurde aktualisiert, jetzt können Sie den integrierten Viewer verwenden, um die verschlüsselten Dateien direkt in der Vorschau anzuzeigen
+
+>>#####Diese Funktion erfordert SLE-Dateiversion 1.5 oder höher, vorhandene Dateien können durch erneuten Import aktualisiert werden
+
+#####UI-Update
+
+>#####Die Schaltfläche "Entpacken" im Rechtsklickmenü von unkomprimierten Dateien wurde entfernt
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass der PDF-Viewer einige Seiten möglicherweise nicht lädt, nachdem die Funktion "Springen zu" verwendet wurde
+
+>#####Das Problem des wiederholten Ladens von Seiten im PDF-Viewer wurde behoben
+
+>#####Problem behoben, dass der Verzeichnisbaum in einigen Fällen nicht alle Laufwerksknoten laden kann
+
+>#####Einige andere subtile Probleme behoben
+
+*****
 ###Was ist neu in Ver.6.9.4.0
 
 #####Fehlerbehebung

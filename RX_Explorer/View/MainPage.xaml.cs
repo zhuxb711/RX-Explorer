@@ -1,6 +1,7 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -50,11 +51,11 @@ namespace RX_Explorer
     {
         public static MainPage Current { get; private set; }
 
-        private Dictionary<Type, string> PageDictionary;
-
         public List<string[]> ActivatePathArray { get; }
 
-        private EntranceAnimationEffect EntranceEffectProvider;
+        private readonly Dictionary<Type, string> PageDictionary;
+
+        private readonly EntranceAnimationEffect EntranceEffectProvider;
 
         private DeviceWatcher BluetoothAudioWatcher;
 
@@ -96,6 +97,14 @@ namespace RX_Explorer
             NavView.PaneDisplayMode = SettingControl.LayoutMode;
 
             this.ActivatePathArray = ActivatePathArray;
+
+            PageDictionary = new Dictionary<Type, string>()
+            {
+                {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
+                {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
+                {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
+                {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
+            };
 
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
@@ -508,15 +517,7 @@ namespace RX_Explorer
         {
             try
             {
-                PageDictionary = new Dictionary<Type, string>()
-                {
-                    {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
-                    {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
-                    {typeof(SecureAreaContainer),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
-                    {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
-                };
-
-                Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+                Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
                 if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {

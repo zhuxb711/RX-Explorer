@@ -383,7 +383,25 @@ namespace RX_Explorer.Class
                                         }
                                     }
 
-                                    short ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.Count((Item) => Item is AppBarButton), 0));
+                                    short ShowExtNum = 0;
+
+                                    if (Flyout.SecondaryCommands.OfType<AppBarButton>().Any((Item) => Item.Name.Contains("Decompression", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        bool ShouldConsiderUnZipButton = PathArray.All((Path) => Path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                         || Path.EndsWith(".rar", StringComparison.OrdinalIgnoreCase));
+
+                                        ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count() + (ShouldConsiderUnZipButton ? 0 : 1), 0));
+                                    }
+                                    else
+                                    {
+                                        ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count(), 0));
+                                    }
 
                                     int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
 
@@ -936,7 +954,7 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 5000);
+                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 10000);
 
                         return null;
                     }

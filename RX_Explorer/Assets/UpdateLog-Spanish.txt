@@ -1,4 +1,29 @@
 ﻿*****
+###Novedades de la versión 6.9.7.0
+
+#####Actualización de funciones
+
+>#####Ahora puedes activar o desactivar la "Vista previa de la pestaña" en la página de configuración
+
+>#####El mecanismo de cifrado del Área de seguridad se ha actualizado, ahora puede utilizar el visor integrado para obtener una vista previa directa de los archivos cifrados
+
+>>#####Esta función requiere la versión 1.5 o superior del archivo SLE, los archivos existentes se pueden actualizar volviendo a importar
+
+#####actualización de la interfaz de usuario
+
+>#####Se eliminó el botón "Descomprimir" en el menú contextual de los archivos sin comprimir
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el visor de PDF no pudiera cargar algunas páginas después de usar la función "Ir a"
+
+>#####Se solucionó el problema de la carga repetida de páginas en el visor de PDF
+
+>#####Se solucionó el problema de que el árbol de directorios no podía cargar todos los nodos de la unidad en algunos casos
+
+>#####Se corrigieron algunos otros problemas sutiles
+
+*****
 ###Novedades de la versión 6.9.4.0
 
 #####Arreglo del fallo

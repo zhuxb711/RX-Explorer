@@ -334,7 +334,7 @@ namespace RX_Explorer
                     case 90:
                     case 270:
                         {
-                            DoubleAnimation HeightAnimation = new DoubleAnimation
+                            DoubleAnimation WidthAnimation = new DoubleAnimation
                             {
                                 From = Container.ActualHeight,
                                 To = Container.ActualWidth,
@@ -343,11 +343,11 @@ namespace RX_Explorer
                                 EasingFunction = new PowerEase { Power = 1, EasingMode = EasingMode.EaseOut }
                             };
 
-                            Storyboard.SetTarget(HeightAnimation, Viewer);
-                            Storyboard.SetTargetProperty(HeightAnimation, "Width");
+                            Storyboard.SetTarget(WidthAnimation, Viewer);
+                            Storyboard.SetTargetProperty(WidthAnimation, "Width");
 
                             await AnimationBuilder.Create()
-                                                  .ExternalAnimation(HeightAnimation)
+                                                  .ExternalAnimation(WidthAnimation)
                                                   .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(300), easingType: EasingType.Linear, easingMode: EasingMode.EaseOut)
                                                   .StartAsync(Viewer);
 

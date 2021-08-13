@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.6.9.7.0
+
+#####Feature update
+
+>#####Now you can turn on or off the "Tab preview" in the settings page
+
+>#####The Security Area encryption mechanism is updated, now you can use the built-in viewer to directly preview the encrypted files
+
+>>#####This feature requires SLE file version 1.5 or higher, existing files can be upgraded by re-importing
+
+#####UI update
+
+>#####Removed the "Unzip" button on the right-click menu of uncompressed files
+
+#####Bug fix
+
+>#####Fixed the problem that the PDF viewer may fail to load some pages after using the "Jump to" function
+
+>#####Fixed the problem of repeated loading pages in the PDF viewer
+
+>#####Fixed the problem that the directory tree cannot load all drive nodes in some cases
+
+>#####Fixed some other subtle problems
+
+*****
 ###What's new in Ver.6.9.4.0
 
 #####Bug fix
