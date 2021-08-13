@@ -67,6 +67,16 @@ namespace RX_Explorer.Class
 
         public OperationListMoveModel(string[] MoveFrom, string MoveTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(MoveTo))
+            {
+                throw new ArgumentNullException(nameof(MoveTo), "Parameter could not be empty or null");
+            }
+
+            if (MoveFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(MoveFrom), "Parameter could not be empty or null");
+            }
+
             this.MoveFrom = MoveFrom;
             this.MoveTo = MoveTo;
         }

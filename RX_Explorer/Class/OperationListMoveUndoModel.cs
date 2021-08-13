@@ -60,6 +60,16 @@ namespace RX_Explorer.Class
 
         public OperationListMoveUndoModel(Dictionary<string, string> UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(UndoTo))
+            {
+                throw new ArgumentNullException(nameof(UndoTo), "Parameter could not be empty or null");
+            }
+
+            if (UndoFrom.Keys.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(UndoFrom), "Parameter could not be empty or null");
+            }
+
             this.UndoFrom = UndoFrom;
             this.UndoTo = UndoTo;
         }

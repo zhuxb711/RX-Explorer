@@ -67,6 +67,11 @@ namespace RX_Explorer.Class
 
         public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (DeleteFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(DeleteFrom), "Parameter could not be empty or null");
+            }
+
             this.DeleteFrom = DeleteFrom;
             this.IsPermanentDelete = IsPermanentDelete;
         }

@@ -33,6 +33,16 @@ namespace RX_Explorer.Class
 
         public OperationListRenameUndoModel(string UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(UndoTo))
+            {
+                throw new ArgumentNullException(nameof(UndoTo), "Parameter could not be empty or null");
+            }
+
+            if (string.IsNullOrWhiteSpace(UndoFrom))
+            {
+                throw new ArgumentNullException(nameof(UndoFrom), "Parameter could not be empty or null");
+            }
+
             this.UndoFrom = UndoFrom;
             this.UndoTo = UndoTo;
         }

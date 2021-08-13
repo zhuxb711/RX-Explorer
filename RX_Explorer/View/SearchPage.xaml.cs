@@ -10,18 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
@@ -32,9 +29,12 @@ namespace RX_Explorer
     public sealed partial class SearchPage : Page
     {
         private WeakReference<FileControl> WeakToFileControl;
-        private CancellationTokenSource Cancellation;
+        private CancellationTokenSource SearchCancellation;
+        private CancellationTokenSource DelayDragCancellation;
+
         private ListViewBaseSelectionExtention SelectionExtention;
         private readonly PointerEventHandler PointerPressedEventHandler;
+        private readonly PointerEventHandler PointerReleasedEventHandler;
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private bool BlockKeyboardShortCutInput;
@@ -45,12 +45,14 @@ namespace RX_Explorer
         private DateTimeOffset LastPressTime;
         private string LastPressString;
 
-
         public SearchPage()
         {
             InitializeComponent();
+
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
+
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
+            PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
         }
 
         private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs e)
@@ -70,6 +72,8 @@ namespace RX_Explorer
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
 
                 SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
+                SearchResultList.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
+
                 SelectionExtention = new ListViewBaseSelectionExtention(SearchResultList, DrawRectangle);
 
                 if (e.NavigationMode == NavigationMode.New)
@@ -230,11 +234,11 @@ namespace RX_Explorer
 
             HasItem.Visibility = Visibility.Collapsed;
 
-            CancellationTokenSource Cancellation = new CancellationTokenSource();
+            CancellationTokenSource SearchCancellation = new CancellationTokenSource();
 
             try
             {
-                this.Cancellation = Cancellation;
+                this.SearchCancellation = SearchCancellation;
 
                 SearchStatus.Text = Globalization.GetString("SearchProcessingText");
                 SearchStatusBar.Visibility = Visibility.Visible;
@@ -251,7 +255,7 @@ namespace RX_Explorer
                                                                                                                      Options.UseAQSExpression,
                                                                                                                      Options.UseIndexerOnly,
                                                                                                                      Options.IgnoreCase,
-                                                                                                                     Cancellation.Token);
+                                                                                                                     SearchCancellation.Token);
 
                             if (Result.Count == 0)
                             {
@@ -261,7 +265,7 @@ namespace RX_Explorer
                             {
                                 foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
                                 {
-                                    if (Cancellation.IsCancellationRequested)
+                                    if (SearchCancellation.IsCancellationRequested)
                                     {
                                         HasItem.Visibility = Visibility.Visible;
                                         break;
@@ -309,11 +313,11 @@ namespace RX_Explorer
             }
             finally
             {
-                Cancellation.Dispose();
+                SearchCancellation.Dispose();
 
-                if (this.Cancellation == Cancellation)
+                if (this.SearchCancellation == SearchCancellation)
                 {
-                    this.Cancellation = null;
+                    this.SearchCancellation = null;
                 }
             }
         }
@@ -322,12 +326,16 @@ namespace RX_Explorer
         {
             CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
 
-            Cancellation?.Cancel();
-
             SearchResultList.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
+            SearchResultList.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
 
+            SearchCancellation?.Cancel();
             SelectionExtention.Dispose();
             SelectionExtention = null;
+
+            DelayDragCancellation?.Cancel();
+            DelayDragCancellation.Dispose();
+            DelayDragCancellation = null;
 
             if (e.NavigationMode == NavigationMode.Back)
             {
@@ -337,17 +345,39 @@ namespace RX_Explorer
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is FileSystemStorageItemBase Item)
             {
                 PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
                 {
                     if (e.KeyModifiers == VirtualKeyModifiers.None && SearchResultList.SelectionMode != ListViewSelectionMode.Multiple)
                     {
                         if (SearchResultList.SelectedItems.Contains(Item))
                         {
                             SelectionExtention.Disable();
+
+                            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                            {
+                                DelayDragCancellation?.Cancel();
+                                DelayDragCancellation?.Dispose();
+                                DelayDragCancellation = new CancellationTokenSource();
+
+                                Task.Delay(300).ContinueWith(async (task, input) =>
+                                {
+                                    try
+                                    {
+                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                        {
+                                            await Item.StartDragAsync(Point);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not start drag item");
+                                    }
+                                }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                            }
                         }
                         else
                         {
@@ -356,13 +386,42 @@ namespace RX_Explorer
                                 SearchResultList.SelectedItem = Item;
                             }
 
-                            if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                            switch (Element)
                             {
-                                SelectionExtention.Enable();
-                            }
-                            else
-                            {
-                                SelectionExtention.Disable();
+                                case Grid:
+                                case ListViewItemPresenter:
+                                    {
+                                        SelectionExtention.Enable();
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        SelectionExtention.Disable();
+
+                                        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                        {
+                                            DelayDragCancellation?.Cancel();
+                                            DelayDragCancellation?.Dispose();
+                                            DelayDragCancellation = new CancellationTokenSource();
+
+                                            Task.Delay(300).ContinueWith(async (task, input) =>
+                                            {
+                                                try
+                                                {
+                                                    if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                    {
+                                                        await Item.StartDragAsync(Point);
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    LogTracer.Log(ex, "Could not start drag item");
+                                                }
+                                            }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                        }
+
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -377,6 +436,11 @@ namespace RX_Explorer
                 SearchResultList.SelectedItem = null;
                 SelectionExtention.Enable();
             }
+        }
+
+        private void ViewControl_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            DelayDragCancellation?.Cancel();
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)
@@ -429,7 +493,7 @@ namespace RX_Explorer
 
         private void SearchResultList_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                 {
@@ -489,8 +553,14 @@ namespace RX_Explorer
 
         private void SearchResultList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            if (!args.InRecycleQueue)
+            if (args.InRecycleQueue)
             {
+                args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
+            }
+            else
+            {
+                args.ItemContainer.DragStarting += ItemContainer_DragStarting;
+
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
@@ -498,6 +568,24 @@ namespace RX_Explorer
                         await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
+            }
+        }
+
+        private async void ItemContainer_DragStarting(UIElement sender, DragStartingEventArgs args)
+        {
+            DragOperationDeferral Deferral = args.GetDeferral();
+
+            try
+            {
+                await args.Data.SetupDataPackageAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToList());
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 

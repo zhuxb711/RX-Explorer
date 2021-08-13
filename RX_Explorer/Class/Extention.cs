@@ -84,7 +84,8 @@ namespace RX_Explorer.Class
 
             if (View.Contains(StandardDataFormats.StorageItems))
             {
-                PathList.AddRange((await View.GetStorageItemsAsync()).Select((Item) => Item.Path));
+                IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
+                PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
             }
 
             if (View.Contains(StandardDataFormats.Text))
@@ -100,7 +101,7 @@ namespace RX_Explorer.Class
 
                     if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
-                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText));
+                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
                     }
                 }
             }

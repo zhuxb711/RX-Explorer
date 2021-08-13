@@ -68,6 +68,16 @@ namespace RX_Explorer.Class
 
         public OperationListCopyModel(string[] CopyFrom, string CopyTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(CopyTo))
+            {
+                throw new ArgumentNullException(nameof(CopyTo), "Parameter could not be empty or null");
+            }
+
+            if (CopyFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(CopyFrom), "Parameter could not be empty or null");
+            }
+
             this.CopyFrom = CopyFrom;
             this.CopyTo = CopyTo;
         }

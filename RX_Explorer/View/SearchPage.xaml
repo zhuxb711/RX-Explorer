@@ -12,14 +12,6 @@
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
                                Placement="RightEdgeAlignedTop">
-            <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
-                          Name="MultiSelect"
-                          Click="MultiSelect_Click">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE762;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                           Name="Copy"
@@ -32,6 +24,14 @@
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                           x:Name="Delete"
                           Click="Delete_Click" />
+            <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
+                          Name="MultiSelect"
+                          Click="MultiSelect_Click">
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              Glyph="&#xE762;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
@@ -744,6 +744,7 @@
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
                                    Text="{x:Bind Path}"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
@@ -751,6 +752,7 @@
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="1" />
                         <TextBlock VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind ModifiedTime, Mode=OneWay}"
@@ -758,6 +760,7 @@
                                    Grid.Column="2"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
                                    Padding="10,0,0,0"
                                    x:Phase="1"
                                    Text="{x:Bind DisplayType, Mode=OneWay}"
@@ -765,6 +768,7 @@
                                    Grid.Column="3"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind Size}"
                                    x:Phase="0"

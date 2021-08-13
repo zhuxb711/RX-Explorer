@@ -57,6 +57,11 @@ namespace RX_Explorer.Class
 
         public OperationListCopyUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (UndoFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(UndoFrom), "Parameter could not be empty or null");
+            }
+
             this.UndoFrom = UndoFrom;
         }
     }

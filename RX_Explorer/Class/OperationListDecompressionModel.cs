@@ -72,6 +72,16 @@ namespace RX_Explorer.Class
 
         public OperationListDecompressionModel(string[] DecompressionFrom, string DecompressionTo, bool ShouldCreateFolder, Encoding Encoding = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(DecompressionTo))
+            {
+                throw new ArgumentNullException(nameof(DecompressionTo), "Parameter could not be empty or null");
+            }
+
+            if (DecompressionFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(DecompressionFrom), "Parameter could not be empty or null");
+            }
+
             this.DecompressionFrom = DecompressionFrom;
             this.DecompressionTo = DecompressionTo;
             this.Encoding = Encoding ?? Encoding.Default;

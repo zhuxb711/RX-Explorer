@@ -73,6 +73,16 @@ namespace RX_Explorer.Class
 
         public OperationListCompressionModel(CompressionType Type, CompressionAlgorithm Algorithm, CompressionLevel Level, string[] CompressionFrom, string CompressionTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
         {
+            if (string.IsNullOrWhiteSpace(CompressionTo))
+            {
+                throw new ArgumentNullException(nameof(CompressionTo), "Parameter could not be empty or null");
+            }
+
+            if (CompressionFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentNullException(nameof(CompressionFrom), "Parameter could not be empty or null");
+            }
+
             this.Type = Type;
             this.Algorithm = Algorithm;
             this.Level = Level;

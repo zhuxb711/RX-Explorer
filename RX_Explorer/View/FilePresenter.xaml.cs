@@ -169,11 +169,11 @@ namespace RX_Explorer
         private FileSystemStorageItemBase TabTarget;
         private DateTimeOffset LastPressTime;
         private string LastPressString;
-        private CancellationTokenSource DelayRenameCancel;
-        private CancellationTokenSource DelayEnterCancel;
-        private CancellationTokenSource DelaySelectionCancel;
-        private CancellationTokenSource DelayDragCancel;
-        private CancellationTokenSource DelayTooltipCancel;
+        private CancellationTokenSource DelayRenameCancellation;
+        private CancellationTokenSource DelayEnterCancellation;
+        private CancellationTokenSource DelaySelectionCancellation;
+        private CancellationTokenSource DelayDragCancellation;
+        private CancellationTokenSource DelayTooltipCancellation;
         private int CurrentViewModeIndex = -1;
         private bool GroupedEnable;
 
@@ -899,11 +899,11 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
-                DelayDragCancel?.Cancel();
-                DelayEnterCancel?.Cancel();
-                DelayRenameCancel?.Cancel();
-                DelaySelectionCancel?.Cancel();
-                DelayTooltipCancel?.Cancel();
+                DelayDragCancellation?.Cancel();
+                DelayEnterCancellation?.Cancel();
+                DelayRenameCancellation?.Cancel();
+                DelaySelectionCancellation?.Cancel();
+                DelayTooltipCancellation?.Cancel();
 
                 if (FolderPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                 {
@@ -1725,7 +1725,7 @@ namespace RX_Explorer
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DelayRenameCancel?.Cancel();
+            DelayRenameCancellation?.Cancel();
 
             IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
@@ -1825,7 +1825,7 @@ namespace RX_Explorer
 
         private void ViewControl_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            DelayDragCancel?.Cancel();
+            DelayDragCancellation?.Cancel();
         }
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -1852,17 +1852,24 @@ namespace RX_Explorer
 
                                 if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                 {
-                                    DelayDragCancel?.Cancel();
-                                    DelayDragCancel?.Dispose();
-                                    DelayDragCancel = new CancellationTokenSource();
+                                    DelayDragCancellation?.Cancel();
+                                    DelayDragCancellation?.Dispose();
+                                    DelayDragCancellation = new CancellationTokenSource();
 
-                                    Task.Delay(300).ContinueWith((task, input) =>
+                                    Task.Delay(300).ContinueWith(async (task, input) =>
                                     {
-                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                        try
                                         {
-                                            _ = Item.StartDragAsync(Point);
+                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                            {
+                                                await Item.StartDragAsync(Point);
+                                            }
                                         }
-                                    }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, "Could not start drag item");
+                                        }
+                                    }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                 }
                             }
                             else
@@ -1872,7 +1879,7 @@ namespace RX_Explorer
                                     SelectedItem = Item;
                                 }
 
-                                switch (e.OriginalSource)
+                                switch (Element)
                                 {
                                     case Grid:
                                     case ListViewItemPresenter:
@@ -1887,17 +1894,24 @@ namespace RX_Explorer
 
                                             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                             {
-                                                DelayDragCancel?.Cancel();
-                                                DelayDragCancel?.Dispose();
-                                                DelayDragCancel = new CancellationTokenSource();
+                                                DelayDragCancellation?.Cancel();
+                                                DelayDragCancellation?.Dispose();
+                                                DelayDragCancellation = new CancellationTokenSource();
 
-                                                Task.Delay(300).ContinueWith((task, input) =>
+                                                Task.Delay(300).ContinueWith(async (task, input) => 
                                                 {
-                                                    if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                    try
                                                     {
-                                                        _ = Item.StartDragAsync(Point);
+                                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                        {
+                                                            await Item.StartDragAsync(Point);
+                                                        }
                                                     }
-                                                }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                                    catch (Exception ex)
+                                                    {
+                                                        LogTracer.Log(ex, "Could not start drag item");
+                                                    }
+                                                }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                             }
 
                                             break;
@@ -1932,7 +1946,7 @@ namespace RX_Explorer
 
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if (ItemPresenter is GridView)
@@ -2110,7 +2124,7 @@ namespace RX_Explorer
         {
             e.Handled = true;
 
-            DelayRenameCancel?.Cancel();
+            DelayRenameCancellation?.Cancel();
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
@@ -2645,7 +2659,7 @@ namespace RX_Explorer
         {
             if (!SettingControl.IsDoubleClickEnabled && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
-                DelaySelectionCancel?.Cancel();
+                DelaySelectionCancellation?.Cancel();
 
                 CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
                 CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
@@ -3369,7 +3383,7 @@ namespace RX_Explorer
 
             try
             {
-                DelayEnterCancel?.Cancel();
+                DelayEnterCancellation?.Cancel();
 
                 e.Handled = true;
 
@@ -3506,16 +3520,16 @@ namespace RX_Explorer
 
         private void ItemContainer_DragLeave(object sender, DragEventArgs e)
         {
-            DelayEnterCancel?.Cancel();
+            DelayEnterCancellation?.Cancel();
         }
 
         private void ItemContainer_DragEnter(object sender, DragEventArgs e)
         {
             if (sender is SelectorItem Selector && Selector.Content is FileSystemStorageItemBase Item)
             {
-                DelayEnterCancel?.Cancel();
-                DelayEnterCancel?.Dispose();
-                DelayEnterCancel = new CancellationTokenSource();
+                DelayEnterCancellation?.Cancel();
+                DelayEnterCancellation?.Dispose();
+                DelayEnterCancellation = new CancellationTokenSource();
 
                 Task.Delay(2000).ContinueWith((task, input) =>
                 {
@@ -3530,7 +3544,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, DelayEnterCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayEnterCancellation, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -3540,7 +3554,7 @@ namespace RX_Explorer
 
             try
             {
-                DelayRenameCancel?.Cancel();
+                DelayRenameCancellation?.Cancel();
 
                 IReadOnlyList<FileSystemStorageItemBase> DragList = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
 
@@ -3664,9 +3678,9 @@ namespace RX_Explorer
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
-                    DelaySelectionCancel?.Cancel();
-                    DelaySelectionCancel?.Dispose();
-                    DelaySelectionCancel = new CancellationTokenSource();
+                    DelaySelectionCancellation?.Cancel();
+                    DelaySelectionCancellation?.Dispose();
+                    DelaySelectionCancellation = new CancellationTokenSource();
 
                     Task.Delay(700).ContinueWith((task, input) =>
                     {
@@ -3674,13 +3688,13 @@ namespace RX_Explorer
                         {
                             SelectedItem = Item;
                         }
-                    }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
                 }
                 else
                 {
-                    DelayTooltipCancel?.Cancel();
-                    DelayTooltipCancel?.Dispose();
-                    DelayTooltipCancel = new CancellationTokenSource();
+                    DelayTooltipCancellation?.Cancel();
+                    DelayTooltipCancellation?.Dispose();
+                    DelayTooltipCancellation = new CancellationTokenSource();
 
                     Task.Delay(1200).ContinueWith(async (task, input) =>
                     {
@@ -3712,23 +3726,23 @@ namespace RX_Explorer
                                 }
                             }
                         }
-                    }, DelayTooltipCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
         }
 
         private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            DelaySelectionCancel?.Cancel();
-            DelayTooltipCancel?.Cancel();
+            DelaySelectionCancellation?.Cancel();
+            DelayTooltipCancellation?.Cancel();
         }
 
         private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
-            DelayEnterCancel?.Cancel();
-            DelayRenameCancel?.Cancel();
-            DelaySelectionCancel?.Cancel();
-            DelayTooltipCancel?.Cancel();
+            DelayEnterCancellation?.Cancel();
+            DelayRenameCancellation?.Cancel();
+            DelaySelectionCancellation?.Cancel();
+            DelayTooltipCancellation?.Cancel();
         }
 
         private async void ViewControl_Drop(object sender, DragEventArgs e)
@@ -3786,7 +3800,7 @@ namespace RX_Explorer
 
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if (ItemPresenter is GridView)
@@ -4013,9 +4027,9 @@ namespace RX_Explorer
                 {
                     if (SelectedItem == Item)
                     {
-                        DelayRenameCancel?.Cancel();
-                        DelayRenameCancel?.Dispose();
-                        DelayRenameCancel = new CancellationTokenSource();
+                        DelayRenameCancellation?.Cancel();
+                        DelayRenameCancellation?.Dispose();
+                        DelayRenameCancellation = new CancellationTokenSource();
 
                         Task.Delay(1200).ContinueWith((task, input) =>
                         {
@@ -4035,7 +4049,7 @@ namespace RX_Explorer
 
                                 Container.BlockKeyboardShortCutInput = true;
                             }
-                        }, DelayRenameCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, DelayRenameCancellation, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }
@@ -5324,22 +5338,22 @@ namespace RX_Explorer
 
             WiFiProvider?.Dispose();
             SelectionExtention?.Dispose();
-            DelayRenameCancel?.Dispose();
-            DelayEnterCancel?.Dispose();
-            DelaySelectionCancel?.Dispose();
-            DelayTooltipCancel?.Dispose();
-            DelayDragCancel?.Dispose();
+            DelayRenameCancellation?.Dispose();
+            DelayEnterCancellation?.Dispose();
+            DelaySelectionCancellation?.Dispose();
+            DelayTooltipCancellation?.Dispose();
+            DelayDragCancellation?.Dispose();
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
 
             AreaWatcher = null;
             WiFiProvider = null;
             SelectionExtention = null;
-            DelayRenameCancel = null;
-            DelayEnterCancel = null;
-            DelaySelectionCancel = null;
-            DelayTooltipCancel = null;
-            DelayDragCancel = null;
+            DelayRenameCancellation = null;
+            DelayEnterCancellation = null;
+            DelaySelectionCancellation = null;
+            DelayTooltipCancellation = null;
+            DelayDragCancellation = null;
             EnterLock = null;
             CollectionChangeLock = null;
 
