@@ -80,33 +80,75 @@ namespace RX_Explorer.Class
 
         public static async Task<IReadOnlyList<string>> GetAsPathListAsync(this DataPackageView View)
         {
-            List<string> PathList = new List<string>();
-
-            if (View.Contains(StandardDataFormats.StorageItems))
+            try
             {
-                IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
-                PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
-            }
+                List<string> PathList = new List<string>();
 
-            if (View.Contains(StandardDataFormats.Text))
-            {
-                string XmlText = await View.GetTextAsync();
-
-                if (XmlText.Contains("RX-Explorer"))
+                if (View.Contains(StandardDataFormats.StorageItems))
                 {
-                    XmlDocument Document = new XmlDocument();
-                    Document.LoadXml(XmlText);
+                    IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
 
-                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                    if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    if (StorageItems.Count > 0)
                     {
-                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
+
+                        foreach (StorageFile File in StorageItems.OfType<StorageFile>()
+                                                                 .Where((Item) => string.IsNullOrEmpty(Item.Path)))
+                        {
+                            try
+                            {
+                                if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
+
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+
+                                        if (!string.IsNullOrWhiteSpace(UrlTarget))
+                                        {
+                                            PathList.Add(UrlTarget);
+                                        }
+                                    }
+                                }
+                                else if (!string.IsNullOrWhiteSpace(File.Name))
+                                {
+                                    PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not analysis the file in clipboard");
+                            }
+                        }
                     }
                 }
-            }
 
-            return PathList;
+                if (View.Contains(StandardDataFormats.Text))
+                {
+                    string XmlText = await View.GetTextAsync();
+
+                    if (XmlText.Contains("RX-Explorer"))
+                    {
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
+
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        {
+                            PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        }
+                    }
+                }
+
+                return PathList;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not read data from clipboard");
+                return new List<string>(0);
+            }
         }
 
         public static async Task SetupDataPackageAsync(this DataPackage Package, IEnumerable<FileSystemStorageItemBase> Collection)

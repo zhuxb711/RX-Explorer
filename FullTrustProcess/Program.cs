@@ -461,13 +461,41 @@ namespace FullTrustProcess
 
             switch (Enum.Parse(typeof(CommandType), Convert.ToString(CommandValue["CommandType"])))
             {
+                case CommandType.GetUrlTargetPath:
+                    {
+                        string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+
+                        if (File.Exists(ExecutePath))
+                        {
+                            string NewPath = ExecutePath;
+
+                            if (!Path.GetExtension(NewPath).Equals(".url", StringComparison.OrdinalIgnoreCase))
+                            {
+                                NewPath = Path.Combine(Path.GetDirectoryName(ExecutePath), $"{Path.GetFileNameWithoutExtension(ExecutePath)}.url");
+                                File.Move(ExecutePath, NewPath);
+                            }
+
+                            using (ShellItem Item = new ShellItem(NewPath))
+                            {
+                                Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
+                            }
+
+                            File.Delete(NewPath);
+                        }
+                        else
+                        {
+                            Value.Add("Error", "File not found");
+                        }
+
+                        break;
+                    }
                 case CommandType.GetThumbnail:
                     {
                         string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
 
                         if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                         {
-                            using (ShellItem Item = ShellItem.Open(ExecutePath))
+                            using (ShellItem Item = new ShellItem(ExecutePath))
                             using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
                             using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
                             using (MemoryStream Stream = new MemoryStream())
@@ -725,7 +753,7 @@ namespace FullTrustProcess
                     {
                         string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
 
-                        using (ShellItem Item = ShellItem.Open(ExecutePath))
+                        using (ShellItem Item = new ShellItem(ExecutePath))
                         using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
                         using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
                         using (MemoryStream Stream = new MemoryStream())
@@ -1237,7 +1265,7 @@ namespace FullTrustProcess
 
                         if (File.Exists(ExecutePath))
                         {
-                            using (ShellItem Item = ShellItem.Open(ExecutePath))
+                            using (ShellItem Item = new ShellItem (ExecutePath))
                             {
                                 string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 

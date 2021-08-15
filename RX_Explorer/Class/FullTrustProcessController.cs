@@ -668,7 +668,7 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<string> GetMIMEContentType(string Path)
+        public async Task<string> GetMIMEContentTypeAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetMIMEContentType, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
@@ -680,7 +680,31 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentType)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentTypeAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task<string> GetUrlTargetPathAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetUrlTargetPath, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string TargetPath))
+                {
+                    return TargetPath;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentTypeAsync)}, message: {ErrorMessage}");
                     }
 
                     return string.Empty;

@@ -1898,7 +1898,7 @@ namespace RX_Explorer
                                                 DelayDragCancellation?.Dispose();
                                                 DelayDragCancellation = new CancellationTokenSource();
 
-                                                Task.Delay(300).ContinueWith(async (task, input) => 
+                                                Task.Delay(300).ContinueWith(async (task, input) =>
                                                 {
                                                     try
                                                     {
@@ -4614,23 +4614,26 @@ namespace RX_Explorer
 
         private void DecompressionOptionFlyout_Opening(object sender, object e)
         {
-            string DecompressionFolderName = SelectedItem.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                ? SelectedItem.Name.Substring(0, SelectedItem.Name.Length - 7)
-                                                                : (SelectedItem.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                        ? SelectedItem.Name.Substring(0, SelectedItem.Name.Length - 8)
-                                                                                        : Path.GetFileNameWithoutExtension(SelectedItem.Name));
-
-            if (string.IsNullOrEmpty(DecompressionFolderName))
+            if (SelectedItem is FileSystemStorageFile File)
             {
-                DecompressionFolderName = Globalization.GetString("Operate_Text_CreateFolder");
+                string DecompressionFolderName = File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                ? File.Name.Substring(0, File.Name.Length - 7)
+                                                                : (File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        ? File.Name.Substring(0, File.Name.Length - 8)
+                                                                                        : Path.GetFileNameWithoutExtension(File.Name));
+
+                if (string.IsNullOrEmpty(DecompressionFolderName))
+                { 
+                    DecompressionFolderName = Globalization.GetString("Operate_Text_CreateFolder");
+                }
+
+                DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{DecompressionFolderName}\\\"";
+
+                ToolTipService.SetToolTip(DecompressionOption2, new ToolTip
+                {
+                    Content = DecompressionOption2.Text
+                });
             }
-
-            DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{DecompressionFolderName}\\\"";
-
-            ToolTipService.SetToolTip(DecompressionOption2, new ToolTip
-            {
-                Content = DecompressionOption2.Text
-            });
         }
 
         private async void DecompressOption_Click(object sender, RoutedEventArgs e)

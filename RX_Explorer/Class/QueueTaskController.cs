@@ -6,9 +6,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -308,55 +310,144 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                CollisionOptions Option = CollisionOptions.None;
+                                List<Uri> UriList = new List<Uri>();
 
-                                if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
+                                foreach (string Path in CModel.CopyFrom)
                                 {
-                                    Option = CollisionOptions.RenameOnCollision;
-                                }
-                                else if (CModel.CopyFrom.Select((SourcePath) => Path.Combine(CModel.CopyTo, Path.GetFileName(SourcePath)))
-                                                        .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
-                                {
-                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    if (Uri.TryCreate(Path, UriKind.Absolute, out Uri Result))
                                     {
-                                        CModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
-                                    }).AsTask().Wait();
-
-                                    switch (CModel.WaitForButtonAction())
-                                    {
-                                        case 0:
-                                            {
-                                                Option = CollisionOptions.OverrideOnCollision;
-                                                break;
-                                            }
-                                        case 1:
-                                            {
-                                                Option = CollisionOptions.RenameOnCollision;
-                                                break;
-                                            }
+                                        UriList.Add(Result);
                                     }
                                 }
 
-                                if (CModel.Status != OperationStatus.Cancelled)
+                                IReadOnlyList<Uri> WebUriList = UriList.Where((Item) => !Item.IsFile).ToList();
+
+                                if (WebUriList.Count > 0)
                                 {
-                                    if (CModel.Status == OperationStatus.NeedAttention)
+                                    int TotalProgress = 0;
+
+                                    foreach (Uri WebUri in WebUriList)
+                                    {
+                                        try
+                                        {
+                                            HttpWebRequest Request = WebRequest.CreateHttp(WebUri);
+
+                                            using (WebResponse Response = Request.GetResponse())
+                                            {
+                                                string FileName;
+
+                                                string Header = Response.Headers.Get("Content-Disposition");
+                                                string ContentType = Response.Headers.Get("Content-Type");
+
+                                                if (string.IsNullOrEmpty(Header))
+                                                {
+                                                    if (ContentType.Contains("text/html", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        FileName = $"{Guid.NewGuid()}.html";
+                                                    }
+                                                    else
+                                                    {
+                                                        FileName = Guid.NewGuid().ToString();
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    int FileNameStartIndex = Header.IndexOf("filename=", StringComparison.OrdinalIgnoreCase);
+
+                                                    if (FileNameStartIndex >= 0)
+                                                    {
+                                                        FileName = HttpUtility.UrlDecode(Header.Substring(Math.Min(FileNameStartIndex + 9, Header.Length)));
+
+                                                        if (string.IsNullOrEmpty(FileName))
+                                                        {
+                                                            FileName = Guid.NewGuid().ToString();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        FileName = Guid.NewGuid().ToString();
+                                                    }
+                                                }
+
+                                                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CModel.CopyTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
+                                                {
+                                                    using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write).Result)
+                                                    using (Stream WebStream = Response.GetResponseStream())
+                                                    {
+                                                        WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>
+                                                        {
+                                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                            {
+                                                                CModel.UpdateProgress((TotalProgress + e.ProgressPercentage) / WebUriList.Count);
+                                                                ProgressChangedCore();
+                                                            }).AsTask().Wait();
+                                                        }).Wait();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, $"Could not get file from weblink: \"{WebUri.OriginalString}\"");
+                                        }
+                                        finally
+                                        {
+                                            TotalProgress += 100;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    CollisionOptions Option = CollisionOptions.None;
+
+                                    if (CModel.CopyFrom.All((Item) => Path.GetDirectoryName(Item).Equals(CModel.CopyTo, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        Option = CollisionOptions.RenameOnCollision;
+                                    }
+                                    else if (CModel.CopyFrom.Select((SourcePath) => Path.Combine(CModel.CopyTo, Path.GetFileName(SourcePath)))
+                                                            .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            CModel.UpdateStatus(OperationStatus.Processing);
+                                            CModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
                                         }).AsTask().Wait();
+
+                                        switch (CModel.WaitForButtonAction())
+                                        {
+                                            case 0:
+                                                {
+                                                    Option = CollisionOptions.OverrideOnCollision;
+                                                    break;
+                                                }
+                                            case 1:
+                                                {
+                                                    Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
+                                        }
                                     }
 
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                    if (CModel.Status != OperationStatus.Cancelled)
                                     {
-                                        Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, ProgressHandler: (s, e) =>
+                                        if (CModel.Status == OperationStatus.NeedAttention)
                                         {
                                             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                CModel.UpdateProgress(e.ProgressPercentage);
-                                                ProgressChangedCore();
+                                                CModel.UpdateStatus(OperationStatus.Processing);
                                             }).AsTask().Wait();
-                                        }).Wait();
+                                        }
+
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                        {
+                                            Exclusive.Controller.CopyAsync(CModel.CopyFrom, CModel.CopyTo, Option, ProgressHandler: (s, e) =>
+                                            {
+                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    CModel.UpdateProgress(e.ProgressPercentage);
+                                                    ProgressChangedCore();
+                                                }).AsTask().Wait();
+                                            }).Wait();
+                                        }
                                     }
                                 }
                             }
@@ -399,49 +490,138 @@ namespace RX_Explorer.Class
                             {
                                 CollisionOptions Option = CollisionOptions.None;
 
-                                if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
-                                                   .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
-                                {
-                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                    {
-                                        MModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
-                                    }).AsTask().Wait();
+                                List<Uri> UriList = new List<Uri>();
 
-                                    switch (MModel.WaitForButtonAction())
+                                foreach (string Path in MModel.MoveFrom)
+                                {
+                                    if (Uri.TryCreate(Path, UriKind.Absolute, out Uri Result))
                                     {
-                                        case 0:
-                                            {
-                                                Option = CollisionOptions.OverrideOnCollision;
-                                                break;
-                                            }
-                                        case 1:
-                                            {
-                                                Option = CollisionOptions.RenameOnCollision;
-                                                break;
-                                            }
+                                        UriList.Add(Result);
                                     }
                                 }
 
-                                if (MModel.Status != OperationStatus.Cancelled)
+                                IReadOnlyList<Uri> WebUriList = UriList.Where((Item) => !Item.IsFile).ToList();
+
+                                if (WebUriList.Count > 0)
                                 {
-                                    if (MModel.Status == OperationStatus.NeedAttention)
+                                    int TotalProgress = 0;
+
+                                    foreach (Uri WebUri in WebUriList)
+                                    {
+                                        try
+                                        {
+                                            HttpWebRequest Request = WebRequest.CreateHttp(WebUri);
+
+                                            using (WebResponse Response = Request.GetResponse())
+                                            {
+                                                string FileName;
+
+                                                string Header = Response.Headers.Get("Content-Disposition");
+                                                string ContentType = Response.Headers.Get("Content-Type");
+
+                                                if (string.IsNullOrEmpty(Header))
+                                                {
+                                                    if (ContentType.Contains("text/html", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        FileName = $"{Guid.NewGuid()}.html";
+                                                    }
+                                                    else
+                                                    {
+                                                        FileName = Guid.NewGuid().ToString();
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    int FileNameStartIndex = Header.IndexOf("filename=", StringComparison.OrdinalIgnoreCase);
+
+                                                    if (FileNameStartIndex >= 0)
+                                                    {
+                                                        FileName = HttpUtility.UrlDecode(Header.Substring(Math.Min(FileNameStartIndex + 9, Header.Length)));
+
+                                                        if (string.IsNullOrEmpty(FileName))
+                                                        {
+                                                            FileName = Guid.NewGuid().ToString();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        FileName = Guid.NewGuid().ToString();
+                                                    }
+                                                }
+
+                                                if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(MModel.MoveTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
+                                                {
+                                                    using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write).Result)
+                                                    using (Stream WebStream = Response.GetResponseStream())
+                                                    {
+                                                        WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>
+                                                        {
+                                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                            {
+                                                                MModel.UpdateProgress((TotalProgress + e.ProgressPercentage) / WebUriList.Count);
+                                                                ProgressChangedCore();
+                                                            }).AsTask().Wait();
+                                                        }).Wait();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, $"Could not get file from weblink: \"{WebUri.OriginalString}\"");
+                                        }
+                                        finally
+                                        {
+                                            TotalProgress += 100;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
+                                                       .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            MModel.UpdateStatus(OperationStatus.Processing);
+                                            MModel.UpdateStatus(OperationStatus.NeedAttention, Globalization.GetString("NameCollision"));
                                         }).AsTask().Wait();
+
+                                        switch (MModel.WaitForButtonAction())
+                                        {
+                                            case 0:
+                                                {
+                                                    Option = CollisionOptions.OverrideOnCollision;
+                                                    break;
+                                                }
+                                            case 1:
+                                                {
+                                                    Option = CollisionOptions.RenameOnCollision;
+                                                    break;
+                                                }
+                                        }
                                     }
 
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                    if (MModel.Status != OperationStatus.Cancelled)
                                     {
-                                        Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, ProgressHandler: (s, e) =>
+                                        if (MModel.Status == OperationStatus.NeedAttention)
                                         {
                                             CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                MModel.UpdateProgress(e.ProgressPercentage);
-                                                ProgressChangedCore();
+                                                MModel.UpdateStatus(OperationStatus.Processing);
                                             }).AsTask().Wait();
-                                        }).Wait();
+                                        }
+
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                        {
+                                            Exclusive.Controller.MoveAsync(MModel.MoveFrom, MModel.MoveTo, Option, ProgressHandler: (s, e) =>
+                                            {
+                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    MModel.UpdateProgress(e.ProgressPercentage);
+                                                    ProgressChangedCore();
+                                                }).AsTask().Wait();
+                                            }).Wait();
+                                        }
                                     }
                                 }
                             }

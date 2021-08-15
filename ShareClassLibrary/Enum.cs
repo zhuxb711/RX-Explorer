@@ -64,6 +64,7 @@
         GetThumbnail,
         SetFileAttribute,
         GetMIMEContentType,
+        GetUrlTargetPath,
         GetAllInstalledApplication,
         CheckPackageFamilyNameExist,
         GetInstalledApplication,

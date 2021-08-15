@@ -472,7 +472,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        ContentType = await Exclusive.Controller.GetMIMEContentType(File.Path);
+                        ContentType = await Exclusive.Controller.GetMIMEContentTypeAsync(File.Path);
                     }
                 }
 

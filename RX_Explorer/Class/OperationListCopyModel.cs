@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -19,13 +20,18 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (CopyFrom.Length > 5)
+                if (CopyFrom.All((Item) => !Path.GetDirectoryName(Item).StartsWith(ApplicationData.Current.TemporaryFolder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom.Take(5))}{Environment.NewLine}({CopyFrom.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
+                    return CopyFrom.Length switch
+                    {
+                        > 5 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom.Take(5))}{Environment.NewLine}({CopyFrom.Length - 5} {Globalization.GetString("TaskList_More_Items")})...",
+                        > 0 => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom)}",
+                        _ => string.Empty
+                    };
                 }
                 else
                 {
-                    return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, CopyFrom)}";
+                    return string.Empty;
                 }
             }
         }
