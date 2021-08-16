@@ -480,7 +480,7 @@ namespace FullTrustProcess
                                 Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
                             }
 
-                            File.Delete(NewPath);
+                            File.Move(NewPath, ExecutePath);
                         }
                         else
                         {
@@ -846,18 +846,15 @@ namespace FullTrustProcess
                     }
                 case CommandType.InvokeContextMenuItem:
                     {
-                        string[] RelatedPath = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["RelatedPath"]));
-                        string Verb = Convert.ToString(CommandValue["Verb"]);
-                        int Id = Convert.ToInt32(CommandValue["Id"]);
-                        bool IncludeExtensionItem = Convert.ToBoolean(CommandValue["IncludeExtensionItem"]);
+                        ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(Convert.ToString(CommandValue["DataPackage"]));
 
-                        if (await ContextMenu.InvokeVerbAsync(RelatedPath, Verb, Id, IncludeExtensionItem))
+                        if (await ContextMenu.InvokeVerbAsync(Package))
                         {
                             Value.Add("Success", string.Empty);
                         }
                         else
                         {
-                            Value.Add("Error", $"Execute Id: \"{Id}\", Verb: \"{Verb}\" failed");
+                            Value.Add("Error", $"Execute Id: \"{Package.Id}\", Verb: \"{Package.Verb}\" failed");
                         }
 
                         break;

@@ -17,6 +17,15 @@
                                             NormalButtonTemplate="{StaticResource NormalButtonTemplate}"
                                             AddButtonTemplate="{StaticResource AddButtonTemplate}" />
 
+        <Storyboard x:Name="OpacityAnimation">
+            <DoubleAnimation EnableDependentAnimation="True"
+                             From="0"
+                             To="1"
+                             Duration="00:00:00.500"
+                             Storyboard.TargetName="NavView"
+                             Storyboard.TargetProperty="Opacity"/>
+        </Storyboard>
+        
         <DataTemplate x:DataType="Cls:QuickStartItem"
                       x:Key="NormalButtonTemplate">
             <StackPanel Orientation="Vertical"
@@ -347,6 +356,7 @@
 
         <muxc:NavigationView Name="NavView"
                              x:FieldModifier="public"
+                             Opacity="0"
                              PaneDisplayMode="Top"
                              IsTitleBarAutoPaddingEnabled="True"
                              SelectionFollowsFocus="Disabled"

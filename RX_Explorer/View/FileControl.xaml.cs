@@ -1936,15 +1936,15 @@ namespace RX_Explorer
         {
             Button Btn = sender as Button;
 
-            if (Btn.DataContext is AddressBlock Block)
+            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
             {
                 DragOperationDeferral Deferral = e.GetDeferral();
 
                 try
                 {
-                    DelayEnterCancel?.Cancel();
-
                     e.Handled = true;
+
+                    DelayEnterCancel?.Cancel();
 
                     IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
 
@@ -1967,8 +1967,10 @@ namespace RX_Explorer
                 {
                     QueueTaskController.EnqueueRemoteCopyOpeartion(Block.Path);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, "Could not get the content of clipboard");
+
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1998,16 +2000,33 @@ namespace RX_Explorer
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
                             e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+
+                            if (Btn.DataContext is AddressBlock Block && Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                e.DragUIOverride.IsCaptionVisible = false;
+                            }
+                            else
+                            {
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
+                                e.DragUIOverride.IsCaptionVisible = true;
+                            }
                         }
                         else
                         {
                             e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+
+                            if (Btn.DataContext is AddressBlock Block && Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                e.DragUIOverride.IsCaptionVisible = false;
+                            }
+                            else
+                            {
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
+                                e.DragUIOverride.IsCaptionVisible = true;
+                            }
                         }
 
                         e.DragUIOverride.IsContentVisible = true;
-                        e.DragUIOverride.IsCaptionVisible = true;
                         e.DragUIOverride.IsGlyphVisible = true;
                     }
                     else
@@ -2677,7 +2696,7 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1800).ContinueWith((task, obj) =>
+                Task.Delay(1800).ContinueWith(async (task, obj) =>
                 {
                     try
                     {
@@ -2685,7 +2704,7 @@ namespace RX_Explorer
 
                         if (!Tuple.Item1.IsCancellationRequested)
                         {
-                            _ = CurrentPresenter.EnterSelectedItem(Tuple.Item2.Path);
+                            await CurrentPresenter.EnterSelectedItemAsync(Tuple.Item2.Path);
                         }
                     }
                     catch (Exception ex)

@@ -247,7 +247,7 @@ namespace FullTrustProcess
                                             RelatedPath = RelatedPath
                                         };
 
-                                        if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
+                                        if (Info.hbmpItem != HBITMAP.NULL && Info.hbmpItem.DangerousGetHandle().CheckIfValidPtr())
                                         {
                                             using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
                                             {
@@ -276,6 +276,20 @@ namespace FullTrustProcess
 
                                         if (Info.hSubMenu != HMENU.NULL)
                                         {
+                                            switch (Context)
+                                            {
+                                                case Shell32.IContextMenu3 Menu3:
+                                                    {
+                                                        Menu3.HandleMenuMsg2((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(i), out _);
+                                                        break;
+                                                    }
+                                                case Shell32.IContextMenu2 Menu2:
+                                                    {
+                                                        Menu2.HandleMenuMsg((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(i));
+                                                        break;
+                                                    }
+                                            }
+
                                             Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
                                         }
                                         else
@@ -309,33 +323,33 @@ namespace FullTrustProcess
 
         [SecurityCritical]
         [HandleProcessCorruptedStateExceptions]
-        public static Task<bool> InvokeVerbAsync(string[] RelatedPath, string Verb, int Id, bool IncludeExtensionItem)
+        public static Task<bool> InvokeVerbAsync(ContextMenuPackage Package)
         {
-            if (RelatedPath.Length > 0)
+            if (Package.RelatedPath.Length > 0)
             {
                 return Helper.ExecuteOnSTAThreadAsync(() =>
                 {
                     try
                     {
-                        if (Array.TrueForAll(RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
+                        if (Array.TrueForAll(Package.RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
                         {
-                            Shell32.IContextMenu ContextObject = GetContextMenuObject(RelatedPath);
+                            Shell32.IContextMenu ContextObject = GetContextMenuObject(Package.RelatedPath);
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (Package.IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
                                 {
-                                    if (!string.IsNullOrEmpty(Verb))
+                                    if (!string.IsNullOrEmpty(Package.Verb))
                                     {
-                                        using (SafeResourceId VerbId = new SafeResourceId(Verb))
+                                        using (SafeResourceId VerbId = new SafeResourceId(Package.Verb))
                                         {
                                             Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
                                             {
                                                 lpVerb = VerbId,
-                                                lpVerbW = Verb,
+                                                lpVerbW = Package.Verb,
                                                 nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                                fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI | Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
-                                                cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                                fMask = Shell32.CMIC.CMIC_MASK_UNICODE,
+                                                cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
                                             };
 
                                             if (ContextObject.InvokeCommand(VerbInvokeCommand).Succeeded)
@@ -345,14 +359,13 @@ namespace FullTrustProcess
                                         }
                                     }
 
-                                    using (SafeResourceId ResSID = new SafeResourceId(Id))
+                                    using (SafeResourceId ResSID = new SafeResourceId(Package.Id))
                                     {
                                         Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
                                         {
                                             lpVerb = ResSID,
                                             nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                            fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI | Shell32.CMIC.CMIC_MASK_ASYNCOK,
-                                            cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                            cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
                                         };
 
                                         return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;

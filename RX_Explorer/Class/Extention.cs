@@ -90,36 +90,49 @@ namespace RX_Explorer.Class
 
                     if (StorageItems.Count > 0)
                     {
-                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrEmpty(Item.Path));
 
-                        foreach (StorageFile File in StorageItems.OfType<StorageFile>()
-                                                                 .Where((Item) => string.IsNullOrEmpty(Item.Path)))
+                        if (EmptyPathList.Any())
                         {
-                            try
+                            foreach (StorageFile File in EmptyPathList)
                             {
-                                if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                try
                                 {
-                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
-
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+                                        StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
 
-                                        if (!string.IsNullOrWhiteSpace(UrlTarget))
+                                        try
                                         {
-                                            PathList.Add(UrlTarget);
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            {
+                                                string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+
+                                                if (!string.IsNullOrWhiteSpace(UrlTarget))
+                                                {
+                                                    PathList.Add(UrlTarget);
+                                                }
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                                         }
                                     }
+                                    else if (!string.IsNullOrWhiteSpace(File.Name))
+                                    {
+                                        PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
+                                    }
                                 }
-                                else if (!string.IsNullOrWhiteSpace(File.Name))
+                                catch (Exception ex)
                                 {
-                                    PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
+                                    LogTracer.Log(ex, "Could not analysis the file in clipboard");
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Could not analysis the file in clipboard");
-                            }
+                        }
+                        else
+                        {
+                            PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
                         }
                     }
                 }

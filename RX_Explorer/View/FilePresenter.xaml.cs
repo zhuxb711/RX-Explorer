@@ -2671,11 +2671,16 @@ namespace RX_Explorer
             }
         }
 
-        public async Task EnterSelectedItem(string Path, bool RunAsAdministrator = false)
+        public async Task EnterSelectedItemAsync(string Path, bool RunAsAdministrator = false)
         {
-            FileSystemStorageItemBase Item = await FileSystemStorageItemBase.OpenAsync(Path);
-
-            await EnterSelectedItemAsync(Item, RunAsAdministrator).ConfigureAwait(false);
+            if (RootStorageFolder.Instance.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))
+            {
+                await EnterSelectedItemAsync(RootStorageFolder.Instance, RunAsAdministrator);
+            }
+            else if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
+            {
+                await EnterSelectedItemAsync(Item, RunAsAdministrator);
+            }
         }
 
         public async Task EnterSelectedItemAsync(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
@@ -2906,7 +2911,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{nameof(EnterSelectedItem)} throw an exception");
+                    LogTracer.Log(ex, $"{nameof(EnterSelectedItemAsync)} throw an exception");
                 }
                 finally
                 {
@@ -3383,9 +3388,9 @@ namespace RX_Explorer
 
             try
             {
-                DelayEnterCancellation?.Cancel();
-
                 e.Handled = true;
+
+                DelayEnterCancellation?.Cancel();
 
                 IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
 
@@ -3444,7 +3449,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
             finally
             {
@@ -3531,13 +3536,13 @@ namespace RX_Explorer
                 DelayEnterCancellation?.Dispose();
                 DelayEnterCancellation = new CancellationTokenSource();
 
-                Task.Delay(2000).ContinueWith((task, input) =>
+                Task.Delay(2000).ContinueWith(async (task, input) =>
                 {
                     try
                     {
                         if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
-                            _ = EnterSelectedItemAsync(Item);
+                            await EnterSelectedItemAsync(Item);
                         }
                     }
                     catch (Exception ex)
@@ -4623,7 +4628,7 @@ namespace RX_Explorer
                                                                                         : Path.GetFileNameWithoutExtension(File.Name));
 
                 if (string.IsNullOrEmpty(DecompressionFolderName))
-                { 
+                {
                     DecompressionFolderName = Globalization.GetString("Operate_Text_CreateFolder");
                 }
 

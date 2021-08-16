@@ -13,21 +13,17 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
-using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
@@ -39,7 +35,8 @@ namespace RX_Explorer
     public sealed partial class Home : Page
     {
         public event EventHandler<string> EnterActionRequested;
-        private CancellationTokenSource DelaySelectionCancel;
+        private CancellationTokenSource DelaySelectionCancellation;
+        private CancellationTokenSource DelayEnterCancellation;
 
         public Home()
         {
@@ -76,12 +73,24 @@ namespace RX_Explorer
         {
             if (args.InRecycleQueue)
             {
+                args.ItemContainer.AllowDrop = false;
+
+                args.ItemContainer.Drop -= ItemContainer_Drop;
+                args.ItemContainer.DragOver -= ItemContainer_DragOver;
+                args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
+                args.ItemContainer.DragLeave -= ItemContainer_DragLeave;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
             }
             else
             {
+                args.ItemContainer.AllowDrop = true;
+
+                args.ItemContainer.Drop += ItemContainer_Drop;
+                args.ItemContainer.DragOver += ItemContainer_DragOver;
+                args.ItemContainer.DragEnter += ItemContainer_DragEnter;
+                args.ItemContainer.DragLeave += ItemContainer_DragLeave;
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
@@ -106,16 +115,70 @@ namespace RX_Explorer
             }
         }
 
+        private void ItemContainer_DragLeave(object sender, DragEventArgs e)
+        {
+            DelayEnterCancellation?.Cancel();
+        }
+
+        private void ItemContainer_DragEnter(object sender, DragEventArgs e)
+        {
+            if (sender is SelectorItem Selector)
+            {
+                DelayEnterCancellation?.Cancel();
+                DelayEnterCancellation?.Dispose();
+                DelayEnterCancellation = new CancellationTokenSource();
+
+                Task.Delay(2000).ContinueWith((task, input) =>
+                {
+                    try
+                    {
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        {
+                            switch (Selector.Content)
+                            {
+                                case DriveDataBase Drive when Drive is not LockedDriveData:
+                                    {
+                                        EnterActionRequested?.Invoke(this, Drive.Path);
+                                        break;
+                                    }
+                                case LibraryStorageFolder Lib when !LibraryGrid.CanReorderItems:
+                                    {
+                                        EnterActionRequested?.Invoke(this, Lib.Path);
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
+                    }
+                }, DelayEnterCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+        }
+
         private void LibraryGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             if (args.InRecycleQueue)
             {
+                args.ItemContainer.AllowDrop = false;
+
+                args.ItemContainer.Drop -= ItemContainer_Drop;
+                args.ItemContainer.DragOver -= ItemContainer_DragOver;
+                args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
+                args.ItemContainer.DragLeave -= ItemContainer_DragLeave;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
             }
             else
             {
+                args.ItemContainer.AllowDrop = true;
+
+                args.ItemContainer.Drop += ItemContainer_Drop;
+                args.ItemContainer.DragOver += ItemContainer_DragOver;
+                args.ItemContainer.DragEnter += ItemContainer_DragEnter;
+                args.ItemContainer.DragLeave += ItemContainer_DragLeave;
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
@@ -130,14 +193,163 @@ namespace RX_Explorer
             }
         }
 
+        private async void ItemContainer_DragOver(object sender, DragEventArgs e)
+        {
+            DragOperationDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                switch ((sender as SelectorItem)?.Content)
+                {
+                    case LibraryStorageFolder Folder:
+                        {
+                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                            {
+                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
+                                }
+
+                                e.DragUIOverride.IsContentVisible = true;
+                                e.DragUIOverride.IsCaptionVisible = true;
+                                e.DragUIOverride.IsGlyphVisible = true;
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.None;
+                            }
+
+                            break;
+                        }
+                    case DriveDataBase Drive when Drive is not LockedDriveData:
+                        {
+                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                            {
+                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.Name}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.Name}\"";
+                                }
+
+                                e.DragUIOverride.IsContentVisible = true;
+                                e.DragUIOverride.IsCaptionVisible = true;
+                                e.DragUIOverride.IsGlyphVisible = true;
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.None;
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            e.AcceptedOperation = DataPackageOperation.None;
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
+        }
+
+        private async void ItemContainer_Drop(object sender, DragEventArgs e)
+        {
+            DragOperationDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                e.Handled = true;
+
+                DelayEnterCancellation?.Cancel();
+
+                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+
+                if (PathList.Count > 0)
+                {
+                    switch ((sender as SelectorItem).Content)
+                    {
+                        case LibraryStorageFolder Lib:
+                            {
+                                if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
+                                {
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Lib.Path);
+                                }
+                                else
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Lib.Path);
+                                }
+
+                                break;
+                            }
+                        case DriveDataBase Drive when Drive is not LockedDriveData:
+                            {
+                                if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
+                                {
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Drive.Path);
+                                }
+                                else
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Drive.Path);
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
+            catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
+            {
+                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
+                {
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(Item.Path);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get the content of clipboard");
+
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
+        }
+
         private void ItemContainer_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            DelaySelectionCancel?.Cancel();
+            DelaySelectionCancellation?.Cancel();
+            DelayEnterCancellation?.Cancel();
         }
 
         private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            DelaySelectionCancel?.Cancel();
+            DelaySelectionCancellation?.Cancel();
         }
 
         private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -146,49 +358,43 @@ namespace RX_Explorer
             {
                 switch (Item)
                 {
-                    case LibraryStorageFolder:
+                    case LibraryStorageFolder when !SettingControl.IsDoubleClickEnabled
+                                                   && LibraryGrid.SelectedItem != Item
+                                                   && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                                                   && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift):
                         {
-                            if (!SettingControl.IsDoubleClickEnabled
-                                && LibraryGrid.SelectedItem != Item
-                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
-                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
-                            {
-                                DelaySelectionCancel?.Cancel();
-                                DelaySelectionCancel?.Dispose();
-                                DelaySelectionCancel = new CancellationTokenSource();
+                            DelaySelectionCancellation?.Cancel();
+                            DelaySelectionCancellation?.Dispose();
+                            DelaySelectionCancellation = new CancellationTokenSource();
 
-                                Task.Delay(700).ContinueWith((task, input) =>
+                            Task.Delay(700).ContinueWith((task, input) =>
+                            {
+                                if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                                 {
-                                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
-                                    {
-                                        LibraryGrid.SelectedItem = Item;
-                                        DriveGrid.SelectedItem = null;
-                                    }
-                                }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
-                            }
+                                    LibraryGrid.SelectedItem = Item;
+                                    DriveGrid.SelectedItem = null;
+                                }
+                            }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
 
                             break;
                         }
-                    case DriveDataBase:
+                    case DriveDataBase when !SettingControl.IsDoubleClickEnabled
+                                            && LibraryGrid.SelectedItem != Item
+                                            && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                                            && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift):
                         {
-                            if (!SettingControl.IsDoubleClickEnabled
-                                && LibraryGrid.SelectedItem != Item
-                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
-                                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
-                            {
-                                DelaySelectionCancel?.Cancel();
-                                DelaySelectionCancel?.Dispose();
-                                DelaySelectionCancel = new CancellationTokenSource();
+                            DelaySelectionCancellation?.Cancel();
+                            DelaySelectionCancellation?.Dispose();
+                            DelaySelectionCancellation = new CancellationTokenSource();
 
-                                Task.Delay(700).ContinueWith((task, input) =>
+                            Task.Delay(700).ContinueWith((task, input) =>
+                            {
+                                if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                                 {
-                                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
-                                    {
-                                        DriveGrid.SelectedItem = Item;
-                                        LibraryGrid.SelectedItem = null;
-                                    }
-                                }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
-                            }
+                                    DriveGrid.SelectedItem = Item;
+                                    LibraryGrid.SelectedItem = null;
+                                }
+                            }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
 
                             break;
                         }
@@ -288,7 +494,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                     EnterActionRequested?.Invoke(this, Path);
                 }
             }
@@ -343,7 +549,7 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
@@ -423,7 +629,7 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
@@ -567,7 +773,7 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
@@ -591,7 +797,7 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDoubleClickEnabled)
                 {
-                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
                 }
 
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
@@ -1027,6 +1233,12 @@ namespace RX_Explorer
                     }
                 }
             }
+        }
+
+        private void LibraryGrid_DragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+            LibraryGrid.CanReorderItems = LibraryGrid.IsDragSource();
         }
     }
 }

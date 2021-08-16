@@ -76,6 +76,7 @@ namespace AnimationEffectProvider
                 ContainerVisual Container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(BasePage);
 
                 ScalarKeyFrameAnimation FadeOutAnimation = Container.Compositor.CreateScalarKeyFrameAnimation();
+                FadeOutAnimation.InsertKeyFrame(0, 1);
                 FadeOutAnimation.InsertKeyFrame(1, 0);
                 FadeOutAnimation.Duration = AnimationDuration;
 
@@ -92,7 +93,6 @@ namespace AnimationEffectProvider
                 Visual UIVisual = ElementCompositionPreview.GetElementVisual(UIToShow);
                 UIVisual.Size = new Vector2((float)UIToShow.ActualWidth, (float)UIToShow.ActualHeight);
                 UIVisual.CenterPoint = new Vector3(UIVisual.Size.X, UIVisual.Size.Y, 0) * 0.5f;
-
 
                 CompositionScopedBatch BatchAnimation = Container.Compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
 

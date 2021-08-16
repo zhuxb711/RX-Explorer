@@ -1,7 +1,6 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -108,7 +107,7 @@ namespace RX_Explorer
 
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
-                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter);
+                EntranceEffectProvider = new EntranceAnimationEffect(this, NavView, Parameter);
                 EntranceEffectProvider.PrepareEntranceEffect();
             }
         }
@@ -523,6 +522,7 @@ namespace RX_Explorer
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
+                        OpacityAnimation.Begin();
                         EntranceEffectProvider.StartEntranceEffect();
                     });
                 }

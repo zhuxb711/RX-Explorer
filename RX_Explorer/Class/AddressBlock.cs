@@ -39,7 +39,7 @@ namespace RX_Explorer.Class
 
                     if (string.IsNullOrEmpty(FileName))
                     {
-                        return Path.Split(@"\", System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                        return Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
                     }
                     else
                     {

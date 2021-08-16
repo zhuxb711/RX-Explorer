@@ -1150,7 +1150,9 @@ namespace RX_Explorer.Class
         {
             if (Package != null)
             {
-                if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("RelatedPath", JsonSerializer.Serialize(Package.RelatedPath)), ("Verb", Package.Verb), ("Id", Convert.ToString(Package.Id)), ("IncludeExtensionItem", Convert.ToString(Package.IncludeExtensionItem))) is IDictionary<string, string> Response)
+                Package.IconData = Array.Empty<byte>();
+
+                if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {

@@ -249,6 +249,7 @@
                               CanReorderItems="True"
                               CanDragItems="True"
                               AllowDrop="True"
+                              DragOver="LibraryGrid_DragOver"
                               DragItemsCompleted="LibraryGrid_DragItemsCompleted"
                               ItemClick="LibraryGrid_ItemClick"
                               RightTapped="LibraryGrid_RightTapped"
