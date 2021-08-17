@@ -1,6 +1,8 @@
-﻿namespace ShareClassLibrary
+﻿using System;
+
+namespace ShareClassLibrary
 {
-    public sealed class ContextMenuPackage
+    public sealed class ContextMenuPackage : ICloneable
     {
         public string Name { get; set; }
 
@@ -15,5 +17,10 @@
         public string[] RelatedPath { get; set; }
 
         public ContextMenuPackage[] SubMenus { get; set; }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
     }
 }

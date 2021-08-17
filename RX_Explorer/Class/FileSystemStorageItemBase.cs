@@ -204,6 +204,59 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static Task<IReadOnlyList<FileSystemStorageItemBase>> OpenInBatchAsync(params string[] PathArray)
+        {
+            return Task.Factory.StartNew<IReadOnlyList<FileSystemStorageItemBase>>(() =>
+            {
+                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
+
+                foreach(string Path in PathArray)
+                {
+                    try
+                    {
+                        try
+                        {
+                            Result.Add(Win32_Native_API.GetStorageItem(Path));
+                        }
+                        catch (LocationNotAvailableException)
+                        {
+                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                            if (string.IsNullOrEmpty(DirectoryPath))
+                            {
+                                StorageFolder Folder = StorageFolder.GetFolderFromPathAsync(Path).AsTask().Result;
+                                Result.Add(new FileSystemStorageFolder(Folder, Folder.GetModifiedTimeAsync().Result));
+                            }
+                            else
+                            {
+                                StorageFolder ParentFolder = StorageFolder.GetFolderFromPathAsync(DirectoryPath).AsTask().Result;
+
+                                switch (ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)).AsTask().Result)
+                                {
+                                    case StorageFolder Folder:
+                                        {
+                                            Result.Add(new FileSystemStorageFolder(Folder, Folder.GetModifiedTimeAsync().Result));
+                                            break;
+                                        }
+                                    case StorageFile File:
+                                        {
+                                            Result.Add(new FileSystemStorageFile(File, File.GetModifiedTimeAsync().Result, File.GetSizeRawDataAsync().Result));
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                    }
+                }
+
+                return Result;
+            }, TaskCreationOptions.LongRunning);
+        }
+
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
             try

@@ -79,7 +79,7 @@ namespace RX_Explorer
                 if (e.NavigationMode == NavigationMode.New)
                 {
                     WeakToFileControl = new WeakReference<FileControl>(Parameters.Item1);
-                    await Initialize(Parameters.Item2).ConfigureAwait(false);
+                    await SearchAsync(Parameters.Item2).ConfigureAwait(false);
                 }
             }
         }
@@ -227,12 +227,13 @@ namespace RX_Explorer
             }
         }
 
-        private async Task Initialize(SearchOptions Options)
+        private async Task SearchAsync(SearchOptions Options)
         {
             STarget = SortTarget.Name;
             SDirection = SortDirection.Ascending;
-
             HasItem.Visibility = Visibility.Collapsed;
+
+            SQLite.Current.SetSearchHistory(Options.SearchText);
 
             CancellationTokenSource SearchCancellation = new CancellationTokenSource();
 
@@ -240,7 +241,7 @@ namespace RX_Explorer
             {
                 this.SearchCancellation = SearchCancellation;
 
-                SearchStatus.Text = Globalization.GetString("SearchProcessingText");
+                SearchStatus.Text = $"{Globalization.GetString("SearchProcessingText")} \"{Options.SearchText}\"";
                 SearchStatusBar.Visibility = Visibility.Visible;
 
                 switch (Options.EngineCategory)
@@ -309,7 +310,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(Initialize)}");
+                LogTracer.Log(ex, $"An error was threw in {nameof(SearchAsync)}");
             }
             finally
             {
@@ -334,7 +335,7 @@ namespace RX_Explorer
             SelectionExtention = null;
 
             DelayDragCancellation?.Cancel();
-            DelayDragCancellation.Dispose();
+            DelayDragCancellation?.Dispose();
             DelayDragCancellation = null;
 
             if (e.NavigationMode == NavigationMode.Back)

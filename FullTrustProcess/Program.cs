@@ -1262,7 +1262,7 @@ namespace FullTrustProcess
 
                         if (File.Exists(ExecutePath))
                         {
-                            using (ShellItem Item = new ShellItem (ExecutePath))
+                            using (ShellItem Item = new ShellItem(ExecutePath))
                             {
                                 string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 
@@ -1273,7 +1273,12 @@ namespace FullTrustProcess
                                     TempBitmap.MakeTransparent();
                                     TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                    Value.Add("Success", JsonSerializer.Serialize(new UrlDataPackage(ExecutePath, UrlPath, IconStream.ToArray())));
+                                    Value.Add("Success", JsonSerializer.Serialize(new UrlDataPackage
+                                    {
+                                        UrlPath = ExecutePath,
+                                        UrlTargetPath = UrlPath,
+                                        IconData = IconStream.ToArray()
+                                    }));
                                 }
                             }
                         }
@@ -1318,7 +1323,12 @@ namespace FullTrustProcess
                                         TempBitmap.MakeTransparent();
                                         TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                        Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, string.Empty, WindowState.Normal, 0, string.Empty, false, IconStream.ToArray())));
+                                        Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
+                                        {
+                                            LinkPath = ExecutePath,
+                                            LinkTargetPath = ActualPath,
+                                            IconData = IconStream.ToArray()
+                                        }));
                                     }
                                 }
                                 else
@@ -1342,7 +1352,15 @@ namespace FullTrustProcess
                                         {
                                             byte[] IconData = await Helper.GetIconDataFromPackageFamilyNameAsync(PackageFamilyName);
 
-                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, string.Empty, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, false, IconData)));
+                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
+                                            {
+                                                LinkPath = ExecutePath,
+                                                LinkTargetPath = PackageFamilyName,
+                                                WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
+                                                HotKey = (int)Link.HotKey,
+                                                Comment = Link.Description,
+                                                IconData = IconData
+                                            }));
                                         }
                                     }
                                     else
@@ -1370,7 +1388,18 @@ namespace FullTrustProcess
                                             TempBitmap.MakeTransparent();
                                             TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, Link.WorkingDirectory, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, Link.RunAsAdministrator, IconStream.ToArray(), Arguments.ToArray())));
+                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
+                                            {
+                                                LinkPath = ExecutePath,
+                                                LinkTargetPath = ActualPath,
+                                                WorkDirectory = Link.WorkingDirectory,
+                                                WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
+                                                HotKey = (int)Link.HotKey,
+                                                Comment = Link.Description,
+                                                NeedRunAsAdmin = Link.RunAsAdministrator,
+                                                IconData = IconStream.ToArray(),
+                                                Argument = Arguments.ToArray()
+                                            }));
                                         }
                                     }
                                 }

@@ -948,12 +948,14 @@ namespace RX_Explorer
                             if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
                             {
                                 QuickStartTip.Target = QuickStartIcon;
-                                QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Right;
+                                QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.RightTop;
+                                QuickStartPanelRoot.MaxHeight = Math.Max(Window.Current.Bounds.Height - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0);
                             }
                             else
                             {
                                 QuickStartTip.Target = QuickStartItem;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
+                                QuickStartPanelRoot.MaxHeight = Math.Max(Window.Current.Bounds.Height - QuickStartItem.ActualHeight - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0);
                             }
 
                             QuickStartTip.IsOpen = true;
@@ -968,7 +970,7 @@ namespace RX_Explorer
                                 if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
                                 {
                                     BluetoothAudioSelectionTip.Target = BluetoothAudioIcon;
-                                    BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.Right;
+                                    BluetoothAudioSelectionTip.PreferredPlacement = TeachingTipPlacementMode.RightTop;
                                 }
                                 else
                                 {
@@ -1043,6 +1045,56 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An error was threw when navigate back");
+            }
+        }
+
+        private void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            QuickStartItem AppAddItem = CommonAccessCollection.QuickStartList.First((Item) => Item.Type == QuickStartType.AddButton);
+
+            int AppAddItemIndex = CommonAccessCollection.QuickStartList.IndexOf(AppAddItem);
+            int AppLastIndex = CommonAccessCollection.QuickStartList.Count - 1;
+
+            if (AppAddItemIndex != AppLastIndex)
+            {
+                CommonAccessCollection.QuickStartList.Move(AppAddItemIndex, AppLastIndex);
+            }
+
+            QuickStartItem WebAddItem = CommonAccessCollection.WebLinkList.First((Item) => Item.Type == QuickStartType.AddButton);
+
+            int WebAddItemIndex = CommonAccessCollection.WebLinkList.IndexOf(WebAddItem);
+            int WebLastIndex = CommonAccessCollection.WebLinkList.Count - 1;
+
+            if (WebAddItemIndex != WebLastIndex)
+            {
+                CommonAccessCollection.WebLinkList.Move(WebAddItemIndex, WebLastIndex);
+            }
+
+            if ((sender as GridView).Name == nameof(QuickStartGridView))
+            {
+                SQLite.Current.DeleteQuickStartItem(QuickStartType.Application);
+
+                foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList.Where((Item) => Item.Type != QuickStartType.AddButton))
+                {
+                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.Application);
+                }
+            }
+            else
+            {
+                SQLite.Current.DeleteQuickStartItem(QuickStartType.WebSite);
+
+                foreach (QuickStartItem Item in CommonAccessCollection.WebLinkList.Where((Item) => Item.Type != QuickStartType.AddButton))
+                {
+                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.WebSite);
+                }
+            }
+        }
+
+        private void QuickStart_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            if (e.Items.Cast<QuickStartItem>().Any((Item) => Item.Type == QuickStartType.AddButton))
+            {
+                e.Cancel = true;
             }
         }
 

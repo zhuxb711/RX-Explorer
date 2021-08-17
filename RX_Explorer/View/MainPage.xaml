@@ -23,9 +23,9 @@
                              To="1"
                              Duration="00:00:00.500"
                              Storyboard.TargetName="NavView"
-                             Storyboard.TargetProperty="Opacity"/>
+                             Storyboard.TargetProperty="Opacity" />
         </Storyboard>
-        
+
         <DataTemplate x:DataType="Cls:QuickStartItem"
                       x:Key="NormalButtonTemplate">
             <StackPanel Orientation="Vertical"
@@ -63,7 +63,7 @@
                               MinWidth="150"
                               Icon="Edit"
                               x:Name="EditNavItem"
-                              Click="EditNavItem_Click"/>
+                              Click="EditNavItem_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
@@ -189,7 +189,6 @@
             </Grid>
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
-                          ShouldConstrainToRootBounds="False"
                           IsLightDismissEnabled="True"
                           Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
             <muxc:TeachingTip.Resources>
@@ -247,80 +246,94 @@
                     </muxc:CommandBarFlyout.SecondaryCommands>
                 </muxc:CommandBarFlyout>
             </muxc:TeachingTip.Resources>
-            <StackPanel>
-                <TextBlock Text="应用"
-                           Margin="5"
-                           FontSize="16"
-                           x:Uid="QuickStartTitle" />
-                <Border Background="Gray"
-                        Height="2"
-                        Margin="5,0"
-                        HorizontalAlignment="Stretch" />
-                <GridView Name="QuickStartGridView"
-                          SelectionMode="None"
-                          IsItemClickEnabled="True"
-                          IsDoubleTapEnabled="False"
-                          PreviewKeyDown="QuickStart_PreviewKeyDown"
-                          IsRightTapEnabled="True"
-                          ItemClick="QuickStart_ItemClick"
-                          RightTapped="QuickStart_RightTapped"
-                          Padding="5"
-                          IsHoldingEnabled="True"
-                          Holding="QuickStart_Holding"
-                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
-                          ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                    <GridView.ItemContainerStyle>
-                        <Style TargetType="GridViewItem">
-                            <Setter Property="Padding"
-                                    Value="0" />
-                        </Style>
-                    </GridView.ItemContainerStyle>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                           Orientation="Horizontal"
-                                           HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-                <TextBlock Text="网站"
-                           x:Uid="WebLinkTitle"
-                           Margin="5,15,5,5"
-                           FontSize="16" />
-                <Border Background="Gray"
-                        Height="2"
-                        Margin="5,0"
-                        HorizontalAlignment="Stretch" />
-                <GridView Name="WebGridView"
-                          SelectionMode="None"
-                          IsItemClickEnabled="True"
-                          IsDoubleTapEnabled="False"
-                          IsRightTapEnabled="True"
-                          IsHoldingEnabled="True"
-                          Holding="QuickStart_Holding"
-                          ItemClick="QuickStart_ItemClick"
-                          RightTapped="QuickStart_RightTapped"
-                          PreviewKeyDown="QuickStart_PreviewKeyDown"
-                          Padding="5"
-                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
-                          ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                    <GridView.ItemContainerStyle>
-                        <Style TargetType="GridViewItem">
-                            <Setter Property="Padding"
-                                    Value="0" />
-                        </Style>
-                    </GridView.ItemContainerStyle>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                           Orientation="Horizontal"
-                                           HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-            </StackPanel>
+            <ScrollViewer HorizontalScrollMode="Disabled"
+                          VerticalScrollMode="Enabled"
+                          x:Name="QuickStartPanelRoot">
+                <StackPanel>
+                    <TextBlock Text="应用"
+                               Margin="5"
+                               FontSize="16"
+                               x:Uid="QuickStartTitle" />
+                    <Border Background="Gray"
+                            Height="2"
+                            Margin="5,0"
+                            HorizontalAlignment="Stretch" />
+                    <GridView Name="QuickStartGridView"
+                              SelectionMode="None"
+                              Padding="5"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="False"
+                              AllowDrop="True"
+                              CanDragItems="True"
+                              CanReorderItems="True"
+                              DragItemsCompleted="QuickStart_DragItemsCompleted"
+                              DragItemsStarting="QuickStart_DragItemsStarting"
+                              PreviewKeyDown="QuickStart_PreviewKeyDown"
+                              IsRightTapEnabled="True"
+                              ItemClick="QuickStart_ItemClick"
+                              RightTapped="QuickStart_RightTapped"
+                              IsHoldingEnabled="True"
+                              Holding="QuickStart_Holding"
+                              ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="Padding"
+                                        Value="0" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                               Orientation="Horizontal"
+                                               HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
+                    <TextBlock Text="网站"
+                               x:Uid="WebLinkTitle"
+                               Margin="5,15,5,5"
+                               FontSize="16" />
+                    <Border Background="Gray"
+                            Height="2"
+                            Margin="5,0"
+                            HorizontalAlignment="Stretch" />
+                    <GridView Name="WebGridView"
+                              SelectionMode="None"
+                              AllowDrop="True"
+                              CanDragItems="True"
+                              CanReorderItems="True"
+                              Padding="5"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="False"
+                              IsRightTapEnabled="True"
+                              IsHoldingEnabled="True"
+                              DragItemsCompleted="QuickStart_DragItemsCompleted"
+                              DragItemsStarting="QuickStart_DragItemsStarting"
+                              Holding="QuickStart_Holding"
+                              ItemClick="QuickStart_ItemClick"
+                              RightTapped="QuickStart_RightTapped"
+                              PreviewKeyDown="QuickStart_PreviewKeyDown"
+                              ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="Padding"
+                                        Value="0" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                               Orientation="Horizontal"
+                                               HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
+                </StackPanel>
+            </ScrollViewer>
         </muxc:TeachingTip>
 
         <SolidColorBrush x:Key="NavigationViewTopPaneBackground"

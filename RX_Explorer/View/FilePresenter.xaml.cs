@@ -3213,7 +3213,16 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        {
+                                            LinkPath = Path.Combine(CurrentFolder.Path, NewFileName),
+                                            LinkTargetPath = dialog.Path,
+                                            WorkDirectory = dialog.WorkDirectory,
+                                            WindowState = dialog.WindowState,
+                                            HotKey = dialog.HotKey,
+                                            Comment = dialog.Comment,
+                                            Argument = dialog.Arguments
+                                        }))
                                         {
                                             throw new UnauthorizedAccessException();
                                         }
@@ -5048,12 +5057,11 @@ namespace RX_Explorer
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                                                                    SItem.Path,
-                                                                                    string.Empty,
-                                                                                    WindowState.Normal,
-                                                                                    0,
-                                                                                    string.Empty))
+                                    if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                    {
+                                        LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                        LinkTargetPath = SItem.Path
+                                    }))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
@@ -5080,12 +5088,11 @@ namespace RX_Explorer
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                                                                            SItem.Path,
-                                                                                            string.Empty,
-                                                                                            WindowState.Normal,
-                                                                                            0,
-                                                                                            string.Empty))
+                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage 
+                                            { 
+                                                LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"), 
+                                                LinkTargetPath = SItem.Path 
+                                            }))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {

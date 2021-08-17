@@ -1256,8 +1256,6 @@ namespace RX_Explorer
                 Options.DeepSearch |= CurrentPresenter.CurrentFolder is RootStorageFolder;
 
                 Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, Options), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
-
-                SQLite.Current.SetSearchHistory(sender.Text);
             }
             else
             {
@@ -3031,12 +3029,11 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
-                                                                                        Content.Path,
-                                                                                        string.Empty,
-                                                                                        WindowState.Normal,
-                                                                                        0,
-                                                                                        string.Empty))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        {
+                                            LinkPath = Path.Combine(DesktopPath, $"{Path.GetFileName(Content.Path)}.lnk"),
+                                            LinkTargetPath = Content.Path
+                                        }))
                                         {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
@@ -3063,12 +3060,11 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
-                                                                                                Content.Path,
-                                                                                                string.Empty,
-                                                                                                WindowState.Normal,
-                                                                                                0,
-                                                                                                string.Empty))
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                {
+                                                    LinkPath = Path.Combine(DataPath.Desktop, $"{Path.GetFileName(Content.Path)}.lnk"),
+                                                    LinkTargetPath = Content.Path
+                                                }))
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {

@@ -790,7 +790,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -812,6 +812,8 @@ namespace RX_Explorer.Class
 
                     do
                     {
+                        CancelToken.ThrowIfCancellationRequested();
+
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
@@ -854,15 +856,10 @@ namespace RX_Explorer.Class
                                         }
                                     }
                                 }
-
-                                if (Attribute.HasFlag(FileAttributes.Directory) && SearchInSubFolders)
-                                {
-                                    SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken));
-                                }
                             }
                         }
                     }
-                    while (FindNextFile(SearchPtr, out Data) && !CancelToken.IsCancellationRequested);
+                    while (FindNextFile(SearchPtr, out Data));
 
                     return SearchResult;
                 }
@@ -881,7 +878,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -1035,69 +1032,6 @@ namespace RX_Explorer.Class
             {
                 FindClose(Ptr);
             }
-        }
-
-        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
-        {
-            if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(PathArray));
-            }
-
-            List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
-
-            foreach (string Path in PathArray)
-            {
-                IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-                try
-                {
-                    if (Ptr.CheckIfValidPtr())
-                    {
-                        if (Data.cFileName != "." && Data.cFileName != "..")
-                        {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                            if (Attribute.HasFlag(FileAttributes.Directory))
-                            {
-                                if (Attribute.HasFlag(FileAttributes.Hidden))
-                                {
-                                    Result.Add(new HiddenStorageFolder(new Win32_File_Data(Path, Data)));
-                                }
-                                else
-                                {
-                                    Result.Add(new FileSystemStorageFolder(new Win32_File_Data(Path, Data)));
-                                }
-                            }
-                            else
-                            {
-                                if (Attribute.HasFlag(FileAttributes.Hidden))
-                                {
-                                    Result.Add(new HiddenStorageFile(new Win32_File_Data(Path, Data)));
-                                }
-                                else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Result.Add(new UrlStorageFile(new Win32_File_Data(Path, Data)));
-                                }
-                                else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Result.Add(new LinkStorageFile(new Win32_File_Data(Path, Data)));
-                                }
-                                else
-                                {
-                                    Result.Add(new FileSystemStorageFile(new Win32_File_Data(Path, Data)));
-                                }
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    FindClose(Ptr);
-                }
-            }
-
-            return Result;
         }
 
         public static Win32_File_Data GetStorageItemRawData(string ItemPath)

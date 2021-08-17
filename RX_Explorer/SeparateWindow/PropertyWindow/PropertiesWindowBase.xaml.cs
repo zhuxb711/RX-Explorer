@@ -264,17 +264,27 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     case LinkStorageFile:
                         {
-                            await Exclusive.Controller.UpdateLinkAsync(StorageItem.Path, ShortcutTargetContent.Text,
-                                                                       ShortcutStartInContent.Text,
-                                                                       (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                                                       ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
-                                                                       ShortcutCommentContent.Text,
-                                                                       RunAsAdmin.IsChecked.GetValueOrDefault());
+                            await Exclusive.Controller.UpdateLinkAsync(new LinkDataPackage
+                            {
+                                LinkPath = StorageItem.Path,
+                                LinkTargetPath = ShortcutTargetContent.Text,
+                                WorkDirectory = ShortcutStartInContent.Text,
+                                WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
+                                HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                Comment = ShortcutCommentContent.Text,
+                                NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
+                            });
+
                             break;
                         }
                     case UrlStorageFile:
                         {
-                            await Exclusive.Controller.UpdateUrlAsync(StorageItem.Path, ShortcutUrlContent.Text);
+                            await Exclusive.Controller.UpdateUrlAsync(new UrlDataPackage
+                            {
+                                UrlPath = StorageItem.Path,
+                                UrlTargetPath = ShortcutUrlContent.Text
+                            });
+
                             break;
                         }
                 }
@@ -854,7 +864,26 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 StorageItemName.Text = File.Name;
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
-                TypeContent.Text = $"{File.DisplayType} ({File.Type.ToLower()})";
+
+                bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
+                bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);
+
+                if (IsDisplayTypeEmpty && IsTypeEmpty)
+                {
+                    TypeContent.Text = Globalization.GetString("UnknownText");
+                }
+                else if (IsDisplayTypeEmpty && !IsTypeEmpty)
+                {
+                    TypeContent.Text = File.Type.ToUpper();
+                }
+                else if (!IsDisplayTypeEmpty && IsTypeEmpty)
+                {
+                    TypeContent.Text = File.DisplayType;
+                }
+                else
+                {
+                    TypeContent.Text = $"{File.DisplayType} ({File.Type.ToLower()})";
+                }
 
                 string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 

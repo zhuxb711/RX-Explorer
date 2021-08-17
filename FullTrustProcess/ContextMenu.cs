@@ -348,7 +348,7 @@ namespace FullTrustProcess
                                                 lpVerb = VerbId,
                                                 lpVerbW = Package.Verb,
                                                 nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                                fMask = Shell32.CMIC.CMIC_MASK_UNICODE,
+                                                fMask = Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
                                                 cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
                                             };
 
@@ -365,6 +365,7 @@ namespace FullTrustProcess
                                         {
                                             lpVerb = ResSID,
                                             nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                            fMask = Shell32.CMIC.CMIC_MASK_ASYNCOK,
                                             cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
                                         };
 

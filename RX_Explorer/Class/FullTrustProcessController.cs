@@ -903,7 +903,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex, bool IgnoreCase, uint MaxCount)
         {
             if (await SendCommandAsync(CommandType.SearchByEverything, ("BaseLocation", BaseLocation), ("SearchWord", SearchWord), ("SearchAsRegex", Convert.ToString(SearchAsRegex)), ("IgnoreCase", Convert.ToString(IgnoreCase)), ("MaxCount", Convert.ToString(MaxCount))) is IDictionary<string, string> Response)
             {
@@ -917,7 +917,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return Win32_Native_API.GetStorageItemInBatch(SearchResult);
+                        return await FileSystemStorageItemBase.OpenInBatchAsync(SearchResult);
                     }
                 }
                 else
@@ -1148,11 +1148,11 @@ namespace RX_Explorer.Class
 
         public async Task<bool> InvokeContextMenuItemAsync(ContextMenuPackage Package)
         {
-            if (Package != null)
+            if (Package?.Clone() is ContextMenuPackage ClonePackage)
             {
-                Package.IconData = Array.Empty<byte>();
+                ClonePackage.IconData = Array.Empty<byte>();
 
-                if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
+                if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("DataPackage", JsonSerializer.Serialize(ClonePackage))) is IDictionary<string, string> Response)
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
@@ -1175,9 +1175,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, params string[] LinkArgument)
+        public async Task<bool> CreateLinkAsync(LinkDataPackage Package)
         {
-            if (await SendCommandAsync(CommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, false, null, LinkArgument)))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.CreateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
                 if (Response.ContainsKey("Success"))
                 {
@@ -1199,9 +1199,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, bool NeedRunAsAdmin, params string[] LinkArgument)
+        public async Task UpdateLinkAsync(LinkDataPackage Package)
         {
-            if (await SendCommandAsync(CommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, NeedRunAsAdmin, null, LinkArgument)))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.UpdateLink, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
@@ -1210,9 +1210,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateUrlAsync(string UrlPath, string UrlTargetPath)
+        public async Task UpdateUrlAsync(UrlDataPackage Package)
         {
-            if (await SendCommandAsync(CommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(new UrlDataPackage(UrlPath, UrlTargetPath, Array.Empty<byte>())))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.UpdateUrl, ("DataPackage", JsonSerializer.Serialize(Package))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
