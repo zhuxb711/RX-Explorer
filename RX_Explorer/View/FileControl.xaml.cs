@@ -2505,7 +2505,8 @@ namespace RX_Explorer
                         HorizontalAlignment = HorizontalAlignment.Stretch,
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalAlignment = VerticalAlignment.Stretch,
-                        VerticalContentAlignment = VerticalAlignment.Stretch
+                        VerticalContentAlignment = VerticalAlignment.Stretch,
+                        Style = Application.Current.Resources["BladeBugFixForWinUI25"] as Style
                     };
 
                     Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
@@ -2973,9 +2974,9 @@ namespace RX_Explorer
                 {
                     Name = "SendDocumentItem",
                     Text = Globalization.GetString("SendTo_Document"),
-                    Icon = new ImageIcon 
-                    { 
-                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")) 
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico"))
                     },
                     MinWidth = 150,
                     MaxWidth = 350
