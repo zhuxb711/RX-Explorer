@@ -4198,6 +4198,10 @@ Les noms non valides incluent
           <source>Enabled</source>
           <target state="translated">Activé</target>
         </trans-unit>
+        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>(Not available)</source>
+          <target state="translated">(Pas disponible)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

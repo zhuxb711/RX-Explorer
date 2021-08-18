@@ -838,6 +838,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="Update_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -859,6 +860,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="NavigateGithub_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -881,6 +883,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="ShowUpdateLog_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -910,6 +913,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="ClearUp_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -932,6 +936,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Name="ConfigManagerButton">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -993,6 +998,7 @@
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
                             Name="PurchaseApp"
+                            BorderThickness="0"
                             Click="PurchaseApp_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1015,6 +1021,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="ReviewButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1037,6 +1044,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="SystemInfoButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1059,6 +1067,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="ExportLog_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1081,6 +1090,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="ShortcutGuide_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1103,6 +1113,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Click="AQSGuide_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="30"
@@ -1125,6 +1136,7 @@
                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
+                            BorderThickness="0"
                             Name="CopyQQ"
                             x:Load="False"
                             Visibility="Collapsed"

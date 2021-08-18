@@ -46,9 +46,21 @@ namespace RX_Explorer.Class
             ViewModeChanged += ViewModeController_ViewModeChanged;
         }
 
+        public void DisableSelection()
+        {
+            Element.IsEnabled = false;
+            Element.SelectedIndex = -1;
+        }
+
+        public void EnableSelection()
+        {
+            Element.IsEnabled = true;
+            Element.SelectedIndex = ViewModeIndex;
+        }
+
         private async void OnSelectedIndexChanged(DependencyObject sender, DependencyProperty dp)
         {
-            if (sender is Selector Selector)
+            if (sender is Selector Selector && Selector.SelectedIndex >= 0)
             {
                 await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, Selector.SelectedIndex));
             }

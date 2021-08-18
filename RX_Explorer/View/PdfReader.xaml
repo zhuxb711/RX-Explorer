@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
         <CommandBar DefaultLabelPosition="Right"
                     VerticalContentAlignment="Center"
-                    Background="{ThemeResource ElementAcrylicBrush}">
+                    Background="{ThemeResource ElementAccentAcrylicBrush}">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="Zoom"
                               Icon="Zoom"
@@ -39,7 +39,7 @@
                             <Flyout.FlyoutPresenterStyle>
                                 <Style TargetType="FlyoutPresenter">
                                     <Setter Property="CornerRadius"
-                                            Value="0" />
+                                            Value="6" />
                                     <Setter Property="Background"
                                             Value="{ThemeResource SystemControlChromeMediumLowAcrylicElementMediumBrush}" />
                                 </Style>

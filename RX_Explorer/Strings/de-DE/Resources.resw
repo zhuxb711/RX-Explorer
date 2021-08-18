@@ -3162,4 +3162,7 @@ Inkorrekte Namen sind
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Ermöglicht</value>
   </data>
+  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
+    <value>(Nicht verfügbar)</value>
+  </data>
 </root>

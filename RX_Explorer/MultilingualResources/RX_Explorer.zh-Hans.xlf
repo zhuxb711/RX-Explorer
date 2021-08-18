@@ -4198,6 +4198,10 @@ Invalid names include
           <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
+        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>(Not available)</source>
+          <target state="translated">(此位置不可用)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

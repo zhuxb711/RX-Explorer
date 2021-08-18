@@ -214,24 +214,9 @@ namespace RX_Explorer.Class
                                 {
                                     if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
                                     {
-                                        if (Dictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
+                                        if (Dictionary.TryGetValue("ElementAccentAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
                                         {
                                             ElementBrushInstance.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
-                                        {
-                                            TreeViewBrushInstance1.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
-                                        {
-                                            TreeViewBrushInstance2.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
-                                        {
-                                            TreeViewBrushInstance3.AlwaysUseFallback = true;
                                         }
 
                                         if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
@@ -718,24 +703,9 @@ namespace RX_Explorer.Class
                 {
                     if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
                     {
-                        if (Dictionary.TryGetValue("ElementAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
+                        if (Dictionary.TryGetValue("ElementAccentAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
                         {
                             ElementBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelected", out object TreeViewBrush1) && TreeViewBrush1 is AcrylicBrush TreeViewBrushInstance1)
-                        {
-                            TreeViewBrushInstance1.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPointerOver", out object TreeViewBrush2) && TreeViewBrush2 is AcrylicBrush TreeViewBrushInstance2)
-                        {
-                            TreeViewBrushInstance2.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TreeViewItemBackgroundSelectedPressed", out object TreeViewBrush3) && TreeViewBrush3 is AcrylicBrush TreeViewBrushInstance3)
-                        {
-                            TreeViewBrushInstance3.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
                         }
 
                         if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)

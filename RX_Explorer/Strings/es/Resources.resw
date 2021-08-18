@@ -3162,4 +3162,7 @@ Las denominaciones no válidas son:
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Activado</value>
   </data>
+  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
+    <value>(No disponible)</value>
+  </data>
 </root>

@@ -103,16 +103,15 @@
                            Margin="5,0,0,0"
                            HorizontalTextAlignment="Left"/>
             </Grid>
-            <controls:RadialProgressBar x:Name="RadialProgress"
-                                        Value="0"
-                                        Foreground="{ThemeResource SystemAccentColor}"
-                                        Thickness="13"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Width="120"
-                                        Height="120"
-                                        Outline="LightGray"
-                                        Margin="0,20,0,10" />
+            <muxc:ProgressRing x:Name="RadialProgress"
+                               IsIndeterminate="False"
+                               Foreground="{ThemeResource SystemAccentColor}"
+                               Minimum="0"
+                               Maximum="100"
+                               Width="120"
+                               Height="120"
+                               Background="LightGray"
+                               Margin="0,20" />
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="文件系统:"
                            x:Uid="DeviceFileSystem"/>

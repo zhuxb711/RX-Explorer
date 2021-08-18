@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+            if (!Path.GetExtension(Name).Equals(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
@@ -95,7 +95,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".rtf", StringComparison.OrdinalIgnoreCase))
+            if (!Path.GetExtension(Name).Equals(".rtf", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
@@ -143,7 +143,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Name));
             }
 
-            if (Path.GetExtension(Name).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+            if (!Path.GetExtension(Name).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }

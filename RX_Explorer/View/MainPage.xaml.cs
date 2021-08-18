@@ -70,7 +70,8 @@ namespace RX_Explorer
             SystemBar.IsVisibleChanged += SystemBar_IsVisibleChanged;
 
             Window.Current.SetTitleBar(TitleBar);
-            Application.Current.FocusVisualKind = FocusVisualKind.Reveal;
+
+            //Application.Current.FocusVisualKind = FocusVisualKind.Reveal;
 
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;

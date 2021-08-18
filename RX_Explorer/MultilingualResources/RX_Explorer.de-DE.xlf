@@ -4196,6 +4196,10 @@ Inkorrekte Namen sind
           <source>Enabled</source>
           <target state="translated">Ermöglicht</target>
         </trans-unit>
+        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>(Not available)</source>
+          <target state="translated">(Nicht verfügbar)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

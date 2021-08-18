@@ -11,6 +11,7 @@
       Background="Transparent">
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -72,6 +73,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">
@@ -172,7 +174,7 @@
                                     Height="35"
                                     RelativePanel.LeftOf="NameFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
                                     <TextBlock Text="名称"
@@ -197,7 +199,7 @@
                                     Height="35"
                                     Width="25"
                                     Padding="2"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True">
                                 <Viewbox Width="10">
@@ -213,7 +215,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="0" />
+                                                        Value="6" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -326,8 +328,8 @@
                                             <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Top">
+                                                             Margin="0,0,0,5"
+                                                             VerticalAlignment="Center">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xE81E;" />
                                                     </Viewbox>
@@ -356,7 +358,7 @@
                                 Grid.Column="1"
                                 RelativePanel.LeftOf="NameFilterHeader"
                                 RelativePanel.AlignLeftWithPanel="True"
-                                Background="{ThemeResource ElementAcrylicBrush}"
+                                Background="{ThemeResource ElementAccentAcrylicBrush}"
                                 Style="{StaticResource ListHeaderButtonStyle}">
                             <RelativePanel>
                                 <TextBlock Text="路径"
@@ -389,7 +391,7 @@
                                     Click="ListHeader_Click"
                                     RelativePanel.LeftOf="ModTimeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
                                     <TextBlock Text="修改日期"
@@ -414,7 +416,7 @@
                                     Height="35"
                                     Width="25"
                                     Padding="2"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True">
                                 <Viewbox Width="10">
@@ -430,7 +432,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="0" />
+                                                        Value="6" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -439,8 +441,8 @@
                                             <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="16"
-                                                             Margin="0,2,0,0"
-                                                             VerticalAlignment="Top">
+                                                             Margin="0,0,0,5"
+                                                             VerticalAlignment="Center">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xE81E;" />
                                                     </Viewbox>
@@ -517,7 +519,7 @@
                                     Click="ListHeader_Click"
                                     RelativePanel.LeftOf="TypeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
                                     <TextBlock Text="类型"
@@ -542,7 +544,7 @@
                                     Height="35"
                                     Width="25"
                                     Padding="2"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True">
                                 <Viewbox Width="10">
@@ -558,7 +560,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="0" />
+                                                        Value="6" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -588,7 +590,7 @@
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Height="35"
                                     Click="ListHeader_Click"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
                                     <TextBlock Text="大小"
@@ -613,7 +615,7 @@
                                     Height="35"
                                     Width="25"
                                     Padding="2"
-                                    Background="{ThemeResource ElementAcrylicBrush}"
+                                    Background="{ThemeResource ElementAccentAcrylicBrush}"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True">
                                 <Viewbox Width="10">
@@ -629,7 +631,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="0" />
+                                                        Value="6" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>

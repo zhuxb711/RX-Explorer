@@ -3162,4 +3162,7 @@
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
+    <value>(此位置不可用)</value>
+  </data>
 </root>

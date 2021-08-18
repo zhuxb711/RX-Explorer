@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -76,17 +75,17 @@ namespace RX_Explorer.Dialog
                 }
                 else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
                 {
-                    if(await FileSystemStorageItemBase.CheckExistAsync(ExtractLocation) == false)
+                    if (await FileSystemStorageItemBase.CheckExistAsync(ExtractLocation) == false)
                     {
-                        await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation,StorageItemTypes.Folder,CreateOption.OpenIfExist).ConfigureAwait(false);
+                        await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
                     }
-                    else 
-                    { 
+                    else
+                    {
                         args.Cancel = true;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex);
             }

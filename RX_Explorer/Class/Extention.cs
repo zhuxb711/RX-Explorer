@@ -80,88 +80,80 @@ namespace RX_Explorer.Class
 
         public static async Task<IReadOnlyList<string>> GetAsPathListAsync(this DataPackageView View)
         {
-            try
+            List<string> PathList = new List<string>();
+
+            if (View.Contains(StandardDataFormats.StorageItems))
             {
-                List<string> PathList = new List<string>();
+                IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
 
-                if (View.Contains(StandardDataFormats.StorageItems))
+                if (StorageItems.Count > 0)
                 {
-                    IReadOnlyList<IStorageItem> StorageItems = await View.GetStorageItemsAsync();
+                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrEmpty(Item.Path));
 
-                    if (StorageItems.Count > 0)
+                    if (EmptyPathList.Any())
                     {
-                        IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrEmpty(Item.Path));
-
-                        if (EmptyPathList.Any())
+                        foreach (StorageFile File in EmptyPathList)
                         {
-                            foreach (StorageFile File in EmptyPathList)
+                            try
                             {
-                                try
+                                if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (File.Name.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
+
+                                    try
                                     {
-                                        StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, Guid.NewGuid().ToString(), NameCollisionOption.GenerateUniqueName);
-
-                                        try
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                            {
-                                                string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
+                                            string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
 
-                                                if (!string.IsNullOrWhiteSpace(UrlTarget))
-                                                {
-                                                    PathList.Add(UrlTarget);
-                                                }
+                                            if (!string.IsNullOrWhiteSpace(UrlTarget))
+                                            {
+                                                PathList.Add(UrlTarget);
                                             }
                                         }
-                                        finally
-                                        {
-                                            await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                        }
                                     }
-                                    else if (!string.IsNullOrWhiteSpace(File.Name))
+                                    finally
                                     {
-                                        PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
+                                        await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                                     }
                                 }
-                                catch (Exception ex)
+                                else if (!string.IsNullOrWhiteSpace(File.Name))
                                 {
-                                    LogTracer.Log(ex, "Could not analysis the file in clipboard");
+                                    PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
                                 }
                             }
-                        }
-                        else
-                        {
-                            PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not analysis the file in clipboard");
+                            }
                         }
                     }
-                }
-
-                if (View.Contains(StandardDataFormats.Text))
-                {
-                    string XmlText = await View.GetTextAsync();
-
-                    if (XmlText.Contains("RX-Explorer"))
+                    else
                     {
-                        XmlDocument Document = new XmlDocument();
-                        Document.LoadXml(XmlText);
-
-                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                        {
-                            PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
-                        }
+                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
                     }
                 }
+            }
 
-                return PathList;
-            }
-            catch (Exception ex)
+            if (View.Contains(StandardDataFormats.Text))
             {
-                LogTracer.Log(ex, "Could not read data from clipboard");
-                return new List<string>(0);
+                string XmlText = await View.GetTextAsync();
+
+                if (XmlText.Contains("RX-Explorer"))
+                {
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
+
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                    if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    {
+                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
+                    }
+                }
             }
+
+            return PathList;
         }
 
         public static async Task SetupDataPackageAsync(this DataPackage Package, IEnumerable<FileSystemStorageItemBase> Collection)

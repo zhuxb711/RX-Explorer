@@ -14,6 +14,7 @@
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
@@ -26,6 +27,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="LibraryFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Copy"
@@ -109,6 +111,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="DriveEmptyFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
@@ -131,6 +134,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="DriveFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
@@ -154,6 +158,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="PortableDeviceFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
@@ -187,6 +192,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="BitlockerDeviceFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"

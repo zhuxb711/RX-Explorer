@@ -3267,4 +3267,7 @@ Invalid names include
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Enabled</value>
   </data>
+  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
+    <value>(Not available)</value>
+  </data>
 </root>

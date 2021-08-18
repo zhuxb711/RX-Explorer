@@ -4,7 +4,6 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -796,7 +795,7 @@ namespace RX_Explorer
 
         private void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
         {
-            if (e.Path.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase) && CurrentViewModeIndex != e.Index)
+            if ((e.Path?.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() && CurrentViewModeIndex != e.Index)
             {
                 try
                 {
@@ -908,7 +907,7 @@ namespace RX_Explorer
                 if (FolderPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentFolder = RootStorageFolder.Instance;
-                    Container.ViewModeComboBox.IsEnabled = false;
+                    Container.ViewModeControl.DisableSelection();
                     FileCollection.Clear();
                     GroupCollection.Clear();
                 }
@@ -918,7 +917,7 @@ namespace RX_Explorer
                     {
                         CurrentFolder = Folder;
 
-                        Container.ViewModeComboBox.IsEnabled = true;
+                        Container.ViewModeControl.EnableSelection();
 
                         SQLite.Current.SetPathHistory(FolderPath);
 
@@ -4992,18 +4991,21 @@ namespace RX_Explorer
         {
             if (sender is MenuFlyout Flyout)
             {
-                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
+                foreach (MenuFlyoutItem Item in Flyout.Items)
                 {
                     Item.Click -= SendToItem_Click;
                 }
 
                 Flyout.Items.Clear();
 
-                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
+                MenuFlyoutItem SendDocumentItem = new MenuFlyoutItem
                 {
                     Name = "SendDocumentItem",
                     Text = Globalization.GetString("SendTo_Document"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico"))
+                    },
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -5011,11 +5013,14 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
+                MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                 {
                     Name = "SendLinkItem",
                     Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
+                    },
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -5025,11 +5030,14 @@ namespace RX_Explorer
 
                 foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
-                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
+                    MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
                     {
                         Name = "SendRemovableItem",
                         Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
-                        ImageIcon = RemovableDrive.Thumbnail,
+                        Icon = new ImageIcon
+                        {
+                            Source = RemovableDrive.Thumbnail
+                        },
                         MinWidth = 150,
                         MaxWidth = 350,
                         Tag = RemovableDrive.Path
@@ -5045,7 +5053,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (sender is MenuFlyoutItemWithImage Item && SelectedItem is FileSystemStorageItemBase SItem)
+            if (sender is MenuFlyoutItem Item && SelectedItem is FileSystemStorageItemBase SItem)
             {
                 switch (Item.Name)
                 {
@@ -5088,10 +5096,10 @@ namespace RX_Explorer
                                     {
                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage 
-                                            { 
-                                                LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"), 
-                                                LinkTargetPath = SItem.Path 
+                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                            {
+                                                LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                LinkTargetPath = SItem.Path
                                             }))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
@@ -5195,20 +5203,26 @@ namespace RX_Explorer
         {
             CreatNewFlyout.Items.Clear();
 
-            MenuFlyoutItemWithImage FolderItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem FolderItem = new MenuFlyoutItem
             {
                 Name = "FolderItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"))
+                },
                 Text = Globalization.GetString("Operate_Text_CreateFolder"),
                 MinWidth = 160
             };
             FolderItem.Click += CreateFolder_Click;
             CreatNewFlyout.Items.Add(FolderItem);
 
-            MenuFlyoutItemWithImage LinkItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem LinkItem = new MenuFlyoutItem
             {
                 Name = "LinkItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png"))
+                },
                 Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
                 MinWidth = 160
             };
@@ -5217,70 +5231,91 @@ namespace RX_Explorer
 
             CreatNewFlyout.Items.Add(new MenuFlyoutSeparator());
 
-            MenuFlyoutItemWithImage DocItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem DocItem = new MenuFlyoutItem
             {
                 Name = "DocItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png"))
+                },
                 Text = "Microsoft Word (.docx)",
                 MinWidth = 160
             };
             DocItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(DocItem);
 
-            MenuFlyoutItemWithImage PPTItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem PPTItem = new MenuFlyoutItem
             {
                 Name = "PPTItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png"))
+                },
                 Text = "Microsoft PowerPoint (.pptx)",
                 MinWidth = 160
             };
             PPTItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(PPTItem);
 
-            MenuFlyoutItemWithImage XLSItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem XLSItem = new MenuFlyoutItem
             {
                 Name = "XLSItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png"))
+                },
                 Text = "Microsoft Excel (.xlsx)",
                 MinWidth = 160
             };
             XLSItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(XLSItem);
 
-            MenuFlyoutItemWithImage RtfItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem RtfItem = new MenuFlyoutItem
             {
                 Name = "RtfItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png"))
+                },
                 Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
                 MinWidth = 160
             };
             RtfItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(RtfItem);
 
-            MenuFlyoutItemWithImage BmpItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem BmpItem = new MenuFlyoutItem
             {
                 Name = "BmpItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png"))
+                },
                 Text = $"{Globalization.GetString("File_Type_Bmp_Description")} (.bmp)",
                 MinWidth = 160
             };
             BmpItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(BmpItem);
 
-            MenuFlyoutItemWithImage TxtItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem TxtItem = new MenuFlyoutItem
             {
                 Name = "TxtItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png"))
+                },
                 Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
                 MinWidth = 160
             };
             TxtItem.Click += CreateFile_Click;
             CreatNewFlyout.Items.Add(TxtItem);
 
-            MenuFlyoutItemWithImage CompressItem = new MenuFlyoutItemWithImage
+            MenuFlyoutItem CompressItem = new MenuFlyoutItem
             {
                 Name = "CompressItem",
-                ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png")),
+                Icon = new ImageIcon
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png"))
+                },
                 Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
                 MinWidth = 160
             };
@@ -5290,7 +5325,7 @@ namespace RX_Explorer
 
         private void CreatNewFlyout_Closed(object sender, object e)
         {
-            foreach (MenuFlyoutItemWithImage Item in CreatNewFlyout.Items.OfType<MenuFlyoutItemWithImage>())
+            foreach (MenuFlyoutItem Item in CreatNewFlyout.Items.OfType<MenuFlyoutItem>())
             {
                 if (Item.Name == "FolderItem")
                 {

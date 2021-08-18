@@ -106,18 +106,22 @@
                         </Grid>
                         <DropDownButton.Flyout>
                             <Flyout x:Name="AspFlyout"
-                                    Placement="BottomEdgeAlignedLeft">
+                                    Placement="Bottom">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="CornerRadius" 
+                                                Value="6"/>
+                                        <Setter Property="Padding" 
+                                                Value="0"/>
                                         <Setter Property="Background"
                                                 Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                     </Style>
                                 </Flyout.FlyoutPresenterStyle>
                                 <ListView x:Name="AspList"
+                                          Width="260"
                                           IsItemClickEnabled="True"
                                           ItemClick="AspList_ItemClick"
-                                          SelectionChanged="AspList_SelectionChanged"
-                                          Width="204" />
+                                          SelectionChanged="AspList_SelectionChanged" />
                             </Flyout>
                         </DropDownButton.Flyout>
                     </DropDownButton>

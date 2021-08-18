@@ -73,6 +73,10 @@
                           TabCloseRequested="TabViewControl_TabCloseRequested"
                           TabDroppedOutside="TabViewControl_TabDroppedOutside"
                           AddTabButtonClick="TabViewControl_AddTabButtonClick">
+                <muxc:TabView.Resources>
+                    <SolidColorBrush x:Key="TabViewBackground"
+                                     Color="Transparent" />
+                </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
                     <Button HorizontalAlignment="Right"
                             VerticalAlignment="Bottom"

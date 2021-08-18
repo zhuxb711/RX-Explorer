@@ -3162,4 +3162,7 @@ Les noms non valides incluent
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Activé</value>
   </data>
+  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
+    <value>(Pas disponible)</value>
+  </data>
 </root>

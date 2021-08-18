@@ -4196,6 +4196,10 @@ Las denominaciones no válidas son:
           <source>Enabled</source>
           <target state="translated">Activado</target>
         </trans-unit>
+        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>(Not available)</source>
+          <target state="translated">(No disponible)</target>
+        </trans-unit>
       </group>
     </body>
   </file>
