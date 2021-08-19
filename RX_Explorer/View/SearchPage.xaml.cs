@@ -28,7 +28,6 @@ namespace RX_Explorer
 {
     public sealed partial class SearchPage : Page
     {
-        private WeakReference<FileControl> WeakToFileControl;
         private CancellationTokenSource SearchCancellation;
         private CancellationTokenSource DelayDragCancellation;
 
@@ -67,7 +66,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, SearchOptions> Parameters)
+            if (e.Parameter is SearchOptions Parameters)
             {
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
 
@@ -78,8 +77,7 @@ namespace RX_Explorer
 
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    WeakToFileControl = new WeakReference<FileControl>(Parameters.Item1);
-                    await SearchAsync(Parameters.Item2).ConfigureAwait(false);
+                    await SearchAsync(Parameters).ConfigureAwait(false);
                 }
             }
         }
@@ -450,22 +448,8 @@ namespace RX_Explorer
             {
                 try
                 {
-                    string ParentFolderPath = Path.GetDirectoryName(Item.Path);
-
-                    if (WeakToFileControl.TryGetTarget(out FileControl Control))
-                    {
-                        Frame.GoBack();
-
-                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath);
-
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath);
-
-                        if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
-                        {
-                            Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
-                            Control.CurrentPresenter.SelectedItem = Target;
-                        }
-                    }
+                    await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Path.GetDirectoryName(Item.Path));
                 }
                 catch (Exception ex)
                 {
@@ -810,21 +794,8 @@ namespace RX_Explorer
                                                 {
                                                     case FileSystemStorageFolder:
                                                         {
-                                                            if (WeakToFileControl.TryGetTarget(out FileControl Control))
-                                                            {
-                                                                Frame.GoBack();
-
-                                                                await Control.CurrentPresenter.DisplayItemsInFolder(LinkItem.LinkTargetPath);
-
-                                                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
-
-                                                                if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == LinkItem) is FileSystemStorageItemBase Target)
-                                                                {
-                                                                    Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
-                                                                    Control.CurrentPresenter.SelectedItem = Target;
-                                                                }
-                                                            }
-
+                                                            await TabViewContainer.Current.CreateNewTabAsync(LinkItem.LinkTargetPath);
+                                                            await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
                                                             break;
                                                         }
                                                     case FileSystemStorageFile:
@@ -972,20 +943,8 @@ namespace RX_Explorer
                         {
                             if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                             {
-                                if (WeakToFileControl.TryGetTarget(out FileControl Control))
-                                {
-                                    Frame.GoBack();
-
-                                    await Control.CurrentPresenter.DisplayItemsInFolder(Folder);
-
-                                    await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
-
-                                    if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Folder) is FileSystemStorageItemBase Target)
-                                    {
-                                        Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
-                                        Control.CurrentPresenter.SelectedItem = Target;
-                                    }
-                                }
+                                await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
+                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
                             }
                             else
                             {
@@ -996,7 +955,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await Dialog.ShowAsync();
+                                await Dialog.ShowAsync();
                             }
 
                             break;
@@ -1014,7 +973,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -1039,8 +998,10 @@ namespace RX_Explorer
                     Clipboard.Clear();
                     Clipboard.SetContent(await SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().GetAsDataPackageAsync(DataPackageOperation.Copy));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, "Could not put the file into clipboard");
+
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1048,7 +1009,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync().ConfigureAwait(false);
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -1064,8 +1025,10 @@ namespace RX_Explorer
                     Clipboard.Clear();
                     Clipboard.SetContent(await SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().GetAsDataPackageAsync(DataPackageOperation.Move));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, "Could not put the file into clipboard");
+
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1073,7 +1036,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync().ConfigureAwait(false);
+                    await Dialog.ShowAsync();
                 }
             }
         }

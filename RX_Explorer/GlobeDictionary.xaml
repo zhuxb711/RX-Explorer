@@ -18,7 +18,7 @@
                           TintOpacity="0.3"
                           FallbackColor="{StaticResource ElementFallBackBlackDarkerColor}" />
 
-            <!-- Bug fixed in WinUI 2.6.1.....Start -->
+            <!-- Bug fixed in WinUI 2.6.1.....Start --><!--
             <StaticResource x:Key="GridViewItemBackgroundSelected"
                             ResourceKey="AccentFillColorDefaultBrush" />
             <StaticResource x:Key="GridViewItemBackgroundSelectedPointerOver"
@@ -41,7 +41,7 @@
                             ResourceKey="TextOnAccentFillColorPrimaryBrush" />
             <StaticResource x:Key="ListViewItemForegroundSelectedPressed"
                             ResourceKey="TextOnAccentFillColorSecondaryBrush" />
-            <!-- Bug fixed in WinUI 2.6.1.....End -->
+            --><!-- Bug fixed in WinUI 2.6.1.....End -->
 
             <!--<AcrylicBrush x:Key="TreeViewItemBackgroundSelected"
                           BackgroundSource="Backdrop"
@@ -80,7 +80,7 @@
                           TintOpacity="0.3"
                           FallbackColor="{StaticResource ElementFallBackWhiteLighterColor}" />
 
-            <!-- Bug fixed in WinUI 2.6.1.....Start -->
+            <!-- Bug fixed in WinUI 2.6.1.....Start --><!--
             <StaticResource x:Key="GridViewItemBackgroundSelected"
                             ResourceKey="AccentFillColorDefaultBrush" />
             <StaticResource x:Key="GridViewItemBackgroundSelectedPressed"
@@ -99,7 +99,7 @@
                             ResourceKey="TextOnAccentFillColorPrimaryBrush" />
             <StaticResource x:Key="ListViewItemForegroundSelectedPressed"
                             ResourceKey="TextOnAccentFillColorSecondaryBrush" />
-            <!-- Bug fixed in WinUI 2.6.1.....End -->
+            --><!-- Bug fixed in WinUI 2.6.1.....End -->
 
             <!--<AcrylicBrush x:Key="TreeViewItemBackgroundSelected"
                           BackgroundSource="Backdrop"
@@ -143,7 +143,7 @@
     <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>
     <x:Double x:Key="TeachingTipMaxWidth">400</x:Double>
 
-    <!-- Bug fixed in WinUI 2.6.1.....Start -->
+    <!-- Bug fixed in WinUI 2.6.1.....Start --><!--
     <Style x:Key="CommandBarFlyoutAppBarButtonStyle"
            TargetType="AppBarButton"
            BasedOn="{StaticResource CommandBarFlyoutAppBarButtonStyleBase}" />
@@ -235,6 +235,8 @@
                                                 Value="12,0,12,0" />
                                         <Setter Target="OverflowTextLabel.Visibility"
                                                 Value="Visible" />
+                                        <Setter Target="OverflowTextLabel.TextTrimming"
+                                                Value="CharacterEllipsis" />
                                         <Setter Target="OverflowTextLabel.Margin"
                                                 Value="39,0,12,0" />
                                     </VisualState.Setters>
@@ -402,7 +404,7 @@
                                        Foreground="{TemplateBinding Foreground}"
                                        FontFamily="{TemplateBinding FontFamily}"
                                        TextAlignment="Left"
-                                       TextTrimming="Clip"
+                                       TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap"
                                        HorizontalAlignment="Stretch"
                                        VerticalAlignment="Center"
@@ -438,7 +440,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <!-- Bug fixed in WinUI 2.6.1.....End -->
+    --><!-- Bug fixed in WinUI 2.6.1.....End -->
 
     <Style x:Key="BladeBugFixForWinUI25" 
            TargetType="controls:BladeItem">
