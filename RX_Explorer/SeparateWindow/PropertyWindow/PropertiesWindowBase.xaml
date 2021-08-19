@@ -74,7 +74,8 @@
             <TextBlock RelativePanel.AlignLeftWithPanel="True"
                        RelativePanel.LeftOf="PropertiesTitleRight"
                        TextTrimming="CharacterEllipsis"
-                       Name="PropertiesTitleLeft" />
+                       Name="PropertiesTitleLeft"
+                       ToolTipService.ToolTip="{x:Bind PropertiesTitleLeft.Text}"/>
             <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_Window_Title')}"
                        x:Name="PropertiesTitleRight"
                        RelativePanel.AlignRightWithPanel="True"

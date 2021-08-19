@@ -215,7 +215,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="6" />
+                                                        Value="{StaticResource FlyoutCornerRadius}" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -432,7 +432,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="6" />
+                                                        Value="{StaticResource FlyoutCornerRadius}" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -560,7 +560,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="6" />
+                                                        Value="{StaticResource FlyoutCornerRadius}" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>
@@ -631,7 +631,7 @@
                                         <Flyout.FlyoutPresenterStyle>
                                             <Style TargetType="FlyoutPresenter">
                                                 <Setter Property="CornerRadius"
-                                                        Value="6" />
+                                                        Value="{StaticResource FlyoutCornerRadius}" />
                                                 <Setter Property="Background"
                                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                             </Style>

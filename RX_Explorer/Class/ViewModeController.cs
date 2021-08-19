@@ -10,11 +10,12 @@ namespace RX_Explorer.Class
     {
         public int ViewModeIndex { get; private set; }
 
+        private static string[] selectionSource;
         public static string[] SelectionSource
         {
             get
             {
-                return new string[]
+                return selectionSource ??= new string[]
                 {
                     Globalization.GetString("FileControl_ItemDisplayMode_Tiles"),
                     Globalization.GetString("FileControl_ItemDisplayMode_Details"),
@@ -36,7 +37,7 @@ namespace RX_Explorer.Class
         public async Task SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
         {
             this.CurrentPath = CurrentPath;
-            await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, ViewModeIndex));
+            await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, Math.Min(Math.Max(ViewModeIndex, 0), SelectionSource.Length - 1)));
         }
 
         public ViewModeController(Selector Element)
@@ -60,7 +61,7 @@ namespace RX_Explorer.Class
 
         private async void OnSelectedIndexChanged(DependencyObject sender, DependencyProperty dp)
         {
-            if (sender is Selector Selector && Selector.SelectedIndex >= 0)
+            if (sender is Selector Selector)
             {
                 await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, Selector.SelectedIndex));
             }

@@ -102,7 +102,7 @@ namespace RX_Explorer
             get => itemPresenter;
             set
             {
-                if (value != itemPresenter)
+                if (value != null && value != itemPresenter)
                 {
                     itemPresenter?.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
                     itemPresenter?.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
@@ -795,28 +795,31 @@ namespace RX_Explorer
 
         private void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
         {
-            if ((e.Path?.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault() && CurrentViewModeIndex != e.Index)
+            if ((e.Path?.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {
-                try
+                if (CurrentViewModeIndex != e.Index && e.Index >= 0 && e.Index < ViewModeController.SelectionSource.Length)
                 {
-                    CurrentViewModeIndex = e.Index;
-
-                    ItemPresenter = e.Index switch
+                    try
                     {
-                        0 => GridViewTilesControl,
-                        1 => ListViewControl,
-                        2 => GridViewListControl,
-                        3 => GridViewLargeIconControl,
-                        4 => GridViewMediumIconControl,
-                        5 => GridViewSmallIconControl,
-                        _ => null
-                    };
+                        CurrentViewModeIndex = e.Index;
 
-                    SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, e.Index));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Switch DisplayMode could not be completed successfully");
+                        ItemPresenter = e.Index switch
+                        {
+                            0 => GridViewTilesControl,
+                            1 => ListViewControl,
+                            2 => GridViewListControl,
+                            3 => GridViewLargeIconControl,
+                            4 => GridViewMediumIconControl,
+                            5 => GridViewSmallIconControl,
+                            _ => throw new ArgumentException($"Value: {e.Index} is out of range", nameof(e.Index))
+                        };
+
+                        SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, e.Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Switch DisplayMode could not be completed successfully");
+                    }
                 }
             }
         }

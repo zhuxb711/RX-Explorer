@@ -672,8 +672,8 @@ namespace RX_Explorer
             PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxHeightProperty, 320));
             PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(MaxWidthProperty, 520));
             PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(PaddingProperty, 0));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, 5));
-            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(BackgroundProperty, Application.Current.Resources.ThemeDictionaries["SystemControlChromeHighAcrylicElementMediumBrush"]));
+            PreviewFlyout.FlyoutPresenterStyle.Setters.Add(new Setter(CornerRadiusProperty, (CornerRadius)Application.Current.Resources["FlyoutCornerRadius"]));
+
             FlyoutBase.SetAttachedFlyout(Item, PreviewFlyout);
 
             List<string> ValidPathArray = new List<string>();

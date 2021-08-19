@@ -16,7 +16,7 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:NavigationRecordDataTemplateSelector x:Key="NavTemplateSelector"
                                                   NormalTemplate="{StaticResource NormalRecordTemplate}"
-                                                  RootTemplate="{StaticResource RootRecordTemplate}"/>
+                                                  RootTemplate="{StaticResource RootRecordTemplate}" />
 
         <DataTemplate x:Key="NormalRecordTemplate"
                       x:DataType="Cls:AddressNavigationRecord">
@@ -74,10 +74,10 @@
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="Background"
                             Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                    <Setter Property="Padding" 
-                            Value="0"/>
+                    <Setter Property="Padding"
+                            Value="0" />
                     <Setter Property="CornerRadius"
-                            Value="6" />
+                            Value="{StaticResource FlyoutCornerRadius}" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="400"
@@ -120,10 +120,10 @@
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="Background"
                             Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                    <Setter Property="Padding" 
-                            Value="0"/>
+                    <Setter Property="Padding"
+                            Value="0" />
                     <Setter Property="CornerRadius"
-                            Value="6" />
+                            Value="{StaticResource FlyoutCornerRadius}" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="500"
@@ -136,9 +136,9 @@
                       ItemsSource="{x:Bind NavigationRecordList}"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      ItemTemplateSelector="{StaticResource NavTemplateSelector}"/>
+                      ItemTemplateSelector="{StaticResource NavTemplateSelector}" />
         </Flyout>
-        
+
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
@@ -150,10 +150,10 @@
                               MinWidth="160"
                               x:Uid="QuickStartAddButton"
                               x:Name="AddQuickAccessButton"
-                              Click="AddQuickAccessButton_Click"/>
+                              Click="AddQuickAccessButton_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-        
+
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
                                AlwaysExpanded="True"
                                x:Name="RightTabFlyout"
@@ -249,8 +249,8 @@
                           IsLightDismissEnabled="True"
                           x:Uid="IndexerQuestion"
                           Target="{x:Bind IndexerQuestion}"
-                          x:Name="UseIndexerTip" 
-                          Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确"/>
+                          x:Name="UseIndexerTip"
+                          Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确" />
 
         <muxc:TeachingTip Title="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionTitle')}"
                           Target="{x:Bind VerticalSplitViewButton}"
@@ -262,16 +262,16 @@
                           CloseButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/CloseButtonContent')}"
                           ActionButtonClick="VerticalSplitTip_ActionButtonClick">
             <muxc:TeachingTip.HeroContent>
-                <Image Source="ms-appx:///Assets/VerticalSplitHero.png"/>
+                <Image Source="ms-appx:///Assets/VerticalSplitHero.png" />
             </muxc:TeachingTip.HeroContent>
         </muxc:TeachingTip>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32" />
+            <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Background="{ThemeResource ElementTransparentAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
@@ -286,6 +286,7 @@
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     ToolTipService.ToolTip="后退"
+                    Margin="1"
                     x:Uid="FileControlBackButton"
                     Name="GoBackRecord"
                     x:FieldModifier="public"
@@ -296,11 +297,12 @@
                     <SymbolIcon Symbol="Back" />
                 </Viewbox>
             </Button>
-            <Button Grid.Column="1"
-                    HorizontalAlignment="Stretch"
+            <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlForwardButton"
                     Name="GoForwardRecord"
+                    Grid.Column="1"
+                    Margin="1"
                     x:FieldModifier="public"
                     Click="GoForwardRecord_Click"
                     IsEnabled="False"
@@ -313,9 +315,10 @@
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlParentButton"
-                    Grid.Column="2"
+                    Margin="1"
                     x:Name="GoParentFolder"
                     x:FieldModifier="public"
+                    Grid.Column="2"
                     IsEnabled="False"
                     Click="GoParentFolder_Click"
                     ToolTipService.ToolTip="返回上级"
@@ -327,8 +330,9 @@
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlHomeButton"
-                    Grid.Column="3"
                     x:Name="GoHome"
+                    Margin="1"
+                    Grid.Column="3"
                     Click="GoHome_Click"
                     ToolTipService.ToolTip="回到主页"
                     AllowFocusWhenDisabled="True">
@@ -337,16 +341,16 @@
                 </Viewbox>
             </Button>
             <AutoSuggestBox ItemsSource="{x:Bind AddressSuggestionList}"
-                            Grid.Column="4"
-                            Grid.ColumnSpan="2"
-                            Margin="2,0,0,0"
                             VerticalAlignment="Stretch"
                             Name="AddressBox"
+                            Margin="1"
+                            Grid.ColumnSpan="2"
+                            Grid.Column="4"
                             UpdateTextOnSelect="False"
-                            KeyDown="AddressBox_KeyDown"
                             QueryIcon="Forward"
                             x:FieldModifier="public"
                             IsRightTapEnabled="True"
+                            KeyDown="AddressBox_KeyDown"
                             PreviewKeyDown="AddressBox_PreviewKeyDown"
                             RightTapped="AddressBox_RightTapped"
                             GotFocus="AddressBox_GotFocus"
@@ -387,10 +391,10 @@
                 </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>
             <ListView HorizontalAlignment="Left"
-                      Grid.Column="4"
-                      Margin="2,0,0,0"
                       Padding="5,0,0,0"
+                      Margin="1"
                       SelectionMode="None"
+                      Grid.Column="4"
                       x:Name="AddressButtonContainer"
                       ItemsSource="{x:Bind AddressButtonList}"
                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
@@ -460,13 +464,13 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-            
-            <ComboBox Grid.Column="6"
-                      Margin="2,0"
-                      PlaceholderText="(此位置不可用)"
+
+            <ComboBox PlaceholderText="(此位置不可用)"
                       x:Uid="ViewModeComboBox"
                       HorizontalAlignment="Stretch"
                       x:Name="ViewModeComboBox"
+                      Margin="1"
+                      Grid.Column="6"
                       IsEnabled="False"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
                       VerticalAlignment="Stretch" />
@@ -474,8 +478,9 @@
             <AutoSuggestBox QueryIcon="Find"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
-                            x:FieldModifier="public"
+                            Margin="1"
                             Grid.Column="7"
+                            x:FieldModifier="public"
                             VerticalAlignment="Stretch"
                             GotFocus="GlobeSearch_GotFocus"
                             LostFocus="GlobeSearch_LostFocus"
@@ -522,8 +527,8 @@
                             Closed="SearchEngineFlyout_Closed">
                         <Flyout.FlyoutPresenterStyle>
                             <Style TargetType="FlyoutPresenter">
-                                <Setter Property="CornerRadius" 
-                                        Value="6"/>
+                                <Setter Property="CornerRadius"
+                                        Value="{StaticResource FlyoutCornerRadius}" />
                                 <Setter Property="Background"
                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                             </Style>
@@ -562,7 +567,7 @@
                                               x:Name="BuiltInEngineIncludeAQS"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
-                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <StackPanel Orientation="Horizontal">
                                         <CheckBox Content="仅通过索引执行搜索"
                                                   Name="BuiltInSearchUseIndexer"
@@ -574,7 +579,7 @@
                                                  VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE9CE;"
                                                       Name="IndexerQuestion"
-                                                      Tapped="IndexerQuestion_Tapped"/>
+                                                      Tapped="IndexerQuestion_Tapped" />
                                         </Viewbox>
                                     </StackPanel>
                                     <CheckBox Content="搜索所有子文件夹"
@@ -664,12 +669,12 @@
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
             </AutoSuggestBox>
-            
+
             <Button HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     Padding="2,0,0,0"
                     Grid.Column="8"
-                    Margin="3,0"
+                    Margin="1"
                     Click="VerticalSplitViewButton_Click"
                     x:Name="VerticalSplitViewButton"
                     x:Uid="VerticalSplitViewButton"
@@ -680,8 +685,7 @@
                 </Viewbox>
             </Button>
         </Grid>
-        <Grid Grid.Row="1"
-              Margin="0,5,0,0">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TreeViewGridCol"
                                   x:FieldModifier="public"
@@ -721,8 +725,8 @@
                                 Value="False" />
                         <Setter Property="VerticalContentAlignment"
                                 Value="Center" />
-                        <Setter Property="HorizontalContentAlignment" 
-                                Value="Stretch"/>
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
                 <muxc:TreeView.ItemTemplate>
@@ -735,7 +739,7 @@
                                      RelativePanel.AlignVerticalCenterWithPanel="True"
                                      RelativePanel.AlignLeftWithPanel="True">
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"/>
+                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}" />
                             </Viewbox>
                             <TextBlock Text="{Binding Content.DisplayName, Mode=OneWay}"
                                        Margin="5,0,0,0"
@@ -744,7 +748,7 @@
                                        Style="{ThemeResource BodyTextBlockStyle}"
                                        RelativePanel.AlignRightWithPanel="True"
                                        RelativePanel.AlignVerticalCenterWithPanel="True"
-                                       RelativePanel.RightOf="Icon"/>
+                                       RelativePanel.RightOf="Icon" />
                         </RelativePanel>
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>
