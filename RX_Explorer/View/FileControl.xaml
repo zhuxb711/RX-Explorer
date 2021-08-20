@@ -417,6 +417,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Button Content="{x:Bind DisplayName}"
                                     Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
+                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     Name="AddressButton"
@@ -433,6 +434,7 @@
                                     Background="Transparent" />
                             <Button Background="Transparent"
                                     Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
+                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalContentAlignment="Center"

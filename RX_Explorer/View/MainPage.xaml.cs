@@ -519,12 +519,20 @@ namespace RX_Explorer
             {
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
+                if (AnimationController.Current.IsDisableStartupAnimation)
+                {
+                    NavView.Opacity = 1;
+                }
+                else
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
                         OpacityAnimation.Begin();
-                        EntranceEffectProvider.StartEntranceEffect();
+
+                        if ((ActivatePathArray?.Count).GetValueOrDefault() == 0)
+                        {
+                            EntranceEffectProvider.StartEntranceEffect();
+                        }
                     });
                 }
 

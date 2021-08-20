@@ -4245,7 +4245,7 @@ namespace RX_Explorer
 
         private void GetFocus_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            ItemPresenter.Focus(FocusState.Programmatic);
+            ItemPresenter?.Focus(FocusState.Programmatic);
         }
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
