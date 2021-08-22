@@ -50,6 +50,10 @@ namespace RX_Explorer.Class
                                 OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                             }
                         }
+                        catch (IOException)
+                        {
+                            break;
+                        }
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, "An exception was threw when receiving pipeline data");

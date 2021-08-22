@@ -1291,9 +1291,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<LinkDataPackage> GetLnkDataAsync(string Path)
+        public async Task<LinkDataPackage> GetLinkDataAsync(string Path)
         {
-            if (await SendCommandAsync(CommandType.GetLnkData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetLinkData, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
@@ -1303,15 +1303,15 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetLnkDataAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetLinkDataAsync)}, message: {ErrorMessage}");
                     }
 
-                    throw new InvalidOperationException();
+                    return null;
                 }
             }
             else
             {
-                throw new NoResponseException();
+                return null;
             }
         }
 
@@ -1330,12 +1330,12 @@ namespace RX_Explorer.Class
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlDataAsync)}, message: {ErrorMessage}");
                     }
 
-                    throw new InvalidOperationException();
+                    return null;
                 }
             }
             else
             {
-                throw new NoResponseException();
+                return null;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.Toolkit.Deferred;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using System;
@@ -119,7 +120,30 @@ namespace RX_Explorer.Class
                                 }
                                 else if (!string.IsNullOrWhiteSpace(File.Name))
                                 {
-                                    PathList.Add((await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName)).Path);
+                                    StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.TemporaryFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+
+                                    QueueTaskController.RegisterPostProcessing(TempFile.Path, async (sender, args) =>
+                                    {
+                                        EventDeferral Deferral = args.GetDeferral();
+
+                                        try
+                                        {
+                                            if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(Path.GetFileName(args.OriginPath)) is StorageFile File)
+                                            {
+                                                await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, "Post-processing failed in QueueTaskController");
+                                        }
+                                        finally
+                                        {
+                                            Deferral.Complete();
+                                        }
+                                    });
+
+                                    PathList.Add(TempFile.Path);
                                 }
                             }
                             catch (Exception ex)

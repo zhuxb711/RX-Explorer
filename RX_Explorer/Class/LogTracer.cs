@@ -250,7 +250,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Message">错误消息</param>
         /// <returns></returns>
-        public static void LogInternal(string Message)
+        private static void LogInternal(string Message)
         {
             try
             {

@@ -151,7 +151,7 @@ namespace RX_Explorer.Class
 
         public async Task<LinkDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
         {
-            return await Controller.GetLnkDataAsync(Path);
+            return await Controller.GetLinkDataAsync(Path);
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()

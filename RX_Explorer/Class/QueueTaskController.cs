@@ -1,4 +1,5 @@
-﻿using ShareClassLibrary;
+﻿using Microsoft.Toolkit.Deferred;
+using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace RX_Explorer.Class
     public static class QueueTaskController
     {
         private static readonly ConcurrentQueue<OperationListBaseModel> OpeartionQueue = new ConcurrentQueue<OperationListBaseModel>();
+        private static readonly ConcurrentDictionary<string, EventHandler<PostProcessingDeferredEventArgs>> PostProcessingMap = new ConcurrentDictionary<string, EventHandler<PostProcessingDeferredEventArgs>>();
         private static readonly AutoResetEvent QueueProcessSleepLocker = new AutoResetEvent(false);
         private static readonly Thread QueueProcessThread = new Thread(QueueProcessHandler)
         {
@@ -83,6 +85,10 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static void RegisterPostProcessing(string OriginPath, EventHandler<PostProcessingDeferredEventArgs> Act)
+        {
+            PostProcessingMap.AddOrUpdate(OriginPath, Act, (_, _) => Act);
+        }
 
         public static void EnqueueRemoteCopyOpeartion(string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
@@ -481,6 +487,16 @@ namespace RX_Explorer.Class
                                     CModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
                                 }).AsTask().Wait();
                             }
+                            finally
+                            {
+                                foreach (string Path in CModel.CopyFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                {
+                                    if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                    {
+                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                    }
+                                }
+                            }
 
                             break;
                         }
@@ -662,6 +678,16 @@ namespace RX_Explorer.Class
                                     MModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"));
                                 }).AsTask().Wait();
                             }
+                            finally
+                            {
+                                foreach (string Path in MModel.MoveFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                {
+                                    if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                    {
+                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                    }
+                                }
+                            }
 
                             break;
                         }
@@ -711,6 +737,16 @@ namespace RX_Explorer.Class
                                     DModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"));
                                 }).AsTask().Wait();
                             }
+                            finally
+                            {
+                                foreach (string Path in DModel.DeleteFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                {
+                                    if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                    {
+                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                    }
+                                }
+                            }
 
                             break;
                         }
@@ -724,55 +760,114 @@ namespace RX_Explorer.Class
                                     {
                                         case OperationListNewUndoModel NewUndoModel:
                                             {
-                                                Exclusive.Controller.DeleteAsync(NewUndoModel.UndoFrom, true, (s, e) =>
+                                                try
                                                 {
-                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    Exclusive.Controller.DeleteAsync(NewUndoModel.UndoFrom, true, (s, e) =>
                                                     {
-                                                        NewUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        ProgressChangedCore();
-                                                    }).AsTask().Wait();
-                                                }).Wait();
+                                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            NewUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                            ProgressChangedCore();
+                                                        }).AsTask().Wait();
+                                                    }).Wait();
+                                                }
+                                                finally
+                                                {
+                                                    if (PostProcessingMap.TryRemove(NewUndoModel.UndoFrom, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                                    {
+                                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(NewUndoModel.UndoFrom)).Wait();
+                                                    }
+                                                }
 
                                                 break;
                                             }
                                         case OperationListCopyUndoModel CopyUndoModel:
                                             {
-                                                Exclusive.Controller.DeleteAsync(CopyUndoModel.UndoFrom, true, (s, e) =>
+                                                try
                                                 {
-                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    Exclusive.Controller.DeleteAsync(CopyUndoModel.UndoFrom, true, (s, e) =>
                                                     {
-                                                        CopyUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        ProgressChangedCore();
-                                                    }).AsTask().Wait();
-                                                }).Wait();
+                                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            CopyUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                            ProgressChangedCore();
+                                                        }).AsTask().Wait();
+                                                    }).Wait();
+                                                }
+                                                finally
+                                                {
+                                                    foreach (string Path in CopyUndoModel.UndoFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                                    {
+                                                        if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                                        {
+                                                            PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                                        }
+                                                    }
+                                                }
 
                                                 break;
                                             }
                                         case OperationListMoveUndoModel MoveUndoModel:
                                             {
-                                                Exclusive.Controller.MoveAsync(MoveUndoModel.UndoFrom, MoveUndoModel.UndoTo, SkipOperationRecord: true, ProgressHandler: (s, e) =>
+                                                try
                                                 {
-                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    Exclusive.Controller.MoveAsync(MoveUndoModel.UndoFrom, MoveUndoModel.UndoTo, SkipOperationRecord: true, ProgressHandler: (s, e) =>
                                                     {
-                                                        MoveUndoModel.UpdateProgress(e.ProgressPercentage);
-                                                        ProgressChangedCore();
-                                                    }).AsTask().Wait();
-                                                }).Wait();
+                                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            MoveUndoModel.UpdateProgress(e.ProgressPercentage);
+                                                            ProgressChangedCore();
+                                                        }).AsTask().Wait();
+                                                    }).Wait();
+                                                }
+                                                finally
+                                                {
+                                                    foreach (string Path in MoveUndoModel.UndoFrom.Keys.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                                    {
+                                                        if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                                        {
+                                                            PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                                        }
+                                                    }
+                                                }
 
                                                 break;
                                             }
                                         case OperationListDeleteUndoModel DeleteUndoModel:
                                             {
-                                                if (!Exclusive.Controller.RestoreItemInRecycleBinAsync(DeleteUndoModel.UndoFrom).Result)
+                                                try
                                                 {
-                                                    throw new Exception();
+                                                    if (!Exclusive.Controller.RestoreItemInRecycleBinAsync(DeleteUndoModel.UndoFrom).Result)
+                                                    {
+                                                        throw new Exception();
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    foreach (string Path in DeleteUndoModel.UndoFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                                    {
+                                                        if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                                        {
+                                                            PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                                        }
+                                                    }
                                                 }
 
                                                 break;
                                             }
                                         case OperationListRenameUndoModel RenameUndoModel:
                                             {
-                                                Exclusive.Controller.RenameAsync(RenameUndoModel.UndoFrom, Path.GetFileName(RenameUndoModel.UndoTo), true).Wait();
+                                                try
+                                                {
+                                                    Exclusive.Controller.RenameAsync(RenameUndoModel.UndoFrom, Path.GetFileName(RenameUndoModel.UndoTo), true).Wait();
+                                                }
+                                                finally
+                                                {
+                                                    if (PostProcessingMap.TryRemove(RenameUndoModel.UndoFrom, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                                    {
+                                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(RenameUndoModel.UndoFrom)).Wait();
+                                                    }
+                                                }
 
                                                 break;
                                             }
@@ -918,6 +1013,16 @@ namespace RX_Explorer.Class
                                     CModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CompressionError_Content"));
                                 }).AsTask().Wait();
                             }
+                            finally
+                            {
+                                foreach (string Path in CModel.CompressionFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                {
+                                    if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                    {
+                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                    }
+                                }
+                            }
 
                             break;
                         }
@@ -958,6 +1063,16 @@ namespace RX_Explorer.Class
                                 {
                                     DModel.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DecompressionError_Content"));
                                 }).AsTask().Wait();
+                            }
+                            finally
+                            {
+                                foreach (string Path in DModel.DecompressionFrom.Where((Path) => PostProcessingMap.ContainsKey(Path)))
+                                {
+                                    if (PostProcessingMap.TryRemove(Path, out EventHandler<PostProcessingDeferredEventArgs> PostAction))
+                                    {
+                                        PostAction.InvokeAsync(null, new PostProcessingDeferredEventArgs(Path)).Wait();
+                                    }
+                                }
                             }
 
                             break;

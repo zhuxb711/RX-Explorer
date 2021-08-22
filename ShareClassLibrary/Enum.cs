@@ -40,7 +40,7 @@
         Delete_RecycleItem,
         InterceptWinE,
         RestoreWinE,
-        GetLnkData,
+        GetLinkData,
         GetUrlData,
         CreateNew,
         Copy,

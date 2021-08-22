@@ -1289,7 +1289,7 @@ namespace FullTrustProcess
 
                         break;
                     }
-                case CommandType.GetLnkData:
+                case CommandType.GetLinkData:
                     {
                         string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
 
@@ -1318,8 +1318,8 @@ namespace FullTrustProcess
                                     using (ShellItem Item = new ShellItem(ActualPath))
                                     using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                     using (MemoryStream IconStream = new MemoryStream())
+                                    using (Bitmap TempBitmap = new Bitmap(IconImage))
                                     {
-                                        Bitmap TempBitmap = new Bitmap(IconImage);
                                         TempBitmap.MakeTransparent();
                                         TempBitmap.Save(IconStream, ImageFormat.Png);
 

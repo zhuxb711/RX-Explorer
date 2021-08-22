@@ -1461,8 +1461,10 @@ namespace RX_Explorer
             {
                 QueueTaskController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not paste the item");
+
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1470,7 +1472,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
             finally
             {
