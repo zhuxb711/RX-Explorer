@@ -20,7 +20,8 @@
                     VerticalContentAlignment="Center"
                     Background="{ThemeResource ElementAccentAcrylicBrush}">
             <CommandBar.PrimaryCommands>
-                <AppBarButton Label="全部解压">
+                <AppBarButton Label="全部解压"
+                              x:Uid="ExtractAll">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
@@ -224,6 +225,7 @@
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩大小"
+                                       x:Uid="CompressedSize"
                                        TextTrimming="CharacterEllipsis"
                                        RelativePanel.LeftOf="CompressedSizeSortIndicator"
                                        RelativePanel.AlignLeftWithPanel="True"
@@ -246,6 +248,7 @@
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="实际大小"
+                                       x:Uid="ActualSize"
                                        TextTrimming="CharacterEllipsis"
                                        RelativePanel.LeftOf="SizeSortIndicator"
                                        RelativePanel.AlignLeftWithPanel="True"
@@ -268,6 +271,7 @@
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩比率"
+                                       x:Uid="CompressionRate"
                                        TextTrimming="CharacterEllipsis"
                                        RelativePanel.LeftOf="CompressionRateSortIndicator"
                                        RelativePanel.AlignLeftWithPanel="True"

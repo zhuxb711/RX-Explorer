@@ -3165,4 +3165,16 @@
   <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
     <value>(無法使用)</value>
   </data>
+  <data name="ActualSize.Text" xml:space="preserve">
+    <value>實際尺寸</value>
+  </data>
+  <data name="CompressedSize.Text" xml:space="preserve">
+    <value>壓縮尺寸</value>
+  </data>
+  <data name="CompressionRate.Text" xml:space="preserve">
+    <value>壓縮率</value>
+  </data>
+  <data name="ExtractAll.Label" xml:space="preserve">
+    <value>全部提取</value>
+  </data>
 </root>

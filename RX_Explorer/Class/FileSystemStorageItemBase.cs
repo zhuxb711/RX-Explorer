@@ -100,13 +100,13 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTime == DateTimeOffset.MinValue.ToLocalTime())
+                if (ModifiedTime != DateTimeOffset.MaxValue.ToLocalTime() && ModifiedTime != DateTimeOffset.MinValue.ToLocalTime())
                 {
-                    return Globalization.GetString("UnknownText");
+                    return ModifiedTime.ToString("G");
                 }
                 else
                 {
-                    return ModifiedTime.ToString("G");
+                    return string.Empty;
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace RX_Explorer.Class
             {
                 List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
 
-                foreach(string Path in PathArray)
+                foreach (string Path in PathArray)
                 {
                     try
                     {

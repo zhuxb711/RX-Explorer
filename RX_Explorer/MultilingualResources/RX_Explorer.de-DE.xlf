@@ -4200,6 +4200,22 @@ Inkorrekte Namen sind
           <source>(Not available)</source>
           <target state="translated">(Nicht verfügbar)</target>
         </trans-unit>
+        <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
+          <source>Actual size</source>
+          <target state="translated">Tatsächliche Größe</target>
+        </trans-unit>
+        <trans-unit id="CompressedSize.Text" translate="yes" xml:space="preserve">
+          <source>Compressed size</source>
+          <target state="translated">Komprimierte Größe</target>
+        </trans-unit>
+        <trans-unit id="CompressionRate.Text" translate="yes" xml:space="preserve">
+          <source>Compression ratio</source>
+          <target state="translated">Kompressionsrate</target>
+        </trans-unit>
+        <trans-unit id="ExtractAll.Label" translate="yes" xml:space="preserve">
+          <source>Extract all</source>
+          <target state="translated">Alle extrahieren</target>
+        </trans-unit>
       </group>
     </body>
   </file>

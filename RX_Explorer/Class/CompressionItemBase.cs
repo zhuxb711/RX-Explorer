@@ -11,9 +11,9 @@ namespace RX_Explorer.Class
 
         public abstract BitmapImage Thumbnail { get; }
 
-        public string Path { get; }
+        public string Path { get; private set; }
 
-        public long CompressedSize { get;}
+        public long CompressedSize { get; private set; }
 
 
         public float CompressionRate
@@ -31,9 +31,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public long Size { get; }
+        public long Size { get; private set; }
 
-        public DateTimeOffset ModifiedTime { get; }
+        public DateTimeOffset ModifiedTime { get; private set; }
 
         public virtual string Type => System.IO.Path.GetExtension(Name).ToUpper();
 
@@ -43,13 +43,14 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTime == DateTimeOffset.MinValue.ToLocalTime())
+                if (ModifiedTime != DateTimeOffset.MaxValue.ToLocalTime()
+                    && ModifiedTime != DateTimeOffset.MinValue.ToLocalTime())
                 {
-                    return Globalization.GetString("UnknownText");
+                    return ModifiedTime.ToString("G");
                 }
                 else
                 {
-                    return ModifiedTime.ToString("G");
+                    return string.Empty;
                 }
             }
         }
@@ -58,12 +59,26 @@ namespace RX_Explorer.Class
 
         public virtual string CompressedSizeDescription => CompressedSize.GetFileSizeDescription();
 
-        public CompressionItemBase(ZipEntry Entry)
+        public void UpdateFromNewEntry(ZipEntry Entry)
         {
             Path = Entry.Name;
             Size = Entry.Size;
             ModifiedTime = Entry.DateTime;
             CompressedSize = Entry.CompressedSize;
+        }
+
+        protected CompressionItemBase(ZipEntry Entry)
+        {
+            Path = Entry.Name;
+            Size = Entry.Size;
+            ModifiedTime = Entry.DateTime;
+            CompressedSize = Entry.CompressedSize;
+        }
+
+        //For those no entry directories
+        protected CompressionItemBase(string Path)
+        {
+            this.Path = Path;
         }
     }
 }

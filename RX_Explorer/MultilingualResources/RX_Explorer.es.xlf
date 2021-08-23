@@ -4200,6 +4200,22 @@ Las denominaciones no válidas son:
           <source>(Not available)</source>
           <target state="translated">(No disponible)</target>
         </trans-unit>
+        <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
+          <source>Actual size</source>
+          <target state="translated">Tamaño actual</target>
+        </trans-unit>
+        <trans-unit id="CompressedSize.Text" translate="yes" xml:space="preserve">
+          <source>Compressed size</source>
+          <target state="translated">Tamaño comprimido</target>
+        </trans-unit>
+        <trans-unit id="CompressionRate.Text" translate="yes" xml:space="preserve">
+          <source>Compression ratio</source>
+          <target state="translated">Índice de compresión</target>
+        </trans-unit>
+        <trans-unit id="ExtractAll.Label" translate="yes" xml:space="preserve">
+          <source>Extract all</source>
+          <target state="translated">Extraer todo</target>
+        </trans-unit>
       </group>
     </body>
   </file>

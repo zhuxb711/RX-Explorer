@@ -1,9 +1,11 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -14,6 +16,7 @@ namespace RX_Explorer
     public sealed partial class CompressionViewer : Page
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
+        private readonly List<Encoding> AvailableEncodings = new List<Encoding>();
         private ZipFile ZipObj;
 
         private string currentPath;
@@ -167,6 +170,24 @@ namespace RX_Explorer
         public CompressionViewer()
         {
             InitializeComponent();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            try
+            {
+                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
+                {
+                    AvailableEncodings.Add(Encoding.GetEncoding("GBK"));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not load GBK encoding");
+            }
+
+            foreach (Encoding Coding in Encoding.GetEncodings().Select((Info) => Info.GetEncoding()))
+            {
+                AvailableEncodings.Add(Coding);
+            }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -176,13 +197,28 @@ namespace RX_Explorer
                 CurrentSortTarget = CompressionSortTarget.Name;
                 CurrentSortDirection = SortDirection.Ascending;
 
-                await InitializeAsync(File);
+                TextEncodingDialog Dialog = new TextEncodingDialog(AvailableEncodings);
+
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    ZipStrings.CodePage = Dialog.UserSelectedEncoding.CodePage;
+                    await InitializeAsync(File);
+                }
+                else
+                {
+                    Frame.GoBack();
+                }
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            ((IDisposable)ZipObj).Dispose();
+            if (ZipObj is IDisposable DisObj)
+            {
+                DisObj.Dispose();
+            }
+
+            ZipObj = null;
         }
 
         private async Task InitializeAsync(FileSystemStorageFile File)
@@ -208,7 +244,7 @@ namespace RX_Explorer
 
             foreach (ZipEntry Entry in ZipObj)
             {
-                if (Entry.Name.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                if (Entry.Name.StartsWith(Path, StringComparison.Ordinal))
                 {
                     string RelativePath = Entry.Name;
 
@@ -217,24 +253,40 @@ namespace RX_Explorer
                         RelativePath = Entry.Name.Replace(Path, string.Empty);
                     }
 
-                    if (RelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries).Length == 1)
+                    string[] SplitArray = RelativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                    switch (SplitArray.Length)
                     {
-                        if (Entry.IsDirectory)
-                        {
-                            Result.Add(new CompressionFolder(Entry));
-                        }
-                        else
-                        {
-                            Result.Add(new CompressionFile(Entry));
-                        }
+                        case 1:
+                            {
+                                if (Result.FirstOrDefault((Item) => Item.Path == Entry.Name) is CompressionItemBase ItemBase)
+                                {
+                                    ItemBase.UpdateFromNewEntry(Entry);
+                                }
+                                else
+                                {
+                                    if (Entry.IsDirectory)
+                                    {
+                                        Result.Add(new CompressionFolder(Entry));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new CompressionFile(Entry));
+                                    }
+                                }
+
+                                break;
+                            }
+                        case > 1 when Result.All((Item) => Item.Name != SplitArray[0]):
+                            {
+                                Result.Add(new CompressionFolder(SplitArray[0]));
+                                break;
+                            }
                     }
                 }
             }
 
-
-            CompressionItemBase[] SortResult = GetSortedCollection(Result, CurrentSortTarget, CurrentSortDirection).ToArray();
-
-            foreach (CompressionItemBase Item in SortResult)
+            foreach (CompressionItemBase Item in GetSortedCollection(Result, CurrentSortTarget, CurrentSortDirection))
             {
                 EntryList.Add(Item);
             }

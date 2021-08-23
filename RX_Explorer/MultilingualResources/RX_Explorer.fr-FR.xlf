@@ -4202,6 +4202,22 @@ Les noms non valides incluent
           <source>(Not available)</source>
           <target state="translated">(Pas disponible)</target>
         </trans-unit>
+        <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
+          <source>Actual size</source>
+          <target state="translated">Taille réelle</target>
+        </trans-unit>
+        <trans-unit id="CompressedSize.Text" translate="yes" xml:space="preserve">
+          <source>Compressed size</source>
+          <target state="translated">Taille compressée</target>
+        </trans-unit>
+        <trans-unit id="CompressionRate.Text" translate="yes" xml:space="preserve">
+          <source>Compression ratio</source>
+          <target state="translated">Ratio de compression</target>
+        </trans-unit>
+        <trans-unit id="ExtractAll.Label" translate="yes" xml:space="preserve">
+          <source>Extract all</source>
+          <target state="translated">Extraire tout</target>
+        </trans-unit>
       </group>
     </body>
   </file>

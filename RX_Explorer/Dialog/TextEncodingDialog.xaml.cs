@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -9,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-
-// The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace RX_Explorer.Dialog
 {
@@ -21,13 +18,20 @@ namespace RX_Explorer.Dialog
 
         public Encoding UserSelectedEncoding { get; private set; }
 
-        public TextEncodingDialog(FileSystemStorageFile TextFile, IEnumerable<Encoding> Encodings)
+        public TextEncodingDialog(FileSystemStorageFile TextFile, IEnumerable<Encoding> Encodings) : this()
         {
-            InitializeComponent();
-
             this.TextFile = TextFile;
             this.Encodings = new ObservableCollection<Encoding>(Encodings);
+        }
 
+        public TextEncodingDialog(IEnumerable<Encoding> Encodings) : this(null, Encodings)
+        {
+
+        }
+
+        private TextEncodingDialog()
+        {
+            InitializeComponent();
             Loading += TextEncodingDialog_Loading;
         }
 
@@ -86,6 +90,11 @@ namespace RX_Explorer.Dialog
 
         private async Task<Encoding> DetectEncodingFromFileAsync()
         {
+            if (TextFile == null)
+            {
+                return null;
+            }
+
             try
             {
                 using (FileStream DetectStream = await TextFile.GetStreamFromFileAsync(AccessMode.Read))

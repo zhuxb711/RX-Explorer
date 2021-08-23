@@ -4202,6 +4202,22 @@ Invalid names include
           <source>(Not available)</source>
           <target state="translated">(此位置不可用)</target>
         </trans-unit>
+        <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
+          <source>Actual size</source>
+          <target state="translated">实际大小</target>
+        </trans-unit>
+        <trans-unit id="CompressedSize.Text" translate="yes" xml:space="preserve">
+          <source>Compressed size</source>
+          <target state="translated">压缩大小</target>
+        </trans-unit>
+        <trans-unit id="CompressionRate.Text" translate="yes" xml:space="preserve">
+          <source>Compression ratio</source>
+          <target state="translated">压缩率</target>
+        </trans-unit>
+        <trans-unit id="ExtractAll.Label" translate="yes" xml:space="preserve">
+          <source>Extract all</source>
+          <target state="translated">全部解压</target>
+        </trans-unit>
       </group>
     </body>
   </file>

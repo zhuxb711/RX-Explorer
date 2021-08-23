@@ -3165,4 +3165,16 @@ Les noms non valides incluent
   <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
     <value>(Pas disponible)</value>
   </data>
+  <data name="ActualSize.Text" xml:space="preserve">
+    <value>Taille réelle</value>
+  </data>
+  <data name="CompressedSize.Text" xml:space="preserve">
+    <value>Taille compressée</value>
+  </data>
+  <data name="CompressionRate.Text" xml:space="preserve">
+    <value>Ratio de compression</value>
+  </data>
+  <data name="ExtractAll.Label" xml:space="preserve">
+    <value>Extraire tout</value>
+  </data>
 </root>

@@ -8,21 +8,9 @@ namespace RX_Explorer.Class
     {
         private static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
 
-        public override BitmapImage Thumbnail
-        {
-            get
-            {
-                return new BitmapImage(Const_Folder_Image_Uri);
-            }
-        }
+        public override BitmapImage Thumbnail => new BitmapImage(Const_Folder_Image_Uri);
 
-        public override string Type
-        {
-            get
-            {
-                return Globalization.GetString("Folder_Admin_DisplayType");
-            }
-        }
+        public override string Type => Globalization.GetString("Folder_Admin_DisplayType");
 
         public override string SizeDescription => string.Empty;
 
@@ -31,6 +19,11 @@ namespace RX_Explorer.Class
         public override string CompressedSizeDescription => string.Empty;
 
         public CompressionFolder(ZipEntry Entry) : base(Entry)
+        {
+
+        }
+
+        public CompressionFolder(string Path) : base(Path)
         {
 
         }
