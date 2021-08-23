@@ -413,7 +413,7 @@ namespace RX_Explorer
                     {
                         FileSystemStorageFile File = new FileSystemStorageFile(ImportFile, await ImportFile.GetModifiedTimeAsync(), await ImportFile.GetSizeRawDataAsync());
                         NewFileList.Add(File);
-                        TotalSize += File.SizeRaw;
+                        TotalSize += File.Size;
                     }
 
                     foreach (FileSystemStorageFile OriginFile in NewFileList)
@@ -450,11 +450,11 @@ namespace RX_Explorer
                                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             ProBar.IsIndeterminate = false;
-                                            ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
+                                            ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
                                         });
                                     }, Cancellation.Token);
 
-                                    CurrentPosition += OriginFile.SizeRaw;
+                                    CurrentPosition += OriginFile.Size;
 
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
@@ -669,7 +669,7 @@ namespace RX_Explorer
 
                     foreach (FileSystemStorageFile ExportFile in SecureGridView.SelectedItems)
                     {
-                        TotalSize += ExportFile.SizeRaw;
+                        TotalSize += ExportFile.Size;
                     }
 
                     foreach (FileSystemStorageFile OriginFile in SecureGridView.SelectedItems.ToArray())
@@ -690,12 +690,12 @@ namespace RX_Explorer
                                             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
                                                 ProBar.IsIndeterminate = false;
-                                                ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.SizeRaw)) * 100d / TotalSize);
+                                                ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
                                             });
                                         }, Cancellation.Token);
                                     }
 
-                                    CurrentPosition += OriginFile.SizeRaw;
+                                    CurrentPosition += OriginFile.Size;
 
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {

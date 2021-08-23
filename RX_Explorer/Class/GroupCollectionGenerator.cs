@@ -65,35 +65,35 @@ namespace RX_Explorer.Class
                         DateTimeOffset LastMonth = DateTimeOffset.Now.AddDays(-DateTimeOffset.Now.Day).AddMonths(-1).Date;
                         DateTimeOffset EarlierThisYearTime = DateTimeOffset.Now.AddMonths(-DateTimeOffset.Now.Month).Date;
 
-                        if (Item.ModifiedTimeRaw >= TodayTime)
+                        if (Item.ModifiedTime >= TodayTime)
                         {
                             return Globalization.GetString("GroupHeader_Today");
                         }
-                        else if (Item.ModifiedTimeRaw >= YesterdayTime && Item.ModifiedTimeRaw < TodayTime)
+                        else if (Item.ModifiedTime >= YesterdayTime && Item.ModifiedTime < TodayTime)
                         {
                             return Globalization.GetString("GroupHeader_Yesterday");
                         }
-                        else if (Item.ModifiedTimeRaw >= EarlierThisWeekTime && Item.ModifiedTimeRaw < YesterdayTime)
+                        else if (Item.ModifiedTime >= EarlierThisWeekTime && Item.ModifiedTime < YesterdayTime)
                         {
                             return Globalization.GetString("GroupHeader_EarlierThisWeek");
                         }
-                        else if (Item.ModifiedTimeRaw >= LastWeekTime && Item.ModifiedTimeRaw < EarlierThisWeekTime)
+                        else if (Item.ModifiedTime >= LastWeekTime && Item.ModifiedTime < EarlierThisWeekTime)
                         {
                             return Globalization.GetString("GroupHeader_LastWeek");
                         }
-                        else if (Item.ModifiedTimeRaw >= EarlierThisMonthTime && Item.ModifiedTimeRaw < LastWeekTime)
+                        else if (Item.ModifiedTime >= EarlierThisMonthTime && Item.ModifiedTime < LastWeekTime)
                         {
                             return Globalization.GetString("GroupHeader_EarlierThisMonth");
                         }
-                        else if (Item.ModifiedTimeRaw >= LastMonth && Item.ModifiedTimeRaw < EarlierThisMonthTime)
+                        else if (Item.ModifiedTime >= LastMonth && Item.ModifiedTime < EarlierThisMonthTime)
                         {
                             return Globalization.GetString("GroupHeader_LastMonth");
                         }
-                        else if (Item.ModifiedTimeRaw >= EarlierThisYearTime && Item.ModifiedTimeRaw < LastMonth)
+                        else if (Item.ModifiedTime >= EarlierThisYearTime && Item.ModifiedTime < LastMonth)
                         {
                             return Globalization.GetString("GroupHeader_EarlierThisYear");
                         }
-                        else if (Item.ModifiedTimeRaw < EarlierThisYearTime)
+                        else if (Item.ModifiedTime < EarlierThisYearTime)
                         {
                             return Globalization.GetString("GroupHeader_LongTimeAgo");
                         }
@@ -106,19 +106,19 @@ namespace RX_Explorer.Class
                     {
                         if (Item is FileSystemStorageFile)
                         {
-                            if (Item.SizeRaw >> 10 < 1024)
+                            if (Item.Size >> 10 < 1024)
                             {
                                 return Globalization.GetString("GroupHeader_Smaller");
                             }
-                            else if (Item.SizeRaw >> 10 >= 1024 && Item.SizeRaw >> 20 < 128)
+                            else if (Item.Size >> 10 >= 1024 && Item.Size >> 20 < 128)
                             {
                                 return Globalization.GetString("GroupHeader_Medium");
                             }
-                            else if (Item.SizeRaw >> 20 >= 128 && Item.SizeRaw >> 20 < 1024)
+                            else if (Item.Size >> 20 >= 128 && Item.Size >> 20 < 1024)
                             {
                                 return Globalization.GetString("GroupHeader_Larger");
                             }
-                            else if (Item.SizeRaw >> 30 >= 1)
+                            else if (Item.Size >> 30 >= 1)
                             {
                                 return Globalization.GetString("GroupHeader_Huge");
                             }
@@ -180,14 +180,14 @@ namespace RX_Explorer.Class
                         DateTimeOffset LastMonth = EarlierThisMonthTime.AddMonths(-1).Date;
                         DateTimeOffset EarlierThisYearTime = EarlierThisMonthTime.AddMonths(-DateTimeOffset.Now.Month + 1).Date;
 
-                        List<T> TodayCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= TodayTime).ToList();
-                        List<T> YesterdayCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= YesterdayTime && Item.ModifiedTimeRaw < TodayTime).ToList();
-                        List<T> EarlierThisWeekCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisWeekTime).Except(TodayCollection.Concat(YesterdayCollection)).ToList();
-                        List<T> LastWeekCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastWeekTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection)).ToList();
-                        List<T> EarlierThisMonthCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisMonthTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection)).ToList();
-                        List<T> LastMonthCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= LastMonth).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection)).ToList();
-                        List<T> EarlierThisYearCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw >= EarlierThisYearTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection).Concat(LastMonthCollection)).ToList();
-                        List<T> LongTimeAgoCollection = InputCollection.Where((Item) => Item.ModifiedTimeRaw < EarlierThisYearTime).ToList();
+                        List<T> TodayCollection = InputCollection.Where((Item) => Item.ModifiedTime >= TodayTime).ToList();
+                        List<T> YesterdayCollection = InputCollection.Where((Item) => Item.ModifiedTime >= YesterdayTime && Item.ModifiedTime < TodayTime).ToList();
+                        List<T> EarlierThisWeekCollection = InputCollection.Where((Item) => Item.ModifiedTime >= EarlierThisWeekTime).Except(TodayCollection.Concat(YesterdayCollection)).ToList();
+                        List<T> LastWeekCollection = InputCollection.Where((Item) => Item.ModifiedTime >= LastWeekTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection)).ToList();
+                        List<T> EarlierThisMonthCollection = InputCollection.Where((Item) => Item.ModifiedTime >= EarlierThisMonthTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection)).ToList();
+                        List<T> LastMonthCollection = InputCollection.Where((Item) => Item.ModifiedTime >= LastMonth).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection)).ToList();
+                        List<T> EarlierThisYearCollection = InputCollection.Where((Item) => Item.ModifiedTime >= EarlierThisYearTime).Except(TodayCollection.Concat(YesterdayCollection).Concat(EarlierThisWeekCollection).Concat(LastWeekCollection).Concat(EarlierThisMonthCollection).Concat(LastMonthCollection)).ToList();
+                        List<T> LongTimeAgoCollection = InputCollection.Where((Item) => Item.ModifiedTime < EarlierThisYearTime).ToList();
 
                         Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Today"), TodayCollection));
 
@@ -211,13 +211,13 @@ namespace RX_Explorer.Class
                     {
                         Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Unspecified"), InputCollection.OfType<FileSystemStorageFolder>()));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Smaller"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.SizeRaw >> 10 < 1024)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Smaller"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.Size >> 10 < 1024)));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Medium"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.SizeRaw >> 10 >= 1024 && Item.SizeRaw >> 20 < 128)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Medium"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.Size >> 10 >= 1024 && Item.Size >> 20 < 128)));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Larger"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.SizeRaw >> 20 >= 128 && Item.SizeRaw >> 20 < 1024)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Larger"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.Size >> 20 >= 128 && Item.Size >> 20 < 1024)));
 
-                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Huge"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.SizeRaw >> 30 >= 1)));
+                        Result.Add(new FileSystemStorageGroupItem(Globalization.GetString("GroupHeader_Huge"), InputCollection.OfType<FileSystemStorageFile>().Where((Item) => Item.Size >> 30 >= 1)));
 
                         break;
                     }

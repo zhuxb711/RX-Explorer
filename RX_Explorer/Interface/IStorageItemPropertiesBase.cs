@@ -16,7 +16,7 @@ namespace RX_Explorer.Interface
 
         public string Path { get; }
 
-        public ulong SizeRaw { get; }
+        public ulong Size { get; }
 
         public bool IsReadOnly { get; }
 
@@ -26,9 +26,9 @@ namespace RX_Explorer.Interface
 
         public BitmapImage ThumbnailOverlay { get; }
 
-        public DateTimeOffset ModifiedTimeRaw { get; }
+        public DateTimeOffset ModifiedTime { get; }
 
-        public DateTimeOffset CreationTimeRaw { get; }
+        public DateTimeOffset CreationTime { get; }
 
         public SyncStatus SyncStatus { get; }
     }

@@ -585,6 +585,52 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static string GetFileSizeDescription(this long SizeRaw)
+        {
+            if (SizeRaw > 0)
+            {
+                switch ((short)Math.Log(SizeRaw, 1024))
+                {
+                    case 0:
+                        {
+                            return $"{SizeRaw} B";
+                        }
+                    case 1:
+                        {
+                            return $"{SizeRaw / 1024d:##.##} KB";
+                        }
+                    case 2:
+                        {
+                            return $"{SizeRaw / 1048576d:##.##} MB";
+                        }
+                    case 3:
+                        {
+                            return $"{SizeRaw / 1073741824d:##.##} GB";
+                        }
+                    case 4:
+                        {
+                            return $"{SizeRaw / 1099511627776d:##.##} TB";
+                        }
+                    case 5:
+                        {
+                            return $"{SizeRaw / 1125899906842624d:##.##} PB";
+                        }
+                    case 6:
+                        {
+                            return $"{SizeRaw / 1152921504606846976d:##.##} EB";
+                        }
+                    default:
+                        {
+                            throw new ArgumentOutOfRangeException(nameof(SizeRaw), $"Argument is too large");
+                        }
+                }
+            }
+            else
+            {
+                return "0 KB";
+            }
+        }
+
         /// <summary>
         /// 请求锁定文件并拒绝其他任何读写访问(独占锁)
         /// </summary>

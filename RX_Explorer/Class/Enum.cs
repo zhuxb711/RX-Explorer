@@ -191,6 +191,16 @@ namespace RX_Explorer.Class
         Path = 16
     }
 
+    public enum CompressionSortTarget
+    {
+        Name = 0,
+        Type = 1,
+        ModifiedTime = 2,
+        Size = 4,
+        CompressedSize = 8,
+        CompressionRate = 16
+    }
+
     public enum CompressionType
     {
         Zip = 0,

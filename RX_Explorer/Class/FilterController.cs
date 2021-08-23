@@ -961,22 +961,22 @@ namespace RX_Explorer.Class
 
                 if (ModTimeCondition.HasFlag(ModTimeFilterCondition.Range))
                 {
-                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTimeRaw >= ModTimeFrom && Item.ModifiedTimeRaw <= ModTimeTo));
+                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTime >= ModTimeFrom && Item.ModifiedTime <= ModTimeTo));
                 }
 
                 if (ModTimeCondition.HasFlag(ModTimeFilterCondition.One_Month_Ago))
                 {
-                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTimeRaw >= DateTimeOffset.Now.AddMonths(-1)));
+                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTime >= DateTimeOffset.Now.AddMonths(-1)));
                 }
 
                 if (ModTimeCondition.HasFlag(ModTimeFilterCondition.Three_Month_Ago))
                 {
-                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTimeRaw >= DateTimeOffset.Now.AddMonths(-3)));
+                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTime >= DateTimeOffset.Now.AddMonths(-3)));
                 }
 
                 if (ModTimeCondition.HasFlag(ModTimeFilterCondition.Long_Ago))
                 {
-                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTimeRaw < DateTimeOffset.Now.AddMonths(-3)));
+                    ModTimeFilterResult.AddRange(OriginCopy.Where((Item) => Item.ModifiedTime < DateTimeOffset.Now.AddMonths(-3)));
                 }
             }
 
@@ -991,22 +991,22 @@ namespace RX_Explorer.Class
 
                 if (SizeCondition.HasFlag(SizeFilterCondition.Smaller))
                 {
-                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.SizeRaw >> 10 < 1024));
+                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.Size >> 10 < 1024));
                 }
 
                 if (SizeCondition.HasFlag(SizeFilterCondition.Medium))
                 {
-                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.SizeRaw >> 10 >= 1024 && Item.SizeRaw >> 20 < 128));
+                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.Size >> 10 >= 1024 && Item.Size >> 20 < 128));
                 }
 
                 if (SizeCondition.HasFlag(SizeFilterCondition.Larger))
                 {
-                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.SizeRaw >> 20 >= 128 && Item.SizeRaw >> 20 < 1024));
+                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.Size >> 20 >= 128 && Item.Size >> 20 < 1024));
                 }
 
                 if (SizeCondition.HasFlag(SizeFilterCondition.Huge))
                 {
-                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.SizeRaw >> 30 >= 1));
+                    SizeFilterResult.AddRange(OriginCopy.Where((Item) => Item.Size >> 30 >= 1));
                 }
             }
 

@@ -1817,7 +1817,7 @@ namespace RX_Explorer
                 {
                     ulong TotalSize = 0;
 
-                    foreach (ulong Size in SelectedItemsCopy.Cast<FileSystemStorageFile>().Select((Item) => Item.SizeRaw).ToArray())
+                    foreach (ulong Size in SelectedItemsCopy.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
                     {
                         TotalSize += Size;
                     }
@@ -2976,6 +2976,7 @@ namespace RX_Explorer
                 ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
                 ".txt" => typeof(TextViewer),
                 ".pdf" => typeof(PdfReader),
+                ".zip" => typeof(CompressionViewer),
                 _ => null
             };
 

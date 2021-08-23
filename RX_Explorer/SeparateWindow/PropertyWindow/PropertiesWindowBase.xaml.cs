@@ -425,9 +425,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 { Globalization.GetString("Properties_Details_Name"), StorageItem.Name },
                 { Globalization.GetString("Properties_Details_ItemType"), StorageItem.DisplayType },
                 { Globalization.GetString("Properties_Details_FolderPath"), Path.GetDirectoryName(StorageItem.Path) },
-                { Globalization.GetString("Properties_Details_Size"), StorageItem.Size },
-                { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTime },
-                { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTime }
+                { Globalization.GetString("Properties_Details_Size"), StorageItem.SizeDescription },
+                { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTimeDescription },
+                { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTimeDescription }
             };
 
             if (await StorageItem.GetStorageItemAsync() is StorageFile File)
@@ -815,9 +815,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             Thumbnail.Source = StorageItem.Thumbnail;
             LocationContent.Text = Path.GetDirectoryName(StorageItem.Path);
-            SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";
-            CreatedContent.Text = StorageItem.CreationTimeRaw.ToString("F");
-            ModifiedContent.Text = StorageItem.ModifiedTimeRaw.ToString("F");
+            SizeContent.Text = $"{StorageItem.SizeDescription} ({StorageItem.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+            CreatedContent.Text = StorageItem.CreationTime.ToString("F");
+            ModifiedContent.Text = StorageItem.ModifiedTime.ToString("F");
             HiddenAttribute.IsChecked = StorageItem is IHiddenStorageItem;
 
             if (StorageItem is FileSystemStorageFolder Folder)

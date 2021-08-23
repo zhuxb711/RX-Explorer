@@ -166,6 +166,9 @@
     <Compile Include="Class\AppThemeController.cs" />
     <Compile Include="Class\CommonAccessCollection.cs" />
     <Compile Include="Class\CommonEnvironmentVariables.cs" />
+    <Compile Include="Class\CompressionFile.cs" />
+    <Compile Include="Class\CompressionFolder.cs" />
+    <Compile Include="Class\CompressionItemBase.cs" />
     <Compile Include="Class\CompressionUtil.cs" />
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
@@ -351,6 +354,9 @@
     </Compile>
     <Compile Include="Dialog\BluetoothUI.xaml.cs">
       <DependentUpon>BluetoothUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CompressionViewer.xaml.cs">
+      <DependentUpon>CompressionViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\CropperPage.xaml.cs">
       <DependentUpon>CropperPage.xaml</DependentUpon>
@@ -694,6 +700,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\BluetoothUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CompressionViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string Size
+        public override string SizeDescription
         {
             get
             {
@@ -87,8 +87,8 @@ namespace RX_Explorer.Class
         public FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
             StorageItem = Item;
-            CreationTimeRaw = Item.DateCreated;
-            ModifiedTimeRaw = ModifiedTime;
+            CreationTime = Item.DateCreated;
+            base.ModifiedTime = ModifiedTime;
         }
 
         public FileSystemStorageFolder(Win32_File_Data Data) : base(Data)
@@ -473,7 +473,7 @@ namespace RX_Explorer.Class
             {
                 if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
-                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
+                    ModifiedTime = await Folder.GetModifiedTimeAsync();
                 }
             }
         }

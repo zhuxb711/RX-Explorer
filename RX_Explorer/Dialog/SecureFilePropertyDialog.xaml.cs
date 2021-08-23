@@ -33,7 +33,7 @@ namespace RX_Explorer.Dialog
 
         private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            FileSize = StorageItem.Size;
+            FileSize = StorageItem.SizeDescription;
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
 

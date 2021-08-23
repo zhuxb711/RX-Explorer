@@ -71,7 +71,7 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFile File:
                             {
-                                TotalSize += File.SizeRaw;
+                                TotalSize += File.Size;
                                 break;
                             }
                         case FileSystemStorageFolder Folder:
@@ -112,13 +112,13 @@ namespace RX_Explorer.Class
 
                                             await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
                                             {
-                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
                                         }
 
                                         OutputStream.CloseEntry();
 
-                                        CurrentPosition += File.SizeRaw;
+                                        CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
 
                                         break;
@@ -205,13 +205,13 @@ namespace RX_Explorer.Class
 
                                     await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
                                     {
-                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw));
+                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
                                     }).ConfigureAwait(false);
                                 }
 
                                 OutputStream.CloseEntry();
 
-                                ByteReadHandler?.Invoke(CurrentPosition += Item.SizeRaw);
+                                ByteReadHandler?.Invoke(CurrentPosition += Item.Size);
 
                                 break;
                             }
@@ -420,7 +420,7 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFile File:
                             {
-                                TotalSize += File.SizeRaw;
+                                TotalSize += File.Size;
                                 break;
                             }
                         case FileSystemStorageFolder Folder:
@@ -456,13 +456,13 @@ namespace RX_Explorer.Class
 
                                             await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
                                             {
-                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
                                         }
 
                                         OutputTarStream.CloseEntry();
 
-                                        CurrentPosition += File.SizeRaw;
+                                        CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
 
                                         break;
@@ -513,7 +513,7 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFile File:
                             {
-                                TotalSize += File.SizeRaw;
+                                TotalSize += File.Size;
                                 break;
                             }
                         case FileSystemStorageFolder Folder:
@@ -550,13 +550,13 @@ namespace RX_Explorer.Class
 
                                             await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
                                             {
-                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
                                         }
 
                                         OutputTarStream.CloseEntry();
 
-                                        CurrentPosition += File.SizeRaw;
+                                        CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
 
                                         break;
@@ -602,7 +602,7 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFile File:
                             {
-                                TotalSize += File.SizeRaw;
+                                TotalSize += File.Size;
                                 break;
                             }
                         case FileSystemStorageFolder Folder:
@@ -636,13 +636,13 @@ namespace RX_Explorer.Class
 
                                             await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
                                             {
-                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
                                         }
 
                                         OutputTarStream.CloseEntry();
 
-                                        CurrentPosition += File.SizeRaw;
+                                        CurrentPosition += File.Size;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
 
                                         break;
@@ -722,13 +722,13 @@ namespace RX_Explorer.Class
 
                                     await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
                                     {
-                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw));
+                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
                                     }).ConfigureAwait(false);
                                 }
 
                                 OutputStream.CloseEntry();
 
-                                ByteReadHandler?.Invoke(CurrentPosition += InnerFile.SizeRaw);
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFile.Size);
 
                                 break;
                             }
@@ -749,7 +749,7 @@ namespace RX_Explorer.Class
                 if (await FileSystemStorageItemBase.OpenAsync(FileItem).ConfigureAwait(false) is FileSystemStorageFile File)
                 {
                     TransformList.Add(File);
-                    TotalSize += File.SizeRaw;
+                    TotalSize += File.Size;
                 }
                 else
                 {
@@ -787,20 +787,20 @@ namespace RX_Explorer.Class
                 {
                     await ExtractGZipAsync(File, DestPath, (s, e) =>
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                     });
 
-                    CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                    CurrentPosition += Convert.ToUInt64(File.Size);
                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
                 }
                 else if (File.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
                 {
                     await ExtractBZip2Async(File, DestPath, (s, e) =>
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                     });
 
-                    CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                    CurrentPosition += Convert.ToUInt64(File.Size);
                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
                 }
                 else

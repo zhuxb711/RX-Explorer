@@ -144,7 +144,7 @@
                                        HorizontalAlignment="Left"
                                        MaxWidth="150"
                                        FontSize="13" />
-                            <TextBlock Text="{x:Bind Size}"
+                            <TextBlock Text="{x:Bind SizeDescription}"
                                        TextTrimming="CharacterEllipsis"
                                        MaxWidth="150"
                                        HorizontalAlignment="Left"

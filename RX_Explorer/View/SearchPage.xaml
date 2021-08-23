@@ -757,8 +757,8 @@
                                    HorizontalAlignment="Left"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
-                                   Text="{x:Bind ModifiedTime, Mode=OneWay}"
-                                   ToolTipService.ToolTip="{x:Bind ModifiedTime, Mode=OneWay}"
+                                   Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
                                    Grid.Column="2"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
@@ -772,9 +772,9 @@
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Padding="10,0,0,0"
-                                   Text="{x:Bind Size}"
+                                   Text="{x:Bind SizeDescription}"
                                    x:Phase="0"
-                                   ToolTipService.ToolTip="{x:Bind Size}"
+                                   ToolTipService.ToolTip="{x:Bind SizeDescription}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />
                     </Grid>

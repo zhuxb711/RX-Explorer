@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
     {
         public string Path { get; protected set; }
 
-        public virtual string Size { get; }
+        public virtual string SizeDescription { get; }
 
         public virtual string Name
         {
@@ -90,38 +90,38 @@ namespace RX_Explorer.Class
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
 
-        public ulong SizeRaw { get; protected set; }
+        public ulong Size { get; protected set; }
 
-        public DateTimeOffset CreationTimeRaw { get; protected set; }
+        public DateTimeOffset CreationTime { get; protected set; }
 
-        public DateTimeOffset ModifiedTimeRaw { get; protected set; }
+        public DateTimeOffset ModifiedTime { get; protected set; }
 
-        public virtual string ModifiedTime
+        public virtual string ModifiedTimeDescription
         {
             get
             {
-                if (ModifiedTimeRaw == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTimeRaw == DateTimeOffset.MinValue.ToLocalTime())
+                if (ModifiedTime == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTime == DateTimeOffset.MinValue.ToLocalTime())
                 {
                     return Globalization.GetString("UnknownText");
                 }
                 else
                 {
-                    return ModifiedTimeRaw.ToString("G");
+                    return ModifiedTime.ToString("G");
                 }
             }
         }
 
-        public virtual string CreationTime
+        public virtual string CreationTimeDescription
         {
             get
             {
-                if (CreationTimeRaw == DateTimeOffset.MaxValue.ToLocalTime())
+                if (CreationTime == DateTimeOffset.MaxValue.ToLocalTime())
                 {
                     return Globalization.GetString("UnknownText");
                 }
                 else
                 {
-                    return CreationTimeRaw.ToString("G");
+                    return CreationTime.ToString("G");
                 }
             }
         }
@@ -453,9 +453,9 @@ namespace RX_Explorer.Class
             Path = Data.Path;
             IsReadOnly = Data.IsReadOnly;
             IsSystemItem = Data.IsSystemItem;
-            SizeRaw = Data.Size;
-            ModifiedTimeRaw = Data.ModifiedTime;
-            CreationTimeRaw = Data.CreationTime;
+            Size = Data.Size;
+            ModifiedTime = Data.ModifiedTime;
+            CreationTime = Data.CreationTime;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
@@ -576,9 +576,9 @@ namespace RX_Explorer.Class
                     finally
                     {
                         OnPropertyChanged(nameof(Name));
-                        OnPropertyChanged(nameof(Size));
+                        OnPropertyChanged(nameof(SizeDescription));
                         OnPropertyChanged(nameof(DisplayType));
-                        OnPropertyChanged(nameof(ModifiedTime));
+                        OnPropertyChanged(nameof(ModifiedTimeDescription));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
 
@@ -784,9 +784,9 @@ namespace RX_Explorer.Class
                         await LoadCoreAsync(Exclusive.Controller, true);
                     }
 
-                    OnPropertyChanged(nameof(Size));
+                    OnPropertyChanged(nameof(SizeDescription));
                     OnPropertyChanged(nameof(Name));
-                    OnPropertyChanged(nameof(ModifiedTime));
+                    OnPropertyChanged(nameof(ModifiedTimeDescription));
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));
                 }

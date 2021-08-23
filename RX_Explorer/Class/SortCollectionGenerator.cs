@@ -57,26 +57,26 @@ namespace RX_Explorer.Class
                 case SortTarget.ModifiedTime:
                     {
                         return Direction == SortDirection.Ascending
-                                            ? FolderList.OrderBy((Item) => Item.ModifiedTimeRaw)
-                                                        .Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw))
-                                            : FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw)
-                                                      .Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw));
+                                            ? FolderList.OrderBy((Item) => Item.ModifiedTime)
+                                                        .Concat(FileList.OrderBy((Item) => Item.ModifiedTime))
+                                            : FileList.OrderByDescending((Item) => Item.ModifiedTime)
+                                                      .Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTime));
                     }
                 case SortTarget.Size:
                     {
                         return Direction == SortDirection.Ascending
                                             ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
-                                                        .Concat(FileList.OrderBy((Item) => Item.SizeRaw))
-                                            : FileList.OrderByDescending((Item) => Item.SizeRaw)
+                                                        .Concat(FileList.OrderBy((Item) => Item.Size))
+                                            : FileList.OrderByDescending((Item) => Item.Size)
                                                       .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending));
                     }
                 case SortTarget.Path:
                     {
                         return Direction == SortDirection.Ascending
                                             ? FolderList.OrderBy((Item) => Item.Path)
-                                                        .Concat(FileList.OrderBy((Item) => Item.SizeRaw))
+                                                        .Concat(FileList.OrderBy((Item) => Item.Size))
                                             : FileList.OrderByDescending((Item) => Item.Path)
-                                                      .Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
+                                                      .Concat(FolderList.OrderByDescending((Item) => Item.Size));
                     }
                 default:
                     {
@@ -192,7 +192,7 @@ namespace RX_Explorer.Class
                         if (Direction == SortDirection.Ascending)
                         {
                             (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item))
-                                                                                 .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
+                                                                                 .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTime, SearchTarget.ModifiedTime) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -221,7 +221,7 @@ namespace RX_Explorer.Class
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
                             int Index = FilteredCollection.Select((Item, Index) => (Index, Item))
-                                                          .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
+                                                          .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTime, SearchTarget.ModifiedTime) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
@@ -256,7 +256,7 @@ namespace RX_Explorer.Class
                             if (Direction == SortDirection.Ascending)
                             {
                                 (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item))
-                                                                                     .FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
+                                                                                     .FirstOrDefault((Value) => Value.Item.Size.CompareTo(SearchTarget.Size) > 0);
 
                                 if (SearchResult.Item == null)
                                 {
@@ -270,7 +270,7 @@ namespace RX_Explorer.Class
                             else
                             {
                                 return FilteredCollection.Select((Item, Index) => (Index, Item))
-                                                         .FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+                                                         .FirstOrDefault((Value) => Value.Item.Size.CompareTo(SearchTarget.Size) < 0).Index;
                             }
                         }
                     }

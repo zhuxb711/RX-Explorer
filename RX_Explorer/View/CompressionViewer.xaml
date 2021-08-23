@@ -1,0 +1,298 @@
+﻿<Page x:Class="RX_Explorer.CompressionViewer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:Cls="using:RX_Explorer.Class"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <CommandBar DefaultLabelPosition="Right"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    Background="{ThemeResource ElementAccentAcrylicBrush}">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Label="全部解压">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.Content>
+                <Grid Height="34"
+                      Width="450">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            x:Uid="FileControlParentButton"
+                            Margin="1"
+                            x:Name="GoParentFolder"
+                            IsEnabled="False"
+                            ToolTipService.ToolTip="返回上级"
+                            AllowFocusWhenDisabled="True"
+                            Click="GoParentFolder_Click">
+                        <Viewbox>
+                            <SymbolIcon Symbol="Up" />
+                        </Viewbox>
+                    </Button>
+                    <TextBox Grid.Column="1"
+                             Margin="1"
+                             Name="AddressBox"/>
+                </Grid>
+            </CommandBar.Content>
+        </CommandBar>
+        <ListView x:Name="ListViewControl"
+                  Grid.Row="1"
+                  SelectionMode="Extended"
+                  CanDrag="False"
+                  CanReorderItems="False"
+                  AllowDrop="True"
+                  IsHoldingEnabled="True"
+                  IsItemClickEnabled="True"
+                  IsDoubleTapEnabled="True"
+                  ShowsScrollingPlaceholders="False"
+                  DoubleTapped="ListViewControl_DoubleTapped"
+                  Style="{StaticResource ListViewStyleWithFixedHeader}"
+                  ItemsSource="{x:Bind EntryList}"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="Cls:CompressionItemBase">
+                    <Grid Margin="2,1.5,1,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5*" />
+                            <ColumnDefinition Width="2.5*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="45" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Stretch="Uniform"
+                                   Source="{x:Bind Thumbnail}"
+                                   Height="30"
+                                   Width="30" />
+                            <TextBlock VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Grid.Column="1"
+                                       Text="{x:Bind Name}"
+                                       ToolTipService.ToolTip="{x:Bind Name,Converter={StaticResource EmptyTextFiliter}}"
+                                       TextTrimming="CharacterEllipsis"
+                                       x:Name="NameLabel" />
+                        </Grid>
+                        <TextBlock VerticalAlignment="Center"
+                                   Padding="10,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Text="{x:Bind ModifiedTimeDescription}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription,Converter={StaticResource EmptyTextFiliter}}"
+                                   Grid.Column="1"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Padding="10,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Text="{x:Bind Type}"
+                                   ToolTipService.ToolTip="{x:Bind Type,Converter={StaticResource EmptyTextFiliter}}"
+                                   Grid.Column="2"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Padding="10,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Text="{x:Bind CompressedSizeDescription}"
+                                   ToolTipService.ToolTip="{x:Bind SizeDescription,Converter={StaticResource EmptyTextFiliter}}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Grid.Column="3" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Padding="10,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Text="{x:Bind SizeDescription}"
+                                   ToolTipService.ToolTip="{x:Bind SizeDescription,Converter={StaticResource EmptyTextFiliter}}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Grid.Column="4"/>
+                        <TextBlock VerticalAlignment="Center"
+                                   Padding="10,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Text="{x:Bind CompressionRateDescription}"
+                                   ToolTipService.ToolTip="{x:Bind CompressionRateDescription,Converter={StaticResource EmptyTextFiliter}}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Grid.Column="5"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Header>
+                <Grid Height="35">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="2.5*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            x:Name="ListHeaderName"
+                            Height="35"
+                            Click="ListHeader_Click"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="名称"
+                                       x:Uid="SearchName"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="NameSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="NameSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Height="35"
+                            Grid.Column="1"
+                            Click="ListHeader_Click"
+                            Name="ListHeaderModifiedTime"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="修改日期"
+                                       x:Uid="SearchModified"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="ModifiedTimeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="ModifiedTimeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="2"
+                            Height="35"
+                            Click="ListHeader_Click"
+                            Name="ListHeaderType"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="类型"
+                                       x:Uid="SearchType"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="TypeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="TypeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Grid.Column="3"
+                            Click="ListHeader_Click"
+                            VerticalAlignment="Stretch"
+                            Name="ListHeaderCompressedSize"
+                            Height="35"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="压缩大小"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="CompressedSizeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="CompressedSizeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Grid.Column="4"
+                            VerticalAlignment="Stretch"
+                            Name="ListHeaderSize"
+                            Click="ListHeader_Click"
+                            Height="35"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="实际大小"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="SizeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="SizeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                    <Button HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Grid.Column="5"
+                            VerticalAlignment="Stretch"
+                            Name="ListHeaderCompressionRate"
+                            Click="ListHeader_Click"
+                            Height="35"
+                            Background="{ThemeResource ElementAccentAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <RelativePanel>
+                            <TextBlock Text="压缩比率"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="CompressionRateSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="CompressionRateSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
+                    </Button>
+                </Grid>
+            </ListView.Header>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment"
+                            Value="Stretch" />
+                    <Setter Property="Padding"
+                            Value="0" />
+                    <Setter Property="UseSystemFocusVisuals"
+                            Value="False" />
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+    </Grid>
+</Page>

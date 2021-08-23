@@ -5,18 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
@@ -24,14 +19,109 @@ namespace RX_Explorer.View
 {
     public sealed partial class RecycleBin : Page
     {
-        private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
+        private SortTarget currentSortTarget;
+        private SortTarget CurrentSortTarget
         {
-            {SortTarget.Name,SortDirection.Ascending },
-            {SortTarget.Type,SortDirection.Ascending },
-            {SortTarget.ModifiedTime,SortDirection.Ascending },
-            {SortTarget.Size,SortDirection.Ascending },
-            {SortTarget.OriginPath,SortDirection.Ascending }
-        };
+            get
+            {
+                return currentSortTarget;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case SortTarget.Name:
+                        {
+                            NameSortIndicator.Visibility = Visibility.Visible;
+                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
+                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
+                            TypeSortIndicator.Visibility = Visibility.Collapsed;
+                            SizeSortIndicator.Visibility = Visibility.Collapsed;
+                            break;
+                        }
+                    case SortTarget.Type:
+                        {
+                            NameSortIndicator.Visibility = Visibility.Collapsed;
+                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
+                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
+                            TypeSortIndicator.Visibility = Visibility.Visible;
+                            SizeSortIndicator.Visibility = Visibility.Collapsed;
+                            break;
+                        }
+                    case SortTarget.ModifiedTime:
+                        {
+                            NameSortIndicator.Visibility = Visibility.Collapsed;
+                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
+                            DeleteDateSortIndicator.Visibility = Visibility.Visible;
+                            TypeSortIndicator.Visibility = Visibility.Collapsed;
+                            SizeSortIndicator.Visibility = Visibility.Collapsed;
+                            break;
+                        }
+                    case SortTarget.Size:
+                        {
+                            NameSortIndicator.Visibility = Visibility.Collapsed;
+                            OriginPathSortIndicator.Visibility = Visibility.Collapsed;
+                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
+                            TypeSortIndicator.Visibility = Visibility.Collapsed;
+                            SizeSortIndicator.Visibility = Visibility.Visible;
+                            break;
+                        }
+                    case SortTarget.OriginPath:
+                        {
+                            NameSortIndicator.Visibility = Visibility.Collapsed;
+                            OriginPathSortIndicator.Visibility = Visibility.Visible;
+                            DeleteDateSortIndicator.Visibility = Visibility.Collapsed;
+                            TypeSortIndicator.Visibility = Visibility.Collapsed;
+                            SizeSortIndicator.Visibility = Visibility.Collapsed;
+                            break;
+                        }
+                }
+
+                currentSortTarget = value;
+            }
+        }
+
+        private SortDirection sortDirection;
+        private SortDirection CurrentSortDirection
+        {
+            get
+            {
+                return sortDirection;
+            }
+            set
+            {
+                switch (CurrentSortTarget)
+                {
+                    case SortTarget.Name:
+                        {
+                            NameSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
+                            break;
+                        }
+                    case SortTarget.Type:
+                        {
+                            TypeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
+                            break;
+                        }
+                    case SortTarget.ModifiedTime:
+                        {
+                            DeleteDateSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
+                            break;
+                        }
+                    case SortTarget.Size:
+                        {
+                            SizeSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
+                            break;
+                        }
+                    case SortTarget.OriginPath:
+                        {
+                            OriginPathSortIndicator.Child = new FontIcon { Glyph = value == SortDirection.Ascending ? "\uF0AD" : "\uF0AE" };
+                            break;
+                        }
+                }
+
+                sortDirection = value;
+            }
+        }
 
         private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
 
@@ -86,8 +176,10 @@ namespace RX_Explorer.View
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
             CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
             SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
+            CurrentSortTarget = SortTarget.Name;
+            CurrentSortDirection = SortDirection.Ascending;
 
-            await ActivateLoading(true, Globalization.GetString("Progress_Tip_Loading"));
+            ControlLoading(true, Globalization.GetString("Progress_Tip_Loading"));
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
@@ -106,7 +198,7 @@ namespace RX_Explorer.View
                 ClearRecycleBin.IsEnabled = true;
             }
 
-            await ActivateLoading(false);
+            ControlLoading(false);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -141,7 +233,7 @@ namespace RX_Explorer.View
                                     ListViewControl.SelectedItem = Item;
                                 }
 
-                                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                if (e.OriginalSource is ListViewItemPresenter)
                                 {
                                     SelectionExtention.Enable();
                                 }
@@ -187,7 +279,7 @@ namespace RX_Explorer.View
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
+                if (e.OriginalSource is ListViewItemPresenter)
                 {
                     ListViewControl.SelectedItem = null;
                     ListViewControl.ContextFlyout = EmptyFlyout;
@@ -223,231 +315,67 @@ namespace RX_Explorer.View
             {
                 if (e.OriginalSource is FrameworkElement Element)
                 {
-                    if (Element.Name == "EmptyTextblock")
+                    if (Element.DataContext is IRecycleStorageItem Context)
                     {
-                        ListViewControl.SelectedItem = null;
-                        ListViewControl.ContextFlyout = EmptyFlyout;
-                    }
-                    else
-                    {
-                        if (Element.DataContext is IRecycleStorageItem Context)
+                        if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
                         {
-                            if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
+                            ListViewControl.ContextFlyout = SelectFlyout;
+                        }
+                        else
+                        {
+                            if (ListViewControl.SelectedItem as IRecycleStorageItem == Context)
                             {
                                 ListViewControl.ContextFlyout = SelectFlyout;
                             }
                             else
                             {
-                                if (ListViewControl.SelectedItem as IRecycleStorageItem == Context)
+                                if (e.OriginalSource is TextBlock)
                                 {
+                                    ListViewControl.SelectedItem = Context;
                                     ListViewControl.ContextFlyout = SelectFlyout;
                                 }
                                 else
                                 {
-                                    if (e.OriginalSource is TextBlock)
-                                    {
-                                        ListViewControl.SelectedItem = Context;
-                                        ListViewControl.ContextFlyout = SelectFlyout;
-                                    }
-                                    else
-                                    {
-                                        ListViewControl.SelectedItem = null;
-                                        ListViewControl.ContextFlyout = EmptyFlyout;
-                                    }
+                                    ListViewControl.SelectedItem = null;
+                                    ListViewControl.ContextFlyout = EmptyFlyout;
                                 }
                             }
                         }
-                        else
-                        {
-                            ListViewControl.SelectedItem = null;
-                            ListViewControl.ContextFlyout = EmptyFlyout;
-                        }
+                    }
+                    else
+                    {
+                        ListViewControl.SelectedItem = null;
+                        ListViewControl.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
         }
 
-        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        private void ListHeader_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.Name] == SortDirection.Ascending)
+            if (sender is Button Btn)
             {
-                SortMap[SortTarget.Name] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
+                SortTarget Target = Btn.Name switch
                 {
-                    FileCollection.Add(Item);
+                    "ListHeaderName" => SortTarget.Name,
+                    "ListHeaderOriginLocation" => SortTarget.OriginPath,
+                    "ListHeaderModifiedTime" => SortTarget.ModifiedTime,
+                    "ListHeaderType" => SortTarget.Type,
+                    "ListHeaderSize" => SortTarget.Size,
+                    _ => SortTarget.Name
+                };
+
+                if (CurrentSortTarget == Target)
+                {
+                    CurrentSortDirection = CurrentSortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
                 }
-            }
-            else
-            {
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
+                else
                 {
-                    FileCollection.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.ModifiedTime] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.Type] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.Type] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.Size] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.Size] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-            else
-            {
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
-                }
-            }
-        }
-
-        private void ListHeaderOriginLocation_Click(object sender, RoutedEventArgs e)
-        {
-            if (SortMap[SortTarget.OriginPath] == SortDirection.Ascending)
-            {
-                SortMap[SortTarget.OriginPath] = SortDirection.Descending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending).ToArray();
-
-                FileCollection.Clear();
-
-                foreach (IRecycleStorageItem Item in SortResult)
-                {
-                    FileCollection.Add(Item);
+                    CurrentSortTarget = Target;
+                    CurrentSortDirection = SortDirection.Ascending;
                 }
 
-            }
-            else
-            {
-                SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, CurrentSortTarget, CurrentSortDirection).ToArray();
 
                 FileCollection.Clear();
 
@@ -471,7 +399,7 @@ namespace RX_Explorer.View
         {
             if (ListViewControl.SelectedItems.Count > 0)
             {
-                await ActivateLoading(true, Globalization.GetString("RecycleBinDeleteText"));
+                ControlLoading(true, Globalization.GetString("RecycleBinDeleteText"));
 
                 QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
@@ -509,7 +437,7 @@ namespace RX_Explorer.View
                     }
                 }
 
-                await ActivateLoading(false);
+                ControlLoading(false);
 
                 if (FileCollection.Count == 0)
                 {
@@ -531,13 +459,13 @@ namespace RX_Explorer.View
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                await ActivateLoading(true, Globalization.GetString("RecycleBinEmptyingText"));
+                ControlLoading(true, Globalization.GetString("RecycleBinEmptyingText"));
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
                     if (await Exclusive.Controller.EmptyRecycleBinAsync())
                     {
-                        await ActivateLoading(false);
+                        ControlLoading(false);
 
                         FileCollection.Clear();
 
@@ -553,9 +481,9 @@ namespace RX_Explorer.View
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog.ShowAsync();
+                        await dialog.ShowAsync();
 
-                        await ActivateLoading(false);
+                        ControlLoading(false);
                     }
                 }
             }
@@ -565,7 +493,7 @@ namespace RX_Explorer.View
         {
             if (ListViewControl.SelectedItems.Count > 0)
             {
-                await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText"));
+                ControlLoading(true, Globalization.GetString("RecycleBinRestoreText"));
 
                 List<string> ErrorList = new List<string>();
 
@@ -592,7 +520,7 @@ namespace RX_Explorer.View
                     _ = Dialog.ShowAsync();
                 }
 
-                await ActivateLoading(false);
+                ControlLoading(false);
 
                 if (FileCollection.Count == 0)
                 {
@@ -602,7 +530,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private async Task ActivateLoading(bool IsLoading, string Message = null)
+        private void ControlLoading(bool IsLoading, string Message = null)
         {
             if (IsLoading)
             {
@@ -611,7 +539,6 @@ namespace RX_Explorer.View
             }
             else
             {
-                await Task.Delay(500);
                 LoadingControl.IsLoading = false;
             }
         }

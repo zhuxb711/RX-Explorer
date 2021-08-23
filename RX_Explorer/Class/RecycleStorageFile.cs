@@ -34,17 +34,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ModifiedTime
+        public override string ModifiedTimeDescription
         {
             get
             {
-                if (ModifiedTimeRaw == DateTimeOffset.FromFileTime(0))
+                if (ModifiedTime == DateTimeOffset.FromFileTime(0))
                 {
                     return Globalization.GetString("UnknownText");
                 }
                 else
                 {
-                    return ModifiedTimeRaw.ToString("G");
+                    return ModifiedTime.ToString("G");
                 }
             }
         }
@@ -57,7 +57,7 @@ namespace RX_Explorer.Class
         public RecycleStorageFile(string Path, string OriginPath, DateTimeOffset DeleteTime) : base(Win32_Native_API.GetStorageItemRawData(Path))
         {
             this.OriginPath = OriginPath;
-            ModifiedTimeRaw = DeleteTime.ToLocalTime();
+            ModifiedTime = DeleteTime.ToLocalTime();
         }
 
         public async Task<bool> DeleteAsync()

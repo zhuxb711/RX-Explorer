@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
@@ -20,11 +19,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string Size
+        public override string SizeDescription
         {
             get
             {
-                return SizeRaw.GetFileSizeDescription();
+                return Size.GetFileSizeDescription();
             }
         }
 
@@ -77,9 +76,9 @@ namespace RX_Explorer.Class
         public FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
             StorageItem = Item;
-            CreationTimeRaw = Item.DateCreated;
-            ModifiedTimeRaw = ModifiedTime;
-            SizeRaw = Size;
+            CreationTime = Item.DateCreated;
+            base.ModifiedTime = ModifiedTime;
+            base.Size = Size;
         }
 
         public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
@@ -146,8 +145,8 @@ namespace RX_Explorer.Class
             {
                 if (await GetStorageItemAsync() is StorageFile File)
                 {
-                    ModifiedTimeRaw = await File.GetModifiedTimeAsync();
-                    SizeRaw = await File.GetSizeRawDataAsync();
+                    ModifiedTime = await File.GetModifiedTimeAsync();
+                    Size = await File.GetSizeRawDataAsync();
                 }
             }
         }

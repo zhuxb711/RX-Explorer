@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
                         }
                     case FileSystemStorageFile File:
                         {
-                            TotalSize += File.SizeRaw;
+                            TotalSize += File.Size;
                             break;
                         }
                 }

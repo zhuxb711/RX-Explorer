@@ -105,84 +105,122 @@
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
-                        <ColumnDefinition Width="1*"
-                                          MinWidth="50" />
                     </Grid.ColumnDefinitions>
-                    <Button HorizontalContentAlignment="Left"
+                    <Button HorizontalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="0"
                             x:Name="ListHeaderName"
-                            Click="ListHeaderName_Click"
+                            Click="ListHeader_Click"
                             Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
-                        <TextBlock Text="名称"
-                                   x:Uid="SearchName"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel>
+                            <TextBlock Text="名称"
+                                       x:Uid="SearchName"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="NameSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="NameSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Left"
+                    <Button HorizontalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="1"
                             x:Name="ListHeaderOriginLocation"
-                            Click="ListHeaderOriginLocation_Click"
+                            Click="ListHeader_Click"
                             Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
-                        <TextBlock Text="原位置"
-                                   x:Uid="RecycleOriginLocation"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel>
+                            <TextBlock Text="原位置"
+                                       x:Uid="RecycleOriginLocation"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="OriginPathSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="OriginPathSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Left"
+                    <Button HorizontalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="2"
                             Name="ListHeaderModifiedTime"
-                            Click="ListHeaderModifiedTime_Click"
+                            Click="ListHeader_Click"
                             Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
-                        <TextBlock Text="删除日期"
-                                   x:Uid="RecycleTime"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel>
+                            <TextBlock Text="删除日期"
+                                       x:Uid="RecycleTime"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="DeleteDateSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="DeleteDateSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
                     </Button>
                     <Button Grid.Column="3"
-                            HorizontalContentAlignment="Left"
+                            HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             Name="ListHeaderType"
-                            Click="ListHeaderType_Click"
+                            Click="ListHeader_Click"
                             Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
-                        <TextBlock Text="类型"
-                                   x:Uid="SearchType"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel>
+                            <TextBlock Text="类型"
+                                       x:Uid="SearchType"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="TypeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="TypeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Left"
+                    <Button HorizontalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             VerticalAlignment="Stretch"
                             Name="ListHeaderSize"
                             Grid.Column="4"
-                            Click="ListHeaderSize_Click"
+                            Click="ListHeader_Click"
                             Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
-                        <TextBlock Text="大小"
-                                   x:Uid="SearchSize"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel>
+                            <TextBlock Text="大小"
+                                       x:Uid="SearchSize"
+                                       TextTrimming="CharacterEllipsis"
+                                       RelativePanel.LeftOf="SizeSortIndicator"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                     RelativePanel.AlignVerticalCenterWithPanel="True"
+                                     x:Name="SizeSortIndicator"
+                                     Height="12"
+                                     Width="12" />
+                        </RelativePanel>
                     </Button>
-                    <Button Background="{ThemeResource ElementAccentAcrylicBrush}"
-                            Style="{StaticResource ListHeaderButtonStyle}"
-                            Grid.Column="5"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch" />
                 </Grid>
             </ListView.Header>
             <ListView.ItemContainerStyle>
@@ -204,8 +242,6 @@
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="1*"
-                                              MinWidth="50" />
                         </Grid.ColumnDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -246,8 +282,8 @@
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
-                                   Text="{x:Bind ModifiedTime}"
-                                   ToolTipService.ToolTip="{x:Bind ModifiedTime}"
+                                   Text="{x:Bind ModifiedTimeDescription}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription}"
                                    Grid.Column="2"
                                    x:Phase="0"
                                    Padding="8,0,0,0"
@@ -263,14 +299,11 @@
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Padding="8,0,0,0"
-                                   Text="{x:Bind Size, Mode=OneWay}"
+                                   Text="{x:Bind SizeDescription, Mode=OneWay}"
                                    x:Phase="1"
-                                   ToolTipService.ToolTip="{x:Bind Size, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind SizeDescription, Mode=OneWay}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />
-                        <TextBlock VerticalAlignment="Center"
-                                   Grid.Column="5"
-                                   Name="EmptyTextblock" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
