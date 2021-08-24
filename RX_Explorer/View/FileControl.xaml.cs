@@ -1314,25 +1314,9 @@ namespace RX_Explorer
         {
             LoadingControl.Focus(FocusState.Programmatic);
 
-            string QueryText = null;
+            string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Trim() : args.QueryText.TrimEnd('\\').Trim();
 
-            if (args.ChosenSuggestion is AddressSuggestionItem SuggestItem)
-            {
-                QueryText = SuggestItem.Path;
-            }
-            else
-            {
-                QueryText = Convert.ToString(sender.Tag);
-            }
-
-            if (string.IsNullOrWhiteSpace(QueryText))
-            {
-                return;
-            }
-
-            QueryText = QueryText.TrimEnd('\\').Trim();
-
-            if (QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -1595,54 +1579,50 @@ namespace RX_Explorer
 
         private async void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            sender.Tag = sender.Text;
-
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 if (Interlocked.Exchange(ref AddressTextChangeLockResource, 1) == 0)
                 {
                     try
                     {
-                        if (args.CheckCurrent())
+                        AddressSuggestionList.Clear();
+
+                        if (string.IsNullOrWhiteSpace(sender.Text))
                         {
-                            if (string.IsNullOrWhiteSpace(sender.Text))
+                            foreach (string Path in SQLite.Current.GetRelatedPathHistory())
                             {
-                                AddressSuggestionList.Clear();
-
-                                foreach (string Path in SQLite.Current.GetRelatedPathHistory())
-                                {
-                                    AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
-                                }
+                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
                             {
-                                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                                string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
+                                string FileName = Path.GetFileName(sender.Text);
+
+                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
                                 {
-                                    string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
-                                    string FileName = Path.GetFileName(sender.Text);
-
-                                    if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
+                                    if (args.CheckCurrent())
                                     {
-                                        AddressSuggestionList.Clear();
-
                                         if (string.IsNullOrEmpty(FileName))
                                         {
-                                            foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)).Select((It) => It.Path))
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
+
+                                            foreach (string Path in Result.Select((Item) => Item.Path))
                                             {
                                                 AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
                                             }
                                         }
                                         else
                                         {
-                                            foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase))).Select((It) => It.Path))
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+
+                                            foreach (string Path in Result.Select((Item) => Item.Path))
                                             {
                                                 AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        AddressSuggestionList.Clear();
                                     }
                                 }
                             }
@@ -1798,8 +1778,24 @@ namespace RX_Explorer
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
-                string CurrentPath = CurrentPresenter?.CurrentFolder?.Path;
-                AddressBox.Text = (string.IsNullOrWhiteSpace(CurrentPath) || (RootStorageFolder.Instance.Path.Equals(CurrentPath, StringComparison.OrdinalIgnoreCase)) ? string.Empty : CurrentPath);
+                switch (CurrentPresenter?.CurrentFolder)
+                {
+                    case RootStorageFolder:
+                        {
+                            AddressBox.Text = string.Empty;
+                            break;
+                        }
+                    case FileSystemStorageFolder Folder:
+                        {
+                            AddressBox.Text = Folder.Path;
+                            break;
+                        }
+                    default:
+                        {
+                            AddressBox.Text = string.Empty;
+                            break;
+                        }
+                }
             }
 
             AddressButtonContainer.Visibility = Visibility.Collapsed;

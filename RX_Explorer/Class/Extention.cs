@@ -316,6 +316,16 @@ namespace RX_Explorer.Class
 
         public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)
         {
+            if (From == null)
+            {
+                throw new ArgumentNullException(nameof(From), "Argument could not be null");
+            }
+
+            if (To == null)
+            {
+                throw new ArgumentNullException(nameof(To), "Argument could not be null");
+            }
+
             return Task.Run(() =>
             {
                 try
@@ -326,21 +336,12 @@ namespace RX_Explorer.Class
                     byte[] DataBuffer = new byte[4096];
 
                     int ProgressValue = 0;
+                    int bytesRead = 0;
 
-                    while (true)
+                    while ((bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length)) > 0)
                     {
-                        int bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length);
-
-                        if (bytesRead > 0)
-                        {
-                            To.Write(DataBuffer, 0, bytesRead);
-                            TotalBytesRead += bytesRead;
-                        }
-                        else
-                        {
-                            To.Flush();
-                            break;
-                        }
+                        To.Write(DataBuffer, 0, bytesRead);
+                        TotalBytesRead += bytesRead;
 
                         if (TotalBytesLength > 1024 * 1024)
                         {
@@ -355,6 +356,10 @@ namespace RX_Explorer.Class
 
                         CancelToken.ThrowIfCancellationRequested();
                     }
+
+                    ProgressHandler.Invoke(null, new ProgressChangedEventArgs(100, null));
+
+                    To.Flush();
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {

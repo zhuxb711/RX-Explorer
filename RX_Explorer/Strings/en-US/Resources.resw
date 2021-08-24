@@ -3282,4 +3282,13 @@ Invalid names include
   <data name="ExtractAll.Label" xml:space="preserve">
     <value>Extract all</value>
   </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extracting</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenCompression_Content" xml:space="preserve">
+    <value>Unable to open this compressed file</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Create file</value>
+  </data>
 </root>

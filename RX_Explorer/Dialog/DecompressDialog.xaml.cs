@@ -16,22 +16,26 @@ namespace RX_Explorer.Dialog
     {
         public Encoding CurrentEncoding { get; private set; } = Encoding.Default;
 
-        private readonly ObservableCollection<Encoding> AvailableEncoding;
+        private readonly ObservableCollection<Encoding> AvailableEncoding = new ObservableCollection<Encoding>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string ExtractLocation { get; private set; }
 
-        public DecompressDialog(string CurrentFolderPath)
+        public DecompressDialog(string CurrentFolderPath, bool ShowEncodingOption = true)
         {
             InitializeComponent();
 
             ExtractLocation = CurrentFolderPath;
-            AvailableEncoding = new ObservableCollection<Encoding>();
 
-            EncodingOption.ItemsSource = AvailableEncoding;
-
-            Loading += DecompressDialog_Loading;
+            if (ShowEncodingOption)
+            {
+                Loading += DecompressDialog_Loading;
+            }
+            else
+            {
+                EncodingOption.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void DecompressDialog_Loading(FrameworkElement sender, object args)

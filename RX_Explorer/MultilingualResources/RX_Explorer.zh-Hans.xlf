@@ -4218,6 +4218,18 @@ Invalid names include
           <source>Extract all</source>
           <target state="translated">全部解压</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
+          <source>Extracting</source>
+          <target state="new">Extracting</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotOpenCompression_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open this compressed file</source>
+          <target state="new">Unable to open this compressed file</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
+          <source>Create file</source>
+          <target state="new">Create file</target>
+        </trans-unit>
       </group>
     </body>
   </file>

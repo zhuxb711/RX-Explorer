@@ -104,14 +104,14 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return null;
+                        throw new UnauthorizedAccessException();
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not create a new file stream, Path: \"{Path}\"");
-                return null;
+                throw;
             }
         }
 

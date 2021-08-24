@@ -41,9 +41,9 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
-        private int LockerResource = 0;
+        private int LockerResource;
 
-        private List<KeyValuePair<FileSystemStorageItemBase, Rect>> AbsItemLocationRecord = new List<KeyValuePair<FileSystemStorageItemBase, Rect>>();
+        private readonly List<KeyValuePair<object, Rect>> AbsItemLocationRecord = new List<KeyValuePair<object, Rect>>();
 
         private readonly PointerEventHandler PointerPressedHandler;
 
@@ -133,7 +133,7 @@ namespace RX_Explorer.Class
 
                         if (Math.Abs(RelativeStartPoint.X - RelativeEndPoint.X) >= 20 && Math.Abs(RelativeStartPoint.Y - RelativeEndPoint.Y) >= 20)
                         {
-                            List<FileSystemStorageItemBase> VisibleList = new List<FileSystemStorageItemBase>();
+                            List<object> VisibleList = new List<object>();
 
                             if (View is ListView)
                             {
@@ -143,7 +143,7 @@ namespace RX_Explorer.Class
                                 {
                                     for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
                                     {
-                                        VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                        VisibleList.Add(View.Items[i]);
                                     }
                                 }
                             }
@@ -155,22 +155,22 @@ namespace RX_Explorer.Class
                                 {
                                     for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
                                     {
-                                        VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                        VisibleList.Add(View.Items[i]);
                                     }
                                 }
                             }
 
-                            foreach (FileSystemStorageItemBase Item in VisibleList.Except(AbsItemLocationRecord.Select((Rec) => Rec.Key)))
+                            foreach (object Item in VisibleList.Except(AbsItemLocationRecord.Select((Rec) => Rec.Key)))
                             {
                                 if (View.ContainerFromItem(Item) is SelectorItem Selector)
                                 {
-                                    AbsItemLocationRecord.Add(new KeyValuePair<FileSystemStorageItemBase, Rect>(Item, Selector.TransformToVisual(View).TransformBounds(new Rect(InnerScrollView.HorizontalOffset, InnerScrollView.VerticalOffset, Selector.ActualWidth, Selector.ActualHeight))));
+                                    AbsItemLocationRecord.Add(new KeyValuePair<object, Rect>(Item, Selector.TransformToVisual(View).TransformBounds(new Rect(InnerScrollView.HorizontalOffset, InnerScrollView.VerticalOffset, Selector.ActualWidth, Selector.ActualHeight))));
                                 }
                             }
 
                             Rect AbsBoxSelectionRect = new Rect(Math.Min(AbsStartPoint.X, AbsEndPoint.X), Math.Min(AbsStartPoint.Y, AbsEndPoint.Y), Math.Abs(AbsStartPoint.X - AbsEndPoint.X), Math.Abs(AbsStartPoint.Y - AbsEndPoint.Y));
 
-                            foreach (KeyValuePair<FileSystemStorageItemBase, Rect> Pair in AbsItemLocationRecord)
+                            foreach (KeyValuePair<object, Rect> Pair in AbsItemLocationRecord)
                             {
                                 Rect Intersect = RectHelper.Intersect(AbsBoxSelectionRect, Pair.Value);
 

@@ -23,7 +23,7 @@
                           Subtitle="编码格式不正确，请重新设置编码格式" />
     </Cls:QueueContentDialog.Resources>
 
-    <StackPanel MinWidth="300">
+    <StackPanel Width="350">
         <RelativePanel>
             <TextBox Header="解压至指定位置"
                      PlaceholderText="必须为有效的文件夹路径"
@@ -51,6 +51,7 @@
                   HorizontalAlignment="Stretch"
                   SelectionChanged="EncodingOption_SelectionChanged"
                   Name="EncodingOption"
-                  DisplayMemberPath="EncodingName"/>
+                  DisplayMemberPath="EncodingName"
+                  ItemsSource="{x:Bind AvailableEncoding}"/>
     </StackPanel>
 </Cls:QueueContentDialog>
