@@ -792,9 +792,6 @@
     <PackageReference Include="Bluetooth.Services.Obex">
       <Version>1.0.0</Version>
     </PackageReference>
-    <PackageReference Include="DeferredEvents">
-      <Version>1.0.5</Version>
-    </PackageReference>
     <PackageReference Include="DocumentFormat.OpenXml">
       <Version>2.13.1</Version>
     </PackageReference>
@@ -833,7 +830,7 @@
       <Version>7.0.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.7.0-prerelease.210816001</Version>
+      <Version>2.6.2</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
       <Version>0.28.3</Version>

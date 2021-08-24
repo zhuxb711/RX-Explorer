@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DeferredEvents" Version="1.0.5" />
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit" Version="7.0.2" />
   </ItemGroup>
 
   <ItemGroup>

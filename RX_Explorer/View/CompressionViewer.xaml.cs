@@ -208,9 +208,23 @@ namespace RX_Explorer
             }
         }
 
+        private async void ControlLoading(bool IsLoading, string Message = null)
+        {
+            if (IsLoading)
+            {
+                ProgressInfo.Text = $"{Message}...";
+                LoadingControl.IsLoading = true;
+            }
+            else
+            {
+                await Task.Delay(500);
+                LoadingControl.IsLoading = false;
+            }
+        }
+
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is CompressionItemBase Item)
             {
                 PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
@@ -289,6 +303,10 @@ namespace RX_Explorer
 
             SelectionExtention.Dispose();
             SelectionExtention = null;
+
+            EntryList.Clear();
+            AddressBox.Text = string.Empty;
+            GoParentFolder.IsEnabled = false;
 
             if (ZipObj is IDisposable DisObj)
             {
@@ -532,7 +550,7 @@ namespace RX_Explorer
             }
         }
 
-        private void ListViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is CompressionItemBase Item)
             {
@@ -598,76 +616,69 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    LoadingControl.IsLoading = true;
+                    ControlLoading(true, Globalization.GetString("Progress_Tip_Extracting"));
 
-                    try
+                    long TotalSize = 0;
+                    long CurrentPosition = 0;
+
+                    ConcurrentBag<ZipEntry> ExtractEntryList = new ConcurrentBag<ZipEntry>();
+
+                    await Task.Run(() => Parallel.ForEach(EntryList, (Item) =>
                     {
-                        long TotalSize = 0;
-                        long CurrentPosition = 0;
-
-                        ConcurrentBag<ZipEntry> ExtractEntryList = new ConcurrentBag<ZipEntry>();
-
-                        await Task.Run(() => Parallel.ForEach(EntryList, (Item) =>
+                        for (int Index = 0; Index < ZipObj.Count; Index++)
                         {
-                            for (int Index = 0; Index < ZipObj.Count; Index++)
+                            ZipEntry Entry = ZipObj[Index];
+
+                            if (Entry.Name.StartsWith(Item.Path))
                             {
-                                ZipEntry Entry = ZipObj[Index];
-
-                                if (Entry.Name.StartsWith(Item.Path))
-                                {
-                                    ExtractEntryList.Add(Entry);
-                                    Interlocked.Add(ref TotalSize, Entry.Size);
-                                }
+                                ExtractEntryList.Add(Entry);
+                                Interlocked.Add(ref TotalSize, Entry.Size);
                             }
-                        }));
+                        }
+                    }));
 
-                        foreach (ZipEntry Entry in ExtractEntryList)
+                    foreach (ZipEntry Entry in ExtractEntryList)
+                    {
+                        string TargetPath = Path.Combine(Dialog.ExtractLocation, Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty).Trim('/').Replace("/", @"\"));
+
+                        if (Entry.IsDirectory)
                         {
-                            string TargetPath = Path.Combine(Dialog.ExtractLocation, Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty).Trim('/').Replace("/", @"\"));
-
-                            if (Entry.IsDirectory)
+                            if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
                             {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
-                                {
-                                    throw new UnauthorizedAccessException();
-                                }
+                                throw new UnauthorizedAccessException();
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
                             {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
                                 {
-                                    if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
+                                    using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
+                                    using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                                     {
-                                        using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
-                                        using (Stream ZipStream = ZipObj.GetInputStream(Entry))
+                                        await ZipStream.CopyToAsync(Stream, Entry.Size, async (s, e) =>
                                         {
-                                            await ZipStream.CopyToAsync(Stream, Entry.Size, async (s, e) =>
+                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
-                                                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                {
-                                                    ProBar.Value = (CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize;
-                                                });
+                                                ProBar.Value = (CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize;
                                             });
-                                        }
+                                        });
+                                    }
 
-                                        CurrentPosition += Entry.Size;
-                                        ProBar.Value = CurrentPosition * 100d / TotalSize;
-                                    }
-                                    else
-                                    {
-                                        throw new UnauthorizedAccessException();
-                                    }
+                                    CurrentPosition += Entry.Size;
+                                    ProBar.Value = CurrentPosition * 100d / TotalSize;
                                 }
                                 else
                                 {
                                     throw new UnauthorizedAccessException();
                                 }
                             }
+                            else
+                            {
+                                throw new UnauthorizedAccessException();
+                            }
                         }
-                    }
-                    finally
-                    {
-                        LoadingControl.IsLoading = false;
                     }
                 }
             }
@@ -696,6 +707,10 @@ namespace RX_Explorer
                 };
 
                 await Dialog.ShowAsync();
+            }
+            finally
+            {
+                ControlLoading(false);
             }
         }
 

@@ -3177,4 +3177,19 @@
   <data name="ExtractAll.Label" xml:space="preserve">
     <value>全部解压</value>
   </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>正在解压</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenCompression_Content" xml:space="preserve">
+    <value>无法打开此压缩文件</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>新建文件</value>
+  </data>
+  <data name="Operate_Text_CopyFullName" xml:space="preserve">
+    <value>复制文件名</value>
+  </data>
+  <data name="Operate_Text_Save" xml:space="preserve">
+    <value>保存更改</value>
+  </data>
 </root>

@@ -16,24 +16,45 @@
         <muxc:CommandBarFlyout x:Name="ItemFlyout"
                                Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
+                              MinWidth="200">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
-                              Icon="Delete"/>
+                              Icon="Delete"
+                              MinWidth="200" />
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CopyFullName')}">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF413;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}" 
-                              Icon="NewFolder"/>
+                <AppBarButton Label="全部解压"
+                              x:Uid="ExtractAll"
+                              Click="ExtractAll_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
-                              Icon="OpenFile" />
+                              Icon="OpenFile"
+                              MinWidth="200" />
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
+                              Icon="NewFolder"
+                              MinWidth="200" />
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Save')}"
+                              Icon="Save"
+                              MinWidth="200"/>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Page.Resources>
@@ -48,8 +69,11 @@
                     VerticalContentAlignment="Center"
                     Background="{ThemeResource ElementAccentAcrylicBrush}">
             <CommandBar.PrimaryCommands>
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
+                              Icon="OpenFile" />
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
+                              Icon="NewFolder" />
                 <AppBarButton Label="全部解压"
-                              Name="ExtractAll"
                               x:Uid="ExtractAll"
                               Click="ExtractAll_Click">
                     <AppBarButton.Icon>
@@ -57,6 +81,9 @@
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Save')}" 
+                              Icon="Save"
+                              IsEnabled="False"/>
             </CommandBar.PrimaryCommands>
             <CommandBar.Content>
                 <Grid Height="34"
@@ -352,7 +379,7 @@
                 <TextBlock FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center"
-                           Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Extracting')}" />
+                           Name="ProgressInfo" />
                 <muxc:ProgressBar Width="180"
                                   Name="ProBar"
                                   Margin="0,10,0,0" />

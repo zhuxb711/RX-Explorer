@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
@@ -530,7 +531,7 @@ namespace RX_Explorer.View
             }
         }
 
-        private void ControlLoading(bool IsLoading, string Message = null)
+        private async void ControlLoading(bool IsLoading, string Message = null)
         {
             if (IsLoading)
             {
@@ -539,6 +540,7 @@ namespace RX_Explorer.View
             }
             else
             {
+                await Task.Delay(500);
                 LoadingControl.IsLoading = false;
             }
         }

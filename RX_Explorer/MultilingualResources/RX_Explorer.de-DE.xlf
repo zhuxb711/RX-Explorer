@@ -4218,15 +4218,23 @@ Inkorrekte Namen sind
         </trans-unit>
         <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
           <source>Extracting</source>
-          <target state="new">Extracting</target>
+          <target state="translated">Extrahieren</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CouldNotOpenCompression_Content" translate="yes" xml:space="preserve">
           <source>Unable to open this compressed file</source>
-          <target state="new">Unable to open this compressed file</target>
+          <target state="translated">Diese komprimierte Datei kann nicht geöffnet werden</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
           <source>Create file</source>
-          <target state="new">Create file</target>
+          <target state="translated">Erstelle Datei</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CopyFullName" translate="yes" xml:space="preserve">
+          <source>Copy the file name</source>
+          <target state="translated">Kopieren Sie den Dateinamen</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Save" translate="yes" xml:space="preserve">
+          <source>Save changes</source>
+          <target state="translated">Änderungen speichern</target>
         </trans-unit>
       </group>
     </body>

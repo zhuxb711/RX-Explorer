@@ -3177,4 +3177,19 @@ Las denominaciones no válidas son:
   <data name="ExtractAll.Label" xml:space="preserve">
     <value>Extraer todo</value>
   </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extrayendo</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenCompression_Content" xml:space="preserve">
+    <value>No se puede abrir este archivo comprimido</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Crea un archivo</value>
+  </data>
+  <data name="Operate_Text_CopyFullName" xml:space="preserve">
+    <value>Copie el nombre del archivo</value>
+  </data>
+  <data name="Operate_Text_Save" xml:space="preserve">
+    <value>Guardar cambios</value>
+  </data>
 </root>

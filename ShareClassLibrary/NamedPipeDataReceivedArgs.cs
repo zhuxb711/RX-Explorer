@@ -1,4 +1,4 @@
-﻿using DeferredEvents;
+﻿using Microsoft.Toolkit.Deferred;
 
 namespace ShareClassLibrary
 {

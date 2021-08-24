@@ -1,4 +1,4 @@
-﻿using DeferredEvents;
+﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.Win32;
 using ShareClassLibrary;
 using System;

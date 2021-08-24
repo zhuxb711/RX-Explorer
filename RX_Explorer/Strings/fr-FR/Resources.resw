@@ -3177,4 +3177,19 @@ Les noms non valides incluent
   <data name="ExtractAll.Label" xml:space="preserve">
     <value>Extraire tout</value>
   </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extraction</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenCompression_Content" xml:space="preserve">
+    <value>Impossible d'ouvrir ce fichier compressé</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Créer un fichier</value>
+  </data>
+  <data name="Operate_Text_CopyFullName" xml:space="preserve">
+    <value>Copiez le nom du fichier</value>
+  </data>
+  <data name="Operate_Text_Save" xml:space="preserve">
+    <value>Sauvegarder les modifications</value>
+  </data>
 </root>

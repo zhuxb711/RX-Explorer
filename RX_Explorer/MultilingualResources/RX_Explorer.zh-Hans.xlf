@@ -4220,15 +4220,23 @@ Invalid names include
         </trans-unit>
         <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
           <source>Extracting</source>
-          <target state="new">Extracting</target>
+          <target state="translated">正在解压</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CouldNotOpenCompression_Content" translate="yes" xml:space="preserve">
           <source>Unable to open this compressed file</source>
-          <target state="new">Unable to open this compressed file</target>
+          <target state="translated">无法打开此压缩文件</target>
         </trans-unit>
         <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
           <source>Create file</source>
-          <target state="new">Create file</target>
+          <target state="translated">新建文件</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CopyFullName" translate="yes" xml:space="preserve">
+          <source>Copy the file name</source>
+          <target state="translated">复制文件名</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Save" translate="yes" xml:space="preserve">
+          <source>Save changes</source>
+          <target state="translated">保存更改</target>
         </trans-unit>
       </group>
     </body>

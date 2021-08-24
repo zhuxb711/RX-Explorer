@@ -3291,4 +3291,10 @@ Invalid names include
   <data name="Operate_Text_CreateFile" xml:space="preserve">
     <value>Create file</value>
   </data>
+  <data name="Operate_Text_CopyFullName" xml:space="preserve">
+    <value>Copy the file name</value>
+  </data>
+  <data name="Operate_Text_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
 </root>

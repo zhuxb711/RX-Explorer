@@ -3177,4 +3177,19 @@ Inkorrekte Namen sind
   <data name="ExtractAll.Label" xml:space="preserve">
     <value>Alle extrahieren</value>
   </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extrahieren</value>
+  </data>
+  <data name="QueueDialog_CouldNotOpenCompression_Content" xml:space="preserve">
+    <value>Diese komprimierte Datei kann nicht geöffnet werden</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Erstelle Datei</value>
+  </data>
+  <data name="Operate_Text_CopyFullName" xml:space="preserve">
+    <value>Kopieren Sie den Dateinamen</value>
+  </data>
+  <data name="Operate_Text_Save" xml:space="preserve">
+    <value>Änderungen speichern</value>
+  </data>
 </root>
