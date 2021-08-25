@@ -191,11 +191,11 @@ namespace FullTrustProcess
 
                 if (Directory.Exists(Path))
                 {
-                    Security = Directory.GetAccessControl(Path);
+                    Security = new DirectoryInfo(Path).GetAccessControl(AccessControlSections.Access);
                 }
                 else if (File.Exists(Path))
                 {
-                    Security = File.GetAccessControl(Path);
+                    Security = new FileInfo(Path).GetAccessControl(AccessControlSections.Access);
                 }
                 else
                 {

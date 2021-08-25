@@ -1,5 +1,6 @@
 ﻿using ShareClassLibrary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -298,16 +299,40 @@ namespace FullTrustProcess
 
             if (Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).FirstOrDefault() is Package Pack)
             {
-                RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
-
-                using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
-                using (Stream Stream = IconStream.AsStream())
+                try
                 {
-                    byte[] Logo = new byte[IconStream.Size];
+                    RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                    Stream.Read(Logo, 0, (int)IconStream.Size);
+                    if (Reference != null)
+                    {
+                        IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync();
 
-                    return Logo;
+                        if (IconStream != null)
+                        {
+                            try
+                            {
+                                using (Stream Stream = IconStream.AsStreamForRead())
+                                {
+                                    byte[] Logo = new byte[IconStream.Size];
+
+                                    Stream.Read(Logo, 0, (int)IconStream.Size);
+
+                                    return Logo;
+                                }
+                            }
+                            finally
+                            {
+                                IconStream.Dispose();
+                            }
+                        }
+                    }
+
+                    return Array.Empty<byte>();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
+                    return Array.Empty<byte>();
                 }
             }
             else
@@ -411,18 +436,35 @@ namespace FullTrustProcess
                 {
                     RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                    using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
-                    using (Stream Stream = IconStream.AsStream())
+                    if (Reference != null)
                     {
-                        byte[] Logo = new byte[IconStream.Size];
+                        IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync();
 
-                        Stream.Read(Logo, 0, (int)IconStream.Size);
+                        if (IconStream != null)
+                        {
+                            try
+                            {
+                                using (Stream Stream = IconStream.AsStreamForRead())
+                                {
+                                    byte[] Logo = new byte[IconStream.Size];
 
-                        return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo);
+                                    Stream.Read(Logo, 0, (int)IconStream.Size);
+
+                                    return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo);
+                                }
+                            }
+                            finally
+                            {
+                                IconStream.Dispose();
+                            }
+                        }
                     }
+
+                    return null;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
                     return null;
                 }
             }
@@ -434,43 +476,53 @@ namespace FullTrustProcess
 
         public static async Task<IEnumerable<InstalledApplicationPackage>> GetInstalledApplicationAsync()
         {
-            List<Task<InstalledApplicationPackage>> ParallelList = new List<Task<InstalledApplicationPackage>>();
+            ConcurrentBag<InstalledApplicationPackage> Result = new ConcurrentBag<InstalledApplicationPackage>();
 
             PackageManager Manager = new PackageManager();
 
-            foreach (Package Pack in Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageTypes.Main)
-                                            .Where((Pack) => !string.IsNullOrWhiteSpace(Pack.DisplayName)
-                                                                && Pack.Status.VerifyIsOK()
-                                                                && Pack.SignatureKind is PackageSignatureKind.Developer
-                                                                                      or PackageSignatureKind.Enterprise
-                                                                                      or PackageSignatureKind.Store))
-            {
-                ParallelList.Add(Task.Run(() =>
-                {
-                    try
-                    {
-                        RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
+            await Task.Run(() => Parallel.ForEach(Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageTypes.Main)
+                                                         .Where((Pack) => !string.IsNullOrWhiteSpace(Pack.DisplayName)
+                                                                             && Pack.Status.VerifyIsOK()
+                                                                             && Pack.SignatureKind is PackageSignatureKind.Developer
+                                                                                                   or PackageSignatureKind.Enterprise
+                                                                                                   or PackageSignatureKind.Store),
+                                                  (Pack) =>
+                                                  {
+                                                      try
+                                                      {
+                                                          RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                        using (IRandomAccessStreamWithContentType IconStream = Reference.OpenReadAsync().AsTask().Result)
-                        using (Stream Stream = IconStream.AsStream())
-                        {
-                            byte[] Logo = new byte[IconStream.Size];
+                                                          if (Reference != null)
+                                                          {
+                                                              IRandomAccessStreamWithContentType IconStream = Reference.OpenReadAsync().AsTask().Result;
 
-                            Stream.Read(Logo, 0, (int)IconStream.Size);
+                                                              if (IconStream != null)
+                                                              {
+                                                                  try
+                                                                  {
+                                                                      using (Stream Stream = IconStream.AsStreamForRead())
+                                                                      {
+                                                                          byte[] Logo = new byte[IconStream.Size];
 
-                            return new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo);
-                        }
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }));
-            }
+                                                                          Stream.Read(Logo, 0, (int)IconStream.Size);
 
-            return await Task.WhenAll(ParallelList).ContinueWith((PreTask) => PreTask.Result.OfType<InstalledApplicationPackage>()
-                                                                                            .OrderBy((Pack) => Pack.AppDescription)
-                                                                                            .ThenBy((Pack) => Pack.AppName));
+                                                                          Result.Add(new InstalledApplicationPackage(Pack.DisplayName, Pack.PublisherDisplayName, Pack.Id.FamilyName, Logo));
+                                                                      }
+                                                                  }
+                                                                  finally
+                                                                  {
+                                                                      IconStream.Dispose();
+                                                                  }
+                                                              }
+                                                          }
+                                                      }
+                                                      catch (Exception ex)
+                                                      {
+                                                          LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{Pack.Id.FamilyName}\"");
+                                                      }
+                                                  }));
+
+            return Result.OrderBy((Pack) => Pack.AppDescription).ThenBy((Pack) => Pack.AppName);
         }
     }
 }
