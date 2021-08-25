@@ -27,7 +27,6 @@
                   IsEditable="True"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Stretch"
-                  Header="文本编码"
                   TextSubmitted="EncodingCombo_TextSubmitted"
                   SelectionChanged="EncodingCombo_SelectionChanged"
                   DisplayMemberPath="EncodingName"

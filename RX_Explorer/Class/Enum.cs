@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum NewCompressionItemType
+    {
+        File,
+        Directory
+    }
+
     public enum NamedPipeMode
     {
         Read,

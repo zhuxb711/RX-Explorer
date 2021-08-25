@@ -5,11 +5,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Storage;
 using Windows.System;
@@ -26,6 +28,8 @@ namespace RX_Explorer
     public sealed partial class CompressionViewer : Page
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
+        private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
+
         private readonly List<Encoding> AvailableEncodings = new List<Encoding>();
 
         private ListViewBaseSelectionExtention SelectionExtention;
@@ -208,11 +212,12 @@ namespace RX_Explorer
             }
         }
 
-        private async void ControlLoading(bool IsLoading, string Message = null)
+        private async void ControlLoading(bool IsLoading, bool IsIndeterminate = false, string Message = null)
         {
             if (IsLoading)
             {
                 ProgressInfo.Text = $"{Message}...";
+                ProBar.IsIndeterminate = IsIndeterminate;
                 LoadingControl.IsLoading = true;
             }
             else
@@ -320,7 +325,7 @@ namespace RX_Explorer
             try
             {
                 ZipFile = File;
-                ZipObj = new ZipFile(await File.GetStreamFromFileAsync(AccessMode.Read));
+                ZipObj = new ZipFile(await File.GetStreamFromFileAsync(AccessMode.ReadWrite));
                 DisplayItemsInFolderEntry(string.Empty);
             }
             catch (Exception ex)
@@ -340,13 +345,17 @@ namespace RX_Explorer
             }
         }
 
-        private IReadOnlyList<string> GetAllItemsPathInFolder(string Path)
+        private IReadOnlyList<CompressionItemBase> GetAllItemsInFolder(string Path)
         {
-            List<string> Result = new List<string>();
+            string PreprocessedString = Path.Trim('/');
+
+            Path = string.IsNullOrEmpty(PreprocessedString) ? string.Empty : $"{PreprocessedString}/";
+
+            List<CompressionItemBase> Result = new List<CompressionItemBase>();
 
             foreach (ZipEntry Entry in ZipObj)
             {
-                if (Entry.Name.StartsWith(Path, StringComparison.Ordinal))
+                if (Entry.Name.StartsWith(Path))
                 {
                     string RelativePath = Entry.Name;
 
@@ -359,24 +368,26 @@ namespace RX_Explorer
 
                     switch (SplitArray.Length)
                     {
-                        case 1:
+                        case 1 when Result.All((Item) => Item.Path != Entry.Name):
                             {
-                                string ItemPath = $"/{Entry.Name.TrimEnd('/')}";
-
-                                if (Result.All((Item) => Item != ItemPath))
+                                if (Entry.IsDirectory)
                                 {
-                                    Result.Add(ItemPath);
+                                    Result.Add(new CompressionFolder(Entry));
+                                }
+                                else
+                                {
+                                    Result.Add(new CompressionFile(Entry));
                                 }
 
                                 break;
                             }
                         case > 1:
                             {
-                                string ItemPath = $"/{SplitArray[0]}";
+                                string FolderPath = $"{Path}{SplitArray[0]}/";
 
-                                if (Result.All((Item) => Item != ItemPath))
+                                if (Result.All((Item) => Item.Path != FolderPath))
                                 {
-                                    Result.Add(ItemPath);
+                                    Result.Add(new CompressionFolder(FolderPath));
                                 }
 
                                 break;
@@ -392,7 +403,9 @@ namespace RX_Explorer
         {
             EntryList.Clear();
 
-            CurrentPath = Path;
+            string PreprocessedString = Path.Trim('/');
+
+            CurrentPath = string.IsNullOrEmpty(PreprocessedString) ? (Path = string.Empty) : (Path = $"{PreprocessedString}/");
 
             List<CompressionItemBase> Result = new List<CompressionItemBase>();
 
@@ -431,9 +444,15 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case > 1 when Result.All((Item) => Item.Name != SplitArray[0]):
+                        case > 1:
                             {
-                                Result.Add(new CompressionFolder(SplitArray[0]));
+                                string FolderPath = $"{Path}{SplitArray[0]}/";
+
+                                if (Result.All((Item) => Item.Path != FolderPath))
+                                {
+                                    Result.Add(new CompressionFolder(FolderPath));
+                                }
+
                                 break;
                             }
                     }
@@ -565,32 +584,35 @@ namespace RX_Explorer
 
         private void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && !string.IsNullOrWhiteSpace(sender.Text))
             {
-                sender.Items.Clear();
+                AutoSuggestList.Clear();
 
-                foreach (string Path in GetAllItemsPathInFolder(string.Join('/', sender.Text.Split('/', StringSplitOptions.RemoveEmptyEntries).SkipLast(1))).Where((Path) => Path.StartsWith(sender.Text, StringComparison.OrdinalIgnoreCase)))
+                string FolderPath = sender.Text.EndsWith("/") ? sender.Text : string.Join('/', sender.Text.Split('/', StringSplitOptions.RemoveEmptyEntries).SkipLast(1));
+
+                foreach (string Path in GetAllItemsInFolder(FolderPath)
+                                            .OfType<CompressionFolder>()
+                                            .Select((Item) => $"/{Item.Path.Trim('/')}")
+                                            .Where((Path) => Path.StartsWith(sender.Text, StringComparison.OrdinalIgnoreCase)))
                 {
-                    sender.Items.Add(Path);
+                    AutoSuggestList.Add(Path);
                 }
             }
         }
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            AutoSuggestList.Clear();
+
             string QueryText = args.QueryText.Trim('/');
 
-            if (ZipObj.GetEntry(QueryText) is ZipEntry FileEntry)
-            {
-
-            }
-            else if (ZipObj.GetEntry($"{QueryText}/") is ZipEntry DirectoryEntry)
+            if (ZipObj.GetEntry($"{QueryText}/") is ZipEntry DirectoryEntry)
             {
                 DisplayItemsInFolderEntry(DirectoryEntry.Name);
             }
             else
             {
-                if (GetAllItemsPathInFolder(QueryText).Count > 0)
+                if (GetAllItemsInFolder(QueryText).Count > 0)
                 {
                     DisplayItemsInFolderEntry(QueryText);
                 }
@@ -616,70 +638,15 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ControlLoading(true, Globalization.GetString("Progress_Tip_Extracting"));
+                    ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                    long TotalSize = 0;
-                    long CurrentPosition = 0;
-
-                    ConcurrentBag<ZipEntry> ExtractEntryList = new ConcurrentBag<ZipEntry>();
-
-                    await Task.Run(() => Parallel.ForEach(EntryList, (Item) =>
+                    await ExtractCore(EntryList, Dialog.ExtractLocation, async (s, e) =>
                     {
-                        for (int Index = 0; Index < ZipObj.Count; Index++)
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                         {
-                            ZipEntry Entry = ZipObj[Index];
-
-                            if (Entry.Name.StartsWith(Item.Path))
-                            {
-                                ExtractEntryList.Add(Entry);
-                                Interlocked.Add(ref TotalSize, Entry.Size);
-                            }
-                        }
-                    }));
-
-                    foreach (ZipEntry Entry in ExtractEntryList)
-                    {
-                        string TargetPath = Path.Combine(Dialog.ExtractLocation, Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty).Trim('/').Replace("/", @"\"));
-
-                        if (Entry.IsDirectory)
-                        {
-                            if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
-                            {
-                                throw new UnauthorizedAccessException();
-                            }
-                        }
-                        else
-                        {
-                            if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
-                            {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
-                                {
-                                    using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
-                                    using (Stream ZipStream = ZipObj.GetInputStream(Entry))
-                                    {
-                                        await ZipStream.CopyToAsync(Stream, Entry.Size, async (s, e) =>
-                                        {
-                                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                ProBar.Value = (CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize;
-                                            });
-                                        });
-                                    }
-
-                                    CurrentPosition += Entry.Size;
-                                    ProBar.Value = CurrentPosition * 100d / TotalSize;
-                                }
-                                else
-                                {
-                                    throw new UnauthorizedAccessException();
-                                }
-                            }
-                            else
-                            {
-                                throw new UnauthorizedAccessException();
-                            }
-                        }
-                    }
+                            ProBar.Value = e.ProgressPercentage;
+                        });
+                    });
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -711,6 +678,69 @@ namespace RX_Explorer
             finally
             {
                 ControlLoading(false);
+            }
+        }
+
+        private async Task ExtractCore(IEnumerable<CompressionItemBase> ItemList, string ExtractLocation, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            long TotalSize = 0;
+            long CurrentPosition = 0;
+
+            ConcurrentBag<ZipEntry> ExtractEntryList = new ConcurrentBag<ZipEntry>();
+
+            await Task.Run(() => Parallel.ForEach(ItemList, (Item) =>
+            {
+                for (int Index = 0; Index < ZipObj.Count; Index++)
+                {
+                    ZipEntry Entry = ZipObj[Index];
+
+                    if (Entry.Name.StartsWith(Item.Path))
+                    {
+                        ExtractEntryList.Add(Entry);
+                        Interlocked.Add(ref TotalSize, Entry.Size);
+                    }
+                }
+            }));
+
+            foreach (ZipEntry Entry in ExtractEntryList)
+            {
+                string TargetPath = Path.Combine(ExtractLocation, Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty).Trim('/').Replace("/", @"\"));
+
+                if (Entry.IsDirectory)
+                {
+                    if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                }
+                else
+                {
+                    if (await FileSystemStorageItemBase.CreateNewAsync(Path.GetDirectoryName(TargetPath), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                    {
+                        if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
+                        {
+                            using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
+                            using (Stream ZipStream = ZipObj.GetInputStream(Entry))
+                            {
+                                await ZipStream.CopyToAsync(Stream, Entry.Size, (s, e) =>
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize), null));
+                                });
+                            }
+
+                            CurrentPosition += Entry.Size;
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
+                    else
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                }
             }
         }
 
@@ -844,6 +874,241 @@ namespace RX_Explorer
                             Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
                         });
                     }
+                }
+            }
+        }
+
+        private async void CreateNewFile_Click(object sender, RoutedEventArgs e)
+        {
+            NewCompressionItemPickerDialog Dialog = new NewCompressionItemPickerDialog(NewCompressionItemType.File);
+
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+
+                try
+                {
+                    using (Stream FStream = await Dialog.PickedFile.OpenStreamForReadAsync())
+                    {
+                        await Task.Run(() =>
+                        {
+                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+                            ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath}/{Dialog.NewName}");
+                            ZipObj.CommitUpdate();
+                        });
+                    }
+
+                    DisplayItemsInFolderEntry(CurrentPath);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not add a new file to the compressed file");
+
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
+                }
+                finally
+                {
+                    ControlLoading(false);
+                }
+            }
+        }
+
+        private async void CreateNewFolder_Click(object sender, RoutedEventArgs e)
+        {
+            NewCompressionItemPickerDialog Dialog = new NewCompressionItemPickerDialog(NewCompressionItemType.Directory);
+
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+                        ZipObj.AddDirectory($"{CurrentPath}/{Dialog.NewName}/");
+                        ZipObj.CommitUpdate();
+                    });
+
+                    DisplayItemsInFolderEntry(CurrentPath);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not add a new directory to the compressed file");
+
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
+                }
+                finally
+                {
+                    ControlLoading(false);
+                }
+            }
+        }
+
+        private async void Extract_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListViewControl.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(ZipFile.Path), false);
+
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+
+                        await ExtractCore(ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray(), Dialog.ExtractLocation, async (s, e) =>
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                ProBar.Value = e.ProgressPercentage;
+                            });
+                        });
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    LogTracer.Log(ex, "Decompression error");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Decompression error");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                finally
+                {
+                    ControlLoading(false);
+                }
+            }
+        }
+
+        private async void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListViewControl.SelectedItems.Count > 0)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton"),
+                    Content = Globalization.GetString("QueueDialog_DeleteFilesPermanent_Content")
+                };
+
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+
+                    try
+                    {
+                        IReadOnlyList<CompressionItemBase> DeleteList = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToList();
+
+                        await Task.Run(() =>
+                        {
+                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+
+                            ConcurrentBag<ZipEntry> DeleteEntryList = new ConcurrentBag<ZipEntry>();
+
+                            Parallel.ForEach(DeleteList.OfType<CompressionFolder>(), (Item) =>
+                            {
+                                for (int Index = 0; Index < ZipObj.Count; Index++)
+                                {
+                                    ZipEntry Entry = ZipObj[Index];
+
+                                    if (Entry.Name.StartsWith(Item.Path))
+                                    {
+                                        DeleteEntryList.Add(Entry);
+                                    }
+                                }
+                            });
+
+                            foreach (ZipEntry Entry in DeleteEntryList)
+                            {
+                                ZipObj.Delete(Entry);
+                            }
+
+                            foreach (CompressionFile File in DeleteList.OfType<CompressionFile>())
+                            {
+                                ZipObj.Delete(File.Path);
+                            }
+
+                            ZipObj.CommitUpdate();
+                        });
+
+                        DisplayItemsInFolderEntry(CurrentPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not delete file or directory from the compressed file");
+
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        ControlLoading(false);
+                    }
+                }
+            }
+        }
+
+        private async void CopyFullName_Click(object sender, RoutedEventArgs e)
+        {
+            if (ListViewControl.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    Clipboard.Clear();
+                    DataPackage Package = new DataPackage();
+                    Package.SetText(string.Join(Environment.NewLine, ListViewControl.SelectedItems.Cast<CompressionItemBase>().Select((Item) => Item.Name)));
+                    Clipboard.SetContent(Package);
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }

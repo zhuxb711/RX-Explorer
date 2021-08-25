@@ -3192,4 +3192,19 @@ Inkorrekte Namen sind
   <data name="Operate_Text_Save" xml:space="preserve">
     <value>Änderungen speichern</value>
   </data>
+  <data name="Progress_Tip_Processing" xml:space="preserve">
+    <value>Verarbeitung</value>
+  </data>
+  <data name="QueueDialog_CouldNotProcess_Content" xml:space="preserve">
+    <value>Der angeforderte Vorgang kann nicht abgeschlossen werden</value>
+  </data>
+  <data name="NewCompressionItemNameBox.Header" xml:space="preserve">
+    <value>Bitte geben Sie den Dateinamen ein</value>
+  </data>
+  <data name="NewCompressionItemPickerDialog.Title" xml:space="preserve">
+    <value>Datei oder Ordner erstellen</value>
+  </data>
+  <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
+    <value>Wählen Sie eine Datei aus</value>
+  </data>
 </root>

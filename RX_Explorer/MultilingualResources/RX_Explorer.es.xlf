@@ -4236,6 +4236,26 @@ Las denominaciones no válidas son:
           <source>Save changes</source>
           <target state="translated">Guardar cambios</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_Processing" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">Procesando</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotProcess_Content" translate="yes" xml:space="preserve">
+          <source>The requested operation can not be completed</source>
+          <target state="translated">La operación solicitada no se puede completar</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemNameBox.Header" translate="yes" xml:space="preserve">
+          <source>Please enter the file name</source>
+          <target state="translated">Ingrese el nombre del archivo</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickerDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create file or folder</source>
+          <target state="translated">Crear archivo o carpeta</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickFile.Content" translate="yes" xml:space="preserve">
+          <source>Pick a file</source>
+          <target state="translated">Elige un archivo</target>
+        </trans-unit>
       </group>
     </body>
   </file>

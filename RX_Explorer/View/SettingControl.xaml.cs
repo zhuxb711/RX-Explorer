@@ -2941,11 +2941,25 @@ namespace RX_Explorer
             }
         }
 
-        private void CopyQQ_Click(object sender, RoutedEventArgs e)
+        private async void CopyQQ_Click(object sender, RoutedEventArgs e)
         {
-            DataPackage Package = new DataPackage();
-            Package.SetText("937294538");
-            Clipboard.SetContent(Package);
+            try
+            {
+                DataPackage Package = new DataPackage();
+                Package.SetText("937294538");
+                Clipboard.SetContent(Package);
+            }
+            catch
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+            }
         }
 
         private async void AQSGuide_Click(object sender, RoutedEventArgs e)

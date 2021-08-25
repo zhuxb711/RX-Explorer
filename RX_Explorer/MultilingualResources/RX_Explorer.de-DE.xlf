@@ -4236,6 +4236,26 @@ Inkorrekte Namen sind
           <source>Save changes</source>
           <target state="translated">Änderungen speichern</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_Processing" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">Verarbeitung</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotProcess_Content" translate="yes" xml:space="preserve">
+          <source>The requested operation can not be completed</source>
+          <target state="translated">Der angeforderte Vorgang kann nicht abgeschlossen werden</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemNameBox.Header" translate="yes" xml:space="preserve">
+          <source>Please enter the file name</source>
+          <target state="translated">Bitte geben Sie den Dateinamen ein</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickerDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create file or folder</source>
+          <target state="translated">Datei oder Ordner erstellen</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickFile.Content" translate="yes" xml:space="preserve">
+          <source>Pick a file</source>
+          <target state="translated">Wählen Sie eine Datei aus</target>
+        </trans-unit>
       </group>
     </body>
   </file>

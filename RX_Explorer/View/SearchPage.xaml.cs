@@ -501,13 +501,27 @@ namespace RX_Explorer
             }
         }
 
-        private void CopyPath_Click(object sender, RoutedEventArgs e)
+        private async void CopyPath_Click(object sender, RoutedEventArgs e)
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase SelectItem)
             {
-                DataPackage Package = new DataPackage();
-                Package.SetText(SelectItem.Path);
-                Clipboard.SetContent(Package);
+                try
+                {
+                    DataPackage Package = new DataPackage();
+                    Package.SetText(SelectItem.Path);
+                    Clipboard.SetContent(Package);
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
             }
         }
 

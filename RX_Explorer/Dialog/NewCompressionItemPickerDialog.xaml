@@ -1,0 +1,31 @@
+﻿<Cls:QueueContentDialog xmlns:Cls="using:RX_Explorer.Class"
+                        x:Class="RX_Explorer.Dialog.NewCompressionItemPickerDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        mc:Ignorable="d"
+                        x:Uid="NewCompressionItemPickerDialog"
+                        Title="新建文件或文件夹"
+                        PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        IsPrimaryButtonEnabled="False">
+
+    <RelativePanel Width="380">
+        <TextBox Header="请输入文件名"
+                 x:Uid="NewCompressionItemNameBox"
+                 RelativePanel.AlignBottomWithPanel="True"
+                 RelativePanel.AlignLeftWithPanel="True"
+                 RelativePanel.LeftOf="PickFile"
+                 Name="NameBox"
+                 TextChanged="NameBox_TextChanged"/>
+        <Button Grid.Column="1"
+                Content="选择文件"
+                Margin="5,0,0,0"
+                Name="PickFile"
+                x:Uid="NewCompressionItemPickFile"
+                RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True"
+                Click="PickFile_Click"/>
+    </RelativePanel>
+</Cls:QueueContentDialog>

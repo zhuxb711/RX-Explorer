@@ -3297,4 +3297,19 @@ Invalid names include
   <data name="Operate_Text_Save" xml:space="preserve">
     <value>Save changes</value>
   </data>
+  <data name="Progress_Tip_Processing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="QueueDialog_CouldNotProcess_Content" xml:space="preserve">
+    <value>The requested operation can not be completed</value>
+  </data>
+  <data name="NewCompressionItemNameBox.Header" xml:space="preserve">
+    <value>Please enter the file name</value>
+  </data>
+  <data name="NewCompressionItemPickerDialog.Title" xml:space="preserve">
+    <value>Create file or folder</value>
+  </data>
+  <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
+    <value>Pick a file</value>
+  </data>
 </root>

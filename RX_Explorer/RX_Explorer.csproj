@@ -14,7 +14,7 @@
     <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
     <AppxDefaultResourceQualifiers>Language=en-US;fr-FR;zh-Hans;zh-Hant;es;de-DE</AppxDefaultResourceQualifiers>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.20348.0</TargetPlatformVersion>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -172,6 +172,7 @@
     <Compile Include="Class\CompressionUtil.cs" />
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
+    <Compile Include="Class\CustomStaticDataSource.cs" />
     <Compile Include="Class\DisposableObservableCollection.cs" />
     <Compile Include="Class\DriveChangedDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
@@ -236,6 +237,9 @@
     </Compile>
     <Compile Include="Dialog\KeyboardShortcutGuideDialog.xaml.cs">
       <DependentUpon>KeyboardShortcutGuideDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\NewCompressionItemPickerDialog.xaml.cs">
+      <DependentUpon>NewCompressionItemPickerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
@@ -619,6 +623,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\NewCompressionItemPickerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\PdfPasswordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -899,7 +907,7 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="WindowsDesktop, Version=10.0.20348.0">
+    <SDKReference Include="WindowsDesktop, Version=10.0.19041.0">
       <Name>Windows Desktop Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>

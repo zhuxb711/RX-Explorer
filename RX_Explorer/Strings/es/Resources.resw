@@ -3192,4 +3192,19 @@ Las denominaciones no válidas son:
   <data name="Operate_Text_Save" xml:space="preserve">
     <value>Guardar cambios</value>
   </data>
+  <data name="Progress_Tip_Processing" xml:space="preserve">
+    <value>Procesando</value>
+  </data>
+  <data name="QueueDialog_CouldNotProcess_Content" xml:space="preserve">
+    <value>La operación solicitada no se puede completar</value>
+  </data>
+  <data name="NewCompressionItemNameBox.Header" xml:space="preserve">
+    <value>Ingrese el nombre del archivo</value>
+  </data>
+  <data name="NewCompressionItemPickerDialog.Title" xml:space="preserve">
+    <value>Crear archivo o carpeta</value>
+  </data>
+  <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
+    <value>Elige un archivo</value>
+  </data>
 </root>

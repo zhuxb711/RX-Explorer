@@ -3192,4 +3192,19 @@
   <data name="Operate_Text_Save" xml:space="preserve">
     <value>保存更改</value>
   </data>
+  <data name="Progress_Tip_Processing" xml:space="preserve">
+    <value>正在处理</value>
+  </data>
+  <data name="QueueDialog_CouldNotProcess_Content" xml:space="preserve">
+    <value>请求的操作无法完成</value>
+  </data>
+  <data name="NewCompressionItemNameBox.Header" xml:space="preserve">
+    <value>请输入文件名</value>
+  </data>
+  <data name="NewCompressionItemPickerDialog.Title" xml:space="preserve">
+    <value>新建文件或文件夹</value>
+  </data>
+  <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
+    <value>选择文件</value>
+  </data>
 </root>

@@ -4238,6 +4238,26 @@ Les noms non valides incluent
           <source>Save changes</source>
           <target state="translated">Sauvegarder les modifications</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_Processing" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">En traitement</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotProcess_Content" translate="yes" xml:space="preserve">
+          <source>The requested operation can not be completed</source>
+          <target state="translated">L'opération demandée ne peut pas être terminée</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemNameBox.Header" translate="yes" xml:space="preserve">
+          <source>Please enter the file name</source>
+          <target state="translated">Veuillez saisir le nom du fichier</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickerDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create file or folder</source>
+          <target state="translated">Créer un fichier ou un dossier</target>
+        </trans-unit>
+        <trans-unit id="NewCompressionItemPickFile.Content" translate="yes" xml:space="preserve">
+          <source>Pick a file</source>
+          <target state="translated">Choisissez un fichier</target>
+        </trans-unit>
       </group>
     </body>
   </file>
