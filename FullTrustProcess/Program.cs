@@ -1553,10 +1553,13 @@ namespace FullTrustProcess
                     {
                         StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
-                        using (Process Process = Process.Start(RestoreFile.Path))
+                        using (Process UnregisterProcess = new Process())
                         {
-                            SetWindowsZPosition(Process);
-                            Process.WaitForExit();
+                            UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
+                            UnregisterProcess.StartInfo.UseShellExecute = true;
+                            UnregisterProcess.Start();
+                            SetWindowsZPosition(UnregisterProcess);
+                            UnregisterProcess.WaitForExit();
                         }
 
                         try

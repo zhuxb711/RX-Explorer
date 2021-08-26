@@ -9,6 +9,7 @@
       xmlns:local="using:RX_Explorer"
       xmlns:Data="using:Windows.UI.Xaml.Data"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:Custom="using:RX_Explorer.CustomControl"
       mc:Ignorable="d"
       Background="Transparent">
 
@@ -60,7 +61,6 @@
 
         <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
                                Placement="RightEdgeAlignedTop"
-                               AlwaysExpanded="True"
                                Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -174,7 +174,6 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Opening="FileFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
@@ -396,36 +395,36 @@
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="DecompressionOptionFlyout"
                                     Opening="DecompressionOptionFlyout_Opening">
-                            <MenuFlyoutItem Text="解压选项..."
+                            <Custom:MenuFlyoutItemWithImage Text="解压选项..."
                                             Name="DecompressOption"
                                             x:Uid="DecompressOption"
                                             MinWidth="150"
                                             MaxWidth="300"
                                             Click="DecompressOption_Click">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="解压到此文件夹"
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Text="解压到此文件夹"
                                             Click="Decompression_Click"
                                             x:Uid="DecompressHere"
                                             MinWidth="150"
                                             MaxWidth="300">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem Click="Decompression_Click"
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Click="Decompression_Click"
                                             x:Name="DecompressionOption2"
                                             MinWidth="150"
                                             MaxWidth="300">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
@@ -439,7 +438,6 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Opening="MixedFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
@@ -551,37 +549,37 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="MixDecompressionOptionFlyout">
-                            <MenuFlyoutItem Text="解压选项..."
+                            <Custom:MenuFlyoutItemWithImage Text="解压选项..."
                                                             Name="MixDecompressOption"
                                                             x:Uid="DecompressOption"
                                                             MinWidth="150"
                                                             MaxWidth="300"
                                                             Click="MixDecompressOption_Click">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="解压到此文件夹"
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Text="解压到此文件夹"
                                                             Click="MixDecompression_Click"
                                                             x:Uid="DecompressHere"
                                                             MinWidth="150"
                                                             MaxWidth="300">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="解压到各自的文件夹"
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Text="解压到各自的文件夹"
                                                             Click="MixDecompression_Click"
                                                             x:Name="MixDecompressIndie"
                                                             MinWidth="150"
                                                             MaxWidth="300">
-                                <MenuFlyoutItem.Icon>
+                                <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
@@ -589,7 +587,6 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Closing="CommandBarFlyout_Closing"
                                Closed="CommandBarFlyout_Closed">
@@ -759,7 +756,6 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop"
                                Opening="EmptyFlyout_Opening"
                                Closing="CommandBarFlyout_Closing">
@@ -914,15 +910,15 @@
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_ExpandToCurrentFolder')}"
+                <Custom:AppBarButtonWithImage Label="{x:Bind Cls:Globalization.GetString('Operate_Text_ExpandToCurrentFolder')}"
                                               x:Name="ExpandToCurrentFolder"
                                               Width="300"
                                               Click="ExpandToCurrentFolder_Click">
-                    <AppBarButton.Icon>
+                    <Custom:AppBarButtonWithImage.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xEB91;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
+                    </Custom:AppBarButtonWithImage.Icon>
+                </Custom:AppBarButtonWithImage>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Width="300"

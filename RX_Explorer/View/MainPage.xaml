@@ -57,7 +57,6 @@
         </DataTemplate>
 
         <muxc:CommandBarFlyout x:Name="NavigationViewFlyout"
-                               AlwaysExpanded="True"
                                Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('CustomText')}"

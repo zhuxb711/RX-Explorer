@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
@@ -2507,8 +2508,7 @@ namespace RX_Explorer
                         HorizontalAlignment = HorizontalAlignment.Stretch,
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalAlignment = VerticalAlignment.Stretch,
-                        VerticalContentAlignment = VerticalAlignment.Stretch,
-                        Style = Application.Current.Resources["BladeBugFixForWinUI25"] as Style
+                        VerticalContentAlignment = VerticalAlignment.Stretch
                     };
 
                     Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
@@ -3024,21 +3024,18 @@ namespace RX_Explorer
         {
             if (sender is MenuFlyout Flyout)
             {
-                foreach (MenuFlyoutItem Item in Flyout.Items)
+                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
                 {
                     Item.Click -= SendToItem_Click;
                 }
 
                 Flyout.Items.Clear();
 
-                MenuFlyoutItem SendDocumentItem = new MenuFlyoutItem
+                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
                 {
                     Name = "SendDocumentItem",
                     Text = Globalization.GetString("SendTo_Document"),
-                    Icon = new ImageIcon
-                    {
-                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico"))
-                    },
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -3046,14 +3043,11 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
+                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
                 {
                     Name = "SendLinkItem",
                     Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    Icon = new ImageIcon
-                    {
-                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
-                    },
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -3063,14 +3057,11 @@ namespace RX_Explorer
 
                 foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
-                    MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
+                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
                     {
                         Name = "SendRemovableItem",
                         Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
-                        Icon = new ImageIcon
-                        {
-                            Source = RemovableDrive.Thumbnail
-                        },
+                        ImageIcon = RemovableDrive.Thumbnail,
                         MinWidth = 150,
                         MaxWidth = 350,
                         Tag = RemovableDrive.Path
@@ -3086,7 +3077,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (sender is MenuFlyoutItem Item)
+            if (sender is FrameworkElement Item)
             {
                 if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
                 {

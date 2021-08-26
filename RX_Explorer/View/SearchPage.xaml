@@ -11,7 +11,6 @@
       Background="Transparent">
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -73,7 +72,6 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
-                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">
