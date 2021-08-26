@@ -3312,4 +3312,7 @@ Invalid names include
   <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
     <value>Pick a file</value>
   </data>
+  <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
+    <value>Built-in Zip viewer</value>
+  </data>
 </root>

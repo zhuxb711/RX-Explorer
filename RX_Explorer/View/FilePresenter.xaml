@@ -1705,8 +1705,6 @@
                                                         <ColumnDefinition Width="2.5*" />
                                                         <ColumnDefinition Width="2*" />
                                                         <ColumnDefinition Width="1.5*" />
-                                                        <ColumnDefinition MinWidth="50"
-                                                                          Width="*" />
                                                     </Grid.ColumnDefinitions>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
@@ -1788,10 +1786,6 @@
                                                                Grid.Column="3"
                                                                x:Phase="0"
                                                                PointerPressed="GetFocus_PointerPressed" />
-                                                    <TextBlock VerticalAlignment="Stretch"
-                                                               HorizontalAlignment="Stretch"
-                                                               Grid.Column="4"
-                                                               Name="EmptyTextblock" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
@@ -1803,8 +1797,6 @@
                                                         <ColumnDefinition Width="2.5*" />
                                                         <ColumnDefinition Width="2*" />
                                                         <ColumnDefinition Width="1.5*" />
-                                                        <ColumnDefinition MinWidth="50"
-                                                                          Width="*" />
                                                     </Grid.ColumnDefinitions>
                                                     <RelativePanel Grid.Column="0"
                                                                    VerticalAlignment="Stretch"
@@ -2308,13 +2300,6 @@
                                                             </Button.Flyout>
                                                         </Button>
                                                     </RelativePanel>
-                                                    <Button VerticalAlignment="Stretch"
-                                                            HorizontalAlignment="Stretch"
-                                                            Grid.Column="4"
-                                                            IsDoubleTapEnabled="True"
-                                                            DoubleTapped="ListHeader_DoubleTapped"
-                                                            Background="{ThemeResource ElementAccentAcrylicBrush}"
-                                                            Style="{StaticResource ListHeaderButtonStyle}" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.HeaderTemplate>

@@ -4258,6 +4258,10 @@ Invalid names include
           <source>Pick a file</source>
           <target state="translated">選擇文件</target>
         </trans-unit>
+        <trans-unit id="BuildIn_CompressionViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in Zip viewer</source>
+          <target state="translated">內置Zip查看器</target>
+        </trans-unit>
       </group>
     </body>
   </file>

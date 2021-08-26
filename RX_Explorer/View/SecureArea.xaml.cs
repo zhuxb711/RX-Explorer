@@ -592,7 +592,7 @@ namespace RX_Explorer
                                     SecureGridView.SelectedItem = Item;
                                 }
 
-                                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                if (e.OriginalSource is ListViewItemPresenter)
                                 {
                                     SelectionExtention.Enable();
                                 }

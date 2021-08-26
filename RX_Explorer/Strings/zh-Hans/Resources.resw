@@ -3207,4 +3207,7 @@
   <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
     <value>选择文件</value>
   </data>
+  <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
+    <value>内置Zip查看器</value>
+  </data>
 </root>

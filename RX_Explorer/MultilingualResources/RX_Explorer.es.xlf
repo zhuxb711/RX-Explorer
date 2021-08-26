@@ -4256,6 +4256,10 @@ Las denominaciones no válidas son:
           <source>Pick a file</source>
           <target state="translated">Elige un archivo</target>
         </trans-unit>
+        <trans-unit id="BuildIn_CompressionViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in Zip viewer</source>
+          <target state="translated">Visor Zip incorporado</target>
+        </trans-unit>
       </group>
     </body>
   </file>

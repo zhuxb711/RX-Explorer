@@ -3207,4 +3207,7 @@ Inkorrekte Namen sind
   <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
     <value>Wählen Sie eine Datei aus</value>
   </data>
+  <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
+    <value>Integrierter Zip-Viewer</value>
+  </data>
 </root>

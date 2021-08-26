@@ -640,13 +640,14 @@ namespace RX_Explorer
         {
             CurrentTabItem.Header = e.Content switch
             {
-                PhotoViewer _ => Globalization.GetString("BuildIn_PhotoViewer_Description"),
-                PdfReader _ => Globalization.GetString("BuildIn_PdfReader_Description"),
-                MediaPlayer _ => Globalization.GetString("BuildIn_MediaPlayer_Description"),
-                TextViewer _ => Globalization.GetString("BuildIn_TextViewer_Description"),
-                CropperPage _ => Globalization.GetString("BuildIn_CropperPage_Description"),
-                SearchPage _ => Globalization.GetString("BuildIn_SearchPage_Description"),
-                _ => string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Name) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentPresenter?.CurrentFolder?.Name,
+                PhotoViewer => Globalization.GetString("BuildIn_PhotoViewer_Description"),
+                PdfReader => Globalization.GetString("BuildIn_PdfReader_Description"),
+                MediaPlayer => Globalization.GetString("BuildIn_MediaPlayer_Description"),
+                TextViewer => Globalization.GetString("BuildIn_TextViewer_Description"),
+                CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
+                SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
+                CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
+                _ => string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Name) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentPresenter.CurrentFolder.Name,
             };
         }
 

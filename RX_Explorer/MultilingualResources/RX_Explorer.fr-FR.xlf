@@ -4258,6 +4258,10 @@ Les noms non valides incluent
           <source>Pick a file</source>
           <target state="translated">Choisissez un fichier</target>
         </trans-unit>
+        <trans-unit id="BuildIn_CompressionViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in Zip viewer</source>
+          <target state="translated">Visionneuse zip intégrée</target>
+        </trans-unit>
       </group>
     </body>
   </file>

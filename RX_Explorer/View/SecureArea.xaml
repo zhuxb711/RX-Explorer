@@ -17,19 +17,23 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
                               Label="导出"
+                              MinWidth="200"
                               x:Uid="SecureAreaExportButton"
                               Click="ExportFile_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
+                              MinWidth="200"
                               x:Uid="SecureAreaDeleteButton"
                               Click="DeleteFile_Click" />
                 <AppBarButton Icon="Rename"
                               Label="重命名"
+                              MinWidth="200"
                               x:Uid="SecureAreaRenameButton"
                               x:Name="RenameFile"
                               Click="RenameFile_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
+                              MinWidth="200"
                               x:Uid="SecureAreaProperty"
                               x:Name="Property"
                               Click="Property_Click" />
@@ -40,10 +44,12 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
                               Label="导出"
+                              MinWidth="200"
                               x:Uid="SecureAreaExportButton"
                               Click="ExportFile_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
+                              MinWidth="200"
                               x:Uid="SecureAreaDeleteButton"
                               Click="DeleteFile_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -53,6 +59,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加文件"
+                              MinWidth="200"
                               x:Uid="SecureAreaAddFileButton"
                               Click="AddFile_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>

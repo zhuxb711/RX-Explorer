@@ -3207,4 +3207,7 @@ Las denominaciones no válidas son:
   <data name="NewCompressionItemPickFile.Content" xml:space="preserve">
     <value>Elige un archivo</value>
   </data>
+  <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
+    <value>Visor Zip incorporado</value>
+  </data>
 </root>

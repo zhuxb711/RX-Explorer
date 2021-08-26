@@ -4256,6 +4256,10 @@ Inkorrekte Namen sind
           <source>Pick a file</source>
           <target state="translated">Wählen Sie eine Datei aus</target>
         </trans-unit>
+        <trans-unit id="BuildIn_CompressionViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in Zip viewer</source>
+          <target state="translated">Integrierter Zip-Viewer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

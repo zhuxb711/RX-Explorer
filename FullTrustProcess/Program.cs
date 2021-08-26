@@ -1558,6 +1558,7 @@ namespace FullTrustProcess
                             UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
                             UnregisterProcess.StartInfo.UseShellExecute = true;
                             UnregisterProcess.Start();
+
                             SetWindowsZPosition(UnregisterProcess);
                             UnregisterProcess.WaitForExit();
                         }
@@ -1589,8 +1590,9 @@ namespace FullTrustProcess
                                 Value.Add("Success", string.Empty);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            LogTracer.Log(ex, "Could not check the registry");
                             Value.Add("Success", string.Empty);
                         }
 
