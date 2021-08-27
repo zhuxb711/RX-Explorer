@@ -10,7 +10,7 @@ namespace FullTrustProcess
 {
     public class NamedPipeControllerBase : IDisposable
     {
-        protected NamedPipeClientStream PipeStream { get; }
+        protected NamedPipeClientStream PipeStream { get; private set; }
 
         public bool IsConnected
         {
@@ -19,6 +19,8 @@ namespace FullTrustProcess
                 return (PipeStream?.IsConnected).GetValueOrDefault();
             }
         }
+
+        private bool IsDisposed;
 
         private string GetActualNamedPipeStringFromUWP(uint ProcessId, string PipeName)
         {
@@ -94,10 +96,15 @@ namespace FullTrustProcess
             }
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            GC.SuppressFinalize(this);
-            PipeStream.Dispose();
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                PipeStream?.Dispose();
+                PipeStream = null;
+                GC.SuppressFinalize(this);
+            }
         }
 
         ~NamedPipeControllerBase()

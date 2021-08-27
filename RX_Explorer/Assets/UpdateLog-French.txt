@@ -1,4 +1,53 @@
 ﻿*****
+###Quoi de neuf dans la version 7.0.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####La page de recherche peut glisser-déposer pour copier et déplacer des fichiers maintenant
+
+>#####Ajout de la prise en charge du glisser-déposer de fichiers ou de liens depuis le navigateur
+
+>#####Faites glisser et restez dans la zone "Bibliothèques" ou "Périphériques", il entrera automatiquement dans l'emplacement correspondant
+
+>#####Ajout d'une visionneuse Zip intégrée, permettant aux utilisateurs d'ajouter, de supprimer des fichiers ou de décompresser partiellement des fichiers
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Optimisation de l'effet de l'animation de démarrage
+
+>#####«Démarrage rapide» prend désormais en charge à nouveau le repositionnement
+
+>#####Lorsque vous appuyez sur "Ouvrir l'emplacement du fichier" dans la page de recherche, il s'ouvrira dans une nouvelle page à onglet
+
+>#####Ajout d'un indicateur de tri à la liste des corbeilles
+
+#####Amélioration des performances
+
+>#####Résolution du problème de logique de recherche et amélioration de la vitesse
+
+>#####Résolution d'un problème qui pouvait empêcher l'interface utilisateur de répondre lors de la recherche avec le moteur Tout et renvoyer un grand nombre de résultats
+
+>#####Amélioration du mécanisme de planification et de communication du processus auxiliaire
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel les fichiers avec des chemins vides peuvent toujours être reconnus par les tâches de copie et de déplacement
+
+>#####Correction du problème selon lequel la page de recherche ne pouvait pas sélectionner les fichiers
+
+>#####Correction du problème pouvant provoquer un plantage lorsque l'option de décompression apparaît
+
+>#####Correction du problème de toujours renvoyer "aucun résultat" lors de la recherche de tous les lecteurs
+
+>#####Correction du problème selon lequel l'historique de recherche n'était pas enregistré lors de la recherche via l'option de recherche contextuelle
+
+>#####Correction du problème selon lequel le "Type de fichier" pouvait ne pas s'afficher correctement après l'ouverture de la fenêtre des propriétés d'un fichier sans suffixe
+
+>#####Correction du problème de l'impossibilité de créer des fichiers .xlsx/.rtf/.zip
+
+>#####Correction du problème pouvant provoquer un plantage si vous modifiez rapidement les noms de fichiers lors du renommage de plusieurs fichiers
+
+*****
 ###Quoi de neuf dans la version 6.9.7.0
 
 #####Mise à jour des fonctionnalités

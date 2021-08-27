@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
             {
                 if (ModifiedTime == DateTimeOffset.FromFileTime(0))
                 {
-                    return Globalization.GetString("UnknownText");
+                    return string.Empty;
                 }
                 else
                 {

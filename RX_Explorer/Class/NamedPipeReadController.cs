@@ -11,7 +11,6 @@ namespace RX_Explorer.Class
     {
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-        private bool ExitSignal = false;
 
         public static bool TryCreateNamedPipe(out NamedPipeReadController Controller)
         {
@@ -39,31 +38,24 @@ namespace RX_Explorer.Class
 
                 using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 1024, true))
                 {
-                    while (!ExitSignal && PipeStream.IsConnected)
+                    while (IsConnected)
                     {
-                        try
-                        {
-                            string ReadText = Reader.ReadLine();
+                        string ReadText = Reader.ReadLine();
 
-                            if (!string.IsNullOrEmpty(ReadText))
-                            {
-                                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
-                            }
-                        }
-                        catch (IOException)
+                        if (!string.IsNullOrEmpty(ReadText))
                         {
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "An exception was threw when receiving pipeline data");
+                            OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not receive pipeline data");
+                LogTracer.Log(ex, "An exception was threw when receiving pipeline data");
+            }
+            finally
+            {
+                Dispose();
             }
         }
 
@@ -75,12 +67,6 @@ namespace RX_Explorer.Class
                 IsBackground = true
             };
             ProcessThread.Start();
-        }
-
-        public override void Dispose()
-        {
-            ExitSignal = true;
-            base.Dispose();
         }
     }
 }

@@ -1,4 +1,53 @@
 ﻿*****
+###What's new in Ver.7.0.0.0
+
+#####Feature update
+
+>#####Search page can drag and drop to copy and move files now
+
+>#####Added support for dragging and dropping files or links from the browser
+
+>#####Drag and stay in the "Libraries" or "Devices" area, it will automatically enter the corresponding location
+
+>#####Added a built-in Zip viewer, allowing users to add, delete files or partially decompress files
+
+#####UI update
+
+>#####Optimized the effect of the startup animation
+
+>#####"Quick Start" now supports reposition again
+
+>#####When you press "Open File Location" in the search page, it will open in a new tab page
+
+>#####Added a sort indicator to the list of Recycle bins
+
+#####Performance improvement
+
+>#####Resolved the problem of search logic and improves the speed
+
+>#####Resolved an issue that may cause the UI to stop responding when searching with the Everything engine and returning a large number of results
+
+>#####Improved the scheduling and communication mechanism of the auxiliary process
+
+#####Bug fix
+
+>#####Fixed the problem that files with empty paths can still be recognized by copy and move tasks
+
+>#####Fixed the problem that the search page could not box select files
+
+>#####Fixed the problem that may cause a crash when the decompression option pops up
+
+>#####Fixed the problem of always returning "no results" when searching all drives
+
+>#####Fixed the problem that search history will not be saved when searching through the pop-up search option
+
+>#####Fixed the problem that the "File Type" may not be displayed correctly after opening the properties window of a file with no suffix
+
+>#####Fixed the problem of not being able to create .xlsx/.rtf/.zip files
+
+>#####Fixed the problem that may cause a crash if you quickly modify file names when renaming multiple files
+
+*****
 ###What's new in Ver.6.9.7.0
 
 #####Feature update

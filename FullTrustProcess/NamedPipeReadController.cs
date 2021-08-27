@@ -11,7 +11,6 @@ namespace FullTrustProcess
     {
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-        private bool ExitSignal = false;
 
         private void ReadProcess()
         {
@@ -21,20 +20,13 @@ namespace FullTrustProcess
                 {
                     using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 1024, true))
                     {
-                        while (!ExitSignal && PipeStream.IsConnected)
+                        while (IsConnected)
                         {
-                            try
-                            {
-                                string ReadText = Reader.ReadLine();
+                            string ReadText = Reader.ReadLine();
 
-                                if (!string.IsNullOrEmpty(ReadText))
-                                {
-                                    OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
-                                }
-                            }
-                            catch (Exception ex)
+                            if (!string.IsNullOrEmpty(ReadText))
                             {
-                                LogTracer.Log(ex, "An exception was threw when receiving pipeline data");
+                                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                             }
                         }
                     }
@@ -43,6 +35,10 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not receive pipeline data");
+            }
+            finally
+            {
+                Dispose();
             }
         }
 
@@ -54,12 +50,6 @@ namespace FullTrustProcess
                 IsBackground = true
             };
             ProcessThread.Start();
-        }
-
-        public override void Dispose()
-        {
-            ExitSignal = true;
-            base.Dispose();
         }
     }
 }

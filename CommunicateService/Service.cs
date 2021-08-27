@@ -3,7 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
@@ -15,7 +14,8 @@ namespace CommunicateService
     public sealed class Service : IBackgroundTask
     {
         private BackgroundTaskDeferral Deferral;
-        private static readonly ConcurrentDictionary<AppServiceConnection, AppServiceConnection> PairedConnections = new ConcurrentDictionary<AppServiceConnection, AppServiceConnection>();
+        private static readonly ConcurrentDictionary<AppServiceConnection, AppServiceConnection> FullTrustConnections = new ConcurrentDictionary<AppServiceConnection, AppServiceConnection>();
+        private static readonly ConcurrentDictionary<AppServiceConnection, AppServiceConnection> UWPConnections = new ConcurrentDictionary<AppServiceConnection, AppServiceConnection>();
         private static readonly Queue<AppServiceConnection> ClientWaitingQueue = new Queue<AppServiceConnection>();
         private static readonly Queue<AppServiceConnection> ServerWaitingrQueue = new Queue<AppServiceConnection>();
         private static readonly object Locker = new object();
@@ -46,7 +46,8 @@ namespace CommunicateService
                                     {
                                         if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
                                         {
-                                            PairedConnections.TryAdd(ClientConnection, IncomeConnection);
+                                            UWPConnections.AddOrUpdate(ClientConnection, IncomeConnection, (_, _) => IncomeConnection);
+                                            FullTrustConnections.AddOrUpdate(IncomeConnection, ClientConnection, (_, _) => ClientConnection);
                                         }
                                         else
                                         {
@@ -59,7 +60,8 @@ namespace CommunicateService
                                     {
                                         if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
                                         {
-                                            PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                            UWPConnections.AddOrUpdate(IncomeConnection, ServerConnection, (_, _) => ServerConnection);
+                                            FullTrustConnections.AddOrUpdate(ServerConnection, IncomeConnection, (_, _) => IncomeConnection);
                                         }
                                         else
                                         {
@@ -86,7 +88,7 @@ namespace CommunicateService
 
                 AppServiceConnection ServerConnection = null;
 
-                while (!PairedConnections.TryGetValue(sender, out ServerConnection) && (DateTimeOffset.Now - StartTime).TotalMilliseconds < 5000)
+                while (!UWPConnections.TryGetValue(sender, out ServerConnection) && (DateTimeOffset.Now - StartTime).TotalMilliseconds < 5000)
                 {
                     if (Spin.NextSpinWillYield)
                     {
@@ -130,37 +132,36 @@ namespace CommunicateService
         {
             try
             {
-                if ((sender.TriggerDetails as AppServiceTriggerDetails)?.AppServiceConnection is AppServiceConnection DisConnection)
+                if (sender.TriggerDetails is AppServiceTriggerDetails Details)
                 {
-                    try
+                    if (Details.AppServiceConnection is AppServiceConnection DisConnection)
                     {
-                        DisConnection.RequestReceived -= Connection_RequestReceived;
-
-                        lock (Locker)
+                        try
                         {
-                            ValueSet Value = new ValueSet
-                            {
-                                { "CommandType", Enum.GetName(typeof(CommandType), CommandType.AppServiceCancelled) },
-                                { "Reason", Enum.GetName(typeof(BackgroundTaskCancellationReason), reason) }
-                            };
+                            DisConnection.RequestReceived -= Connection_RequestReceived;
 
-                            if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
+                            lock (Locker)
                             {
-                                Task.WaitAny(ServerConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
-                            }
-                            else if (PairedConnections.FirstOrDefault((Con) => Con.Value == DisConnection).Key is AppServiceConnection ClientConnection)
-                            {
-                                if (PairedConnections.TryRemove(ClientConnection, out _))
+                                ValueSet Value = new ValueSet
                                 {
-                                    Task.WaitAny(ClientConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
-                                    ClientConnection.Dispose();
+                                    { "CommandType", Enum.GetName(typeof(CommandType), CommandType.AppServiceCancelled) },
+                                    { "Reason", Enum.GetName(typeof(BackgroundTaskCancellationReason), reason) }
+                                };
+
+                                if (FullTrustConnections.TryRemove(DisConnection, out AppServiceConnection UWPConnection))
+                                {
+                                    Task.WaitAny(UWPConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
+                                }
+                                else if (UWPConnections.TryRemove(DisConnection, out AppServiceConnection FullTrustConnection))
+                                {
+                                    Task.WaitAny(FullTrustConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
                                 }
                             }
                         }
-                    }
-                    finally
-                    {
-                        DisConnection.Dispose();
+                        finally
+                        {
+                            DisConnection.Dispose();
+                        }
                     }
                 }
             }

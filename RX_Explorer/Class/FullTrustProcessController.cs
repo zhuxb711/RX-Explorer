@@ -79,6 +79,8 @@ namespace RX_Explorer.Class
 
         private readonly AppServiceConnection Connection;
 
+        private readonly TaskCompletionSource<bool> IdentityTaskCompletionSource;
+
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
         private static readonly ConcurrentQueue<FullTrustProcessController> AvailableControllers = new ConcurrentQueue<FullTrustProcessController>();
@@ -144,6 +146,8 @@ namespace RX_Explorer.Class
 
             Connection.RequestReceived += Connection_RequestReceived;
             Connection.ServiceClosed += Connection_ServiceClosed;
+
+            IdentityTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
         private static void Current_Resuming(object sender, object e)
@@ -335,16 +339,18 @@ namespace RX_Explorer.Class
                     case CommandType.Identity:
                         {
                             await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
+                            IdentityTaskCompletionSource.TrySetResult(true);
                             break;
                         }
                     case CommandType.AppServiceCancelled:
                         {
-                            if (!(PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                                || !(PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                                || !(PipeProgressReadController?.IsConnected).GetValueOrDefault())
+                            LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
+
+                            if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                                   && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()))
                             {
                                 Dispose();
-                                LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
                                 AppServiceConnectionLost?.Invoke(this, null);
                             }
 
@@ -377,13 +383,18 @@ namespace RX_Explorer.Class
 
                     if (Status == AppServiceConnectionStatus.Success)
                     {
-                        //Do not remove this delay, leave some time for "Identity" call from AppService
-                        await Task.Delay(1000);
+                        if (await Task.WhenAny(IdentityTaskCompletionSource.Task, Task.Delay(3000)) != IdentityTaskCompletionSource.Task)
+                        {
+                            Dispose();
+                            LogTracer.Log($"Identity task failed because AppSerive not response and time out. Dispose this instance");
+                            IdentityTaskCompletionSource.TrySetResult(false);
+                            return false;
+                        }
                     }
                     else
                     {
                         Dispose();
-                        LogTracer.Log($"Connect to AppService failed, reason: \"{Enum.GetName(typeof(AppServiceResponseStatus), Status)}\". Dispose this instance");
+                        LogTracer.Log($"Connect to AppService failed, Response status: \"{Enum.GetName(typeof(AppServiceResponseStatus), Status)}\". Dispose this instance");
                         return false;
                     }
                 }
@@ -444,13 +455,14 @@ namespace RX_Explorer.Class
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            if (!(PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                || !(PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                || !(PipeProgressReadController?.IsConnected).GetValueOrDefault())
+            LogTracer.Log("AppServiceConnection is closed unexpected");
+
+            if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                   && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()))
             {
                 Dispose();
                 AppServiceConnectionLost?.Invoke(this, null);
-                LogTracer.Log("AppServiceConnection is closed, dispose this instance");
             }
         }
 

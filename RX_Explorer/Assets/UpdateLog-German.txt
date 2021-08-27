@@ -1,4 +1,53 @@
 ﻿*****
+###Was ist neu in Ver.7.0.0.0
+
+#####Funktionsupdate
+
+>#####Suchseite kann jetzt per Drag-and-Drop Dateien kopieren und verschieben
+
+>#####Unterstützung für das Ziehen und Ablegen von Dateien oder Links aus dem Browser hinzugefügt
+
+>#####Ziehen und im Bereich "Bibliotheken" oder "Geräte" bleiben, es wird automatisch der entsprechende Ort eingetragen
+
+>#####Eingebauter Zip-Viewer hinzugefügt, mit dem Benutzer Dateien hinzufügen, löschen oder teilweise dekomprimieren können
+
+#####UI-Update
+
+>#####Wirkung der Startanimation optimiert
+
+>#####"Quick Start" unterstützt jetzt wieder die Neupositionierung
+
+>#####Wenn Sie auf der Suchseite auf "Dateispeicherort öffnen" klicken, wird sie in einer neuen Registerkarte geöffnet
+
+>#####Der Liste der Papierkörbe wurde ein Sortierindikator hinzugefügt
+
+#####Leistungsverbesserung
+
+>#####Das Problem der Suchlogik wurde gelöst und die Geschwindigkeit verbessert
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass die Benutzeroberfläche bei der Suche mit der Everything-Engine nicht mehr reagiert und eine große Anzahl von Ergebnissen zurückgegeben wird
+
+>#####Der Planungs- und Kommunikationsmechanismus des Hilfsprozesses wurde verbessert
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass Dateien mit leeren Pfaden bei Kopier- und Verschiebeaufgaben noch erkannt werden können
+
+>#####Das Problem, dass die Suchseite keine Dateien auswählen konnte, wurde behoben
+
+>#####Das Problem wurde behoben, das zu einem Absturz führen kann, wenn die Dekompressionsoption angezeigt wird
+
+>#####Das Problem, dass beim Durchsuchen aller Laufwerke immer "keine Ergebnisse" zurückgegeben wurden, wurde behoben
+
+>#####Problem behoben, dass der Suchverlauf beim Durchsuchen der Popup-Suchoption nicht gespeichert wird
+
+>#####Problem behoben, dass der "Dateityp" nach dem Öffnen des Eigenschaftenfensters einer Datei ohne Suffix möglicherweise nicht korrekt angezeigt wird
+
+>#####Problem behoben, dass .xlsx/.rtf/.zip-Dateien nicht erstellt werden konnten
+
+>#####Problem behoben, das zu einem Absturz führen kann, wenn Sie Dateinamen beim Umbenennen mehrerer Dateien schnell ändern
+
+*****
 ###Was ist neu in Ver.6.9.7.0
 
 #####Funktionsupdate

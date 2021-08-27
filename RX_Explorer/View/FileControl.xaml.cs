@@ -38,6 +38,7 @@ using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvokedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
@@ -202,7 +203,7 @@ namespace RX_Explorer
 
                 if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                 {
-                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content).OfType<TreeViewNodeContent>().All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                     {
                         bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
@@ -829,33 +830,22 @@ namespace RX_Explorer
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            try
+            if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+                if (CurrentPresenter != null && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (CurrentPresenter != null)
+                    if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
                     {
-                        if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            Node.IsExpanded = !Node.IsExpanded;
-                        }
-                        else
-                        {
-                            await CurrentPresenter.DisplayItemsInFolder(Content.Path);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await dialog.ShowAsync();
                     }
                 }
-            }
-            catch
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await dialog.ShowAsync();
             }
         }
 
@@ -3265,6 +3255,14 @@ namespace RX_Explorer
                 Item.Height = BladeViewer.ActualHeight;
                 Item.Width = BladeViewer.ActualWidth;
                 Item.TitleBarVisibility = Visibility.Collapsed;
+            }
+        }
+
+        private void FolderTree_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (e.OriginalSource is FrameworkElement Element && Element.FindParentOfType<TreeViewItem>() is TreeViewItem Item)
+            {
+                Item.IsExpanded = !Item.IsExpanded;
             }
         }
 

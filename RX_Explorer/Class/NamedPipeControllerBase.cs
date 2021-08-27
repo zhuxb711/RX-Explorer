@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
 {
     public class NamedPipeControllerBase : IDisposable
     {
-        protected NamedPipeServerStream PipeStream { get; }
+        protected NamedPipeServerStream PipeStream { get; private set; }
 
         public string PipeUniqueId { get; }
 
@@ -19,6 +19,8 @@ namespace RX_Explorer.Class
                 return (PipeStream?.IsConnected).GetValueOrDefault();
             }
         }
+
+        private bool IsDisposed;
 
         protected NamedPipeControllerBase()
         {
@@ -63,10 +65,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            GC.SuppressFinalize(this);
-            PipeStream?.Dispose();
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                PipeStream?.Dispose();
+                PipeStream = null;
+                GC.SuppressFinalize(this);
+            }
         }
 
         ~NamedPipeControllerBase()

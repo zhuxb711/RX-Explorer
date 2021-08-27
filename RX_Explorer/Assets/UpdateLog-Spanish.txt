@@ -1,4 +1,53 @@
 ﻿*****
+###Novedades de la versión 7.0.0.0
+
+#####Actualización de funciones
+
+>#####La página de búsqueda puede arrastrar y soltar para copiar y mover archivos ahora
+
+>#####Soporte agregado para arrastrar y soltar archivos o enlaces desde el navegador
+
+>#####Arrastra y permanece en el área "Bibliotecas" o "Dispositivos", automáticamente ingresará la ubicación correspondiente
+
+>#####Se agregó un visor Zip incorporado, que permite a los usuarios agregar, eliminar archivos o descomprimir archivos parcialmente
+
+#####Actualización de la interfaz de usuario
+
+>#####Optimizó el efecto de la animación de inicio
+
+>#####"Inicio rápido" ahora admite la reposición de nuevo
+
+>#####Cuando presiones "Abrir ubicación de archivo" en la página de búsqueda, se abrirá en una nueva pestaña.
+
+>#####Se agregó un indicador de clasificación a la lista de papeleras de reciclaje
+
+#####Mejora del rendimiento
+
+>#####Resuelve el problema de la lógica de búsqueda y mejora la velocidad
+
+>#####Se resolvió un problema que podía hacer que la interfaz de usuario dejara de responder al buscar con el motor de Everything y devolver una gran cantidad de resultados.
+
+>#####Se mejoró el mecanismo de programación y comunicación del proceso auxiliar
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que los archivos con rutas vacías aún se pueden reconocer mediante tareas de copiar y mover
+
+>#####Se solucionó el problema de que la página de búsqueda no podía seleccionar archivos en la casilla
+
+>#####Se solucionó el problema que puede causar un bloqueo cuando aparece la opción de descompresión
+
+>#####Se solucionó el problema de devolver siempre "sin resultados" al buscar en todas las unidades
+
+>#####Se solucionó el problema de que el historial de búsqueda no se guardaba al buscar a través de la opción de búsqueda emergente
+
+>#####Se solucionó el problema de que el "Tipo de archivo" podría no mostrarse correctamente después de abrir la ventana de propiedades de un archivo sin sufijo
+
+>#####Se solucionó el problema de no poder crear archivos .xlsx / .rtf / .zip
+
+>#####Se solucionó el problema que puede causar un bloqueo si modifica rápidamente los nombres de los archivos al cambiar el nombre de varios archivos
+
+*****
 ###Novedades de la versión 6.9.7.0
 
 #####Actualización de funciones

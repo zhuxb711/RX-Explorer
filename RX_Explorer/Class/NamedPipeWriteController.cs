@@ -26,25 +26,18 @@ namespace RX_Explorer.Class
 
         public async Task SendDataAsync(string Data)
         {
-            try
+            if (!PipeStream.IsConnected)
             {
-                if (!PipeStream.IsConnected)
-                {
-                    await WaitConnectionTask;
-                }
-
-                using (StreamWriter Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 1024, true))
-                {
-                    Writer.WriteLine(Data);
-                    Writer.Flush();
-                }
-
-                PipeStream.WaitForPipeDrain();
+                await WaitConnectionTask;
             }
-            catch (Exception ex)
+
+            using (StreamWriter Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 1024, true))
             {
-                LogTracer.Log(ex, "Could not send pipeline data");
+                Writer.WriteLine(Data);
+                Writer.Flush();
             }
+
+            PipeStream.WaitForPipeDrain();
         }
 
         private NamedPipeWriteController()
