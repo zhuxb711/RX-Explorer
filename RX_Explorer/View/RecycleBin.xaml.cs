@@ -213,35 +213,42 @@ namespace RX_Explorer.View
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is IRecycleStorageItem Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                PointerPoint PointerInfo = e.GetCurrentPoint(null);
-
-                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                if (Element.DataContext is IRecycleStorageItem Item)
                 {
-                    if (ListViewControl.SelectionMode != ListViewSelectionMode.Multiple)
-                    {
-                        if (e.KeyModifiers == VirtualKeyModifiers.None)
-                        {
-                            if (ListViewControl.SelectedItems.Contains(Item))
-                            {
-                                SelectionExtention.Disable();
-                            }
-                            else
-                            {
-                                if (PointerInfo.Properties.IsLeftButtonPressed)
-                                {
-                                    ListViewControl.SelectedItem = Item;
-                                }
+                    PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                                if (e.OriginalSource is ListViewItemPresenter)
-                                {
-                                    SelectionExtention.Enable();
-                                }
-                                else
+                    if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                    {
+                        if (ListViewControl.SelectionMode != ListViewSelectionMode.Multiple)
+                        {
+                            if (e.KeyModifiers == VirtualKeyModifiers.None)
+                            {
+                                if (ListViewControl.SelectedItems.Contains(Item))
                                 {
                                     SelectionExtention.Disable();
                                 }
+                                else
+                                {
+                                    if (PointerInfo.Properties.IsLeftButtonPressed)
+                                    {
+                                        ListViewControl.SelectedItem = Item;
+                                    }
+
+                                    if (e.OriginalSource is ListViewItemPresenter)
+                                    {
+                                        SelectionExtention.Enable();
+                                    }
+                                    else
+                                    {
+                                        SelectionExtention.Disable();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                SelectionExtention.Disable();
                             }
                         }
                         else
@@ -249,10 +256,15 @@ namespace RX_Explorer.View
                             SelectionExtention.Disable();
                         }
                     }
-                    else
-                    {
-                        SelectionExtention.Disable();
-                    }
+                }
+                else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
+                {
+                    SelectionExtention.Disable();
+                }
+                else
+                {
+                    ListViewControl.SelectedItem = null;
+                    SelectionExtention.Enable();
                 }
             }
             else

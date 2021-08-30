@@ -1851,103 +1851,115 @@ namespace RX_Explorer
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                if (Element.FindParentOfType<TextBox>() is null)
+                if (Element.DataContext is FileSystemStorageItemBase Item)
                 {
-                    PointerPoint PointerInfo = e.GetCurrentPoint(null);
+                    if (Element.FindParentOfType<TextBox>() is null)
+                    {
+                        PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                    if (PointerInfo.Properties.IsMiddleButtonPressed && Item is FileSystemStorageFolder)
-                    {
-                        SelectionExtention.Disable();
-                        SelectedItem = Item;
-                        _ = TabViewContainer.Current.CreateNewTabAsync(Item.Path);
-                    }
-                    else if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
-                    {
-                        if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
+                        if (PointerInfo.Properties.IsMiddleButtonPressed && Item is FileSystemStorageFolder)
                         {
-                            if (ItemPresenter.SelectedItems.Contains(Item))
+                            SelectionExtention.Disable();
+                            SelectedItem = Item;
+                            _ = TabViewContainer.Current.CreateNewTabAsync(Item.Path);
+                        }
+                        else if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
+                        {
+                            if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                             {
-                                SelectionExtention.Disable();
-
-                                if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                if (ItemPresenter.SelectedItems.Contains(Item))
                                 {
-                                    DelayDragCancellation?.Cancel();
-                                    DelayDragCancellation?.Dispose();
-                                    DelayDragCancellation = new CancellationTokenSource();
+                                    SelectionExtention.Disable();
 
-                                    Task.Delay(300).ContinueWith(async (task, input) =>
+                                    if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                     {
-                                        try
+                                        DelayDragCancellation?.Cancel();
+                                        DelayDragCancellation?.Dispose();
+                                        DelayDragCancellation = new CancellationTokenSource();
+
+                                        Task.Delay(300).ContinueWith(async (task, input) =>
                                         {
-                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                            try
                                             {
-                                                await Item.StartDragAsync(Point);
+                                                if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                {
+                                                    await Item.StartDragAsync(Point);
+                                                }
                                             }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            LogTracer.Log(ex, "Could not start drag item");
-                                        }
-                                    }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, "Could not start drag item");
+                                            }
+                                        }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                    }
+                                }
+                                else
+                                {
+                                    if (PointerInfo.Properties.IsLeftButtonPressed)
+                                    {
+                                        SelectedItem = Item;
+                                    }
+
+                                    switch (Element)
+                                    {
+                                        case Grid:
+                                        case ListViewItemPresenter:
+                                            {
+                                                SelectionExtention.Enable();
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                SelectionExtention.Disable();
+
+                                                if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                                {
+                                                    DelayDragCancellation?.Cancel();
+                                                    DelayDragCancellation?.Dispose();
+                                                    DelayDragCancellation = new CancellationTokenSource();
+
+                                                    Task.Delay(300).ContinueWith(async (task, input) =>
+                                                    {
+                                                        try
+                                                        {
+                                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                            {
+                                                                await Item.StartDragAsync(Point);
+                                                            }
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            LogTracer.Log(ex, "Could not start drag item");
+                                                        }
+                                                    }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                                }
+
+                                                break;
+                                            }
+                                    }
                                 }
                             }
                             else
                             {
-                                if (PointerInfo.Properties.IsLeftButtonPressed)
-                                {
-                                    SelectedItem = Item;
-                                }
-
-                                switch (Element)
-                                {
-                                    case Grid:
-                                    case ListViewItemPresenter:
-                                        {
-                                            SelectionExtention.Enable();
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            SelectionExtention.Disable();
-
-                                            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-                                            {
-                                                DelayDragCancellation?.Cancel();
-                                                DelayDragCancellation?.Dispose();
-                                                DelayDragCancellation = new CancellationTokenSource();
-
-                                                Task.Delay(300).ContinueWith(async (task, input) =>
-                                                {
-                                                    try
-                                                    {
-                                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
-                                                        {
-                                                            await Item.StartDragAsync(Point);
-                                                        }
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        LogTracer.Log(ex, "Could not start drag item");
-                                                    }
-                                                }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
-                                            }
-
-                                            break;
-                                        }
-                                }
+                                SelectionExtention.Disable();
                             }
                         }
-                        else
-                        {
-                            SelectionExtention.Disable();
-                        }
                     }
+                    else
+                    {
+                        SelectionExtention.Disable();
+                    }
+                }
+                else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
+                {
+                    SelectionExtention.Disable();
                 }
                 else
                 {
-                    SelectionExtention.Disable();
+                    SelectedItem = null;
+                    SelectionExtention.Enable();
                 }
             }
             else

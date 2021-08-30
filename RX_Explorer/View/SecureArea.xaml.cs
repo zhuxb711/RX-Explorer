@@ -571,35 +571,42 @@ namespace RX_Explorer
 
         private void SecureGridView_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageFile Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                PointerPoint PointerInfo = e.GetCurrentPoint(null);
-
-                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                if (Element.DataContext is FileSystemStorageFile Item)
                 {
-                    if (SecureGridView.SelectionMode != ListViewSelectionMode.Multiple)
-                    {
-                        if (e.KeyModifiers == VirtualKeyModifiers.None)
-                        {
-                            if (SecureGridView.SelectedItems.Contains(Item))
-                            {
-                                SelectionExtention.Disable();
-                            }
-                            else
-                            {
-                                if (PointerInfo.Properties.IsLeftButtonPressed)
-                                {
-                                    SecureGridView.SelectedItem = Item;
-                                }
+                    PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                                if (e.OriginalSource is ListViewItemPresenter)
-                                {
-                                    SelectionExtention.Enable();
-                                }
-                                else
+                    if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                    {
+                        if (SecureGridView.SelectionMode != ListViewSelectionMode.Multiple)
+                        {
+                            if (e.KeyModifiers == VirtualKeyModifiers.None)
+                            {
+                                if (SecureGridView.SelectedItems.Contains(Item))
                                 {
                                     SelectionExtention.Disable();
                                 }
+                                else
+                                {
+                                    if (PointerInfo.Properties.IsLeftButtonPressed)
+                                    {
+                                        SecureGridView.SelectedItem = Item;
+                                    }
+
+                                    if (e.OriginalSource is ListViewItemPresenter)
+                                    {
+                                        SelectionExtention.Enable();
+                                    }
+                                    else
+                                    {
+                                        SelectionExtention.Disable();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                SelectionExtention.Disable();
                             }
                         }
                         else
@@ -607,10 +614,15 @@ namespace RX_Explorer
                             SelectionExtention.Disable();
                         }
                     }
-                    else
-                    {
-                        SelectionExtention.Disable();
-                    }
+                }
+                else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
+                {
+                    SelectionExtention.Disable();
+                }
+                else
+                {
+                    SecureGridView.SelectedItem = null;
+                    SelectionExtention.Enable();
                 }
             }
             else

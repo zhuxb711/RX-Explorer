@@ -790,11 +790,10 @@ namespace FullTrustProcess
                             string SearchWord = Convert.ToString(CommandValue["SearchWord"]);
                             bool SearchAsRegex = Convert.ToBoolean(CommandValue["SearchAsRegex"]);
                             bool IgnoreCase = Convert.ToBoolean(CommandValue["IgnoreCase"]);
-                            uint MaxCount = Convert.ToUInt32(CommandValue["MaxCount"]);
 
                             if (EverythingConnector.IsAvailable)
                             {
-                                IEnumerable<string> SearchResult = EverythingConnector.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase, MaxCount);
+                                IEnumerable<string> SearchResult = EverythingConnector.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase);
 
                                 if (SearchResult.Any())
                                 {

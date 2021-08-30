@@ -2,6 +2,7 @@
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -208,9 +209,9 @@ namespace RX_Explorer.Class
         {
             return Task.Factory.StartNew<IReadOnlyList<FileSystemStorageItemBase>>(() =>
             {
-                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
+                ConcurrentBag<FileSystemStorageItemBase> Result = new ConcurrentBag<FileSystemStorageItemBase>();
 
-                foreach (string Path in PathArray)
+                Parallel.ForEach(PathArray, (Path) =>
                 {
                     try
                     {
@@ -251,9 +252,9 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
                     }
-                }
+                });
 
-                return Result;
+                return Result.ToList();
             }, TaskCreationOptions.LongRunning);
         }
 

@@ -958,13 +958,13 @@ namespace RX_Explorer
                             {
                                 QuickStartTip.Target = QuickStartIcon;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.RightTop;
-                                QuickStartPanelRoot.MaxHeight = Math.Max(Window.Current.Bounds.Height - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0);
+                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
                             }
                             else
                             {
                                 QuickStartTip.Target = QuickStartItem;
                                 QuickStartTip.PreferredPlacement = TeachingTipPlacementMode.Bottom;
-                                QuickStartPanelRoot.MaxHeight = Math.Max(Window.Current.Bounds.Height - QuickStartItem.ActualHeight - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0);
+                                QuickStartPanelRoot.MaxHeight = Math.Min(440, Math.Max(Window.Current.Bounds.Height - QuickStartItem.ActualHeight - QuickStartItem.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0)).Y - 100, 0));
                             }
 
                             QuickStartTip.IsOpen = true;

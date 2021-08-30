@@ -2685,10 +2685,6 @@ Invalid names include
           <source>Ignore case</source>
           <target state="translated">忽略大小写</target>
         </trans-unit>
-        <trans-unit id="SearchEngineLimitResult.Header" translate="yes" xml:space="preserve">
-          <source>Search result limit</source>
-          <target state="translated">搜索结果限制</target>
-        </trans-unit>
         <trans-unit id="SearchEngineUseRegex.Content" translate="yes" xml:space="preserve">
           <source>Use regular expressions</source>
           <target state="translated">使用正则表达式</target>

@@ -16,9 +16,6 @@ namespace FullTrustProcess
         private static extern void Everything_SetOffset(int dwOffset);
 
         [DllImport("Everything64.dll", CharSet = CharSet.Unicode)]
-        private static extern void Everything_SetMax(int dwMax);
-
-        [DllImport("Everything64.dll", CharSet = CharSet.Unicode)]
         private static extern bool Everything_Query(bool bWait);
 
         [DllImport("Everything64.dll", CharSet = CharSet.Unicode)]
@@ -64,7 +61,7 @@ namespace FullTrustProcess
             return Everything_GetLastError();
         }
 
-        public static IEnumerable<string> Search(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        public static IEnumerable<string> Search(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true)
         {
             if (string.IsNullOrWhiteSpace(SearchWord) || !IsAvailable)
             {
@@ -75,7 +72,6 @@ namespace FullTrustProcess
                 Everything_SetRegex(SearchAsRegex);
                 Everything_SetMatchCase(!IgnoreCase);
                 Everything_SetOffset(0);
-                Everything_SetMax(Convert.ToInt32(MaxCount));
 
                 if (SearchWord.Contains(" ") && !SearchWord.StartsWith("\"") && !SearchWord.EndsWith("\""))
                 {

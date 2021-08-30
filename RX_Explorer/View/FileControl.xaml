@@ -543,7 +543,7 @@
                                 <Line X1="10"
                                       X2="10"
                                       Y1="0"
-                                      Y2="160"
+                                      Y2="165"
                                       StrokeThickness="3"
                                       Stroke="Gray" />
                                 <StackPanel Margin="18,5,0,0">
@@ -608,7 +608,7 @@
                                 <Line X1="10"
                                       X2="10"
                                       Y1="0"
-                                      Y2="155"
+                                      Y2="100"
                                       StrokeThickness="3"
                                       Stroke="Gray" />
                                 <StackPanel Margin="18,5,0,0">
@@ -630,16 +630,6 @@
                                               x:Name="EverythingEngineSearchGloble"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
-                                    <ComboBox IsEditable="True"
-                                              Header="搜索结果限制"
-                                              x:Uid="SearchEngineLimitResult"
-                                              x:Name="EverythingEngineResultLimit"
-                                              SelectedIndex="0"
-                                              MinWidth="150">
-                                        <x:String>300</x:String>
-                                        <x:String>500</x:String>
-                                        <x:String>1000</x:String>
-                                    </ComboBox>
                                 </StackPanel>
                             </StackPanel>
                             <Grid Margin="0,10,0,0"

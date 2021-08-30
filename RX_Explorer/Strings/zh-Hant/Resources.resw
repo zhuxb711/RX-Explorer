@@ -2026,9 +2026,6 @@
   <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
     <value>忽略大小寫</value>
   </data>
-  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
-    <value>搜索結果限制</value>
-  </data>
   <data name="SearchEngineUseRegex.Content" xml:space="preserve">
     <value>使用正則表達式</value>
   </data>

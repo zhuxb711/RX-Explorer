@@ -202,35 +202,39 @@ namespace RX_Explorer
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Flip.SelectedIndex == -1)
+            int SelectedIndex = Flip.SelectedIndex;
+
+            if (SelectedIndex >= 0 && SelectedIndex <= PhotoCollection.Count - 1)
             {
-                return;
-            }
+                CouldnotLoadTip.Visibility = Visibility.Collapsed;
 
-            CouldnotLoadTip.Visibility = Visibility.Collapsed;
+                LoadQueue.Enqueue(SelectedIndex);
 
-            LoadQueue.Enqueue(Flip.SelectedIndex);
-
-            if (Interlocked.Exchange(ref LockResource, 1) == 0)
-            {
-                try
+                if (Interlocked.Exchange(ref LockResource, 1) == 0)
                 {
-                    while (LoadQueue.TryDequeue(out int CurrentIndex))
+                    try
                     {
-                        if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync() && CurrentIndex == Flip.SelectedIndex)
+                        while (LoadQueue.TryDequeue(out int CurrentIndex))
                         {
-                            CouldnotLoadTip.Visibility = Visibility.Visible;
-                        }
+                            if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync() && CurrentIndex == Flip.SelectedIndex)
+                            {
+                                CouldnotLoadTip.Visibility = Visibility.Visible;
+                            }
 
-                        for (int i = CurrentIndex - 5 > 0 ? CurrentIndex - 5 : 0; i <= (CurrentIndex + 5 < PhotoCollection.Count - 1 ? CurrentIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
-                        {
-                            await PhotoCollection[i].GenerateThumbnailAsync();
+                            for (int i = Math.Max(CurrentIndex - 5, 0); i < Math.Min(CurrentIndex + 5, PhotoCollection.Count) && !Cancellation.IsCancellationRequested; i++)
+                            {
+                                await PhotoCollection[i].GenerateThumbnailAsync();
+                            }
                         }
                     }
-                }
-                finally
-                {
-                    Interlocked.Exchange(ref LockResource, 0);
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not load the image on selection changed");
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref LockResource, 0);
+                    }
                 }
             }
         }

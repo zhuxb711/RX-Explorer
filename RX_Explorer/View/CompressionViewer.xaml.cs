@@ -229,45 +229,57 @@ namespace RX_Explorer
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is CompressionItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                PointerPoint PointerInfo = e.GetCurrentPoint(null);
-
-                if (Element.FindParentOfType<SelectorItem>() is SelectorItem)
+                if (Element.DataContext is CompressionItemBase Item)
                 {
-                    if (e.KeyModifiers == VirtualKeyModifiers.None)
+                    PointerPoint PointerInfo = e.GetCurrentPoint(null);
+
+                    if (Element.FindParentOfType<SelectorItem>() is SelectorItem)
                     {
-                        if (ListViewControl.SelectedItems.Contains(Item))
+                        if (e.KeyModifiers == VirtualKeyModifiers.None)
                         {
-                            SelectionExtention.Disable();
+                            if (ListViewControl.SelectedItems.Contains(Item))
+                            {
+                                SelectionExtention.Disable();
+                            }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    ListViewControl.SelectedItem = Item;
+                                }
+
+                                switch (Element)
+                                {
+                                    case Grid:
+                                    case ListViewItemPresenter:
+                                        {
+                                            SelectionExtention.Enable();
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            SelectionExtention.Disable();
+                                            break;
+                                        }
+                                }
+                            }
                         }
                         else
                         {
-                            if (PointerInfo.Properties.IsLeftButtonPressed)
-                            {
-                                ListViewControl.SelectedItem = Item;
-                            }
-
-                            switch (Element)
-                            {
-                                case Grid:
-                                case ListViewItemPresenter:
-                                    {
-                                        SelectionExtention.Enable();
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        SelectionExtention.Disable();
-                                        break;
-                                    }
-                            }
+                            SelectionExtention.Disable();
                         }
                     }
-                    else
-                    {
-                        SelectionExtention.Disable();
-                    }
+                }
+                else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
+                {
+                    SelectionExtention.Disable();
+                }
+                else
+                {
+                    ListViewControl.SelectedItem = null;
+                    SelectionExtention.Enable();
                 }
             }
             else

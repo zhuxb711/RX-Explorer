@@ -2060,9 +2060,6 @@ Las denominaciones no válidas son:
   <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
     <value>Omitir caso</value>
   </data>
-  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
-    <value>Límite de resultados de búsqueda</value>
-  </data>
   <data name="SearchEngineUseRegex.Content" xml:space="preserve">
     <value>Usar expresiones regulares</value>
   </data>

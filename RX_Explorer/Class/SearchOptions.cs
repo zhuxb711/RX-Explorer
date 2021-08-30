@@ -19,8 +19,6 @@ namespace RX_Explorer.Class
 
         public bool UseAQSExpression { get; set; }
 
-        public uint NumLimit { get; set; } = 300;
-
         public SearchCategory EngineCategory { get; set; }
 
         public static SearchOptions LoadSavedConfiguration(SearchCategory Category)

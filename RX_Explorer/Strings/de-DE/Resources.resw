@@ -2063,9 +2063,6 @@ Inkorrekte Namen sind
   <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
     <value>Fall ignorieren</value>
   </data>
-  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
-    <value>Suchergebnislimit</value>
-  </data>
   <data name="SearchEngineUseRegex.Content" xml:space="preserve">
     <value>Reguläre Ausdrücke verwenden</value>
   </data>

@@ -2732,10 +2732,6 @@ Inkorrekte Namen sind
           <source>Ignore case</source>
           <target state="translated">Fall ignorieren</target>
         </trans-unit>
-        <trans-unit id="SearchEngineLimitResult.Header" translate="yes" xml:space="preserve">
-          <source>Search result limit</source>
-          <target state="translated">Suchergebnislimit</target>
-        </trans-unit>
         <trans-unit id="SearchEngineUseRegex.Content" translate="yes" xml:space="preserve">
           <source>Use regular expressions</source>
           <target state="translated">Reguläre Ausdrücke verwenden</target>

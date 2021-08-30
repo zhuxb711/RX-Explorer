@@ -2728,10 +2728,6 @@ Las denominaciones no válidas son:
           <source>Ignore case</source>
           <target state="translated">Omitir caso</target>
         </trans-unit>
-        <trans-unit id="SearchEngineLimitResult.Header" translate="yes" xml:space="preserve">
-          <source>Search result limit</source>
-          <target state="translated">Límite de resultados de búsqueda</target>
-        </trans-unit>
         <trans-unit id="SearchEngineUseRegex.Content" translate="yes" xml:space="preserve">
           <source>Use regular expressions</source>
           <target state="translated">Usar expresiones regulares</target>

@@ -2235,7 +2235,6 @@ namespace RX_Explorer
                     UseAQSExpression = BuiltInEngineIncludeAQS.IsChecked.GetValueOrDefault(),
                     DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault(),
                     SearchText = GlobeSearch.Text,
-                    NumLimit = Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem),
                     EngineCategory = SearchCategory.BuiltInEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
             }
@@ -2248,7 +2247,6 @@ namespace RX_Explorer
                     UseRegexExpression = EverythingEngineIncludeRegex.IsChecked.GetValueOrDefault(),
                     DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault(),
                     SearchText = GlobeSearch.Text,
-                    NumLimit = Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem),
                     EngineCategory = SearchCategory.EverythingEngine
                 }, AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
             }

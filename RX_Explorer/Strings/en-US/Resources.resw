@@ -2174,9 +2174,6 @@ Invalid names include
   <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
     <value>Ignore case</value>
   </data>
-  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
-    <value>Search result limit</value>
-  </data>
   <data name="SearchEngineUseRegex.Content" xml:space="preserve">
     <value>Use regular expressions</value>
   </data>
