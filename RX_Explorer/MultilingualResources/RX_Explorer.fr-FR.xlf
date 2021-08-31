@@ -4258,6 +4258,34 @@ Les noms non valides incluent
           <source>Built-in Zip viewer</source>
           <target state="translated">Visionneuse zip intégrée</target>
         </trans-unit>
+        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+          <source>Path history</source>
+          <target state="translated">Historique du chemin</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Effacé</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Enregistré</target>
+        </trans-unit>
+        <trans-unit id="SettingPrivacy.Text" translate="yes" xml:space="preserve">
+          <source>Privacy</source>
+          <target state="translated">Intimité</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+          <source>Search history</source>
+          <target state="translated">Historique des recherches</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Enregistré</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Effacé</target>
+        </trans-unit>
       </group>
     </body>
   </file>

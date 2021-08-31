@@ -829,6 +829,28 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </StackPanel>
+
+                <TextBlock Text="隐私"
+                           FontSize="22"
+                           x:Uid="SettingPrivacy"
+                           Margin="0,30,0,0"/>
+
+                <ToggleSwitch Header="路径历史记录"
+                              Margin="0,20,0,0"
+                              OnContent="保存"
+                              OffContent="清除"
+                              x:Uid="SettingPathHistory"
+                              Name="PathHistory"
+                              Toggled="PathHistory_Toggled"/>
+
+                <ToggleSwitch Header="搜索历史记录"
+                              Margin="0,20,0,0"
+                              OnContent="保存"
+                              OffContent="清除"
+                              x:Uid="SettingSearchHistory"
+                              Name="SearchHistory" 
+                              Toggled="SearchHistory_Toggled"/>
+
                 <TextBlock Text="版本"
                            x:Uid="SettingVersion"
                            FontSize="22"

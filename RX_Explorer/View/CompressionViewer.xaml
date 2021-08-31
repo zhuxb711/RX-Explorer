@@ -12,6 +12,7 @@
 
     <Page.Resources>
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
+        <Cls:InverseConverter x:Key="InverseConverter" />
 
         <muxc:CommandBarFlyout x:Name="ItemFlyout"
                                Placement="BottomEdgeAlignedLeft">
@@ -26,6 +27,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                               Icon="Delete"
+                              IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               MinWidth="200"
                               Click="Delete_Click"/>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CopyFullName')}"
@@ -51,11 +53,13 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
                               Icon="OpenFile"
+                              IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               MinWidth="200" 
                               Click="CreateNewFile_Click"/>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Icon="NewFolder"
                               MinWidth="200"
+                              IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               Click="CreateNewFolder_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
@@ -73,9 +77,11 @@
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
                               Icon="OpenFile"
+                              IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               Click="CreateNewFile_Click" />
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Icon="NewFolder"
+                              IsEnabled="{x:Bind IsReadonlyMode,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                               Click="CreateNewFolder_Click" />
                 <AppBarButton Label="全部解压"
                               x:Uid="ExtractAll"

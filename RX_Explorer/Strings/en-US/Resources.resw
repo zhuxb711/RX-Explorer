@@ -3312,4 +3312,25 @@ Invalid names include
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Built-in Zip viewer</value>
   </data>
+  <data name="SettingPathHistory.Header" xml:space="preserve">
+    <value>Path history</value>
+  </data>
+  <data name="SettingPathHistory.OffContent" xml:space="preserve">
+    <value>Cleared</value>
+  </data>
+  <data name="SettingPathHistory.OnContent" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="SettingPrivacy.Text" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="SettingSearchHistory.Header" xml:space="preserve">
+    <value>Search history</value>
+  </data>
+  <data name="SettingSearchHistory.OffContent" xml:space="preserve">
+    <value>Cleared</value>
+  </data>
+  <data name="SettingSearchHistory.OnContent" xml:space="preserve">
+    <value>Saved</value>
+  </data>
 </root>

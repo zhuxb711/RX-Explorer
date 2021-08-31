@@ -161,6 +161,58 @@ namespace RX_Explorer
             }
         }
 
+        public static bool IsPathHistoryEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnablePathHistory"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnablePathHistory"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnablePathHistory"] = value;
+
+                if (!value)
+                {
+                    SQLite.Current.ClearTable("PathHistory");
+                }
+            }
+        }
+
+        public static bool IsSearchHistoryEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnableSearchHistory"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnableSearchHistory"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableSearchHistory"] = value;
+
+                if (!value)
+                {
+                    SQLite.Current.ClearTable("SearchHistory");
+                }
+            }
+        }
+
+
+
         public static NavigationViewPaneDisplayMode LayoutMode
         {
             get
@@ -722,24 +774,14 @@ namespace RX_Explorer
                 UIMode.SelectedIndex = 0;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
-            {
-                FolderOpenMethod.SelectedIndex = IsDoubleClick ? 1 : 0;
-            }
-            else
-            {
-                FolderOpenMethod.SelectedIndex = 1;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
-            {
-                TreeViewDetach.IsOn = !IsDetach;
-            }
-
+            FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+            TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
             EnableQuicklook.IsOn = IsQuicklookEnabled;
             DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
             HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
             TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
+            SearchHistory.IsOn = IsSearchHistoryEnabled;
+            PathHistory.IsOn = IsPathHistoryEnabled;
             NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
 
             if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
@@ -3091,6 +3133,18 @@ namespace RX_Explorer
         private void TabPreviewSwitch_Toggled(object sender, RoutedEventArgs e)
         {
             IsTabPreviewEnabled = TabPreviewSwitch.IsOn;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void PathHistory_Toggled(object sender, RoutedEventArgs e)
+        {
+            IsPathHistoryEnabled = PathHistory.IsOn;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void SearchHistory_Toggled(object sender, RoutedEventArgs e)
+        {
+            IsSearchHistoryEnabled = SearchHistory.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
     }

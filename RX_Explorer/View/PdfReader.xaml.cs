@@ -119,6 +119,11 @@ namespace RX_Explorer
                     throw new NotSupportedException();
                 }
 
+                if (PdfStream == null)
+                {
+                    throw new NotSupportedException();
+                }
+
                 try
                 {
                     Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream);

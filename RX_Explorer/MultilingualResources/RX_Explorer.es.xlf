@@ -4256,6 +4256,34 @@ Las denominaciones no válidas son:
           <source>Built-in Zip viewer</source>
           <target state="translated">Visor Zip incorporado</target>
         </trans-unit>
+        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+          <source>Path history</source>
+          <target state="translated">Historia de la ruta</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Despejado</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Salvado</target>
+        </trans-unit>
+        <trans-unit id="SettingPrivacy.Text" translate="yes" xml:space="preserve">
+          <source>Privacy</source>
+          <target state="translated">Intimidad</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+          <source>Search history</source>
+          <target state="translated">Buscar Historia</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Despejado</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Salvado</target>
+        </trans-unit>
       </group>
     </body>
   </file>

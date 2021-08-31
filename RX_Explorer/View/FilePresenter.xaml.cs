@@ -918,8 +918,6 @@ namespace RX_Explorer
 
                         Container.ViewModeControl.EnableSelection();
 
-                        SQLite.Current.SetPathHistory(Folder.Path);
-
                         if (Container.FolderTree.SelectedNode == null
                             && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(Folder.Path).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                         {

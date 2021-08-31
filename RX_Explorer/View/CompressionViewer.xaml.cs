@@ -25,7 +25,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer
 {
-    public sealed partial class CompressionViewer : Page
+    public sealed partial class CompressionViewer : Page, INotifyPropertyChanged
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
         private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
@@ -37,6 +37,21 @@ namespace RX_Explorer
 
         private ZipFile ZipObj;
         private FileSystemStorageFile ZipFile;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool isReadonlyMode;
+        public bool IsReadonlyMode
+        {
+            get
+            {
+                return isReadonlyMode;
+            }
+            private set
+            {
+                isReadonlyMode = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsReadonlyMode)));
+            }
+        }
 
         private string currentPath;
         private string CurrentPath
@@ -140,6 +155,7 @@ namespace RX_Explorer
         }
 
         private SortDirection sortDirection;
+
         private SortDirection CurrentSortDirection
         {
             get
@@ -336,8 +352,42 @@ namespace RX_Explorer
         {
             try
             {
+                Stream CompressedStream = null;
+
+                if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
+                {
+                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read);
+
+                    SLEHeader Header = SLEHeader.GetHeader(Stream);
+
+                    if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        IsReadonlyMode = true;
+                        CompressedStream = new SLEInputStream(Stream, SecureArea.AESKey);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+                else if (File.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                {
+                    IsReadonlyMode = false;
+                    CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+
+                if (CompressedStream == null)
+                {
+                    throw new NotSupportedException();
+                }
+
                 ZipFile = File;
-                ZipObj = new ZipFile(await File.GetStreamFromFileAsync(AccessMode.ReadWrite));
+                ZipObj = new ZipFile(CompressedStream);
+
                 DisplayItemsInFolderEntry(string.Empty);
             }
             catch (Exception ex)

@@ -1513,6 +1513,11 @@ namespace RX_Explorer
 
                                 if (await CurrentPresenter.DisplayItemsInFolder(Folder))
                                 {
+                                    if (SettingControl.IsPathHistoryEnabled)
+                                    {
+                                        SQLite.Current.SetPathHistory(Folder.Path);
+                                    }
+
                                     await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
                                 }
                                 else

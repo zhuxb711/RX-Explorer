@@ -1115,6 +1115,7 @@ namespace RX_Explorer
                         ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
                         ".txt" => typeof(TextViewer),
                         ".pdf" => typeof(PdfReader),
+                        ".zip" => typeof(CompressionViewer),
                         _ => null
                     };
 

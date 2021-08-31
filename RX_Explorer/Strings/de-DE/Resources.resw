@@ -3207,4 +3207,26 @@ Inkorrekte Namen sind
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Integrierter Zip-Viewer</value>
   </data>
+  <data name="SettingPathHistory.Header" xml:space="preserve">
+    <value>Pfadverlauf</value>
+  </data>
+  <data name="SettingPathHistory.OffContent" xml:space="preserve">
+    <value>Gelöscht</value>
+  </data>
+  <data name="SettingPathHistory.OnContent" xml:space="preserve">
+    <value>Gerettet</value>
+  </data>
+  <data name="SettingPrivacy.Text" xml:space="preserve">
+    <value>Privatsphäre</value>
+  </data>
+  <data name="SettingSearchHistory.Header" xml:space="preserve">
+    <value>Suchverlauf</value>
+  </data>
+  <data name="SettingSearchHistory.OffContent" xml:space="preserve">
+    <value>Gelöscht</value>
+  </data>
+  <data name="SettingSearchHistory.OnContent" xml:space="preserve">
+    <value>Gerettet</value>
+  </data>
+
 </root>

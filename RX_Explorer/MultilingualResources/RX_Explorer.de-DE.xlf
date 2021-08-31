@@ -4256,6 +4256,34 @@ Inkorrekte Namen sind
           <source>Built-in Zip viewer</source>
           <target state="translated">Integrierter Zip-Viewer</target>
         </trans-unit>
+        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+          <source>Path history</source>
+          <target state="translated">Pfadverlauf</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Gelöscht</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Gerettet</target>
+        </trans-unit>
+        <trans-unit id="SettingPrivacy.Text" translate="yes" xml:space="preserve">
+          <source>Privacy</source>
+          <target state="translated">Privatsphäre</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+          <source>Search history</source>
+          <target state="translated">Suchverlauf</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OffContent" translate="yes" xml:space="preserve">
+          <source>Cleared</source>
+          <target state="translated">Gelöscht</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistory.OnContent" translate="yes" xml:space="preserve">
+          <source>Saved</source>
+          <target state="translated">Gerettet</target>
+        </trans-unit>
       </group>
     </body>
   </file>

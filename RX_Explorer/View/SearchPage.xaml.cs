@@ -231,7 +231,10 @@ namespace RX_Explorer
             SDirection = SortDirection.Ascending;
             HasItem.Visibility = Visibility.Collapsed;
 
-            SQLite.Current.SetSearchHistory(Options.SearchText);
+            if (SettingControl.IsSearchHistoryEnabled)
+            {
+                SQLite.Current.SetSearchHistory(Options.SearchText);
+            }
 
             CancellationTokenSource SearchCancellation = new CancellationTokenSource();
 
@@ -718,6 +721,7 @@ namespace RX_Explorer
                 ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
                 ".txt" => typeof(TextViewer),
                 ".pdf" => typeof(PdfReader),
+                ".zip" => typeof(CompressionViewer),
                 _ => null
             };
 

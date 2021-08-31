@@ -3207,4 +3207,25 @@ Las denominaciones no válidas son:
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Visor Zip incorporado</value>
   </data>
+  <data name="SettingPathHistory.Header" xml:space="preserve">
+    <value>Historia de la ruta</value>
+  </data>
+  <data name="SettingPathHistory.OffContent" xml:space="preserve">
+    <value>Despejado</value>
+  </data>
+  <data name="SettingPathHistory.OnContent" xml:space="preserve">
+    <value>Salvado</value>
+  </data>
+  <data name="SettingPrivacy.Text" xml:space="preserve">
+    <value>Intimidad</value>
+  </data>
+  <data name="SettingSearchHistory.Header" xml:space="preserve">
+    <value>Buscar Historia</value>
+  </data>
+  <data name="SettingSearchHistory.OffContent" xml:space="preserve">
+    <value>Despejado</value>
+  </data>
+  <data name="SettingSearchHistory.OnContent" xml:space="preserve">
+    <value>Salvado</value>
+  </data>
 </root>

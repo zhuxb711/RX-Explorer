@@ -3207,4 +3207,25 @@
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>內置Zip查看器</value>
   </data>
+  <data name="SettingPathHistory.Header" xml:space="preserve">
+    <value>路徑歷史記錄</value>
+  </data>
+  <data name="SettingPathHistory.OffContent" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="SettingPathHistory.OnContent" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SettingPrivacy.Text" xml:space="preserve">
+    <value>隱私</value>
+  </data>
+  <data name="SettingSearchHistory.Header" xml:space="preserve">
+    <value>搜索歷史記錄</value>
+  </data>
+  <data name="SettingSearchHistory.OffContent" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="SettingSearchHistory.OnContent" xml:space="preserve">
+    <value>保存</value>
+  </data>
 </root>
