@@ -20,7 +20,7 @@ namespace FullTrustProcess
             }
         }
 
-        private bool IsDisposed;
+        protected bool IsDisposed { get; private set; }
 
         private string GetActualNamedPipeStringFromUWP(uint ProcessId, string PipeName)
         {
@@ -74,13 +74,11 @@ namespace FullTrustProcess
                     case NamedPipeReadController:
                         {
                             PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.In, PipeOptions.WriteThrough);
-                            PipeStream.Connect(2000);
                             break;
                         }
                     case NamedPipeWriteController:
                         {
                             PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.Out, PipeOptions.WriteThrough);
-                            PipeStream.Connect(2000);
                             break;
                         }
                     default:
@@ -96,7 +94,7 @@ namespace FullTrustProcess
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (!IsDisposed)
             {

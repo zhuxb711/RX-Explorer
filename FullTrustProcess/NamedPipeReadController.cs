@@ -16,18 +16,20 @@ namespace FullTrustProcess
         {
             try
             {
-                if (PipeStream.IsConnected)
+                if (!IsConnected)
                 {
-                    using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 1024, true))
-                    {
-                        while (IsConnected)
-                        {
-                            string ReadText = Reader.ReadLine();
+                    PipeStream.Connect(2000);
+                }
 
-                            if (!string.IsNullOrEmpty(ReadText))
-                            {
-                                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
-                            }
+                using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 512, true))
+                {
+                    while (IsConnected)
+                    {
+                        string ReadText = Reader.ReadLine();
+
+                        if (!string.IsNullOrEmpty(ReadText))
+                        {
+                            OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ReadText)).Wait();
                         }
                     }
                 }
@@ -35,6 +37,7 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not receive pipeline data");
+                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ex)).Wait();
             }
             finally
             {

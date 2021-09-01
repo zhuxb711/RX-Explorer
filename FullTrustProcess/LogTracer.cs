@@ -161,20 +161,13 @@ namespace FullTrustProcess
         /// </summary>
         /// <param name="Message">错误消息</param>
         /// <returns></returns>
-        public static void LogInternal(string Message)
+        private static void LogInternal(string Message)
         {
-            try
-            {
-                LogQueue.Enqueue(Message + Environment.NewLine);
+            LogQueue.Enqueue(Message + Environment.NewLine);
 
-                if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
-                {
-                    Locker.Set();
-                }
-            }
-            catch (Exception ex)
+            if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
             {
-                Debug.WriteLine($"An error was threw in {nameof(LogInternal)}, message: {ex.Message}");
+                Locker.Set();
             }
         }
 

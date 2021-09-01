@@ -52,9 +52,9 @@ namespace RX_Explorer.Class
         {
             ulong TotalSize = 0;
 
-            foreach (string Path in MoveFrom)
+            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(MoveFrom))
             {
-                switch (await FileSystemStorageItemBase.OpenAsync(Path))
+                switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {

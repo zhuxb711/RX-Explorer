@@ -38,9 +38,9 @@ namespace RX_Explorer.Class
         {
             ulong TotalSize = 0;
 
-            foreach (string Path in UndoFrom.Keys)
+            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom.Keys.ToArray()))
             {
-                switch (await FileSystemStorageItemBase.OpenAsync(Path))
+                switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {

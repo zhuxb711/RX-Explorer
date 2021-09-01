@@ -488,13 +488,20 @@ namespace RX_Explorer.Class
 
                     void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
-                        try
+                        if (e.ExtraException is Exception Ex)
                         {
-                            CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                            CompletionSource.SetException(Ex);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            CompletionSource.SetException(ex);
+                            try
+                            {
+                                CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                            }
+                            catch (Exception ex)
+                            {
+                                CompletionSource.SetException(ex);
+                            }
                         }
                     }
 
@@ -502,7 +509,7 @@ namespace RX_Explorer.Class
                     {
                         PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
 
-                        await PipeCommandWriteController.SendDataAsync(JsonSerializer.Serialize(Command));
+                        PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
                         return await CompletionSource.Task;
                     }
@@ -568,7 +575,10 @@ namespace RX_Explorer.Class
             {
                 void PipeProgressReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                 {
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                    if (e.ExtraException == null)
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                    }
                 }
 
                 if ((PipeCommandReadController?.IsConnected).GetValueOrDefault() && (PipeCommandWriteController?.IsConnected).GetValueOrDefault())
@@ -587,13 +597,20 @@ namespace RX_Explorer.Class
 
                     void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
                     {
-                        try
+                        if (e.ExtraException is Exception Ex)
                         {
-                            CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                            CompletionSource.SetException(Ex);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            CompletionSource.SetException(ex);
+                            try
+                            {
+                                CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                            }
+                            catch (Exception ex)
+                            {
+                                CompletionSource.SetException(ex);
+                            }
                         }
                     }
 
@@ -606,7 +623,7 @@ namespace RX_Explorer.Class
                     {
                         PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
 
-                        await PipeCommandWriteController.SendDataAsync(JsonSerializer.Serialize(Command));
+                        PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
                         return await CompletionSource.Task;
                     }

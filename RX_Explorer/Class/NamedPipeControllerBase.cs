@@ -20,7 +20,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool IsDisposed;
+        protected bool IsDisposed { get; private set; }
 
         protected NamedPipeControllerBase()
         {
@@ -65,7 +65,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (!IsDisposed)
             {

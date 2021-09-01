@@ -31,12 +31,12 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (!PipeStream.IsConnected)
+                if (!IsConnected)
                 {
                     PipeStream.WaitForConnection();
                 }
 
-                using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 1024, true))
+                using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 512, true))
                 {
                     while (IsConnected)
                     {
@@ -52,6 +52,7 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when receiving pipeline data");
+                OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ex)).Wait();
             }
             finally
             {
