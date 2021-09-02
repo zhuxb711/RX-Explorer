@@ -44,6 +44,7 @@ namespace FullTrustProcess
 
         private static NamedPipeWriteController PipeProgressWriterController;
 
+         [STAThread]
         static async Task Main(string[] args)
         {
             try
@@ -834,7 +835,7 @@ namespace FullTrustProcess
                         {
                             ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(Convert.ToString(CommandValue["DataPackage"]));
 
-                            if (await ContextMenu.InvokeVerbAsync(Package))
+                            if (   ContextMenu.InvokeVerbAsync(Package))
                             {
                                 Value.Add("Success", string.Empty);
                             }

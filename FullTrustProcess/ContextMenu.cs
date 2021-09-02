@@ -323,12 +323,11 @@ namespace FullTrustProcess
 
         [SecurityCritical]
         [HandleProcessCorruptedStateExceptions]
-        public static Task<bool> InvokeVerbAsync(ContextMenuPackage Package)
+        public static bool InvokeVerbAsync(ContextMenuPackage Package)
         {
             if (Package.RelatedPath.Length > 0)
             {
-                return Helper.ExecuteOnSTAThreadAsync(() =>
-                {
+                
                     try
                     {
                         if (Array.TrueForAll(Package.RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
@@ -388,11 +387,11 @@ namespace FullTrustProcess
                         LogTracer.Log(ex, "Exception was threw when invoke the context menu item");
                         return false;
                     }
-                });
+                 
             }
             else
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
     }
