@@ -3211,10 +3211,10 @@ Les noms non valides incluent
     <value>Historique du chemin</value>
   </data>
   <data name="SettingPathHistory.OffContent" xml:space="preserve">
-    <value>Enregistré</value>
+    <value>Effacé</value>
   </data>
   <data name="SettingPathHistory.OnContent" xml:space="preserve">
-    <value>Effacé</value>
+    <value>Enregistré</value>
   </data>
   <data name="SettingPrivacy.Text" xml:space="preserve">
     <value>Intimité</value>
@@ -3228,5 +3228,4 @@ Les noms non valides incluent
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>Effacé</value>
   </data>
-
 </root>

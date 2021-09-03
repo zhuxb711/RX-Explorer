@@ -21,6 +21,32 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static IReadOnlyList<HWND> GetCurrentWindowsHandle()
+        {
+            List<HWND> HandleList = new List<HWND>();
+
+            HWND Handle = HWND.NULL;
+
+            while (true)
+            {
+                Handle = User32.FindWindowEx(HWND.NULL, Handle, null, null);
+
+                if (Handle != HWND.NULL && Handle != null)
+                {
+                    if (User32.IsWindowVisible(Handle) && !User32.IsIconic(Handle))
+                    {
+                        HandleList.Add(Handle);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return HandleList;
+        }
+
         public static string GetMIMEFromPath(string Path)
         {
             if (!File.Exists(Path))

@@ -3223,7 +3223,7 @@
     <value>搜索历史记录</value>
   </data>
   <data name="SettingSearchHistory.OffContent" xml:space="preserve">
-    <value>清除</value>
+    <value>清空</value>
   </data>
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>保存</value>

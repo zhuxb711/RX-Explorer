@@ -398,8 +398,8 @@ namespace FullTrustProcess
         {
             LogTracer.Log($"Connection closed, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
 
-            if (!((PipeCommandWriteController?.IsConnected).GetValueOrDefault() 
-                   && (PipeCommandReadController?.IsConnected).GetValueOrDefault() 
+            if (!((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                   && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
                    && (PipeProgressWriterController?.IsConnected).GetValueOrDefault()))
             {
                 ExitLocker.Set();
@@ -1492,13 +1492,16 @@ namespace FullTrustProcess
                                     }
                                 }
 
+                                IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
                                 using (Process RegisterProcess = new Process())
                                 {
                                     RegisterProcess.StartInfo.FileName = TempFile.Path;
                                     RegisterProcess.StartInfo.UseShellExecute = true;
                                     RegisterProcess.Start();
 
-                                    SetWindowsZPosition(RegisterProcess);
+                                    SetWindowsZPosition(RegisterProcess, WindowsBeforeStartup);
+
                                     RegisterProcess.WaitForExit();
                                 }
 
@@ -1539,13 +1542,16 @@ namespace FullTrustProcess
                         {
                             StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
+                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
                             using (Process UnregisterProcess = new Process())
                             {
                                 UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
                                 UnregisterProcess.StartInfo.UseShellExecute = true;
                                 UnregisterProcess.Start();
 
-                                SetWindowsZPosition(UnregisterProcess);
+                                SetWindowsZPosition(UnregisterProcess, WindowsBeforeStartup);
+
                                 UnregisterProcess.WaitForExit();
                             }
 
@@ -2170,9 +2176,11 @@ namespace FullTrustProcess
                                                         {
                                                             NtDll.PROCESS_BASIC_INFORMATION ResultInfo = Marshal.PtrToStructure<NtDll.PROCESS_BASIC_INFORMATION>(Buffer);
 
+                                                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
                                                             using (Process OpenedProcess = Process.GetProcessById(ResultInfo.UniqueProcessId.ToInt32()))
                                                             {
-                                                                SetWindowsZPosition(OpenedProcess);
+                                                                SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
                                                             }
                                                         }
                                                     }
@@ -2209,9 +2217,11 @@ namespace FullTrustProcess
                                                 {
                                                     try
                                                     {
+                                                        IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
                                                         using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
                                                         {
-                                                            SetWindowsZPosition(OpenedProcess);
+                                                            SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
                                                         }
                                                     }
                                                     finally
@@ -2416,10 +2426,19 @@ namespace FullTrustProcess
             return Value;
         }
 
-        private static void SetWindowsZPosition(Process OtherProcess)
+        private static void SetWindowsZPosition(Process OtherProcess, IEnumerable<HWND> WindowsBeforeStartup)
         {
             try
             {
+                void SetWindowsPosFallback(IEnumerable<HWND> WindowsBeforeStartup)
+                {
+                    foreach (HWND Handle in Helper.GetCurrentWindowsHandle().Except(WindowsBeforeStartup))
+                    {
+                        User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                    }
+                }
+
                 if (OtherProcess.WaitForInputIdle(5000))
                 {
                     IntPtr MainWindowHandle = IntPtr.Zero;
@@ -2441,6 +2460,8 @@ namespace FullTrustProcess
 
                     if (MainWindowHandle.CheckIfValidPtr())
                     {
+                        bool IsSuccess = true;
+
                         uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
                         uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
                         uint CurrentThreadId = Kernel32.GetCurrentThreadId();
@@ -2451,14 +2472,14 @@ namespace FullTrustProcess
                             User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
                         }
 
-                        User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                        User32.SetWindowPos(MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        User32.SetWindowPos(MainWindowHandle, new IntPtr(-2), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        User32.SetForegroundWindow(MainWindowHandle);
+                        IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
+                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
 
                         if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
                         {
-                            User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                            IsSuccess &= User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
                         }
 
                         if (ForegroundThreadId != ExecuteThreadId)
@@ -2466,15 +2487,23 @@ namespace FullTrustProcess
                             User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
                             User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
                         }
+
+                        if (!IsSuccess)
+                        {
+                            LogTracer.Log("Could not switch to window because noraml method failed, use fallback function");
+                            SetWindowsPosFallback(WindowsBeforeStartup);
+                        }
                     }
                     else
                     {
-                        LogTracer.Log("Error: Could not switch to window because MainWindowHandle is always invalid");
+                        LogTracer.Log("Could not switch to window because MainWindowHandle is invalid, use fallback function");
+                        SetWindowsPosFallback(WindowsBeforeStartup);
                     }
                 }
                 else
                 {
-                    LogTracer.Log("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
+                    LogTracer.Log("Could not switch to window because WaitForInputIdle is timeout after 5000ms, use fallback function");
+                    SetWindowsPosFallback(WindowsBeforeStartup);
                 }
             }
             catch (InvalidOperationException ex)
