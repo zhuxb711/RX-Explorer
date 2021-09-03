@@ -658,6 +658,24 @@ namespace RX_Explorer
             SettingPane.IsPaneOpen = !SettingPane.IsPaneOpen;
         }
 
+        private async void ItemOpen_Click(object sender, RoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageFile File)
+            {
+                if (!await TryOpenInternally(File))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+            }
+        }
+
         private async void ExportFile_Click(object sender, RoutedEventArgs e)
         {
             FolderPicker Picker = new FolderPicker
@@ -1095,7 +1113,17 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageFile File)
             {
-                await TryOpenInternally(File);
+                if (!await TryOpenInternally(File))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_OpenFailedNotSupported_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
             }
         }
 

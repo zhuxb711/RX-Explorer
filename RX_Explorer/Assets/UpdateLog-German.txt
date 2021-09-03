@@ -1,4 +1,31 @@
 ﻿*****
+###Was ist neu in Ver.7.0.2.0
+
+#####UI-Update
+
+>#####Die Beschränkung der Anzahl der Suchergebnisse wurde aufgehoben
+
+>#####Neue "Datenschutz"-Einstellungen
+
+#####Fehlerbehebung
+
+>#####Es wurde ein Problem behoben, das unter bestimmten Umständen zu Fehlern bei der Vorschau von Dateien in einem "sicheren Bereich" führen kann
+
+>#####Die Kompatibilität zwischen dem integrierten Viewer für komprimierte Dateien und anderen Modulen wurde behoben
+
+>#####Es wurde ein Problem behoben, das beim Ziehen der Bildlaufleiste zu nicht ausgewählten Elementen führen kann
+
+>#####Problem behoben, dass im "Quick Start" möglicherweise zwei Bildlaufleisten vorhanden sind
+
+>#####Das Problem, dass möglicherweise zu viele Datensätze im Pfadverlauf vorhanden sind, wurde behoben
+
+>#####Das Problem wurde behoben, dass einige Kontextmenüelemente nicht richtig aktiviert werden können
+
+>#####Problem behoben, dass in einigen Fällen nicht zu einem anderen Anwendungsfenster gewechselt werden konnte
+
+>#####Das Problem, dass Aufgaben in der Aufgabenliste in einigen Fällen hängen bleiben konnten, wurde behoben und die Zuverlässigkeit der Pipeline-Kommunikation verbessert
+
+*****
 ###Was ist neu in Ver.7.0.0.0
 
 #####Funktionsupdate

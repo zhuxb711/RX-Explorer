@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -42,7 +43,7 @@ namespace UpdateCheckBackgroundTask
             {
                 Cancellation = new CancellationTokenSource();
 
-                if (StoreContext.GetDefault() is StoreContext Context)
+                if (!Package.Current.IsDevelopmentMode && StoreContext.GetDefault() is StoreContext Context)
                 {
                     return (await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token)).Any();
                 }

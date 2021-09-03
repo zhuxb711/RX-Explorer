@@ -1,4 +1,31 @@
 ﻿*****
+###Quoi de neuf dans la version 7.0.2.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Suppression de la limite du nombre de résultats de recherche
+
+>#####Nouveaux paramètres de "Confidentialité"
+
+#####Correction d'un bug
+
+>#####Correction d'un problème pouvant entraîner un échec lors de la prévisualisation des fichiers dans une "zone sécurisée" dans certaines circonstances
+
+>#####Correction de la compatibilité entre la visionneuse de fichiers compressés intégrée et d'autres modules
+
+>#####Correction d'un problème pouvant entraîner des éléments non sélectionnés lors du déplacement de la barre de défilement
+
+>#####Correction du problème selon lequel il pouvait y avoir deux barres de défilement dans le "Démarrage rapide"
+
+>#####Correction du problème selon lequel il pouvait y avoir trop d'enregistrements dans l'historique des chemins
+
+>#####Correction du problème selon lequel certains éléments du menu contextuel pouvaient ne pas être activés correctement
+
+>#####Correction du problème de l'impossibilité de passer à une autre fenêtre d'application dans certains cas
+
+>#####Correction du problème selon lequel les tâches de la liste des tâches pouvaient être bloquées dans certains cas, et amélioration de la fiabilité de la communication du pipeline
+
+*****
 ###Quoi de neuf dans la version 7.0.0.0
 
 #####Mise à jour des fonctionnalités

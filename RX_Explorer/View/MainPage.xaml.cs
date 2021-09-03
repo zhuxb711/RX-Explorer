@@ -589,12 +589,14 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         Content = Globalization.GetString("QueueDialog_ForceUpdate_Content"),
-                        CloseButtonText = Globalization.GetString("CloseButton/Content")
+                        PrimaryButtonText = Globalization.GetString("CloseButton/Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    await Dialog.ShowAsync();
-
-                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                    }
                 }
                 else
                 {

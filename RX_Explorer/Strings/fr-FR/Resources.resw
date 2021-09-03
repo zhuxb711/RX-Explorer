@@ -3228,4 +3228,7 @@ Les noms non valides incluent
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>Effacé</value>
   </data>
+  <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
+    <value>Impossible d'ouvrir le fichier, le type de fichier n'est pas pris en charge</value>
+  </data>
 </root>

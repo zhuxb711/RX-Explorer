@@ -4284,6 +4284,10 @@ Inkorrekte Namen sind
           <source>Saved</source>
           <target state="translated">Gerettet</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailedNotSupported_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open file, the file type is not supported</source>
+          <target state="translated">Datei kann nicht geöffnet werden, der Dateityp wird nicht unterstützt</target>
+        </trans-unit>
       </group>
     </body>
   </file>

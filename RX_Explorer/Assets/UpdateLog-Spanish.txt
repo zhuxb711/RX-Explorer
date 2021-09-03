@@ -1,4 +1,31 @@
 ﻿*****
+###Novedades de la versión 7.0.2.0
+
+##### actualización de la interfaz de usuario
+
+>#####Eliminó el límite en el número de resultados de búsqueda
+
+>#####Nueva configuración de "Privacidad"
+
+#####Arreglo del fallo
+
+>#####Se solucionó un problema que podía causar fallas al obtener una vista previa de los archivos en un "Área segura" en determinadas circunstancias
+
+>#####Se corrigió la compatibilidad entre el visor de archivos comprimido incorporado y otros módulos
+
+>#####Se solucionó un problema que podía causar elementos no seleccionados al arrastrar la barra de desplazamiento
+
+>#####Se solucionó el problema de que puede haber dos barras de desplazamiento en el "Inicio rápido"
+
+>#####Se solucionó el problema de que puede haber demasiados registros en el historial de la ruta
+
+>#####Se solucionó el problema de que algunos elementos del menú contextual no se activaran correctamente
+
+>#####Se solucionó el problema de no poder cambiar a otra ventana de la aplicación en algunos casos
+
+>#####Se solucionó el problema de que las tareas en la lista de tareas se pueden bloquear en algunos casos y se mejoró la confiabilidad de la comunicación de la canalización
+
+*****
 ###Novedades de la versión 7.0.0.0
 
 #####Actualización de funciones

@@ -4286,6 +4286,10 @@ Invalid names include
           <source>Saved</source>
           <target state="translated">保存</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailedNotSupported_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open file, the file type is not supported</source>
+          <target state="translated">无法打开文件，该文件类型不受支持</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3333,4 +3333,7 @@ Invalid names include
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>Saved</value>
   </data>
+  <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
+    <value>Unable to open file, the file type is not supported</value>
+  </data>
 </root>

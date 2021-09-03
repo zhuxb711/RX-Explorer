@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.7.0.2.0
+
+#####UI update
+
+>#####Removed the limit on the number of search results
+
+>#####New "Privacy" settings
+
+#####Bug fix
+
+>#####Fixed an issue that may cause failure when previewing files in a "Secure Area" under certain circumstances
+
+>#####Fixed the compatibility between the built-in compressed file viewer and other modules
+
+>#####Fixed an issue that may cause unselected items when dragging the scroll bar
+
+>#####Fixed the problem that there may be two scroll bars in the "Quick Start"
+
+>#####Fixed the problem that there may be too many records in the path history
+
+>#####Fixed the problem that some context menu items may not be activated correctly
+
+>#####Fixed the problem of not being able to switch to another application window in some cases
+
+>#####Fixed the problem that tasks in the task list may be stuck in some cases, and improved the reliability of pipeline communication
+
+*****
 ###What's new in Ver.7.0.0.0
 
 #####Feature update

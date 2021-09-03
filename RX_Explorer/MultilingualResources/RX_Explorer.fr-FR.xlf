@@ -4286,6 +4286,10 @@ Les noms non valides incluent
           <source>Saved</source>
           <target state="translated">Effacé</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailedNotSupported_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open file, the file type is not supported</source>
+          <target state="translated">Impossible d'ouvrir le fichier, le type de fichier n'est pas pris en charge</target>
+        </trans-unit>
       </group>
     </body>
   </file>

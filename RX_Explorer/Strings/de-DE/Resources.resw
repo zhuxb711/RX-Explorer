@@ -3228,4 +3228,7 @@ Inkorrekte Namen sind
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>Gerettet</value>
   </data>
+  <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
+    <value>Datei kann nicht geöffnet werden, der Dateityp wird nicht unterstützt</value>
+  </data>
 </root>

@@ -3228,4 +3228,7 @@ Las denominaciones no válidas son:
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>Salvado</value>
   </data>
+  <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
+    <value>No se puede abrir el archivo, el tipo de archivo no es compatible</value>
+  </data>
 </root>

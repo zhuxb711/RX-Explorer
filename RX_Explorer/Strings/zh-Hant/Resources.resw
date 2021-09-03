@@ -3228,4 +3228,7 @@
   <data name="SettingSearchHistory.OnContent" xml:space="preserve">
     <value>保存</value>
   </data>
+  <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
+    <value>無法打開文件，文件類型不受支持</value>
+  </data>
 </root>

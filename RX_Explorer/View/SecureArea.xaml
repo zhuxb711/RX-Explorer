@@ -1,7 +1,7 @@
 ﻿<Page x:Class="RX_Explorer.SecureArea"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:RX_Explorer.Class"
+      xmlns:Cls="using:RX_Explorer.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -15,6 +15,10 @@
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="OpenFile"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
+                              MinWidth="200"
+                              Click="ItemOpen_Click" />
                 <AppBarButton Icon="Import"
                               Label="导出"
                               MinWidth="200"
@@ -115,7 +119,7 @@
                   Grid.Row="1"
                   AllowDrop="True"
                   ItemsSource="{x:Bind SecureCollection}"
-                  ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}"
                   Padding="20,10,20,10"
                   SelectionMode="Extended"
                   IsHoldingEnabled="True"
@@ -128,7 +132,7 @@
                   RightTapped="SecureGridView_RightTapped"
                   ContainerContentChanging="SecureGridView_ContainerContentChanging" >
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="local:FileSystemStorageFile">
+                <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                     <StackPanel Padding="5"
                                 Width="220"
                                 Orientation="Horizontal">
@@ -228,7 +232,7 @@
                                      Name="CloseLockMode" />
                     </StackPanel>
                     <StackPanel  Margin="0,20,0,0">
-                        <TextBlock Text="{x:Bind local:Globalization.GetString('SecureArea_StorageLocation_Title')}"
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
                                    FontSize="22" />
                         <TextBlock Margin="0,10"
                                    TextWrapping="Wrap"
@@ -237,7 +241,7 @@
                                    TextTrimming="CharacterEllipsis"
                                    ToolTipService.ToolTip="{x:Bind StorageLocation.Text, Mode=OneWay}"
                                    Name="StorageLocation"/>
-                        <Button Content="{x:Bind local:Globalization.GetString('SecureArea_StorageLocation_ChangeButton')}"
+                        <Button Content="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_ChangeButton')}"
                                 MinWidth="100"
                                 Name="ChangeLocation"
                                 Click="ChangeLocation_Click"/>
@@ -264,7 +268,7 @@
                     VerticalAlignment="Center"
                     IsHitTestVisible="False"
                     Name="EmptyTips"
-                    ChildrenTransitions="{x:Bind local:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
+                    ChildrenTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
             <Image Source="ms-appx:///Assets/Lock.png"
                    Stretch="Uniform"
                    Width="100" />
