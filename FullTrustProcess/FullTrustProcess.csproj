@@ -102,6 +102,7 @@
     <Compile Include="NamedPipeReadController.cs" />
     <Compile Include="NamedPipeWriteController.cs" />
     <Compile Include="RemoteDataObject.cs" />
+    <Compile Include="STAThreadController.cs" />
     <Compile Include="StorageController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

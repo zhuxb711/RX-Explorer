@@ -44,7 +44,8 @@ namespace FullTrustProcess
 
         private static NamedPipeWriteController PipeProgressWriterController;
 
-        static async Task Main(string[] args)
+        [STAThread]
+        static void Main(string[] args)
         {
             try
             {
@@ -62,7 +63,7 @@ namespace FullTrustProcess
                     Connection.RequestReceived += Connection_RequestReceived;
                     Connection.ServiceClosed += Connection_ServiceClosed;
 
-                    AppServiceConnectionStatus Status = await Connection.OpenAsync();
+                    AppServiceConnectionStatus Status = Connection.OpenAsync().AsTask().Result;
 
                     if (Status == AppServiceConnectionStatus.Success)
                     {
@@ -75,7 +76,7 @@ namespace FullTrustProcess
 
                             if (Directory.Exists(TempFolderPath))
                             {
-                                await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
+                                ContextMenu.GetContextMenuItems(TempFolderPath);
                             }
                         }
                         catch (Exception ex)
@@ -824,9 +825,10 @@ namespace FullTrustProcess
                         {
                             string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExecutePath"]));
 
-                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]));
-
-                            Value.Add("Success", JsonSerializer.Serialize(ContextMenuItems));
+                            await Helper.ExecuteOnSTAThreadAsync(() =>
+                            {
+                                Value.Add("Success", JsonSerializer.Serialize(ContextMenu.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
+                            });
 
                             break;
                         }
@@ -834,14 +836,17 @@ namespace FullTrustProcess
                         {
                             ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(Convert.ToString(CommandValue["DataPackage"]));
 
-                            if (await ContextMenu.InvokeVerbAsync(Package))
+                            await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                Value.Add("Success", string.Empty);
-                            }
-                            else
-                            {
-                                Value.Add("Error", $"Execute Id: \"{Package.Id}\", Verb: \"{Package.Verb}\" failed");
-                            }
+                                if (ContextMenu.InvokeVerb(Package))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", $"Execute Id: \"{Package.Id}\", Verb: \"{Package.Verb}\" failed");
+                                }
+                            });
 
                             break;
                         }
@@ -2311,51 +2316,42 @@ namespace FullTrustProcess
 
                             if (await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                try
+                                RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
+
+                                foreach (RemoteDataObject.DataPackage Package in Rdo.GetRemoteData())
                                 {
-                                    RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
-
-                                    foreach (RemoteDataObject.DataPackage Package in Rdo.GetRemoteData())
+                                    try
                                     {
-                                        try
+                                        if (Package.ItemType == RemoteDataObject.StorageType.File)
                                         {
-                                            if (Package.ItemType == RemoteDataObject.StorageType.File)
+                                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                            if (!Directory.Exists(DirectoryPath))
                                             {
-                                                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                                if (!Directory.Exists(DirectoryPath))
-                                                {
-                                                    Directory.CreateDirectory(DirectoryPath);
-                                                }
-
-                                                string UniqueName = StorageController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
-
-                                                using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
-                                                {
-                                                    Package.ContentStream.CopyTo(Stream);
-                                                }
+                                                Directory.CreateDirectory(DirectoryPath);
                                             }
-                                            else
-                                            {
-                                                string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
 
-                                                if (!Directory.Exists(DirectoryPath))
-                                                {
-                                                    Directory.CreateDirectory(DirectoryPath);
-                                                }
+                                            string UniqueName = StorageController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+
+                                            using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
+                                            {
+                                                Package.ContentStream.CopyTo(Stream);
                                             }
                                         }
-                                        finally
+                                        else
                                         {
-                                            Package.Dispose();
+                                            string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
+
+                                            if (!Directory.Exists(DirectoryPath))
+                                            {
+                                                Directory.CreateDirectory(DirectoryPath);
+                                            }
                                         }
                                     }
-
-                                    return true;
-                                }
-                                catch
-                                {
-                                    return false;
+                                    finally
+                                    {
+                                        Package.Dispose();
+                                    }
                                 }
                             }))
                             {
