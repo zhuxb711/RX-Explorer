@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -44,57 +43,33 @@ namespace FullTrustProcess
             }
         }
 
-        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
+        public static ContextMenuPackage[] GetContextMenuItems(string Path, bool IncludeExtensionItem = false)
         {
-            return FetchContextMenuItemsAsync(new string[] { Path }, IncludeExtensionItem);
+            return GetContextMenuItems(new string[] { Path }, IncludeExtensionItem);
         }
 
-        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
+        public static ContextMenuPackage[] GetContextMenuItems(string[] PathArray, bool IncludeExtensionItem = false)
         {
             if (PathArray.Length > 0)
             {
-                return Helper.ExecuteOnSTAThreadAsync(() =>
+                if (Array.TrueForAll(PathArray, (Path) => File.Exists(Path) || Directory.Exists(Path)))
                 {
-                    try
-                    {
-                        if (Array.TrueForAll(PathArray, (Path) => File.Exists(Path) || Directory.Exists(Path)))
-                        {
-                            Shell32.IContextMenu ContextObject = GetContextMenuObject(PathArray);
+                    Shell32.IContextMenu ContextObject = GetContextMenuObject(PathArray);
 
-                            if (ContextObject != null)
-                            {
-                                using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
-                                {
-                                    if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
-                                    {
-                                        return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
-                                    }
-                                    else
-                                    {
-                                        return Array.Empty<ContextMenuPackage>();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                return Array.Empty<ContextMenuPackage>();
-                            }
-                        }
-                        else
-                        {
-                            return Array.Empty<ContextMenuPackage>();
-                        }
-                    }
-                    catch
+                    if (ContextObject != null)
                     {
-                        return Array.Empty<ContextMenuPackage>();
+                        using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                        {
+                            if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                            {
+                                return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                            }
+                        }
                     }
-                });
+                }
             }
-            else
-            {
-                return Task.FromResult(Array.Empty<ContextMenuPackage>());
-            }
+
+            return Array.Empty<ContextMenuPackage>();
         }
 
         [SecurityCritical]
@@ -323,74 +298,62 @@ namespace FullTrustProcess
 
         [SecurityCritical]
         [HandleProcessCorruptedStateExceptions]
-        public static bool InvokeVerbAsync(ContextMenuPackage Package)
+        public static bool InvokeVerb(ContextMenuPackage Package)
         {
-            if (Package.RelatedPath.Length > 0)
+            try
             {
-                
-                    try
+                if (Package.RelatedPath.Length > 0)
+                {
+                    if (Array.TrueForAll(Package.RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
                     {
-                        if (Array.TrueForAll(Package.RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
+                        using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                         {
                             Shell32.IContextMenu ContextObject = GetContextMenuObject(Package.RelatedPath);
 
-                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                            if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (Package.IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
                             {
-                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (Package.IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                                if (!string.IsNullOrEmpty(Package.Verb))
                                 {
-                                    if (!string.IsNullOrEmpty(Package.Verb))
+                                    using (SafeResourceId VerbId = new SafeResourceId(Package.Verb))
                                     {
-                                        using (SafeResourceId VerbId = new SafeResourceId(Package.Verb))
+                                        Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
                                         {
-                                            Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
-                                            {
-                                                lpVerb = VerbId,
-                                                lpVerbW = Package.Verb,
-                                                nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                                fMask = Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
-                                                cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
-                                            };
-
-                                            if (ContextObject.InvokeCommand(VerbInvokeCommand).Succeeded)
-                                            {
-                                                return true;
-                                            }
-                                        }
-                                    }
-
-                                    using (SafeResourceId ResSID = new SafeResourceId(Package.Id))
-                                    {
-                                        Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
-                                        {
-                                            lpVerb = ResSID,
+                                            lpVerb = VerbId,
+                                            lpVerbW = Package.Verb,
                                             nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                                            fMask = Shell32.CMIC.CMIC_MASK_ASYNCOK,
+                                            fMask = Shell32.CMIC.CMIC_MASK_UNICODE | Shell32.CMIC.CMIC_MASK_ASYNCOK,
                                             cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
                                         };
 
-                                        return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;
+                                        if (ContextObject.InvokeCommand(VerbInvokeCommand).Succeeded)
+                                        {
+                                            return true;
+                                        }
                                     }
                                 }
-                                else
+
+                                using (SafeResourceId ResSID = new SafeResourceId(Package.Id))
                                 {
-                                    return false;
+                                    Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                                    {
+                                        lpVerb = ResSID,
+                                        nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                        fMask = Shell32.CMIC.CMIC_MASK_ASYNCOK,
+                                        cbSize = Convert.ToUInt32(Marshal.SizeOf<Shell32.CMINVOKECOMMANDINFOEX>())
+                                    };
+
+                                    return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;
                                 }
                             }
                         }
-                        else
-                        {
-                            return false;
-                        }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Exception was threw when invoke the context menu item");
-                        return false;
-                    }
-                 
+                }
+
+                return false;
             }
-            else
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Exception was threw when invoke the context menu item");
                 return false;
             }
         }

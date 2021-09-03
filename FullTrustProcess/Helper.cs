@@ -207,81 +207,16 @@ namespace FullTrustProcess
             }
         }
 
-        public static Task ExecuteOnSTAThreadAsync(Action Executor)
+        public static Task<bool> ExecuteOnSTAThreadAsync(Action Act)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                TaskCompletionSource CompletionSource = new TaskCompletionSource();
-
-                Thread STAThread = new Thread(() =>
-                {
-                    Ole32.OleInitialize();
-
-                    try
-                    {
-                        Executor();
-                        CompletionSource.SetResult();
-                    }
-                    catch (Exception ex)
-                    {
-                        CompletionSource.SetException(ex);
-                    }
-                    finally
-                    {
-                        Ole32.OleUninitialize();
-                    }
-                })
-                {
-                    IsBackground = true,
-                    Priority = ThreadPriority.Normal
-                };
-                STAThread.SetApartmentState(ApartmentState.STA);
-                STAThread.Start();
-
-                return CompletionSource.Task;
+                return STAThreadController.Current.RunAsync(Act);
             }
             else
             {
-                Executor();
-                return Task.CompletedTask;
-            }
-        }
-
-        public static Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executor)
-        {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
-
-                Thread STAThread = new Thread(() =>
-                {
-                    Ole32.OleInitialize();
-
-                    try
-                    {
-                        CompletionSource.SetResult(Executor());
-                    }
-                    catch (Exception ex)
-                    {
-                        CompletionSource.SetException(ex);
-                    }
-                    finally
-                    {
-                        Ole32.OleUninitialize();
-                    }
-                })
-                {
-                    IsBackground = true,
-                    Priority = ThreadPriority.Normal
-                };
-                STAThread.SetApartmentState(ApartmentState.STA);
-                STAThread.Start();
-
-                return CompletionSource.Task;
-            }
-            else
-            {
-                return Task.FromResult(Executor());
+                Act();
+                return Task.FromResult(true);
             }
         }
 
@@ -352,46 +287,37 @@ namespace FullTrustProcess
         {
             return ExecuteOnSTAThreadAsync(() =>
             {
-                try
+                if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
                 {
-                    if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
+                    if (PathArray.Length > 0)
                     {
-                        if (PathArray.Length > 0)
+                        List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
+
+                        try
                         {
-                            List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
-
-                            try
+                            foreach (string Path in PathArray)
                             {
-                                foreach (string Path in PathArray)
-                                {
-                                    SItemList.Add(new ShellItem(Path));
-                                }
-
-                                using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
-                                {
-                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
-                                }
+                                SItemList.Add(new ShellItem(Path));
                             }
-                            finally
+
+                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
                             {
-                                SItemList.ForEach((Item) => Item.Dispose());
+                                Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
                             }
                         }
-                        else
+                        finally
                         {
-                            Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+                            SItemList.ForEach((Item) => Item.Dispose());
                         }
-
-                        return true;
                     }
                     else
                     {
-                        return false;
+                        Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
                     }
                 }
-                catch
+                else
                 {
-                    return false;
+                    throw new NotSupportedException();
                 }
             });
         }
