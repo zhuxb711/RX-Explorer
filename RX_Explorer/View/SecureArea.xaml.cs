@@ -660,7 +660,7 @@ namespace RX_Explorer
 
         private async void ItemOpen_Click(object sender, RoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageFile File)
+            if (SecureGridView.SelectedItem is FileSystemStorageFile File)
             {
                 if (!await TryOpenInternally(File))
                 {

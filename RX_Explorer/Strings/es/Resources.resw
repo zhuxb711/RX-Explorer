@@ -1532,13 +1532,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>Enciende el Bluetooth e inténtalo de nuevo.</value>
   </data>
-  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX Explorer no ha podido abrir este archivo.\r\rSin embargo, se puede abrir con otras aplicaciones.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
-    <value>Aplicación por defecto</value>
-  </data>
   <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
     <value>No se ha podido analizar este archivo PDF; no se ha podido abrir el PDF.</value>
   </data>

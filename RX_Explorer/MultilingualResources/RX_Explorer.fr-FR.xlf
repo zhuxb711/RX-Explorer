@@ -1936,15 +1936,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Please turn on Bluetooth and try again</source>
           <target state="translated">Veuillez activer le Bluetooth puis réessayez</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX-Explorateur n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Default app</source>
-          <target state="translated">Application par défaut</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
           <source>Unable to parse this PDF file, failed to open PDF</source>
           <target state="translated">Impossible de coller ce fichier PDF, l'ouverture a échoué</target>

@@ -1532,13 +1532,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>Bitte schalten Sie Bluetooth ein und versuchen sie es erneut.</value>
   </data>
-  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX-Explorer konnte die Datei nichht öffnen.\r\rAber sie kann mit anderen Programmen geöffnet werden.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
-    <value>Standard-App</value>
-  </data>
   <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
     <value>PDF-Datei konnte nicht analysiert werden. PDF-Datei konnte nicht geöffnet werden.</value>
   </data>

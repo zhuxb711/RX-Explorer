@@ -2022,15 +2022,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Please turn on Bluetooth and try again</source>
           <target state="translated">Bitte schalten Sie Bluetooth ein und versuchen sie es erneut.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX-Explorer konnte die Datei nichht öffnen.\r\rAber sie kann mit anderen Programmen geöffnet werden.</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Default app</source>
-          <target state="translated">Standard-App</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
           <source>Unable to parse this PDF file, failed to open PDF</source>
           <target state="translated">PDF-Datei konnte nicht analysiert werden. PDF-Datei konnte nicht geöffnet werden.</target>

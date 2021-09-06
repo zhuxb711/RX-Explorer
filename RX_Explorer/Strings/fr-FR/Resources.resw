@@ -1467,13 +1467,6 @@
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>Veuillez activer le Bluetooth puis réessayez</value>
   </data>
-  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX-Explorateur n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
-    <value>Application par défaut</value>
-  </data>
   <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
     <value>Impossible de coller ce fichier PDF, l'ouverture a échoué</value>
   </data>

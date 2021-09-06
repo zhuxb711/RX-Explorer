@@ -319,18 +319,19 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        foreach (StorageFolder Folder in await GetWslDriveAsync())
+
+                        foreach (StorageFolder WslFolder in await GetWslDriveAsync())
                         {
                             try
                             {
-                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(WslFolder.Path)) ? !Item.Name.Equals(WslFolder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(WslFolder.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Network, Folder));
+                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Network, WslFolder));
                                 }
                             }
                             catch (Exception ex)
                             {
-                                LogTracer.Log(ex, $"Hide the device \"{Folder.Name}\" for error");
+                                LogTracer.Log(ex, $"An exception was threw and hide the drive: \"{WslFolder.Name}\"");
                             }
                         }
 

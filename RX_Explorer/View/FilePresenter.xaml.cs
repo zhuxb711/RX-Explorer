@@ -3007,7 +3007,17 @@ namespace RX_Explorer
             {
                 if (Dialog.SelectedProgram.Path.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
                 {
-                    TryOpenInternally(File);
+                    if (!TryOpenInternally(File))
+                    {
+                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog1.ShowAsync();
+                    }
                 }
                 else
                 {
@@ -3038,19 +3048,12 @@ namespace RX_Explorer
                                 {
                                     QueueContentDialog Dialog1 = new QueueContentDialog
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    if (await Dialog1.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        if (!await Launcher.LaunchFileAsync(InnerFile))
-                                        {
-                                            await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { DisplayApplicationPicker = true });
-                                        }
-                                    }
+                                    await Dialog1.ShowAsync();
                                 }
                             }
                         }
@@ -3063,11 +3066,12 @@ namespace RX_Explorer
                             {
                                 QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
+
+                                await Dialog1.ShowAsync();
                             }
                         }
                     }

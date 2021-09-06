@@ -1467,13 +1467,6 @@
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>请开启蓝牙开关后再试</value>
   </data>
-  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX文件管理器无法打开此文件\r\r但可以使用其他应用打开</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
-    <value>默认应用</value>
-  </data>
   <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
     <value>无法解析此PDF文件，PDF打开失败</value>
   </data>

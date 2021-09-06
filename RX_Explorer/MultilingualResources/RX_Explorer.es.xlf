@@ -2022,15 +2022,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Please turn on Bluetooth and try again</source>
           <target state="translated">Enciende el Bluetooth e inténtalo de nuevo.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX Explorer no ha podido abrir este archivo.\r\rSin embargo, se puede abrir con otras aplicaciones.</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Default app</source>
-          <target state="translated">Aplicación por defecto</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
           <source>Unable to parse this PDF file, failed to open PDF</source>
           <target state="translated">No se ha podido analizar este archivo PDF; no se ha podido abrir el PDF.</target>

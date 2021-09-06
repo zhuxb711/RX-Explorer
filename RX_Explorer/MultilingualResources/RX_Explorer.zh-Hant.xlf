@@ -1961,15 +1961,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Please turn on Bluetooth and try again</source>
           <target state="translated">請重新打開藍牙</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX 檔案總管無法打開該檔案\r\r但是可以透過其他應用程式打開</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Default app</source>
-          <target state="translated" state-qualifier="tm-suggestion">預設應用程式</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
           <source>Unable to parse this PDF file, failed to open PDF</source>
           <target state="translated">無法解析此PDF文件，無法打開PDF</target>

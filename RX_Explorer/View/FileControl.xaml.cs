@@ -618,12 +618,24 @@ namespace RX_Explorer
 
                 if (QuickAccessNode.IsExpanded)
                 {
-                    QuickAccessNode.Children.Add(new TreeViewNode
+                    if (await e.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                     {
-                        IsExpanded = false,
-                        Content = new TreeViewNodeContent(e.StorageItem.Path, e.StorageItem.DisplayName),
-                        HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                    });
+                        QuickAccessNode.Children.Add(new TreeViewNode
+                        {
+                            IsExpanded = false,
+                            Content = new TreeViewNodeContent(Folder),
+                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                        });
+                    }
+                    else
+                    {
+                        QuickAccessNode.Children.Add(new TreeViewNode
+                        {
+                            IsExpanded = false,
+                            Content = new TreeViewNodeContent(e.StorageItem.Path),
+                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -752,79 +764,86 @@ namespace RX_Explorer
 
             if (Node.Content is TreeViewNodeContent Content)
             {
-                try
+                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
-                    {
-                        IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
+                    IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
 
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    {
+                        for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()); i++)
                         {
-                            for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.ToArray()); i++)
+                            if (StorageItemPath[i] is FileSystemStorageFolder DeviceFolder)
                             {
-                                if (StorageItemPath[i] is FileSystemStorageFolder DeviceFolder)
+                                TreeViewNode NewNode = new TreeViewNode
                                 {
-                                    TreeViewNode NewNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(DeviceFolder.Path),
-                                        HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                                    };
+                                    Content = new TreeViewNodeContent(DeviceFolder.Path),
+                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                };
 
-                                    Node.Children.Add(NewNode);
-                                }
+                                Node.Children.Add(NewNode);
                             }
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(FillTreeNodeAsync)}");
-                }
-                finally
-                {
-                    if (!Node.IsExpanded)
-                    {
-                        Node.Children.Clear();
-                    }
+                        }
+                    });
                 }
             }
         }
 
         private async void FolderTree_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
         {
-            if ((args.Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
+                if ((args.Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                 {
-                    LibraryStorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i];
-
-                    if (await LibFolder.GetStorageItemAsync() is StorageFolder Folder)
+                    if (CommonAccessCollection.LibraryFolderList.Count > 0)
                     {
-                        TreeViewNode LibNode = new TreeViewNode
+                        for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
                         {
-                            Content = new TreeViewNodeContent(Folder),
-                            IsExpanded = false,
-                            HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        };
+                            LibraryStorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i];
 
-                        args.Node.Children.Add(LibNode);
+                            if (await LibFolder.GetStorageItemAsync() is StorageFolder Folder)
+                            {
+                                TreeViewNode LibNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(Folder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                };
+
+                                args.Node.Children.Add(LibNode);
+                            }
+                            else
+                            {
+                                TreeViewNode LibNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(LibFolder.Path),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                };
+
+                                args.Node.Children.Add(LibNode);
+                            }
+                        }
                     }
-                    else
+                    else if (!SettingControl.LibraryExpanderIsExpanded)
                     {
-                        TreeViewNode LibNode = new TreeViewNode
-                        {
-                            Content = new TreeViewNodeContent(LibFolder.Path),
-                            IsExpanded = false,
-                            HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        };
-
-                        args.Node.Children.Add(LibNode);
+                        await CommonAccessCollection.LoadLibraryFoldersAsync();
                     }
                 }
+                else
+                {
+                    await FillTreeNodeAsync(args.Node);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await FillTreeNodeAsync(args.Node);
+                LogTracer.Log(ex, $"An error was threw in {nameof(FolderTree_Expanding)}");
+            }
+            finally
+            {
+                if (!args.Node.IsExpanded)
+                {
+                    args.Node.Children.Clear();
+                }
             }
         }
 
@@ -3263,7 +3282,9 @@ namespace RX_Explorer
 
         private void FolderTree_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (e.OriginalSource is FrameworkElement Element && Element.FindParentOfType<TreeViewItem>() is TreeViewItem Item)
+            if (e.OriginalSource is FrameworkElement Element
+                && Element.Name != "ExpandCollapseChevron"
+                && Element.FindParentOfType<TreeViewItem>() is TreeViewItem Item)
             {
                 Item.IsExpanded = !Item.IsExpanded;
             }

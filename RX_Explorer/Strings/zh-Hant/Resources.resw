@@ -1486,13 +1486,6 @@
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>請重新打開藍牙</value>
   </data>
-  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX 檔案總管無法打開該檔案\r\r但是可以透過其他應用程式打開</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
-    <value>預設應用程式</value>
-  </data>
   <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
     <value>無法解析此PDF文件，無法打開PDF</value>
   </data>
