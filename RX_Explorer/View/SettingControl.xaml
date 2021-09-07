@@ -771,8 +771,7 @@
                               HorizontalAlignment="Left"
                               Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
                               x:Name="SpecificTabListView"
-                              SelectionMode="None"
-                              Loaded="SpecificTabListView_Loaded">
+                              SelectionMode="None">
                         <ListView.Header>
                             <Grid Padding="0,5">
                                 <Grid.ColumnDefinitions>

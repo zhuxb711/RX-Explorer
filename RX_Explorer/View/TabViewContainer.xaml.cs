@@ -12,7 +12,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
 using Windows.Storage;
@@ -37,7 +36,7 @@ namespace RX_Explorer
     {
         public static Frame CurrentNavigationControl { get; private set; }
 
-        public ObservableCollection<TabViewItem> TabCollection { get; private set; } = new ObservableCollection<TabViewItem>();
+        public ObservableCollection<TabViewItem> TabCollection { get; }
 
         public static TabViewContainer Current { get; private set; }
 
@@ -50,10 +49,13 @@ namespace RX_Explorer
             InitializeComponent();
 
             Current = this;
+
             PreviewTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(3)
             };
+
+            TabCollection = new ObservableCollection<TabViewItem>();
 
             PreviewTimer.Tick += PreviewTimer_Tick;
             Loaded += TabViewContainer_Loaded;
@@ -107,6 +109,48 @@ namespace RX_Explorer
                     }
                 };
             }
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            if (StartupModeController.Mode == StartupMode.LastOpenedTab)
+            {
+                SaveLastOpenedTab();
+            }
+        }
+
+        private void SaveLastOpenedTab()
+        {
+            List<string[]> PathList = new List<string[]>();
+
+            foreach (TabViewItem Item in TabCollection)
+            {
+                if (Item.Tag is FileControl Control)
+                {
+                    if (Control.BladeViewer.Items.Count == 0)
+                    {
+                        if (Item.Content is Frame frame && frame.Tag is string[] InitPathArray)
+                        {
+                            PathList.Add(InitPathArray);
+                        }
+                    }
+                    else
+                    {
+                        PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>()
+                                                              .Select((Blade) => Blade.Content)
+                                                              .OfType<FilePresenter>()
+                                                              .Select((Presenter) => Presenter.CurrentFolder?.Path)
+                                                              .Where((Path) => !string.IsNullOrWhiteSpace(Path))
+                                                              .ToArray());
+                    }
+                }
+                else
+                {
+                    PathList.Add(Array.Empty<string>());
+                }
+            }
+
+            StartupModeController.SetLastOpenedPath(PathList);
         }
 
         private async void PreviewTimer_Tick(object sender, object e)
@@ -563,41 +607,6 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
-        {
-            if (StartupModeController.GetStartupMode() == StartupMode.LastOpenedTab)
-            {
-                List<string[]> PathList = new List<string[]>();
-
-                foreach (TabViewItem Item in TabCollection)
-                {
-                    if (Item.Tag is FileControl Control)
-                    {
-                        if (Control.BladeViewer.Items.Count == 0)
-                        {
-                            if (Item.Content is Frame frame && frame.Tag is string[] InitPathArray)
-                            {
-                                PathList.Add(InitPathArray);
-                            }
-                        }
-                        else
-                        {
-                            PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                  .Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path)
-                                                                  .Select((Path) => Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) ? string.Empty : Path)
-                                                                  .ToArray());
-                        }
-                    }
-                    else
-                    {
-                        PathList.Add(Array.Empty<string>());
-                    }
-                }
-
-                StartupModeController.SetLastOpenedPath(PathList);
-            }
-        }
-
         private async void TabViewContainer_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= TabViewContainer_Loaded;
@@ -635,7 +644,6 @@ namespace RX_Explorer
         private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
             await CreateNewTabAsync();
-            sender.SelectedIndex = TabCollection.Count - 1;
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
@@ -678,9 +686,9 @@ namespace RX_Explorer
 
             List<string> ValidPathArray = new List<string>();
 
-            foreach (string Path in PathForNewTab)
+            foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
             {
-                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExistAsync(Path))
+                if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) || await FileSystemStorageItemBase.CheckExistAsync(Path))
                 {
                     ValidPathArray.Add(Path);
                 }
