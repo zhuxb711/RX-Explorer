@@ -2029,7 +2029,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (SelectedItem == Context && SettingControl.IsDoubleClickEnabled)
+                                if (SelectedItem == Context)
                                 {
                                     switch (Context)
                                     {
@@ -2505,6 +2505,8 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
+                    OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
+
                     FileSystemStorageItemBase TargetItem = null;
 
                     for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
@@ -2683,7 +2685,9 @@ namespace RX_Explorer
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnabled && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
+            if (!SettingControl.IsDoubleClickEnabled 
+                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple 
+                && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 DelaySelectionCancellation?.Cancel();
 
@@ -3297,6 +3301,8 @@ namespace RX_Explorer
 
                     if (NewFile != null)
                     {
+                        OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
+
                         FileSystemStorageItemBase TargetItem = null;
 
                         for (int MaxSearchLimit = 0; MaxSearchLimit < 4; MaxSearchLimit++)
@@ -3749,7 +3755,7 @@ namespace RX_Explorer
                     DelaySelectionCancellation?.Dispose();
                     DelaySelectionCancellation = new CancellationTokenSource();
 
-                    Task.Delay(700).ContinueWith((task, input) =>
+                    Task.Delay(800).ContinueWith((task, input) =>
                     {
                         if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
@@ -3920,7 +3926,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (SelectedItem == Context && SettingControl.IsDoubleClickEnabled)
+                                if (SelectedItem == Context)
                                 {
                                     switch (Context)
                                     {
@@ -4116,9 +4122,14 @@ namespace RX_Explorer
 
         private void EditBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
-            if (e.Key == VirtualKey.Enter)
+            switch (e.Key)
             {
-                ItemPresenter.Focus(FocusState.Programmatic);
+                case VirtualKey.Enter:
+                    {
+                        e.Handled = true;
+                        ItemPresenter.Focus(FocusState.Programmatic);
+                        break;
+                    }
             }
         }
 
@@ -4546,16 +4557,13 @@ namespace RX_Explorer
 
         private void ViewControl_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
-            if (e.OriginalSource is not TextBox)
+            switch (e.Key)
             {
-                switch (e.Key)
-                {
-                    case VirtualKey.Space:
-                        {
-                            e.Handled = true;
-                            break;
-                        }
-                }
+                case VirtualKey.Space when e.OriginalSource is not TextBox:
+                    {
+                        e.Handled = true;
+                        break;
+                    }
             }
         }
 

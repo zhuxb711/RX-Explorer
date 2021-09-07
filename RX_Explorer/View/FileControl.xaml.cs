@@ -1152,7 +1152,11 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistAsync(Path))
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is not FileSystemStorageFolder)
+                if (await FileSystemStorageItemBase.CreateNewAsync(System.IO.Path.Combine(Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
+                {
+                    OperationRecorder.Current.Push(new string[] { $"{Folder.Path}||New" });
+                }
+                else
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {

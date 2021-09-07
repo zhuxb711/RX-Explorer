@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                _ = Interlocked.Increment(ref WaitCount);
+                Interlocked.Increment(ref WaitCount);
 
                 await Locker.WaitAsync();
 
@@ -38,7 +38,7 @@ namespace RX_Explorer.Class
             finally
             {
                 Locker.Release();
-                _ = Interlocked.Decrement(ref WaitCount);
+                Interlocked.Decrement(ref WaitCount);
             }
         }
 

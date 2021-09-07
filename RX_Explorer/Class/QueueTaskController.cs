@@ -920,39 +920,13 @@ namespace RX_Explorer.Class
                             {
                                 CompressionUtil.SetEncoding(Encoding.Default);
 
-                                switch (CModel.Type)
+                                using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
                                 {
-                                    case CompressionType.Zip:
-                                        {
-                                            CompressionUtil.CreateZipAsync(CModel.CompressionFrom, CModel.CompressionTo, CModel.Level, CModel.Algorithm, (s, e) =>
+                                    switch (CModel.Type)
+                                    {
+                                        case CompressionType.Zip:
                                             {
-                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                {
-                                                    CModel.UpdateProgress(e.ProgressPercentage);
-                                                    ProgressChangedCore();
-                                                }).AsTask().Wait();
-                                            }).Wait();
-
-                                            break;
-                                        }
-                                    case CompressionType.Tar:
-                                        {
-                                            CompressionUtil.CreateTarAsync(CModel.CompressionFrom, CModel.CompressionTo, CModel.Level, CModel.Algorithm, (s, e) =>
-                                            {
-                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                                {
-                                                    CModel.UpdateProgress(e.ProgressPercentage);
-                                                    ProgressChangedCore();
-                                                }).AsTask().Wait();
-                                            }).Wait();
-
-                                            break;
-                                        }
-                                    case CompressionType.Gzip:
-                                        {
-                                            if (CModel.CompressionFrom.Length == 1)
-                                            {
-                                                CompressionUtil.CreateGzipAsync(CModel.CompressionFrom.First(), CModel.CompressionTo, CModel.Level, (s, e) =>
+                                                CompressionUtil.CreateZipAsync(CModel.CompressionFrom, CModel.CompressionTo, CModel.Level, CModel.Algorithm, (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -960,19 +934,12 @@ namespace RX_Explorer.Class
                                                         ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
-                                            }
-                                            else
-                                            {
-                                                throw new ArgumentException("Gzip could not contains more than one item");
-                                            }
 
-                                            break;
-                                        }
-                                    case CompressionType.BZip2:
-                                        {
-                                            if (CModel.CompressionFrom.Length == 1)
+                                                break;
+                                            }
+                                        case CompressionType.Tar:
                                             {
-                                                CompressionUtil.CreateBZip2Async(CModel.CompressionFrom.First(), CModel.CompressionTo, (s, e) =>
+                                                CompressionUtil.CreateTarAsync(CModel.CompressionFrom, CModel.CompressionTo, CModel.Level, CModel.Algorithm, (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -980,14 +947,50 @@ namespace RX_Explorer.Class
                                                         ProgressChangedCore();
                                                     }).AsTask().Wait();
                                                 }).Wait();
-                                            }
-                                            else
-                                            {
-                                                throw new ArgumentException("Gzip could not contains more than one item");
-                                            }
 
-                                            break;
-                                        }
+                                                break;
+                                            }
+                                        case CompressionType.Gzip:
+                                            {
+                                                if (CModel.CompressionFrom.Length == 1)
+                                                {
+                                                    CompressionUtil.CreateGzipAsync(CModel.CompressionFrom.First(), CModel.CompressionTo, CModel.Level, (s, e) =>
+                                                    {
+                                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            CModel.UpdateProgress(e.ProgressPercentage);
+                                                            ProgressChangedCore();
+                                                        }).AsTask().Wait();
+                                                    }).Wait();
+                                                }
+                                                else
+                                                {
+                                                    throw new ArgumentException("Gzip could not contains more than one item");
+                                                }
+
+                                                break;
+                                            }
+                                        case CompressionType.BZip2:
+                                            {
+                                                if (CModel.CompressionFrom.Length == 1)
+                                                {
+                                                    CompressionUtil.CreateBZip2Async(CModel.CompressionFrom.First(), CModel.CompressionTo, (s, e) =>
+                                                    {
+                                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                        {
+                                                            CModel.UpdateProgress(e.ProgressPercentage);
+                                                            ProgressChangedCore();
+                                                        }).AsTask().Wait();
+                                                    }).Wait();
+                                                }
+                                                else
+                                                {
+                                                    throw new ArgumentException("Gzip could not contains more than one item");
+                                                }
+
+                                                break;
+                                            }
+                                    }
                                 }
                             }
                             catch (AggregateException Ae) when (Ae.InnerException is UnauthorizedAccessException)
@@ -1032,14 +1035,17 @@ namespace RX_Explorer.Class
                             {
                                 CompressionUtil.SetEncoding(DModel.Encoding);
 
-                                CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, (s, e) =>
+                                using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
                                 {
-                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, (s, e) =>
                                     {
-                                        DModel.UpdateProgress(e.ProgressPercentage);
-                                        ProgressChangedCore();
-                                    }).AsTask().Wait();
-                                }).Wait();
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            DModel.UpdateProgress(e.ProgressPercentage);
+                                            ProgressChangedCore();
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
                             }
                             catch (AggregateException Ae) when (Ae.InnerException is UnauthorizedAccessException)
                             {
