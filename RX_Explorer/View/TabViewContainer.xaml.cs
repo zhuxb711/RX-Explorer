@@ -1195,7 +1195,10 @@ namespace RX_Explorer
         {
             if (((Button)sender).DataContext is OperationListBaseModel Model)
             {
-                Model.UpdateStatus(OperationStatus.Cancelled);
+                if (Model.CanBeCancelled)
+                {
+                    Model.UpdateStatus(OperationStatus.Cancelling);
+                }
             }
         }
 

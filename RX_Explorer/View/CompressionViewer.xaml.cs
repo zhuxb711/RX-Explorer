@@ -784,7 +784,7 @@ namespace RX_Explorer
                             using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                             {
-                                await ZipStream.CopyToAsync(Stream, Entry.Size, (s, e) =>
+                                await ZipStream.CopyToAsync(Stream, Entry.Size, ProgressHandler: (s, e) =>
                                 {
                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize), null));
                                 });

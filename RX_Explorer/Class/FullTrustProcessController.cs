@@ -77,6 +77,8 @@ namespace RX_Explorer.Class
 
         private readonly NamedPipeWriteController PipeCommandWriteController;
 
+        private readonly NamedPipeWriteController PipeCancellationWriteController;
+
         private readonly AppServiceConnection Connection;
 
         private readonly TaskCompletionSource<bool> IdentityTaskCompletionSource;
@@ -135,6 +137,11 @@ namespace RX_Explorer.Class
                 if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController CommandWriteController))
                 {
                     PipeCommandWriteController = CommandWriteController;
+                }
+
+                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController CancellationWriteController))
+                {
+                    PipeCancellationWriteController = CancellationWriteController;
                 }
             }
 
@@ -348,7 +355,8 @@ namespace RX_Explorer.Class
 
                             if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
                                    && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()))
+                                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                                   && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
                             {
                                 Dispose();
                                 AppServiceConnectionLost?.Invoke(this, null);
@@ -422,6 +430,11 @@ namespace RX_Explorer.Class
                         Value.Add("PipeProgressReadId", PipeProgressReadController.PipeUniqueId);
                     }
 
+                    if (PipeCancellationWriteController != null)
+                    {
+                        Value.Add("PipeCancellationWriteId", PipeCancellationWriteController.PipeUniqueId);
+                    }
+
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
@@ -459,7 +472,8 @@ namespace RX_Explorer.Class
 
             if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
                    && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()))
+                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                   && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
             {
                 Dispose();
                 AppServiceConnectionLost?.Invoke(this, null);
@@ -696,6 +710,26 @@ namespace RX_Explorer.Class
             }
         }
 
+        private bool TryCancelCurrentOperation()
+        {
+            try
+            {
+                if ((PipeCancellationWriteController?.IsConnected).GetValueOrDefault())
+                {
+                    PipeCancellationWriteController.SendData("Cancel");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(TryCancelCurrentOperation)}");
+                return false;
+            }
+        }
 
         public async Task<string> GetMIMEContentTypeAsync(string Path)
         {
@@ -1626,8 +1660,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task DeleteAsync(IEnumerable<string> Source,
+                                      bool PermanentDelete,
+                                      bool SkipOperationRecord = false,
+                                      CancellationToken CancelToken = default,
+                                      ProgressChangedEventHandler ProgressHandler = null)
         {
+            CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(DeleteAsync)}");
+                }
+            });
+
             if (await SendCommandAndReportProgressAsync(CommandType.Delete,
                                                         ProgressHandler,
                                                         ("ExecutePath", JsonSerializer.Serialize(Source)),
@@ -1635,7 +1681,7 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("Success", out string Record))
                 {
-                    if (!PermanentDelete)
+                    if (!PermanentDelete && !SkipOperationRecord)
                     {
                         OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
                     }
@@ -1663,7 +1709,12 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error", out string ErrorMessage5))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
-                    throw new Exception();
+                    throw new Exception("Unknown reason");
+                }
+                else if (Response.ContainsKey("Error_Cancelled"))
+                {
+                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                    throw new OperationCanceledException("Operation was cancelled successfully");
                 }
                 else
                 {
@@ -1677,17 +1728,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public Task DeleteAsync(string Source,
+                                bool PermanentDelete,
+                                bool SkipOperationRecord = false,
+                                CancellationToken CancelToken = default,
+                                ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
+            return DeleteAsync(new string[1] { Source }, PermanentDelete, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public async Task MoveAsync(Dictionary<string, string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(Dictionary<string, string> Source,
+                                    string DestinationPath,
+                                    CollisionOptions Option = CollisionOptions.None,
+                                    bool SkipOperationRecord = false,
+                                    CancellationToken CancelToken = default,
+                                    ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -1707,6 +1767,14 @@ namespace RX_Explorer.Class
                     throw new FileNotFoundException();
                 }
             }
+
+            CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(MoveAsync)}");
+                }
+            });
 
             if (await SendCommandAndReportProgressAsync(CommandType.Move,
                                                         ProgressHandler,
@@ -1744,12 +1812,17 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage5))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
-                    throw new TaskCanceledException();
+                    throw new OperationCanceledException("Operation was cancelled");
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage6))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
                     throw new Exception();
+                }
+                else if (Response.ContainsKey("Error_Cancelled"))
+                {
+                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                    throw new OperationCanceledException("Operation was cancelled");
                 }
                 else
                 {
@@ -1763,7 +1836,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(IEnumerable<string> Source,
+                              string DestinationPath,
+                              CollisionOptions Option = CollisionOptions.None,
+                              bool SkipOperationRecord = false,
+                              CancellationToken CancelToken = default,
+                              ProgressChangedEventHandler ProgressHandler = null)
         {
             Dictionary<string, string> Dic = new Dictionary<string, string>();
 
@@ -1772,10 +1850,15 @@ namespace RX_Explorer.Class
                 Dic.Add(Path, null);
             }
 
-            return MoveAsync(Dic, DestinationPath, Option, SkipOperationRecord, ProgressHandler);
+            return MoveAsync(Dic, DestinationPath, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public Task MoveAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(string SourcePath,
+                              string Destination,
+                              CollisionOptions Option = CollisionOptions.None,
+                              bool SkipOperationRecord = false,
+                              CancellationToken CancelToken = default,
+                              ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -1787,34 +1870,15 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
+            return MoveAsync(new string[] { SourcePath }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
-        public async Task<bool> PasteRemoteFile(string DestinationPath)
-        {
-            if (await SendCommandAsync(CommandType.PasteRemoteFile, ("Path", DestinationPath)) is IDictionary<string, string> Response)
-            {
-                if (Response.ContainsKey("Success"))
-                {
-                    return true;
-                }
-                else
-                {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
-                    }
-
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task CopyAsync(IEnumerable<string> Source,
+                                    string DestinationPath,
+                                    CollisionOptions Option = CollisionOptions.None,
+                                    bool SkipOperationRecord = false,
+                                    CancellationToken CancelToken = default,
+                                    ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -1834,6 +1898,14 @@ namespace RX_Explorer.Class
                     throw new FileNotFoundException();
                 }
             }
+
+            CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(CopyAsync)}");
+                }
+            });
 
             if (await SendCommandAndReportProgressAsync(CommandType.Copy,
                                                         ProgressHandler,
@@ -1866,12 +1938,17 @@ namespace RX_Explorer.Class
                 else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage4))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
-                    throw new TaskCanceledException();
+                    throw new OperationCanceledException("Operation was cancelled");
                 }
                 else if (Response.TryGetValue("Error", out string ErrorMessage5))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
                     throw new Exception();
+                }
+                else if (Response.ContainsKey("Error_Cancelled"))
+                {
+                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                    throw new OperationCanceledException("Operation was cancelled");
                 }
                 else
                 {
@@ -1885,7 +1962,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(string SourcePath, string Destination, CollisionOptions Option = CollisionOptions.None, bool SkipOperationRecord = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task CopyAsync(string SourcePath,
+                              string Destination,
+                              CollisionOptions Option = CollisionOptions.None,
+                              bool SkipOperationRecord = false,
+                              CancellationToken CancelToken = default,
+                              ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -1897,7 +1979,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, ProgressHandler);
+            return CopyAsync(new string[1] { SourcePath }, Destination, Option, SkipOperationRecord, CancelToken, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)
@@ -1918,6 +2000,30 @@ namespace RX_Explorer.Class
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> PasteRemoteFile(string DestinationPath)
+        {
+            if (await SendCommandAsync(CommandType.PasteRemoteFile, ("Path", DestinationPath)) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
                     }
 
                     return false;
@@ -2006,6 +2112,7 @@ namespace RX_Explorer.Class
                     PipeCommandReadController?.Dispose();
                     PipeCommandWriteController?.Dispose();
                     PipeProgressReadController?.Dispose();
+                    PipeCancellationWriteController?.Dispose();
                 }
                 catch (Exception ex)
                 {

@@ -445,14 +445,14 @@ namespace RX_Explorer
 
                                 using (SLEOutputStream SLEStream = new SLEOutputStream(EncryptFStream, new SLEHeader(Version, OriginFile.Name, AESKeySize), AESKey))
                                 {
-                                    await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, async (s, e) =>
+                                    await OriginFStream.CopyToAsync(SLEStream, OriginFStream.Length, Cancellation.Token, async (s, e) =>
                                     {
                                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
                                             ProBar.IsIndeterminate = false;
                                             ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
                                         });
-                                    }, Cancellation.Token);
+                                    });
 
                                     CurrentPosition += OriginFile.Size;
 
@@ -715,14 +715,14 @@ namespace RX_Explorer
                                 {
                                     using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
                                     {
-                                        await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, async (s, e) =>
+                                        await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, Cancellation.Token, async (s, e) =>
                                         {
                                             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                             {
                                                 ProBar.IsIndeterminate = false;
                                                 ProBar.Value = Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * OriginFile.Size)) * 100d / TotalSize);
                                             });
-                                        }, Cancellation.Token);
+                                        });
                                     }
 
                                     CurrentPosition += OriginFile.Size;

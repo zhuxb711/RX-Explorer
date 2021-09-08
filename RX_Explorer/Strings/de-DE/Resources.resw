@@ -3224,4 +3224,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
     <value>Datei kann nicht geöffnet werden, der Dateityp wird nicht unterstützt</value>
   </data>
+  <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
+    <value>Versuch abzubrechen</value>
+  </data>
 </root>

@@ -314,7 +314,7 @@ namespace RX_Explorer.Class
             return string.Format("{0:###00}:{1:00}:{2:00}", Hour, Minute, Second);
         }
 
-        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)
+        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (From == null)
             {

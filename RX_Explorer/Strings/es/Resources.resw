@@ -3224,4 +3224,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
     <value>No se puede abrir el archivo, el tipo de archivo no es compatible</value>
   </data>
+  <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
+    <value>Tratando de cancelar</value>
+  </data>
 </root>

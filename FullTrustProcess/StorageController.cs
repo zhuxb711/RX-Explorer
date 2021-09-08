@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -398,30 +399,40 @@ namespace FullTrustProcess
                         Operation.PostDeleteItem += PostDeleteEvent;
                     }
 
-                    foreach (string Path in Source)
+                    try
                     {
-                        using (ShellItem Item = new ShellItem(Path))
+                        foreach (string Path in Source)
                         {
-                            Operation.QueueDeleteOperation(Item);
+                            using (ShellItem Item = new ShellItem(Path))
+                            {
+                                Operation.QueueDeleteOperation(Item);
+                            }
+                        }
+
+                        Operation.PerformOperations();
+
+                        if (Operation.AnyOperationsAborted)
+                        {
+                            throw new OperationCanceledException();
                         }
                     }
-
-                    Operation.PerformOperations();
-
-                    if (PostDeleteEvent != null)
+                    finally
                     {
-                        Operation.PostDeleteItem -= PostDeleteEvent;
-                    }
+                        if (PostDeleteEvent != null)
+                        {
+                            Operation.PostDeleteItem -= PostDeleteEvent;
+                        }
 
-                    if (Progress != null)
-                    {
-                        Operation.UpdateProgress -= Progress;
+                        if (Progress != null)
+                        {
+                            Operation.UpdateProgress -= Progress;
+                        }
                     }
                 }
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not COMException and not OperationCanceledException)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(Delete)}");
                 return false;
@@ -561,7 +572,7 @@ namespace FullTrustProcess
                         Operation.PostMoveItem += PostMoveEvent;
                     }
 
-                    foreach (KeyValuePair<string,string> Source in SourcePath)
+                    foreach (KeyValuePair<string, string> Source in SourcePath)
                     {
                         using (ShellItem SourceItem = new ShellItem(Source.Key))
                         using (ShellFolder DestItem = new ShellFolder(DestinationPath))

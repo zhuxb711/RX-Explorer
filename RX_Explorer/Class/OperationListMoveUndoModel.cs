@@ -34,6 +34,8 @@ namespace RX_Explorer.Class
 
         public string UndoTo { get; }
 
+        public override bool CanBeCancelled => true;
+
         public override async Task PrepareSizeDataAsync()
         {
             ulong TotalSize = 0;

@@ -44,6 +44,10 @@ namespace FullTrustProcess
 
         private static NamedPipeWriteController PipeProgressWriterController;
 
+        private static NamedPipeReadController PipeCancellationReadController;
+
+        private static CancellationTokenSource CurrentTaskCancellation;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -359,30 +363,48 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
+
                 PipeCommandWriteController?.Dispose();
                 PipeCommandReadController?.Dispose();
                 PipeProgressWriterController?.Dispose();
+                PipeCancellationReadController?.Dispose();
+
                 LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
+
+        private static void PipeCancellationController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            if (e.Data == "Cancel")
+            {
+                CurrentTaskCancellation?.Cancel();
             }
         }
 
         private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            EventDeferral Deferral = e.GetDeferral();
+            if (e.ExtraException is Exception Ex)
+            {
+                LogTracer.Log(Ex, "Could not receive pipeline data");
+            }
+            else
+            {
+                EventDeferral Deferral = e.GetDeferral();
 
-            try
-            {
-                IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
-                IDictionary<string, string> Response = await HandleCommand(Request);
-                PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in responding pipe message");
-            }
-            finally
-            {
-                Deferral.Complete();
+                try
+                {
+                    IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Response = await HandleCommand(Request);
+                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw in responding pipe message");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
         }
 
@@ -444,6 +466,9 @@ namespace FullTrustProcess
         private async static Task<IDictionary<string, string>> HandleCommand(IDictionary<string, string> CommandValue)
         {
             IDictionary<string, string> Value = new Dictionary<string, string>();
+
+            CurrentTaskCancellation?.Dispose();
+            CurrentTaskCancellation = new CancellationTokenSource();
 
             try
             {
@@ -1760,41 +1785,53 @@ namespace FullTrustProcess
                             {
                                 if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                 {
-                                    if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
+                                    try
                                     {
-                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                    },
-                                    (se, arg) =>
-                                    {
-                                        if (arg.Result == HRESULT.S_OK)
+                                        if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
-                                            if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                            if (CurrentTaskCancellation.IsCancellationRequested)
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                throw new COMException(null, HRESULT.E_ABORT);
                                             }
-                                            else
+
+                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                        },
+                                        (se, arg) =>
+                                        {
+                                            if (arg.Result == HRESULT.S_OK)
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                }
+                                                else
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                }
+                                            }
+                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                            {
+                                                Value.Add("Error_UserCancel", "User stop the operation");
+                                            }
+                                        }))
+                                        {
+                                            if (!Value.ContainsKey("Error_UserCancel"))
+                                            {
+                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                             }
                                         }
-                                        else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                        else if (Marshal.GetLastWin32Error() == 5)
                                         {
-                                            Value.Add("Error_UserCancel", "User stop the operation");
+                                            LaunchCurrentAsElevated();
                                         }
-                                    }))
-                                    {
-                                        if (!Value.ContainsKey("Error_UserCancel"))
+                                        else
                                         {
-                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                            Value.Add("Error_Failure", "An error occurred while copying the files");
                                         }
                                     }
-                                    else if (Marshal.GetLastWin32Error() == 5)
+                                    catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                     {
-                                        LaunchCurrentAsElevated();
-                                    }
-                                    else
-                                    {
-                                        Value.Add("Error_Failure", "An error occurred while copying the files");
+                                        Value.Add("Error_Cancelled", "The specified file could not be copied");
                                     }
                                 }
                                 else
@@ -1876,48 +1913,60 @@ namespace FullTrustProcess
                                     if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath)
                                         && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                     {
-                                        if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
+                                        try
                                         {
-                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        },
-                                        (se, arg) =>
-                                        {
-                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
+                                            if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                             {
-                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                if (CurrentTaskCancellation.IsCancellationRequested)
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    throw new COMException(null, HRESULT.E_ABORT);
                                                 }
-                                                else
+
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            },
+                                            (se, arg) =>
+                                            {
+                                                if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    }
+                                                    else
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    }
+                                                }
+                                                else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                                {
+                                                    Value.Add("Error_UserCancel", "User stop the operation");
+                                                }
+                                            }))
+                                            {
+                                                if (!Value.ContainsKey("Error_UserCancel"))
+                                                {
+                                                    if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                    {
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                    }
+                                                    else
+                                                    {
+                                                        Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                    }
                                                 }
                                             }
-                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                            else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                Value.Add("Error_UserCancel", "User stop the operation");
+                                                LaunchCurrentAsElevated();
                                             }
-                                        }))
-                                        {
-                                            if (!Value.ContainsKey("Error_UserCancel"))
+                                            else
                                             {
-                                                if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                {
-                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                }
-                                                else
-                                                {
-                                                    Value.Add("Error_Capture", "An error occurred while moving the files");
-                                                }
+                                                Value.Add("Error_Failure", "An error occurred while moving the files");
                                             }
                                         }
-                                        else if (Marshal.GetLastWin32Error() == 5)
+                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                         {
-                                            LaunchCurrentAsElevated();
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error_Failure", "An error occurred while moving the files");
+                                            Value.Add("Error_Cancelled", "The specified file could not be moved");
                                         }
                                     }
                                     else
@@ -2003,34 +2052,46 @@ namespace FullTrustProcess
                                 {
                                     if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
                                     {
-                                        if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                        try
                                         {
-                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        },
-                                        (se, arg) =>
-                                        {
-                                            if (!PermanentDelete)
+                                            if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                if (CurrentTaskCancellation.IsCancellationRequested)
+                                                {
+                                                    throw new COMException(null, HRESULT.E_ABORT);
+                                                }
+
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            },
+                                            (se, arg) =>
+                                            {
+                                                if (!PermanentDelete)
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                }
+                                            }))
+                                            {
+                                                if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                {
+                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                }
                                             }
-                                        }))
-                                        {
-                                            if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                            else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                LaunchCurrentAsElevated();
                                             }
                                             else
                                             {
-                                                Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                Value.Add("Error_Failure", "The specified file could not be deleted");
                                             }
                                         }
-                                        else if (Marshal.GetLastWin32Error() == 5)
+                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                         {
-                                            LaunchCurrentAsElevated();
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error_Failure", "The specified file could not be deleted");
+                                            Value.Add("Error_Cancelled", "The specified file could not be deleted");
                                         }
                                     }
                                     else
@@ -2298,6 +2359,12 @@ namespace FullTrustProcess
                                 if (PipeProgressWriterController == null && CommandValue.TryGetValue("PipeProgressReadId", out string PipeProgressReadId))
                                 {
                                     PipeProgressWriterController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeProgressReadId}");
+                                }
+
+                                if (PipeCancellationReadController == null && CommandValue.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
+                                {
+                                    PipeCancellationReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeCancellationReadId}");
+                                    PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
                                 }
                             }
                             catch (Exception ex)

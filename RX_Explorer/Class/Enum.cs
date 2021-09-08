@@ -51,6 +51,7 @@ namespace RX_Explorer.Class
         Processing,
         Error,
         Completed,
+        Cancelling,
         Cancelled,
         NeedAttention
     }
