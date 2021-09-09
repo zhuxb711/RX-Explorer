@@ -2,6 +2,7 @@
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using ShareClassLibrary;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using System;

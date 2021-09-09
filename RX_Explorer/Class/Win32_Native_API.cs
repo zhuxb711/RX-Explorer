@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
@@ -229,35 +228,14 @@ namespace RX_Explorer.Class
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
         {
-            IntPtr Handle = IntPtr.Zero;
-
-            switch (AccessMode)
+            IntPtr Handle = AccessMode switch
             {
-                case AccessMode.Read:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                        break;
-                    }
-                case AccessMode.Write:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                        break;
-                    }
-                case AccessMode.ReadWrite:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                        break;
-                    }
-                case AccessMode.Exclusive:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                        break;
-                    }
-            }
+                AccessMode.Read => CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
+                AccessMode.ReadWrite => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
+                AccessMode.Write => CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
+                AccessMode.Exclusive => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
+                _ => throw new NotSupportedException()
+            };
 
             SafeFileHandle SHandle = new SafeFileHandle(Handle, true);
 
@@ -266,26 +244,15 @@ namespace RX_Explorer.Class
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
-            switch (AccessMode)
+            FileAccess Access = AccessMode switch
             {
-                case AccessMode.Exclusive:
-                case AccessMode.ReadWrite:
-                    {
-                        return new FileStream(SHandle, FileAccess.ReadWrite);
-                    }
-                case AccessMode.Write:
-                    {
-                        return new FileStream(SHandle, FileAccess.Write);
-                    }
-                case AccessMode.Read:
-                    {
-                        return new FileStream(SHandle, FileAccess.Read);
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }
+                AccessMode.Read => FileAccess.Read,
+                AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                AccessMode.Write => FileAccess.Write,
+                _ => throw new NotSupportedException()
+            };
+
+            return new FileStream(SHandle, Access);
         }
 
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
@@ -1041,30 +1008,22 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+
             try
             {
-                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
-
-                try
+                if (Ptr.CheckIfValidPtr())
                 {
-                    if (Ptr.CheckIfValidPtr())
-                    {
-                        return new Win32_File_Data(ItemPath, Data);
-                    }
-                    else
-                    {
-                        throw new LocationNotAvailableException();
-                    }
+                    return new Win32_File_Data(ItemPath, Data);
                 }
-                finally
+                else
                 {
-                    FindClose(Ptr);
+                    return Win32_File_Data.Empty;
                 }
             }
-            catch (Exception ex)
+            finally
             {
-                LogTracer.Log(ex);
-                return default;
+                FindClose(Ptr);
             }
         }
 

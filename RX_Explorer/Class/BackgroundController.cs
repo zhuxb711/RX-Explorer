@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Toolkit.Uwp.Helpers;
+using ShareClassLibrary;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -401,7 +402,7 @@ namespace RX_Explorer.Class
 
                                 BingPictureBursh.ImageSource = Bitmap;
 
-                                using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                                using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                                 {
                                     await Bitmap.SetSourceAsync(Stream);
                                 }

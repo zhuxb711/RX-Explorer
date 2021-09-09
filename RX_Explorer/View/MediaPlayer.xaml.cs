@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using TagLib;
 using Windows.Media.Core;
 using Windows.Media.Playback;
-using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -60,7 +60,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    RandomStream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read);
+                    RandomStream = await MediaFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read);
                     TypeString = MediaFile.Type.ToLower();
                 }
 

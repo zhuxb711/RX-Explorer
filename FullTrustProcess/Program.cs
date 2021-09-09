@@ -474,6 +474,55 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), Convert.ToString(CommandValue["CommandType"])))
                 {
+                    case CommandType.GetFileHandle:
+                        {
+                            if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())
+                            {
+                                string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                                AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), Convert.ToString(CommandValue["AccessMode"]));
+
+                                Kernel32.FileAccess Access = Mode switch
+                                {
+                                    AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
+                                    AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                    AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                    _ => throw new NotSupportedException()
+                                };
+
+                                FileShare Share = Mode switch
+                                {
+                                    AccessMode.Read => FileShare.ReadWrite,
+                                    AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
+                                    AccessMode.Exclusive => FileShare.None,
+                                    _ => throw new NotSupportedException()
+                                };
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                                {
+                                    if (Handle.IsInvalid || Handle.IsNull)
+                                    {
+                                        Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                    }
+                                    else
+                                    {
+                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        {
+                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Explorer process handle is not valid");
+                            }
+
+                            break;
+                        }
                     case CommandType.GetUrlTargetPath:
                         {
                             string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
@@ -1237,9 +1286,9 @@ namespace FullTrustProcess
                                     {
                                         if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
                                         {
-                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {
-                                                SubFile.Attributes |= AttributePair.Value;
+                                                new FileInfo(SubPath).Attributes |= AttributePair.Value;
                                             }
                                         }
                                         else
@@ -1251,9 +1300,9 @@ namespace FullTrustProcess
                                     {
                                         if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
                                         {
-                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {
-                                                SubFile.Attributes &= ~AttributePair.Value;
+                                                new FileInfo(SubPath).Attributes &= ~AttributePair.Value;
                                             }
                                         }
                                         else
@@ -1796,7 +1845,7 @@ namespace FullTrustProcess
 
                                             PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                         },
-                                        (se, arg) =>
+                                        PostCopyEvent: (se, arg) =>
                                         {
                                             if (arg.Result == HRESULT.S_OK)
                                             {
@@ -1809,7 +1858,7 @@ namespace FullTrustProcess
                                                     OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                 }
                                             }
-                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
                                             {
                                                 Value.Add("Error_UserCancel", "User stop the operation");
                                             }
@@ -1824,14 +1873,14 @@ namespace FullTrustProcess
                                         {
                                             LaunchCurrentAsElevated();
                                         }
-                                        else
+                                        else if (!Value.ContainsKey("Error_UserCancel"))
                                         {
                                             Value.Add("Error_Failure", "An error occurred while copying the files");
                                         }
                                     }
                                     catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                     {
-                                        Value.Add("Error_Cancelled", "The specified file could not be copied");
+                                        Value.Add("Error_Cancelled", "Operation is cancelled");
                                     }
                                 }
                                 else
@@ -1924,7 +1973,7 @@ namespace FullTrustProcess
 
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                             },
-                                            (se, arg) =>
+                                            PostMoveEvent: (se, arg) =>
                                             {
                                                 if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                 {
@@ -1937,7 +1986,7 @@ namespace FullTrustProcess
                                                         OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                     }
                                                 }
-                                                else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                                else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
                                                 {
                                                     Value.Add("Error_UserCancel", "User stop the operation");
                                                 }
@@ -1959,7 +2008,7 @@ namespace FullTrustProcess
                                             {
                                                 LaunchCurrentAsElevated();
                                             }
-                                            else
+                                            else if (!Value.ContainsKey("Error_UserCancel"))
                                             {
                                                 Value.Add("Error_Failure", "An error occurred while moving the files");
                                             }
@@ -2063,7 +2112,7 @@ namespace FullTrustProcess
 
                                                 PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
                                             },
-                                            (se, arg) =>
+                                            PostDeleteEvent: (se, arg) =>
                                             {
                                                 if (!PermanentDelete)
                                                 {
@@ -2091,7 +2140,7 @@ namespace FullTrustProcess
                                         }
                                         catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                         {
-                                            Value.Add("Error_Cancelled", "The specified file could not be deleted");
+                                            Value.Add("Error_Cancelled", "Operation is cancelled");
                                         }
                                     }
                                     else

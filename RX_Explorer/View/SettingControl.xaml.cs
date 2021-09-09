@@ -1579,7 +1579,7 @@ namespace RX_Explorer
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
-                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 

@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

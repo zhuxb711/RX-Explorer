@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Interface;
+﻿using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -728,6 +729,30 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(TryCancelCurrentOperation)}");
                 return false;
+            }
+        }
+
+        public async Task<SafeFileHandle> GetFileHandleAsync(string Path, AccessMode Access)
+        {
+            if (await SendCommandAsync(CommandType.GetFileHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string HandleString))
+                {
+                    return new SafeFileHandle(new IntPtr(Convert.ToInt64(HandleString)), true);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return new SafeFileHandle(IntPtr.Zero, true);
+                }
+            }
+            else
+            {
+                return new SafeFileHandle(IntPtr.Zero, true);
             }
         }
 

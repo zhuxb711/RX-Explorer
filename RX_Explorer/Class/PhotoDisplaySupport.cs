@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using ShareClassLibrary;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -79,7 +80,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                     {
                         if (BitmapSource == null)
                         {
@@ -134,7 +135,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(Stream);
 

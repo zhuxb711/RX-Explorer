@@ -181,7 +181,7 @@ namespace RX_Explorer.Class
 
             if (Drive.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                return new WslDriveData(Drive, new BitmapImage(NetworkDriveIconUri), PropertiesRetrieve);
+                return new WslDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NetworkDriveIconUri), PropertiesRetrieve);
             }
             else
             {

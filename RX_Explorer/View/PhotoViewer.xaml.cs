@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
@@ -366,7 +367,7 @@ namespace RX_Explorer
             FileSystemStorageFile Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
 
             TranscodeImageDialog Dialog = null;
-            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
             {
                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

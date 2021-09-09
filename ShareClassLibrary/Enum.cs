@@ -26,6 +26,14 @@
         Maximized = 2
     }
 
+    public enum AccessMode
+    {
+        Read,
+        Write,
+        ReadWrite,
+        Exclusive
+    }
+
     public enum CommandType
     {
         Identity,
@@ -73,6 +81,7 @@
         GetThumbnailOverlay,
         SetAsTopMostWindow,
         RemoveTopMostWindow,
-        GetTooltipText
+        GetTooltipText,
+        GetFileHandle
     }
 }

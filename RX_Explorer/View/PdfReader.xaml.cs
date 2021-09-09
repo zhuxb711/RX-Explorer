@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -112,7 +113,7 @@ namespace RX_Explorer
                 }
                 else if (PdfFile.Type.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read);
+                    PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read);
                 }
                 else
                 {

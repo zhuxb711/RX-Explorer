@@ -2286,7 +2286,7 @@ namespace RX_Explorer
                         {
                             TranscodeImageDialog Dialog = null;
 
-                            using (IRandomAccessStream OriginStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                            using (IRandomAccessStream OriginStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
@@ -2685,8 +2685,8 @@ namespace RX_Explorer
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnabled 
-                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple 
+            if (!SettingControl.IsDoubleClickEnabled
+                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                 && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 DelaySelectionCancellation?.Cancel();

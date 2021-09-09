@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using ShareClassLibrary;
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
@@ -273,10 +275,11 @@ namespace RX_Explorer.Class
 
                     StorageFile LogFile = ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.OpenIfExists).AsTask().Result;
 
-                    using (FileStream LogFileStream = LogFile.LockAndBlockAccess())
-                    using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                    using (SafeFileHandle Handle = LogFile.GetSafeFileHandle(AccessMode.Exclusive))
+                    using (FileStream LogStream = new FileStream(Handle, FileAccess.Write))
+                    using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
                     {
-                        LogFileStream.Seek(0, SeekOrigin.End);
+                        LogStream.Seek(0, SeekOrigin.End);
 
                         while (LogQueue.TryDequeue(out string LogItem))
                         {

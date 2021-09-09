@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.ComponentModel;
 using System.IO;

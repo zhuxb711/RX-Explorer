@@ -162,7 +162,7 @@ namespace FullTrustProcess
             }
             else if (Directory.Exists(Path))
             {
-                foreach (string SubFilePath in Helper.GetAllSubFiles(Path))
+                foreach (string SubFilePath in Directory.GetFiles(Path, "*", SearchOption.AllDirectories))
                 {
                     if (CheckCaptured(SubFilePath))
                     {
@@ -366,7 +366,11 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent = null)
+        public static bool Delete(IEnumerable<string> Source,
+                                  bool PermanentDelete,
+                                  ProgressChangedEventHandler Progress = null,
+                                  EventHandler<ShellFileOperations.ShellFileOpEventArgs> PreDeleteEvent = null,
+                                  EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent = null)
         {
             try
             {
@@ -394,6 +398,11 @@ namespace FullTrustProcess
                         Operation.UpdateProgress += Progress;
                     }
 
+                    if (PreDeleteEvent != null)
+                    {
+                        Operation.PreDeleteItem += PreDeleteEvent;
+                    }
+
                     if (PostDeleteEvent != null)
                     {
                         Operation.PostDeleteItem += PostDeleteEvent;
@@ -418,6 +427,11 @@ namespace FullTrustProcess
                     }
                     finally
                     {
+                        if (PreDeleteEvent != null)
+                        {
+                            Operation.PreDeleteItem -= PreDeleteEvent;
+                        }
+
                         if (PostDeleteEvent != null)
                         {
                             Operation.PostDeleteItem -= PostDeleteEvent;
@@ -443,13 +457,18 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent = null)
+        public static bool Copy(IEnumerable<string> SourcePath,
+                                string DestinationPath,
+                                CollisionOptions Option,
+                                ProgressChangedEventHandler Progress = null,
+                                EventHandler<ShellFileOperations.ShellFileOpEventArgs> PreCopyEvent = null,
+                                EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent = null)
         {
             try
             {
                 if (!Directory.Exists(DestinationPath))
                 {
-                    _ = Directory.CreateDirectory(DestinationPath);
+                    Directory.CreateDirectory(DestinationPath);
                 }
 
                 ShellFileOperations.OperationFlags Flags = ShellFileOperations.OperationFlags.AddUndoRecord
@@ -485,30 +504,45 @@ namespace FullTrustProcess
                         Operation.UpdateProgress += Progress;
                     }
 
+                    if (PreCopyEvent != null)
+                    {
+                        Operation.PreCopyItem += PreCopyEvent;
+                    }
+
                     if (PostCopyEvent != null)
                     {
                         Operation.PostCopyItem += PostCopyEvent;
                     }
 
-                    foreach (string Source in SourcePath)
+                    try
                     {
-                        using (ShellItem SourceItem = new ShellItem(Source))
-                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                        foreach (string Source in SourcePath)
                         {
-                            Operation.QueueCopyOperation(SourceItem, DestItem);
+                            using (ShellItem SourceItem = new ShellItem(Source))
+                            using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                            {
+                                Operation.QueueCopyOperation(SourceItem, DestItem);
+                            }
                         }
+
+                        Operation.PerformOperations();
                     }
-
-                    Operation.PerformOperations();
-
-                    if (PostCopyEvent != null)
+                    finally
                     {
-                        Operation.PostCopyItem -= PostCopyEvent;
-                    }
+                        if (PreCopyEvent != null)
+                        {
+                            Operation.PreCopyItem -= PreCopyEvent;
+                        }
 
-                    if (Progress != null)
-                    {
-                        Operation.UpdateProgress -= Progress;
+                        if (PostCopyEvent != null)
+                        {
+                            Operation.PostCopyItem -= PostCopyEvent;
+                        }
+
+                        if (Progress != null)
+                        {
+                            Operation.UpdateProgress -= Progress;
+                        }
                     }
                 }
 
@@ -525,7 +559,12 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(IDictionary<string, string> SourcePath, string DestinationPath, CollisionOptions Option, ProgressChangedEventHandler Progress = null, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent = null)
+        public static bool Move(IDictionary<string, string> SourcePath,
+                                string DestinationPath,
+                                CollisionOptions Option,
+                                ProgressChangedEventHandler Progress = null,
+                                EventHandler<ShellFileOperations.ShellFileOpEventArgs> PreMoveEvent = null,
+                                EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent = null)
         {
             try
             {
@@ -567,30 +606,45 @@ namespace FullTrustProcess
                         Operation.UpdateProgress += Progress;
                     }
 
+                    if (PreMoveEvent != null)
+                    {
+                        Operation.PreMoveItem += PreMoveEvent;
+                    }
+
                     if (PostMoveEvent != null)
                     {
                         Operation.PostMoveItem += PostMoveEvent;
                     }
 
-                    foreach (KeyValuePair<string, string> Source in SourcePath)
+                    try
                     {
-                        using (ShellItem SourceItem = new ShellItem(Source.Key))
-                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                        foreach (KeyValuePair<string, string> Source in SourcePath)
                         {
-                            Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
+                            using (ShellItem SourceItem = new ShellItem(Source.Key))
+                            using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                            {
+                                Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(Source.Value) ? null : Source.Value);
+                            }
                         }
+
+                        Operation.PerformOperations();
                     }
-
-                    Operation.PerformOperations();
-
-                    if (PostMoveEvent != null)
+                    finally
                     {
-                        Operation.PostMoveItem -= PostMoveEvent;
-                    }
+                        if (PreMoveEvent != null)
+                        {
+                            Operation.PreMoveItem -= PreMoveEvent;
+                        }
 
-                    if (Progress != null)
-                    {
-                        Operation.UpdateProgress -= Progress;
+                        if (PostMoveEvent != null)
+                        {
+                            Operation.PostMoveItem -= PostMoveEvent;
+                        }
+
+                        if (Progress != null)
+                        {
+                            Operation.UpdateProgress -= Progress;
+                        }
                     }
                 }
 

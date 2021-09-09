@@ -126,14 +126,6 @@ namespace RX_Explorer.Class
         ReplaceExisting
     }
 
-    public enum AccessMode
-    {
-        Read,
-        Write,
-        ReadWrite,
-        Exclusive
-    }
-
     public enum SearchCategory
     {
         BuiltInEngine,

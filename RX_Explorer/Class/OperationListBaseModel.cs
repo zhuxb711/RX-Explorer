@@ -112,6 +112,8 @@ namespace RX_Explorer.Class
                     case OperationStatus.Waiting:
                         {
                             ProgressIndeterminate = true;
+                            ProgressPause = false;
+                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
@@ -121,6 +123,8 @@ namespace RX_Explorer.Class
                     case OperationStatus.Preparing:
                         {
                             ProgressIndeterminate = true;
+                            ProgressPause = false;
+                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
@@ -143,6 +147,7 @@ namespace RX_Explorer.Class
                         {
                             ProgressIndeterminate = true;
                             ProgressPause = true;
+                            ProgressError = false;
 
                             ActionButton1Content = Globalization.GetString("NameCollision_Override");
                             ActionButton2Content = Globalization.GetString("NameCollision_Rename");
@@ -156,6 +161,8 @@ namespace RX_Explorer.Class
                     case OperationStatus.Error:
                         {
                             ProgressIndeterminate = true;
+                            ProgressPause = false;
+                            ProgressError = true;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
@@ -169,6 +176,7 @@ namespace RX_Explorer.Class
                         {
                             ProgressIndeterminate = true;
                             ProgressPause = true;
+                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
@@ -182,6 +190,7 @@ namespace RX_Explorer.Class
                         {
                             ProgressIndeterminate = true;
                             ProgressPause = true;
+                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;

@@ -201,38 +201,6 @@ namespace FullTrustProcess
             return Info;
         }
 
-        public static IEnumerable<FileInfo> GetAllSubFiles(DirectoryInfo Directory)
-        {
-            foreach (FileInfo File in Directory.EnumerateFiles())
-            {
-                yield return File;
-            }
-
-            foreach (DirectoryInfo Dic in Directory.EnumerateDirectories())
-            {
-                foreach (FileInfo SubFile in GetAllSubFiles(Dic))
-                {
-                    yield return SubFile;
-                }
-            }
-        }
-
-        public static IEnumerable<string> GetAllSubFiles(string ParentDirectory)
-        {
-            foreach (string FilePath in Directory.EnumerateFiles(ParentDirectory))
-            {
-                yield return FilePath;
-            }
-
-            foreach (string SubDirectory in Directory.EnumerateDirectories(ParentDirectory))
-            {
-                foreach (string SubFilePath in GetAllSubFiles(SubDirectory))
-                {
-                    yield return SubFilePath;
-                }
-            }
-        }
-
         public static Task<bool> ExecuteOnSTAThreadAsync(Action Act)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
