@@ -1,4 +1,39 @@
 ﻿*****
+###What's new in Ver.7.0.4.0
+
+#####Feature update
+
+>#####Most tasks in the "Task List" now support abort operation
+
+#####Bug fix
+
+>#####Fixed that when a file name conflict occurs during a copy or move operation, if the user selects "More Options" and finally cancels the operation, RX may display an incorrect prompt
+
+>#####Fixed an issue that may cause a crash when retrieving files in the recycle bin
+
+>#####Fixed the problem that the progress bar may not show the correct status when an error occurs in the task in the task list
+
+>#####Fixed the problem that the "Tab" key cannot be used in the built-in text file viewer
+
+>#####Fixed the problem that the compression/decompression task cannot be continued when window is minimized 
+
+>#####Fixed the problem of abnormal file operation history, which may cause users to perform undo tasks that shouldn't exist
+
+>#####Fixed the problem of identifying Win11 as Win10 in "System Information"
+
+>#####Fixed the problem that ​​the selected file will be unselected when right-clicking the blank area in the single-click mode
+
+>#####Fixed the problem that will cause abnormal behavior when confirming the rename operation by pressing the "Enter" key in single-click mode
+
+>#####Fixed the problem of duplicate items when expanding the "Quick Access" node of the directory tree
+
+>#####Fixed the problem that if the folder and library have been collapsed, there will be no content in the "Quick Access" node in the directory tree
+
+>#####Fixed the problem that the behavior of double-clicking the expand button of a node in the directory tree is inconsistent with other areas
+
+>#####Fixed the problem that no actions will be invoked when clicking "Open" in the right-click menu of the "Security Area"
+
+*****
 ###What's new in Ver.7.0.2.0
 
 #####UI update

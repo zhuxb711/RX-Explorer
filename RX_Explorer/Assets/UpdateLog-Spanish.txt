@@ -1,4 +1,39 @@
 ﻿*****
+###Novedades de la versión 7.0.4.0
+
+#####Actualización de funciones
+
+>#####La mayoría de las tareas en la "Lista de tareas" ahora admiten la operación de aborto
+
+#####Arreglo del fallo
+
+>#####Se corrigió que cuando se produce un conflicto de nombre de archivo durante una operación de copia o movimiento, si el usuario selecciona "Más opciones" y finalmente cancela la operación, RX puede mostrar un mensaje incorrecto
+
+>#####Se solucionó un problema que podía causar un bloqueo al recuperar archivos en la papelera de reciclaje
+
+>#####Se solucionó el problema de que la barra de progreso puede no mostrar el estado correcto cuando ocurre un error en la tarea en la lista de tareas
+
+>#####Se solucionó el problema de que la tecla "Tab" no se puede usar en el visor de archivos de texto integrado
+
+>#####Se solucionó el problema de que la tarea de compresión / descompresión no se puede continuar cuando la ventana está minimizada
+
+>#####Se solucionó el problema del historial de operaciones de archivos anormales, que puede hacer que los usuarios realicen tareas de deshacer que no deberían existir
+
+>#####Se solucionó el problema de identificar Win11 como Win10 en "Información del sistema"
+
+>#####Se solucionó el problema de que el archivo seleccionado no se seleccionaría al hacer clic con el botón derecho en el área en blanco en el modo de un solo clic
+
+>#####Se solucionó el problema que causaba un comportamiento anormal al confirmar la operación de cambio de nombre presionando la tecla "Enter" en el modo de un solo clic
+
+>#####Se solucionó el problema de los elementos duplicados al expandir el nodo "Acceso rápido" del árbol de directorios
+
+>#####Se solucionó el problema de que si la carpeta y la biblioteca se colapsaron, no habrá contenido en el nodo "Acceso rápido" en el árbol de directorios.
+
+>#####Se solucionó el problema de que el comportamiento de hacer doble clic en el botón de expansión de un nodo en el árbol de directorios no es coherente con otras áreas
+
+>#####Se solucionó el problema de que no se invocarán acciones al hacer clic en "Abrir" en el menú contextual del "Área de seguridad"
+
+*****
 ###Novedades de la versión 7.0.2.0
 
 ##### actualización de la interfaz de usuario

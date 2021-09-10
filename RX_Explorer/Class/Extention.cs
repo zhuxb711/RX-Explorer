@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
 
                 if (StorageItems.Count > 0)
                 {
-                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrEmpty(Item.Path));
+                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
 
                     if (EmptyPathList.Any())
                     {
@@ -155,7 +155,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
@@ -173,7 +173,7 @@ namespace RX_Explorer.Class
 
                     if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
-                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }

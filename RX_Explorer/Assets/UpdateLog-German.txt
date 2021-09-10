@@ -1,4 +1,39 @@
 ﻿*****
+###Was ist neu in Ver.7.0.4.0
+
+#####Funktionsupdate
+
+>#####Die meisten Aufgaben in der "Aufgabenliste" unterstützen jetzt den Abbruchvorgang
+
+#####Fehlerbehebung
+
+>#####Es wurde behoben, dass RX bei einem Dateinamenkonflikt während eines Kopier- oder Verschiebevorgangs, wenn der Benutzer "Weitere Optionen" auswählt und den Vorgang endgültig abbricht, möglicherweise eine falsche Eingabeaufforderung anzeigt
+
+>#####Es wurde ein Problem behoben, das beim Abrufen von Dateien im Papierkorb zu einem Absturz führen kann
+
+>#####Problem behoben, dass der Fortschrittsbalken möglicherweise nicht den richtigen Status anzeigt, wenn ein Fehler in der Aufgabe in der Aufgabenliste auftritt
+
+>#####Problem behoben, dass die "Tab"-Taste im integrierten Textdatei-Viewer nicht verwendet werden kann
+
+>#####Problem behoben, dass die Komprimierungs-/Dekomprimierungsaufgabe bei minimiertem Fenster nicht fortgesetzt werden konnte
+
+>#####Das Problem des abnormalen Dateibetriebsverlaufs wurde behoben, der dazu führen kann, dass Benutzer Aufgaben rückgängig machen, die nicht existieren sollten
+
+>#####Problem bei der Identifizierung von Win11 als Win10 in den "Systeminformationen" behoben
+
+>#####Das Problem wurde behoben, dass die ausgewählte Datei beim Rechtsklick auf den leeren Bereich im Einzelklickmodus deselektiert wird
+
+>#####Das Problem wurde behoben, das zu anormalem Verhalten führte, wenn der Umbenennungsvorgang durch Drücken der "Enter"-Taste im Einzelklickmodus bestätigt wurde
+
+>#####Problem mit doppelten Elementen beim Erweitern des Knotens "Schnellzugriff" des Verzeichnisbaums behoben
+
+>#####Das Problem wurde behoben, dass, wenn der Ordner und die Bibliothek zugeklappt wurden, kein Inhalt im Knoten "Schnellzugriff" im Verzeichnisbaum vorhanden ist
+
+>#####Problem behoben, dass das Verhalten beim Doppelklicken auf die Schaltfläche zum Erweitern eines Knotens im Verzeichnisbaum nicht mit anderen Bereichen übereinstimmt
+
+>#####Problem behoben, dass beim Klicken auf "Öffnen" im Rechtsklick-Menü des "Sicherheitsbereichs" keine Aktionen ausgeführt werden
+
+*****
 ###Was ist neu in Ver.7.0.2.0
 
 #####UI-Update

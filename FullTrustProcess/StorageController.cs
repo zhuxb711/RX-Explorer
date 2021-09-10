@@ -178,7 +178,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool CheckPermission(FileSystemRights Permission, string Path)
+        public static bool CheckPermission(string Path, FileSystemRights Permission)
         {
             try
             {

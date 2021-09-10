@@ -120,7 +120,7 @@ namespace FullTrustProcess
                                         {
                                             case ElevationCreateNewData NewData:
                                                 {
-                                                    if (StorageController.CheckPermission(NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(NewData.Path) ?? NewData.Path))
+                                                    if (StorageController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                                                     {
                                                         if (StorageController.Create(NewData.Type, NewData.Path))
                                                         {
@@ -142,7 +142,7 @@ namespace FullTrustProcess
                                                 {
                                                     if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (StorageController.CheckPermission(FileSystemRights.Modify, CopyData.DestinationPath))
+                                                        if (StorageController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
                                                         {
                                                             List<string> OperationRecordList = new List<string>();
 
@@ -191,8 +191,8 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.DestinationPath)
-                                                                && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (StorageController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
+                                                                && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
@@ -249,7 +249,7 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
@@ -299,7 +299,7 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path))
+                                                            if (StorageController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
                                                             {
                                                                 string NewName = string.Empty;
 
@@ -472,14 +472,14 @@ namespace FullTrustProcess
 
             try
             {
-                switch (Enum.Parse(typeof(CommandType), Convert.ToString(CommandValue["CommandType"])))
+                switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
                     case CommandType.GetFileHandle:
                         {
                             if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())
                             {
-                                string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                                AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), Convert.ToString(CommandValue["AccessMode"]));
+                                string ExecutePath = CommandValue["ExecutePath"];
+                                AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
 
                                 Kernel32.FileAccess Access = Mode switch
                                 {
@@ -525,7 +525,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetUrlTargetPath:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -553,7 +553,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnail:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
@@ -577,7 +577,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.LaunchUWP:
                         {
-                            string[] PathArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["LaunchPathArray"]));
+                            string[] PathArray = JsonSerializer.Deserialize<string[]>(CommandValue["LaunchPathArray"]);
 
                             if (CommandValue.TryGetValue("PackageFamilyName", out string PackageFamilyName))
                             {
@@ -620,7 +620,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetDocumentProperties:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -805,7 +805,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetMIMEContentType:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             Value.Add("Success", Helper.GetMIMEFromPath(ExecutePath));
 
@@ -813,7 +813,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetHiddenItemData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             using (ShellItem Item = new ShellItem(ExecutePath))
                             using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
@@ -830,7 +830,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetTooltipText:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (File.Exists(Path) || Directory.Exists(Path))
                             {
@@ -861,8 +861,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.SearchByEverything:
                         {
-                            string BaseLocation = Convert.ToString(CommandValue["BaseLocation"]);
-                            string SearchWord = Convert.ToString(CommandValue["SearchWord"]);
+                            string BaseLocation = CommandValue["BaseLocation"];
+                            string SearchWord = CommandValue["SearchWord"];
                             bool SearchAsRegex = Convert.ToBoolean(CommandValue["SearchAsRegex"]);
                             bool IgnoreCase = Convert.ToBoolean(CommandValue["IgnoreCase"]);
 
@@ -897,7 +897,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetContextMenuItems:
                         {
-                            string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExecutePath"]));
+                            string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -908,7 +908,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.InvokeContextMenuItem:
                         {
-                            ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -926,7 +926,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -947,7 +947,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetVariablePath:
                         {
-                            string Variable = Convert.ToString(CommandValue["Variable"]);
+                            string Variable = CommandValue["Variable"];
 
                             string Env = Environment.GetEnvironmentVariable(Variable);
 
@@ -964,12 +964,12 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateNew:
                         {
-                            string CreateNewPath = Convert.ToString(CommandValue["NewPath"]);
+                            string CreateNewPath = CommandValue["NewPath"];
                             string UniquePath = StorageController.GenerateUniquePath(CreateNewPath);
 
-                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), Convert.ToString(CommandValue["Type"]));
+                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), CommandValue["Type"]);
 
-                            if (StorageController.CheckPermission(Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(UniquePath) ?? UniquePath))
+                            if (StorageController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
                                 if (StorageController.Create(Type, UniquePath))
                                 {
@@ -1039,8 +1039,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.Rename:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            string DesireName = Convert.ToString(CommandValue["DesireName"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            string DesireName = CommandValue["DesireName"];
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
@@ -1050,7 +1050,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath) ?? ExecutePath))
+                                    if (StorageController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
                                     {
                                         string NewName = string.Empty;
 
@@ -1136,7 +1136,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetInstalledApplication:
                         {
-                            string PFN = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PFN = CommandValue["PackageFamilyName"];
 
                             InstalledApplicationPackage Pack = await Helper.GetInstalledApplicationAsync(PFN);
 
@@ -1159,7 +1159,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CheckPackageFamilyNameExist:
                         {
-                            string PFN = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PFN = CommandValue["PackageFamilyName"];
 
                             Value.Add("Success", Convert.ToString(Helper.CheckIfPackageFamilyNameExist(PFN)));
 
@@ -1167,7 +1167,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateUrl:
                         {
-                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.UrlPath))
                             {
@@ -1200,7 +1200,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -1255,8 +1255,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetFileAttribute:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(Convert.ToString(CommandValue["Attributes"]));
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(CommandValue["Attributes"]);
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1323,7 +1323,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetUrlData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1356,7 +1356,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetLinkData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1677,7 +1677,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Quicklook:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
@@ -1694,7 +1694,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Get_Association:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociation(Path)));
 
@@ -1702,7 +1702,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Default_Association:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Success", ExtensionAssociate.GetDefaultProgramPathRelated(Path));
 
@@ -1731,7 +1731,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Restore_RecycleItem:
                         {
-                            string[] PathList = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExecutePath"]));
+                            string[] PathList = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
                             Value.Add("Restore_Result", Convert.ToString(RecycleBinController.Restore(PathList)));
 
@@ -1739,7 +1739,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Delete_RecycleItem:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Delete_Result", Convert.ToString(RecycleBinController.Delete(Path)));
 
@@ -1747,7 +1747,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.EjectUSB:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             if (string.IsNullOrEmpty(Path))
                             {
@@ -1762,7 +1762,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UnlockOccupy:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
                             bool ForceClose = Convert.ToBoolean(CommandValue["ForceClose"]);
 
                             if (File.Exists(Path))
@@ -1822,17 +1822,17 @@ namespace FullTrustProcess
                         }
                     case CommandType.Copy:
                         {
-                            string SourcePathJson = Convert.ToString(CommandValue["SourcePath"]);
-                            string DestinationPath = Convert.ToString(CommandValue["DestinationPath"]);
+                            string SourcePathJson = CommandValue["SourcePath"];
+                            string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(CommandValue["CollisionOptions"]));
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
+                                if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify))
                                 {
                                     try
                                     {
@@ -1943,10 +1943,10 @@ namespace FullTrustProcess
                         }
                     case CommandType.Move:
                         {
-                            string SourcePathJson = Convert.ToString(CommandValue["SourcePath"]);
-                            string DestinationPath = Convert.ToString(CommandValue["DestinationPath"]);
+                            string SourcePathJson = CommandValue["SourcePath"];
+                            string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(CommandValue["CollisionOptions"]));
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
 
                             Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1959,8 +1959,8 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath)
-                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                    if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify)
+                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
                                         try
                                         {
@@ -2084,7 +2084,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Delete:
                         {
-                            string ExecutePathJson = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePathJson = CommandValue["ExecutePath"];
 
                             bool PermanentDelete = Convert.ToBoolean(CommandValue["PermanentDelete"]);
 
@@ -2099,7 +2099,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
                                         try
                                         {
@@ -2209,18 +2209,18 @@ namespace FullTrustProcess
                         }
                     case CommandType.RunExecutable:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            string ExecuteParameter = Convert.ToString(CommandValue["ExecuteParameter"]);
-                            string ExecuteAuthority = Convert.ToString(CommandValue["ExecuteAuthority"]);
-                            string ExecuteWindowStyle = Convert.ToString(CommandValue["ExecuteWindowStyle"]);
-                            string ExecuteWorkDirectory = Convert.ToString(CommandValue["ExecuteWorkDirectory"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            string ExecuteParameter = CommandValue["ExecuteParameter"];
+                            string ExecuteAuthority = CommandValue["ExecuteAuthority"];
+                            string ExecuteWindowStyle = CommandValue["ExecuteWindowStyle"];
+                            string ExecuteWorkDirectory = CommandValue["ExecuteWorkDirectory"];
 
                             bool ExecuteCreateNoWindow = Convert.ToBoolean(CommandValue["ExecuteCreateNoWindow"]);
                             bool ShouldWaitForExit = Convert.ToBoolean(CommandValue["ExecuteShouldWaitForExit"]);
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
+                                if (StorageController.CheckPermission(ExecutePath, FileSystemRights.ReadAndExecute))
                                 {
                                     try
                                     {
@@ -2428,7 +2428,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.PasteRemoteFile:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -2482,7 +2482,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnailOverlay:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             Value.Add("Success", JsonSerializer.Serialize(StorageController.GetThumbnailOverlay(Path)));
 
@@ -2490,7 +2490,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetAsTopMostWindow:
                         {
-                            string PackageFamilyName = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PackageFamilyName = CommandValue["PackageFamilyName"];
                             uint WithPID = Convert.ToUInt32(CommandValue["WithPID"]);
 
                             if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)
@@ -2507,7 +2507,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.RemoveTopMostWindow:
                         {
-                            string PackageFamilyName = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PackageFamilyName = CommandValue["PackageFamilyName"];
                             uint WithPID = Convert.ToUInt32(CommandValue["WithPID"]);
 
                             if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)
