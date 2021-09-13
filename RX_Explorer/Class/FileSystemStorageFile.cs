@@ -12,29 +12,11 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase
     {
-        public override string DisplayName
-        {
-            get
-            {
-                return ((StorageItem as StorageFile)?.DisplayName) ?? Name;
-            }
-        }
+        public override string DisplayName => ((StorageItem as StorageFile)?.DisplayName) ?? Name;
 
-        public override string SizeDescription
-        {
-            get
-            {
-                return Size.GetFileSizeDescription();
-            }
-        }
+        public override string SizeDescription => Size.GetFileSizeDescription();
 
-        public override string DisplayType
-        {
-            get
-            {
-                return ((StorageItem as StorageFile)?.DisplayType) ?? Type;
-            }
-        }
+        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
 
         public override bool IsReadOnly
         {
@@ -66,20 +48,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override BitmapImage Thumbnail
-        {
-            get
-            {
-                return base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
-            }
-        }
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
 
-        public FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
+        public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read), false)
         {
             StorageItem = Item;
-            CreationTime = Item.DateCreated;
-            base.ModifiedTime = ModifiedTime;
-            base.Size = Size;
         }
 
         public FileSystemStorageFile(Win32_File_Data Data) : base(Data)
@@ -105,25 +78,15 @@ namespace RX_Explorer.Class
                         _ => throw new NotSupportedException()
                     };
 
-                    if (await GetStorageItemAsync() is StorageFile File)
+                    SafeFileHandle Handle = await GetNativeHandleAsync(Mode);
+
+                    if (Handle.IsInvalid)
                     {
-                        return new FileStream(File.GetSafeFileHandle(Mode), Access);
+                        throw new UnauthorizedAccessException();
                     }
                     else
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
-
-                            if (Handle.IsInvalid)
-                            {
-                                throw new UnauthorizedAccessException();
-                            }
-                            else
-                            {
-                                return new FileStream(Handle, Access);
-                            }
-                        }
+                        return new FileStream(Handle, Access);
                     }
                 }
             }
@@ -169,10 +132,24 @@ namespace RX_Explorer.Class
         {
             if (ForceUpdate)
             {
-                if (await GetStorageItemAsync() is StorageFile File)
+                try
                 {
-                    ModifiedTime = await File.GetModifiedTimeAsync();
-                    Size = await File.GetSizeRawDataAsync();
+                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+
+                    if (Data.IsDataValid)
+                    {
+                        ModifiedTime = Data.ModifiedTime;
+                        Size = Data.Size;
+                    }
+                    else if (await GetStorageItemAsync() is StorageFile File)
+                    {
+                        ModifiedTime = await File.GetModifiedTimeAsync();
+                        Size = await File.GetSizeRawDataAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
                 }
             }
         }

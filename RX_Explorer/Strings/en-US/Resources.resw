@@ -2992,12 +2992,6 @@ Invalid names include
   <data name="SystemTip_RestartTitle" xml:space="preserve">
     <value>Restart is required</value>
   </data>
-  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</value>
-  </data>
-  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
-    <value>Critical error</value>
-  </data>
   <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
     <value>The auxiliary process is busy and cannot respond to new requests, please wait patiently</value>
   </data>
@@ -3331,5 +3325,8 @@ Invalid names include
   </data>
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Trying to cancel</value>
+  </data>
+  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+    <value>Size on disk</value>
   </data>
 </root>

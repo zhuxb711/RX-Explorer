@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
+using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -150,8 +151,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 GeneralSubGrid.RowDefinitions[2].Height = new GridLength(0);
                 GeneralSubGrid.RowDefinitions[3].Height = new GridLength(0);
-                GeneralSubGrid.RowDefinitions[6].Height = new GridLength(35);
-                GeneralSubGrid.RowDefinitions[9].Height = new GridLength(0);
+                GeneralSubGrid.RowDefinitions[6].Height = new GridLength(0);
+                GeneralSubGrid.RowDefinitions[7].Height = new GridLength(35);
+                GeneralSubGrid.RowDefinitions[10].Height = new GridLength(0);
 
                 OpenWithPanel.Visibility = Visibility.Collapsed;
 
@@ -180,8 +182,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
 
                 GeneralSubGrid.RowDefinitions[3].Height = new GridLength(10);
-                GeneralSubGrid.RowDefinitions[6].Height = new GridLength(0);
-                GeneralSubGrid.RowDefinitions[9].Height = new GridLength(35);
+                GeneralSubGrid.RowDefinitions[6].Height = new GridLength(35);
+                GeneralSubGrid.RowDefinitions[7].Height = new GridLength(0);
+                GeneralSubGrid.RowDefinitions[10].Height = new GridLength(35);
 
                 OpenWithPanel.Visibility = Visibility.Visible;
 
@@ -815,7 +818,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             Thumbnail.Source = StorageItem.Thumbnail;
             LocationContent.Text = Path.GetDirectoryName(StorageItem.Path);
-            SizeContent.Text = $"{StorageItem.SizeDescription} ({StorageItem.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
             CreatedContent.Text = StorageItem.CreationTime.ToString("F");
             ModifiedContent.Text = StorageItem.ModifiedTime.ToString("F");
             HiddenAttribute.IsChecked = StorageItem is IHiddenStorageItem;
@@ -864,6 +866,20 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 StorageItemName.Text = File.Name;
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
+                SizeContent.Text = $"{StorageItem.SizeDescription} ({StorageItem.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+
+                using (SafeFileHandle Handle = await File.GetNativeHandleAsync(AccessMode.Read))
+                {
+                    if (Handle.IsInvalid)
+                    {
+                        SizeOnDiskContent.Text = Globalization.GetString("UnknownText");
+                    }
+                    else
+                    {
+                        ulong Size = Win32_Native_API.GetFileSpaceSize(Handle.DangerousGetHandle());
+                        SizeOnDiskContent.Text = $"{Size.GetFileSizeDescription()} ({Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                    }
+                }
 
                 bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
                 bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);

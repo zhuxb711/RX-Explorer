@@ -412,7 +412,7 @@ namespace RX_Explorer
 
                     foreach (StorageFile ImportFile in FileList)
                     {
-                        FileSystemStorageFile File = new FileSystemStorageFile(ImportFile, await ImportFile.GetModifiedTimeAsync(), await ImportFile.GetSizeRawDataAsync());
+                        FileSystemStorageFile File = new FileSystemStorageFile(ImportFile);
                         NewFileList.Add(File);
                         TotalSize += File.Size;
                     }

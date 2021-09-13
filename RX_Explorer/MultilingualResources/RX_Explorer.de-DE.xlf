@@ -3810,14 +3810,6 @@ Inkorrekte Namen sind
           <source>Restart is required</source>
           <target state="translated">Neustart ist erforderlich</target>
         </trans-unit>
-        <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
-          <source>The connection with the auxiliary process has been interrupted. It may be terminated because Windows lacks system resources, or the auxiliary process crashed unexpectedly</source>
-          <target state="translated">Die Verbindung zum Hilfsprozess wurde unterbrochen. Es kann beendet werden, weil Windows keine Systemressourcen hat oder der Hilfsprozess unerwartet abgestürzt ist</target>
-        </trans-unit>
-        <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
-          <source>Critical error</source>
-          <target state="translated">Kritischer Fehler</target>
-        </trans-unit>
         <trans-unit id="SystemTip_FullTrustBusyTitle" translate="yes" xml:space="preserve">
           <source>Waiting for response</source>
           <target state="translated">Auf Rückantwort warten</target>
@@ -4282,6 +4274,10 @@ Inkorrekte Namen sind
         <trans-unit id="TaskList_Task_Status_Cancelling" translate="yes" xml:space="preserve">
           <source>Trying to cancel</source>
           <target state="translated">Versuch abzubrechen</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_SizeOnDisk" translate="yes" xml:space="preserve">
+          <source>Size on disk</source>
+          <target state="translated">Größe auf Datenträger</target>
         </trans-unit>
       </group>
     </body>

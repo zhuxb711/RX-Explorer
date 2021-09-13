@@ -98,8 +98,6 @@ namespace RX_Explorer.Class
 
         public static event EventHandler<bool> CurrentBusyStatus;
 
-        public static event EventHandler AppServiceConnectionLost;
-
         public static Task ResizeTask;
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
@@ -360,7 +358,6 @@ namespace RX_Explorer.Class
                                    && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
                             {
                                 Dispose();
-                                AppServiceConnectionLost?.Invoke(this, null);
                             }
 
                             break;
@@ -477,7 +474,6 @@ namespace RX_Explorer.Class
                    && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
             {
                 Dispose();
-                AppServiceConnectionLost?.Invoke(this, null);
             }
         }
 

@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Input;
 using Windows.Storage;
 using Windows.System;
@@ -953,12 +954,12 @@ namespace RX_Explorer
                 {
                     using (Stream FStream = await Dialog.PickedFile.OpenStreamForReadAsync())
                     {
-                        await Task.Run(() =>
+                        await Task.Factory.StartNew(() =>
                         {
                             ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
                             ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath}/{Dialog.NewName}");
                             ZipObj.CommitUpdate();
-                        });
+                        }, TaskCreationOptions.LongRunning);
                     }
 
                     DisplayItemsInFolderEntry(CurrentPath);
@@ -1173,6 +1174,117 @@ namespace RX_Explorer
 
                     await Dialog.ShowAsync();
                 }
+            }
+        }
+
+        private async void ListViewControl_DragEnter(object sender, DragEventArgs e)
+        {
+            DragOperationDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                e.Handled = true;
+
+                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+
+                if (PathList.Count > 0)
+                {
+                    if ((await FileSystemStorageItemBase.OpenInBatchAsync(PathList)).All((Item) => Item is FileSystemStorageFile))
+                    {
+                        if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Path.GetFileName(CurrentPath)}\"";
+                        }
+                        else
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Path.GetFileName(CurrentPath)}\"";
+                        }
+
+                        e.DragUIOverride.IsContentVisible = true;
+                        e.DragUIOverride.IsCaptionVisible = true;
+                        e.DragUIOverride.IsGlyphVisible = true;
+                    }
+                    else
+                    {
+                        e.AcceptedOperation = DataPackageOperation.None;
+                    }
+                }
+                else
+                {
+                    e.AcceptedOperation = DataPackageOperation.None;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
+        }
+
+        private async void ListViewControl_Drop(object sender, DragEventArgs e)
+        {
+            DragOperationDeferral Deferral = e.GetDeferral();
+
+            try
+            {
+                e.Handled = true;
+
+                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+
+                if (PathList.Count > 0)
+                {
+                    ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+
+                    try
+                    {
+                        await Task.Factory.StartNew(() =>
+                        {
+                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+
+                            foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
+                            {
+                                using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read).Result)
+                                {
+                                    ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath}/{Item.Name}");
+                                }
+                            }
+
+                            ZipObj.CommitUpdate();
+                        }, TaskCreationOptions.LongRunning);
+
+                        DisplayItemsInFolderEntry(CurrentPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not add a new file to the compressed file");
+
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        ControlLoading(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
     }

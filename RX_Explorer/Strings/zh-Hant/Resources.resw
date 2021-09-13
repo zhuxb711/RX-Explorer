@@ -2872,12 +2872,6 @@
   <data name="SystemTip_RestartTitle" xml:space="preserve">
     <value>需要重啟</value>
   </data>
-  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>與輔助過程的連接已中斷。 可能是因為 Windows 系統資源不足而被終止，或者輔助進程意外崩潰</value>
-  </data>
-  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
-    <value>關鍵錯誤</value>
-  </data>
   <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
     <value>正在等待響應</value>
   </data>
@@ -3226,5 +3220,8 @@
   </data>
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>正在試圖取消</value>
+  </data>
+  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+    <value>在磁盤上的大小</value>
   </data>
 </root>

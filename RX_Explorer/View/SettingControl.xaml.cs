@@ -1930,7 +1930,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                             {
-                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync());
+                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder);
 
                                 bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
 

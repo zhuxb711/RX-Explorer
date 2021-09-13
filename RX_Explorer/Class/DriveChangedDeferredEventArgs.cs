@@ -7,14 +7,9 @@ namespace RX_Explorer.Class
     {
         public FileSystemStorageFolder StorageItem { get; }
 
-        public static async Task<DriveChangedDeferredEventArgs> CreateAsync(DriveDataBase Data)
+        public DriveChangedDeferredEventArgs(DriveDataBase Data)
         {
-            return new DriveChangedDeferredEventArgs(new FileSystemStorageFolder(Data.DriveFolder, await Data.DriveFolder.GetModifiedTimeAsync()));
-        }
-
-        private DriveChangedDeferredEventArgs(FileSystemStorageFolder StorageItem)
-        {
-            this.StorageItem = StorageItem;
+            StorageItem = new FileSystemStorageFolder(Data.DriveFolder);
         }
     }
 }

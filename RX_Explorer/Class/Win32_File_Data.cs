@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace RX_Explorer.Class
 {
@@ -8,9 +10,13 @@ namespace RX_Explorer.Class
 
         public ulong Size { get; }
 
-        public bool IsReadOnly { get; }
+        public bool IsReadOnly => Attributes.HasFlag(FileAttributes.ReadOnly);
 
-        public bool IsSystemItem { get; }
+        public bool IsSystemItem => Attributes.HasFlag(FileAttributes.System);
+
+        public bool IsDataValid { get; } = true;
+
+        public FileAttributes Attributes { get; }
 
         public DateTimeOffset CreationTime { get; }
 
@@ -18,27 +24,44 @@ namespace RX_Explorer.Class
 
         public DateTimeOffset LastAccessTime { get; }
 
-        public static Win32_File_Data Empty { get; } = new Win32_File_Data();
-
         public Win32_File_Data(string Path, Win32_Native_API.WIN32_FIND_DATA Data)
         {
             this.Path = Path;
-
-            IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
-            IsSystemItem = IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.System);
-
             Size = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
+            Attributes = (FileAttributes)Data.dwFileAttributes;
 
-            Win32_Native_API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out Win32_Native_API.SYSTEMTIME ModTime);
-            ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            if (Win32_Native_API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out Win32_Native_API.SYSTEMTIME ModTime))
+            {
+                ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
 
-            Win32_Native_API.FileTimeToSystemTime(ref Data.ftCreationTime, out Win32_Native_API.SYSTEMTIME CreTime);
-            CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            if (Win32_Native_API.FileTimeToSystemTime(ref Data.ftCreationTime, out Win32_Native_API.SYSTEMTIME CreTime))
+            {
+                CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
         }
 
-        private Win32_File_Data()
+        public Win32_File_Data(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime)
         {
+            this.Path = Path;
+            this.Size = Size;
+            this.Attributes = Attributes;
 
+            if (Win32_Native_API.FileTimeToSystemTime(ref LWTime, out Win32_Native_API.SYSTEMTIME ModTime))
+            {
+                ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            if (Win32_Native_API.FileTimeToSystemTime(ref CTime, out Win32_Native_API.SYSTEMTIME CreTime))
+            {
+                CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+        }
+
+        public Win32_File_Data(string Path)
+        {
+            IsDataValid = false;
+            this.Path = Path;
         }
     }
 }

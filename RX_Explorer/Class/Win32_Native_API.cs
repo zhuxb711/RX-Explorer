@@ -167,6 +167,12 @@ namespace RX_Explorer.Class
             public bool bInheritHandle;
         }
 
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetFileSizeEx(IntPtr hFile, out long lpFileSize);
+
+        [DllImport("api-ms-win-core-file-l2-1-0.dlll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetFileInformationByHandleEx(IntPtr hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass, IntPtr lpFileInformation, uint dwBufferSize);
+
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
         const uint FILE_LIST_DIRECTORY = 0x1;
@@ -225,6 +231,53 @@ namespace RX_Explorer.Class
             WRITE_OWNER = 0x00080000,
             ACCESS_SYSTEM_SECURITY = 0x01000000
         }
+
+        public enum FILE_INFO_BY_HANDLE_CLASS
+        {
+            FileBasicInfo,
+            FileStandardInfo,
+            FileNameInfo,
+            FileRenameInfo,
+            FileDispositionInfo,
+            FileAllocationInfo,
+            FileEndOfFileInfo,
+            FileStreamInfo,
+            FileCompressionInfo,
+            FileAttributeTagInfo,
+            FileIdBothDirectoryInfo,
+            FileIdBothDirectoryRestartInfo,
+            FileIoPriorityHintInfo,
+            FileRemoteProtocolInfo,
+            FileFullDirectoryInfo,
+            FileFullDirectoryRestartInfo,
+            FileStorageInfo,
+            FileAlignmentInfo,
+            FileIdInfo,
+            FileIdExtdDirectoryInfo,
+            FileIdExtdDirectoryRestartInfo,
+            MaximumFileInfoByHandlesClass,
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 40)]
+        private struct FILE_BASIC_INFO
+        {
+            public FILETIME CreationTime;
+            public FILETIME LastAccessTime;
+            public FILETIME LastWriteTime;
+            public FILETIME ChangeTime;
+            public FileAttributes FileAttributes;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct FILE_STANDARD_INFO
+        {
+            public long AllocationSize;
+            public long EndOfFile;
+            public uint NumberOfLinks;
+            [MarshalAs(UnmanagedType.U1)] public bool DeletePending;
+            [MarshalAs(UnmanagedType.U1)] public bool Directory;
+        }
+
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
         {
@@ -1018,12 +1071,134 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return Win32_File_Data.Empty;
+                    return new Win32_File_Data(ItemPath);
                 }
             }
             finally
             {
                 FindClose(Ptr);
+            }
+        }
+
+        public static Win32_File_Data GetStorageItemRawDataFromHandle(string Path, IntPtr FileHandle)
+        {
+            if (FileHandle.CheckIfValidPtr())
+            {
+                int StructSize = Marshal.SizeOf<FILE_BASIC_INFO>();
+
+                IntPtr StructPtr = Marshal.AllocHGlobal(StructSize);
+
+                try
+                {
+                    if (GetFileInformationByHandleEx(FileHandle, FILE_INFO_BY_HANDLE_CLASS.FileBasicInfo, StructPtr, Convert.ToUInt32(StructSize)))
+                    {
+                        FILE_BASIC_INFO Info = Marshal.PtrToStructure<FILE_BASIC_INFO>(StructPtr);
+
+                        if (Info.FileAttributes.HasFlag(FileAttributes.Directory))
+                        {
+                            return new Win32_File_Data(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                        }
+                        else
+                        {
+                            if (GetFileSizeEx(FileHandle, out long Size))
+                            {
+                                return new Win32_File_Data(Path, Size > 0 ? Convert.ToUInt64(Size) : 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                            }
+                            else
+                            {
+                                return new Win32_File_Data(Path, 0, Info.FileAttributes, Info.LastWriteTime, Info.CreationTime);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Could not get file information from native api, path: \"{Path}\"");
+                        return new Win32_File_Data(Path);
+                    }
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(StructPtr);
+                }
+            }
+            else
+            {
+                return new Win32_File_Data(Path);
+            }
+        }
+
+        public static ulong GetFileSpaceSize(IntPtr FileHandle)
+        {
+            if (FileHandle.CheckIfValidPtr())
+            {
+                int StructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
+
+                IntPtr StructPtr = Marshal.AllocHGlobal(StructSize);
+
+                try
+                {
+                    if (GetFileInformationByHandleEx(FileHandle, FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo, StructPtr, Convert.ToUInt32(StructSize)))
+                    {
+                        FILE_STANDARD_INFO Info = Marshal.PtrToStructure<FILE_STANDARD_INFO>(StructPtr);
+                        return Info.AllocationSize > 0 ? Convert.ToUInt64(Info.AllocationSize) : 0;
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Could not get file space from native api");
+                        return 0;
+                    }
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(StructPtr);
+                }
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public static FileSystemStorageItemBase GetStorageItemFromHandle(string Path, IntPtr FileHandle)
+        {
+            Win32_File_Data Data = GetStorageItemRawDataFromHandle(Path, FileHandle);
+
+            if (Data.IsDataValid)
+            {
+                if (Data.Attributes.HasFlag(FileAttributes.Directory))
+                {
+                    if (Data.Attributes.HasFlag(FileAttributes.Hidden))
+                    {
+                        return new HiddenStorageFolder(Data);
+                    }
+                    else
+                    {
+                        return new FileSystemStorageFolder(Data);
+                    }
+                }
+                else
+                {
+                    if (Data.Attributes.HasFlag(FileAttributes.Hidden))
+                    {
+                        return new HiddenStorageFile(Data);
+                    }
+                    else if (Path.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return new UrlStorageFile(Data);
+                    }
+                    else if (Path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return new LinkStorageFile(Data);
+                    }
+                    else
+                    {
+                        return new FileSystemStorageFile(Data);
+                    }
+                }
+            }
+            else
+            {
+                return null;
             }
         }
 

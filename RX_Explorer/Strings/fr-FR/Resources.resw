@@ -2872,12 +2872,6 @@ Les noms non valides incluent
   <data name="SystemTip_RestartTitle" xml:space="preserve">
     <value>Un redémarrage est requis</value>
   </data>
-  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>La connexion avec le processus auxiliaire a été interrompue. Il peut être terminé car Windows manque de ressources système ou le processus auxiliaire s'est écrasé de manière inattendue</value>
-  </data>
-  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
-    <value>Erreur critique</value>
-  </data>
   <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
     <value>En attente d'une réponse</value>
   </data>
@@ -3226,5 +3220,8 @@ Les noms non valides incluent
   </data>
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Essayer d'annuler</value>
+  </data>
+  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+    <value>Taille sur le disque</value>
   </data>
 </root>

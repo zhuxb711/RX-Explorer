@@ -955,7 +955,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path));
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }

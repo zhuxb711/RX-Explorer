@@ -693,7 +693,7 @@ namespace RX_Explorer
 
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder, await DriveData.DriveFolder.GetModifiedTimeAsync());
+                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder);
 
                         if (DriveData.DriveType is DriveType.Network or DriveType.Removable)
                         {
@@ -3031,7 +3031,7 @@ namespace RX_Explorer
                 else
                 {
                     SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder));
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path));
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                 }
             }

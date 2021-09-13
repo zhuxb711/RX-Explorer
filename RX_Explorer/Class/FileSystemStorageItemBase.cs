@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -28,37 +29,13 @@ namespace RX_Explorer.Class
 
         public virtual string SizeDescription { get; }
 
-        public virtual string Name
-        {
-            get
-            {
-                return System.IO.Path.GetFileName(Path);
-            }
-        }
+        public virtual string Name => System.IO.Path.GetFileName(Path);
 
-        public virtual string DisplayName
-        {
-            get
-            {
-                return Name;
-            }
-        }
+        public virtual string DisplayName => Name;
 
-        public virtual string Type
-        {
-            get
-            {
-                return System.IO.Path.GetExtension(Path).ToUpper();
-            }
-        }
+        public virtual string Type => System.IO.Path.GetExtension(Path).ToUpper();
 
-        public virtual string DisplayType
-        {
-            get
-            {
-                return Type;
-            }
-        }
+        public virtual string DisplayType => Type;
 
         private SolidColorBrush accentColor;
         public SolidColorBrush AccentColor
@@ -205,11 +182,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Task<IReadOnlyList<FileSystemStorageItemBase>> OpenInBatchAsync(params string[] PathArray)
+        public static Task<IReadOnlyList<FileSystemStorageItemBase>> OpenInBatchAsync(IEnumerable<string> PathArray)
         {
             return Task.Factory.StartNew<IReadOnlyList<FileSystemStorageItemBase>>(() =>
             {
                 ConcurrentBag<FileSystemStorageItemBase> Result = new ConcurrentBag<FileSystemStorageItemBase>();
+                ConcurrentBag<(string, Exception)> RetryBag = new ConcurrentBag<(string, Exception)>();
 
                 Parallel.ForEach(PathArray, (Path) =>
                 {
@@ -217,7 +195,10 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            Result.Add(Win32_Native_API.GetStorageItem(Path));
+                            if (Win32_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
+                            {
+                                Result.Add(Item);
+                            }
                         }
                         catch (LocationNotAvailableException)
                         {
@@ -226,7 +207,7 @@ namespace RX_Explorer.Class
                             if (string.IsNullOrEmpty(DirectoryPath))
                             {
                                 StorageFolder Folder = StorageFolder.GetFolderFromPathAsync(Path).AsTask().Result;
-                                Result.Add(new FileSystemStorageFolder(Folder, Folder.GetModifiedTimeAsync().Result));
+                                Result.Add(new FileSystemStorageFolder(Folder));
                             }
                             else
                             {
@@ -236,12 +217,12 @@ namespace RX_Explorer.Class
                                 {
                                     case StorageFolder Folder:
                                         {
-                                            Result.Add(new FileSystemStorageFolder(Folder, Folder.GetModifiedTimeAsync().Result));
+                                            Result.Add(new FileSystemStorageFolder(Folder));
                                             break;
                                         }
                                     case StorageFile File:
                                         {
-                                            Result.Add(new FileSystemStorageFile(File, File.GetModifiedTimeAsync().Result, File.GetSizeRawDataAsync().Result));
+                                            Result.Add(new FileSystemStorageFile(File));
                                             break;
                                         }
                                 }
@@ -250,9 +231,36 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                        RetryBag.Add((Path, ex));
                     }
                 });
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                {
+                    foreach ((string Path, Exception ex) in RetryBag)
+                    {
+                        using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite).Result)
+                        {
+                            if (Handle.IsInvalid)
+                            {
+                                LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                            }
+                            else
+                            {
+                                LogTracer.Log($"Try get storage item from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
+
+                                if (Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle()) is FileSystemStorageItemBase Item)
+                                {
+                                    Result.Add(Item);
+                                }
+                                else
+                                {
+                                    LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                                }
+                            }
+                        }
+                    }
+                }
 
                 return Result.ToList();
             }, TaskCreationOptions.LongRunning);
@@ -268,32 +276,51 @@ namespace RX_Explorer.Class
                 }
                 catch (LocationNotAvailableException)
                 {
-                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                    if (string.IsNullOrEmpty(DirectoryPath))
+                    try
                     {
-                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync());
-                    }
-                    else
-                    {
-                        StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                        switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                        if (string.IsNullOrEmpty(DirectoryPath))
                         {
-                            case StorageFolder Folder:
-                                {
-                                    return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync());
-                                }
-                            case StorageFile File:
-                                {
-                                    return new FileSystemStorageFile(File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync());
-                                }
-                            default:
-                                {
-                                    LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
-                                    return null;
-                                }
+                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                            return new FileSystemStorageFolder(Folder);
+                        }
+                        else
+                        {
+                            StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                            switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                            {
+                                case StorageFolder Folder:
+                                    {
+                                        return new FileSystemStorageFolder(Folder);
+                                    }
+                                case StorageFile File:
+                                    {
+                                        return new FileSystemStorageFile(File);
+                                    }
+                                default:
+                                    {
+                                        LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
+                                        return null;
+                                    }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite))
+                        {
+                            if (Handle.IsInvalid)
+                            {
+                                throw;
+                            }
+                            else
+                            {
+                                LogTracer.Log($"Try get storageitem from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
+                                return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                            }
                         }
                     }
                 }
@@ -326,17 +353,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     default:
                                         {
@@ -382,17 +409,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     default:
                                         {
@@ -428,19 +455,26 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(string Path)
+        protected FileSystemStorageItemBase(string Path, SafeFileHandle Handle, bool LeaveOpen) : this(Win32_Native_API.GetStorageItemRawDataFromHandle(Path, Handle.DangerousGetHandle()))
         {
-            this.Path = Path;
+            if (!LeaveOpen)
+            {
+                Handle.Dispose();
+            }
         }
 
         protected FileSystemStorageItemBase(Win32_File_Data Data)
         {
             Path = Data.Path;
-            IsReadOnly = Data.IsReadOnly;
-            IsSystemItem = Data.IsSystemItem;
-            Size = Data.Size;
-            ModifiedTime = Data.ModifiedTime;
-            CreationTime = Data.CreationTime;
+
+            if (Data.IsDataValid)
+            {
+                IsReadOnly = Data.IsReadOnly;
+                IsSystemItem = Data.IsSystemItem;
+                Size = Data.Size;
+                ModifiedTime = Data.ModifiedTime;
+                CreationTime = Data.CreationTime;
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)
@@ -693,6 +727,21 @@ namespace RX_Explorer.Class
             }
 
             OnPropertyChanged(nameof(SyncStatus));
+        }
+
+        public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode)
+        {
+            if (await GetStorageItemAsync() is IStorageItem Item)
+            {
+                return Item.GetSafeFileHandle(Mode);
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    return await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
+                }
+            }
         }
 
         protected virtual async Task<BitmapImage> LoadThumbnailOverlayAsync(FullTrustProcessController Controller)

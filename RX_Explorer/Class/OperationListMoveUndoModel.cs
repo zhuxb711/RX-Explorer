@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             ulong TotalSize = 0;
 
-            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom.Keys.ToArray()))
+            foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom.Keys))
             {
                 switch (Item)
                 {

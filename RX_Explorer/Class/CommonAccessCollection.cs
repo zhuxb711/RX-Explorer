@@ -413,7 +413,7 @@ namespace RX_Explorer.Class
                         {
                             foreach (DriveDataBase Drive in e.NewItems)
                             {
-                                await DriveAdded.InvokeAsync(null, await DriveChangedDeferredEventArgs.CreateAsync(Drive));
+                                await DriveAdded.InvokeAsync(null, new DriveChangedDeferredEventArgs(Drive));
                             }
                         }
                         break;
@@ -424,7 +424,7 @@ namespace RX_Explorer.Class
                         {
                             foreach (DriveDataBase Drive in e.OldItems)
                             {
-                                await DriveRemoved.InvokeAsync(null, await DriveChangedDeferredEventArgs.CreateAsync(Drive));
+                                await DriveRemoved.InvokeAsync(null, new DriveChangedDeferredEventArgs(Drive));
                             }
                         }
 

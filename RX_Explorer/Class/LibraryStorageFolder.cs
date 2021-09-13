@@ -20,30 +20,13 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return new LibraryStorageFolder(LibType, Path);
-            }
-            catch (LocationNotAvailableException)
-            {
-                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public static async Task<LibraryStorageFolder> CreateAsync(LibraryType LibType, StorageFolder Folder)
-        {
-            try
-            {
-                if (Folder != null)
+                try
                 {
-                    return new LibraryStorageFolder(LibType, Folder, await Folder.GetModifiedTimeAsync());
+                    return new LibraryStorageFolder(LibType, Path);
                 }
-                else
+                catch (LocationNotAvailableException)
                 {
-                    return null;
+                    return new LibraryStorageFolder(LibType, await StorageFolder.GetFolderFromPathAsync(Path));
                 }
             }
             catch (Exception)
@@ -52,7 +35,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private LibraryStorageFolder(LibraryType LibType, StorageFolder Folder, DateTimeOffset ModifiedTime) : base(Folder, ModifiedTime)
+        private LibraryStorageFolder(LibraryType LibType, StorageFolder Folder) : base(Folder)
         {
             this.LibType = LibType;
         }

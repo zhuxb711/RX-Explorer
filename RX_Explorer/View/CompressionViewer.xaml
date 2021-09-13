@@ -136,6 +136,8 @@
                   DoubleTapped="ListViewControl_DoubleTapped"
                   RightTapped="ListViewControl_RightTapped"
                   Holding="ListViewControl_Holding"
+                  DragEnter="ListViewControl_DragEnter"
+                  Drop="ListViewControl_Drop"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind EntryList}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">

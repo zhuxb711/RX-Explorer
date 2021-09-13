@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using ShareClassLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,53 +15,17 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFolder : FileSystemStorageItemBase
     {
-        public override string Name
-        {
-            get
-            {
-                return System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
-            }
-        }
+        public override string Name => System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
 
-        public override string DisplayName
-        {
-            get
-            {
-                return ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
-            }
-        }
+        public override string DisplayName => ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
 
-        public override string SizeDescription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public override string SizeDescription => string.Empty;
 
-        public override string DisplayType
-        {
-            get
-            {
-                return Type;
-            }
-        }
+        public override string DisplayType => Type;
 
-        public override string Type
-        {
-            get
-            {
-                return Globalization.GetString("Folder_Admin_DisplayType");
-            }
-        }
+        public override string Type => Globalization.GetString("Folder_Admin_DisplayType");
 
-        public override bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool IsReadOnly => false;
 
         public override bool IsSystemItem
         {
@@ -76,19 +42,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override BitmapImage Thumbnail
-        {
-            get
-            {
-                return base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
-            }
-        }
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
 
-        public FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
+        public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read), false)
         {
             StorageItem = Item;
-            CreationTime = Item.DateCreated;
-            base.ModifiedTime = ModifiedTime;
         }
 
         public FileSystemStorageFolder(Win32_File_Data Data) : base(Data)
@@ -96,7 +54,9 @@ namespace RX_Explorer.Class
 
         }
 
-        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
+        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false,
+                                                                  bool IncludeSystemItem = false,
+                                                                  BasicFilters Filter = BasicFilters.File | BasicFilters.Folder)
         {
             try
             {
@@ -164,12 +124,26 @@ namespace RX_Explorer.Class
                             {
                                 foreach (StorageFile File in ReadOnlyItemList)
                                 {
-                                    TotalSize += await File.GetSizeRawDataAsync();
-
                                     if (CancelToken.IsCancellationRequested)
                                     {
                                         break;
                                     }
+
+                                    using (SafeFileHandle Handle = File.GetSafeFileHandle(AccessMode.Read))
+                                    {
+                                        if (!Handle.IsInvalid)
+                                        {
+                                            Win32_File_Data Data = Win32_Native_API.GetStorageItemRawDataFromHandle(File.Path, Handle.DangerousGetHandle());
+
+                                            if (Data.IsDataValid)
+                                            {
+                                                TotalSize += Data.Size;
+                                                continue;
+                                            }
+                                        }
+                                    }
+
+                                    TotalSize += await File.GetSizeRawDataAsync();
                                 }
                             }
                             else
@@ -298,12 +272,12 @@ namespace RX_Explorer.Class
                                             {
                                                 case StorageFolder SubFolder:
                                                     {
-                                                        Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
+                                                        Result.Add(new FileSystemStorageFolder(SubFolder));
                                                         break;
                                                     }
                                                 case StorageFile SubFile:
                                                     {
-                                                        Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetModifiedTimeAsync(), await SubFile.GetSizeRawDataAsync()));
+                                                        Result.Add(new FileSystemStorageFile(SubFile));
                                                         break;
                                                     }
                                             }
@@ -394,7 +368,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems,
+                                                                                               bool IncludeSystemItem,
+                                                                                               uint MaxNumLimit = uint.MaxValue,
+                                                                                               BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
+                                                                                               Func<string, bool> AdvanceFilter = null)
         {
             try
             {
@@ -438,11 +416,11 @@ namespace RX_Explorer.Class
 
                                     if (Item is StorageFolder SubFolder)
                                     {
-                                        Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
+                                        Result.Add(new FileSystemStorageFolder(SubFolder));
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetModifiedTimeAsync(), await SubFile.GetSizeRawDataAsync()));
+                                        Result.Add(new FileSystemStorageFile(SubFile));
                                     }
                                 }
                             }
@@ -471,9 +449,22 @@ namespace RX_Explorer.Class
         {
             if (ForceUpdate)
             {
-                if (await GetStorageItemAsync() is StorageFolder Folder)
+                try
                 {
-                    ModifiedTime = await Folder.GetModifiedTimeAsync();
+                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+
+                    if (Data.IsDataValid)
+                    {
+                        ModifiedTime = Data.ModifiedTime;
+                    }
+                    else if (await GetStorageItemAsync() is StorageFolder Folder)
+                    {
+                        ModifiedTime = await Folder.GetModifiedTimeAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(LoadCoreAsync)}");
                 }
             }
         }

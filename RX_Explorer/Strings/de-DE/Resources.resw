@@ -2872,12 +2872,6 @@ Inkorrekte Namen sind
   <data name="SystemTip_RestartTitle" xml:space="preserve">
     <value>Neustart ist erforderlich</value>
   </data>
-  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
-    <value>Die Verbindung zum Hilfsprozess wurde unterbrochen. Es kann beendet werden, weil Windows keine Systemressourcen hat oder der Hilfsprozess unerwartet abgestürzt ist</value>
-  </data>
-  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
-    <value>Kritischer Fehler</value>
-  </data>
   <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
     <value>Auf Rückantwort warten</value>
   </data>
@@ -3226,5 +3220,8 @@ Inkorrekte Namen sind
   </data>
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Versuch abzubrechen</value>
+  </data>
+  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+    <value>Größe auf Datenträger</value>
   </data>
 </root>
