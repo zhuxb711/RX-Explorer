@@ -3221,7 +3221,7 @@ Les noms non valides incluent
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Essayer d'annuler</value>
   </data>
-  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+  <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>Taille sur le disque</value>
   </data>
 </root>

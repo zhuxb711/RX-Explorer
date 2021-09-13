@@ -3221,7 +3221,7 @@ Las denominaciones no válidas son:
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Tratando de cancelar</value>
   </data>
-  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+  <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>Tamaño en disco</value>
   </data>
 </root>

@@ -4275,7 +4275,7 @@ Las denominaciones no válidas son:
           <source>Trying to cancel</source>
           <target state="translated">Tratando de cancelar</target>
         </trans-unit>
-        <trans-unit id="Properties_General_SizeOnDisk" translate="yes" xml:space="preserve">
+        <trans-unit id="Properties_General_SizeOnDisk.Text" translate="yes" xml:space="preserve">
           <source>Size on disk</source>
           <target state="translated">Tamaño en disco</target>
         </trans-unit>

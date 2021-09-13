@@ -3221,7 +3221,7 @@ Inkorrekte Namen sind
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Versuch abzubrechen</value>
   </data>
-  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+  <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>Größe auf Datenträger</value>
   </data>
 </root>

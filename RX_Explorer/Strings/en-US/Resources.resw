@@ -3326,7 +3326,7 @@ Invalid names include
   <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
     <value>Trying to cancel</value>
   </data>
-  <data name="Properties_General_SizeOnDisk" xml:space="preserve">
+  <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>Size on disk</value>
   </data>
 </root>

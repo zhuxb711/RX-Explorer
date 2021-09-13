@@ -95,7 +95,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         public static async Task<PropertiesWindowBase> CreateAsync(FileSystemStorageItemBase StorageItem)
         {
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(420, 600));
+            NewWindow.RequestSize(new Size(430, 650));
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -108,7 +108,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(NewWindow, StorageItem);
 
             ElementCompositionPreview.SetAppWindowContent(NewWindow, PropertiesWindow);
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(430, 650));
 
             return PropertiesWindow;
         }
