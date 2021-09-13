@@ -3224,4 +3224,7 @@ Les noms non valides incluent
   <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
     <value>Impossible d'ouvrir le fichier, le type de fichier n'est pas pris en charge</value>
   </data>
+  <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
+    <value>Essayer d'annuler</value>
+  </data>
 </root>

@@ -45,6 +45,10 @@ namespace FullTrustProcess
 
         private static NamedPipeWriteController PipeProgressWriterController;
 
+        private static NamedPipeReadController PipeCancellationReadController;
+
+        private static CancellationTokenSource CurrentTaskCancellation;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -117,7 +121,7 @@ namespace FullTrustProcess
                                         {
                                             case ElevationCreateNewData NewData:
                                                 {
-                                                    if (StorageController.CheckPermission(NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(NewData.Path) ?? NewData.Path))
+                                                    if (StorageController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                                                     {
                                                         if (StorageController.Create(NewData.Type, NewData.Path))
                                                         {
@@ -139,7 +143,7 @@ namespace FullTrustProcess
                                                 {
                                                     if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                     {
-                                                        if (StorageController.CheckPermission(FileSystemRights.Modify, CopyData.DestinationPath))
+                                                        if (StorageController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
                                                         {
                                                             List<string> OperationRecordList = new List<string>();
 
@@ -188,8 +192,8 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, MoveData.DestinationPath)
-                                                                && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (StorageController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
+                                                                && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
@@ -246,7 +250,7 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                                            if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                             {
                                                                 List<string> OperationRecordList = new List<string>();
 
@@ -296,7 +300,7 @@ namespace FullTrustProcess
                                                         }
                                                         else
                                                         {
-                                                            if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path))
+                                                            if (StorageController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
                                                             {
                                                                 string NewName = string.Empty;
 
@@ -360,30 +364,48 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
+
                 PipeCommandWriteController?.Dispose();
                 PipeCommandReadController?.Dispose();
                 PipeProgressWriterController?.Dispose();
+                PipeCancellationReadController?.Dispose();
+
                 LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
+
+        private static void PipeCancellationController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            if (e.Data == "Cancel")
+            {
+                CurrentTaskCancellation?.Cancel();
             }
         }
 
         private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            EventDeferral Deferral = e.GetDeferral();
+            if (e.ExtraException is Exception Ex)
+            {
+                LogTracer.Log(Ex, "Could not receive pipeline data");
+            }
+            else
+            {
+                EventDeferral Deferral = e.GetDeferral();
 
-            try
-            {
-                IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
-                IDictionary<string, string> Response = await HandleCommand(Request);
-                PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in responding pipe message");
-            }
-            finally
-            {
-                Deferral.Complete();
+                try
+                {
+                    IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+                    IDictionary<string, string> Response = await HandleCommand(Request);
+                    PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw in responding pipe message");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
         }
 
@@ -446,13 +468,65 @@ namespace FullTrustProcess
         {
             IDictionary<string, string> Value = new Dictionary<string, string>();
 
+            CurrentTaskCancellation?.Dispose();
+            CurrentTaskCancellation = new CancellationTokenSource();
+
             try
             {
-                switch (Enum.Parse(typeof(CommandType), Convert.ToString(CommandValue["CommandType"])))
+                switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetFileHandle:
+                        {
+                            if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())
+                            {
+                                string ExecutePath = CommandValue["ExecutePath"];
+                                AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
+
+                                Kernel32.FileAccess Access = Mode switch
+                                {
+                                    AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
+                                    AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                    AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                    _ => throw new NotSupportedException()
+                                };
+
+                                FileShare Share = Mode switch
+                                {
+                                    AccessMode.Read => FileShare.ReadWrite,
+                                    AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
+                                    AccessMode.Exclusive => FileShare.None,
+                                    _ => throw new NotSupportedException()
+                                };
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                                {
+                                    if (Handle.IsInvalid || Handle.IsNull)
+                                    {
+                                        Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                    }
+                                    else
+                                    {
+                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        {
+                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Explorer process handle is not valid");
+                            }
+
+                            break;
+                        }
                     case CommandType.GetUrlTargetPath:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -480,7 +554,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnail:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
@@ -504,7 +578,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.LaunchUWP:
                         {
-                            string[] PathArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["LaunchPathArray"]));
+                            string[] PathArray = JsonSerializer.Deserialize<string[]>(CommandValue["LaunchPathArray"]);
 
                             if (CommandValue.TryGetValue("PackageFamilyName", out string PackageFamilyName))
                             {
@@ -547,7 +621,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetDocumentProperties:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -732,7 +806,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetMIMEContentType:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             Value.Add("Success", Helper.GetMIMEFromPath(ExecutePath));
 
@@ -740,7 +814,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetHiddenItemData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             using (ShellItem Item = new ShellItem(ExecutePath))
                             using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
@@ -757,7 +831,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetTooltipText:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (File.Exists(Path) || Directory.Exists(Path))
                             {
@@ -788,8 +862,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.SearchByEverything:
                         {
-                            string BaseLocation = Convert.ToString(CommandValue["BaseLocation"]);
-                            string SearchWord = Convert.ToString(CommandValue["SearchWord"]);
+                            string BaseLocation = CommandValue["BaseLocation"];
+                            string SearchWord = CommandValue["SearchWord"];
                             bool SearchAsRegex = Convert.ToBoolean(CommandValue["SearchAsRegex"]);
                             bool IgnoreCase = Convert.ToBoolean(CommandValue["IgnoreCase"]);
 
@@ -824,7 +898,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetContextMenuItems:
                         {
-                            string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExecutePath"]));
+                            string[] ExecutePath = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -835,7 +909,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.InvokeContextMenuItem:
                         {
-                            ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            ContextMenuPackage Package = JsonSerializer.Deserialize<ContextMenuPackage>(CommandValue["DataPackage"]);
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -853,7 +927,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CreateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -874,7 +948,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetVariablePath:
                         {
-                            string Variable = Convert.ToString(CommandValue["Variable"]);
+                            string Variable = CommandValue["Variable"];
 
                             string Env = Environment.GetEnvironmentVariable(Variable);
 
@@ -908,12 +982,12 @@ namespace FullTrustProcess
                         break;
                     case CommandType.CreateNew:
                         {
-                            string CreateNewPath = Convert.ToString(CommandValue["NewPath"]);
+                            string CreateNewPath = CommandValue["NewPath"];
                             string UniquePath = StorageController.GenerateUniquePath(CreateNewPath);
 
-                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), Convert.ToString(CommandValue["Type"]));
+                            CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), CommandValue["Type"]);
 
-                            if (StorageController.CheckPermission(Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories, Path.GetDirectoryName(UniquePath) ?? UniquePath))
+                            if (StorageController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
                                 if (StorageController.Create(Type, UniquePath))
                                 {
@@ -983,8 +1057,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.Rename:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            string DesireName = Convert.ToString(CommandValue["DesireName"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            string DesireName = CommandValue["DesireName"];
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
@@ -994,7 +1068,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath) ?? ExecutePath))
+                                    if (StorageController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
                                     {
                                         string NewName = string.Empty;
 
@@ -1080,7 +1154,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetInstalledApplication:
                         {
-                            string PFN = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PFN = CommandValue["PackageFamilyName"];
 
                             InstalledApplicationPackage Pack = await Helper.GetInstalledApplicationAsync(PFN);
 
@@ -1103,7 +1177,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.CheckPackageFamilyNameExist:
                         {
-                            string PFN = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PFN = CommandValue["PackageFamilyName"];
 
                             Value.Add("Success", Convert.ToString(Helper.CheckIfPackageFamilyNameExist(PFN)));
 
@@ -1111,7 +1185,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateUrl:
                         {
-                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(CommandValue["DataPackage"]);
 
                             if (File.Exists(Package.UrlPath))
                             {
@@ -1144,7 +1218,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UpdateLink:
                         {
-                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(CommandValue["DataPackage"]));
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -1199,8 +1273,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetFileAttribute:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(Convert.ToString(CommandValue["Attributes"]));
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(CommandValue["Attributes"]);
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1230,9 +1304,9 @@ namespace FullTrustProcess
                                     {
                                         if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
                                         {
-                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {
-                                                SubFile.Attributes |= AttributePair.Value;
+                                                new FileInfo(SubPath).Attributes |= AttributePair.Value;
                                             }
                                         }
                                         else
@@ -1244,9 +1318,9 @@ namespace FullTrustProcess
                                     {
                                         if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
                                         {
-                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {
-                                                SubFile.Attributes &= ~AttributePair.Value;
+                                                new FileInfo(SubPath).Attributes &= ~AttributePair.Value;
                                             }
                                         }
                                         else
@@ -1267,7 +1341,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetUrlData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1300,7 +1374,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetLinkData:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (File.Exists(ExecutePath))
                             {
@@ -1621,7 +1695,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Quicklook:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
@@ -1638,7 +1712,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Get_Association:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociation(Path)));
 
@@ -1646,7 +1720,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Default_Association:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Success", ExtensionAssociate.GetDefaultProgramPathRelated(Path));
 
@@ -1675,7 +1749,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Restore_RecycleItem:
                         {
-                            string[] PathList = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExecutePath"]));
+                            string[] PathList = JsonSerializer.Deserialize<string[]>(CommandValue["ExecutePath"]);
 
                             Value.Add("Restore_Result", Convert.ToString(RecycleBinController.Restore(PathList)));
 
@@ -1683,7 +1757,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Delete_RecycleItem:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             Value.Add("Delete_Result", Convert.ToString(RecycleBinController.Delete(Path)));
 
@@ -1691,7 +1765,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.EjectUSB:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
 
                             if (string.IsNullOrEmpty(Path))
                             {
@@ -1706,7 +1780,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.UnlockOccupy:
                         {
-                            string Path = Convert.ToString(CommandValue["ExecutePath"]);
+                            string Path = CommandValue["ExecutePath"];
                             bool ForceClose = Convert.ToBoolean(CommandValue["ForceClose"]);
 
                             if (File.Exists(Path))
@@ -1766,53 +1840,65 @@ namespace FullTrustProcess
                         }
                     case CommandType.Copy:
                         {
-                            string SourcePathJson = Convert.ToString(CommandValue["SourcePath"]);
-                            string DestinationPath = Convert.ToString(CommandValue["DestinationPath"]);
+                            string SourcePathJson = CommandValue["SourcePath"];
+                            string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(CommandValue["CollisionOptions"]));
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
 
                             List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
+                                if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify))
                                 {
-                                    if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
+                                    try
                                     {
-                                        PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                    },
-                                    (se, arg) =>
-                                    {
-                                        if (arg.Result == HRESULT.S_OK)
+                                        if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
-                                            if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                            if (CurrentTaskCancellation.IsCancellationRequested)
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                throw new COMException(null, HRESULT.E_ABORT);
                                             }
-                                            else
+
+                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                        },
+                                        PostCopyEvent: (se, arg) =>
+                                        {
+                                            if (arg.Result == HRESULT.S_OK)
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                }
+                                                else
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                }
+                                            }
+                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
+                                            {
+                                                Value.Add("Error_UserCancel", "User stop the operation");
+                                            }
+                                        }))
+                                        {
+                                            if (!Value.ContainsKey("Error_UserCancel"))
+                                            {
+                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
                                             }
                                         }
-                                        else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                        else if (Marshal.GetLastWin32Error() == 5)
                                         {
-                                            Value.Add("Error_UserCancel", "User stop the operation");
+                                            LaunchCurrentAsElevated();
                                         }
-                                    }))
-                                    {
-                                        if (!Value.ContainsKey("Error_UserCancel"))
+                                        else if (!Value.ContainsKey("Error_UserCancel"))
                                         {
-                                            Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                            Value.Add("Error_Failure", "An error occurred while copying the files");
                                         }
                                     }
-                                    else if (Marshal.GetLastWin32Error() == 5)
+                                    catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                     {
-                                        LaunchCurrentAsElevated();
-                                    }
-                                    else
-                                    {
-                                        Value.Add("Error_Failure", "An error occurred while copying the files");
+                                        Value.Add("Error_Cancelled", "Operation is cancelled");
                                     }
                                 }
                                 else
@@ -1875,10 +1961,10 @@ namespace FullTrustProcess
                         }
                     case CommandType.Move:
                         {
-                            string SourcePathJson = Convert.ToString(CommandValue["SourcePath"]);
-                            string DestinationPath = Convert.ToString(CommandValue["DestinationPath"]);
+                            string SourcePathJson = CommandValue["SourcePath"];
+                            string DestinationPath = CommandValue["DestinationPath"];
 
-                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), Convert.ToString(CommandValue["CollisionOptions"]));
+                            CollisionOptions Option = (CollisionOptions)Enum.Parse(typeof(CollisionOptions), CommandValue["CollisionOptions"]);
 
                             Dictionary<string, string> SourcePathList = JsonSerializer.Deserialize<Dictionary<string, string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1891,51 +1977,63 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath)
-                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                    if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify)
+                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
-                                        if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
+                                        try
                                         {
-                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        },
-                                        (se, arg) =>
-                                        {
-                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
+                                            if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                             {
-                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                if (CurrentTaskCancellation.IsCancellationRequested)
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    throw new COMException(null, HRESULT.E_ABORT);
                                                 }
-                                                else
+
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            },
+                                            PostMoveEvent: (se, arg) =>
+                                            {
+                                                if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    }
+                                                    else
+                                                    {
+                                                        OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    }
+                                                }
+                                                else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED || arg.Result == HRESULT.COPYENGINE_E_USER_CANCELLED)
+                                                {
+                                                    Value.Add("Error_UserCancel", "User stop the operation");
+                                                }
+                                            }))
+                                            {
+                                                if (!Value.ContainsKey("Error_UserCancel"))
+                                                {
+                                                    if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                    {
+                                                        Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                    }
+                                                    else
+                                                    {
+                                                        Value.Add("Error_Capture", "An error occurred while moving the files");
+                                                    }
                                                 }
                                             }
-                                            else if (arg.Result == HRESULT.COPYENGINE_S_USER_IGNORED)
+                                            else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                Value.Add("Error_UserCancel", "User stop the operation");
+                                                LaunchCurrentAsElevated();
                                             }
-                                        }))
-                                        {
-                                            if (!Value.ContainsKey("Error_UserCancel"))
+                                            else if (!Value.ContainsKey("Error_UserCancel"))
                                             {
-                                                if (SourcePathList.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
-                                                {
-                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
-                                                }
-                                                else
-                                                {
-                                                    Value.Add("Error_Capture", "An error occurred while moving the files");
-                                                }
+                                                Value.Add("Error_Failure", "An error occurred while moving the files");
                                             }
                                         }
-                                        else if (Marshal.GetLastWin32Error() == 5)
+                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                         {
-                                            LaunchCurrentAsElevated();
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error_Failure", "An error occurred while moving the files");
+                                            Value.Add("Error_Cancelled", "The specified file could not be moved");
                                         }
                                     }
                                     else
@@ -2004,7 +2102,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Delete:
                         {
-                            string ExecutePathJson = Convert.ToString(CommandValue["ExecutePath"]);
+                            string ExecutePathJson = CommandValue["ExecutePath"];
 
                             bool PermanentDelete = Convert.ToBoolean(CommandValue["PermanentDelete"]);
 
@@ -2019,36 +2117,48 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path) ?? Path)))
+                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
-                                        if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                        try
                                         {
-                                            PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
-                                        },
-                                        (se, arg) =>
-                                        {
-                                            if (!PermanentDelete)
+                                            if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                if (CurrentTaskCancellation.IsCancellationRequested)
+                                                {
+                                                    throw new COMException(null, HRESULT.E_ABORT);
+                                                }
+
+                                                PipeProgressWriterController?.SendData(Convert.ToString(e.ProgressPercentage));
+                                            },
+                                            PostDeleteEvent: (se, arg) =>
+                                            {
+                                                if (!PermanentDelete)
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                }
+                                            }))
+                                            {
+                                                if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                {
+                                                    Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                }
                                             }
-                                        }))
-                                        {
-                                            if (ExecutePathList.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                            else if (Marshal.GetLastWin32Error() == 5)
                                             {
-                                                Value.Add("Success", JsonSerializer.Serialize(OperationRecordList));
+                                                LaunchCurrentAsElevated();
                                             }
                                             else
                                             {
-                                                Value.Add("Error_Capture", "An error occurred while deleting the folder");
+                                                Value.Add("Error_Failure", "The specified file could not be deleted");
                                             }
                                         }
-                                        else if (Marshal.GetLastWin32Error() == 5)
+                                        catch (Exception ex) when (ex is COMException or OperationCanceledException)
                                         {
-                                            LaunchCurrentAsElevated();
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error_Failure", "The specified file could not be deleted");
+                                            Value.Add("Error_Cancelled", "Operation is cancelled");
                                         }
                                     }
                                     else
@@ -2117,18 +2227,18 @@ namespace FullTrustProcess
                         }
                     case CommandType.RunExecutable:
                         {
-                            string ExecutePath = Convert.ToString(CommandValue["ExecutePath"]);
-                            string ExecuteParameter = Convert.ToString(CommandValue["ExecuteParameter"]);
-                            string ExecuteAuthority = Convert.ToString(CommandValue["ExecuteAuthority"]);
-                            string ExecuteWindowStyle = Convert.ToString(CommandValue["ExecuteWindowStyle"]);
-                            string ExecuteWorkDirectory = Convert.ToString(CommandValue["ExecuteWorkDirectory"]);
+                            string ExecutePath = CommandValue["ExecutePath"];
+                            string ExecuteParameter = CommandValue["ExecuteParameter"];
+                            string ExecuteAuthority = CommandValue["ExecuteAuthority"];
+                            string ExecuteWindowStyle = CommandValue["ExecuteWindowStyle"];
+                            string ExecuteWorkDirectory = CommandValue["ExecuteWorkDirectory"];
 
                             bool ExecuteCreateNoWindow = Convert.ToBoolean(CommandValue["ExecuteCreateNoWindow"]);
                             bool ShouldWaitForExit = Convert.ToBoolean(CommandValue["ExecuteShouldWaitForExit"]);
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
+                                if (StorageController.CheckPermission(ExecutePath, FileSystemRights.ReadAndExecute))
                                 {
                                     try
                                     {
@@ -2317,6 +2427,12 @@ namespace FullTrustProcess
                                 {
                                     PipeProgressWriterController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeProgressReadId}");
                                 }
+
+                                if (PipeCancellationReadController == null && CommandValue.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
+                                {
+                                    PipeCancellationReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeCancellationReadId}");
+                                    PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -2330,7 +2446,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.PasteRemoteFile:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
@@ -2384,7 +2500,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnailOverlay:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             Value.Add("Success", JsonSerializer.Serialize(StorageController.GetThumbnailOverlay(Path)));
 
@@ -2392,7 +2508,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetAsTopMostWindow:
                         {
-                            string PackageFamilyName = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PackageFamilyName = CommandValue["PackageFamilyName"];
                             uint WithPID = Convert.ToUInt32(CommandValue["WithPID"]);
 
                             if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)
@@ -2409,7 +2525,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.RemoveTopMostWindow:
                         {
-                            string PackageFamilyName = Convert.ToString(CommandValue["PackageFamilyName"]);
+                            string PackageFamilyName = CommandValue["PackageFamilyName"];
                             uint WithPID = Convert.ToUInt32(CommandValue["WithPID"]);
 
                             if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)

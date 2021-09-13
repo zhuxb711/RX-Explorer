@@ -18,6 +18,8 @@ namespace RX_Explorer.Class
 
         public DateTimeOffset LastAccessTime { get; }
 
+        public static Win32_File_Data Empty { get; } = new Win32_File_Data();
+
         public Win32_File_Data(string Path, Win32_Native_API.WIN32_FIND_DATA Data)
         {
             this.Path = Path;
@@ -32,6 +34,11 @@ namespace RX_Explorer.Class
 
             Win32_Native_API.FileTimeToSystemTime(ref Data.ftCreationTime, out Win32_Native_API.SYSTEMTIME CreTime);
             CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+        }
+
+        private Win32_File_Data()
+        {
+
         }
     }
 }

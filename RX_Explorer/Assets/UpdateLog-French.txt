@@ -1,4 +1,39 @@
 ﻿*****
+###Quoi de neuf dans la version 7.0.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####La plupart des tâches de la "Liste des tâches" prennent désormais en charge l'opération d'abandon
+
+#####Correction d'un bug
+
+>#####Correction du fait qu'en cas de conflit de nom de fichier lors d'une opération de copie ou de déplacement, si l'utilisateur sélectionne "Plus d'options" et annule finalement l'opération, RX peut afficher une invite incorrecte
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de la récupération de fichiers dans la corbeille
+
+>#####Correction du problème selon lequel la barre de progression pouvait ne pas afficher le statut correct lorsqu'une erreur se produisait dans la tâche de la liste des tâches
+
+>#####Correction du problème selon lequel la touche "Tab" ne peut pas être utilisée dans la visionneuse de fichiers texte intégrée
+
+>######Correction du problème selon lequel la tâche de compression/décompression ne peut pas être poursuivie lorsque la fenêtre est réduite
+
+>#####Correction du problème de l'historique des opérations de fichier anormal, qui peut amener les utilisateurs à effectuer des tâches d'annulation qui ne devraient pas exister
+
+>#####Correction du problème d'identification de Win11 en tant que Win10 dans "Informations système"
+
+>#####Correction du problème selon lequel le fichier sélectionné était désélectionné lors d'un clic droit sur la zone vide en mode simple clic
+
+>#####Correction du problème qui provoquerait un comportement anormal lors de la confirmation de l'opération de changement de nom en appuyant sur la touche "Entrée" en mode simple clic
+
+>#####Correction du problème des éléments en double lors de l'extension du nœud "Accès rapide" de l'arborescence des répertoires
+
+>#####Correction du problème selon lequel si le dossier et la bibliothèque ont été réduits, il n'y aura pas de contenu dans le nœud "Accès rapide" dans l'arborescence de répertoires
+
+>#####Correction du problème selon lequel le comportement du double-clic sur le bouton de développement d'un nœud dans l'arborescence de répertoires est incohérent avec d'autres zones
+
+>#####Correction du problème selon lequel aucune action ne sera invoquée en cliquant sur « Ouvrir » dans le menu contextuel de la « Zone de sécurité »
+
+*****
 ###Quoi de neuf dans la version 7.0.2.0
 
 #####Mise à jour de l'interface utilisateur

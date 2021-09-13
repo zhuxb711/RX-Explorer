@@ -50,6 +50,7 @@
                  AcceptsReturn="True"
                  BorderThickness="1"
                  IsSpellCheckEnabled="False"
+                 PreviewKeyDown="EditText_PreviewKeyDown"
                  ScrollViewer.VerticalScrollBarVisibility="Visible" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"

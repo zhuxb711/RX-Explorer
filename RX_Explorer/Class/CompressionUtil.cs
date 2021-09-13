@@ -2,6 +2,7 @@
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using ShareClassLibrary;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using System;
@@ -10,6 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -21,7 +23,12 @@ namespace RX_Explorer.Class
         private static Encoding EncodingSetting = Encoding.Default;
         private delegate void ByteReadChangedEventHandler(ulong ByteRead);
 
-        public static async Task CreateZipAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, CompressionLevel ZipLevel, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateZipAsync(IEnumerable<string> SourceItemGroup,
+                                                string NewZipPath,
+                                                CompressionLevel ZipLevel,
+                                                CompressionAlgorithm Algorithm,
+                                                CancellationToken CancelToken = default,
+                                                ProgressChangedEventHandler ProgressHandler = null)
         {
             List<FileSystemStorageItemBase> TransformList = new List<FileSystemStorageItemBase>();
 
@@ -37,7 +44,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            await CreateZipAsync(TransformList, NewZipPath, ZipLevel, Algorithm, ProgressHandler);
+            await CreateZipAsync(TransformList, NewZipPath, ZipLevel, Algorithm, CancelToken, ProgressHandler);
         }
 
         /// <summary>
@@ -48,7 +55,12 @@ namespace RX_Explorer.Class
         /// <param name="ZipLevel">压缩等级</param>
         /// <param name="ProgressHandler">进度通知</param>
         /// <returns>无</returns>
-        public static async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, CompressionLevel Level, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup,
+                                                string NewZipPath,
+                                                CompressionLevel Level,
+                                                CompressionAlgorithm Algorithm,
+                                                CancellationToken CancelToken = default,
+                                                ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Level == CompressionLevel.Undefine)
             {
@@ -67,6 +79,8 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (StorageItem)
                     {
                         case FileSystemStorageFile File:
@@ -95,6 +109,8 @@ namespace RX_Explorer.Class
 
                         foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
+                            CancelToken.ThrowIfCancellationRequested();
+
                             switch (StorageItem)
                             {
                                 case FileSystemStorageFile File:
@@ -110,7 +126,7 @@ namespace RX_Explorer.Class
 
                                             OutputStream.PutNextEntry(NewEntry);
 
-                                            await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
+                                            await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
@@ -127,7 +143,7 @@ namespace RX_Explorer.Class
                                     {
                                         ulong InnerFolderSize = 0;
 
-                                        await ZipFolderCore(Folder, OutputStream, Folder.Name, Algorithm, (ByteRead) =>
+                                        await ZipFolderCore(Folder, OutputStream, Folder.Name, Algorithm, CancelToken, (ByteRead) =>
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
@@ -151,7 +167,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, CompressionAlgorithm Algorithm, ByteReadChangedEventHandler ByteReadHandler = null)
+        private static async Task ZipFolderCore(FileSystemStorageFolder Folder,
+                                                ZipOutputStream OutputStream,
+                                                string BaseFolderName,
+                                                CompressionAlgorithm Algorithm,
+                                                CancellationToken CancelToken = default,
+                                                ByteReadChangedEventHandler ByteReadHandler = null)
         {
             IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
@@ -174,13 +195,15 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase Item in ItemList)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (Item)
                     {
                         case FileSystemStorageFolder InnerFolder:
                             {
                                 ulong InnerFolderSize = 0;
 
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, (ByteRead) =>
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, CancelToken, (ByteRead) =>
                                 {
                                     InnerFolderSize = ByteRead;
                                     ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
@@ -203,7 +226,7 @@ namespace RX_Explorer.Class
 
                                     OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
+                                    await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                     {
                                         ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
                                     }).ConfigureAwait(false);
@@ -220,11 +243,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateGzipAsync(string Source, string NewZipPath, CompressionLevel ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateGzipAsync(string Source,
+                                                 string NewZipPath,
+                                                 CompressionLevel ZipLevel,
+                                                 CancellationToken CancelToken = default,
+                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await CreateGzipAsync(File, NewZipPath, ZipLevel, ProgressHandler);
+                await CreateGzipAsync(File, NewZipPath, ZipLevel, CancelToken, ProgressHandler);
             }
             else
             {
@@ -232,7 +259,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateGzipAsync(FileSystemStorageFile Source, string NewZipPath, CompressionLevel Level, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateGzipAsync(FileSystemStorageFile Source,
+                                                 string NewZipPath,
+                                                 CompressionLevel Level,
+                                                 CancellationToken CancelToken = default,
+                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Level == CompressionLevel.Undefine)
             {
@@ -249,7 +280,7 @@ namespace RX_Explorer.Class
                     GZipStream.IsStreamOwner = false;
                     GZipStream.FileName = Source.Name;
 
-                    await SourceFileStream.CopyToAsync(GZipStream, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -258,11 +289,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(string Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(string Source,
+                                                  string NewDirectoryPath,
+                                                  CancellationToken CancelToken = default,
+                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await ExtractGZipAsync(File, NewDirectoryPath, ProgressHandler);
+                await ExtractGZipAsync(File, NewDirectoryPath, CancelToken, ProgressHandler);
             }
             else
             {
@@ -270,7 +304,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(FileSystemStorageFile Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(FileSystemStorageFile Source,
+                                                  string NewDirectoryPath,
+                                                  CancellationToken CancelToken = default,
+                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive))
             {
@@ -300,7 +337,7 @@ namespace RX_Explorer.Class
                     {
                         using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                         {
-                            await GZipStream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                            await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                         }
                     }
                     else
@@ -311,11 +348,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateBZip2Async(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateBZip2Async(string Source,
+                                                  string NewZipPath,
+                                                  CancellationToken CancelToken = default,
+                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await CreateBZip2Async(File, NewZipPath, ProgressHandler);
+                await CreateBZip2Async(File, NewZipPath, CancelToken, ProgressHandler);
             }
             else
             {
@@ -323,7 +363,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateBZip2Async(FileSystemStorageFile Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateBZip2Async(FileSystemStorageFile Source,
+                                                  string NewZipPath,
+                                                  CancellationToken CancelToken = default,
+                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
@@ -332,7 +375,7 @@ namespace RX_Explorer.Class
                 using (BZip2OutputStream BZip2Stream = new BZip2OutputStream(NewFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
-                    await SourceFileStream.CopyToAsync(BZip2Stream, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -341,11 +384,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractBZip2Async(string Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(string Source,
+                                                   string NewDirectoryPath,
+                                                   CancellationToken CancelToken = default,
+                                                   ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await ExtractBZip2Async(File, NewDirectoryPath, ProgressHandler);
+                await ExtractBZip2Async(File, NewDirectoryPath, CancelToken, ProgressHandler);
             }
             else
             {
@@ -353,16 +399,21 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractBZip2Async(FileSystemStorageFile Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(FileSystemStorageFile Source,
+                                                   string NewDirectoryPath,
+                                                   CancellationToken CancelToken = default,
+                                                   ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Name)), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Name)),
+                                                               StorageItemTypes.File,
+                                                               CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
                 using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
                 using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                 using (BZip2InputStream BZip2Stream = new BZip2InputStream(SourceFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
-                    await BZip2Stream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -371,12 +422,19 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateTarAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, CompressionLevel Level, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateTarAsync(IEnumerable<string> SourceItemGroup,
+                                                string NewZipPath,
+                                                CompressionLevel Level,
+                                                CompressionAlgorithm Algorithm,
+                                                CancellationToken CancelToken = default,
+                                                ProgressChangedEventHandler ProgressHandler = null)
         {
             List<FileSystemStorageItemBase> TransformList = new List<FileSystemStorageItemBase>();
 
             foreach (string Path in SourceItemGroup)
             {
+                CancelToken.ThrowIfCancellationRequested();
+
                 if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase Item)
                 {
                     TransformList.Add(Item);
@@ -391,23 +449,26 @@ namespace RX_Explorer.Class
             {
                 case CompressionAlgorithm.None:
                     {
-                        await CreateTarAsync(TransformList, NewZipPath, ProgressHandler);
+                        await CreateTarAsync(TransformList, NewZipPath, CancelToken, ProgressHandler);
                         break;
                     }
                 case CompressionAlgorithm.GZip:
                     {
-                        await CreateTarGzipAsync(TransformList, NewZipPath, Level, ProgressHandler);
+                        await CreateTarGzipAsync(TransformList, NewZipPath, Level, CancelToken, ProgressHandler);
                         break;
                     }
                 case CompressionAlgorithm.BZip2:
                     {
-                        await CreateTarBzip2Async(TransformList, NewZipPath, ProgressHandler);
+                        await CreateTarBzip2Async(TransformList, NewZipPath, CancelToken, ProgressHandler);
                         break;
                     }
             }
         }
 
-        private static async Task CreateTarBzip2Async(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarBzip2Async(IEnumerable<FileSystemStorageItemBase> SourceItemGroup,
+                                                      string NewZipPath,
+                                                      CancellationToken CancelToken = default,
+                                                      ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
@@ -416,6 +477,8 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (StorageItem)
                     {
                         case FileSystemStorageFile File:
@@ -442,6 +505,8 @@ namespace RX_Explorer.Class
 
                         foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
+                            CancelToken.ThrowIfCancellationRequested();
+
                             switch (StorageItem)
                             {
                                 case FileSystemStorageFile File:
@@ -454,7 +519,7 @@ namespace RX_Explorer.Class
 
                                             OutputTarStream.PutNextEntry(NewEntry);
 
-                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
@@ -471,7 +536,7 @@ namespace RX_Explorer.Class
                                     {
                                         ulong InnerFolderSize = 0;
 
-                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, CancelToken, (ByteRead) =>
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
@@ -495,7 +560,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task CreateTarGzipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, CompressionLevel Level, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarGzipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup,
+                                                     string NewZipPath,
+                                                     CompressionLevel Level,
+                                                     CancellationToken CancelToken = default,
+                                                     ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Level == CompressionLevel.Undefine)
             {
@@ -509,6 +578,8 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (StorageItem)
                     {
                         case FileSystemStorageFile File:
@@ -536,6 +607,8 @@ namespace RX_Explorer.Class
 
                         foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
+                            CancelToken.ThrowIfCancellationRequested();
+
                             switch (StorageItem)
                             {
                                 case FileSystemStorageFile File:
@@ -548,7 +621,7 @@ namespace RX_Explorer.Class
 
                                             OutputTarStream.PutNextEntry(NewEntry);
 
-                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
@@ -565,7 +638,7 @@ namespace RX_Explorer.Class
                                     {
                                         ulong InnerFolderSize = 0;
 
-                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, CancelToken, (ByteRead) =>
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
@@ -589,7 +662,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task CreateTarAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup,
+                                                 string NewZipPath,
+                                                 CancellationToken CancelToken = default,
+                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
@@ -598,6 +674,8 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (StorageItem)
                     {
                         case FileSystemStorageFile File:
@@ -622,6 +700,8 @@ namespace RX_Explorer.Class
 
                         foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
+                            CancelToken.ThrowIfCancellationRequested();
+
                             switch (StorageItem)
                             {
                                 case FileSystemStorageFile File:
@@ -634,7 +714,7 @@ namespace RX_Explorer.Class
 
                                             OutputTarStream.PutNextEntry(NewEntry);
 
-                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                                             }).ConfigureAwait(false);
@@ -651,7 +731,7 @@ namespace RX_Explorer.Class
                                     {
                                         ulong InnerFolderSize = 0;
 
-                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, CancelToken, (ByteRead) =>
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
@@ -675,7 +755,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task TarFolderCore(FileSystemStorageFolder Folder, TarOutputStream OutputStream, string BaseFolderName, ByteReadChangedEventHandler ByteReadHandler = null)
+        private static async Task TarFolderCore(FileSystemStorageFolder Folder,
+                                                TarOutputStream OutputStream,
+                                                string BaseFolderName,
+                                                CancellationToken CancelToken = default,
+                                                ByteReadChangedEventHandler ByteReadHandler = null)
         {
             IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
@@ -694,13 +778,15 @@ namespace RX_Explorer.Class
 
                 foreach (FileSystemStorageItemBase Item in ItemList)
                 {
+                    CancelToken.ThrowIfCancellationRequested();
+
                     switch (Item)
                     {
                         case FileSystemStorageFolder InnerFolder:
                             {
                                 ulong InnerFolderSize = 0;
 
-                                await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ByteReadHandler: (ByteRead) =>
+                                await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", CancelToken, (ByteRead) =>
                                 {
                                     InnerFolderSize = ByteRead;
                                     ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
@@ -720,7 +806,7 @@ namespace RX_Explorer.Class
 
                                     OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
+                                    await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                     {
                                         ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
                                     }).ConfigureAwait(false);
@@ -737,7 +823,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractAllAsync(IEnumerable<string> SourceItemGroup, string BaseDestPath, bool CreateFolder, ProgressChangedEventHandler ProgressHandler)
+        public static async Task ExtractAllAsync(IEnumerable<string> SourceItemGroup,
+                                                 string BaseDestPath,
+                                                 bool CreateFolder,
+                                                 CancellationToken CancelToken = default,
+                                                 ProgressChangedEventHandler ProgressHandler = null)
         {
             ulong TotalSize = 0;
             ulong CurrentPosition = 0;
@@ -785,7 +875,7 @@ namespace RX_Explorer.Class
 
                 if (File.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
                 {
-                    await ExtractGZipAsync(File, DestPath, (s, e) =>
+                    await ExtractGZipAsync(File, DestPath, CancelToken, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                     });
@@ -795,7 +885,7 @@ namespace RX_Explorer.Class
                 }
                 else if (File.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
                 {
-                    await ExtractBZip2Async(File, DestPath, (s, e) =>
+                    await ExtractBZip2Async(File, DestPath, CancelToken, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
                     });
@@ -815,6 +905,8 @@ namespace RX_Explorer.Class
 
                         while (Reader.MoveToNextEntry())
                         {
+                            CancelToken.ThrowIfCancellationRequested();
+
                             if (Reader.Entry.IsDirectory)
                             {
                                 string DirectoryPath = Path.Combine(DestPath, Reader.Entry.Key.Replace("/", @"\").TrimEnd('\\'));
@@ -856,7 +948,7 @@ namespace RX_Explorer.Class
                                     using (FileStream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (EntryStream EntryStream = Reader.OpenEntryStream())
                                     {
-                                        await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, (s, e) =>
+                                        await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, CancelToken, (s, e) =>
                                         {
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / TotalSize), null));
                                         });

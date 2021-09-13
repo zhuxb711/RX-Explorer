@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -89,7 +90,7 @@ namespace RX_Explorer.Class
 
                 if (StorageItems.Count > 0)
                 {
-                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrEmpty(Item.Path));
+                    IEnumerable<IStorageItem> EmptyPathList = StorageItems.OfType<StorageFile>().Where((Item) => string.IsNullOrWhiteSpace(Item.Path));
 
                     if (EmptyPathList.Any())
                     {
@@ -154,7 +155,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        PathList.AddRange(StorageItems.Select((Item) => Item.Path).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
@@ -172,7 +173,7 @@ namespace RX_Explorer.Class
 
                     if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
-                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrEmpty(Path)));
+                        PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                     }
                 }
             }
@@ -314,7 +315,7 @@ namespace RX_Explorer.Class
             return string.Format("{0:###00}:{1:00}:{2:00}", Hour, Minute, Second);
         }
 
-        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)
+        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, CancellationToken CancelToken = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (From == null)
             {
@@ -369,16 +370,36 @@ namespace RX_Explorer.Class
             });
         }
 
-        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item)
+        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode)
         {
             IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IStorageItemHandleAccess));
             IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
 
-            const uint READ_FLAG = 0x120089;
-            const uint WRITE_FLAG = 0x120116;
+            const uint ACCESS_READ_FLAG = 0x120089;
+            const uint ACCESS_WRITE_FLAG = 0x120116;
+            //const uint ACCESS_DELETE_FLAG = 0x10000;
+            const uint SHARE_NONE_FLAG = 0;
             const uint SHARE_READ_FLAG = 0x1;
+            const uint SHARE_WRITE_FLAG = 0x2;
+            //const uint SHARE_DELETE_FLAG = 0x4;
 
-            StorageHandleAccess.Create(READ_FLAG | WRITE_FLAG, SHARE_READ_FLAG, 0, IntPtr.Zero, out IntPtr handle);
+            uint Access = Mode switch
+            {
+                AccessMode.Read => ACCESS_READ_FLAG,
+                AccessMode.ReadWrite or AccessMode.Exclusive => ACCESS_READ_FLAG | ACCESS_WRITE_FLAG,
+                AccessMode.Write => ACCESS_WRITE_FLAG,
+                _ => throw new NotSupportedException()
+            };
+
+            uint Share = Mode switch
+            {
+                AccessMode.Read => SHARE_READ_FLAG | SHARE_WRITE_FLAG,
+                AccessMode.ReadWrite or AccessMode.Write => SHARE_READ_FLAG,
+                AccessMode.Exclusive => SHARE_NONE_FLAG,
+                _ => throw new NotSupportedException()
+            };
+
+            StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr handle);
 
             return new SafeFileHandle(handle, true);
         }
@@ -634,24 +655,6 @@ namespace RX_Explorer.Class
             {
                 return "0 KB";
             }
-        }
-
-        /// <summary>
-        /// 请求锁定文件并拒绝其他任何读写访问(独占锁)
-        /// </summary>
-        /// <param name="Item">文件</param>
-        /// <returns>Safe句柄，Dispose该对象可以解除锁定</returns>
-        public static FileStream LockAndBlockAccess(this IStorageItem Item)
-        {
-            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IStorageItemHandleAccess));
-            IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
-
-            const uint READ_FLAG = 0x120089;
-            const uint WRITE_FLAG = 0x120116;
-
-            StorageHandleAccess.Create(READ_FLAG | WRITE_FLAG, 0, 0, IntPtr.Zero, out IntPtr handle);
-
-            return new FileStream(new SafeFileHandle(handle, true), FileAccess.ReadWrite);
         }
 
         public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)

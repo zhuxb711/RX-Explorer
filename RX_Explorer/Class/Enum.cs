@@ -51,6 +51,7 @@ namespace RX_Explorer.Class
         Processing,
         Error,
         Completed,
+        Cancelling,
         Cancelled,
         NeedAttention
     }
@@ -123,14 +124,6 @@ namespace RX_Explorer.Class
         OpenIfExist,
         GenerateUniqueName,
         ReplaceExisting
-    }
-
-    public enum AccessMode
-    {
-        Read,
-        Write,
-        ReadWrite,
-        Exclusive
     }
 
     public enum SearchCategory

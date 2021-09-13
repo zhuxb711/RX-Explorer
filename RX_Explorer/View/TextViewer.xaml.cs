@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -172,6 +174,30 @@ namespace RX_Explorer
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();
+        }
+
+        private void EditText_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Tab)
+            {
+                e.Handled = true;
+
+                if (sender is TextBox Box)
+                {
+                    int CursorPoint = Box.SelectionStart;
+
+                    if (Box.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
+                    {
+                        double CurrentVOffset = Viewer.VerticalOffset;
+                        double CurrentHOffset = Viewer.HorizontalOffset;
+
+                        Box.Text = Box.Text.Insert(CursorPoint, "    ");
+                        Box.SelectionStart = CursorPoint + 4;
+
+                        Viewer.ChangeView(CurrentHOffset, CurrentVOffset, null, true);
+                    }
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -302,7 +303,7 @@ namespace RX_Explorer
         {
             LoadingControl.IsLoading = true;
 
-            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(AccessMode.ReadWrite))
             {
                 switch (OriginFile.Type.ToLower())
                 {

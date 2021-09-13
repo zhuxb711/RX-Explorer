@@ -296,9 +296,7 @@ namespace RX_Explorer
 
         private async Task LaunchWithStartupMode(IActivatedEventArgs LaunchArgs)
         {
-            StartupMode Mode = StartupModeController.GetStartupMode();
-
-            switch (Mode)
+            switch (StartupModeController.Mode)
             {
                 case StartupMode.CreateNewTab:
                     {
@@ -308,18 +306,16 @@ namespace RX_Explorer
                     }
                 case StartupMode.LastOpenedTab:
                     {
-                        List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync(Mode).ToListAsync();
+                        List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync().ToListAsync();
 
-                        StartupModeController.Clear(StartupMode.LastOpenedTab);
-
-                        if (LastOpenedPathArray.Count == 0)
+                        if (LastOpenedPathArray.Count > 0)
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, LastOpenedPathArray);
                             Window.Current.Content = extendedSplash;
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, LastOpenedPathArray);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
                             Window.Current.Content = extendedSplash;
                         }
 
@@ -327,16 +323,16 @@ namespace RX_Explorer
                     }
                 case StartupMode.SpecificTab:
                     {
-                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync().Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
 
-                        if (SpecificPathArray.Length == 0)
+                        if (SpecificPathArray.Length > 0)
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
                             Window.Current.Content = extendedSplash;
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen, SpecificPathArray);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(LaunchArgs.SplashScreen);
                             Window.Current.Content = extendedSplash;
                         }
 

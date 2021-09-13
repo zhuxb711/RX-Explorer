@@ -35,7 +35,9 @@ namespace RX_Explorer.Class
                         Session.Revoked += Session_Revoked;
                     }
 
-                    switch (await Session.RequestExtensionAsync())
+                    ExtendedExecutionResult Result = await Session.RequestExtensionAsync();
+
+                    switch (Result)
                     {
                         case ExtendedExecutionResult.Allowed:
                             {
@@ -45,7 +47,7 @@ namespace RX_Explorer.Class
                         default:
                             {
                                 IsRequestExtensionSent = false;
-                                LogTracer.Log("Extension execution was rejected by system");
+                                LogTracer.Log($"Extension execution was rejected by system, reason: \"{Enum.GetName(typeof(ExtendedExecutionResult), Result)}\"");
                                 return null;
                             }
                     }
@@ -79,9 +81,7 @@ namespace RX_Explorer.Class
         {
             GC.SuppressFinalize(this);
 
-            Interlocked.Decrement(ref CurrentExtendedExecutionNum);
-
-            if (CurrentExtendedExecutionNum == 0 && Session != null)
+            if (Interlocked.Decrement(ref CurrentExtendedExecutionNum) == 0 && Session != null)
             {
                 IsRequestExtensionSent = false;
 

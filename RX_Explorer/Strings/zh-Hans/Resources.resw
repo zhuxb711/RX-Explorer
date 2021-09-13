@@ -3224,4 +3224,7 @@
   <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
     <value>无法打开文件，该文件类型不受支持</value>
   </data>
+  <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
+    <value>正在尝试取消</value>
+  </data>
 </root>

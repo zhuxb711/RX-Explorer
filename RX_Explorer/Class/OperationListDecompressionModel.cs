@@ -46,6 +46,8 @@ namespace RX_Explorer.Class
 
         public string DecompressionTo { get; }
 
+        public override bool CanBeCancelled => true;
+
         public override async Task PrepareSizeDataAsync()
         {
             ulong TotalSize = 0;

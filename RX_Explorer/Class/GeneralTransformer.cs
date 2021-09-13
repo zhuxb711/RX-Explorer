@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using ShareClassLibrary;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -199,14 +200,14 @@ namespace RX_Explorer.Class
                 IsAnyTransformTaskRunning = true;
 
                 using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecution())
-                using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(false))
+                using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                 {
                     try
                     {
                         BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
 
                         using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                        using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(false))
+                        using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(false))
                         {
                             BitmapEncoder Encoder = DestinationFile.Type.ToLower() switch
                             {
@@ -248,7 +249,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex);
             }

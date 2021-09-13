@@ -23,6 +23,8 @@ namespace RX_Explorer.Class
 
         public string UndoFrom { get; }
 
+        public override bool CanBeCancelled => false;
+
         public override Task PrepareSizeDataAsync()
         {
             Calculator = new ProgressCalculator(0);

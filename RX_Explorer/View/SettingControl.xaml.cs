@@ -878,7 +878,7 @@ namespace RX_Explorer
                 AlwaysOnTop.IsOn = false;
             }
 
-            switch (StartupModeController.GetStartupMode())
+            switch (StartupModeController.Mode)
             {
                 case StartupMode.CreateNewTab:
                     {
@@ -889,26 +889,16 @@ namespace RX_Explorer
                     {
                         StartupSpecificTab.IsChecked = true;
 
-                        string[] PathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                        string[] PathArray = await StartupModeController.GetAllPathAsync().Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
 
-                        if (PathArray != null)
+                        foreach (string AddItem in PathArray.Except(SpecificTabListView.Items.Cast<string>()))
                         {
-                            IEnumerable<string> AddList = PathArray.Except(SpecificTabListView.Items.OfType<string>());
-                            IEnumerable<string> RemoveList = SpecificTabListView.Items.OfType<string>().Except(PathArray);
-
-                            foreach (string AddItem in AddList)
-                            {
-                                SpecificTabListView.Items.Add(AddItem);
-                            }
-
-                            foreach (string RemoveItem in RemoveList)
-                            {
-                                SpecificTabListView.Items.Remove(RemoveItem);
-                            }
+                            SpecificTabListView.Items.Add(AddItem);
                         }
-                        else
+
+                        foreach (string RemoveItem in SpecificTabListView.Items.Cast<string>().Except(PathArray))
                         {
-                            SpecificTabListView.Items.Clear();
+                            SpecificTabListView.Items.Remove(RemoveItem);
                         }
 
                         break;
@@ -1589,7 +1579,7 @@ namespace RX_Explorer
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
-                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 
@@ -2707,8 +2697,8 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                StartupModeController.AddSpecificPath(Folder.Path);
                 SpecificTabListView.Items.Add(Folder.Path);
+                StartupModeController.SetSpecificPath(SpecificTabListView.Items.Cast<string>());
             }
         }
 
@@ -2716,37 +2706,57 @@ namespace RX_Explorer
         {
             if (((Button)sender).DataContext is string Path)
             {
-                StartupModeController.RemoveSpecificPath(Path);
                 SpecificTabListView.Items.Remove(Path);
-            }
-        }
-
-        private async void SpecificTabListView_Loaded(object sender, RoutedEventArgs e)
-        {
-            SpecificTabListView.Items.Clear();
-
-            await foreach (string[] Path in StartupModeController.GetAllPathAsync(StartupMode.SpecificTab))
-            {
-                if (Path.Length == 0)
-                {
-                    SpecificTabListView.Items.Add(Path[0]);
-                }
+                StartupModeController.SetSpecificPath(SpecificTabListView.Items.Cast<string>());
             }
         }
 
         private void StartupWithNewTab_Checked(object sender, RoutedEventArgs e)
         {
-            StartupModeController.SetLaunchMode(StartupMode.CreateNewTab);
+            try
+            {
+                StartupModeController.Mode = StartupMode.CreateNewTab;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not change StartupMode");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void StartupWithLastTab_Checked(object sender, RoutedEventArgs e)
         {
-            StartupModeController.SetLaunchMode(StartupMode.LastOpenedTab);
+            try
+            {
+                StartupModeController.Mode = StartupMode.LastOpenedTab;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not change StartupMode");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void StartupSpecificTab_Checked(object sender, RoutedEventArgs e)
         {
-            StartupModeController.SetLaunchMode(StartupMode.SpecificTab);
+            try
+            {
+                StartupModeController.Mode = StartupMode.SpecificTab;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not change StartupMode");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void DeleteConfirmSwitch_Toggled(object sender, RoutedEventArgs e)

@@ -259,7 +259,8 @@ namespace RX_Explorer.Dialog
             SystemManufacturer = EAS.SystemManufacturer;
 
             ulong Version = ulong.Parse(AnalyticsInfo.VersionInfo.DeviceFamilyVersion);
-            WindowsVersion = "Windows 10  " + $"{Version >> 48 & 0xFFFF}.{Version >> 32 & 0xFFFF}.{Version >> 16 & 0xFFFF}.{Version & 0xFFFF}";
+
+            WindowsVersion = $"Windows {(((Version >> 16) & 0xFFFF) >= 22000 ? "11" : "10")} {(Version >> 48) & 0xFFFF}.{(Version >> 32) & 0xFFFF}.{(Version >> 16) & 0xFFFF}.{Version & 0xFFFF}";
 
             DeviceName = EAS.FriendlyName;
             DeviceModel = string.IsNullOrEmpty(EAS.SystemProductName) ? Globalization.GetString("UnknownText") : EAS.SystemProductName;

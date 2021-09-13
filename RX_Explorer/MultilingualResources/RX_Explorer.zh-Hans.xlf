@@ -4281,6 +4281,10 @@ Invalid names include
           <source>Unable to open file, the file type is not supported</source>
           <target state="translated">无法打开文件，该文件类型不受支持</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Cancelling" translate="yes" xml:space="preserve">
+          <source>Trying to cancel</source>
+          <target state="translated">正在尝试取消</target>
+        </trans-unit>
       </group>
     </body>
   </file>

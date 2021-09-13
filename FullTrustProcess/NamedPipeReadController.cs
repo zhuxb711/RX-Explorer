@@ -36,7 +36,6 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not receive pipeline data");
                 OnDataReceived?.InvokeAsync(this, new NamedPipeDataReceivedArgs(ex)).Wait();
             }
             finally

@@ -4279,6 +4279,10 @@ Las denominaciones no válidas son:
           <source>Unable to open file, the file type is not supported</source>
           <target state="translated">No se puede abrir el archivo, el tipo de archivo no es compatible</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Cancelling" translate="yes" xml:space="preserve">
+          <source>Trying to cancel</source>
+          <target state="translated">Tratando de cancelar</target>
+        </trans-unit>
       </group>
     </body>
   </file>

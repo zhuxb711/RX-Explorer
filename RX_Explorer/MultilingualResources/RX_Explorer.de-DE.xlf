@@ -4279,6 +4279,10 @@ Inkorrekte Namen sind
           <source>Unable to open file, the file type is not supported</source>
           <target state="translated">Datei kann nicht geöffnet werden, der Dateityp wird nicht unterstützt</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Cancelling" translate="yes" xml:space="preserve">
+          <source>Trying to cancel</source>
+          <target state="translated">Versuch abzubrechen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

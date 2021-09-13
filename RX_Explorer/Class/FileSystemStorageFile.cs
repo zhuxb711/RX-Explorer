@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using ShareClassLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -96,15 +97,33 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    FileAccess Access = Mode switch
+                    {
+                        AccessMode.Read => FileAccess.Read,
+                        AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                        AccessMode.Write => FileAccess.Write,
+                        _ => throw new NotSupportedException()
+                    };
+
                     if (await GetStorageItemAsync() is StorageFile File)
                     {
-                        SafeFileHandle Handle = File.GetSafeFileHandle();
-
-                        return new FileStream(Handle, FileAccess.ReadWrite);
+                        return new FileStream(File.GetSafeFileHandle(Mode), Access);
                     }
                     else
                     {
-                        throw new UnauthorizedAccessException();
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
+
+                            if (Handle.IsInvalid)
+                            {
+                                throw new UnauthorizedAccessException();
+                            }
+                            else
+                            {
+                                return new FileStream(Handle, Access);
+                            }
+                        }
                     }
                 }
             }
@@ -115,15 +134,22 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(FileAccessMode Mode)
+        public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(AccessMode Mode)
         {
             if (StorageItem is StorageFile File)
             {
-                return await File.OpenAsync(Mode);
+                FileAccessMode Access = Mode switch
+                {
+                    AccessMode.Read => FileAccessMode.Read,
+                    AccessMode.ReadWrite or AccessMode.Exclusive or AccessMode.Write => FileAccessMode.ReadWrite,
+                    _ => throw new NotSupportedException()
+                };
+
+                return await File.OpenAsync(Access);
             }
             else
             {
-                return await FileRandomAccessStream.OpenAsync(Path, Mode);
+                return (await GetStreamFromFileAsync(Mode)).AsRandomAccessStream();
             }
         }
 

@@ -10,29 +10,11 @@ namespace RX_Explorer.Class
     {
         public string OriginPath { get; private set; }
 
-        public override string Name
-        {
-            get
-            {
-                return System.IO.Path.GetFileName(OriginPath);
-            }
-        }
+        public override string Name => System.IO.Path.GetFileName(OriginPath);
 
-        public override string DisplayName
-        {
-            get
-            {
-                return Name;
-            }
-        }
+        public override string DisplayName => Name;
 
-        public override string Type
-        {
-            get
-            {
-                return ((StorageItem as StorageFile)?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
-            }
-        }
+        public override string Type => ((StorageItem as StorageFile)?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
 
         public override string ModifiedTimeDescription
         {

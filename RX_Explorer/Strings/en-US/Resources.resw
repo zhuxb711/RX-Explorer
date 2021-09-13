@@ -3329,4 +3329,7 @@ Invalid names include
   <data name="QueueDialog_OpenFailedNotSupported_Content" xml:space="preserve">
     <value>Unable to open file, the file type is not supported</value>
   </data>
+  <data name="TaskList_Task_Status_Cancelling" xml:space="preserve">
+    <value>Trying to cancel</value>
+  </data>
 </root>

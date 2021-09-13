@@ -315,7 +315,6 @@ namespace RX_Explorer.Class
                         {
                             if (Win32_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
                             {
-                                OperationRecorder.Current.Push(new string[] { $"{NewPath}||New" });
                                 return await OpenAsync(NewPath);
                             }
                             else
@@ -327,22 +326,16 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
-
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
-
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFile.Path}||New" });
-
                                             return new FileSystemStorageFile(NewFile, await NewFile.GetModifiedTimeAsync(), await NewFile.GetSizeRawDataAsync());
                                         }
                                     default:
@@ -367,7 +360,6 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
                                     return await OpenAsync(NewItemPath);
                                 }
                             }
@@ -379,7 +371,6 @@ namespace RX_Explorer.Class
                         {
                             if (Win32_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                             {
-                                OperationRecorder.Current.Push(new string[] { $"{NewPath}||New" });
                                 return await OpenAsync(NewPath);
                             }
                             else
@@ -391,22 +382,16 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
-
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
-
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
-
                                             return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync());
                                         }
                                     default:
@@ -431,7 +416,6 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    OperationRecorder.Current.Push(new string[] { $"{NewItemPath}||New" });
                                     return await OpenAsync(NewItemPath);
                                 }
                             }
@@ -806,7 +790,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, false, ProgressHandler);
+                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
             }
         }
 
@@ -819,7 +803,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, false, ProgressHandler);
+                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
             }
         }
 
@@ -842,7 +826,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, ProgressHandler);
+                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, ProgressHandler: ProgressHandler);
             }
         }
 
