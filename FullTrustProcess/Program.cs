@@ -964,22 +964,24 @@ namespace FullTrustProcess
                             break;
                         }
                     case CommandType.GetVariablePathSuggestion:
-                        string PartialVariable = Convert.ToString(CommandValue["PartialVariable"]);
-
-                        if (PartialVariable.Count(x => x == '%') == 1)
                         {
-                            PartialVariable = PartialVariable.Replace("%", "");
-                            var EnvironmentVariableList = LoadEnvironmentStringPaths();
-                            var VariableSuggestionList = EnvironmentVariableList.Where(x => x.StartsWith(PartialVariable, StringComparison.OrdinalIgnoreCase));
-                            Value.Add("Success", JsonSerializer.Serialize(VariableSuggestionList));
-                        }
-                        else
-                        {
-                            Value.Add("Failure", "Unexpected Partial Environmental String");
-                        }
-                        
+                            string PartialVariable = CommandValue["PartialVariable"];
 
-                        break;
+                            if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
+                            {
+                                IEnumerable<string> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                                                                                                        .Where((Pair) => Directory.Exists(Convert.ToString(Pair.Value)))
+                                                                                                        .Select((Pair) => Convert.ToString(Pair.Key))
+                                                                                                        .Where((Var) => Var.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase));
+                                Value.Add("Success", JsonSerializer.Serialize(VariableList));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Unexpected Partial Environmental String");
+                            }
+
+                            break;
+                        }
                     case CommandType.CreateNew:
                         {
                             string CreateNewPath = CommandValue["NewPath"];
@@ -2682,23 +2684,5 @@ namespace FullTrustProcess
                 });
             }
         }
-
-        private static List<string> LoadEnvironmentStringPaths()
-        {
-            var envStrings = new List<string>();
-
-            foreach (DictionaryEntry special in Environment.GetEnvironmentVariables())
-            {
-                var path = special.Value.ToString();
-                if (Directory.Exists(path))
-                {
-                    envStrings.Add((string)special.Key);
-                }
-            }
-
-            return envStrings;
-        }
-
-
     }
 }

@@ -1309,22 +1309,21 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<string>> GetVariableSuggestionAsync(string PartialVariable)
+        public async Task<IReadOnlyList<string>> GetVariableSuggestionAsync(string PartialVariable)
         {
-            if (await SendCommandAsync(CommandType.GetVariablePathSuggestion, ("PartialVariable", PartialVariable)) is not IDictionary<string, string> Response)
-                return null;
-
-
-            if (Response.TryGetValue("Success", out string Result))
+            if (await SendCommandAsync(CommandType.GetVariablePathSuggestion, ("PartialVariable", PartialVariable)) is IDictionary<string, string> Response)
             {
-                return JsonSerializer.Deserialize<List<string>>(Result);
+                if (Response.TryGetValue("Success", out string Result))
+                {
+                    return JsonSerializer.Deserialize<List<string>>(Result);
+                }
+                else if (Response.TryGetValue("Error", out var ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(GetVariableSuggestionAsync)}, message: {ErrorMessage}");
+                }
             }
-            else if (Response.TryGetValue("Error", out var ErrorMessage))
-            {
-                LogTracer.Log($"An unexpected error was threw in {nameof(GetVariableSuggestionAsync)}, message: {ErrorMessage}");
-            }
-            return null;
 
+            return new List<string>(0);
         }
         public async Task<string> GetVariablePathAsync(string Variable)
         {

@@ -27,15 +27,20 @@ namespace RX_Explorer.Class
             return Regex.IsMatch(Path, @"(?<=(%))[\s\S]+(?=(%))");
         }
 
-        public static async Task<IEnumerable<string>> GetVariablePathSuggestionAsync(string partialVariablePath)
+        public static async Task<IEnumerable<string>> GetVariablePathSuggestionAsync(string PartialVariablePath)
         {
-            if (string.IsNullOrWhiteSpace(partialVariablePath))
+            if (string.IsNullOrWhiteSpace(PartialVariablePath))
             {
-                return new List<string>();
+                return new List<string>(0);
             }
-
-            using var Exclusive = await FullTrustProcessController.GetAvailableController();
-            return (await Exclusive.Controller.GetVariableSuggestionAsync(partialVariablePath)).Select(x => $"%{x}%");
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    IReadOnlyList<string> Result = await Exclusive.Controller.GetVariableSuggestionAsync(PartialVariablePath);
+                    return Result.Select((Var) => $"%{Var}%");
+                }
+            }
         }
 
         public static async Task<string> ReplaceVariableAndGetActualPathAsync(string PathWithVariable)
