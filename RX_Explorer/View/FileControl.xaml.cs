@@ -1435,14 +1435,14 @@ namespace RX_Explorer
 
                 if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
                 {
-                    QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
+                    QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(QueryText);
                 }
 
                 if (Path.IsPathRooted(QueryText))
                 {
                     if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
                     {
-                    Retry:
+                        Retry:
                         BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
                         if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
@@ -1612,35 +1612,55 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                            string DirectoryPath = sender.Text;
+                            if (CommonEnvironmentVariables.CheckIfContainsVariable(DirectoryPath))
                             {
-                                string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
-                                string FileName = Path.GetFileName(sender.Text);
+                                DirectoryPath = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(DirectoryPath);
+                            }
 
-                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
+                            if (Path.IsPathRooted(DirectoryPath) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(DirectoryPath), StringComparison.OrdinalIgnoreCase)))
+                            {
+                                string FileName = null;
+                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is not FileSystemStorageFolder Folder)
                                 {
-                                    if (args.CheckCurrent())
+                                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(DirectoryPath)) is FileSystemStorageFolder ParentFolder)
                                     {
-                                        if (string.IsNullOrEmpty(FileName))
-                                        {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
+                                        FileName = Path.GetFileName(DirectoryPath);
+                                        Folder = ParentFolder;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                }
 
-                                            foreach (string Path in Result.Select((Item) => Item.Path))
-                                            {
-                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
-                                            }
+                                if (args.CheckCurrent())
+                                {
+                                    if (string.IsNullOrEmpty(FileName))
+                                    {
+                                        IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
+
+                                        foreach (string Path in Result.Select((Item) => Item.Path))
+                                        {
+                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
                                         }
-                                        else
-                                        {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                    }
+                                    else
+                                    {
+                                        IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
-                                            foreach (string Path in Result.Select((Item) => Item.Path))
-                                            {
-                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
-                                            }
+                                        foreach (string Path in Result.Select((Item) => Item.Path))
+                                        {
+                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
                                         }
                                     }
                                 }
+                            }
+                            else if (DirectoryPath.StartsWith('%') && DirectoryPath.Count(x => x == '%') == 1)
+                            {
+                                var suggestionList = await CommonEnvironmentVariables.GetVariablePathSuggestionAsync(DirectoryPath);
+                                AddressSuggestionList.AddRange(suggestionList.Select(x =>
+                                    new AddressSuggestionItem(x, Visibility.Collapsed)));
                             }
                         }
                     }

@@ -73,6 +73,7 @@
         GetThumbnailOverlay,
         SetAsTopMostWindow,
         RemoveTopMostWindow,
-        GetTooltipText
+        GetTooltipText,
+        GetVariablePathSuggestion
     }
 }
