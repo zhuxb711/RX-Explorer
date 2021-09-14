@@ -956,8 +956,8 @@ namespace RX_Explorer
                     {
                         await Task.Factory.StartNew(() =>
                         {
-                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
-                            ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath}/{Dialog.NewName}");
+                            ZipObj.BeginUpdate();
+                            ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath.TrimEnd('/')}/{Dialog.NewName}");
                             ZipObj.CommitUpdate();
                         }, TaskCreationOptions.LongRunning);
                     }
@@ -996,8 +996,8 @@ namespace RX_Explorer
                 {
                     await Task.Run(() =>
                     {
-                        ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
-                        ZipObj.AddDirectory($"{CurrentPath}/{Dialog.NewName}/");
+                        ZipObj.BeginUpdate();
+                        ZipObj.AddDirectory($"{CurrentPath.TrimEnd('/')}/{Dialog.NewName}/");
                         ZipObj.CommitUpdate();
                     });
 
@@ -1099,7 +1099,7 @@ namespace RX_Explorer
 
                         await Task.Run(() =>
                         {
-                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+                            ZipObj.BeginUpdate();
 
                             ConcurrentBag<ZipEntry> DeleteEntryList = new ConcurrentBag<ZipEntry>();
 
@@ -1185,42 +1185,49 @@ namespace RX_Explorer
             {
                 e.Handled = true;
 
-                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
-
-                if (PathList.Count > 0)
+                if (IsReadonlyMode)
                 {
-                    if ((await FileSystemStorageItemBase.OpenInBatchAsync(PathList)).All((Item) => Item is FileSystemStorageFile))
+                    e.AcceptedOperation = DataPackageOperation.None;
+                }
+                else
+                {
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+
+                    if (PathList.Count > 0)
                     {
-                        string Name = CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-
-                        if (string.IsNullOrEmpty(Name))
+                        if ((await FileSystemStorageItemBase.OpenInBatchAsync(PathList)).All((Item) => Item is FileSystemStorageFile))
                         {
-                            Name = ZipFile.Name;
-                        }
+                            string Name = CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
 
-                        if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                        {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Name}\"";
+                            if (string.IsNullOrEmpty(Name))
+                            {
+                                Name = ZipFile.Name;
+                            }
+
+                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Name}\"";
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Name}\"";
+                            }
+
+                            e.DragUIOverride.IsContentVisible = true;
+                            e.DragUIOverride.IsCaptionVisible = true;
+                            e.DragUIOverride.IsGlyphVisible = true;
                         }
                         else
                         {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Name}\"";
+                            e.AcceptedOperation = DataPackageOperation.None;
                         }
-
-                        e.DragUIOverride.IsContentVisible = true;
-                        e.DragUIOverride.IsCaptionVisible = true;
-                        e.DragUIOverride.IsGlyphVisible = true;
                     }
                     else
                     {
                         e.AcceptedOperation = DataPackageOperation.None;
                     }
-                }
-                else
-                {
-                    e.AcceptedOperation = DataPackageOperation.None;
                 }
             }
             catch (Exception ex)
@@ -1235,63 +1242,66 @@ namespace RX_Explorer
 
         private async void ListViewControl_Drop(object sender, DragEventArgs e)
         {
-            DragOperationDeferral Deferral = e.GetDeferral();
-
-            try
+            if (!IsReadonlyMode)
             {
-                e.Handled = true;
+                DragOperationDeferral Deferral = e.GetDeferral();
 
-                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
-
-                if (PathList.Count > 0)
+                try
                 {
-                    ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+                    e.Handled = true;
 
-                    try
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+
+                    if (PathList.Count > 0)
                     {
-                        await Task.Factory.StartNew(() =>
-                        {
-                            ZipObj.BeginUpdate(new DiskArchiveStorage(ZipObj, FileUpdateMode.Direct));
+                        ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
 
-                            foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
+                        try
+                        {
+                            await Task.Factory.StartNew(() =>
                             {
-                                using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read).Result)
+                                ZipObj.BeginUpdate();
+
+                                foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
                                 {
-                                    ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath}/{Item.Name}");
+                                    using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read).Result)
+                                    {
+                                        ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath.TrimEnd('/')}/{Item.Name}");
+                                    }
                                 }
-                            }
 
-                            ZipObj.CommitUpdate();
-                        }, TaskCreationOptions.LongRunning);
+                                ZipObj.CommitUpdate();
+                            }, TaskCreationOptions.LongRunning);
 
-                        DisplayItemsInFolderEntry(CurrentPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Could not add a new file to the compressed file");
-
-                        QueueContentDialog dialog = new QueueContentDialog
+                            DisplayItemsInFolderEntry(CurrentPath);
+                        }
+                        catch (Exception ex)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            LogTracer.Log(ex, "Could not add a new file to the compressed file");
 
-                        await dialog.ShowAsync();
-                    }
-                    finally
-                    {
-                        ControlLoading(false);
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_CouldNotProcess_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await dialog.ShowAsync();
+                        }
+                        finally
+                        {
+                            ControlLoading(false);
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-            }
-            finally
-            {
-                Deferral.Complete();
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
         }
     }

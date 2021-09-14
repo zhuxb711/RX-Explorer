@@ -16,9 +16,22 @@ namespace RX_Explorer.Class
         private StoreAppLicense License;
         private StoreProductResult ProductResult;
         private Task PreLoadTask;
+        private Task<bool> CheckPurchaseStatusTask;
+        private Task<bool> CheckHasUpdate;
+        private Task<bool> CheckIfUpdateIsMandatory;
         private IReadOnlyList<StorePackageUpdate> Updates;
+        private static readonly object Locker = new object();
 
-        public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
+        public static MSStoreHelper Current
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return Instance ??= new MSStoreHelper();
+                }
+            }
+        }
 
         public Task<bool> CheckPurchaseStatusAsync()
         {
@@ -27,130 +40,119 @@ namespace RX_Explorer.Class
                 return Task.FromResult(true);
             }
 
-            if (PreLoadTask == null)
+            lock (Locker)
             {
-                PreLoadStoreData();
-            }
-
-            return PreLoadTask.ContinueWith((_) =>
-            {
-                try
+                return CheckPurchaseStatusTask ??= PreLoadStoreData().ContinueWith((_) =>
                 {
-                    if (License != null)
+                    try
                     {
-                        if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault())
+                        if (License != null)
                         {
-                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                            return true;
-                        }
-                        else
-                        {
-                            if (License.IsActive)
+                            if ((License.AddOnLicenses?.Any((Item) => Item.Value.InAppOfferToken == "Donation")).GetValueOrDefault())
                             {
-                                if (License.IsTrial)
+                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                                return true;
+                            }
+                            else
+                            {
+                                if (License.IsActive)
+                                {
+                                    if (License.IsTrial)
+                                    {
+                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                                        return true;
+                                    }
+                                }
+                                else
                                 {
                                     ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                                     return false;
                                 }
-                                else
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                                return false;
                             }
                         }
+                        else
+                        {
+                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                            return false;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                        LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
                         return false;
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
-                    return false;
-                }
-            });
+                });
+            }
         }
 
         public Task<bool> CheckHasUpdateAsync()
         {
-            if (PreLoadTask == null)
+            lock (Locker)
             {
-                PreLoadStoreData();
-            }
-
-            return PreLoadTask.ContinueWith((_) =>
-            {
-                try
+                return CheckHasUpdate ??= PreLoadStoreData().ContinueWith((_) =>
                 {
-                    if (Updates != null)
+                    try
                     {
-                        return Updates.Any();
+                        if (Updates != null)
+                        {
+                            return Updates.Any();
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
                         return false;
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(CheckHasUpdateAsync)} threw an exception");
-                    return false;
-                }
-            });
+                });
+            }
         }
 
         public Task<bool> CheckIfUpdateIsMandatoryAsync()
         {
-            if (PreLoadTask == null)
+            lock (Locker)
             {
-                PreLoadStoreData();
-            }
-
-            return PreLoadTask.ContinueWith((_) =>
-            {
-                try
+                return CheckIfUpdateIsMandatory ??= PreLoadStoreData().ContinueWith((_) =>
                 {
-                    if (Updates != null)
+                    try
                     {
-                        foreach (StorePackageUpdate Update in Updates)
+                        if (Updates != null)
                         {
-                            if (Update.Mandatory)
+                            foreach (StorePackageUpdate Update in Updates)
                             {
-                                return true;
+                                if (Update.Mandatory)
+                                {
+                                    return true;
+                                }
                             }
-                        }
 
-                        return false;
+                            return false;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
                         return false;
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(CheckIfUpdateIsMandatoryAsync)} threw an exception");
-                    return false;
-                }
-            });
+                });
+            }
         }
 
         public Task<StorePurchaseStatus> PurchaseAsync()
         {
-            if (PreLoadTask == null)
-            {
-                PreLoadStoreData();
-            }
-
-            return PreLoadTask.ContinueWith((_) =>
+            return PreLoadStoreData().ContinueWith((_) =>
             {
                 try
                 {
@@ -190,9 +192,9 @@ namespace RX_Explorer.Class
             });
         }
 
-        public void PreLoadStoreData()
+        public Task PreLoadStoreData()
         {
-            PreLoadTask = Task.Factory.StartNew(() =>
+            return PreLoadTask ??= Task.Factory.StartNew(() =>
             {
                 try
                 {
