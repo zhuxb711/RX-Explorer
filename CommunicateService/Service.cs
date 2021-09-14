@@ -150,10 +150,12 @@ namespace CommunicateService
 
                                 if (FullTrustConnections.TryRemove(DisConnection, out AppServiceConnection UWPConnection))
                                 {
+                                    UWPConnections.TryRemove(UWPConnection, out _);
                                     Task.WaitAny(UWPConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
                                 }
                                 else if (UWPConnections.TryRemove(DisConnection, out AppServiceConnection FullTrustConnection))
                                 {
+                                    FullTrustConnections.TryRemove(FullTrustConnection, out _);
                                     Task.WaitAny(FullTrustConnection.SendMessageAsync(Value).AsTask(), Task.Delay(2000));
                                 }
                             }
