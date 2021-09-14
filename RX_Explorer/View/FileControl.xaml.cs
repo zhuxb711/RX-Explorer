@@ -1439,7 +1439,7 @@ namespace RX_Explorer
 
                 if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
                 {
-                    QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
+                    QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(QueryText);
                 }
 
                 if (Path.IsPathRooted(QueryText))
@@ -1616,18 +1616,25 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
-                            {
-                                string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
-                                string FileName = Path.GetFileName(sender.Text);
+                            string InputPath = sender.Text;
 
-                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
+                            if (Path.IsPathRooted(InputPath) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(InputPath), StringComparison.OrdinalIgnoreCase)))
+                            {
+                                if (CommonEnvironmentVariables.CheckIfContainsVariable(InputPath))
+                                {
+                                    InputPath = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(InputPath);
+                                }
+
+                                string DirectoryPath = Path.GetPathRoot(InputPath).Equals(InputPath, StringComparison.OrdinalIgnoreCase) ? InputPath : Path.GetDirectoryName(InputPath);
+                                string FileName = Path.GetFileName(InputPath);
+
+                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder ParentFolder)
                                 {
                                     if (args.CheckCurrent())
                                     {
                                         if (string.IsNullOrEmpty(FileName))
                                         {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
 
                                             foreach (string Path in Result.Select((Item) => Item.Path))
                                             {
@@ -1636,7 +1643,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                            IReadOnlyList<FileSystemStorageItemBase> Result = await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
                                             foreach (string Path in Result.Select((Item) => Item.Path))
                                             {
@@ -1644,6 +1651,15 @@ namespace RX_Explorer
                                             }
                                         }
                                     }
+                                }
+                            }
+                            else if (InputPath.IndexOf('%') == 0 && InputPath.LastIndexOf('%') == 0)
+                            {
+                                IEnumerable<string> VarSuggestionList = await CommonEnvironmentVariables.GetVariablePathSuggestionAsync(InputPath);
+
+                                if (args.CheckCurrent() && VarSuggestionList.Any())
+                                {
+                                    AddressSuggestionList.AddRange(VarSuggestionList.Select((Var) => new AddressSuggestionItem(Var, Visibility.Collapsed)));
                                 }
                             }
                         }

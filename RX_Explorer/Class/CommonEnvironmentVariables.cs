@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -26,7 +27,23 @@ namespace RX_Explorer.Class
             return Regex.IsMatch(Path, @"(?<=(%))[\s\S]+(?=(%))");
         }
 
-        public static async Task<string> ReplaceVariableAndGetActualPath(string PathWithVariable)
+        public static async Task<IEnumerable<string>> GetVariablePathSuggestionAsync(string PartialVariablePath)
+        {
+            if (string.IsNullOrWhiteSpace(PartialVariablePath))
+            {
+                return new List<string>(0);
+            }
+            else
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    IReadOnlyList<string> Result = await Exclusive.Controller.GetVariableSuggestionAsync(PartialVariablePath);
+                    return Result.Select((Var) => $"%{Var}%");
+                }
+            }
+        }
+
+        public static async Task<string> ReplaceVariableAndGetActualPathAsync(string PathWithVariable)
         {
             if (string.IsNullOrWhiteSpace(PathWithVariable))
             {

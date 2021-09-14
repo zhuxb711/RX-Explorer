@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using ShareClassLibrary;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -958,6 +959,25 @@ namespace FullTrustProcess
                             else
                             {
                                 Value.Add("Success", Env);
+                            }
+
+                            break;
+                        }
+                    case CommandType.GetVariablePathSuggestion:
+                        {
+                            string PartialVariable = CommandValue["PartialVariable"];
+
+                            if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
+                            {
+                                IEnumerable<string> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                                                                                                        .Where((Pair) => Directory.Exists(Convert.ToString(Pair.Value)))
+                                                                                                        .Select((Pair) => Convert.ToString(Pair.Key))
+                                                                                                        .Where((Var) => Var.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase));
+                                Value.Add("Success", JsonSerializer.Serialize(VariableList));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Unexpected Partial Environmental String");
                             }
 
                             break;
