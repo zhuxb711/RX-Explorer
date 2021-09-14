@@ -1101,11 +1101,12 @@ namespace RX_Explorer
                         try
                         {
                             NewName = await Folder.RenameAsync(NewName);
+
                             string NewPath = Path.Combine(Path.GetDirectoryName(Folder.Path), NewName);
 
                             Content.ReplaceWithNewPath(NewPath);
 
-                            CurrentPresenter.CurrentFolder = Folder;
+                            await CurrentPresenter.DisplayItemsInFolder(NewPath, true, true);
                         }
                         catch (FileLoadException)
                         {
@@ -1329,7 +1330,7 @@ namespace RX_Explorer
         {
             LoadingControl.Focus(FocusState.Programmatic);
 
-            string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Trim() : args.QueryText.TrimEnd('\\').Trim();
+            string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Replace('/', '\\').Trim() : args.QueryText.TrimEnd('\\').Replace('/', '\\').Trim();
 
             if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
@@ -1616,9 +1617,9 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            string InputPath = sender.Text;
+                            string InputPath = sender.Text.Replace('/', '\\');
 
-                            if (Path.IsPathRooted(InputPath) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(InputPath), StringComparison.OrdinalIgnoreCase)))
+                            if (Path.IsPathRooted(InputPath))
                             {
                                 if (CommonEnvironmentVariables.CheckIfContainsVariable(InputPath))
                                 {

@@ -275,7 +275,7 @@
     <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SortIndicatorController.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
-    <Compile Include="Class\FileChangeWatcher.cs" />
+    <Compile Include="Class\FileChangeMonitor.cs" />
     <Compile Include="Class\FileSystemItemNameChecker.cs" />
     <Compile Include="Class\TaskBarController.cs" />
     <Compile Include="Class\TerminalProfile.cs" />

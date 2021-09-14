@@ -525,32 +525,34 @@ namespace RX_Explorer.Class
             return UniquePath;
         }
 
-        public static void StopDirectoryWatcher(ref IntPtr hDir)
+        public static bool CloseDirectoryMonitorHandle(IntPtr hDir)
         {
-            CancelIoEx(hDir, IntPtr.Zero);
-            CloseHandle(hDir);
-            hDir = IntPtr.Zero;
+            if (hDir.CheckIfValidPtr())
+            {
+                bool Success = true;
+
+                Success &= CancelIoEx(hDir, IntPtr.Zero);
+                Success &= CloseHandle(hDir);
+
+                return Success;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        public static IntPtr CreateDirectoryWatcher(string FolderPath)
+        public static IntPtr CreateDirectoryMonitorHandle(string FolderPath)
         {
-            try
-            {
-                IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
+            IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-                if (hDir.CheckIfValidPtr())
-                {
-                    return hDir;
-                }
-                else
-                {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Path: \"{FolderPath}\"");
-                    return IntPtr.Zero;
-                }
-            }
-            catch (Exception ex)
+            if (hDir.CheckIfValidPtr())
             {
-                LogTracer.Log(ex, $"An exception was threw when creating directory watcher. Path: \"{FolderPath}\"");
+                return hDir;
+            }
+            else
+            {
+                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw in {nameof(CreateDirectoryMonitorHandle)}. Path: \"{FolderPath}\"");
                 return IntPtr.Zero;
             }
         }

@@ -1177,7 +1177,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void ListViewControl_DragEnter(object sender, DragEventArgs e)
+        private async void ListViewControl_DragOver(object sender, DragEventArgs e)
         {
             DragOperationDeferral Deferral = e.GetDeferral();
 
@@ -1191,15 +1191,22 @@ namespace RX_Explorer
                 {
                     if ((await FileSystemStorageItemBase.OpenInBatchAsync(PathList)).All((Item) => Item is FileSystemStorageFile))
                     {
+                        string Name = CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+                        if (string.IsNullOrEmpty(Name))
+                        {
+                            Name = ZipFile.Name;
+                        }
+
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
                             e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Path.GetFileName(CurrentPath)}\"";
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Name}\"";
                         }
                         else
                         {
                             e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Path.GetFileName(CurrentPath)}\"";
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Name}\"";
                         }
 
                         e.DragUIOverride.IsContentVisible = true;

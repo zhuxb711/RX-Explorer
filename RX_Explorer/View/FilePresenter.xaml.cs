@@ -88,7 +88,7 @@ namespace RX_Explorer
 
         public int RecordIndex { get; set; }
 
-        private FileChangeWatcher AreaWatcher;
+        private FileChangeMonitor AreaWatcher;
 
         private SemaphoreSlim EnterLock;
         private SemaphoreSlim CollectionChangeLock;
@@ -128,7 +128,7 @@ namespace RX_Explorer
             {
                 return currentFolder;
             }
-            set
+            private set
             {
                 if (value != null)
                 {
@@ -137,12 +137,11 @@ namespace RX_Explorer
                     if (value is RootStorageFolder)
                     {
                         Container.GoParentFolder.IsEnabled = false;
-                        AreaWatcher?.StopWatchDirectory();
                     }
                     else
                     {
-                        Container.GoParentFolder.IsEnabled = value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase) ? !value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase) : true;
-                        AreaWatcher?.StartWatchDirectory(value.Path);
+                        Container.GoParentFolder.IsEnabled = !value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase)
+                                                             || !value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase);
                     }
 
                     Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.DisplayName}";
@@ -229,7 +228,7 @@ namespace RX_Explorer
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
 
-            AreaWatcher = new FileChangeWatcher();
+            AreaWatcher = new FileChangeMonitor();
             AreaWatcher.FileChanged += DirectoryWatcher_FileChanged;
 
             EnterLock = new SemaphoreSlim(1, 1);
@@ -507,7 +506,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{ nameof(FileChangeWatcher)}: Add item to collection failed");
+                    LogTracer.Log(ex, $"{ nameof(FileChangeMonitor)}: Add item to collection failed");
                 }
                 finally
                 {
@@ -911,6 +910,8 @@ namespace RX_Explorer
                         Container.ViewModeControl.DisableSelection();
                         FileCollection.Clear();
                         GroupCollection.Clear();
+
+                        await AreaWatcher.StopMonitorAsync();
                     }
                     else if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                     {
@@ -962,6 +963,8 @@ namespace RX_Explorer
 
                         ListViewDetailHeader.Filter.SetDataSource(FileCollection);
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                        await AreaWatcher.StartMonitorAsync(Folder.Path);
                     }
                     else
                     {
@@ -1047,14 +1050,23 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_Resuming(object sender, object e)
+        private async void Current_Resuming(object sender, object e)
         {
-            AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation);
+            await AreaWatcher.StartMonitorAsync(AreaWatcher.CurrentLocation);
         }
 
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
+        private async void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            AreaWatcher.StopWatchDirectory();
+            SuspendingDeferral Deferral = e.SuspendingOperation.GetDeferral();
+
+            try
+            {
+                await AreaWatcher.StopMonitorAsync();
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void FilePresenter_Loaded(object sender, RoutedEventArgs e)

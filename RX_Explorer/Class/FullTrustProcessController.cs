@@ -752,6 +752,30 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<IntPtr> GetDirectoryMonitorHandleAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.GetDirectoryMonitorHandle, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string HandleString))
+                {
+                    return new IntPtr(Convert.ToInt64(HandleString));
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
+                    }
+
+                    return IntPtr.Zero;
+                }
+            }
+            else
+            {
+                return IntPtr.Zero;
+            }
+        }
+
         public async Task<string> GetMIMEContentTypeAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetMIMEContentType, ("ExecutePath", Path)) is IDictionary<string, string> Response)

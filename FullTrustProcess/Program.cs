@@ -475,6 +475,34 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetDirectoryMonitorHandle:
+                        {
+                            if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())
+                            {
+                                string ExecutePath = CommandValue["ExecutePath"];
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Kernel32.FileAccess.FILE_LIST_DIRECTORY, FileShare.Read | FileShare.Write | FileShare.Delete, null, FileMode.Open, FileFlagsAndAttributes.FILE_FLAG_BACKUP_SEMANTICS))
+                                {
+                                    if (Handle.IsInvalid || Handle.IsNull)
+                                    {
+                                        Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                    }
+                                    else
+                                    {
+                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        {
+                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
                     case CommandType.GetFileHandle:
                         {
                             if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())

@@ -136,7 +136,7 @@
                   DoubleTapped="ListViewControl_DoubleTapped"
                   RightTapped="ListViewControl_RightTapped"
                   Holding="ListViewControl_Holding"
-                  DragEnter="ListViewControl_DragEnter"
+                  DragOver="ListViewControl_DragOver"
                   Drop="ListViewControl_Drop"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind EntryList}"
