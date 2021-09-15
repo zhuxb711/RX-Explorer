@@ -372,9 +372,6 @@ namespace RX_Explorer.Class
 
         public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode)
         {
-            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IStorageItemHandleAccess));
-            IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
-
             const uint ACCESS_READ_FLAG = 0x120089;
             const uint ACCESS_WRITE_FLAG = 0x120116;
             //const uint ACCESS_DELETE_FLAG = 0x10000;
@@ -399,9 +396,18 @@ namespace RX_Explorer.Class
                 _ => throw new NotSupportedException()
             };
 
-            StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr handle);
-
-            return new SafeFileHandle(handle, true);
+            try
+            {
+                IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
+                IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
+                StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr handle);
+                return new SafeFileHandle(handle, true);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not get file handle from COMInterface");
+                return new SafeFileHandle(IntPtr.Zero, true);
+            }
         }
 
         public static bool IsVisibleOnContainer(this FrameworkElement Element, FrameworkElement Container)

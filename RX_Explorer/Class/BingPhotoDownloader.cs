@@ -36,8 +36,8 @@ namespace RX_Explorer.Class
                             using (FileStream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite))
                             {
                                 HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
-                                Request.Timeout = 10000;
-                                Request.ReadWriteTimeout = 10000;
+                                Request.Timeout = 5000;
+                                Request.ReadWriteTimeout = 5000;
 
                                 using (WebResponse Response = await Request.GetResponseAsync())
                                 using (Stream ResponseStream = Response.GetResponseStream())
@@ -101,8 +101,8 @@ namespace RX_Explorer.Class
                         using (Stream TempFileStream = await TempFile.GetStreamFromFileAsync(AccessMode.ReadWrite))
                         {
                             HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
-                            Request.Timeout = 10000;
-                            Request.ReadWriteTimeout = 10000;
+                            Request.Timeout = 5000;
+                            Request.ReadWriteTimeout = 5000;
 
                             using (WebResponse Response = await Request.GetResponseAsync())
                             using (Stream ResponseStream = Response.GetResponseStream())
