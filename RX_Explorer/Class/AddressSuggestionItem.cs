@@ -8,9 +8,17 @@ namespace RX_Explorer.Class
 
         public string Path { get; }
 
-        public AddressSuggestionItem(string Path, Visibility CloseButtonVisibility)
+        public string DisplayName { get; }
+
+        public AddressSuggestionItem(string Path, Visibility CloseButtonVisibility) : this(null, Path, CloseButtonVisibility)
+        {
+
+        }
+
+        public AddressSuggestionItem(string DisplayName, string Path, Visibility CloseButtonVisibility)
         {
             this.Path = Path;
+            this.DisplayName = DisplayName;
             this.CloseButtonVisibility = CloseButtonVisibility;
         }
     }

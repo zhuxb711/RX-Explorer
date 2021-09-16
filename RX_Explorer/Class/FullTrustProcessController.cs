@@ -1329,13 +1329,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<IReadOnlyList<string>> GetVariableSuggestionAsync(string PartialVariable)
+        public async Task<IReadOnlyList<VariableDataPackage>> GetVariableSuggestionAsync(string PartialVariable)
         {
             if (await SendCommandAsync(CommandType.GetVariablePathSuggestion, ("PartialVariable", PartialVariable)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string Result))
                 {
-                    return JsonSerializer.Deserialize<List<string>>(Result);
+                    return JsonSerializer.Deserialize<List<VariableDataPackage>>(Result);
                 }
                 else if (Response.TryGetValue("Error", out var ErrorMessage))
                 {
@@ -1343,7 +1343,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new List<string>(0);
+            return new List<VariableDataPackage>(0);
         }
         public async Task<string> GetVariablePathAsync(string Variable)
         {

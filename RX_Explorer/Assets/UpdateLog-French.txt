@@ -1,4 +1,31 @@
 ﻿*****
+###Quoi de neuf dans la version 7.0.6.0
+
+###Mise à jour des fonctionnalités
+
+>#####Ajout de l'invite "Variable d'environnement" dans la barre d'adresse
+
+>#####La visionneuse de fichiers compressés intégrée prend désormais en charge le glisser-déposer
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La fenêtre Propriétés affichera désormais les informations "Taille sur le disque" du fichier
+
+#####Amélioration des performances
+
+>#####Infrastructure de fichiers mise à jour et amélioration des performances dans certains cas
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la barre d'adresse ne donne pas d'indications dans le chemin du réseau
+
+>#####Correction du problème selon lequel la barre d'adresse ne pouvait pas identifier correctement "/"
+
+>#####Correction du problème selon lequel la visionneuse de fichiers compressés intégrée ne peut pas modifier le fichier compressé
+
+>#####Correction de certains problèmes pouvant provoquer un plantage
+
+*****
 ###Quoi de neuf dans la version 7.0.4.0
 
 #####Mise à jour des fonctionnalités

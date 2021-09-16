@@ -997,10 +997,10 @@ namespace FullTrustProcess
 
                             if (PartialVariable.IndexOf('%') == 0 && PartialVariable.LastIndexOf('%') == 0)
                             {
-                                IEnumerable<string> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
-                                                                                                        .Where((Pair) => Directory.Exists(Convert.ToString(Pair.Value)))
-                                                                                                        .Select((Pair) => Convert.ToString(Pair.Key))
-                                                                                                        .Where((Var) => Var.StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase));
+                                IEnumerable<VariableDataPackage> VariableList = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                                                                                                                     .Where((Pair) => Directory.Exists(Convert.ToString(Pair.Value)))
+                                                                                                                     .Where((Pair) => Convert.ToString(Pair.Key).StartsWith(PartialVariable[1..], StringComparison.OrdinalIgnoreCase))
+                                                                                                                     .Select((Pair) => new VariableDataPackage($"%{Pair.Key}%", Convert.ToString(Pair.Value)));
                                 Value.Add("Success", JsonSerializer.Serialize(VariableList));
                             }
                             else

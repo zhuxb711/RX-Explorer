@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ShareClassLibrary;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -27,18 +28,17 @@ namespace RX_Explorer.Class
             return Regex.IsMatch(Path, @"(?<=(%))[\s\S]+(?=(%))");
         }
 
-        public static async Task<IEnumerable<string>> GetVariablePathSuggestionAsync(string PartialVariablePath)
+        public static async Task<IEnumerable<VariableDataPackage>> GetVariablePathSuggestionAsync(string PartialVariablePath)
         {
             if (string.IsNullOrWhiteSpace(PartialVariablePath))
             {
-                return new List<string>(0);
+                return new List<VariableDataPackage>(0);
             }
             else
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    IReadOnlyList<string> Result = await Exclusive.Controller.GetVariableSuggestionAsync(PartialVariablePath);
-                    return Result.Select((Var) => $"%{Var}%");
+                    return await Exclusive.Controller.GetVariableSuggestionAsync(PartialVariablePath);
                 }
             }
         }

@@ -1656,11 +1656,11 @@ namespace RX_Explorer
                             }
                             else if (InputPath.IndexOf('%') == 0 && InputPath.LastIndexOf('%') == 0)
                             {
-                                IEnumerable<string> VarSuggestionList = await CommonEnvironmentVariables.GetVariablePathSuggestionAsync(InputPath);
+                                IEnumerable<VariableDataPackage> VarSuggestionList = await CommonEnvironmentVariables.GetVariablePathSuggestionAsync(InputPath);
 
                                 if (args.CheckCurrent() && VarSuggestionList.Any())
                                 {
-                                    AddressSuggestionList.AddRange(VarSuggestionList.Select((Var) => new AddressSuggestionItem(Var, Visibility.Collapsed)));
+                                    AddressSuggestionList.AddRange(VarSuggestionList.Select((Pack) => new AddressSuggestionItem(Pack.Variable, Pack.Path, Visibility.Collapsed)));
                                 }
                             }
                         }

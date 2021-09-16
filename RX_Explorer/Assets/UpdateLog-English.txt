@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.7.0.6.0
+
+###Feature update
+
+>#####Added the "Environment variable" promption in the address bar
+
+>#####The built-in compressed file viewer now supports drag and drop
+
+#####UI update
+
+>#####Properties window will now display the "Size on disk" information of the file
+
+#####Performance improvement
+
+>#####File infrastructure updated and improved the performance in some cases
+
+#####Bug fix
+
+>#####Fixed the problem that the address bar will not give hints in the network path
+
+>#####Fixed the problem that the address bar could not identify "/" correctly
+
+>#####Fixed the problem that the built-in compressed file viewer cannot modify the compressed file
+
+>#####Fixed some problems that may cause a crash
+
+*****
 ###What's new in Ver.7.0.4.0
 
 #####Feature update

@@ -5,6 +5,24 @@ using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
+    public class AddressSuggestionDataTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate PathOnlyTemplate { get; set; }
+        public DataTemplate DisplayNameAndPathTemplate { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object Item)
+        {
+            if (Item is AddressSuggestionItem Suggestion && !string.IsNullOrEmpty(Suggestion.DisplayName))
+            {
+                return DisplayNameAndPathTemplate;
+            }
+            else
+            {
+                return PathOnlyTemplate;
+            }
+        }
+    }
+
     public class NavigationRecordDataTemplateSelector : DataTemplateSelector
     {
         public DataTemplate NormalTemplate { get; set; }
@@ -61,7 +79,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                throw new System.Exception("Input data is not match");
+                throw new Exception("Input data is not match");
             }
         }
     }

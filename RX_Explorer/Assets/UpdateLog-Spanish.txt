@@ -1,4 +1,31 @@
 ﻿*****
+###Novedades de la versión 7.0.6.0
+
+###Actualización de funciones
+
+>#####Se agregó la opción "Variable de entorno" en la barra de direcciones
+
+>#####El visor de archivos comprimidos incorporado ahora admite arrastrar y soltar
+
+#####actualización de la interfaz de usuario
+
+>#####La ventana de propiedades ahora mostrará la información de "Tamaño en disco" del archivo
+
+#####Mejora del rendimiento
+
+>#####Se actualizó la infraestructura de archivos y se mejoró el rendimiento en algunos casos
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la barra de direcciones no da pistas en la ruta de la red
+
+>#####Se solucionó el problema de que la barra de direcciones no podía identificar "/" correctamente
+
+>#####Se solucionó el problema de que el visor de archivos comprimido incorporado no puede modificar el archivo comprimido
+
+>#####Se corrigieron algunos problemas que pueden causar un bloqueo
+
+*****
 ###Novedades de la versión 7.0.4.0
 
 #####Actualización de funciones

@@ -1,4 +1,31 @@
 ﻿*****
+###Was ist neu in Ver.7.0.6.0
+
+###Funktionsupdate
+
+>#####Eingabeaufforderung "Umgebungsvariable" in der Adressleiste hinzugefügt
+
+>#####Der integrierte Viewer für komprimierte Dateien unterstützt jetzt Drag & Drop
+
+#####UI-Update
+
+>#####Das Eigenschaftenfenster zeigt jetzt die "Größe auf der Festplatte"-Informationen der Datei an
+
+#####Leistungsverbesserung
+
+>#####Dateiinfrastruktur aktualisiert und die Leistung in einigen Fällen verbessert
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass die Adressleiste keine Hinweise im Netzwerkpfad gibt
+
+>#####Das Problem wurde behoben, dass die Adressleiste "/" nicht richtig identifizieren konnte
+
+>#####Problem behoben, dass der integrierte Viewer für komprimierte Dateien die komprimierte Datei nicht ändern kann
+
+>#####Einige Probleme behoben, die zu einem Absturz führen können
+
+*****
 ###Was ist neu in Ver.7.0.4.0
 
 #####Funktionsupdate
