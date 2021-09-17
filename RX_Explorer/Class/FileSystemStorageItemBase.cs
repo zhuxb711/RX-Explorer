@@ -193,14 +193,14 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        try
+                        if (Win32_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
                         {
-                            if (Win32_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
-                            {
-                                Result.Add(Item);
-                            }
+                            Result.Add(Item);
                         }
-                        catch (LocationNotAvailableException)
+                    }
+                    catch (LocationNotAvailableException)
+                    {
+                        try
                         {
                             string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
@@ -228,10 +228,13 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        RetryBag.Add((Path, ex));
+                        catch (Exception ex)
+                        {
+                            if (ex is not FileNotFoundException or DirectoryNotFoundException)
+                            {
+                                RetryBag.Add((Path, ex));
+                            }
+                        }
                     }
                 });
 
@@ -307,7 +310,7 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex) when (ex is not FileNotFoundException or DirectoryNotFoundException)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite))

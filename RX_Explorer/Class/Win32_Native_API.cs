@@ -600,6 +600,12 @@ namespace RX_Explorer.Class
 
                     return false;
                 }
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
+                    return false;
+                }
                 else
                 {
                     throw new LocationNotAvailableException();
@@ -626,8 +632,10 @@ namespace RX_Explorer.Class
                 {
                     return true;
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                 {
+                    LogTracer.Log($"Path not found: \"{Path}\"");
                     return false;
                 }
                 else
@@ -662,6 +670,12 @@ namespace RX_Explorer.Class
                     {
                         return CalculateFileSize(Path);
                     }
+                }
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
+                {
+                    LogTracer.Log($"Path not found: \"{Path}\"");
+                    return 0;
                 }
                 else
                 {
@@ -707,9 +721,10 @@ namespace RX_Explorer.Class
 
                     return TotalSize;
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the folder size. Path: \"{FolderPath}\"");
+                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
                     return 0;
                 }
                 else
@@ -745,9 +760,10 @@ namespace RX_Explorer.Class
                         return 0;
                     }
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(FilePath).Equals(FilePath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FilePath).Equals(FilePath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not calculate the file size. Path: \"{FilePath}\"");
+                    LogTracer.Log($"Path not found: \"{FilePath}\"");
                     return 0;
                 }
                 else
@@ -797,8 +813,10 @@ namespace RX_Explorer.Class
 
                     return (FolderCount, FileCount);
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
+                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
                     return (0, 0);
                 }
                 else
@@ -885,8 +903,10 @@ namespace RX_Explorer.Class
 
                     return SearchResult;
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
+                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
                     return new List<FileSystemStorageItemBase>(0);
                 }
                 else
@@ -975,8 +995,10 @@ namespace RX_Explorer.Class
 
                     return Result;
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
+                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
                     return new List<FileSystemStorageItemBase>(0);
                 }
                 else
@@ -1041,8 +1063,10 @@ namespace RX_Explorer.Class
 
                     return null;
                 }
-                else if (Marshal.GetLastWin32Error() == 2 && !Path.GetPathRoot(ItemPath).Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
+                else if (Marshal.GetLastWin32Error() is 2 or 3
+                         && !Path.GetPathRoot(ItemPath).Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                 {
+                    LogTracer.Log($"Path not found: \"{ItemPath}\"");
                     return null;
                 }
                 else

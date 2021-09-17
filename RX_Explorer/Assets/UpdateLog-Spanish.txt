@@ -1,5 +1,5 @@
 ﻿*****
-###Novedades de la versión 7.0.6.0
+###Novedades de la versión 7.0.7.0
 
 ###Actualización de funciones
 
@@ -24,6 +24,8 @@
 >#####Se solucionó el problema de que el visor de archivos comprimido incorporado no puede modificar el archivo comprimido
 
 >#####Se corrigieron algunos problemas que pueden causar un bloqueo
+
+>#####Se solucionó un problema de rendimiento al ingresar una ruta que no existe en la barra de direcciones
 
 *****
 ###Novedades de la versión 7.0.4.0

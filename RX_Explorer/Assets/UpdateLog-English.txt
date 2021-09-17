@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.7.0.6.0
+###What's new in Ver.7.0.7.0
 
 ###Feature update
 
@@ -24,6 +24,8 @@
 >#####Fixed the problem that the built-in compressed file viewer cannot modify the compressed file
 
 >#####Fixed some problems that may cause a crash
+
+>#####Fixed a performance problem when entering a path that does not exist in the address bar
 
 *****
 ###What's new in Ver.7.0.4.0

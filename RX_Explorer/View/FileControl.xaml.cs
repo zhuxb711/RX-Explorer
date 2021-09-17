@@ -1610,10 +1610,7 @@ namespace RX_Explorer
 
                         if (string.IsNullOrWhiteSpace(sender.Text))
                         {
-                            foreach (string Path in SQLite.Current.GetRelatedPathHistory())
-                            {
-                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
-                            }
+                            AddressSuggestionList.AddRange(SQLite.Current.GetRelatedPathHistory().Select((Path) => new AddressSuggestionItem(Path, Visibility.Visible)));
                         }
                         else
                         {

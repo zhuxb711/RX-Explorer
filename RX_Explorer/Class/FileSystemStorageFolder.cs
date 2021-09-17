@@ -434,13 +434,14 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        throw new UnauthorizedAccessException();
+                        LogTracer.Log($"{nameof(GetChildItemsAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                        return new List<FileSystemStorageItemBase>(0);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(GetChildItemsAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                LogTracer.Log(ex, $"{nameof(GetChildItemsAsync)} thew an unexpected exception, path:\"{Path}\"");
                 return new List<FileSystemStorageItemBase>(0);
             }
         }
