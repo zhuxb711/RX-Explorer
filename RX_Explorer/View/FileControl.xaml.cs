@@ -1440,7 +1440,7 @@ namespace RX_Explorer
 
                 if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
                 {
-                    QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(QueryText);
+                    QueryText = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
                 }
 
                 if (Path.IsPathRooted(QueryText))
@@ -1615,38 +1615,32 @@ namespace RX_Explorer
                         else
                         {
                             string InputPath = sender.Text.Replace('/', '\\');
+                            string ActualPath = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
-                            if (Path.IsPathRooted(InputPath))
+                            if (Path.IsPathRooted(ActualPath))
                             {
-                                if (CommonEnvironmentVariables.CheckIfContainsVariable(InputPath))
-                                {
-                                    InputPath = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPathAsync(InputPath);
-                                }
-
-                                string DirectoryPath = Path.GetPathRoot(InputPath).Equals(InputPath, StringComparison.OrdinalIgnoreCase) ? InputPath : Path.GetDirectoryName(InputPath);
-                                string FileName = Path.GetFileName(InputPath);
+                                string FileName = Path.GetFileName(ActualPath);
+                                string DirectoryPath = Path.GetPathRoot(ActualPath).Equals(ActualPath, StringComparison.OrdinalIgnoreCase)
+                                                       ? ActualPath
+                                                       : Path.GetDirectoryName(ActualPath);
 
                                 if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder ParentFolder)
                                 {
+                                    IReadOnlyList<FileSystemStorageItemBase> Result = string.IsNullOrEmpty(FileName)
+                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)
+                                                                                      : await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+
                                     if (args.CheckCurrent())
                                     {
-                                        if (string.IsNullOrEmpty(FileName))
+                                        if (CommonEnvironmentVariables.CheckIfContainsVariable(InputPath))
                                         {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20);
-
-                                            foreach (string Path in Result.Select((Item) => Item.Path))
-                                            {
-                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
-                                            }
+                                            string Variable = CommonEnvironmentVariables.GetVariableInPath(InputPath);
+                                            string VariableMapPath = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(Variable);
+                                            AddressSuggestionList.AddRange(Result.Select((Item) => new AddressSuggestionItem(Item.Path.Replace(VariableMapPath, Variable), Visibility.Collapsed)));
                                         }
                                         else
                                         {
-                                            IReadOnlyList<FileSystemStorageItemBase> Result = await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
-
-                                            foreach (string Path in Result.Select((Item) => Item.Path))
-                                            {
-                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
-                                            }
+                                            AddressSuggestionList.AddRange(Result.Select((Item) => new AddressSuggestionItem(Item.Path, Visibility.Collapsed)));
                                         }
                                     }
                                 }
@@ -3269,9 +3263,28 @@ namespace RX_Explorer
 
         private void AddressBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
-            if (e.Key == VirtualKey.Tab)
+            switch (e.Key)
             {
-                e.Handled = true;
+                case VirtualKey.Tab:
+                    {
+                        if (AddressSuggestionList.Count > 0)
+                        {
+                            AddressSuggestionItem Item = AddressSuggestionList.First();
+
+                            if (string.IsNullOrEmpty(Item.DisplayName))
+                            {
+                                AddressBox.Text = Item.Path;
+                            }
+                            else
+                            {
+                                AddressBox.Text = Item.DisplayName;
+                            }
+                        }
+
+                        e.Handled = true;
+
+                        break;
+                    }
             }
         }
 
