@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (RawData?.Argument) ?? Array.Empty<string>();
+                return (RawData?.Arguments) ?? Array.Empty<string>();
             }
         }
 
@@ -89,7 +89,7 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        if(!await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments))
+                        if (!await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments))
                         {
                             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {

@@ -73,6 +73,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
+        private static readonly Size WindowSize = new Size(450, 620);
+
         private CancellationTokenSource FolderCancellation;
         private CancellationTokenSource Md5Cancellation;
         private CancellationTokenSource SHA1Cancellation;
@@ -95,7 +97,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         public static async Task<PropertiesWindowBase> CreateAsync(FileSystemStorageItemBase StorageItem)
         {
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(430, 650));
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -108,7 +109,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(NewWindow, StorageItem);
 
             ElementCompositionPreview.SetAppWindowContent(NewWindow, PropertiesWindow);
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(430, 650));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, WindowSize);
 
             return PropertiesWindow;
         }
@@ -192,12 +193,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 if (StorageItem is IUnsupportedStorageItem)
                 {
-                    PivotControl.Items.Remove(PivotControl.Items.OfType<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
+                    PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
                 }
 
                 if (StorageItem is not (LinkStorageFile or UrlStorageFile))
                 {
-                    PivotControl.Items.Remove(PivotControl.Items.OfType<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
+                    PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
                 }
             }
 
@@ -267,10 +268,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     case LinkStorageFile:
                         {
+                            string[] TargetSplit = ShortcutTargetContent.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
                             await Exclusive.Controller.UpdateLinkAsync(new LinkDataPackage
                             {
                                 LinkPath = StorageItem.Path,
-                                LinkTargetPath = ShortcutTargetContent.Text,
+                                LinkTargetPath = TargetSplit.FirstOrDefault(),
+                                Arguments = TargetSplit.Skip(1).ToArray(),
                                 WorkDirectory = ShortcutStartInContent.Text,
                                 WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
                                 HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
@@ -308,7 +312,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private void PropertiesWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            Window.RequestSize(new Size(420, 600));
+            Window.RequestSize(WindowSize);
         }
 
         private async void PropertiesWindow_Loading(FrameworkElement sender, object args)
@@ -367,6 +371,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         if (LinkFile.LinkType == ShellLinkType.Normal)
                         {
+                            ShortcutTargetLocationContent.Text = Path.GetFileName(Path.GetDirectoryName(LinkFile.LinkTargetPath));
+                            ShortcutTargetContent.Text = $"{LinkFile.LinkTargetPath} {string.Join(" ", LinkFile.Arguments)}";
+                            ShortcutStartInContent.Text = LinkFile.WorkDirectory;
+                            RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
+
                             if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
                             {
                                 switch (await TargetItem.GetStorageItemAsync())
@@ -387,11 +396,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                             break;
                                         }
                                 }
-
-                                ShortcutTargetLocationContent.Text = Path.GetDirectoryName(TargetItem.Path).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                                ShortcutTargetContent.Text = TargetItem.Path;
-                                ShortcutStartInContent.Text = LinkFile.WorkDirectory;
-                                RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
                             }
                         }
                         else

@@ -255,19 +255,14 @@ namespace FullTrustProcess
                             }
                         }
                     }
-
-                    return Array.Empty<byte>();
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
-                    return Array.Empty<byte>();
                 }
             }
-            else
-            {
-                return Array.Empty<byte>();
-            }
+
+            return Array.Empty<byte>();
         }
 
         public static bool CheckIfPackageFamilyNameExist(string PackageFamilyName)
@@ -337,13 +332,9 @@ namespace FullTrustProcess
                         return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId, PathArray);
                     }
                 }
+            }
 
-                return false;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public static async Task<InstalledApplicationPackage> GetInstalledApplicationAsync(string PackageFamilyName)
@@ -379,19 +370,14 @@ namespace FullTrustProcess
                             }
                         }
                     }
-
-                    return null;
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"Could not get logo from PackageFamilyName: \"{PackageFamilyName}\"");
-                    return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public static async Task<IEnumerable<InstalledApplicationPackage>> GetInstalledApplicationAsync()

@@ -8,7 +8,7 @@ namespace ShareClassLibrary
 
         public string LinkTargetPath { get; set; }
 
-        public string[] Argument { get; set; }
+        public string[] Arguments { get; set; }
 
         public string Comment { get; set; }
 

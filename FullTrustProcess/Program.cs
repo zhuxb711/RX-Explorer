@@ -845,14 +845,31 @@ namespace FullTrustProcess
                             string ExecutePath = CommandValue["ExecutePath"];
 
                             using (ShellItem Item = new ShellItem(ExecutePath))
-                            using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
-                            using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
-                            using (MemoryStream Stream = new MemoryStream())
                             {
-                                OriginBitmap.MakeTransparent();
-                                OriginBitmap.Save(Stream, ImageFormat.Png);
+                                HiddenDataPackage Package = new HiddenDataPackage
+                                {
+                                    DisplayType = Item.FileInfo.TypeName
+                                };
 
-                                Value.Add("Success", JsonSerializer.Serialize(new HiddenDataPackage(Item.FileInfo.TypeName, Stream.ToArray())));
+                                try
+                                {
+                                    using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                                    using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                                    using (MemoryStream IconStream = new MemoryStream())
+                                    {
+                                        OriginBitmap.MakeTransparent();
+                                        OriginBitmap.Save(IconStream, ImageFormat.Png);
+
+                                        Package.IconData = IconStream.ToArray();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Could not get the icon");
+                                    Package.IconData = Array.Empty<byte>();
+                                }
+
+                                Value.Add("Success", JsonSerializer.Serialize(Package));
                             }
 
                             break;
@@ -957,9 +974,14 @@ namespace FullTrustProcess
                         {
                             LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
-                            string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
+                            string Arguments = null;
 
-                            using (ShellLink Link = ShellLink.Create(StorageController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
+                            if ((Package.Arguments?.Length).GetValueOrDefault() > 0)
+                            {
+                                Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(" ") ? $"\"{Para.Trim('\"')}\"" : Para));
+                            }
+
+                            using (ShellLink Link = ShellLink.Create(StorageController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -1250,12 +1272,17 @@ namespace FullTrustProcess
                         {
                             LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(CommandValue["DataPackage"]);
 
-                            string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
-
                             if (File.Exists(Package.LinkPath))
                             {
                                 if (Path.IsPathRooted(Package.LinkTargetPath))
                                 {
+                                    string Arguments = null;
+
+                                    if ((Package.Arguments?.Length).GetValueOrDefault() > 0)
+                                    {
+                                        Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(" ") ? $"\"{Para.Trim('\"')}\"" : Para));
+                                    }
+
                                     using (ShellLink Link = new ShellLink(Package.LinkPath))
                                     {
                                         Link.TargetPath = Package.LinkTargetPath;
@@ -1263,10 +1290,11 @@ namespace FullTrustProcess
                                         Link.ShowState = (FormWindowState)Package.WindowState;
                                         Link.RunAsAdministrator = Package.NeedRunAsAdmin;
                                         Link.Description = Package.Comment;
+                                        Link.Arguments = Arguments;
 
                                         if (Package.HotKey > 0)
                                         {
-                                            Link.HotKey = (((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
                                         }
                                         else
                                         {
@@ -1379,20 +1407,31 @@ namespace FullTrustProcess
                                 {
                                     string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 
-                                    using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
-                                    using (MemoryStream IconStream = new MemoryStream())
-                                    using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                    UrlDataPackage Package = new UrlDataPackage
                                     {
-                                        TempBitmap.MakeTransparent();
-                                        TempBitmap.Save(IconStream, ImageFormat.Png);
+                                        UrlPath = ExecutePath,
+                                        UrlTargetPath = UrlPath
+                                    };
 
-                                        Value.Add("Success", JsonSerializer.Serialize(new UrlDataPackage
+                                    try
+                                    {
+                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                        using (MemoryStream IconStream = new MemoryStream())
+                                        using (Bitmap TempBitmap = new Bitmap(IconImage))
                                         {
-                                            UrlPath = ExecutePath,
-                                            UrlTargetPath = UrlPath,
-                                            IconData = IconStream.ToArray()
-                                        }));
+                                            TempBitmap.MakeTransparent();
+                                            TempBitmap.Save(IconStream, ImageFormat.Png);
+
+                                            Package.IconData = IconStream.ToArray();
+                                        }
                                     }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get the icon");
+                                        Package.IconData = Array.Empty<byte>();
+                                    }
+
+                                    Value.Add("Success", JsonSerializer.Serialize(Package));
                                 }
                             }
                             else
@@ -1428,21 +1467,32 @@ namespace FullTrustProcess
                                             ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                         }
 
-                                        using (ShellItem Item = new ShellItem(ActualPath))
-                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
-                                        using (MemoryStream IconStream = new MemoryStream())
-                                        using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                        LinkDataPackage Package = new LinkDataPackage
                                         {
-                                            TempBitmap.MakeTransparent();
-                                            TempBitmap.Save(IconStream, ImageFormat.Png);
+                                            LinkPath = ExecutePath,
+                                            LinkTargetPath = ActualPath
+                                        };
 
-                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
+                                        try
+                                        {
+                                            using (ShellItem Item = new ShellItem(ActualPath))
+                                            using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                            using (MemoryStream IconStream = new MemoryStream())
+                                            using (Bitmap TempBitmap = new Bitmap(IconImage))
                                             {
-                                                LinkPath = ExecutePath,
-                                                LinkTargetPath = ActualPath,
-                                                IconData = IconStream.ToArray()
-                                            }));
+                                                TempBitmap.MakeTransparent();
+                                                TempBitmap.Save(IconStream, ImageFormat.Png);
+
+                                                Package.IconData = IconStream.ToArray();
+                                            }
                                         }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, "Could not get the icon");
+                                            Package.IconData = Array.Empty<byte>();
+                                        }
+
+                                        Value.Add("Success", JsonSerializer.Serialize(Package));
                                     }
                                     else
                                     {
@@ -1453,6 +1503,17 @@ namespace FullTrustProcess
                                 {
                                     using (ShellLink Link = new ShellLink(ExecutePath))
                                     {
+                                        LinkDataPackage Package = new LinkDataPackage
+                                        {
+                                            LinkPath = ExecutePath,
+                                            WorkDirectory = Link.WorkingDirectory,
+                                            WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
+                                            HotKey = (int)Link.HotKey,
+                                            NeedRunAsAdmin = Link.RunAsAdministrator,
+                                            Comment = Link.Description,
+                                            Arguments = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"").Cast<Match>().Select((Mat) => Mat.Value).ToArray()
+                                        };
+
                                         if (string.IsNullOrEmpty(Link.TargetPath))
                                         {
                                             string PackageFamilyName = Helper.GetPackageFamilyNameFromUWPShellLink(ExecutePath);
@@ -1463,30 +1524,12 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                byte[] IconData = await Helper.GetIconDataFromPackageFamilyNameAsync(PackageFamilyName);
-
-                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
-                                                {
-                                                    LinkPath = ExecutePath,
-                                                    LinkTargetPath = PackageFamilyName,
-                                                    WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
-                                                    HotKey = (int)Link.HotKey,
-                                                    Comment = Link.Description,
-                                                    IconData = IconData
-                                                }));
+                                                Package.LinkTargetPath = PackageFamilyName;
+                                                Package.IconData = await Helper.GetIconDataFromPackageFamilyNameAsync(PackageFamilyName);
                                             }
                                         }
                                         else
                                         {
-                                            MatchCollection Collection = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"");
-
-                                            List<string> Arguments = new List<string>(Collection.Count);
-
-                                            foreach (Match Mat in Collection)
-                                            {
-                                                Arguments.Add(Mat.Value);
-                                            }
-
                                             string ActualPath = Link.TargetPath;
 
                                             foreach (Match Var in Regex.Matches(ActualPath, @"(?<=(%))[\s\S]+(?=(%))"))
@@ -1494,27 +1537,28 @@ namespace FullTrustProcess
                                                 ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                             }
 
-                                            using (Image IconImage = Link.GetImage(new Size(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
-                                            using (MemoryStream IconStream = new MemoryStream())
-                                            using (Bitmap TempBitmap = new Bitmap(IconImage))
-                                            {
-                                                TempBitmap.MakeTransparent();
-                                                TempBitmap.Save(IconStream, ImageFormat.Png);
+                                            Package.LinkTargetPath = ActualPath;
 
-                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage
+                                            try
+                                            {
+                                                using (Image IconImage = Link.GetImage(new Size(120, 120), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ScaleUp))
+                                                using (MemoryStream IconStream = new MemoryStream())
+                                                using (Bitmap TempBitmap = new Bitmap(IconImage))
                                                 {
-                                                    LinkPath = ExecutePath,
-                                                    LinkTargetPath = ActualPath,
-                                                    WorkDirectory = Link.WorkingDirectory,
-                                                    WindowState = (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)),
-                                                    HotKey = (int)Link.HotKey,
-                                                    Comment = Link.Description,
-                                                    NeedRunAsAdmin = Link.RunAsAdministrator,
-                                                    IconData = IconStream.ToArray(),
-                                                    Argument = Arguments.ToArray()
-                                                }));
+                                                    TempBitmap.MakeTransparent();
+                                                    TempBitmap.Save(IconStream, ImageFormat.Png);
+
+                                                    Package.IconData = IconStream.ToArray();
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogTracer.Log(ex, "Could not get the icon");
+                                                Package.IconData = Array.Empty<byte>();
                                             }
                                         }
+
+                                        Value.Add("Success", JsonSerializer.Serialize(Package));
                                     }
                                 }
                             }

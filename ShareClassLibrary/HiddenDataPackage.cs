@@ -2,14 +2,8 @@
 {
     public sealed class HiddenDataPackage
     {
-        public byte[] IconData { get; }
+        public byte[] IconData { get; set; }
 
-        public string DisplayType { get; }
-
-        public HiddenDataPackage(string DisplayType, byte[] IconData)
-        {
-            this.DisplayType = DisplayType;
-            this.IconData = IconData;
-        }
+        public string DisplayType { get; set; }
     }
 }

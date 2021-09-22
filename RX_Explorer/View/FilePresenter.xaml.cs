@@ -3290,7 +3290,7 @@ namespace RX_Explorer
                                             WindowState = dialog.WindowState,
                                             HotKey = dialog.HotKey,
                                             Comment = dialog.Comment,
-                                            Argument = dialog.Arguments
+                                            Arguments = dialog.Arguments
                                         }))
                                         {
                                             throw new UnauthorizedAccessException();
