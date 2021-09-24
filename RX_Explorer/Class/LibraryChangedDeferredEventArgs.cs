@@ -7,8 +7,11 @@ namespace RX_Explorer.Class
     {
         public LibraryStorageFolder StorageItem { get; }
 
-        public LibraryChangedDeferredEventArgs(LibraryStorageFolder StorageItem)
+        public CommonChangeType Type { get; }
+
+        public LibraryChangedDeferredEventArgs(CommonChangeType Type, LibraryStorageFolder StorageItem)
         {
+            this.Type = Type;
             this.StorageItem = StorageItem;
         }
     }

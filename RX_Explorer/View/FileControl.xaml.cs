@@ -71,8 +71,6 @@ namespace RX_Explorer
         private CancellationTokenSource DelayGoBackHoldCancel;
         private CancellationTokenSource DelayGoForwardHoldCancel;
 
-        private readonly SemaphoreSlim LoadLocker = new SemaphoreSlim(1, 1);
-
         public bool BlockKeyboardShortCutInput;
 
         private volatile FilePresenter currentPresenter;
@@ -167,85 +165,6 @@ namespace RX_Explorer
             GoForwardButtonReleasedHandler = new PointerEventHandler(GoForwardRecord_PointerReleased);
 
             Loaded += FileControl_Loaded;
-        }
-
-        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangedDeferredEventArgs args)
-        {
-            EventDeferral Deferral = args.GetDeferral();
-
-            try
-            {
-                await LoadLocker.WaitAsync();
-
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
-                {
-                    FolderTree.RootNodes.Remove(Node);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in DriveRemoved");
-            }
-            finally
-            {
-                LoadLocker.Release();
-                Deferral.Complete();
-            }
-        }
-
-        private async void CommonAccessCollection_DriveAdded(object sender, DriveChangedDeferredEventArgs args)
-        {
-            EventDeferral Deferral = args.GetDeferral();
-
-            try
-            {
-                await LoadLocker.WaitAsync();
-
-                if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
-                {
-                    if (FolderTree.RootNodes.Select((Node) => Node.Content).OfType<TreeViewNodeContent>().All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                        TreeViewNode RootNode;
-
-                        if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
-                        {
-                            RootNode = new TreeViewNode
-                            {
-                                Content = new TreeViewNodeContent(Folder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
-                        }
-                        else
-                        {
-                            RootNode = new TreeViewNode
-                            {
-                                Content = new TreeViewNodeContent(args.StorageItem.Path),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
-                        }
-
-                        FolderTree.RootNodes.Add(RootNode);
-                    }
-
-                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                    {
-                        FolderTree.SelectNodeAndScrollToVertical(Node);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw in DriveAdded");
-            }
-            finally
-            {
-                LoadLocker.Release();
-                Deferral.Complete();
-            }
         }
 
         private async void FileControl_Loaded(object sender, RoutedEventArgs e)
@@ -544,11 +463,6 @@ namespace RX_Explorer
 
                         ViewModeControl = new ViewModeController(ViewModeComboBox);
 
-                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
-                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
-                        CommonAccessCollection.LibraryAdded += CommonAccessCollection_LibraryAdded;
-                        CommonAccessCollection.LibraryRemoved += CommonAccessCollection_LibraryRemoved;
-
                         await Initialize(Parameters.Item2);
                     }
                 }
@@ -563,88 +477,146 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_LibraryRemoved(object sender, LibraryChangedDeferredEventArgs e)
+        private async void CommonAccessCollection_LibraryChanged(object sender, LibraryChangedDeferredEventArgs args)
         {
-            EventDeferral Deferral = e.GetDeferral();
+            EventDeferral Deferral = args.GetDeferral();
 
             try
             {
-                await LoadLocker.WaitAsync();
-
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                switch (args.Type)
                 {
-                    if (QuickAccessNode.IsExpanded)
-                    {
-                        QuickAccessNode.Children.Remove(QuickAccessNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(e.StorageItem.Path, StringComparison.OrdinalIgnoreCase)));
-                    }
+                    case CommonChangeType.Added:
+                        {
+                            TreeViewNode QuickAccessNode;
+
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode Node)
+                            {
+                                QuickAccessNode = Node;
+                            }
+                            else
+                            {
+                                QuickAccessNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = true
+                                };
+
+                                FolderTree.RootNodes.Add(QuickAccessNode);
+                            }
+
+                            if (QuickAccessNode.IsExpanded)
+                            {
+                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                                if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
+                                {
+                                    QuickAccessNode.Children.Add(new TreeViewNode
+                                    {
+                                        IsExpanded = false,
+                                        Content = new TreeViewNodeContent(Folder),
+                                        HasUnrealizedChildren = HasAnyFolder
+                                    });
+                                }
+                                else
+                                {
+                                    QuickAccessNode.Children.Add(new TreeViewNode
+                                    {
+                                        IsExpanded = false,
+                                        Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                        HasUnrealizedChildren = HasAnyFolder
+                                    });
+                                }
+                            }
+
+                            break;
+                        }
+                    case CommonChangeType.Removed:
+                        {
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                            {
+                                if (QuickAccessNode.IsExpanded)
+                                {
+                                    QuickAccessNode.Children.Remove(QuickAccessNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)));
+                                }
+                            }
+
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Sync Library change failed");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(CommonAccessCollection_LibraryChanged)}");
             }
             finally
             {
-                LoadLocker.Release();
                 Deferral.Complete();
             }
         }
 
-        private async void CommonAccessCollection_LibraryAdded(object sender, LibraryChangedDeferredEventArgs e)
+        private async void CommonAccessCollection_DriveChanged(object sender, DriveChangedDeferredEventArgs args)
         {
-            EventDeferral Deferral = e.GetDeferral();
+            EventDeferral Deferral = args.GetDeferral();
 
             try
             {
-                await LoadLocker.WaitAsync();
-
-                TreeViewNode QuickAccessNode;
-
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode Node)
+                switch (args.Type)
                 {
-                    QuickAccessNode = Node;
-                }
-                else
-                {
-                    QuickAccessNode = new TreeViewNode
-                    {
-                        Content = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName")),
-                        IsExpanded = false,
-                        HasUnrealizedChildren = true
-                    };
-
-                    FolderTree.RootNodes.Add(QuickAccessNode);
-                }
-
-                if (QuickAccessNode.IsExpanded)
-                {
-                    if (await e.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
-                    {
-                        QuickAccessNode.Children.Add(new TreeViewNode
+                    case CommonChangeType.Added when !string.IsNullOrWhiteSpace(args.StorageItem.Path):
                         {
-                            IsExpanded = false,
-                            Content = new TreeViewNodeContent(Folder),
-                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        });
-                    }
-                    else
-                    {
-                        QuickAccessNode.Children.Add(new TreeViewNode
+                            if (FolderTree.RootNodes.Select((Node) => Node.Content).OfType<TreeViewNodeContent>().All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+
+                                TreeViewNode RootNode;
+
+                                if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
+                                {
+                                    RootNode = new TreeViewNode
+                                    {
+                                        Content = new TreeViewNodeContent(Folder),
+                                        IsExpanded = false,
+                                        HasUnrealizedChildren = HasAnyFolder
+                                    };
+                                }
+                                else
+                                {
+                                    RootNode = new TreeViewNode
+                                    {
+                                        Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                        IsExpanded = false,
+                                        HasUnrealizedChildren = HasAnyFolder
+                                    };
+                                }
+
+                                FolderTree.RootNodes.Add(RootNode);
+                            }
+
+                            if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
+                            {
+                                FolderTree.SelectNodeAndScrollToVertical(Node);
+                            }
+
+                            break;
+                        }
+                    case CommonChangeType.Removed:
                         {
-                            IsExpanded = false,
-                            Content = new TreeViewNodeContent(e.StorageItem.Path),
-                            HasUnrealizedChildren = await e.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                        });
-                    }
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                            {
+                                FolderTree.RootNodes.Remove(Node);
+                            }
+
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Sync Library change failed");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(CommonAccessCollection_DriveChanged)}");
             }
             finally
             {
-                LoadLocker.Release();
                 Deferral.Complete();
             }
         }
@@ -667,12 +639,10 @@ namespace RX_Explorer
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        public async Task Initialize(string[] InitPathArray)
+        private async Task Initialize(string[] InitPathArray)
         {
             try
             {
-                await LoadLocker.WaitAsync();
-
                 if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                 {
                     TreeViewNode RootNode = new TreeViewNode
@@ -685,68 +655,53 @@ namespace RX_Explorer
                     FolderTree.RootNodes.Add(RootNode);
                 }
 
-                List<Task> LongLoadList = new List<Task>();
-
-                for (int i = 0; i < CommonAccessCollection.DriveList.Count; i++)
+                IReadOnlyList<Task> SyncTreeViewFromDriveList(IEnumerable<StorageFolder> DriveList)
                 {
-                    DriveDataBase DriveData = CommonAccessCollection.DriveList[i];
+                    List<Task> LongLoadList = new List<Task>();
 
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
+                    foreach (StorageFolder DriveFolder in DriveList)
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.DriveFolder);
-
-                        if (DriveData.DriveType is DriveType.Network or DriveType.Removable)
+                        if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            LongLoadList.Add(DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task, _) =>
+                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task, _) =>
                             {
                                 try
                                 {
                                     FolderTree.RootNodes.Add(new TreeViewNode
                                     {
-                                        Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                        Content = new TreeViewNodeContent(DriveFolder),
                                         IsExpanded = false,
                                         HasUnrealizedChildren = task.Result
                                     });
                                 }
                                 catch (Exception ex)
                                 {
-                                    LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
+                                    LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveFolder.Path}\"");
                                 }
-                            }, null, CancellationToken.None, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext()));
-                        }
-                        else
-                        {
-                            try
-                            {
-                                FolderTree.RootNodes.Add(new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
-                                });
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveData.Path}\"");
-                            }
+                            }, null, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext()));
                         }
                     }
+
+                    return LongLoadList;
                 }
+
+                IEnumerable<StorageFolder> CurrentDrives = CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray();
+
+                IReadOnlyList <Task> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
 
                 foreach (string TargetPath in InitPathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
                     await CreateNewBladeAsync(TargetPath);
                 }
 
-                await Task.WhenAll(LongLoadList);
+                CommonAccessCollection.DriveChanged += CommonAccessCollection_DriveChanged;
+                CommonAccessCollection.LibraryChanged += CommonAccessCollection_LibraryChanged;
+
+                await Task.WhenAll(TaskList.Concat(SyncTreeViewFromDriveList(CommonAccessCollection.GetMissedDriveBeforeSubscribeEvents().Except(CurrentDrives))));
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not init the FileControl");
-            }
-            finally
-            {
-                LoadLocker.Release();
             }
         }
 
@@ -3336,10 +3291,8 @@ namespace RX_Explorer
 
             Frame.Navigated -= Frame_Navigated;
 
-            CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
-            CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
-            CommonAccessCollection.LibraryAdded -= CommonAccessCollection_LibraryAdded;
-            CommonAccessCollection.LibraryRemoved -= CommonAccessCollection_LibraryRemoved;
+            CommonAccessCollection.DriveChanged -= CommonAccessCollection_DriveChanged;
+            CommonAccessCollection.LibraryChanged -= CommonAccessCollection_LibraryChanged;
 
             AddressBox.RemoveHandler(RightTappedEvent, AddressBoxRightTapEventHandler);
             GoBackRecord.RemoveHandler(PointerPressedEvent, GoBackButtonPressedHandler);
@@ -3361,8 +3314,6 @@ namespace RX_Explorer
             DelayEnterCancel = null;
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
-
-            LoadLocker.Dispose();
 
             TaskBarController.SetText(null);
         }

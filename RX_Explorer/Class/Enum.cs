@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum CommonChangeType
+    {
+        Added,
+        Removed
+    }
+
     public enum NewCompressionItemType
     {
         File,

@@ -27,6 +27,7 @@ namespace RX_Explorer.Class
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
         public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
 
+        private static readonly List<StorageFolder> DriveCache = new List<StorageFolder>();
 
         private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
@@ -35,15 +36,15 @@ namespace RX_Explorer.Class
             Interval = TimeSpan.FromSeconds(5)
         };
 
-        public static event EventHandler<DriveChangedDeferredEventArgs> DriveAdded;
+        public static event EventHandler<DriveChangedDeferredEventArgs> DriveChanged;
 
-        public static event EventHandler<DriveChangedDeferredEventArgs> DriveRemoved;
+        public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryChanged;
 
         public static event EventHandler<Queue<string>> LibraryNotFound;
 
-        public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryAdded;
+        private static readonly SemaphoreSlim DriveChangeLocker = new SemaphoreSlim(1, 1);
 
-        public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryRemoved;
+        private static readonly SemaphoreSlim LibraryChangeLocker = new SemaphoreSlim(1, 1);
 
         public static bool IsLibaryLoaded { get; private set; }
 
@@ -363,6 +364,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static IReadOnlyList<StorageFolder> GetMissedDriveBeforeSubscribeEvents()
+        {
+            return DriveCache.AsReadOnly();
+        }
+
         private static async void PortalDriveWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
             try
@@ -405,31 +411,53 @@ namespace RX_Explorer.Class
 
         private async static void DriveList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        if (DriveAdded != null)
-                        {
-                            foreach (DriveDataBase Drive in e.NewItems)
-                            {
-                                await DriveAdded.InvokeAsync(null, new DriveChangedDeferredEventArgs(Drive));
-                            }
-                        }
-                        break;
-                    }
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        if (DriveRemoved != null)
-                        {
-                            foreach (DriveDataBase Drive in e.OldItems)
-                            {
-                                await DriveRemoved.InvokeAsync(null, new DriveChangedDeferredEventArgs(Drive));
-                            }
-                        }
+            await DriveChangeLocker.WaitAsync();
 
-                        break;
-                    }
+            try
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        {
+                            if (DriveChanged != null)
+                            {
+                                foreach (DriveDataBase Drive in e.NewItems)
+                                {
+                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Added, new FileSystemStorageFolder(Drive.DriveFolder)));
+                                }
+                            }
+                            else
+                            {
+                                DriveCache.AddRange(e.NewItems.OfType<DriveDataBase>().Select((Drive) => Drive.DriveFolder));
+                            }
+
+                            break;
+                        }
+                    case NotifyCollectionChangedAction.Remove:
+                        {
+                            if (DriveChanged != null)
+                            {
+                                foreach (DriveDataBase Drive in e.OldItems)
+                                {
+                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Removed, new FileSystemStorageFolder(Drive.DriveFolder)));
+                                }
+                            }
+                            else
+                            {
+                                foreach (DriveDataBase Drive in e.OldItems)
+                                {
+                                    DriveCache.Remove(Drive.DriveFolder);
+                                }
+                            }
+
+                            break;
+                        }
+                }
+
+            }
+            finally
+            {
+                DriveChangeLocker.Release();
             }
         }
 
@@ -494,32 +522,38 @@ namespace RX_Explorer.Class
 
         private static async void LibraryFolderList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
+            await LibraryChangeLocker.WaitAsync();
+
+            try
             {
-                case NotifyCollectionChangedAction.Add:
+                if (LibraryChanged != null)
+                {
+                    switch (e.Action)
                     {
-                        if (DriveAdded != null)
-                        {
-                            foreach (LibraryStorageFolder Lib in e.NewItems)
+                        case NotifyCollectionChangedAction.Add:
                             {
-                                await LibraryAdded.InvokeAsync(null, new LibraryChangedDeferredEventArgs(Lib));
-                            }
-                        }
+                                foreach (LibraryStorageFolder Lib in e.NewItems)
+                                {
+                                    await LibraryChanged.InvokeAsync(null, new LibraryChangedDeferredEventArgs(CommonChangeType.Added, Lib));
+                                }
 
-                        break;
-                    }
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        if (DriveRemoved != null)
-                        {
-                            foreach (LibraryStorageFolder Lib in e.OldItems)
+                                break;
+                            }
+                        case NotifyCollectionChangedAction.Remove:
                             {
-                                await LibraryRemoved.InvokeAsync(null, new LibraryChangedDeferredEventArgs(Lib));
-                            }
-                        }
+                                foreach (LibraryStorageFolder Lib in e.OldItems)
+                                {
+                                    await LibraryChanged.InvokeAsync(null, new LibraryChangedDeferredEventArgs(CommonChangeType.Removed, Lib));
+                                }
 
-                        break;
+                                break;
+                            }
                     }
+                }
+            }
+            finally
+            {
+                LibraryChangeLocker.Release();
             }
         }
     }

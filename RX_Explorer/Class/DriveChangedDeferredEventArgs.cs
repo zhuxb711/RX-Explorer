@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Deferred;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -7,9 +6,12 @@ namespace RX_Explorer.Class
     {
         public FileSystemStorageFolder StorageItem { get; }
 
-        public DriveChangedDeferredEventArgs(DriveDataBase Data)
+        public CommonChangeType Type { get; }
+
+        public DriveChangedDeferredEventArgs(CommonChangeType Type, FileSystemStorageFolder StorageItem)
         {
-            StorageItem = new FileSystemStorageFolder(Data.DriveFolder);
+            this.Type = Type;
+            this.StorageItem = StorageItem;
         }
     }
 }
