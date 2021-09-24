@@ -202,6 +202,7 @@
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
+                               AlwaysExpanded="True"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
@@ -214,6 +215,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
+                               AlwaysExpanded="True"
                                x:Name="RightTabFlyout"
                                Opening="RightTabFlyout_Opening">
             <muxc:CommandBarFlyout.PrimaryCommands>
@@ -329,7 +331,7 @@
             <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Background="{ThemeResource ElementTransparentAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
@@ -449,6 +451,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Button Content="{x:Bind DisplayName}"
                                     Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
+                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     Name="AddressButton"
@@ -465,6 +468,7 @@
                                     Background="Transparent" />
                             <Button Background="Transparent"
                                     Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
+                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalContentAlignment="Center"

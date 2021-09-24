@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
@@ -1046,18 +1045,21 @@ namespace RX_Explorer
         {
             if (sender is MenuFlyout Flyout)
             {
-                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
+                foreach (MenuFlyoutItem Item in Flyout.Items)
                 {
                     Item.Click -= SendToItem_Click;
                 }
 
                 Flyout.Items.Clear();
 
-                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
+                MenuFlyoutItem SendDocumentItem = new MenuFlyoutItem
                 {
                     Name = "SendDocumentItem",
                     Text = Globalization.GetString("SendTo_Document"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico"))
+                    },
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -1065,11 +1067,14 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendDocumentItem);
 
-                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
+                MenuFlyoutItem SendLinkItem = new MenuFlyoutItem
                 {
                     Name = "SendLinkItem",
                     Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
+                    },
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -1079,11 +1084,14 @@ namespace RX_Explorer
 
                 foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
                 {
-                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
+                    MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
                     {
                         Name = "SendRemovableItem",
                         Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
-                        ImageIcon = RemovableDrive.Thumbnail,
+                        Icon = new ImageIcon
+                        {
+                            Source = RemovableDrive.Thumbnail
+                        },
                         MinWidth = 150,
                         MaxWidth = 350,
                         Tag = RemovableDrive.Path
@@ -1124,10 +1132,10 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage 
-                                        { 
-                                            LinkPath = Path.Combine(DesktopPath, $"{SItem.Name}.lnk"), 
-                                            LinkTargetPath = SItem.Path 
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                        {
+                                            LinkPath = Path.Combine(DesktopPath, $"{SItem.Name}.lnk"),
+                                            LinkTargetPath = SItem.Path
                                         }))
                                         {
                                             QueueContentDialog Dialog = new QueueContentDialog
@@ -1155,10 +1163,10 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                             {
-                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage 
-                                                { 
-                                                    LinkPath = Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"), 
-                                                    LinkTargetPath = SItem.Path 
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                {
+                                                    LinkPath = Path.Combine(DataPath.Desktop, $"{SItem.Name}.lnk"),
+                                                    LinkTargetPath = SItem.Path
                                                 }))
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog

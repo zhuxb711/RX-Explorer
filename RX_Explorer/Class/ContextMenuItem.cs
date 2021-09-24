@@ -1,5 +1,4 @@
 ﻿using Microsoft.UI.Xaml.Controls;
-using RX_Explorer.CustomControl;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -95,7 +94,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    MenuFlyoutItemWithImage FlyoutItem = new MenuFlyoutItemWithImage
+                    MenuFlyoutItem FlyoutItem = new MenuFlyoutItem
                     {
                         Text = SubItem.Name,
                         Tag = SubItem,
@@ -111,7 +110,7 @@ namespace RX_Explorer.Class
 
                             await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
 
-                            FlyoutItem.ImageIcon = Bitmap;
+                            FlyoutItem.Icon = new ImageIcon { Source = Bitmap };
                         }
                     }
                     else
@@ -131,7 +130,7 @@ namespace RX_Explorer.Class
 
         public async Task<AppBarButton> GenerateUIButtonAsync(RoutedEventHandler ClickHandler)
         {
-            AppBarButtonWithImage Button = new AppBarButtonWithImage
+            AppBarButton Button = new AppBarButton
             {
                 Label = Name,
                 Tag = this,
@@ -148,7 +147,7 @@ namespace RX_Explorer.Class
 
                     await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
 
-                    Button.ImageIcon = Bitmap;
+                    Button.Icon = new ImageIcon { Source = Bitmap };
                 }
             }
             else

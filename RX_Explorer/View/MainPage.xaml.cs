@@ -1490,11 +1490,6 @@ namespace RX_Explorer
 
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            if (NavView.FindChildOfName<ScrollViewer>("FooterItemsScrollViewer") is ScrollViewer Viewer)
-            {
-                Viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["ShouldShowRecycleBinItem"] is bool ShowRecycleBin)
             {
                 RecycleBinItem.Visibility = ShowRecycleBin ? Visibility.Visible : Visibility.Collapsed;
