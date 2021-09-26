@@ -2,7 +2,6 @@
 using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -27,8 +26,7 @@ namespace RX_Explorer
     public sealed partial class PdfReader : Page
     {
         private ObservableCollection<BitmapImage> PdfCollection;
-        private ConcurrentQueue<int> LoadQueue;
-        private HashSet<uint> LoadTable;
+        private SynchronizedCollection<int> LoadTable;
 
         private PdfDocument Pdf;
         private IRandomAccessStream PdfStream;
@@ -37,7 +35,6 @@ namespace RX_Explorer
         private double OriginHorizonOffset;
         private double OriginVerticalOffset;
         private Point OriginMousePosition;
-        private int LockResource;
         private volatile short DelaySelectionChangeCount;
         private readonly PointerEventHandler PointerWheelChangedEventHandler;
         private int ZoomFactor;
@@ -77,8 +74,7 @@ namespace RX_Explorer
                 FileNameDisplay.Text = Parameters.Name;
 
                 Cancellation = new CancellationTokenSource();
-                LoadQueue = new ConcurrentQueue<int>();
-                LoadTable = new HashSet<uint>();
+                LoadTable = new SynchronizedCollection<int>();
                 PdfCollection = new ObservableCollection<BitmapImage>();
 
                 await InitializeAsync(Parameters);
@@ -147,11 +143,10 @@ namespace RX_Explorer
                 NumIndicator.Text = Convert.ToString(Pdf.PageCount);
                 TextBoxControl.Text = "1";
 
-                for (uint i = 0; i < Pdf.PageCount; i++)
-                {
-                    PdfCollection.Add(new BitmapImage());
-                    LoadTable.Add(i);
-                }
+                IEnumerable<int> InitRange = Enumerable.Range(0, Convert.ToInt32(Pdf.PageCount));
+
+                PdfCollection.AddRange(InitRange.Select((_) => new BitmapImage()));
+                LoadTable.AddRange(InitRange);
 
                 Flip.ItemsSource = PdfCollection;
 
@@ -188,7 +183,6 @@ namespace RX_Explorer
             Cancellation?.Cancel();
             Cancellation?.Dispose();
 
-            LoadQueue?.Clear();
             PdfCollection?.Clear();
             PdfStream?.Dispose();
         }
@@ -197,16 +191,14 @@ namespace RX_Explorer
         {
             int IndexINT = Convert.ToInt32(Index);
 
-            uint LowIndex = Convert.ToUInt32(Math.Max(IndexINT - 4, 0));
-            uint HighIndex = Math.Min(Index + 4, Pdf.PageCount - 1);
+            int LowIndex = Math.Max(IndexINT - 4, 0);
+            int HighIndex = Math.Min(IndexINT + 4, Convert.ToInt32(Pdf.PageCount) - 1);
 
-            for (uint i = LowIndex; i <= HighIndex && !Cancellation.IsCancellationRequested; i++)
+            for (int LoadIndex = LowIndex; LoadIndex <= HighIndex && !Cancellation.IsCancellationRequested; LoadIndex++)
             {
-                if (LoadTable.Contains(i))
+                if (LoadTable.Remove(LoadIndex))
                 {
-                    LoadTable.Remove(i);
-
-                    using (PdfPage Page = Pdf.GetPage(i))
+                    using (PdfPage Page = Pdf.GetPage(Convert.ToUInt32(LoadIndex)))
                     using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
                     {
                         await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
@@ -215,7 +207,7 @@ namespace RX_Explorer
                             DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
                         });
 
-                        await PdfCollection[Convert.ToInt32(i)].SetSourceAsync(PageStream);
+                        await PdfCollection[Convert.ToInt32(LoadIndex)].SetSourceAsync(PageStream);
                     }
                 }
             }
@@ -226,19 +218,24 @@ namespace RX_Explorer
 
         private void Flip_SelectionChanged_TaskOne(object sender, SelectionChangedEventArgs e)
         {
-            TextBoxControl.Text = Convert.ToString(Flip.SelectedIndex + 1);
+            int CurrentIndex = Flip.SelectedIndex;
+
+            TextBoxControl.Text = Convert.ToString(CurrentIndex + 1);
 
             if (!PanelToggle.IsChecked.GetValueOrDefault())
             {
-                if (Flip.ContainerFromIndex(Flip.SelectedIndex).FindChildOfName<ScrollViewer>("ScrollViewerMain") is ScrollViewer Viewer)
+                if (CurrentIndex >= 0 && CurrentIndex < PdfCollection.Count)
                 {
-                    if (PdfCollection.IndexOf(e.AddedItems.Cast<BitmapImage>().FirstOrDefault()) > PdfCollection.IndexOf(e.RemovedItems.Cast<BitmapImage>().FirstOrDefault()))
+                    if (Flip.ContainerFromIndex(CurrentIndex)?.FindChildOfName<ScrollViewer>("ScrollViewerMain") is ScrollViewer Viewer)
                     {
-                        Viewer.ChangeView(0, 0, ZoomFactor / 100f, true);
-                    }
-                    else
-                    {
-                        Viewer.ChangeView(0, Viewer.ScrollableHeight, ZoomFactor / 100f, true);
+                        if (PdfCollection.IndexOf(e.AddedItems.Cast<BitmapImage>().FirstOrDefault()) > PdfCollection.IndexOf(e.RemovedItems.Cast<BitmapImage>().FirstOrDefault()))
+                        {
+                            Viewer.ChangeView(0, 0, ZoomFactor / 100f, true);
+                        }
+                        else
+                        {
+                            Viewer.ChangeView(0, Viewer.ScrollableHeight, ZoomFactor / 100f, true);
+                        }
                     }
                 }
             }
@@ -246,55 +243,35 @@ namespace RX_Explorer
 
         private async void Flip_SelectionChanged_TaskTwo(object sender, SelectionChangedEventArgs e)
         {
-            LoadQueue.Enqueue(Flip.SelectedIndex);
+            int CurrentIndex = Flip.SelectedIndex;
 
-            if (Interlocked.Exchange(ref LockResource, 1) == 0)
+            int CurrentLoading = Interlocked.Exchange(ref LastPageIndex, CurrentIndex) < CurrentIndex
+                                  ? Convert.ToInt32(Math.Min(CurrentIndex + 4, Pdf.PageCount - 1))
+                                  : Convert.ToInt32(Math.Max(CurrentIndex - 4, 0));
+
+            try
             {
-                try
+                if (LoadTable.Remove(CurrentLoading))
                 {
-                    while (LoadQueue.TryDequeue(out int CurrentIndex) && !Cancellation.IsCancellationRequested)
+                    using (PdfPage Page = Pdf.GetPage(Convert.ToUInt32(CurrentLoading)))
+                    using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
                     {
-                        uint CurrentLoading;
-
-                        //如果LastPageIndex < CurrentIndex，说明是向右翻页
-                        if (LastPageIndex < CurrentIndex)
+                        await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
                         {
-                            CurrentLoading = Convert.ToUInt32(Math.Min(CurrentIndex + 4, Pdf.PageCount - 1));
-                        }
-                        else
+                            DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
+                            DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
+                        });
+
+                        if (!Cancellation.IsCancellationRequested)
                         {
-                            CurrentLoading = Convert.ToUInt32(Math.Max(CurrentIndex - 4, 0));
+                            await PdfCollection[CurrentLoading].SetSourceAsync(PageStream);
                         }
-
-                        if (LoadTable.Contains(CurrentLoading))
-                        {
-                            using (PdfPage Page = Pdf.GetPage(CurrentLoading))
-                            using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
-                            {
-                                await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
-                                {
-                                    DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
-                                    DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
-                                });
-
-                                await PdfCollection[Convert.ToInt32(CurrentLoading)].SetSourceAsync(PageStream);
-                            }
-
-                            LoadTable.Remove(CurrentLoading);
-                        }
-
-                        LastPageIndex = CurrentIndex;
-                    }
-
-                    if (LoadTable.Count == 0)
-                    {
-                        Flip.SelectionChanged -= Flip_SelectionChanged_TaskTwo;
                     }
                 }
-                finally
-                {
-                    Interlocked.Exchange(ref LockResource, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not load the page on selection changed");
             }
         }
 

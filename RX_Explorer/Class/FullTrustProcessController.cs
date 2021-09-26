@@ -389,7 +389,7 @@ namespace RX_Explorer.Class
 
                     if (Status == AppServiceConnectionStatus.Success)
                     {
-                        if (await Task.WhenAny(IdentityTaskCompletionSource.Task, Task.Delay(3000)) != IdentityTaskCompletionSource.Task)
+                        if (await Task.WhenAny(IdentityTaskCompletionSource.Task, Task.Delay(5000)) != IdentityTaskCompletionSource.Task)
                         {
                             Dispose();
                             LogTracer.Log($"Identity task failed because AppSerive not response and time out. Dispose this instance");

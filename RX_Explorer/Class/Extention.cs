@@ -282,7 +282,7 @@ namespace RX_Explorer.Class
             return Package;
         }
 
-        public static void AddRange<T>(this ObservableCollection<T> Collection, IEnumerable<T> InputCollection)
+        public static void AddRange<T>(this ICollection<T> Collection, IEnumerable<T> InputCollection)
         {
             foreach (T Item in InputCollection)
             {

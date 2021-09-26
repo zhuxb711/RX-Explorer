@@ -16,8 +16,8 @@ namespace RX_Explorer.Dialog
         public Dictionary<string, string> DesireNameMap { get; private set; } = new Dictionary<string, string>();
 
         private readonly IEnumerable<FileSystemStorageItemBase> RenameItems;
-        
-        private readonly SemaphoreSlim TextChangeLock = new SemaphoreSlim(1,1);
+
+        private SemaphoreSlim TextChangeLock = new SemaphoreSlim(1, 1);
 
         public RenameDialog(FileSystemStorageItemBase RenameItems) : this(new FileSystemStorageItemBase[] { RenameItems })
         {
@@ -43,7 +43,7 @@ namespace RX_Explorer.Dialog
 
         private void RenameDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
         {
-            TextChangeLock.Dispose();
+            Interlocked.Exchange(ref TextChangeLock, null).Dispose();
         }
 
         private async void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -106,7 +106,7 @@ namespace RX_Explorer.Dialog
 
         private async void RenameText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            await TextChangeLock.WaitAsync();
+            await TextChangeLock?.WaitAsync();
 
             try
             {
@@ -150,13 +150,15 @@ namespace RX_Explorer.Dialog
             }
             finally
             {
-                TextChangeLock.Release();
+                TextChangeLock?.Release();
             }
         }
 
         private void RenameText_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
+            char[] InvalidChars = Path.GetInvalidFileNameChars();
+
+            if (args.NewText.Any((Item) => InvalidChars.Contains(Item)))
             {
                 args.Cancel = true;
                 InvalidCharTip.IsOpen = true;
