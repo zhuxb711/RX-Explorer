@@ -12,7 +12,7 @@ namespace FullTrustProcess
     {
         public static List<AssociationPackage> GetAllAssociation(string Path)
         {
-            List<AssociationPackage> Association = new List<AssociationPackage>(100);
+            List<AssociationPackage> Association = new List<AssociationPackage>();
 
             try
             {
@@ -57,18 +57,13 @@ namespace FullTrustProcess
                         Marshal.ReleaseComObject(AssocHandlers);
                     }
                 }
-
-                return Association;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(GetAllAssociation)}");
-                return Association;
             }
-            finally
-            {
-                Association.TrimExcess();
-            }
+
+            return Association;
         }
 
         public static string GetDefaultProgramPathRelated(string Path)

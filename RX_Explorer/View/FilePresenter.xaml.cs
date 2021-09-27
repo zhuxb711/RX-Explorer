@@ -3021,7 +3021,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                if (Dialog.SelectedProgram.Path.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
+                if (Dialog.UserPickedItem == ProgramPickerItem.InnerViewer)
                 {
                     if (!TryOpenInternally(File))
                     {
@@ -3037,59 +3037,16 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
+                    if (!await Dialog.UserPickedItem.LaunchAsync(File.Path))
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        QueueContentDialog Dialog1 = new QueueContentDialog
                         {
-                            if (!await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path))
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                                await Dialog1.ShowAsync();
-                            }
-                        }
-                    }
-                    else if (await File.GetStorageItemAsync() is StorageFile InnerFile)
-                    {
-                        if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                            {
-                                if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Dialog.SelectedProgram.Path, File.Path))
-                                {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog1.ShowAsync();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Dialog.SelectedProgram.Path, File.Path))
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog1.ShowAsync();
-                            }
-                        }
+                        await Dialog1.ShowAsync();
                     }
                 }
             }

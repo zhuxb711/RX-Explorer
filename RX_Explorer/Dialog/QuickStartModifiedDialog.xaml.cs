@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.System;
@@ -297,7 +298,7 @@ namespace RX_Explorer.Dialog
 
                                         StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                        if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
+                                        if (await ExecuteFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
                                         {
                                             BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
                                             using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
@@ -732,7 +733,7 @@ namespace RX_Explorer.Dialog
 
                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                    if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
+                    if (await ExecuteFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
                     {
                         try
                         {

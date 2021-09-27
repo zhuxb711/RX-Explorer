@@ -1,12 +1,13 @@
 ﻿using ComputerVision;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -15,7 +16,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对显示应用项目的支持
     /// </summary>
-    public sealed class ProgramPickerItem
+    public sealed class ProgramPickerItem : IEquatable<ProgramPickerItem>
     {
         /// <summary>
         /// 默认图片
@@ -91,10 +92,8 @@ namespace RX_Explorer.Class
                 ExtraAppName = Convert.ToString(DescriptionRaw);
             }
 
-            if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream RAStream)
+            if (await ExecuteFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) is BitmapImage Logo)
             {
-                BitmapImage Logo = new BitmapImage();
-                await Logo.SetSourceAsync(RAStream);
                 return new ProgramPickerItem(Logo, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path);
             }
             else
@@ -113,6 +112,88 @@ namespace RX_Explorer.Class
             {
                 return new ProgramPickerItem(File.DisplayName, Globalization.GetString("Application_Admin_Name"), File.Path);
             }
+        }
+
+        public async Task<bool> LaunchAsync(string FilePath)
+        {
+            if (System.IO.Path.IsPathRooted(Path))
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    return await Exclusive.Controller.RunAsync(Path, System.IO.Path.GetDirectoryName(Path), Parameters: FilePath);
+                }
+            }
+            else
+            {
+                try
+                {
+                    StorageFile File = await StorageFile.GetFileFromPathAsync(FilePath);
+
+                    if (await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Path, DisplayApplicationPicker = false }))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                catch (Exception)
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        return await Exclusive.Controller.LaunchUWPFromPfnAsync(Path, FilePath);
+                    }
+                }
+            }
+        }
+
+        public bool Equals(ProgramPickerItem other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return other.Path.Equals(Path);
+                }
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            else
+            {
+                if (obj is ProgramPickerItem Item)
+                {
+                    return Item.Path.Equals(Path);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Path.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, Path: {Path}";
         }
 
         /// <summary>

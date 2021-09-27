@@ -1,11 +1,11 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -453,6 +453,71 @@ namespace RX_Explorer.Class
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
+                                Task SideloadTask = Task.CompletedTask;
+
+                                if (PathArray.Length == 1
+                                    && Flyout.SecondaryCommands.OfType<FrameworkElement>().FirstOrDefault((Item) => Item.Name == "OtherOpenMethod") is AppBarButton OpenWith
+                                    && OpenWith.Flyout is MenuFlyout OpenWithFlyout)
+                                {
+                                    foreach (MenuFlyoutItemBase FlyoutItem in OpenWithFlyout.Items.SkipLast(2).ToArray())
+                                    {
+                                        OpenWithFlyout.Items.Remove(FlyoutItem);
+                                    }
+
+                                    async void ClickHandler(object sender, RoutedEventArgs args)
+                                    {
+                                        if (sender is FrameworkElement Element && Element.Tag is (string Path, ProgramPickerItem Item))
+                                        {
+                                            await Item.LaunchAsync(Path);
+                                        }
+                                    }
+
+                                    async Task<MenuFlyoutItemWithImage> GenerateOpenWithItemAsync(string ExePath)
+                                    {
+                                        try
+                                        {
+                                            if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
+                                            {
+                                                ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
+
+                                                MenuFlyoutItemWithImage MenuItem = new MenuFlyoutItemWithImage
+                                                {
+                                                    Text = Item.Name,
+                                                    ImageIcon = Item.Thumbnuil,
+                                                    Tag = (PathArray.First(), Item),
+                                                    MinWidth = 160
+                                                };
+                                                MenuItem.Click += ClickHandler;
+
+                                                return MenuItem;
+                                            }
+                                            else
+                                            {
+                                                return null;
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+                                            return null;
+                                        }
+                                    }
+
+                                    IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
+
+                                    SideloadTask = Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath))).ContinueWith((PreviousTask) =>
+                                    {
+                                        foreach (MenuFlyoutItemWithImage Item in PreviousTask.Result.Reverse().OfType<MenuFlyoutItemWithImage>())
+                                        {
+                                            OpenWithFlyout.Items.Insert(0, Item);
+                                        }
+
+                                        if (OpenWithFlyout.Items.Count > 2)
+                                        {
+                                            OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                        }
+                                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                                }
+
                                 IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
@@ -544,6 +609,8 @@ namespace RX_Explorer.Class
                                         Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
                                     }
                                 }
+
+                                await Task.WhenAny(SideloadTask, Task.Delay(2000));
                             }
                         }
                     }
@@ -1098,7 +1165,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(this IStorageItem Item)
+        public static async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(this IStorageItem Item, ThumbnailMode Mode)
         {
             try
             {
@@ -1110,12 +1177,12 @@ namespace RX_Explorer.Class
                     {
                         case StorageFolder Folder:
                             {
-                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
                                 break;
                             }
                         case StorageFile File:
                             {
-                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
                                 break;
                             }
                         default:

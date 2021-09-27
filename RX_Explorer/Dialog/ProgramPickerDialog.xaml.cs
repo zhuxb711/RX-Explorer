@@ -18,13 +18,11 @@ namespace RX_Explorer.Dialog
     public sealed partial class ProgramPickerDialog : QueueContentDialog
     {
         private readonly ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
-
         private readonly FileSystemStorageFile OpenFile;
         private readonly List<FileSystemStorageFile> NotRecommandList = new List<FileSystemStorageFile>();
+        private readonly bool OpenFromPropertiesWindow;
 
-        public ProgramPickerItem SelectedProgram { get; private set; }
-
-        private bool OpenFromPropertiesWindow;
+        public ProgramPickerItem UserPickedItem { get; private set; }
 
         public ProgramPickerDialog(FileSystemStorageFile OpenFile, bool OpenFromPropertiesWindow = false)
         {
@@ -303,20 +301,20 @@ namespace RX_Explorer.Dialog
             {
                 if (CurrentUseProgramList.SelectedItem is ProgramPickerItem CurrentItem)
                 {
-                    SelectedProgram = CurrentItem;
+                    UserPickedItem = CurrentItem;
                 }
                 else if (OtherProgramList.SelectedItem is ProgramPickerItem OtherItem)
                 {
-                    SelectedProgram = OtherItem;
+                    UserPickedItem = OtherItem;
                 }
                 else
                 {
                     args.Cancel = true;
                 }
 
-                if (SelectedProgram != null && UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
+                if (UserPickedItem != null && UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
                 {
-                    string ExecutablePath = SelectedProgram.Path;
+                    string ExecutablePath = UserPickedItem.Path;
 
                     if (Path.IsPathRooted(ExecutablePath) && Path.GetExtension(ExecutablePath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
                     {
