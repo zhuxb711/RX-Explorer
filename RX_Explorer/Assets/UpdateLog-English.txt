@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.7.0.9.0
+
+#####UI update
+
+>#####The address box can now use the "Tab" key to select the path of the first item in the suggestion list
+
+>#####"Open with" menu item will now show recommended apps
+
+#####Performance improvement
+
+>#####Improved the loading logic of the image viewer and PDF viewer
+
+#####Bug fix
+
+>#####Fixed the problem that the shortcut file could not be created or updated
+
+>#####Fixed the problem that path suggestions will not be provided when there are environment variables in the address box
+
+>#####Fixed the problem of not being able to add startup parameters to the shortcut through the property window
+
+>#####Fixed the problem that the property window would not display the startup parameters of the shortcut file
+
+>#####Fixed an issue that may cause the UI to stop responding at startup
+
+>#####Fixed an issue that could cause a crash when renaming multiple files
+
+*****
 ###What's new in Ver.7.0.7.0
 
 ###Feature update

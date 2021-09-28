@@ -1,4 +1,31 @@
 ﻿*****
+###Was ist neu in Ver.7.0.9.0
+
+#####UI-Update
+
+>#####Das Adressfeld kann nun mit der "Tab"-Taste den Pfad des ersten Eintrags in der Vorschlagsliste auswählen
+
+>#####Menüpunkt "Öffnen mit" zeigt nun empfohlene Apps an
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Ladelogik des Bildbetrachters und PDF-Betrachters
+
+#####Fehlerbehebung
+
+>#####Problem behoben, dass die Verknüpfungsdatei nicht erstellt oder aktualisiert werden konnte
+
+>#####Das Problem wurde behoben, dass keine Pfadvorschläge angezeigt werden, wenn Umgebungsvariablen im Adressfeld vorhanden sind
+
+>#####Problem behoben, dass der Verknüpfung über das Eigenschaftsfenster keine Startparameter hinzugefügt werden konnten
+
+>#####Das Problem wurde behoben, dass das Eigenschaftsfenster die Startparameter der Verknüpfungsdatei nicht anzeigte
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass die Benutzeroberfläche beim Start nicht mehr reagiert
+
+>#####Es wurde ein Problem behoben, das beim Umbenennen mehrerer Dateien zu einem Absturz führen konnte
+
+*****
 ###Was ist neu in Ver.7.0.7.0
 
 ###Funktionsupdate

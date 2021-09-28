@@ -1,4 +1,31 @@
 ﻿*****
+###Quoi de neuf dans la version 7.0.9.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La zone d'adresse peut maintenant utiliser la touche "Tab" pour sélectionner le chemin du premier élément dans la liste de suggestions
+
+>#####L'élément de menu "Ouvrir avec" affichera désormais les applications recommandées
+
+#####Amélioration des performances
+
+>#####Amélioration de la logique de chargement de la visionneuse d'images et de la visionneuse PDF
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le fichier de raccourci ne pouvait pas être créé ou mis à jour
+
+>#####Correction du problème selon lequel les suggestions de chemin ne seraient pas fournies lorsqu'il y avait des variables d'environnement dans la zone d'adresse
+
+>#####Correction du problème de l'impossibilité d'ajouter des paramètres de démarrage au raccourci via la fenêtre de propriétés
+
+>#####Correction du problème selon lequel la fenêtre de propriétés n'affichait pas les paramètres de démarrage du fichier de raccourci
+
+>#####Correction d'un problème qui pouvait empêcher l'interface utilisateur de répondre au démarrage
+
+>#####Correction d'un problème qui pouvait provoquer un plantage lors du renommage de plusieurs fichiers
+
+*****
 ###Quoi de neuf dans la version 7.0.7.0
 
 ###Mise à jour des fonctionnalités

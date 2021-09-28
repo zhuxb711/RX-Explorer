@@ -1,4 +1,31 @@
 ﻿*****
+###Novedades de la versión 7.0.9.0
+
+#####Actualización de la interfaz de usuario
+
+>#####El cuadro de dirección ahora puede usar la tecla "Tab" para seleccionar la ruta del primer elemento en la lista de sugerencias
+
+>#####El elemento de menú "Abrir con" ahora mostrará las aplicaciones recomendadas
+
+#####Mejora del rendimiento
+
+>#####Se mejoró la lógica de carga del visor de imágenes y el visor de PDF
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el archivo de acceso directo no se podía crear o actualizar
+
+>#####Se solucionó el problema de que no se proporcionarán sugerencias de ruta cuando hay variables de entorno en el cuadro de dirección
+
+>#####Se solucionó el problema de no poder agregar parámetros de inicio al acceso directo a través de la ventana de propiedades
+
+>#####Se solucionó el problema de que la ventana de propiedades no mostraba los parámetros de inicio del archivo de acceso directo
+
+>#####Se solucionó un problema que podía hacer que la interfaz de usuario dejara de responder al inicio
+
+>#####Se solucionó un problema que podía causar un bloqueo al cambiar el nombre de varios archivos
+
+*****
 ###Novedades de la versión 7.0.7.0
 
 ###Actualización de funciones

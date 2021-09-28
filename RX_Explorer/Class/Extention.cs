@@ -518,8 +518,6 @@ namespace RX_Explorer.Class
                                     }, TaskScheduler.FromCurrentSynchronizationContext());
                                 }
 
-                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
-
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
                                     Flyout.SecondaryCommands.Remove(ExtraButton);
@@ -529,6 +527,8 @@ namespace RX_Explorer.Class
                                 {
                                     Flyout.SecondaryCommands.Remove(Separator);
                                 }
+
+                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 if (ExtraMenuItems.Count > 0)
                                 {
@@ -583,21 +583,18 @@ namespace RX_Explorer.Class
                                             Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler));
                                         }
 
-                                        AppBarButton MoreItem = new AppBarButton
+                                        MenuFlyout MoreFlyout = new MenuFlyout();
+
+                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
                                         {
                                             Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                             Icon = new SymbolIcon(Symbol.More),
                                             Name = "ExtraButton",
-                                            Width = 300
-                                        };
-
-                                        MenuFlyout MoreFlyout = new MenuFlyout();
+                                            Width = 300,
+                                            Flyout = MoreFlyout
+                                        });
 
                                         await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
-
-                                        MoreItem.Flyout = MoreFlyout;
-
-                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, MoreItem);
                                     }
                                     else
                                     {
