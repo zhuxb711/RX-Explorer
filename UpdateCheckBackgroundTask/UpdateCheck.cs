@@ -43,14 +43,15 @@ namespace UpdateCheckBackgroundTask
             {
                 Cancellation = new CancellationTokenSource();
 
-                if (!Package.Current.IsDevelopmentMode && StoreContext.GetDefault() is StoreContext Context)
+                if (!Package.Current.IsDevelopmentMode && Package.Current.SignatureKind == PackageSignatureKind.Store)
                 {
-                    return (await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token)).Any();
+                    if (StoreContext.GetDefault() is StoreContext Context)
+                    {
+                        return (await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token)).Any();
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
             catch
             {

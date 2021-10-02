@@ -19,6 +19,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -2366,210 +2367,219 @@ namespace RX_Explorer
                     {
                         if (Dic.TryGetValue("Identitifier", out string Id)
                             && Id == "RX_Explorer_Export_Configuration"
+                            && Dic.TryGetValue("HardwareUUID", out string HardwareId)
                             && Dic.TryGetValue("Configuration", out string Configuration)
                             && Dic.TryGetValue("ConfigHash", out string ConfigHash)
                             && Dic.TryGetValue("Database", out string Database)
                             && Dic.TryGetValue("DatabaseHash", out string DatabaseHash))
                         {
-                            using (MD5 MD5Alg = MD5.Create())
+                            if (HardwareId == new EasClientDeviceInformation().Id.ToString("D"))
                             {
-                                string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
-
-                                if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
+                                using (MD5 MD5Alg = MD5.Create())
                                 {
-                                    Dictionary<string, JsonElement> ConfigDic = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString);
+                                    string ConfigDecryptedString = Configuration.Decrypt(Package.Current.Id.FamilyName);
 
-                                    ApplicationData.Current.LocalSettings.Values.Clear();
-
-                                    foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
+                                    if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Pair.Key != "LicenseGrant")
+                                        Dictionary<string, JsonElement> ConfigDic = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString);
+
+                                        ApplicationData.Current.LocalSettings.Values.Clear();
+
+                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
                                         {
-                                            switch (Pair.Value.ValueKind)
+                                            if (Pair.Key != "LicenseGrant")
                                             {
-                                                case JsonValueKind.Number:
-                                                    {
-                                                        if (Pair.Value.TryGetInt32(out int INT32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
-                                                        }
-                                                        else if (Pair.Value.TryGetInt64(out long INT64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
-                                                        }
-                                                        else if (Pair.Value.TryGetSingle(out float FL32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
-                                                        }
-                                                        else if (Pair.Value.TryGetDouble(out double FL64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
-                                                        }
-
-                                                        break;
-                                                    }
-                                                case JsonValueKind.String:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
-                                                        break;
-                                                    }
-                                                case JsonValueKind.True:
-                                                case JsonValueKind.False:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                    }
-
-                                    string DatabaseDecryptedString = Database.Decrypt(Package.Current.Id.FamilyName);
-
-                                    if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Dictionary<string, string> DatabaseDic = JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString);
-                                        List<(string TableName, IEnumerable<object[]> Data)> DatabaseFormattedArray = new List<(string TableName, IEnumerable<object[]> Data)>(DatabaseDic.Count);
-
-                                        foreach (KeyValuePair<string, string> TableDic in DatabaseDic)
-                                        {
-                                            if (JsonSerializer.Deserialize<IReadOnlyList<JsonElement[]>>(TableDic.Value) is IReadOnlyList<JsonElement[]> RowData)
-                                            {
-                                                List<object[]> RowFormattedArray = new List<object[]>(RowData.Count);
-
-                                                foreach (JsonElement[] Data in RowData)
+                                                switch (Pair.Value.ValueKind)
                                                 {
-                                                    object[] ColumnFormattedArray = new object[Data.Length];
-
-                                                    for (int Index = 0; Index < Data.Length; Index++)
-                                                    {
-                                                        JsonElement InnerElement = Data[Index];
-
-                                                        switch (InnerElement.ValueKind)
+                                                    case JsonValueKind.Number:
                                                         {
-                                                            case JsonValueKind.Number:
-                                                                {
-                                                                    if (InnerElement.TryGetInt32(out int INT32))
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = INT32;
-                                                                    }
-                                                                    else if (InnerElement.TryGetInt64(out long INT64))
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = INT64;
-                                                                    }
-                                                                    else if (InnerElement.TryGetSingle(out float FL32))
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = FL32;
-                                                                    }
-                                                                    else if (InnerElement.TryGetDouble(out double FL64))
-                                                                    {
-                                                                        ColumnFormattedArray[Index] = FL64;
-                                                                    }
+                                                            if (Pair.Value.TryGetInt32(out int INT32))
+                                                            {
+                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT32);
+                                                            }
+                                                            else if (Pair.Value.TryGetInt64(out long INT64))
+                                                            {
+                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, INT64);
+                                                            }
+                                                            else if (Pair.Value.TryGetSingle(out float FL32))
+                                                            {
+                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL32);
+                                                            }
+                                                            else if (Pair.Value.TryGetDouble(out double FL64))
+                                                            {
+                                                                ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, FL64);
+                                                            }
 
-                                                                    break;
-                                                                }
-                                                            case JsonValueKind.String:
-                                                                {
-                                                                    ColumnFormattedArray[Index] = InnerElement.GetString();
-                                                                    break;
-                                                                }
-                                                            case JsonValueKind.True:
-                                                            case JsonValueKind.False:
-                                                                {
-                                                                    ColumnFormattedArray[Index] = InnerElement.GetBoolean();
-                                                                    break;
-                                                                }
+                                                            break;
                                                         }
-                                                    }
-
-                                                    RowFormattedArray.Add(ColumnFormattedArray);
-                                                }
-
-                                                DatabaseFormattedArray.Add((TableDic.Key, RowFormattedArray));
-                                            }
-                                        }
-
-                                        SQLite.Current.ImportData(DatabaseFormattedArray);
-
-                                        if (Dic.TryGetValue("CustomImageDataPackageArray", out string CustomImageData)
-                                            && Dic.TryGetValue("CustomImageDataPackageArrayHash", out string CustomImageDataHash))
-                                        {
-                                            string CustomImageDataDecryptedString = CustomImageData.Decrypt(Package.Current.Id.FamilyName);
-
-                                            if (MD5Alg.GetHash(CustomImageDataDecryptedString).Equals(CustomImageDataHash, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                StorageFolder CustomImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
-
-                                                foreach (PortableImageDataPackage DataPackage in JsonSerializer.Deserialize<List<PortableImageDataPackage>>(CustomImageDataDecryptedString))
-                                                {
-                                                    StorageFile NewImageFile = await CustomImageFolder.CreateFileAsync(DataPackage.Name, CreationCollisionOption.ReplaceExisting);
-
-                                                    using (Stream ImageFileStream = await NewImageFile.OpenStreamForWriteAsync())
-                                                    {
-                                                        await ImageFileStream.WriteAsync(DataPackage.Data, 0, DataPackage.Data.Length);
-                                                        await ImageFileStream.FlushAsync();
-                                                    }
+                                                    case JsonValueKind.String:
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetString());
+                                                            break;
+                                                        }
+                                                    case JsonValueKind.True:
+                                                    case JsonValueKind.False:
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values.Add(Pair.Key, Pair.Value.GetBoolean());
+                                                            break;
+                                                        }
                                                 }
                                             }
-                                            else
-                                            {
-                                                LogTracer.Log("Import custom image data failed because database hash is incorrect");
-                                            }
                                         }
 
-                                        ApplicationData.Current.SignalDataChanged();
+                                        string DatabaseDecryptedString = Database.Decrypt(Package.Current.Id.FamilyName);
 
-                                        await CommonAccessCollection.LoadLibraryFoldersAsync(true);
-
-                                        await new QueueContentDialog
+                                        if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        }.ShowAsync();
+                                            Dictionary<string, string> DatabaseDic = JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString);
+                                            List<(string TableName, IEnumerable<object[]> Data)> DatabaseFormattedArray = new List<(string TableName, IEnumerable<object[]> Data)>(DatabaseDic.Count);
 
-                                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                                            foreach (KeyValuePair<string, string> TableDic in DatabaseDic)
+                                            {
+                                                if (JsonSerializer.Deserialize<IReadOnlyList<JsonElement[]>>(TableDic.Value) is IReadOnlyList<JsonElement[]> RowData)
+                                                {
+                                                    List<object[]> RowFormattedArray = new List<object[]>(RowData.Count);
+
+                                                    foreach (JsonElement[] Data in RowData)
+                                                    {
+                                                        object[] ColumnFormattedArray = new object[Data.Length];
+
+                                                        for (int Index = 0; Index < Data.Length; Index++)
+                                                        {
+                                                            JsonElement InnerElement = Data[Index];
+
+                                                            switch (InnerElement.ValueKind)
+                                                            {
+                                                                case JsonValueKind.Number:
+                                                                    {
+                                                                        if (InnerElement.TryGetInt32(out int INT32))
+                                                                        {
+                                                                            ColumnFormattedArray[Index] = INT32;
+                                                                        }
+                                                                        else if (InnerElement.TryGetInt64(out long INT64))
+                                                                        {
+                                                                            ColumnFormattedArray[Index] = INT64;
+                                                                        }
+                                                                        else if (InnerElement.TryGetSingle(out float FL32))
+                                                                        {
+                                                                            ColumnFormattedArray[Index] = FL32;
+                                                                        }
+                                                                        else if (InnerElement.TryGetDouble(out double FL64))
+                                                                        {
+                                                                            ColumnFormattedArray[Index] = FL64;
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                                case JsonValueKind.String:
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = InnerElement.GetString();
+                                                                        break;
+                                                                    }
+                                                                case JsonValueKind.True:
+                                                                case JsonValueKind.False:
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = InnerElement.GetBoolean();
+                                                                        break;
+                                                                    }
+                                                            }
+                                                        }
+
+                                                        RowFormattedArray.Add(ColumnFormattedArray);
+                                                    }
+
+                                                    DatabaseFormattedArray.Add((TableDic.Key, RowFormattedArray));
+                                                }
+                                            }
+
+                                            SQLite.Current.ImportData(DatabaseFormattedArray);
+
+                                            if (Dic.TryGetValue("CustomImageDataPackageArray", out string CustomImageData)
+                                                && Dic.TryGetValue("CustomImageDataPackageArrayHash", out string CustomImageDataHash))
+                                            {
+                                                string CustomImageDataDecryptedString = CustomImageData.Decrypt(Package.Current.Id.FamilyName);
+
+                                                if (MD5Alg.GetHash(CustomImageDataDecryptedString).Equals(CustomImageDataHash, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    StorageFolder CustomImageFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists);
+
+                                                    foreach (PortableImageDataPackage DataPackage in JsonSerializer.Deserialize<List<PortableImageDataPackage>>(CustomImageDataDecryptedString))
+                                                    {
+                                                        StorageFile NewImageFile = await CustomImageFolder.CreateFileAsync(DataPackage.Name, CreationCollisionOption.ReplaceExisting);
+
+                                                        using (Stream ImageFileStream = await NewImageFile.OpenStreamForWriteAsync())
+                                                        {
+                                                            await ImageFileStream.WriteAsync(DataPackage.Data, 0, DataPackage.Data.Length);
+                                                            await ImageFileStream.FlushAsync();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    LogTracer.Log("Import custom image data failed because database hash is incorrect");
+                                                }
+                                            }
+
+                                            ApplicationData.Current.SignalDataChanged();
+
+                                            await CommonAccessCollection.LoadLibraryFoldersAsync(true);
+
+                                            await new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            }.ShowAsync();
+
+                                            MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log("Import configuration failed because database hash is incorrect");
+
+                                            await new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            }.ShowAsync();
+                                        }
                                     }
                                     else
                                     {
-                                        LogTracer.Log("Import configuration failed because database hash is incorrect");
+                                        LogTracer.Log("Import configuration failed because config hash is incorrect");
 
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        await new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
+                                        }.ShowAsync();
                                     }
                                 }
-                                else
+                            }
+                            else
+                            {
+                                LogTracer.Log("Import configuration failed because hardware id is not match");
+
+                                await new QueueContentDialog
                                 {
-                                    LogTracer.Log("Import configuration failed because config hash is incorrect");
-
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog.ShowAsync();
-                                }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                }.ShowAsync();
                             }
                         }
                         else
                         {
                             LogTracer.Log("Import configuration failed because format is incorrect");
 
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            await new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
+                            }.ShowAsync();
                         }
                     }
                 }
@@ -2640,6 +2650,7 @@ namespace RX_Explorer
                         Dictionary<string, string> BaseDic = new Dictionary<string, string>
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
+                            { "HardwareUUID", new EasClientDeviceInformation().Id.ToString("D") },
                             { "Configuration",  ConfigurationString.Encrypt(Package.Current.Id.FamilyName) },
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
                             { "Database", DatabaseString.Encrypt(Package.Current.Id.FamilyName) },

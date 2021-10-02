@@ -4355,6 +4355,7 @@ namespace RX_Explorer
             {
                 AppBarButton CopyButton = new AppBarButton
                 {
+                    IsTabStop = false,
                     Icon = new SymbolIcon(Symbol.Copy),
                     Label = Globalization.GetString("Operate_Text_Copy")
                 };
@@ -4363,6 +4364,7 @@ namespace RX_Explorer
 
                 AppBarButton CutButton = new AppBarButton
                 {
+                    IsTabStop = false,
                     Icon = new SymbolIcon(Symbol.Cut),
                     Label = Globalization.GetString("Operate_Text_Cut")
                 };
@@ -4371,6 +4373,7 @@ namespace RX_Explorer
 
                 AppBarButton DeleteButton = new AppBarButton
                 {
+                    IsTabStop = false,
                     Icon = new SymbolIcon(Symbol.Delete),
                     Label = Globalization.GetString("Operate_Text_Delete")
                 };
@@ -4383,6 +4386,7 @@ namespace RX_Explorer
                 {
                     AppBarButton CopyButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Copy),
                         Label = Globalization.GetString("Operate_Text_Copy")
                     };
@@ -4391,6 +4395,7 @@ namespace RX_Explorer
 
                     AppBarButton CutButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Cut),
                         Label = Globalization.GetString("Operate_Text_Cut")
                     };
@@ -4399,6 +4404,7 @@ namespace RX_Explorer
 
                     AppBarButton DeleteButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Delete),
                         Label = Globalization.GetString("Operate_Text_Delete")
                     };
@@ -4407,6 +4413,7 @@ namespace RX_Explorer
 
                     AppBarButton RenameButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Rename),
                         Label = Globalization.GetString("Operate_Text_Rename")
                     };
@@ -4417,6 +4424,7 @@ namespace RX_Explorer
                 {
                     AppBarButton MultiSelectButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new FontIcon { Glyph = "\uE762" },
                         Label = Globalization.GetString("Operate_Text_MultiSelect")
                     };
@@ -4436,6 +4444,7 @@ namespace RX_Explorer
 
                     AppBarButton PasteButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Paste),
                         Label = Globalization.GetString("Operate_Text_Paste"),
                         IsEnabled = EnablePasteButton
@@ -4445,6 +4454,7 @@ namespace RX_Explorer
 
                     AppBarButton UndoButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Undo),
                         Label = Globalization.GetString("Operate_Text_Undo"),
                         IsEnabled = OperationRecorder.Current.IsNotEmpty
@@ -4454,6 +4464,7 @@ namespace RX_Explorer
 
                     AppBarButton RefreshButton = new AppBarButton
                     {
+                        IsTabStop = false,
                         Icon = new SymbolIcon(Symbol.Refresh),
                         Label = Globalization.GetString("Operate_Text_Refresh")
                     };

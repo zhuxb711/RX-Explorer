@@ -342,12 +342,14 @@
         <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
                       BackgroundSource="Backdrop"
                       TintColor="Gray"
-                      TintOpacity="0.1" />
+                      TintOpacity="0.1" 
+                      FallbackColor="{ThemeResource SystemAltMediumHighColor}"/>
 
         <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
                       BackgroundSource="Backdrop"
                       TintColor="Gray"
-                      TintOpacity="0.1" />
+                      TintOpacity="0.1"
+                      FallbackColor="{ThemeResource SystemAltMediumHighColor}"/>
 
     </Page.Resources>
 

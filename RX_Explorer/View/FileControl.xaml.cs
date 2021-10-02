@@ -687,7 +687,7 @@ namespace RX_Explorer
 
                 IEnumerable<StorageFolder> CurrentDrives = CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray();
 
-                IReadOnlyList <Task> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
+                IReadOnlyList<Task> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
 
                 foreach (string TargetPath in InitPathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
@@ -1790,21 +1790,6 @@ namespace RX_Explorer
             foreach (string Path in SQLite.Current.GetRelatedPathHistory())
             {
                 AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
-            }
-        }
-
-        private void AddressBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Tab)
-            {
-                string FirstTip = AddressBox.Items.FirstOrDefault()?.ToString();
-
-                if (!string.IsNullOrEmpty(FirstTip))
-                {
-                    AddressBox.Text = FirstTip;
-                }
-
-                e.Handled = true;
             }
         }
 
@@ -3224,15 +3209,31 @@ namespace RX_Explorer
                     {
                         if (AddressSuggestionList.Count > 0)
                         {
-                            AddressSuggestionItem Item = AddressSuggestionList.First();
+                            AddressSuggestionItem NextItem;
 
-                            if (string.IsNullOrEmpty(Item.DisplayName))
+                            if (AddressSuggestionList.FirstOrDefault((Item) => AddressBox.Text == Item.Path || AddressBox.Text == Item.DisplayName) is AddressSuggestionItem SuggestItem)
                             {
-                                AddressBox.Text = Item.Path;
+                                int Index = AddressSuggestionList.IndexOf(SuggestItem);
+
+                                if (++Index >= AddressBox.Items.Count)
+                                {
+                                    Index = 0;
+                                }
+
+                                NextItem = AddressSuggestionList[Index];
                             }
                             else
                             {
-                                AddressBox.Text = Item.DisplayName;
+                                NextItem = AddressSuggestionList.First();
+                            }
+
+                            if (string.IsNullOrEmpty(NextItem.DisplayName))
+                            {
+                                AddressBox.Text = NextItem.Path;
+                            }
+                            else
+                            {
+                                AddressBox.Text = NextItem.DisplayName;
                             }
                         }
 

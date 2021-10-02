@@ -622,6 +622,11 @@ namespace RX_Explorer
                 await CreateNewTabAsync(MainPage.Current.ActivatePathArray);
             }
 
+            if (TabViewControl.FindChildOfName<Button>("AddButton") is Button AddBtn)
+            {
+                AddBtn.IsTabStop = false;
+            }
+
             List<Task> LoadTaskList = new List<Task>(3)
             {
                 CommonAccessCollection.LoadQuickStartItemsAsync(),
@@ -655,6 +660,7 @@ namespace RX_Explorer
             TabViewItem Item = new TabViewItem
             {
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
+                IsTabStop = false,
                 AllowDrop = true,
                 IsDoubleTapEnabled = true,
                 Content = BaseFrame,

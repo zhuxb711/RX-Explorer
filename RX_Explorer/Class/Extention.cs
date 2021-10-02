@@ -297,14 +297,15 @@ namespace RX_Explorer.Class
                 return "--:--:--";
             }
 
-            double Hour = 0;
-            double Minute = 0;
-            double Second = Math.Max(Span.TotalSeconds, 0);
+            long Hour = 0;
+            long Minute = 0;
+            long Second = Math.Max(Convert.ToInt64(Span.TotalSeconds), 0);
 
             if (Second >= 60)
             {
                 Minute = Second / 60;
                 Second %= 60;
+
                 if (Minute >= 60)
                 {
                     Hour = Minute / 60;

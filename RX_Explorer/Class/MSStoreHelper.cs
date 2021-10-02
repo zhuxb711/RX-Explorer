@@ -204,7 +204,7 @@ namespace RX_Explorer.Class
                     License = Store.GetAppLicenseAsync().AsTask().Result;
                     ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
 
-                    if (!Package.Current.IsDevelopmentMode)
+                    if (!Package.Current.IsDevelopmentMode && Package.Current.SignatureKind == PackageSignatureKind.Store)
                     {
                         Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
                     }

@@ -1,67 +1,63 @@
 ﻿using System;
+using System.Threading;
 
 namespace RX_Explorer.Class
 {
     public sealed class ProgressCalculator
     {
-        public ulong TotalSize { get; }
+        private readonly ulong TotalSize;
+        private readonly TimeSpan MinRefreshSpan = TimeSpan.FromMilliseconds(1000);
 
-        private volatile int ProgressValue;
+        private int ProgressValue;
 
         private DateTimeOffset LastRecordTime = DateTimeOffset.Now;
-
-        private readonly TimeSpan MinRefreshSpan = TimeSpan.FromMilliseconds(1000);
 
         private TimeSpan Span;
 
         private ulong DataOperatedInOneSpan;
 
-        private readonly object Locker = new object();
-
-        public void SetProgressValue(int ProgressValue)
+        public void SetProgressValue(int NewValue)
         {
-            lock (Locker)
+            if (NewValue is >= 0 and <= 100)
             {
-                if (ProgressValue < 100
-                    && ProgressValue > this.ProgressValue
-                    && DateTimeOffset.Now - LastRecordTime > MinRefreshSpan)
-                {
-                    Span = DateTimeOffset.Now - LastRecordTime;
-                    DataOperatedInOneSpan = Convert.ToUInt64(ProgressValue - this.ProgressValue) * TotalSize / 100;
-                    LastRecordTime = DateTimeOffset.Now;
+                TimeSpan LocalSpan = DateTimeOffset.Now - LastRecordTime;
 
-                    this.ProgressValue = Math.Max(Math.Min(100, ProgressValue), 0);
+                if (LocalSpan >= MinRefreshSpan && NewValue > Volatile.Read(ref ProgressValue))
+                {
+                    Span = LocalSpan;
+                    LastRecordTime = DateTimeOffset.Now;
+                    DataOperatedInOneSpan = Convert.ToUInt64(NewValue - Interlocked.Exchange(ref ProgressValue, NewValue)) * TotalSize / 100;
                 }
             }
         }
 
         public string GetSpeed()
         {
-            lock (Locker)
+            double TotalSeconds = Span.TotalSeconds;
+            ulong DataOperated = DataOperatedInOneSpan;
+
+            if (TotalSeconds > 0)
             {
-                if (Span.TotalSeconds > 0)
-                {
-                    return GetSpeedDescription(DataOperatedInOneSpan / Span.TotalSeconds);
-                }
-                else
-                {
-                    return "0 KB/s";
-                }
+                return GetSpeedDescription(DataOperated / TotalSeconds);
+            }
+            else
+            {
+                return "0 KB/s";
             }
         }
 
         public TimeSpan GetRemainingTime()
         {
-            lock (Locker)
+            double TotalSeconds = Span.TotalSeconds;
+            ulong DataOperated = DataOperatedInOneSpan;
+
+            if (TotalSeconds == 0 || DataOperated == 0)
             {
-                if (DataOperatedInOneSpan == 0 || Span.TotalSeconds == 0)
-                {
-                    return TimeSpan.MaxValue;
-                }
-                else
-                {
-                    return TimeSpan.FromSeconds(Convert.ToUInt64(100 - ProgressValue) * TotalSize / 100 / (DataOperatedInOneSpan / Span.TotalSeconds));
-                }
+                return TimeSpan.MaxValue;
+            }
+            else
+            {
+                return TimeSpan.FromSeconds(Convert.ToUInt64(100 - ProgressValue) * TotalSize / 100 / (DataOperated / TotalSeconds));
             }
         }
 

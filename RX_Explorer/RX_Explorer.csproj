@@ -32,8 +32,8 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Use64BitCompiler>true</Use64BitCompiler>
-    <UseAppLocalCoreFramework>false</UseAppLocalCoreFramework>
+    <Use64BitCompiler>false</Use64BitCompiler>
+    <UseAppLocalCoreFramework>true</UseAppLocalCoreFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
