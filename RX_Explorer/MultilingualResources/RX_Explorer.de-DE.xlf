@@ -4279,6 +4279,10 @@ Inkorrekte Namen sind
           <source>Size on disk</source>
           <target state="translated">Größe auf Datenträger</target>
         </trans-unit>
+        <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the list selection animation</source>
+          <target state="translated">Deaktivieren Sie die Listenauswahlanimation</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -10,6 +10,8 @@
       NavigationCacheMode="Required"
       Background="Transparent">
     <Page.Resources>
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -135,6 +137,7 @@
         <ListView Grid.Row="1"
                   Name="SearchResultList"
                   x:FieldModifier="public"
+                  ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   ItemsSource="{x:Bind SearchResult}"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   Header="{x:Bind ListViewDetailHeader}"
@@ -252,7 +255,7 @@
                                                     </Viewbox>
                                                     <TextBlock Margin="10,0,0,0"
                                                                VerticalAlignment="Center"
-                                                               Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}"/>
+                                                               Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
@@ -264,7 +267,7 @@
                                                     </Viewbox>
                                                     <TextBlock Margin="10,0,0,0"
                                                                VerticalAlignment="Center"
-                                                               Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}"/>
+                                                               Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
@@ -691,18 +694,6 @@
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="0" />
-                    <Setter Property="UseSystemFocusVisuals"
-                            Value="False" />
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                     <Grid Margin="2,1.5,1,2"

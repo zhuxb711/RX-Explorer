@@ -205,6 +205,9 @@ namespace RX_Explorer.Class
                     isEnableAnimation = value;
 
                     OnPropertyChanged(nameof(IsEnableAnimation));
+                    OnPropertyChanged(nameof(IsDisableStartupAnimation));
+                    OnPropertyChanged(nameof(IsDisableSelectionAnimation));
+
                     OnPropertyChanged(nameof(DeviceAndLibraryTransitions));
                     OnPropertyChanged(nameof(QuickStartTransitions));
                     OnPropertyChanged(nameof(AddDeleteTransitions));
@@ -241,9 +244,31 @@ namespace RX_Explorer.Class
             }
         }
 
+        public bool IsDisableSelectionAnimation
+        {
+            get
+            {
+                return isDisableSelectionAnimation || !isEnableAnimation;
+            }
+            set
+            {
+                if (value != isDisableSelectionAnimation)
+                {
+                    isDisableSelectionAnimation = value;
+
+                    OnPropertyChanged();
+
+                    ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = value;
+                    ApplicationData.Current.SignalDataChanged();
+                }
+            }
+        }
+
         private bool isEnableAnimation;
 
         private bool isDisableStartupAnimation;
+
+        private bool isDisableSelectionAnimation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -281,14 +306,24 @@ namespace RX_Explorer.Class
                 isEnableAnimation = true;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool StartupAnimation)
+            if (ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool DisableStartupAnimation)
             {
-                isDisableStartupAnimation = StartupAnimation;
+                isDisableStartupAnimation = DisableStartupAnimation;
             }
             else
             {
                 ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = false;
                 isDisableStartupAnimation = false;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] is bool DisableSelectionAnimation)
+            {
+                isDisableSelectionAnimation = DisableSelectionAnimation;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"] = false;
+                isDisableSelectionAnimation = false;
             }
         }
 
@@ -297,8 +332,8 @@ namespace RX_Explorer.Class
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 IsEnableAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["EnableAnimation"]);
-
                 IsDisableStartupAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
+                IsDisableSelectionAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableSelectionAnimation"]);
             });
         }
     }

@@ -14,6 +14,8 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+
         <muxc:CommandBarFlyout x:Name="SelectFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -94,6 +96,7 @@
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
+                  ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -223,16 +226,6 @@
                     </Button>
                 </Grid>
             </ListView.Header>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="0" />
-                    <Setter Property="AllowFocusOnInteraction"
-                            Value="False" />
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Interface:IRecycleStorageItem">
                     <Grid HorizontalAlignment="Stretch">

@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -2086,18 +2087,23 @@ namespace RX_Explorer
 
                 foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
-                    if (Control.CurrentPresenter.CurrentFolder != null)
+                    if (!IsDetachTreeViewAndPresenter)
                     {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
-
-                        if (!IsDetachTreeViewAndPresenter)
+                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                await RootNode.UpdateAllSubNodeAsync();
-                            }
+                            await RootNode.UpdateAllSubNodeAsync();
                         }
                     }
+
+                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                                 .Select((Blade) => Blade.Content)
+                                                                                 .OfType<FilePresenter>())
+                    {
+                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                        {
+                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
+                        }
+                    }   
                 }
             }
             catch (Exception ex)
@@ -2806,16 +2812,21 @@ namespace RX_Explorer
 
                     foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                     {
-                        if (Control.CurrentPresenter.CurrentFolder != null)
+                        if (!IsDetachTreeViewAndPresenter)
                         {
-                            await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
-
-                            if (!IsDetachTreeViewAndPresenter)
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
-                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    await RootNode.UpdateAllSubNodeAsync();
-                                }
+                                await RootNode.UpdateAllSubNodeAsync();
+                            }
+                        }
+
+                        foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                                     .Select((Blade) => Blade.Content)
+                                                                                     .OfType<FilePresenter>())
+                        {
+                            if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                            {
+                                await Presenter.DisplayItemsInFolder(CurrentFolder, true);
                             }
                         }
                     }
@@ -2845,16 +2856,21 @@ namespace RX_Explorer
 
                 foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
-                    if (Control.CurrentPresenter.CurrentFolder != null)
+                    if (!IsDetachTreeViewAndPresenter)
                     {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
-
-                        if (!IsDetachTreeViewAndPresenter)
+                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                await RootNode.UpdateAllSubNodeAsync();
-                            }
+                            await RootNode.UpdateAllSubNodeAsync();
+                        }
+                    }
+
+                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                                 .Select((Blade) => Blade.Content)
+                                                                                 .OfType<FilePresenter>())
+                    {
+                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                        {
+                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
                         }
                     }
                 }
@@ -3167,6 +3183,22 @@ namespace RX_Explorer
         {
             IsSearchHistoryEnabled = SearchHistory.IsOn;
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void DisableSelectionAnimation_Changed(object sender, RoutedEventArgs e)
+        {
+            foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+            {
+                foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                             .Select((Blade) => Blade.Content)
+                                                                             .OfType<FilePresenter>())
+                {
+                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                    {
+                        await Presenter.DisplayItemsInFolder(CurrentFolder, true);
+                    }
+                }
+            }
         }
     }
 }

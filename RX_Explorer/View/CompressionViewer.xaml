@@ -13,6 +13,7 @@
     <Page.Resources>
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="ItemFlyout"
                                Placement="BottomEdgeAlignedLeft">
@@ -138,6 +139,7 @@
                   Holding="ListViewControl_Holding"
                   DragOver="ListViewControl_DragOver"
                   Drop="ListViewControl_Drop"
+                  ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind EntryList}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -358,18 +360,6 @@
                     </Button>
                 </Grid>
             </ListView.Header>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="0" />
-                    <Setter Property="UseSystemFocusVisuals"
-                            Value="False" />
-                </Style>
-            </ListView.ItemContainerStyle>
         </ListView>
         <Canvas Grid.Row="1">
             <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"

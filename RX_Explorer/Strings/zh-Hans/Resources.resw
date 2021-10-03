@@ -3224,4 +3224,7 @@
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>占用空间</value>
   </data>
+  <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
+    <value>关闭列表选择动画</value>
+  </data>
 </root>

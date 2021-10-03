@@ -4281,6 +4281,10 @@ Invalid names include
           <source>Size on disk</source>
           <target state="translated">在磁盤上的大小</target>
         </trans-unit>
+        <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the list selection animation</source>
+          <target state="translated">關閉列表選擇動畫</target>
+        </trans-unit>
       </group>
     </body>
   </file>

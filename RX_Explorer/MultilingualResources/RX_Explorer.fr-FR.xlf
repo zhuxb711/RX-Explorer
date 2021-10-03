@@ -4281,6 +4281,10 @@ Les noms non valides incluent
           <source>Size on disk</source>
           <target state="translated">Taille sur le disque</target>
         </trans-unit>
+        <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the list selection animation</source>
+          <target state="translated">Désactiver l'animation de sélection de liste</target>
+        </trans-unit>
       </group>
     </body>
   </file>

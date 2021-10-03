@@ -14,6 +14,8 @@
       Background="Transparent">
 
     <Page.Resources>
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector"/>
+        
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
 
@@ -1008,20 +1010,13 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                               ScrollViewer.HorizontalScrollMode="Disabled"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                               ScrollViewer.VerticalScrollMode="Auto">
-                                        <GridView.ItemContainerStyle>
-                                            <Style TargetType="GridViewItem">
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                            </Style>
-                                        </GridView.ItemContainerStyle>
                                         <GridView.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ItemsWrapGrid Orientation="Horizontal"
@@ -1158,20 +1153,13 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                               ScrollViewer.HorizontalScrollMode="Auto"
                                               ScrollViewer.VerticalScrollBarVisibility="Disabled"
                                               ScrollViewer.VerticalScrollMode="Disabled">
-                                        <GridView.ItemContainerStyle>
-                                            <Style TargetType="GridViewItem">
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                            </Style>
-                                        </GridView.ItemContainerStyle>
                                         <GridView.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ItemsWrapGrid Orientation="Vertical"
@@ -1293,20 +1281,13 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                               ScrollViewer.HorizontalScrollMode="Disabled"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                               ScrollViewer.VerticalScrollMode="Auto">
-                                        <GridView.ItemContainerStyle>
-                                            <Style TargetType="GridViewItem">
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                            </Style>
-                                        </GridView.ItemContainerStyle>
                                         <GridView.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ItemsWrapGrid Orientation="Horizontal"
@@ -1421,20 +1402,13 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                               ScrollViewer.HorizontalScrollMode="Disabled"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                               ScrollViewer.VerticalScrollMode="Auto">
-                                        <GridView.ItemContainerStyle>
-                                            <Style TargetType="GridViewItem">
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                            </Style>
-                                        </GridView.ItemContainerStyle>
                                         <GridView.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ItemsWrapGrid Orientation="Horizontal"
@@ -1549,20 +1523,13 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                               ScrollViewer.HorizontalScrollMode="Disabled"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                               ScrollViewer.VerticalScrollMode="Auto">
-                                        <GridView.ItemContainerStyle>
-                                            <Style TargetType="GridViewItem">
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                            </Style>
-                                        </GridView.ItemContainerStyle>
                                         <GridView.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ItemsWrapGrid Orientation="Horizontal"
@@ -1677,6 +1644,7 @@
                                               DoubleTapped="ViewControl_DoubleTapped"
                                               PreviewKeyDown="ViewControl_PreviewKeyDown"
                                               ShowsScrollingPlaceholders="False"
+                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               Header="{x:Bind ListViewDetailHeader}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -2308,18 +2276,6 @@
                                                 <ItemsStackPanel AreStickyGroupHeadersEnabled="True" />
                                             </ItemsPanelTemplate>
                                         </ListView.ItemsPanel>
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment"
-                                                        Value="Stretch" />
-                                                <Setter Property="VerticalContentAlignment"
-                                                        Value="Stretch" />
-                                                <Setter Property="Padding"
-                                                        Value="0" />
-                                                <Setter Property="UseSystemFocusVisuals"
-                                                        Value="False" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
                                     </ListView>
                                 </SemanticZoom.ZoomedInView>
                                 <SemanticZoom.ZoomedOutView>

@@ -3224,4 +3224,7 @@ Las denominaciones no válidas son:
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
     <value>Tamaño en disco</value>
   </data>
+  <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
+    <value>Desactivar la animación de selección de lista</value>
+  </data>
 </root>

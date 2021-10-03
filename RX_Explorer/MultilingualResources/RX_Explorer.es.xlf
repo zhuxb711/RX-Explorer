@@ -4279,6 +4279,10 @@ Las denominaciones no válidas son:
           <source>Size on disk</source>
           <target state="translated">Tamaño en disco</target>
         </trans-unit>
+        <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the list selection animation</source>
+          <target state="translated">Desactivar la animación de selección de lista</target>
+        </trans-unit>
       </group>
     </body>
   </file>
