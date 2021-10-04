@@ -347,6 +347,7 @@ namespace RX_Explorer
         {
             InitializeComponent();
             Loading += SettingControl_Loading;
+            AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
             PictureGirdView.ItemsSource = PictureList;
             Version.Text = $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
 
@@ -355,6 +356,22 @@ namespace RX_Explorer
                 if (FindName(nameof(CopyQQ)) is Button Btn)
                 {
                     Btn.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private async void Current_AnimationStateChanged(object sender, bool e)
+        {
+            foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+            {
+                foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                             .Select((Blade) => Blade.Content)
+                                                                             .OfType<FilePresenter>())
+                {
+                    if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                    {
+                        await Presenter.DisplayItemsInFolder(CurrentFolder, true);
+                    }
                 }
             }
         }

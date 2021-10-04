@@ -192,6 +192,8 @@ namespace RX_Explorer.Class
             }
         }
 
+        public event EventHandler<bool> AnimationStateChanged;
+
         public bool IsEnableAnimation
         {
             get
@@ -205,9 +207,6 @@ namespace RX_Explorer.Class
                     isEnableAnimation = value;
 
                     OnPropertyChanged(nameof(IsEnableAnimation));
-                    OnPropertyChanged(nameof(IsDisableStartupAnimation));
-                    OnPropertyChanged(nameof(IsDisableSelectionAnimation));
-
                     OnPropertyChanged(nameof(DeviceAndLibraryTransitions));
                     OnPropertyChanged(nameof(QuickStartTransitions));
                     OnPropertyChanged(nameof(AddDeleteTransitions));
@@ -220,6 +219,8 @@ namespace RX_Explorer.Class
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                     ApplicationData.Current.SignalDataChanged();
+
+                    AnimationStateChanged?.Invoke(this, value);
                 }
             }
         }

@@ -1026,13 +1026,14 @@
                                         </GridView.ItemsPanel>
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
-                                                <Grid Padding="5,4,5,5"
+                                                <Grid Padding="5"
                                                       Width="220"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                      Background="Transparent">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="60" />
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="10" />
                                                     </Grid.ColumnDefinitions>
                                                     <Border Padding="3,0"
                                                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1094,6 +1095,13 @@
                                                                    HorizontalAlignment="Left"
                                                                    TextTrimming="CharacterEllipsis" />
                                                     </StackPanel>
+                                                    <Border Grid.Column="3"
+                                                            CornerRadius="2"
+                                                            Margin="0,5"
+                                                            Width="5"
+                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Stretch" />
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -1170,14 +1178,15 @@
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Width="200"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                      Background="Transparent"
                                                       Padding="5">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="40" />
                                                         <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="10" />
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Padding="3,2,3,0"
+                                                    <Border Padding="3,0"
                                                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
                                                             Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
                                                         <Viewbox MaxWidth="15"
@@ -1222,6 +1231,13 @@
                                                              IsSpellCheckEnabled="False"
                                                              Visibility="Collapsed"
                                                              x:Load="False" />
+                                                    <Border Grid.Column="3"
+                                                            CornerRadius="2"
+                                                            Margin="0,5"
+                                                            Width="5"
+                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Stretch" />
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -1298,10 +1314,11 @@
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                      Background="Transparent">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="190" />
                                                         <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1343,6 +1360,13 @@
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
                                                     </Grid>
+                                                    <Border Grid.Row="2"
+                                                            CornerRadius="2"
+                                                            Margin="5,0"
+                                                            Height="5"
+                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            HorizontalAlignment="Stretch"
+                                                            VerticalAlignment="Center" />
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -1419,10 +1443,11 @@
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                      Background="Transparent">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="140" />
                                                         <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1464,6 +1489,13 @@
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
                                                     </Grid>
+                                                    <Border Grid.Row="2"
+                                                            CornerRadius="2"
+                                                            Margin="5,0"
+                                                            Height="5"
+                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            HorizontalAlignment="Stretch"
+                                                            VerticalAlignment="Center" />
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -1540,10 +1572,11 @@
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
                                                 <Grid Padding="5"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                      Background="Transparent">
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="80" />
                                                         <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="10" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1584,6 +1617,13 @@
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
                                                     </Grid>
+                                                    <Border Grid.Row="2"
+                                                            CornerRadius="2"
+                                                            Margin="5,0"
+                                                            Height="5"
+                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            HorizontalAlignment="Stretch"
+                                                            VerticalAlignment="Center" />
                                                 </Grid>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
@@ -1666,8 +1706,7 @@
                                         </ListView.GroupStyle>
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
-                                                <Grid Margin="2,1.5,1,2"
-                                                      Background="{x:Bind AccentColor,Mode=OneWay}">
+                                                <Grid Background="Transparent">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="6*" />
                                                         <ColumnDefinition Width="2.5*" />
@@ -1679,6 +1718,7 @@
                                                             <ColumnDefinition Width="45" />
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="10" />
                                                         </Grid.ColumnDefinitions>
                                                         <Image VerticalAlignment="Center"
                                                                HorizontalAlignment="Center"
@@ -1708,7 +1748,15 @@
                                                                    TextTrimming="CharacterEllipsis"
                                                                    PointerPressed="NameLabel_PointerPressed"
                                                                    x:Name="NameLabel" />
-                                                        <Border Padding="5,2,5,0"
+                                                        <TextBox VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 x:Name="NameEditBox"
+                                                                 Grid.Column="1"
+                                                                 Grid.ColumnSpan="2"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
+                                                        <Border Padding="5,0"
                                                                 Grid.Column="2"
                                                                 Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}"
                                                                 ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}">
@@ -1718,14 +1766,13 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBox VerticalAlignment="Center"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 x:Name="NameEditBox"
-                                                                 Grid.Column="1"
-                                                                 Grid.ColumnSpan="2"
-                                                                 IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed"
-                                                                 x:Load="False" />
+                                                        <Border Grid.Column="3"
+                                                                CornerRadius="2"
+                                                                Margin="0,5"
+                                                                Width="5"
+                                                                Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Stretch"/>
                                                     </Grid>
                                                     <TextBlock VerticalAlignment="Center"
                                                                Padding="10,0,0,0"
