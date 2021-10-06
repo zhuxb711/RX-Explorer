@@ -18,24 +18,6 @@
                           TintOpacity="0.3"
                           FallbackColor="{StaticResource ElementFallBackBlackDarkerColor}" />
 
-            <!--<AcrylicBrush x:Key="TreeViewItemBackgroundSelected"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColor}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorDark1}" />
-
-            <AcrylicBrush x:Key="TreeViewItemBackgroundSelectedPointerOver"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColorDark1}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorDark2}" />
-
-            <AcrylicBrush x:Key="TreeViewItemBackgroundSelectedPressed"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColorDark2}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorDark3}" />-->
-
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
                           TintColor="Black"
@@ -55,24 +37,6 @@
                           TintOpacity="0.3"
                           FallbackColor="{StaticResource ElementFallBackWhiteLighterColor}" />
 
-            <!--<AcrylicBrush x:Key="TreeViewItemBackgroundSelected"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColor}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorLight1}" />
-
-            <AcrylicBrush x:Key="TreeViewItemBackgroundSelectedPointerOver"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColorLight1}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorLight2}" />
-
-            <AcrylicBrush x:Key="TreeViewItemBackgroundSelectedPressed"
-                          BackgroundSource="Backdrop"
-                          TintColor="{ThemeResource SystemAccentColorLight2}"
-                          TintOpacity="0.8"
-                          FallbackColor="{ThemeResource SystemAccentColorLight3}" />-->
-            
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
                           TintColor="White"

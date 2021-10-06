@@ -711,10 +711,12 @@ namespace RX_Explorer
 
                 if (string.IsNullOrEmpty(HeaderText))
                 {
-                    HeaderText = $"<{Globalization.GetString("UnknownText")}>";
+                    Item.Header = $"<{Globalization.GetString("UnknownText")}>";
                 }
-
-                Item.Header = HeaderText;
+                else
+                {
+                    Item.Header = HeaderText;
+                }
             }
 
             BaseFrame.Tag = ValidPathArray.ToArray();

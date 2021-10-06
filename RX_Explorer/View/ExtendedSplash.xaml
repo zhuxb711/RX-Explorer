@@ -5,7 +5,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Disabled"
-      Background="{ThemeResource SystemAccentColor}"
+      xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+      Windows11Present:Background="{ThemeResource ApplicationPageBackgroundThemeBrush }"
+      Windows11NotPresent:Background="{ThemeResource SystemAccentColor }"
       mc:Ignorable="d">
 
     <Grid>

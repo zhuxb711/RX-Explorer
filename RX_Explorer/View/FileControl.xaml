@@ -331,7 +331,8 @@
             <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Background="{ThemeResource ElementTransparentAcrylicBrush}">
+        <Grid Background="{ThemeResource ElementTransparentAcrylicBrush}"
+              Padding="0,2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
@@ -346,13 +347,13 @@
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     ToolTipService.ToolTip="后退"
-                    Margin="1"
                     x:Uid="FileControlBackButton"
                     Name="GoBackRecord"
                     x:FieldModifier="public"
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
-                    IsEnabled="False">
+                    IsEnabled="False"
+                    Margin="1,0,0,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Back" />
                 </Viewbox>
@@ -362,12 +363,12 @@
                     x:Uid="FileControlForwardButton"
                     Name="GoForwardRecord"
                     Grid.Column="1"
-                    Margin="1"
                     x:FieldModifier="public"
                     Click="GoForwardRecord_Click"
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
-                    AllowFocusWhenDisabled="True">
+                    AllowFocusWhenDisabled="True"
+                    Margin="1,0,0,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Forward" />
                 </Viewbox>
@@ -375,14 +376,14 @@
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlParentButton"
-                    Margin="1"
                     x:Name="GoParentFolder"
                     x:FieldModifier="public"
                     Grid.Column="2"
                     IsEnabled="False"
                     Click="GoParentFolder_Click"
                     ToolTipService.ToolTip="返回上级"
-                    AllowFocusWhenDisabled="True">
+                    AllowFocusWhenDisabled="True"
+                    Margin="1,0,0,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
@@ -391,20 +392,17 @@
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlHomeButton"
                     x:Name="GoHome"
-                    Margin="1"
                     Grid.Column="3"
                     Click="GoHome_Click"
                     ToolTipService.ToolTip="回到主页"
-                    AllowFocusWhenDisabled="True">
+                    AllowFocusWhenDisabled="True"
+                    Margin="1,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox ItemsSource="{x:Bind AddressSuggestionList}"
-                            ItemTemplateSelector="{StaticResource AddressTemplateSelector}"
-                            VerticalAlignment="Stretch"
+            <AutoSuggestBox VerticalAlignment="Stretch"
                             Name="AddressBox"
-                            Margin="1"
                             Grid.ColumnSpan="2"
                             Grid.Column="4"
                             UpdateTextOnSelect="False"
@@ -416,7 +414,9 @@
                             GotFocus="AddressBox_GotFocus"
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
-                            TextChanged="AddressBox_TextChanged">
+                            TextChanged="AddressBox_TextChanged"
+                            ItemsSource="{x:Bind AddressSuggestionList}"
+                            ItemTemplateSelector="{StaticResource AddressTemplateSelector}">
                 <AutoSuggestBox.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment"
@@ -425,8 +425,8 @@
                 </AutoSuggestBox.ItemContainerStyle>
             </AutoSuggestBox>
             <ListView HorizontalAlignment="Left"
-                      Padding="5,0,0,0"
-                      Margin="1"
+                      VerticalAlignment="Stretch"
+                      Margin="0,1"
                       SelectionMode="None"
                       Grid.Column="4"
                       x:Name="AddressButtonContainer"
@@ -505,16 +505,16 @@
                       x:Uid="ViewModeComboBox"
                       HorizontalAlignment="Stretch"
                       x:Name="ViewModeComboBox"
-                      Margin="1"
+                      Margin="1,0,0,0"
                       Grid.Column="6"
                       IsEnabled="False"
-                      ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
-                      VerticalAlignment="Stretch" />
+                      VerticalAlignment="Stretch"
+                      ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}" />
 
             <AutoSuggestBox QueryIcon="Find"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
-                            Margin="1"
+                            Margin="1,0,0,0"
                             Grid.Column="7"
                             x:FieldModifier="public"
                             VerticalAlignment="Stretch"
@@ -700,7 +700,7 @@
                     HorizontalContentAlignment="Center"
                     Padding="2,0,0,0"
                     Grid.Column="8"
-                    Margin="1"
+                    Margin="1,0,0,0"
                     Click="VerticalSplitViewButton_Click"
                     x:Name="VerticalSplitViewButton"
                     x:Uid="VerticalSplitViewButton"

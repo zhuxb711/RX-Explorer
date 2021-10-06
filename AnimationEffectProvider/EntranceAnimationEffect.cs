@@ -5,11 +5,13 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Foundation.Metadata;
 using Windows.Graphics.DirectX;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Media;
 
 namespace AnimationEffectProvider
 {
@@ -34,7 +36,7 @@ namespace AnimationEffectProvider
             SurfaceLoader.Initialize(ElementCompositionPreview.GetElementVisual(BasePage).Compositor);
         }
 
-        public async void PrepareEntranceEffect()
+        public async Task PrepareEntranceEffect()
         {
             try
             {
@@ -48,7 +50,23 @@ namespace AnimationEffectProvider
 
                 SpriteVisual BackgroundSprite = BaseCompositor.CreateSpriteVisual();
                 BackgroundSprite.Size = WindowSize;
-                BackgroundSprite.Brush = BaseCompositor.CreateColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
+
+                //For Win11 only
+                if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 11))
+                {
+                    if (Application.Current.Resources["ApplicationPageBackgroundThemeBrush"] is SolidColorBrush Brush)
+                    {
+                        BackgroundSprite.Brush = BaseCompositor.CreateColorBrush(Brush.Color);
+                    }
+                    else
+                    {
+                        BackgroundSprite.Brush = BaseCompositor.CreateColorBrush();
+                    }
+                }
+                else
+                {
+                    BackgroundSprite.Brush = BaseCompositor.CreateColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
+                }
 
                 Visual.Children.InsertAtBottom(BackgroundSprite);
 

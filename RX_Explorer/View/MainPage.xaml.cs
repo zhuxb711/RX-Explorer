@@ -55,6 +55,8 @@ namespace RX_Explorer
         private readonly Dictionary<Type, string> PageDictionary;
 
         private readonly EntranceAnimationEffect EntranceEffectProvider;
+        
+        private readonly Task EntranceAnimationPreloadTask;
 
         private DeviceWatcher BluetoothAudioWatcher;
 
@@ -112,7 +114,7 @@ namespace RX_Explorer
             if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
                 EntranceEffectProvider = new EntranceAnimationEffect(this, NavView, Parameter);
-                EntranceEffectProvider.PrepareEntranceEffect();
+                EntranceAnimationPreloadTask = EntranceEffectProvider.PrepareEntranceEffect();
             }
         }
 
@@ -517,6 +519,8 @@ namespace RX_Explorer
         {
             try
             {
+                await EntranceAnimationPreloadTask;
+
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
                 if (AnimationController.Current.IsDisableStartupAnimation)
