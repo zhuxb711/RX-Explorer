@@ -63,6 +63,23 @@ namespace RX_Explorer.Class
             }
         }
 
+        private bool isMicaEffectEnabled;
+        public bool IsMicaEffectEnabled
+        {
+            get
+            {
+                return isMicaEffectEnabled;
+            }
+            set
+            {
+                if (isMicaEffectEnabled != value)
+                {
+                    isMicaEffectEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// 图片背景刷
         /// </summary>
@@ -230,7 +247,7 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    default:
+                    case 2:
                         {
                             if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]), out double TintOpacity))
                             {
@@ -277,6 +294,22 @@ namespace RX_Explorer.Class
                                 }
                             }
 
+                            break;
+                        }
+                    default:
+                        {
+                            AcrylicBackgroundBrush = new AcrylicBrush
+                            {
+                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                TintColor = Colors.SlateGray,
+                                TintOpacity = 0.4,
+                                FallbackColor = Colors.DimGray
+                            };
+
+                            CurrentType = BackgroundBrushType.Mica;
+
+                            IsMicaEffectEnabled = true;
+                            AppThemeController.Current.SyncAndSetSystemTheme();
                             break;
                         }
                 }
@@ -334,22 +367,32 @@ namespace RX_Explorer.Class
 
         private async void UIS_ColorValuesChanged(UISettings sender, object args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SolidColorType") && CurrentType == BackgroundBrushType.SolidColor)
+                switch (CurrentType)
                 {
-                    if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
-                    {
-                        SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
-                        AppThemeController.Current.Theme = ElementTheme.Light;
-                    }
-                    else
-                    {
-                        SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
-                        AppThemeController.Current.Theme = ElementTheme.Dark;
-                    }
+                    case BackgroundBrushType.SolidColor when !ApplicationData.Current.LocalSettings.Values.ContainsKey("SolidColorType"):
+                        {
+                            if (sender.GetColorValue(UIColorType.Background) == Colors.White)
+                            {
+                                SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
+                            }
+                            else
+                            {
+                                SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
+                            }
 
-                    OnPropertyChanged(nameof(BackgroundBrush));
+                            AppThemeController.Current.SyncAndSetSystemTheme();
+
+                            OnPropertyChanged(nameof(BackgroundBrush));
+
+                            break;
+                        }
+                    case BackgroundBrushType.Mica:
+                        {
+                            AppThemeController.Current.SyncAndSetSystemTheme();
+                            break;
+                        }
                 }
             });
         }
@@ -503,13 +546,7 @@ namespace RX_Explorer.Class
 
         public void SetAcrylicEffectPresenter(UIElement Element)
         {
-            if (Element == null)
-            {
-                throw new ArgumentNullException(nameof(Element), "Argument could not be null");
-            }
-
-            CompositionAcrylicPresenter = Element;
-
+            CompositionAcrylicPresenter = Element ?? throw new ArgumentNullException(nameof(Element), "Argument could not be null");
             CompositionAcrylicPresenterWasSetEvent?.Invoke(this, null);
         }
 
@@ -658,34 +695,40 @@ namespace RX_Explorer.Class
 
             switch (Type)
             {
+                case BackgroundBrushType.Acrylic:
+                    {
+                        IsMicaEffectEnabled = false;
+                        AppThemeController.Current.Theme = ElementTheme.Dark;
+                        OnPropertyChanged(nameof(BackgroundBrush));
+                        break;
+                    }
                 case BackgroundBrushType.Picture:
                     {
+                        IsMicaEffectEnabled = false;
                         PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
                         ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
+
+                        OnPropertyChanged(nameof(BackgroundBrush));
 
                         break;
                     }
                 case BackgroundBrushType.BingPicture:
                     {
+                        IsMicaEffectEnabled = false;
                         BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.BingPicture)}', parameter: '{nameof(Background)}' could not be null");
+
+                        OnPropertyChanged(nameof(BackgroundBrush));
+
                         break;
                     }
                 case BackgroundBrushType.SolidColor:
                     {
+                        IsMicaEffectEnabled = false;
+
                         if (Color == null)
                         {
                             ApplicationData.Current.LocalSettings.Values.Remove("SolidColorType");
-
-                            if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
-                            {
-                                SolidColorBackgroundBrush.Color = SolidColor_WhiteTheme;
-                                AppThemeController.Current.Theme = ElementTheme.Light;
-                            }
-                            else
-                            {
-                                SolidColorBackgroundBrush.Color = SolidColor_BlackTheme;
-                                AppThemeController.Current.Theme = ElementTheme.Dark;
-                            }
+                            AppThemeController.Current.SyncAndSetSystemTheme();
                         }
                         else
                         {
@@ -694,6 +737,14 @@ namespace RX_Explorer.Class
                             ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
                         }
 
+                        OnPropertyChanged(nameof(BackgroundBrush));
+
+                        break;
+                    }
+                case BackgroundBrushType.Mica:
+                    {
+                        IsMicaEffectEnabled = true;
+                        AppThemeController.Current.SyncAndSetSystemTheme();
                         break;
                     }
             }
@@ -716,8 +767,6 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-
-            OnPropertyChanged(nameof(BackgroundBrush));
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

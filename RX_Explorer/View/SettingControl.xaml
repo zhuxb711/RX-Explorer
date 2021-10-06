@@ -8,6 +8,8 @@
              xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:sys="using:System"
              xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+             xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
+             xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
              mc:Ignorable="d"
              d:DesignHeight="3500"
              d:DesignWidth="1280">
@@ -458,16 +460,17 @@
                     <Line X1="15"
                           X2="15"
                           Y1="3"
-                          Y2="60"
+                          Windows11Present:Y2="30"
+                          Windows11NotPresent:Y2="60"
                           StrokeThickness="3"
                           Stroke="Gray" />
                     <StackPanel Margin="20,0,0,0">
-                        <CheckBox Content="关闭列表选中动画"
-                                  x:Uid="SettingPagDisableSelectionAnimation"
-                                  IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
-                                  Name="DisableSelectionAnimation"
-                                  Checked="DisableSelectionAnimation_Changed"
-                                  Unchecked="DisableSelectionAnimation_Changed"/>
+                        <Windows11NotPresent:CheckBox Content="关闭列表选中动画"
+                                                      x:Uid="SettingPagDisableSelectionAnimation"
+                                                      IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
+                                                      Name="DisableSelectionAnimation"
+                                                      Checked="DisableSelectionAnimation_Changed"
+                                                      Unchecked="DisableSelectionAnimation_Changed"/>
 
                         <CheckBox Content="关闭初始动画以加快启动速度"
                                   x:Uid="SettingPageExceptAnimation"

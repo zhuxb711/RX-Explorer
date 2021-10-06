@@ -12,6 +12,8 @@ namespace RX_Explorer.Class
 
         public static bool Windows10_2004 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 10);
 
+        public static bool Windows11 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 11);
+
         public static bool IsNewerOrEqual(Version Version)
         {
             return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", (ushort)Version);

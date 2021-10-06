@@ -28,6 +28,7 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
@@ -391,6 +392,11 @@ namespace RX_Explorer
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
 
+                if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
+                {
+                    UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Mica"));
+                }
+
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
 
@@ -478,6 +484,7 @@ namespace RX_Explorer
                                     {
                                         SolidColor_FollowSystem.IsChecked = true;
                                     }
+
                                     break;
                                 }
                             case 2:
@@ -552,6 +559,7 @@ namespace RX_Explorer
                                                 }
                                         }
                                     }
+
                                     break;
                                 }
                         }
@@ -785,7 +793,7 @@ namespace RX_Explorer
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
-                UIMode.SelectedIndex = ModeIndex;
+                UIMode.SelectedIndex = Math.Min(UIMode.Items.Count - 1, ModeIndex);
             }
             else
             {
@@ -1261,8 +1269,7 @@ namespace RX_Explorer
                             BackgroundController.Current.TintLuminosityOpacity = -1;
                             BackgroundController.Current.AcrylicColor = Colors.SlateGray;
 
-                            AppThemeController.Current.Theme = ElementTheme.Dark;
-
+                            ApplicationData.Current.SignalDataChanged();
                             break;
                         }
                     case 1:
@@ -1355,6 +1362,26 @@ namespace RX_Explorer
                                 }
                             }
 
+                            break;
+                        }
+                    case 3:
+                        {
+                            CustomUIArea.Visibility = Visibility.Collapsed;
+                            SolidColorArea.Visibility = Visibility.Collapsed;
+
+                            AcrylicMode.IsChecked = null;
+                            PictureMode.IsChecked = null;
+                            BingPictureMode.IsChecked = null;
+                            SolidColor_White.IsChecked = null;
+                            SolidColor_FollowSystem.IsChecked = null;
+                            SolidColor_Black.IsChecked = null;
+                            PreventFallBack.IsChecked = null;
+                            MainPage.Current.BackgroundBlur.BlurAmount = 0;
+                            MainPage.Current.BackgroundBlur.TintOpacity = 0;
+
+                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
+                            BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
+                            ApplicationData.Current.SignalDataChanged();
                             break;
                         }
                 }
@@ -1880,7 +1907,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: null);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor);
             }
             catch (Exception ex)
             {
@@ -2120,7 +2147,7 @@ namespace RX_Explorer
                         {
                             await Presenter.DisplayItemsInFolder(CurrentFolder, true);
                         }
-                    }   
+                    }
                 }
             }
             catch (Exception ex)

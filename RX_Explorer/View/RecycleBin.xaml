@@ -9,6 +9,7 @@
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:Interface="using:RX_Explorer.Interface"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -96,7 +97,7 @@
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
-                  ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">

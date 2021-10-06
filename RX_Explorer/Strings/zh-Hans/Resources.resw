@@ -3227,4 +3227,7 @@
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>关闭列表选择动画</value>
   </data>
+  <data name="Setting_UIMode_Mica" xml:space="preserve">
+    <value>云母效果</value>
+  </data>
 </root>

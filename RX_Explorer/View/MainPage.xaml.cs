@@ -69,6 +69,7 @@ namespace RX_Explorer
             TitleBar.Margin = new Thickness(SystemBar.SystemOverlayLeftInset, TitleBar.Margin.Top, SystemBar.SystemOverlayRightInset, TitleBar.Margin.Bottom);
             SystemBar.LayoutMetricsChanged += TitleBar_LayoutMetricsChanged;
             SystemBar.IsVisibleChanged += SystemBar_IsVisibleChanged;
+            ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
 
             Window.Current.SetTitleBar(TitleBar);
 
@@ -93,6 +94,12 @@ namespace RX_Explorer
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
             NavView.PaneDisplayMode = SettingControl.LayoutMode;
+
+            if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
+            {
+                BackdropMaterial.SetApplyToRootOrPageBackground(this, BackgroundController.Current.IsMicaEffectEnabled);
+                BackgroundEffectArea.RegisterPropertyChangedCallback(VisibilityProperty, new DependencyPropertyChangedCallback(OnBackgroundEffectAreaVisibilityChanged));
+            }
 
             PageDictionary = new Dictionary<Type, string>()
             {
@@ -121,6 +128,11 @@ namespace RX_Explorer
                 Window.Current.SetTitleBar(null);
                 TitleBar.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void OnBackgroundEffectAreaVisibilityChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            BackdropMaterial.SetApplyToRootOrPageBackground(this, BackgroundController.Current.IsMicaEffectEnabled);
         }
 
         private void OnPaneDisplayModeChanged(DependencyObject sender, DependencyProperty dp)
@@ -201,7 +213,7 @@ namespace RX_Explorer
 
         private async void Current_ThemeChanged(object sender, ElementTheme Theme)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
             });

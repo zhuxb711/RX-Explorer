@@ -9,7 +9,7 @@
       xmlns:local="using:RX_Explorer"
       xmlns:Data="using:Windows.UI.Xaml.Data"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:Custom="using:RX_Explorer.CustomControl"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       mc:Ignorable="d"
       Background="Transparent">
 
@@ -1015,7 +1015,7 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -1038,7 +1038,7 @@
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="60" />
                                                         <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="10" />
+                                                        <ColumnDefinition Width="8" />
                                                     </Grid.ColumnDefinitions>
                                                     <Border Padding="3,0"
                                                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1103,7 +1103,7 @@
                                                     <Border Grid.Column="3"
                                                             CornerRadius="2"
                                                             Margin="0,5"
-                                                            Width="5"
+                                                            Width="4"
                                                             Background="{x:Bind AccentColor,Mode=OneWay}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
@@ -1166,7 +1166,7 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -1189,7 +1189,7 @@
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="40" />
                                                         <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="10" />
+                                                        <ColumnDefinition Width="8" />
                                                     </Grid.ColumnDefinitions>
                                                     <Border Padding="3,0"
                                                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
@@ -1239,7 +1239,7 @@
                                                     <Border Grid.Column="3"
                                                             CornerRadius="2"
                                                             Margin="0,5"
-                                                            Width="5"
+                                                            Width="4"
                                                             Background="{x:Bind AccentColor,Mode=OneWay}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
@@ -1302,7 +1302,7 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -1323,7 +1323,7 @@
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="190" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="8" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1368,7 +1368,7 @@
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
                                                             Margin="5,0"
-                                                            Height="5"
+                                                            Height="4"
                                                             Background="{x:Bind AccentColor,Mode=OneWay}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
@@ -1431,7 +1431,7 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -1452,7 +1452,7 @@
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="140" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="8" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1497,7 +1497,7 @@
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
                                                             Margin="5,0"
-                                                            Height="5"
+                                                            Height="4"
                                                             Background="{x:Bind AccentColor,Mode=OneWay}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
@@ -1560,7 +1560,7 @@
                                               Holding="ViewControl_Holding"
                                               SelectionChanged="ViewControl_SelectionChanged"
                                               ContainerContentChanging="ViewControl_ContainerContentChanging"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -1581,7 +1581,7 @@
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="80" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="8" />
                                                     </Grid.RowDefinitions>
                                                     <Image HorizontalAlignment="Center"
                                                            Stretch="Uniform"
@@ -1625,7 +1625,7 @@
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
                                                             Margin="5,0"
-                                                            Height="5"
+                                                            Height="4"
                                                             Background="{x:Bind AccentColor,Mode=OneWay}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
@@ -1689,7 +1689,7 @@
                                               DoubleTapped="ViewControl_DoubleTapped"
                                               PreviewKeyDown="ViewControl_PreviewKeyDown"
                                               ShowsScrollingPlaceholders="False"
-                                              ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               Header="{x:Bind ListViewDetailHeader}"
                                               ItemsSource="{x:Bind CollectionVS.View,Mode=OneWay}"
                                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -1723,7 +1723,7 @@
                                                             <ColumnDefinition Width="45" />
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="Auto" />
-                                                            <ColumnDefinition Width="10" />
+                                                            <ColumnDefinition Width="8" />
                                                         </Grid.ColumnDefinitions>
                                                         <Image VerticalAlignment="Center"
                                                                HorizontalAlignment="Center"
@@ -1774,7 +1774,7 @@
                                                         <Border Grid.Column="3"
                                                                 CornerRadius="2"
                                                                 Margin="0,5"
-                                                                Width="5"
+                                                                Width="4"
                                                                 Background="{x:Bind AccentColor,Mode=OneWay}"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Stretch"/>

@@ -3332,4 +3332,7 @@ Invalid names include
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>Turn off the list selection animation</value>
   </data>
+  <data name="Setting_UIMode_Mica" xml:space="preserve">
+    <value>Mica effect</value>
+  </data>
 </root>

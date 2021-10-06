@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
@@ -56,6 +58,19 @@ namespace RX_Explorer.Class
                 {
                     return Instance ??= new AppThemeController();
                 }
+            }
+        }
+
+        public void SyncAndSetSystemTheme()
+        {
+            UISettings UIS = new UISettings();
+            if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+            {
+                Theme = ElementTheme.Light;
+            }
+            else
+            {
+                Theme = ElementTheme.Dark;
             }
         }
 

@@ -7,6 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
 
@@ -139,7 +140,7 @@
                   Holding="ListViewControl_Holding"
                   DragOver="ListViewControl_DragOver"
                   Drop="ListViewControl_Drop"
-                  ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind EntryList}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">

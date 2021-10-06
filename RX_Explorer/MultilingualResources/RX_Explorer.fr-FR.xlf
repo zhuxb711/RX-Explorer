@@ -4285,6 +4285,10 @@ Les noms non valides incluent
           <source>Turn off the list selection animation</source>
           <target state="translated">Désactiver l'animation de sélection de liste</target>
         </trans-unit>
+        <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
+          <source>Mica effect</source>
+          <target state="translated">Effet mica</target>
+        </trans-unit>
       </group>
     </body>
   </file>

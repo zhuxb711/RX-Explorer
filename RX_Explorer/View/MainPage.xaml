@@ -355,19 +355,22 @@
     </Page.Resources>
 
     <Grid>
-        <Border Name="CompositorAcrylicBackground"
-                Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}" />
+        <Grid x:Name="BackgroundEffectArea"
+              Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}">
+            <Border Name="CompositorAcrylicBackground"
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}" />
 
-        <Border Name="NormalAcrylicBackground"
-                Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
-                Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
+            <Border Name="NormalAcrylicBackground"
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+                    Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
 
-        <Grid>
-            <Grid.Background>
-                <media:AcrylicBrush x:Name="BackgroundBlur"
-                                    x:FieldModifier="public"
-                                    TintColor="Black" />
-            </Grid.Background>
+            <Grid>
+                <Grid.Background>
+                    <media:AcrylicBrush x:Name="BackgroundBlur"
+                                        x:FieldModifier="public"
+                                        TintColor="Black" />
+                </Grid.Background>
+            </Grid>
         </Grid>
 
         <muxc:NavigationView Name="NavView"

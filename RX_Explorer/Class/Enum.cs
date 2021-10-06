@@ -67,7 +67,8 @@ namespace RX_Explorer.Class
         Windows10_1809 = 7,
         Windows10_1903 = 8,
         Windows10_1909 = 9,
-        Windows10_2004 = 10
+        Windows10_2004 = 10,
+        Windows11 = 11
     }
 
     public enum StartupMode
@@ -390,6 +391,8 @@ namespace RX_Explorer.Class
         /// 使用Bing图片作为背景
         /// </summary>
         BingPicture = 4,
+
+        Mica = 8
     }
 
     /// <summary>

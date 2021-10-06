@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -473,7 +472,7 @@ namespace RX_Explorer.Class
                                         }
                                     }
 
-                                    async Task<MenuFlyoutItemWithImage> GenerateOpenWithItemAsync(string ExePath)
+                                    async Task<MenuFlyoutItem> GenerateOpenWithItemAsync(string ExePath)
                                     {
                                         try
                                         {
@@ -481,10 +480,10 @@ namespace RX_Explorer.Class
                                             {
                                                 ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
 
-                                                MenuFlyoutItemWithImage MenuItem = new MenuFlyoutItemWithImage
+                                                MenuFlyoutItem MenuItem = new MenuFlyoutItem
                                                 {
                                                     Text = Item.Name,
-                                                    ImageIcon = Item.Thumbnuil,
+                                                    Icon = new ImageIcon { Source = Item.Thumbnuil },
                                                     Tag = (PathArray.First(), Item),
                                                     MinWidth = 160
                                                 };
@@ -507,7 +506,7 @@ namespace RX_Explorer.Class
 
                                     SideloadTask = Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath))).ContinueWith((PreviousTask) =>
                                     {
-                                        foreach (MenuFlyoutItemWithImage Item in PreviousTask.Result.Reverse().OfType<MenuFlyoutItemWithImage>())
+                                        foreach (MenuFlyoutItem Item in PreviousTask.Result.Reverse().OfType<MenuFlyoutItem>())
                                         {
                                             OpenWithFlyout.Items.Insert(0, Item);
                                         }

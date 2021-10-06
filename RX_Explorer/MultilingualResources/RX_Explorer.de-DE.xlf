@@ -4283,6 +4283,10 @@ Inkorrekte Namen sind
           <source>Turn off the list selection animation</source>
           <target state="translated">Deaktivieren Sie die Listenauswahlanimation</target>
         </trans-unit>
+        <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
+          <source>Mica effect</source>
+          <target state="translated">Glimmer-Effekt</target>
+        </trans-unit>
       </group>
     </body>
   </file>

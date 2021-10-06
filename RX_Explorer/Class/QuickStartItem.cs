@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -88,7 +89,7 @@ namespace RX_Explorer.Class
             Type = QuickStartType.AddButton;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
 
-            if (AppThemeController.Current.Theme == Windows.UI.Xaml.ElementTheme.Dark)
+            if (AppThemeController.Current.Theme == ElementTheme.Dark)
             {
                 Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Light.png"));
             }
@@ -98,9 +99,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void Current_ThemeChanged(object sender, Windows.UI.Xaml.ElementTheme e)
+        private void Current_ThemeChanged(object sender, ElementTheme Theme)
         {
-            if (e == Windows.UI.Xaml.ElementTheme.Dark)
+            if (Theme == ElementTheme.Dark)
             {
                 Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage_Light.png"));
             }

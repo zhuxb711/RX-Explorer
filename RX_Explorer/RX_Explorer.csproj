@@ -425,7 +425,7 @@
     <Compile Include="Dialog\CompressDialog.xaml.cs">
       <DependentUpon>CompressDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Class\Win10VersionChecker.cs" />
+    <Compile Include="Class\WindowsVersionChecker.cs" />
     <Compile Include="Class\WiFiShareProvider.cs" />
     <Compile Include="Class\WindowsHelloAuthenticator.cs" />
     <Compile Include="SeparateWindow\PropertyWindow\PropertiesWindowBase.xaml.cs">

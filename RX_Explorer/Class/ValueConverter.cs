@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return null;
+                return -1;
             }
         }
 

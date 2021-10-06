@@ -49,15 +49,7 @@ namespace RX_Explorer.Class
         {
             DefaultButton = ContentDialogButton.Primary;
             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
-
-            if (AppThemeController.Current.Theme == ElementTheme.Dark)
-            {
-                RequestedTheme = ElementTheme.Dark;
-            }
-            else
-            {
-                RequestedTheme = ElementTheme.Light;
-            }
+            RequestedTheme = AppThemeController.Current.Theme;
         }
     }
 }
