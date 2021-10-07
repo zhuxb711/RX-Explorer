@@ -469,8 +469,8 @@
                 </PivotItem.Header>
                 <SemanticZoom>
                     <SemanticZoom.ZoomedInView>
-                        <ListView ItemsSource="{x:Bind ContactsCVS.View, Mode=OneWay}"
-                                  SelectionMode="None"
+                        <ListView SelectionMode="None"
+                                  ItemsSource="{x:Bind ContactsCVS.View, Mode=OneWay}"
                                   ItemTemplateSelector="{StaticResource DetailListDataTemplateSelector}">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>

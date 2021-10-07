@@ -63,14 +63,7 @@
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           SelectionChanged="CurrentUseProgramList_SelectionChanged"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding"
-                                    Value="5,0" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
                 <StackPanel>
                     <TextBlock FontSize="16"
                                Name="Title2" />
@@ -84,14 +77,7 @@
                           SelectionChanged="OtherProgramList_SelectionChanged"
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding"
-                                    Value="5,0" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
                 <Button Style="{StaticResource OnlyClickableButtonStyle}"
                         Background="Transparent"
                         Padding="0,2,0,2"

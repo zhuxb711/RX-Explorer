@@ -116,7 +116,8 @@
             <Grid MinHeight="50">
                 <StackPanel x:Name="BluetoothAudioArea"
                             Loaded="BluetoothAudioArea_Loaded">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,10,0,0">
                         <TextBlock Text="正在搜索"
                                    Name="StatusText" />
                         <muxc:ProgressRing IsActive="True"
@@ -129,7 +130,8 @@
                               Name="BluetoothAudioDeivceList"
                               SelectionMode="None"
                               MaxHeight="250"
-                              Width="280">
+                              Width="280"
+                              Background="Transparent">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment"
@@ -278,12 +280,6 @@
                               ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="GridViewItem">
-                                <Setter Property="Padding"
-                                        Value="0" />
-                            </Style>
-                        </GridView.ItemContainerStyle>
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsWrapGrid MaximumRowsOrColumns="3"
@@ -319,12 +315,6 @@
                               ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="GridViewItem">
-                                <Setter Property="Padding"
-                                        Value="0" />
-                            </Style>
-                        </GridView.ItemContainerStyle>
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsWrapGrid MaximumRowsOrColumns="3"

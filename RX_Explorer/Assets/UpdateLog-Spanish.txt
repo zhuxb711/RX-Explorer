@@ -1,4 +1,43 @@
 ﻿*****
+###Novedades de la versión 7.1.4.0
+
+#####Actualización de funciones
+
+>#####Se agregó una nueva subopción para el interruptor "Efectos de animación", ahora puede desactivar la animación de selección en la lista (solo Win10)
+
+#####Actualización de la interfaz de usuario
+
+>#####Actualizado con una nueva apariencia, oficialmente compatible con Windows 11
+
+>#####Se actualizó el mensaje cuando se detecta una actualización forzada
+
+>#####Se actualizó la apariencia de los archivos marcados
+
+>#####Se agregó un nuevo modo de visualización: efecto de mica
+
+>#####Cuando se cierra la lista de tareas, se muestra el número de tareas en curso
+
+>#####Se agregó un navegador al visor de imágenes incorporado
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la configuración "Mostrar archivo oculto" no se aplicaría a todas las vistas divididas verticales
+
+>#####Se solucionó el problema de que el tiempo restante en la lista de tareas se podía calcular incorrectamente
+
+>#####Se solucionó el problema de que la tecla "Tab" no se podía usar para cambiar los elementos sugeridos en el cuadro de dirección
+
+>#####Se solucionó el problema de que una nueva pestaña se podía crear accidentalmente al ingresar a una carpeta en "Bibliotecas" a través de la tecla "Enter" en casos excepcionales.
+
+>#####Se solucionó el problema de que el fondo de la navegación que en el modo de diseño de la izquierda sería transparente después de desactivar el efecto de transparencia en el sistema
+
+>#####Se solucionó el problema de que, en algunos casos, la sincronización de la configuración entre procesos puede no ser correcta
+
+>#####Se solucionó el problema de que el dispositivo USB todavía existe en la lista después de eliminarlo
+
+>#####Se solucionó el problema de que las imágenes en el visor de imágenes incorporado se mostraran fuera de orden
+
+*****
 ###Novedades de la versión 7.0.9.0
 
 #####Actualización de la interfaz de usuario

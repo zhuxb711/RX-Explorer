@@ -70,7 +70,7 @@ namespace AnimationEffectProvider
 
                 Visual.Children.InsertAtBottom(BackgroundSprite);
 
-                CompositionDrawingSurface ImageDrawingSurface = await SurfaceLoader.LoadFromUri(new Uri("ms-appx:///Assets/SplashScreen.png"));
+                CompositionDrawingSurface ImageDrawingSurface = await SurfaceLoader.LoadFromUriAsync(new Uri("ms-appx:///Assets/SplashScreen.png"));
 
                 SpriteVisual ImageSprite = BaseCompositor.CreateSpriteVisual();
                 ImageSprite.Brush = BaseCompositor.CreateSurfaceBrush(ImageDrawingSurface);
@@ -141,7 +141,7 @@ namespace AnimationEffectProvider
         private static CompositionGraphicsDevice _compositionDevice;
         public delegate CompositionDrawingSurface LoadTimeEffectHandler(CanvasBitmap bitmap, CompositionGraphicsDevice device, Size sizeTarget);
 
-        static public void Initialize(Compositor compositor)
+        public static void Initialize(Compositor compositor)
         {
             if (!IsInitialized)
             {
@@ -153,7 +153,7 @@ namespace AnimationEffectProvider
             }
         }
 
-        static public void Uninitialize()
+        public static void Uninitialize()
         {
             _compositor = null;
 
@@ -172,9 +172,9 @@ namespace AnimationEffectProvider
             IsInitialized = false;
         }
 
-        static public bool IsInitialized { get; private set; }
+        public static bool IsInitialized { get; private set; }
 
-        static public async Task<CompositionDrawingSurface> LoadFromUri(Uri uri)
+        public static async Task<CompositionDrawingSurface> LoadFromUriAsync(Uri uri)
         {
             CanvasBitmap CBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, uri);
 

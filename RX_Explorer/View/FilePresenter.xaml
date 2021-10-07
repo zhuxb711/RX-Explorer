@@ -40,7 +40,7 @@
                     <Setter Property="Padding"
                             Value="5" />
                     <Setter Property="CornerRadius"
-                            Value="{StaticResource FlyoutCornerRadius}" />
+                            Value="{StaticResource CustomCornerRadius}" />
                     <Setter Property="MinHeight"
                             Value="0" />
                 </Style>
@@ -1874,7 +1874,7 @@
                                                                     <Flyout.FlyoutPresenterStyle>
                                                                         <Style TargetType="FlyoutPresenter">
                                                                             <Setter Property="CornerRadius"
-                                                                                    Value="{StaticResource FlyoutCornerRadius}" />
+                                                                                    Value="{StaticResource CustomCornerRadius}" />
                                                                             <Setter Property="Background"
                                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                                         </Style>
@@ -2066,7 +2066,7 @@
                                                                     <Flyout.FlyoutPresenterStyle>
                                                                         <Style TargetType="FlyoutPresenter">
                                                                             <Setter Property="CornerRadius"
-                                                                                    Value="{StaticResource FlyoutCornerRadius}" />
+                                                                                    Value="{StaticResource CustomCornerRadius}" />
                                                                             <Setter Property="Background"
                                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                                         </Style>
@@ -2194,7 +2194,7 @@
                                                                     <Flyout.FlyoutPresenterStyle>
                                                                         <Style TargetType="FlyoutPresenter">
                                                                             <Setter Property="CornerRadius"
-                                                                                    Value="{StaticResource FlyoutCornerRadius}" />
+                                                                                    Value="{StaticResource CustomCornerRadius}" />
                                                                             <Setter Property="Background"
                                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                                         </Style>
@@ -2265,7 +2265,7 @@
                                                                     <Flyout.FlyoutPresenterStyle>
                                                                         <Style TargetType="FlyoutPresenter">
                                                                             <Setter Property="CornerRadius"
-                                                                                    Value="{StaticResource FlyoutCornerRadius}" />
+                                                                                    Value="{StaticResource CustomCornerRadius}" />
                                                                             <Setter Property="Background"
                                                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                                                         </Style>

@@ -1,7 +1,8 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.QuickStartModifiedDialog"
+﻿<Cls:QueueContentDialog x:Class="RX_Explorer.Dialog.QuickStartModifiedDialog"
                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
+                          xmlns:Cls="using:RX_Explorer.Class"
+                          xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           xmlns:controls="using:Microsoft.UI.Xaml.Controls"
@@ -12,7 +13,9 @@
                           CloseButtonText="取消"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <local:QueueContentDialog.Resources>
+    <Cls:QueueContentDialog.Resources>
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+
         <controls:TeachingTip x:Name="InvalidCharTip"
                               IsLightDismissEnabled="True"
                               Target="{x:Bind DisplayName}"
@@ -61,23 +64,16 @@
                               x:Uid="QuickStartPickUWPTip"
                               Closed="UWPPickerTip_Closed"
                               Target="{x:Bind PickUWP}">
-            <Grid>
+            <Grid Margin="0,10,0,0">
                 <ListView x:Name="PackageListView"
                           Visibility="Collapsed"
                           ItemsSource="{x:Bind PackageListViewSource}"
+                          Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                           MaxHeight="350"
                           Width="320">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" />
-                            <Setter Property="Padding"
-                                    Value="0" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="local:InstalledApplication">
-                            <Grid Padding="0,5,0,5">
+                        <DataTemplate x:DataType="Cls:InstalledApplication">
+                            <Grid Padding="0,5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50" />
                                     <ColumnDefinition Width="*" />
@@ -111,7 +107,7 @@
                             HorizontalAlignment="Center"
                             Name="UWPLoadingTip">
                     <TextBlock Name="ProgressInfo"
-                               Text="{x:Bind local:Globalization.GetString('Progress_Tip_Loading')}"
+                               Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                     <controls:ProgressBar IsIndeterminate="True"
@@ -123,7 +119,7 @@
                 </StackPanel>
             </Grid>
         </controls:TeachingTip>
-    </local:QueueContentDialog.Resources>
+    </Cls:QueueContentDialog.Resources>
 
     <Grid>
         <StackPanel Orientation="Horizontal">
@@ -196,4 +192,4 @@
             </StackPanel>
         </StackPanel>
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

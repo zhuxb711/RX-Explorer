@@ -137,7 +137,7 @@
                     <Setter Property="Padding"
                             Value="0" />
                     <Setter Property="CornerRadius"
-                            Value="{StaticResource FlyoutCornerRadius}" />
+                            Value="{StaticResource CustomCornerRadius}" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="400"
@@ -183,7 +183,7 @@
                     <Setter Property="Padding"
                             Value="0" />
                     <Setter Property="CornerRadius"
-                            Value="{StaticResource FlyoutCornerRadius}" />
+                            Value="{StaticResource CustomCornerRadius}" />
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <ListView MaxHeight="500"
@@ -565,7 +565,7 @@
                         <Flyout.FlyoutPresenterStyle>
                             <Style TargetType="FlyoutPresenter">
                                 <Setter Property="CornerRadius"
-                                        Value="{StaticResource FlyoutCornerRadius}" />
+                                        Value="{StaticResource CustomCornerRadius}" />
                                 <Setter Property="Background"
                                         Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                             </Style>

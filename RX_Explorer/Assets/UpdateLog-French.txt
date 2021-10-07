@@ -1,4 +1,43 @@
 ﻿*****
+###Quoi de neuf dans la version 7.1.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout d'une nouvelle sous-option pour le commutateur "Effets d'animation", vous pouvez désormais désactiver l'animation de sélection dans la liste (Win10 uniquement)
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour avec une nouvelle apparence, prise en charge officielle de Windows 11
+
+>#####Mise à jour de l'invite lorsqu'une mise à niveau forcée est détectée
+
+>#####Mise à jour de l'apparence des fichiers marqués
+
+>#####Ajout d'un nouveau mode d'affichage : Effet Mica
+
+>#####Lorsque la liste des tâches est fermée, le nombre de tâches en cours sera affiché
+
+>#####Un navigateur a été ajouté à la visionneuse d'images intégrée
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le paramètre "Afficher le fichier caché" ne s'appliquait pas à toutes les vues fractionnées verticales
+
+>#####Correction du problème selon lequel le temps restant dans la liste des tâches pouvait être mal calculé
+
+>#####Correction du problème selon lequel la touche "Tab" ne pouvait pas être utilisée pour changer les éléments suggérés dans la zone d'adresse
+
+>#####Correction du problème selon lequel un nouvel onglet pouvait être créé accidentellement lors de la saisie d'un dossier dans "Bibliothèques" via la touche "Entrée" dans de rares cas
+
+>#####Correction du problème selon lequel l'arrière-plan de la navigation qui, dans le mode de mise en page de gauche, sera transparent après la désactivation de l'effet de transparence dans le système
+
+>#####Correction du problème selon lequel, dans certains cas, la synchronisation des paramètres inter-processus peut ne pas être correcte
+
+>#####Correction du problème selon lequel le périphérique USB existe toujours dans la liste après l'avoir supprimé
+
+>#####Correction du problème selon lequel les images de la visionneuse d'images intégrée s'affichaient dans le désordre
+
+*****
 ###Quoi de neuf dans la version 7.0.9.0
 
 #####Mise à jour de l'interface utilisateur

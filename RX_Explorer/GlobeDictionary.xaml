@@ -50,7 +50,7 @@
     <Color x:Key="ElementFallBackWhiteColor">#7FDCDCDC</Color>
     <Color x:Key="ElementFallBackWhiteLighterColor">#DCDCDCDC</Color>
 
-    <CornerRadius x:Key="FlyoutCornerRadius">8,8,8,8</CornerRadius>
+    <CornerRadius x:Key="CustomCornerRadius">8,8,8,8</CornerRadius>
 
     <AcrylicBrush x:Key="DialogAcrylicBrush"
                   TintColor="{ThemeResource SystemAltHighColor}"

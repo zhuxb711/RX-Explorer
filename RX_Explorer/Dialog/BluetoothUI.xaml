@@ -3,6 +3,7 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:Cls="using:RX_Explorer.Class"
                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+                        xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                         mc:Ignorable="d"
@@ -11,7 +12,9 @@
                         PrimaryButtonText="确定"
                         CloseButtonText="取消"
                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
-    
+    <Cls:QueueContentDialog.Resources>
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+    </Cls:QueueContentDialog.Resources>
     <StackPanel HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Width="400">
@@ -29,21 +32,14 @@
                   VerticalAlignment="Stretch"
                   Name="BluetoothControl"
                   ItemsSource="{x:Bind BluetoothDeviceCollection}"
+                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   IsItemClickEnabled="False"
                   MaxHeight="300"
                   ScrollViewer.VerticalScrollMode="Auto"
-                  ScrollViewer.VerticalScrollBarVisibility="Hidden" >
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="5" />
-                </Style>
-            </ListView.ItemContainerStyle>
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:BluetoothDeivceData">
-                    <Grid>
+                    <Grid Padding="0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="80" />

@@ -110,7 +110,7 @@
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
                                         <Setter Property="CornerRadius"
-                                                Value="{StaticResource FlyoutCornerRadius}"/>
+                                                Value="{StaticResource CustomCornerRadius}"/>
                                         <Setter Property="Padding" 
                                                 Value="0"/>
                                         <Setter Property="Background"

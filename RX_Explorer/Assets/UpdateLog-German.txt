@@ -1,4 +1,43 @@
 ﻿*****
+###Was ist neu in Ver.7.1.4.0
+
+#####Funktionsupdate
+
+>#####Neue Unteroption für den Schalter "Animationseffekte" hinzugefügt, jetzt können Sie die Auswahlanimation in der Liste deaktivieren (nur Win10)
+
+#####UI-Update
+
+>#####Mit neuem Erscheinungsbild aktualisiert, offizielle Unterstützung für Windows 11
+
+>#####Die Eingabeaufforderung wurde aktualisiert, wenn ein erzwungenes Upgrade erkannt wird
+
+>#####Das Erscheinungsbild markierter Dateien wurde aktualisiert
+
+>#####Neuer Anzeigemodus hinzugefügt: Glimmereffekt
+
+>#####Wenn die Aufgabenliste geschlossen ist, wird die Anzahl der laufenden Aufgaben angezeigt
+
+>#####Ein Navigator wurde zum integrierten Bildbetrachter hinzugefügt
+
+#####Fehlerbehebung
+
+>#####Das Problem, dass die Einstellung "Versteckte Datei anzeigen" nicht auf alle vertikalen geteilten Ansichten angewendet wird, wurde behoben
+
+>#####Problem behoben, dass die verbleibende Zeit in der Aufgabenliste möglicherweise falsch berechnet wurde
+
+>#####Problem behoben, dass die "Tab"-Taste nicht verwendet werden konnte, um die vorgeschlagenen Elemente im Adressfeld zu wechseln
+
+>#####Problem behoben, dass in seltenen Fällen versehentlich ein neuer Tab erstellt wurde, wenn ein Ordner in "Bibliotheken" über die "Enter"-Taste eingegeben wurde
+
+>#####Das Problem wurde behoben, dass der Hintergrund der Navigation im linken Layoutmodus transparent ist, nachdem der Transparenzeffekt im System ausgeschaltet wurde
+
+>#####Das Problem wurde behoben, dass in einigen Fällen die Synchronisation der prozessübergreifenden Einstellungen nicht korrekt war
+
+>#####Problem behoben, dass das USB-Gerät nach dem Entfernen immer noch in der Liste vorhanden ist
+
+>#####Problem behoben, dass die Bilder im integrierten Bildbetrachter nicht in der richtigen Reihenfolge angezeigt werden
+
+*****
 ###Was ist neu in Ver.7.0.9.0
 
 #####UI-Update

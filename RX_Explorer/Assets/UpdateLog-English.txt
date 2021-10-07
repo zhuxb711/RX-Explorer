@@ -1,4 +1,43 @@
 ﻿*****
+###What's new in Ver.7.1.4.0
+
+#####Feature update
+
+>#####Added a new sub-option for the "Animation Effects" switch, now you can turn off the selection animation in the list (Win10 only)
+
+#####UI update
+
+>#####Updated with a new appearance, officially support for Windows 11
+
+>#####Updated the prompt when a forced upgrade is detected
+
+>#####Updated the appearance of marked files
+
+>#####Added a new display mode: Mica effect
+
+>#####When the task list is closed, the number of tasks in progress will be displayed
+
+>#####A navigator was added to the built-in picture viewer
+
+#####Bug fix
+
+>#####Fixed the problem that "Show hidden file" setting will not be applied to all vertical split views
+
+>#####Fixed the problem that the remaining time in the task list may be calculated incorrectly
+
+>#####Fixed the problem that the "Tab" key could not be used to switch the suggested items in the address box
+
+>#####Fixed the problem that a new tab may be created accidentally when entering a folder in "Libraries" through the "Enter" key in rare cases
+
+>#####Fixed the problem that the background of the navigation which in the left layout mode will be transparent after turning off the transparency effect in the system
+
+>#####Fixed the problem that in some cases the cross-process settings synchronization may not be correct
+
+>#####Fixed the problem that the USB device still exists in the list after removing it
+
+>#####Fixed the problem that the pictures in the built-in picture viewer are displayed out of order
+
+*****
 ###What's new in Ver.7.0.9.0
 
 #####UI update
