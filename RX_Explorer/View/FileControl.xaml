@@ -328,11 +328,11 @@
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="34" />
+            <RowDefinition Height="36" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Background="{ThemeResource ElementTransparentAcrylicBrush}"
-              Padding="0,2">
+        <Grid Padding="0,2"
+              Background="{ThemeResource ElementTransparentAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
@@ -401,14 +401,14 @@
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox VerticalAlignment="Stretch"
-                            Name="AddressBox"
+            <AutoSuggestBox Name="AddressBox"
                             Grid.ColumnSpan="2"
                             Grid.Column="4"
                             UpdateTextOnSelect="False"
                             QueryIcon="Forward"
                             x:FieldModifier="public"
                             IsRightTapEnabled="True"
+                            VerticalAlignment="Stretch"
                             PreviewKeyDown="AddressBox_PreviewKeyDown"
                             RightTapped="AddressBox_RightTapped"
                             GotFocus="AddressBox_GotFocus"
@@ -427,6 +427,7 @@
             <ListView HorizontalAlignment="Left"
                       VerticalAlignment="Stretch"
                       Margin="0,1"
+                      Padding="5,0,0,0"
                       SelectionMode="None"
                       Grid.Column="4"
                       x:Name="AddressButtonContainer"
@@ -501,13 +502,13 @@
                 </ListView.ItemContainerStyle>
             </ListView>
 
-            <ComboBox PlaceholderText="(此位置不可用)"
-                      x:Uid="ViewModeComboBox"
-                      HorizontalAlignment="Stretch"
-                      x:Name="ViewModeComboBox"
+            <ComboBox x:Name="ViewModeComboBox"
                       Margin="1,0,0,0"
                       Grid.Column="6"
                       IsEnabled="False"
+                      PlaceholderText="(此位置不可用)"
+                      x:Uid="ViewModeComboBox"
+                      HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}" />
 
@@ -697,6 +698,7 @@
             </AutoSuggestBox>
 
             <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     Padding="2,0,0,0"
                     Grid.Column="8"

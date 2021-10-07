@@ -195,18 +195,19 @@ namespace RX_Explorer
 
             if (e.ProgressPercentage >= 100)
             {
-                await Task.Delay(800);
-                TaskListProgress.Visibility = Visibility.Collapsed;
+                await Task.Delay(800).ContinueWith((_) => TaskListProgress.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
             }
             else
             {
                 TaskListProgress.Visibility = Visibility.Visible;
+                TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
             }
         }
 
         private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            EmptyTip.Visibility = QueueTaskController.ListItemSource.Any() ? Visibility.Collapsed : Visibility.Visible;
+            EmptyTip.Visibility = QueueTaskController.ListItemSource.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
+            TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
         }
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, Queue<string> ErrorList)

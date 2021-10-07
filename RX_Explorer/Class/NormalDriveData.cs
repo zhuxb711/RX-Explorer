@@ -7,7 +7,7 @@ namespace RX_Explorer.Class
 {
     public class NormalDriveData : DriveDataBase
     {
-        public NormalDriveData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType) : base(Device, Thumbnail, PropertiesRetrieve, DriveType)
+        public NormalDriveData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Device, Thumbnail, PropertiesRetrieve, DriveType, DriveId)
         {
 
         }

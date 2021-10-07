@@ -1882,7 +1882,8 @@
                                                                     <StackPanel MinWidth="230">
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
                                                                             <StackPanel Orientation="Horizontal">
-                                                                                <Viewbox Height="16">
+                                                                                <Viewbox Height="15"
+                                                                                         Margin="0,2,0,0">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
                                                                                               Foreground="Orange" />
@@ -1894,7 +1895,8 @@
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
                                                                             <StackPanel Orientation="Horizontal">
-                                                                                <Viewbox Height="16">
+                                                                                <Viewbox Height="15"
+                                                                                         Margin="0,2,0,0">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
                                                                                               Foreground="#22B324" />
@@ -1906,7 +1908,8 @@
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
                                                                             <StackPanel Orientation="Horizontal">
-                                                                                <Viewbox Height="16">
+                                                                                <Viewbox Height="15"
+                                                                                         Margin="0,2,0,0">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
                                                                                               Foreground="#CC6EFF" />
@@ -1918,7 +1921,8 @@
                                                                         </CheckBox>
                                                                         <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
                                                                             <StackPanel Orientation="Horizontal">
-                                                                                <Viewbox Height="16">
+                                                                                <Viewbox Height="15"
+                                                                                         Margin="0,2,0,0">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xF127;"
                                                                                               Foreground="#42C5FF" />

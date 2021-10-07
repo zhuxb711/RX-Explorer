@@ -303,15 +303,18 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        foreach (DeviceInformation Drive in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
+                        foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
                         {
                             try
                             {
-                                StorageFolder Folder = StorageDevice.FromId(Drive.Id);
-
-                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (DriveList.All((Drive) => Drive.DriveId != Device.Id))
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Removable, Folder));
+                                    DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, Device.Id);
+
+                                    if (DriveList.All((Drive) => !(Drive.Path?.Equals(NewDrive.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                    {
+                                        DriveList.Add(NewDrive);
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -371,42 +374,43 @@ namespace RX_Explorer.Class
 
         private static async void PortalDriveWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            try
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                StorageFolder Folder = StorageDevice.FromId(args.Id);
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                try
                 {
-                    foreach (DriveDataBase Drive in DriveList.Where((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                    if (DriveList.FirstOrDefault((Drive) => Drive.DriveId == args.Id) is DriveDataBase RemovedDrive)
                     {
-                        DriveList.Remove(Drive);
+                        DriveList.Remove(RemovedDrive);
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw when removing drive from {nameof(DriveList)}");
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw im {nameof(PortalDriveWatcher_Removed)}");
+                }
+            });
         }
 
         private static async void PortalDriveWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            try
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
-                StorageFolder Folder = StorageDevice.FromId(args.Id);
-
-                if (DriveList.All((Drive) => (string.IsNullOrEmpty(Drive.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Drive.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Drive.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                try
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    if (DriveList.All((Drive) => Drive.DriveId != args.Id))
                     {
-                        DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Removable, Folder));
-                    });
+                        DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, args.Id);
+
+                        if (DriveList.All((Drive) => !(Drive.Path?.Equals(NewDrive.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                        {
+                            DriveList.Add(NewDrive);
+                        }
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw when adding drive to {nameof(DriveList)}");
-            }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
+                }
+            });
         }
 
         private async static void DriveList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

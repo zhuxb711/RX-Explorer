@@ -6,7 +6,7 @@ namespace RX_Explorer.Class
 {
     public class WslDriveData : DriveDataBase
     {
-        public WslDriveData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve) : base(Device, Thumbnail, PropertiesRetrieve, System.IO.DriveType.Network)
+        public WslDriveData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, string DriveId = null) : base(Device, Thumbnail, PropertiesRetrieve, System.IO.DriveType.Network, DriveId)
         {
 
         }

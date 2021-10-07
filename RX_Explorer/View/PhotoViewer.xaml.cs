@@ -5,6 +5,7 @@ using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -97,11 +98,15 @@ namespace RX_Explorer
 
                     if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
                     {
-                        FileSystemStorageFile[] PictureFileList = (await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
+                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
                         {
                             string Extension = Path.GetExtension(Name);
                             return Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase);
-                        })).Cast<FileSystemStorageFile>().ToArray();
+                        });
+
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
+
+                        FileSystemStorageFile[] PictureFileList = SortCollectionGenerator.GetSortedCollection(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()).ToArray();
 
                         if (PictureFileList.Length == 0)
                         {
@@ -118,6 +123,9 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            Pips.NumberOfPages = PictureFileList.Length;
+                            Pips.Visibility = Visibility.Visible;
+
                             int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase));
 
                             if (LastSelectIndex < 0 || LastSelectIndex > PictureFileList.Length - 1)
@@ -174,6 +182,7 @@ namespace RX_Explorer
                 PhotoCollection.Clear();
 
                 Flip.Opacity = 0;
+                Pips.Visibility = Visibility.Collapsed;
             }
         }
 

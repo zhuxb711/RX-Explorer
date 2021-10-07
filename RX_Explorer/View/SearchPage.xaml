@@ -227,7 +227,8 @@
                                         <StackPanel MinWidth="230">
                                             <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16">
+                                                    <Viewbox Height="15"
+                                                             Margin="0,2,0,0">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xF127;"
                                                                   Foreground="Orange" />
@@ -239,7 +240,8 @@
                                             </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16">
+                                                    <Viewbox Height="15"
+                                                             Margin="0,2,0,0">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xF127;"
                                                                   Foreground="#22B324" />
@@ -251,7 +253,8 @@
                                             </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16">
+                                                    <Viewbox Height="15"
+                                                             Margin="0,2,0,0">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xF127;"
                                                                   Foreground="#CC6EFF" />
@@ -263,7 +266,8 @@
                                             </CheckBox>
                                             <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Viewbox Height="16">
+                                                    <Viewbox Height="15"
+                                                             Margin="0,2,0,0">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Glyph="&#xF127;"
                                                                   Foreground="#42C5FF" />
@@ -699,8 +703,7 @@
             </ListView.HeaderTemplate>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
-                    <Grid Margin="2,1.5,1,2"
-                          Background="{x:Bind AccentColor,Mode=OneWay}">
+                    <Grid Background="Transparent">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
                             <ColumnDefinition Width="3*" />
@@ -712,6 +715,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44" />
                                 <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
                             </Grid.ColumnDefinitions>
                             <Image VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
@@ -736,6 +740,13 @@
                                        x:Phase="0"
                                        ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
+                            <Border Grid.Column="2"
+                                    CornerRadius="2"
+                                    Margin="0,5"
+                                    Width="4"
+                                    Background="{x:Bind AccentColor,Mode=OneWay}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"

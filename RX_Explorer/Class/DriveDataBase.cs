@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI;
@@ -169,11 +170,18 @@ namespace RX_Explorer.Class
 
         public DriveType DriveType { get; private set; }
 
+        public string DriveId { get; }
+
         private readonly UISettings UIS;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder Drive)
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
+        {
+            return await CreateAsync(DriveType, await Task.Run(() => StorageDevice.FromId(DriveId)), DriveId);
+        }
+
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder Drive, string DriveId = null)
         {
             BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
 
@@ -181,7 +189,7 @@ namespace RX_Explorer.Class
 
             if (Drive.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                return new WslDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NetworkDriveIconUri), PropertiesRetrieve);
+                return new WslDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NetworkDriveIconUri), PropertiesRetrieve, DriveId);
             }
             else
             {
@@ -212,7 +220,7 @@ namespace RX_Explorer.Class
                     {
                         case 6 when !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"):
                             {
-                                return new LockedDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri), PropertiesRetrieve, DriveType);
+                                return new LockedDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri), PropertiesRetrieve, DriveType, DriveId);
                             }
                         case 3:
                         case 2:
@@ -231,7 +239,7 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType, DriveId);
                             }
                         default:
                             {
@@ -249,7 +257,7 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType, DriveId);
                             }
                     }
                 }
@@ -273,7 +281,7 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                    return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType, DriveId);
                 }
             }
         }
@@ -297,11 +305,12 @@ namespace RX_Explorer.Class
         /// <param name="DriveFolder">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        protected DriveDataBase(StorageFolder DriveFolder, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
+        protected DriveDataBase(StorageFolder DriveFolder, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
         {
             this.DriveFolder = DriveFolder ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail;
             this.DriveType = DriveType;
+            this.DriveId = DriveId;
 
             UIS = new UISettings();
             UIS.ColorValuesChanged += UIS_ColorValuesChanged;

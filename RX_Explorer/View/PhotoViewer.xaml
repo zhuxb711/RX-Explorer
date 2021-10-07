@@ -26,6 +26,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         <CommandBar Background="Transparent"
                     HorizontalAlignment="Center"
@@ -87,6 +88,15 @@
                 </DataTemplate>
             </FlipView.ItemTemplate>
         </FlipView>
+        
+        <muxc:PipsPager SelectedPageIndex="{x:Bind Flip.SelectedIndex,Mode=TwoWay}"
+                        PreviousButtonVisibility="Visible"
+                        NextButtonVisibility="Visible"
+                        Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Name="Pips"
+                        Visibility="Collapsed"/>
 
         <controls:Loading x:Name="TranscodeLoadingControl"
                           IsLoading="False"

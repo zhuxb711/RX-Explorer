@@ -11,6 +11,7 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Cls:InverseConverter x:Key="InverseConverter"/>
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
 
         <DataTemplate x:Name="TabViewItemHeaderTemplate">
@@ -85,12 +86,17 @@
                             Name="TaskListPanelButton"
                             Padding="5,3"
                             Click="TaskListPanelButton_Click">
-                        <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
-                            <StackPanel Orientation="Horizontal">
-                                <Viewbox>
+                        <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal"
+                                        ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                                <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xEE92;" />
                                 </Viewbox>
+                                <muxc:InfoBadge Name="TaskListBadge"
+                                                VerticalAlignment="Center"
+                                                Margin="0,1,0,0"
+                                                Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay}" />
                                 <TextBlock Text="任务列表"
                                            x:Uid="TaskListPanelTitle"
                                            VerticalAlignment="Center"
