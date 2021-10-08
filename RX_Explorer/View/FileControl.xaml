@@ -313,20 +313,6 @@
                           Target="{x:Bind IndexerQuestion}"
                           x:Name="UseIndexerTip"
                           Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确" />
-
-        <muxc:TeachingTip Title="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionTitle')}"
-                          Target="{x:Bind VerticalSplitViewButton}"
-                          PreferredPlacement="BottomLeft"
-                          x:Name="VerticalSplitTip"
-                          HeroContentPlacement="Bottom"
-                          Subtitle="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionSubtitle')}"
-                          ActionButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/ActionButtonContent')}"
-                          CloseButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/CloseButtonContent')}"
-                          ActionButtonClick="VerticalSplitTip_ActionButtonClick">
-            <muxc:TeachingTip.HeroContent>
-                <Image Source="ms-appx:///Assets/VerticalSplitHero.png" />
-            </muxc:TeachingTip.HeroContent>
-        </muxc:TeachingTip>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -343,8 +329,6 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="220" />
-                <ColumnDefinition Width="70" />
-                <ColumnDefinition Width="40" />
             </Grid.ColumnDefinitions>
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -688,68 +672,6 @@
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
             </AutoSuggestBox>
-
-            <muxc:SplitButton Grid.Column="7"
-                              Margin="1,0,0,0"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch">
-                <Viewbox VerticalAlignment="Stretch"
-                         HorizontalAlignment="Stretch">
-                    <SymbolIcon Symbol="Account" />
-                </Viewbox>
-                <muxc:SplitButton.Flyout>
-                    <Flyout Placement="Bottom">
-                        <Flyout.FlyoutPresenterStyle>
-                            <Style TargetType="FlyoutPresenter">
-                                <Setter Property="CornerRadius"
-                                        Value="{StaticResource CustomCornerRadius}" />
-                                <Setter Property="Padding"
-                                        Value="0" />
-                                <Setter Property="Background"
-                                        Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                            </Style>
-                        </Flyout.FlyoutPresenterStyle>
-                        <ListView x:Name="ViewModeList"
-                                  SelectionMode="Single"
-                                  MinWidth="200"
-                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                                  ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="20"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Viewbox HorizontalAlignment="Stretch">
-                                            <SymbolIcon Symbol="Account" />
-                                        </Viewbox>
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding}"
-                                                   Margin="10,0,0,0"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Flyout>
-                </muxc:SplitButton.Flyout>
-            </muxc:SplitButton>
-
-            <Button HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    Padding="2,0,0,0"
-                    Grid.Column="8"
-                    Margin="1,0,0,0"
-                    Click="VerticalSplitViewButton_Click"
-                    x:Name="VerticalSplitViewButton"
-                    x:Uid="VerticalSplitViewButton"
-                    ToolTipService.ToolTip="创建新的垂直拆分视图">
-                <Viewbox>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE140;" />
-                </Viewbox>
-            </Button>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

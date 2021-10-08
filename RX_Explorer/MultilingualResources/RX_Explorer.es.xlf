@@ -4175,10 +4175,6 @@ Las denominaciones no válidas son:
           <source>Enabled</source>
           <target state="translated">Activado</target>
         </trans-unit>
-        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>(Not available)</source>
-          <target state="translated">(No disponible)</target>
-        </trans-unit>
         <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
           <source>Actual size</source>
           <target state="translated">Tamaño actual</target>
@@ -4286,6 +4282,10 @@ Las denominaciones no válidas son:
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
           <source>Mica effect</source>
           <target state="translated">Efecto mica</target>
+        </trans-unit>
+        <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Layout mode</source>
+          <target state="translated">Modo de diseño</target>
         </trans-unit>
       </group>
     </body>

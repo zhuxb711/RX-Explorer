@@ -226,6 +226,8 @@
     <Compile Include="Class\SLEInputStream.cs" />
     <Compile Include="Class\SLEOutputStream.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
+    <Compile Include="Class\LayoutModeChangedEventArgs.cs" />
+    <Compile Include="Class\LayoutModeModel.cs" />
     <Compile Include="Class\Win32_File_Data.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="Dialog\AQSGuide.xaml.cs">
@@ -277,7 +279,7 @@
     <Compile Include="Class\TerminalProfile.cs" />
     <Compile Include="Class\TreeViewNodeContent.cs" />
     <Compile Include="Class\ValueConverter.cs" />
-    <Compile Include="Class\ViewModeController.cs" />
+    <Compile Include="Class\LayoutModeController.cs" />
     <Compile Include="Class\Win32_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
     <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">

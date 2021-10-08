@@ -4175,10 +4175,6 @@ Inkorrekte Namen sind
           <source>Enabled</source>
           <target state="translated">Ermöglicht</target>
         </trans-unit>
-        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>(Not available)</source>
-          <target state="translated">(Nicht verfügbar)</target>
-        </trans-unit>
         <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
           <source>Actual size</source>
           <target state="translated">Tatsächliche Größe</target>
@@ -4286,6 +4282,10 @@ Inkorrekte Namen sind
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
           <source>Mica effect</source>
           <target state="translated">Glimmer-Effekt</target>
+        </trans-unit>
+        <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Layout mode</source>
+          <target state="translated">Layoutmodus</target>
         </trans-unit>
       </group>
     </body>

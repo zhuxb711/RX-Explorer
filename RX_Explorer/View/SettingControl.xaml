@@ -421,7 +421,8 @@
                           MinWidth="150"
                           Name="DefaultDisplayMode"
                           x:Uid="DefaultDisplayMode"
-                          ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
+                          DisplayMemberPath="DisplayName"
+                          ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                 <StackPanel Orientation="Horizontal"

@@ -3251,9 +3251,6 @@ Invalid names include
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Enabled</value>
   </data>
-  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
-    <value>(Not available)</value>
-  </data>
   <data name="ActualSize.Text" xml:space="preserve">
     <value>Actual size</value>
   </data>
@@ -3334,5 +3331,8 @@ Invalid names include
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
     <value>Mica effect</value>
+  </data>
+  <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Layout mode</value>
   </data>
 </root>

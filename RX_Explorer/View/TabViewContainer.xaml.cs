@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -44,6 +45,8 @@ namespace RX_Explorer
 
         private readonly DispatcherTimer PreviewTimer;
 
+        public readonly LayoutModeController LayoutModeControl;
+
         public TabViewContainer()
         {
             InitializeComponent();
@@ -56,6 +59,8 @@ namespace RX_Explorer
             };
 
             TabCollection = new ObservableCollection<TabViewItem>();
+
+            LayoutModeControl = new LayoutModeController();
 
             PreviewTimer.Tick += PreviewTimer_Tick;
             Loaded += TabViewContainer_Loaded;
@@ -859,17 +864,30 @@ namespace RX_Explorer
                 {
                     CurrentNavigationControl = ContentFrame;
                     CurrentNavigationControl.Navigated += Nav_Navigated;
+
+                    if (ContentFrame.Content is FileControl Control)
+                    {
+                        switch(Control.CurrentPresenter?.CurrentFolder)
+                        {
+                            case RootStorageFolder:
+                                {
+                                    LayoutModeControl.IsEnabled = false;
+                                    break;
+                                }
+                            case FileSystemStorageFolder CurrentFolder:
+                                {
+                                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+
+                                    LayoutModeControl.IsEnabled = true;
+                                    LayoutModeControl.CurrentPath = CurrentFolder.Path;
+                                    LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
+                                    break;
+                                }
+                        }
+                    }
                 }
 
-                if (CurrentNavigationControl.Content is Home)
-                {
-                    TaskBarController.SetText(null);
-                }
-                else
-                {
-                    TaskBarController.SetText(Convert.ToString(Item.Header));
-                }
-
+                TaskBarController.SetText(Convert.ToString(Item.Header));
                 MainPage.Current.NavView.IsBackEnabled = (MainPage.Current.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
             }
         }
@@ -1237,6 +1255,82 @@ namespace RX_Explorer
                 {
                     await CleanUpAndRemoveTabItem(RemoveItem);
                 }
+            }
+        }
+
+        private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentNavigationControl?.Content is FileControl Control)
+            {
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    await Control.CreateNewBladeAsync(Control.CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+                }
+                else
+                {
+                    VerticalSplitTip.IsOpen = true;
+                }
+            }
+        }
+
+        private async void VerticalSplitTip_ActionButtonClick(TeachingTip sender, object args)
+        {
+            sender.IsOpen = false;
+
+            switch (await MSStoreHelper.Current.PurchaseAsync())
+            {
+                case StorePurchaseStatus.Succeeded:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await QueueContenDialog.ShowAsync();
+
+                        break;
+                    }
+                case StorePurchaseStatus.AlreadyPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await QueueContenDialog.ShowAsync();
+
+                        break;
+                    }
+                case StorePurchaseStatus.NotPurchased:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await QueueContenDialog.ShowAsync();
+
+                        break;
+                    }
+                default:
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await QueueContenDialog.ShowAsync();
+
+                        break;
+                    }
             }
         }
     }

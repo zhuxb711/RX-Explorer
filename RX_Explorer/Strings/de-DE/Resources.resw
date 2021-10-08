@@ -3146,9 +3146,6 @@ Inkorrekte Namen sind
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Ermöglicht</value>
   </data>
-  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
-    <value>(Nicht verfügbar)</value>
-  </data>
   <data name="ActualSize.Text" xml:space="preserve">
     <value>Tatsächliche Größe</value>
   </data>
@@ -3229,5 +3226,8 @@ Inkorrekte Namen sind
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
     <value>Glimmer-Effekt</value>
+  </data>
+  <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Layoutmodus</value>
   </data>
 </root>

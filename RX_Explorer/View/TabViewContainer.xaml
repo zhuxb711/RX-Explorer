@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:sys="using:System"
       mc:Ignorable="d"
@@ -13,6 +14,7 @@
     <Page.Resources>
         <Cls:InverseConverter x:Key="InverseConverter"/>
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <DataTemplate x:Name="TabViewItemHeaderTemplate">
             <StackPanel HorizontalAlignment="Stretch"
@@ -43,19 +45,28 @@
                               Click="CloseButThis_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+
+        <muxc:TeachingTip Title="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionTitle')}"
+                          Target="{x:Bind VerticalSplitViewButton}"
+                          PreferredPlacement="BottomLeft"
+                          x:Name="VerticalSplitTip"
+                          HeroContentPlacement="Bottom"
+                          Subtitle="{x:Bind Cls:Globalization.GetString('VerticalSplitQuestionSubtitle')}"
+                          ActionButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/ActionButtonContent')}"
+                          CloseButtonContent="{x:Bind Cls:Globalization.GetString('PurchaseTip/CloseButtonContent')}"
+                          ActionButtonClick="VerticalSplitTip_ActionButtonClick">
+            <muxc:TeachingTip.HeroContent>
+                <Image Source="ms-appx:///Assets/VerticalSplitHero.png" />
+            </muxc:TeachingTip.HeroContent>
+        </muxc:TeachingTip>
     </Page.Resources>
 
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
                OpenPaneLength="330"
-               x:FieldModifier="public">
-        <SplitView.PaneBackground>
-            <AcrylicBrush BackgroundSource="Backdrop"
-                          TintColor="Gray"
-                          TintOpacity="0.1"
-                          FallbackColor="{ThemeResource SystemAltMediumHighColor}" />
-        </SplitView.PaneBackground>
+               x:FieldModifier="public"
+               PaneBackground="{ThemeResource ElementCustomAcrylicBrush}">
         <Grid>
             <muxc:TabView TabWidthMode="Equal"
                           Name="TabViewControl"
@@ -79,39 +90,119 @@
                                      Color="Transparent" />
                 </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
-                    <Button VerticalContentAlignment="Center"
-                            Background="Transparent"
-                            Name="TaskListPanelButton"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Padding="5,3"
-                            Click="TaskListPanelButton_Click">
-                        <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                            <StackPanel Orientation="Horizontal"
-                                        ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                                <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Background="{ThemeResource ElementCustomAcrylicBrush}">
+                        <Button HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="1,0,0,0"
+                                Width="42"
+                                Height="30"
+                                Padding="0"
+                                Click="VerticalSplitViewButton_Click"
+                                x:Name="VerticalSplitViewButton"
+                                x:Uid="VerticalSplitViewButton"
+                                ToolTipService.ToolTip="创建新的垂直拆分视图">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xEA61;" />
+                            </Viewbox>
+                        </Button>
+                        <Button Name="TaskListPanelButton"
+                                ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('TaskListPanelTitle/Text')}"
+                                Margin="1,0,0,0"
+                                Width="42"
+                                Height="30"
+                                Padding="0"
+                                VerticalContentAlignment="Center"
+                                Click="TaskListPanelButton_Click">
+                            <Grid ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                                <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Center"
+                                         Width="20"
+                                         Height="20">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                              Glyph="&#xEE92;" />
+                                              Glyph="&#xE7C4;" />
                                 </Viewbox>
                                 <muxc:InfoBadge Name="TaskListBadge"
                                                 VerticalAlignment="Center"
-                                                Margin="0,1,0,0"
+                                                HorizontalAlignment="Center"
+                                                Width="14"
+                                                Height="14"
                                                 Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay}" />
-                                <TextBlock Text="任务列表"
-                                           x:Uid="TaskListPanelTitle"
-                                           VerticalAlignment="Center"
-                                           Margin="5,0,2,0" />
-                            </StackPanel>
-                            <muxc:ProgressBar Minimum="0"
-                                              Maximum="100"
-                                              Height="4"
-                                              Value="0"
-                                              Margin="0,4,0,0"
-                                              Name="TaskListProgress"
-                                              Visibility="Collapsed"
-                                              HorizontalAlignment="Stretch" />
-                        </StackPanel>
-                    </Button>
+                                <muxc:ProgressRing Minimum="0"
+                                                   Maximum="100"
+                                                   Value="0"
+                                                   Width="24"
+                                                   Height="24"
+                                                   Name="TaskListProgress"
+                                                   Visibility="Collapsed"
+                                                   IsActive="True"
+                                                   IsIndeterminate="False"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                            </Grid>
+                        </Button>
+                        <muxc:SplitButton Width="70"
+                                          Height="30"
+                                          Padding="0"
+                                          VerticalAlignment="Stretch"
+                                          x:Uid="ViewModeControl"
+                                          IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}">
+                            <Viewbox VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Width="20"
+                                     Height="20">
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xF246;" />
+                            </Viewbox>
+                            <muxc:SplitButton.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedRight">
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style TargetType="FlyoutPresenter">
+                                            <Setter Property="CornerRadius"
+                                                    Value="{StaticResource CustomCornerRadius}" />
+                                            <Setter Property="Padding"
+                                                    Value="0" />
+                                            <Setter Property="Background"
+                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <ListView x:Name="ViewModeList"
+                                              SelectionMode="Single"
+                                              MinWidth="200"
+                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                              ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
+                                              SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:LayoutModeModel">
+                                                <Grid Padding="10,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="20" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Viewbox HorizontalAlignment="Stretch"
+                                                             VerticalAlignment="Center">
+                                                        <FontIcon Glyph="{x:Bind IconGlyph}" />
+                                                    </Viewbox>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{x:Bind DisplayName}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="10,0,0,0" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </Flyout>
+                            </muxc:SplitButton.Flyout>
+                        </muxc:SplitButton>
+                    </StackPanel>
                 </muxc:TabView.TabStripFooter>
             </muxc:TabView>
         </Grid>

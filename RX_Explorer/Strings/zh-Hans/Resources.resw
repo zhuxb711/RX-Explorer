@@ -3146,9 +3146,6 @@
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
-  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
-    <value>(此位置不可用)</value>
-  </data>
   <data name="ActualSize.Text" xml:space="preserve">
     <value>实际大小</value>
   </data>
@@ -3229,5 +3226,8 @@
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
     <value>云母效果</value>
+  </data>
+  <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
+    <value>布局模式</value>
   </data>
 </root>

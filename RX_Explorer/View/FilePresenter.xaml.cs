@@ -57,7 +57,7 @@ namespace RX_Explorer
 
         private WeakReference<FileControl> WeakToFileControl;
 
-        public FileControl Container
+        private FileControl Container
         {
             get
             {
@@ -172,7 +172,6 @@ namespace RX_Explorer
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource DelayTooltipCancellation;
-        private int CurrentViewModeIndex = -1;
         private bool GroupedEnable;
 
         private bool IsGroupedEnable
@@ -213,9 +212,11 @@ namespace RX_Explorer
             }
         }
 
-        public FilePresenter()
+        public FilePresenter(FileControl Container)
         {
             InitializeComponent();
+
+            this.Container = Container;
 
             GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
 
@@ -244,7 +245,7 @@ namespace RX_Explorer
             Application.Current.Resuming += Current_Resuming;
             SortCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
-            ViewModeController.ViewModeChanged += Current_ViewModeChanged;
+            LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
         }
 
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
@@ -792,16 +793,14 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
+        private void Current_ViewModeChanged(object sender, LayoutModeChangedEventArgs e)
         {
             if ((e.Path?.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {
-                if (CurrentViewModeIndex != e.Index && e.Index >= 0 && e.Index < ViewModeController.SelectionSource.Length)
+                if (e.Index >= 0 && e.Index < LayoutModeController.ItemsSource.Count)
                 {
                     try
                     {
-                        CurrentViewModeIndex = e.Index;
-
                         ItemPresenter = e.Index switch
                         {
                             0 => GridViewTilesControl,
@@ -906,7 +905,7 @@ namespace RX_Explorer
                     if (Folder is RootStorageFolder)
                     {
                         CurrentFolder = RootStorageFolder.Instance;
-                        Container.ViewModeControl.DisableSelection();
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
                         FileCollection.Clear();
                         GroupCollection.Clear();
 
@@ -915,8 +914,6 @@ namespace RX_Explorer
                     else if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                     {
                         CurrentFolder = Folder;
-
-                        Container.ViewModeControl.EnableSelection();
 
                         if (Container.FolderTree.SelectedNode == null
                             && Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(Folder.Path).Equals((Node.Content as TreeViewNodeContent)?.Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
@@ -929,7 +926,9 @@ namespace RX_Explorer
 
                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(Folder.Path);
 
-                        await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
+                        TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
+                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
                         IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
 
@@ -1024,7 +1023,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             int Delta = e.GetCurrentPoint(null).Properties.MouseWheelDelta;
 
@@ -1032,16 +1031,16 @@ namespace RX_Explorer
             {
                 if (Delta > 0)
                 {
-                    if (Container.ViewModeControl.ViewModeIndex > 0)
+                    if (TabViewContainer.Current.LayoutModeControl.ViewModeIndex > 0)
                     {
-                        await Container.ViewModeControl.SetCurrentViewMode(CurrentFolder.Path, Container.ViewModeControl.ViewModeIndex - 1);
+                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex--;
                     }
                 }
                 else
                 {
-                    if (Container.ViewModeControl.ViewModeIndex < ViewModeController.SelectionSource.Length - 1)
+                    if (TabViewContainer.Current.LayoutModeControl.ViewModeIndex < LayoutModeController.ItemsSource.Count - 1)
                     {
-                        await Container.ViewModeControl.SetCurrentViewMode(CurrentFolder.Path, Container.ViewModeControl.ViewModeIndex + 1);
+                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex++;
                     }
                 }
 
@@ -3537,7 +3536,7 @@ namespace RX_Explorer
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        switch (Container.ViewModeControl.ViewModeIndex)
+                        switch (TabViewContainer.Current.LayoutModeControl.ViewModeIndex)
                         {
                             case 0:
                             case 1:
@@ -5451,7 +5450,7 @@ namespace RX_Explorer
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
-            ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
+            LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
         }
     }
 }

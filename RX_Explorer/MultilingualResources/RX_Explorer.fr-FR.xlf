@@ -4177,10 +4177,6 @@ Les noms non valides incluent
           <source>Enabled</source>
           <target state="translated">Activé</target>
         </trans-unit>
-        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>(Not available)</source>
-          <target state="translated">(Pas disponible)</target>
-        </trans-unit>
         <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
           <source>Actual size</source>
           <target state="translated">Taille réelle</target>
@@ -4288,6 +4284,10 @@ Les noms non valides incluent
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
           <source>Mica effect</source>
           <target state="translated">Effet mica</target>
+        </trans-unit>
+        <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Layout mode</source>
+          <target state="translated">Mode de présentation</target>
         </trans-unit>
       </group>
     </body>

@@ -4177,10 +4177,6 @@ Invalid names include
           <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
-        <trans-unit id="ViewModeComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>(Not available)</source>
-          <target state="translated">(此位置不可用)</target>
-        </trans-unit>
         <trans-unit id="ActualSize.Text" translate="yes" xml:space="preserve">
           <source>Actual size</source>
           <target state="translated">实际大小</target>
@@ -4288,6 +4284,10 @@ Invalid names include
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
           <source>Mica effect</source>
           <target state="translated">云母效果</target>
+        </trans-unit>
+        <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Layout mode</source>
+          <target state="translated">布局模式</target>
         </trans-unit>
       </group>
     </body>

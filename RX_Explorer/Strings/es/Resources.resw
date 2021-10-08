@@ -3146,9 +3146,6 @@ Las denominaciones no válidas son:
   <data name="SettingTabPreview.OnContent" xml:space="preserve">
     <value>Activado</value>
   </data>
-  <data name="ViewModeComboBox.PlaceholderText" xml:space="preserve">
-    <value>(No disponible)</value>
-  </data>
   <data name="ActualSize.Text" xml:space="preserve">
     <value>Tamaño actual</value>
   </data>
@@ -3229,5 +3226,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
     <value>Efecto mica</value>
+  </data>
+  <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Modo de diseño</value>
   </data>
 </root>

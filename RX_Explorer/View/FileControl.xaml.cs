@@ -62,8 +62,6 @@ namespace RX_Explorer
         private readonly PointerEventHandler GoForwardButtonPressedHandler;
         private readonly PointerEventHandler GoForwardButtonReleasedHandler;
 
-        public ViewModeController ViewModeControl;
-
         private readonly Color AccentColor = (Color)Application.Current.Resources["SystemAccentColor"];
 
         private CancellationTokenSource DelayEnterCancel;
@@ -459,8 +457,6 @@ namespace RX_Explorer
 
                         CurrentTabItem = Parameters.Item1;
                         CurrentTabItem.Tag = this;
-
-                        ViewModeControl = new ViewModeController(ViewModeList);
 
                         await Initialize(Parameters.Item2);
                     }
@@ -2457,10 +2453,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    FilePresenter Presenter = new FilePresenter
-                    {
-                        Container = this
-                    };
+                    FilePresenter Presenter = new FilePresenter(this);
 
                     BladeItem Blade = new BladeItem
                     {
@@ -2597,7 +2590,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (BladeViewer.Items.Count > 1
                 && sender is BladeItem Blade && Blade.Content is FilePresenter Presenter
@@ -2611,14 +2604,15 @@ namespace RX_Explorer
                 {
                     if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                     {
-                        ViewModeControl.DisableSelection();
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = false;
                     }
                     else
                     {
-                        ViewModeControl.EnableSelection();
-
                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path);
-                        await ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+
+                        TabViewContainer.Current.LayoutModeControl.IsEnabled = true;
+                        TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
+                        TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
                     }
                 }
             }
@@ -2701,18 +2695,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not adjust the size of BladeItem");
-            }
-        }
-
-        private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                await CreateNewBladeAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
-            }
-            else
-            {
-                VerticalSplitTip.IsOpen = true;
             }
         }
 
@@ -2896,60 +2878,6 @@ namespace RX_Explorer
 
                     await dialog.ShowAsync();
                 }
-            }
-        }
-
-        private async void VerticalSplitTip_ActionButtonClick(TeachingTip sender, object args)
-        {
-            sender.IsOpen = false;
-
-            switch (await MSStoreHelper.Current.PurchaseAsync())
-            {
-                case StorePurchaseStatus.Succeeded:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                case StorePurchaseStatus.AlreadyPurchased:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                case StorePurchaseStatus.NotPurchased:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
-                default:
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                        break;
-                    }
             }
         }
 
@@ -3312,9 +3240,6 @@ namespace RX_Explorer
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;
             GoParentFolder.IsEnabled = false;
-
-            ViewModeControl?.Dispose();
-            ViewModeControl = null;
 
             DelayEnterCancel?.Dispose();
             DelayGoBackHoldCancel?.Dispose();
