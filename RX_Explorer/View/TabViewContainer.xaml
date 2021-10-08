@@ -79,11 +79,11 @@
                                      Color="Transparent" />
                 </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
-                    <Button HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            VerticalContentAlignment="Center"
+                    <Button VerticalContentAlignment="Center"
                             Background="Transparent"
                             Name="TaskListPanelButton"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
                             Padding="5,3"
                             Click="TaskListPanelButton_Click">
                         <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -109,7 +109,7 @@
                                               Margin="0,4,0,0"
                                               Name="TaskListProgress"
                                               Visibility="Collapsed"
-                                              HorizontalAlignment="Stretch"/>
+                                              HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Button>
                 </muxc:TabView.TabStripFooter>

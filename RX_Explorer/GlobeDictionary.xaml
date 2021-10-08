@@ -6,40 +6,28 @@
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-            <AcrylicBrush x:Key="ElementAccentAcrylicBrush"
+            <AcrylicBrush x:Key="ElementCustomAcrylicBrush"
                           BackgroundSource="Backdrop"
-                          TintColor="Gray"
+                          TintColor="{StaticResource ElementFallBackBlackColor}"
                           TintOpacity="0.1"
-                          FallbackColor="{ThemeResource ElementFallBackBlackColor}" />
-
-            <AcrylicBrush x:Key="ElementTransparentAcrylicBrush"
-                          BackgroundSource="Backdrop"
-                          TintColor="Black"
-                          TintOpacity="0.3"
-                          FallbackColor="{StaticResource ElementFallBackBlackDarkerColor}" />
+                          FallbackColor="{StaticResource ElementFallBackBlackColor}" />
 
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
-                          TintColor="Black"
+                          TintColor="{StaticResource ElementFallBackBlackDarkerColor}"
                           TintOpacity="0.5"
-                          FallbackColor="{ThemeResource ElementFallBackBlackDarkerColor}" />
+                          FallbackColor="{StaticResource ElementFallBackBlackDarkerColor}" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
-            <AcrylicBrush x:Key="ElementAccentAcrylicBrush"
+            <AcrylicBrush x:Key="ElementCustomAcrylicBrush"
                           BackgroundSource="Backdrop"
-                          TintColor="Gray"
+                          TintColor="{StaticResource ElementFallBackWhiteColor}"
                           TintOpacity="0.1"
-                          FallbackColor="{ThemeResource ElementFallBackWhiteColor}" />
-
-            <AcrylicBrush x:Key="ElementTransparentAcrylicBrush"
-                          BackgroundSource="Backdrop"
-                          TintColor="Gray"
-                          TintOpacity="0.3"
-                          FallbackColor="{StaticResource ElementFallBackWhiteLighterColor}" />
+                          FallbackColor="{StaticResource ElementFallBackWhiteColor}" />
 
             <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                           BackgroundSource="Backdrop"
-                          TintColor="White"
+                          TintColor="{StaticResource ElementFallBackWhiteLighterColor}"
                           TintOpacity="0.5"
                           FallbackColor="{StaticResource ElementFallBackWhiteLighterColor}" />
         </ResourceDictionary>
@@ -284,7 +272,7 @@
     <Style TargetType="Button"
            x:Key="ListHeaderButtonStyle">
         <Setter Property="Background"
-                Value="{ThemeResource ButtonRevealBackground}" />
+                Value="Transparent" />
         <Setter Property="Foreground"
                 Value="{ThemeResource ButtonForeground}" />
         <Setter Property="BorderBrush"

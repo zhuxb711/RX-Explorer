@@ -9,6 +9,7 @@
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:Interface="using:RX_Explorer.Interface"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       mc:Ignorable="d"
       Background="Transparent"
@@ -102,7 +103,10 @@
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <ListView.Header>
-                <Grid Height="35">
+                <Grid Height="35"
+                      Background="{ThemeResource ElementCustomAcrylicBrush}"
+                      Windows11Present:Padding="12,0"
+                      Windows11NotPresent:Padding="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="4*" />
                         <ColumnDefinition Width="3*" />
@@ -117,7 +121,6 @@
                             Grid.Column="0"
                             x:Name="ListHeaderName"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="名称"
@@ -140,7 +143,6 @@
                             Grid.Column="1"
                             x:Name="ListHeaderOriginLocation"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="原位置"
@@ -163,7 +165,6 @@
                             Grid.Column="2"
                             Name="ListHeaderModifiedTime"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="删除日期"
@@ -186,7 +187,6 @@
                             VerticalAlignment="Stretch"
                             Name="ListHeaderType"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="类型"
@@ -209,7 +209,6 @@
                             Name="ListHeaderSize"
                             Grid.Column="4"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="大小"
@@ -272,7 +271,7 @@
                                    ToolTipService.ToolTip="{x:Bind OriginPath}"
                                    Grid.Column="1"
                                    x:Phase="0"
-                                   Padding="8,0,0,0"
+                                   Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
@@ -280,7 +279,7 @@
                                    ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription}"
                                    Grid.Column="2"
                                    x:Phase="0"
-                                   Padding="8,0,0,0"
+                                   Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
@@ -288,11 +287,11 @@
                                    ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
                                    Grid.Column="3"
                                    x:Phase="0"
-                                   Margin="8,0,0,0"
+                                   Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
-                                   Padding="8,0,0,0"
+                                   Padding="10,0,0,0"
                                    Text="{x:Bind SizeDescription, Mode=OneWay}"
                                    x:Phase="1"
                                    ToolTipService.ToolTip="{x:Bind SizeDescription, Mode=OneWay}"

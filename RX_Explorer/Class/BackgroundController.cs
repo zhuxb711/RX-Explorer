@@ -226,25 +226,6 @@ namespace RX_Explorer.Class
 
                             CurrentType = BackgroundBrushType.SolidColor;
 
-                            if (Application.Current.Resources.MergedDictionaries.FirstOrDefault((Res) => Res.Source.AbsoluteUri.Contains("GlobeDictionary.xaml")) is ResourceDictionary GlobeDictionary)
-                            {
-                                foreach (string DicKey in new string[] { "Dark", "Light" })
-                                {
-                                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
-                                    {
-                                        if (Dictionary.TryGetValue("ElementAccentAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
-                                        {
-                                            ElementBrushInstance.AlwaysUseFallback = true;
-                                        }
-
-                                        if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
-                                        {
-                                            TabViewBrushInstance.AlwaysUseFallback = true;
-                                        }
-                                    }
-                                }
-                            }
-
                             break;
                         }
                     case 2:
@@ -747,25 +728,6 @@ namespace RX_Explorer.Class
                         AppThemeController.Current.SyncAndSetSystemTheme();
                         break;
                     }
-            }
-
-            if (Application.Current.Resources.MergedDictionaries.FirstOrDefault((Res) => Res.Source.AbsoluteUri.Contains("GlobeDictionary.xaml")) is ResourceDictionary GlobeDictionary)
-            {
-                foreach (string DicKey in new string[] { "Dark", "Light" })
-                {
-                    if (GlobeDictionary.ThemeDictionaries[DicKey] is ResourceDictionary Dictionary)
-                    {
-                        if (Dictionary.TryGetValue("ElementAccentAcrylicBrush", out object ElementBrush) && ElementBrush is AcrylicBrush ElementBrushInstance)
-                        {
-                            ElementBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-
-                        if (Dictionary.TryGetValue("TabViewItemHeaderBackgroundSelected", out object TabViewBrush) && TabViewBrush is AcrylicBrush TabViewBrushInstance)
-                        {
-                            TabViewBrushInstance.AlwaysUseFallback = Type == BackgroundBrushType.SolidColor;
-                        }
-                    }
-                }
             }
         }
 

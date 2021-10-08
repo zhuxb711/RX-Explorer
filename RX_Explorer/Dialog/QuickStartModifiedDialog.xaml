@@ -163,6 +163,8 @@
                                     x:Name="PickAppFlyout">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="CornerRadius"
+                                                Value="{StaticResource CustomCornerRadius}" />
                                         <Setter Property="Background"
                                                 Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                     </Style>

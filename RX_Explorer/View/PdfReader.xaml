@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
         <CommandBar DefaultLabelPosition="Right"
                     VerticalContentAlignment="Center"
-                    Background="{ThemeResource ElementAccentAcrylicBrush}">
+                    Background="{ThemeResource ElementCustomAcrylicBrush}">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="Zoom"
                               Icon="Zoom"

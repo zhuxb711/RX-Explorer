@@ -460,7 +460,7 @@ namespace RX_Explorer
                         CurrentTabItem = Parameters.Item1;
                         CurrentTabItem.Tag = this;
 
-                        ViewModeControl = new ViewModeController(ViewModeComboBox);
+                        ViewModeControl = new ViewModeController(ViewModeList);
 
                         await Initialize(Parameters.Item2);
                     }
@@ -3014,9 +3014,9 @@ namespace RX_Explorer
                 {
                     Name = "SendLinkItem",
                     Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
-                    Icon = new ImageIcon 
-                    { 
-                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")) 
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico"))
                     },
                     MinWidth = 150,
                     MaxWidth = 350

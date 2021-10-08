@@ -326,22 +326,6 @@
                 </StackPanel>
             </ScrollViewer>
         </muxc:TeachingTip>
-
-        <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
-                         Color="Transparent" />
-
-        <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
-                      BackgroundSource="Backdrop"
-                      TintColor="Gray"
-                      TintOpacity="0.1" 
-                      FallbackColor="{ThemeResource SystemAltMediumHighColor}"/>
-
-        <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
-                      BackgroundSource="Backdrop"
-                      TintColor="Gray"
-                      TintOpacity="0.1"
-                      FallbackColor="{ThemeResource SystemAltMediumHighColor}"/>
-
     </Page.Resources>
 
     <Grid>
@@ -377,12 +361,18 @@
                              PaneClosing="NavView_PaneClosing"
                              PaneOpening="NavView_PaneOpening"
                              RightTapped="NavView_RightTapped"
-                             Loaded="NavView_Loaded">
+                             Loaded="NavView_Loaded" >
             <muxc:NavigationView.Resources>
+                <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
+                                 Color="Transparent"/>
                 <SolidColorBrush x:Key="NavigationViewContentBackground"
                                  Color="Transparent" />
                 <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
                                  Color="Transparent" />
+                <StaticResource x:Key="NavigationViewExpandedPaneBackground" 
+                                ResourceKey="ElementCustomAcrylicBrush"/>
+                <StaticResource x:Key="NavigationViewDefaultPaneBackground"
+                                ResourceKey="ElementCustomAcrylicBrush" />
             </muxc:NavigationView.Resources>
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"

@@ -7,6 +7,7 @@
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
@@ -20,7 +21,8 @@
         <Cls:AddressSuggestionDataTemplateSelector x:Key="AddressTemplateSelector"
                                                   PathOnlyTemplate="{StaticResource AddressPathOnlyTemplate}"
                                                   DisplayNameAndPathTemplate="{StaticResource AddressDisplayNameAndPathTemplate}" />
-        
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+
         <DataTemplate x:Key="AddressPathOnlyTemplate"
                       x:DataType="Cls:AddressSuggestionItem">
             <RelativePanel HorizontalAlignment="Stretch"
@@ -332,7 +334,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Padding="0,2"
-              Background="{ThemeResource ElementTransparentAcrylicBrush}">
+              Background="{ThemeResource ElementCustomAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
@@ -340,8 +342,8 @@
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="80" />
-                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="40" />
             </Grid.ColumnDefinitions>
             <Button HorizontalAlignment="Stretch"
@@ -502,21 +504,11 @@
                 </ListView.ItemContainerStyle>
             </ListView>
 
-            <ComboBox x:Name="ViewModeComboBox"
-                      Margin="1,0,0,0"
-                      Grid.Column="6"
-                      IsEnabled="False"
-                      PlaceholderText="(此位置不可用)"
-                      x:Uid="ViewModeComboBox"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"
-                      ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}" />
-
             <AutoSuggestBox QueryIcon="Find"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
                             Margin="1,0,0,0"
-                            Grid.Column="7"
+                            Grid.Column="6"
                             x:FieldModifier="public"
                             VerticalAlignment="Stretch"
                             GotFocus="GlobeSearch_GotFocus"
@@ -696,6 +688,52 @@
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>
             </AutoSuggestBox>
+
+            <muxc:SplitButton Grid.Column="7"
+                              Margin="1,0,0,0"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch">
+                <Viewbox VerticalAlignment="Stretch"
+                         HorizontalAlignment="Stretch">
+                    <SymbolIcon Symbol="Account" />
+                </Viewbox>
+                <muxc:SplitButton.Flyout>
+                    <Flyout Placement="Bottom">
+                        <Flyout.FlyoutPresenterStyle>
+                            <Style TargetType="FlyoutPresenter">
+                                <Setter Property="CornerRadius"
+                                        Value="{StaticResource CustomCornerRadius}" />
+                                <Setter Property="Padding"
+                                        Value="0" />
+                                <Setter Property="Background"
+                                        Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                            </Style>
+                        </Flyout.FlyoutPresenterStyle>
+                        <ListView x:Name="ViewModeList"
+                                  SelectionMode="Single"
+                                  MinWidth="200"
+                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                  ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Viewbox HorizontalAlignment="Stretch">
+                                            <SymbolIcon Symbol="Account" />
+                                        </Viewbox>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding}"
+                                                   Margin="10,0,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Flyout>
+                </muxc:SplitButton.Flyout>
+            </muxc:SplitButton>
 
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"

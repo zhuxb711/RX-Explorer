@@ -7,6 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
@@ -213,7 +214,10 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.Header>
-                <Grid Height="35">
+                <Grid Height="35"
+                      Background="{ThemeResource ElementCustomAcrylicBrush}"
+                      Windows11Present:Padding="12,0"
+                      Windows11NotPresent:Padding="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5*" />
                         <ColumnDefinition Width="2.5*" />
@@ -228,7 +232,6 @@
                             x:Name="ListHeaderName"
                             Height="35"
                             Click="ListHeader_Click"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="名称"
@@ -251,7 +254,6 @@
                             Grid.Column="1"
                             Click="ListHeader_Click"
                             Name="ListHeaderModifiedTime"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="修改日期"
@@ -274,7 +276,6 @@
                             Height="35"
                             Click="ListHeader_Click"
                             Name="ListHeaderType"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="类型"
@@ -297,7 +298,6 @@
                             VerticalAlignment="Stretch"
                             Name="ListHeaderCompressedSize"
                             Height="35"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩大小"
@@ -320,7 +320,6 @@
                             Name="ListHeaderSize"
                             Click="ListHeader_Click"
                             Height="35"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="实际大小"
@@ -343,7 +342,6 @@
                             Name="ListHeaderCompressionRate"
                             Click="ListHeader_Click"
                             Height="35"
-                            Background="{ThemeResource ElementAccentAcrylicBrush}"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩比率"
