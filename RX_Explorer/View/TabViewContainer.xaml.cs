@@ -215,13 +215,13 @@ namespace RX_Explorer
             TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
         }
 
-        private async void CommonAccessCollection_LibraryNotFound(object sender, Queue<string> ErrorList)
+        private async void CommonAccessCollection_LibraryNotFound(object sender, IEnumerable<string> ErrorList)
         {
             StringBuilder Builder = new StringBuilder();
 
-            while (ErrorList.TryDequeue(out string ErrorMessage))
+            foreach (string Message in ErrorList)
             {
-                Builder.AppendLine($"   {ErrorMessage}");
+                Builder.AppendLine($"   {Message}");
             }
 
             QueueContentDialog dialog = new QueueContentDialog

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
     public class NormalDriveData : DriveDataBase
     {
-        public NormalDriveData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Device, Thumbnail, PropertiesRetrieve, DriveType, DriveId)
+        public NormalDriveData(StorageFolder Device, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Device, PropertiesRetrieve, DriveType, DriveId)
         {
 
         }

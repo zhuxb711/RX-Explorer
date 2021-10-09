@@ -16,7 +16,7 @@
 
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector"/>
-        
+        <Cls:ColorTagConverter x:Key="ColorTagConverter" />
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
 
@@ -217,7 +217,8 @@
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
-                                  Click="UnTag_Click">
+                                  Click="UnTag_Click"
+                                  Tag="Transparent">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEA92;" />
@@ -226,7 +227,8 @@
                     <AppBarButton Foreground="Orange"
                                   x:Uid="OrangeTag"
                                   ToolTipService.ToolTip="Orange"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Orange">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -235,7 +237,8 @@
                     <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Green">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -244,7 +247,8 @@
                     <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="PurpleTag"
                                   ToolTipService.ToolTip="Purple"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Purple">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -253,7 +257,8 @@
                     <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Blue">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -478,7 +483,8 @@
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
-                                  Click="MixUnTag_Click">
+                                  Click="MixUnTag_Click"
+                                  Tag="Transparent">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEA92;" />
@@ -487,7 +493,8 @@
                     <AppBarButton Foreground="Orange"
                                   x:Uid="OrangeTag"
                                   ToolTipService.ToolTip="Orange"
-                                  Click="MixColor_Click">
+                                  Click="MixColor_Click"
+                                  Tag="Orange">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -496,7 +503,8 @@
                     <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
-                                  Click="MixColor_Click">
+                                  Click="MixColor_Click"
+                                  Tag="Green">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -505,7 +513,8 @@
                     <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="PurpleTag"
                                   ToolTipService.ToolTip="Purple"
-                                  Click="MixColor_Click">
+                                  Click="MixColor_Click"
+                                  Tag="Purple">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -514,7 +523,8 @@
                     <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
-                                  Click="MixColor_Click">
+                                  Click="MixColor_Click"
+                                  Tag="Blue">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -628,7 +638,8 @@
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
-                                  Click="UnTag_Click">
+                                  Click="UnTag_Click"
+                                  Tag="Transparent">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEA92;" />
@@ -637,7 +648,8 @@
                     <AppBarButton Foreground="Orange"
                                   x:Uid="OrangeTag"
                                   ToolTipService.ToolTip="Orange"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Orange">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -646,7 +658,8 @@
                     <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Green">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -655,7 +668,8 @@
                     <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="PurpleTag"
                                   ToolTipService.ToolTip="Purple"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Purple">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -664,7 +678,8 @@
                     <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
-                                  Click="Color_Click">
+                                  Click="Color_Click"
+                                  Tag="Blue">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB51;" />
@@ -1105,7 +1120,7 @@
                                                             CornerRadius="2"
                                                             Margin="0,5"
                                                             Width="4"
-                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
                                                 </Grid>
@@ -1241,7 +1256,7 @@
                                                             CornerRadius="2"
                                                             Margin="0,5"
                                                             Width="4"
-                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Stretch" />
                                                 </Grid>
@@ -1370,7 +1385,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -1499,7 +1514,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -1627,7 +1642,7 @@
                                                             CornerRadius="2"
                                                             Margin="5,0"
                                                             Height="4"
-                                                            Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                            Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                             HorizontalAlignment="Stretch"
                                                             VerticalAlignment="Center" />
                                                 </Grid>
@@ -1776,7 +1791,7 @@
                                                                 CornerRadius="2"
                                                                 Margin="0,5"
                                                                 Width="4"
-                                                                Background="{x:Bind AccentColor,Mode=OneWay}"
+                                                                Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Stretch"/>
                                                     </Grid>
@@ -1834,7 +1849,6 @@
                                                                 DoubleTapped="ListHeader_DoubleTapped"
                                                                 x:Name="ListHeaderName"
                                                                 Click="ListHeader_Click"
-                                                                Height="35"
                                                                 RelativePanel.LeftOf="NameFilterHeader"
                                                                 RelativePanel.AlignLeftWithPanel="True"
                                                                 Style="{StaticResource ListHeaderButtonStyle}">
@@ -1854,16 +1868,15 @@
                                                                          Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
                                                             </RelativePanel>
                                                         </Button>
-                                                        <Button HorizontalAlignment="Stretch"
-                                                                VerticalAlignment="Stretch"
-                                                                x:Name="NameFilterHeader"
+                                                        <Button x:Name="NameFilterHeader"
                                                                 Visibility="Collapsed"
-                                                                Height="35"
                                                                 Width="25"
+                                                                Height="35"
                                                                 Padding="2"
                                                                 Background="{ThemeResource ElementCustomAcrylicBrush}"
                                                                 Style="{StaticResource ListHeaderButtonStyle}"
-                                                                RelativePanel.AlignRightWithPanel="True">
+                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <Viewbox Width="10">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xE96E;" />
@@ -2021,7 +2034,6 @@
                                                         <Button HorizontalContentAlignment="Stretch"
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalAlignment="Stretch"
-                                                                Height="35"
                                                                 IsDoubleTapEnabled="True"
                                                                 DoubleTapped="ListHeader_DoubleTapped"
                                                                 Name="ListHeaderModifiedTime"
@@ -2045,16 +2057,15 @@
                                                                          Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
                                                             </RelativePanel>
                                                         </Button>
-                                                        <Button HorizontalAlignment="Stretch"
-                                                                VerticalAlignment="Stretch"
-                                                                x:Name="ModTimeFilterHeader"
+                                                        <Button x:Name="ModTimeFilterHeader"
                                                                 Visibility="Collapsed"
-                                                                Height="35"
                                                                 Width="25"
+                                                                Height="35"
                                                                 Padding="2"
                                                                 Background="{ThemeResource ElementCustomAcrylicBrush}"
                                                                 Style="{StaticResource ListHeaderButtonStyle}"
-                                                                RelativePanel.AlignRightWithPanel="True">
+                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <Viewbox Width="10">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xE96E;" />
@@ -2150,7 +2161,6 @@
                                                                 DoubleTapped="ListHeader_DoubleTapped"
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalAlignment="Stretch"
-                                                                Height="35"
                                                                 Name="ListHeaderType"
                                                                 Click="ListHeader_Click"
                                                                 RelativePanel.LeftOf="TypeFilterHeader"
@@ -2172,16 +2182,15 @@
                                                                          Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
                                                             </RelativePanel>
                                                         </Button>
-                                                        <Button HorizontalAlignment="Stretch"
-                                                                VerticalAlignment="Stretch"
-                                                                x:Name="TypeFilterHeader"
+                                                        <Button x:Name="TypeFilterHeader"
                                                                 Visibility="Collapsed"
-                                                                Height="35"
                                                                 Width="25"
+                                                                Height="35"
                                                                 Padding="2"
                                                                 Background="{ThemeResource ElementCustomAcrylicBrush}"
                                                                 Style="{StaticResource ListHeaderButtonStyle}"
-                                                                RelativePanel.AlignRightWithPanel="True">
+                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <Viewbox Width="10">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xE96E;" />
@@ -2223,7 +2232,6 @@
                                                                 Name="ListHeaderSize"
                                                                 RelativePanel.LeftOf="SizeFilterHeader"
                                                                 RelativePanel.AlignLeftWithPanel="True"
-                                                                Height="35"
                                                                 Click="ListHeader_Click"
                                                                 Style="{StaticResource ListHeaderButtonStyle}">
                                                             <RelativePanel>
@@ -2242,16 +2250,15 @@
                                                                          Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
                                                             </RelativePanel>
                                                         </Button>
-                                                        <Button HorizontalAlignment="Stretch"
-                                                                VerticalAlignment="Stretch"
-                                                                x:Name="SizeFilterHeader"
+                                                        <Button x:Name="SizeFilterHeader"
                                                                 Visibility="Collapsed"
-                                                                Height="35"
                                                                 Width="25"
+                                                                Height="35"
                                                                 Padding="2"
                                                                 Background="{ThemeResource ElementCustomAcrylicBrush}"
                                                                 Style="{StaticResource ListHeaderButtonStyle}"
-                                                                RelativePanel.AlignRightWithPanel="True">
+                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <Viewbox Width="10">
                                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                           Glyph="&#xE96E;" />

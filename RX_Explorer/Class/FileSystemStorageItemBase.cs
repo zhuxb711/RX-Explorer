@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -37,30 +38,16 @@ namespace RX_Explorer.Class
 
         public virtual string DisplayType => Type;
 
-        private SolidColorBrush accentColor;
-        public SolidColorBrush AccentColor
+        public ColorTag ColorTag
         {
             get
             {
-                if (accentColor == null)
-                {
-                    string ColorString = SQLite.Current.GetFileColor(Path);
-
-                    if (!string.IsNullOrEmpty(ColorString))
-                    {
-                        accentColor = new SolidColorBrush(ColorString.ToColor());
-                    }
-                    else
-                    {
-                        accentColor = new SolidColorBrush(Colors.Transparent);
-                    }
-                }
-
-                return accentColor;
+                return SQLite.Current.GetColorTag(Path);
             }
-            private set
+            set
             {
-                accentColor = value;
+                SQLite.Current.SetColorTag(Path, value);
+                OnPropertyChanged();
             }
         }
 
@@ -114,20 +101,13 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
-        protected bool IsLoaded { get; private set; }
-
-        protected virtual bool ShouldGenerateThumbnail
-        {
-            get
-            {
-                return (this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.All;
-            }
-        }
+        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.All;
 
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
+        private int IsLoaded;
         protected IStorageItem StorageItem { get; set; }
 
         protected static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
@@ -522,21 +502,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetAccentColorAsSpecific(Color Color)
-        {
-            AccentColor = new SolidColorBrush(Color);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
-        }
-
-        public void SetAccentColorAsNormal()
-        {
-            AccentColor = new SolidColorBrush(Colors.Transparent);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentColor)));
-        }
-
         public async Task LoadAsync()
         {
-            if (IsLoaded)
+            if (Interlocked.Exchange(ref IsLoaded, 1) > 0)
             {
                 if (ThubmnalModeChanged)
                 {
@@ -548,10 +516,7 @@ namespace RX_Explorer.Class
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                if (await LoadThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
-                                {
-                                    this.Thumbnail = Thumbnail;
-                                }
+                                Thumbnail = await GetThumbnailAsync(Exclusive.Controller, ThumbnailMode);
                             }
                         }
                         catch (Exception ex)
@@ -577,18 +542,18 @@ namespace RX_Explorer.Class
                             {
                                 await LoadCoreAsync(Exclusive.Controller, false);
 
-                                if (await LoadThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
+                                if (await GetThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
                                 {
                                     this.Thumbnail = Thumbnail;
                                 }
                             }
 
-                            await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                            ThumbnailOverlay = await GetThumbnailOverlayAsync(Exclusive.Controller);
                         }
 
                         if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
                         {
-                            await LoadSyncStatusAsync();
+                            await GetSyncStatusAsync();
                         }
                     }
                     catch (Exception ex)
@@ -603,8 +568,6 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
-
-                        IsLoaded = true;
                     }
                 };
 
@@ -619,7 +582,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async Task LoadSyncStatusAsync()
+        private async Task GetSyncStatusAsync()
         {
             switch (await GetStorageItemAsync())
             {
@@ -747,7 +710,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected virtual async Task<BitmapImage> LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
+        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync(FullTrustProcessController Controller)
         {
             byte[] ThumbnailOverlayByteArray = await Controller.GetThumbnailOverlayAsync(Path);
 
@@ -770,7 +733,7 @@ namespace RX_Explorer.Class
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
-        protected virtual async Task<BitmapImage> LoadThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
+        protected virtual async Task<BitmapImage> GetThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
         {
             async Task<BitmapImage> GetThumbnailTask()
             {

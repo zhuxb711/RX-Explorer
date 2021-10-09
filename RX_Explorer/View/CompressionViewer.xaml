@@ -76,7 +76,7 @@
         <CommandBar DefaultLabelPosition="Right"
                     HorizontalContentAlignment="Stretch"
                     VerticalContentAlignment="Center"
-                    Background="{ThemeResource ElementAccentAcrylicBrush}">
+                    Background="{ThemeResource ElementCustomAcrylicBrush}">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFile')}"
                               Icon="OpenFile"
@@ -96,7 +96,7 @@
                 </AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.Content>
-                <Grid Height="34"
+                <Grid Height="32"
                       Width="450">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
@@ -147,7 +147,7 @@
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:CompressionItemBase">
-                    <Grid Margin="2,1.5,1,2">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="5*" />
                             <ColumnDefinition Width="2.5*" />
@@ -230,7 +230,6 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             x:Name="ListHeaderName"
-                            Height="35"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
@@ -250,7 +249,6 @@
                     <Button HorizontalContentAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Height="35"
                             Grid.Column="1"
                             Click="ListHeader_Click"
                             Name="ListHeaderModifiedTime"
@@ -273,7 +271,6 @@
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             Grid.Column="2"
-                            Height="35"
                             Click="ListHeader_Click"
                             Name="ListHeaderType"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -297,7 +294,6 @@
                             Click="ListHeader_Click"
                             VerticalAlignment="Stretch"
                             Name="ListHeaderCompressedSize"
-                            Height="35"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩大小"
@@ -319,7 +315,6 @@
                             VerticalAlignment="Stretch"
                             Name="ListHeaderSize"
                             Click="ListHeader_Click"
-                            Height="35"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="实际大小"
@@ -341,7 +336,6 @@
                             VerticalAlignment="Stretch"
                             Name="ListHeaderCompressionRate"
                             Click="ListHeader_Click"
-                            Height="35"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
                             <TextBlock Text="压缩比率"

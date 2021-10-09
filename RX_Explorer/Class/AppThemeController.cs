@@ -46,6 +46,8 @@ namespace RX_Explorer.Class
 
         public event EventHandler<ElementTheme> ThemeChanged;
 
+        private readonly UISettings UIS;
+
         private static AppThemeController Instance;
 
         private static readonly object Locker = new object();
@@ -63,7 +65,6 @@ namespace RX_Explorer.Class
 
         public void SyncAndSetSystemTheme()
         {
-            UISettings UIS = new UISettings();
             if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
             {
                 Theme = ElementTheme.Light;
@@ -79,6 +80,8 @@ namespace RX_Explorer.Class
         /// </summary>
         private AppThemeController()
         {
+            UIS = new UISettings();
+
             ApplicationData.Current.DataChanged += Current_DataChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)

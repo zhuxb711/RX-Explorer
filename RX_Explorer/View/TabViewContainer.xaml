@@ -135,6 +135,7 @@
                                                 HorizontalAlignment="Center"
                                                 Width="14"
                                                 Height="14"
+                                                Background="{ThemeResource SystemBaseHighColor}"
                                                 Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay}" />
                                 <muxc:ProgressRing Minimum="0"
                                                    Maximum="100"

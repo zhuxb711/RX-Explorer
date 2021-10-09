@@ -3335,4 +3335,7 @@ Invalid names include
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Layout mode</value>
   </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>CD-ROM drive</value>
+  </data>
 </root>

@@ -26,36 +26,17 @@ namespace RX_Explorer.Dialog
             TotalSpace.Text = Device.Capacity;
             UsedSpace.Text = (Device.TotalByte - Device.FreeByte).GetFileSizeDescription();
 
-            switch (Device.DriveType)
-            {
-                case DriveType.Fixed:
-                    {
-                        DeviceType.Text = Globalization.GetString("Device_Type_1");
-                        break;
-                    }
-                case DriveType.Removable:
-                    {
-                        DeviceType.Text = Globalization.GetString("Device_Type_3");
-                        break;
-                    }
-                case DriveType.Ram:
-                    {
-                        DeviceType.Text = Globalization.GetString("Device_Type_4");
-                        break;
-                    }
-                case DriveType.Network:
-                    {
-                        DeviceType.Text = Globalization.GetString("Device_Type_5");
-                        break;
-                    }
-                default:
-                    {
-                        DeviceType.Text = Globalization.GetString("UnknownText");
-                        break;
-                    }
-            }
-
             FileSystem.Text = Device.FileSystem;
+
+            DeviceType.Text = Device.DriveType switch
+            {
+                DriveType.Fixed => Globalization.GetString("Device_Type_1"),
+                DriveType.CDRom => Globalization.GetString("Device_Type_2"),
+                DriveType.Removable => Globalization.GetString("Device_Type_3"),
+                DriveType.Ram => Globalization.GetString("Device_Type_4"),
+                DriveType.Network => Globalization.GetString("Device_Type_5"),
+                _ => Globalization.GetString("UnknownText")
+            };
 
             Loaded += DeviceInfoDialog_Loaded;
         }

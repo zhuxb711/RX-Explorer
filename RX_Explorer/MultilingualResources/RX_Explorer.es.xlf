@@ -4287,6 +4287,10 @@ Las denominaciones no válidas son:
           <source>Layout mode</source>
           <target state="translated">Modo de diseño</target>
         </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>CD-ROM drive</source>
+          <target state="translated">Lector de CD ROM</target>
+        </trans-unit>
       </group>
     </body>
   </file>

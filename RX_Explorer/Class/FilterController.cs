@@ -936,22 +936,22 @@ namespace RX_Explorer.Class
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Orange))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == OrangeColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Orange));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Green))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == GreenColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Green));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Purple))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == PurpleColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Purple));
                 }
 
                 if (ColorCondition.HasFlag(ColorFilterCondition.Blue))
                 {
-                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.AccentColor.Color == BlueColor));
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.ColorTag == ColorTag.Blue));
                 }
             }
 

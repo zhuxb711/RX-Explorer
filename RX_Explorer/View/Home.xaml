@@ -7,6 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
       mc:Ignorable="d"
       Background="Transparent">
 
@@ -362,37 +363,54 @@
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:DriveDataBase">
-                                <Grid Padding="5"
-                                      Width="250">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Height="50"
-                                           Width="50"
-                                           Source="{x:Bind Thumbnail}"
-                                           Stretch="Uniform" />
-                                    <StackPanel Orientation="Vertical"
-                                                Padding="5,0,0,0"
-                                                Grid.Column="1">
-                                        <TextBlock HorizontalAlignment="Left"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind DisplayName}"
-                                                   ToolTipService.ToolTip="{x:Bind DisplayName}" />
-                                        <muxc:ProgressBar x:Name="Pro"
-                                                          HorizontalAlignment="Stretch"
-                                                          Height="12"
-                                                          Margin="0,2,0,0"
-                                                          Foreground="{x:Bind ProgressBarForeground, Mode=OneWay}"
-                                                          Maximum="1"
-                                                          Minimum="0"
-                                                          Value="{x:Bind Percent}" />
-                                        <TextBlock FontSize="13"
-                                                   HorizontalAlignment="Left"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind DriveSpaceDescription}" />
-                                    </StackPanel>
-                                </Grid>
+                                <UserControl>
+                                    <Grid Padding="5"
+                                          Width="250">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup>
+                                                <VisualState x:Name="GreaterThanOrEqual">
+                                                    <VisualState.StateTriggers>
+                                                        <Triggers:CompareStateTrigger Value="{x:Bind Percent}"
+                                                                                      To="0.9"
+                                                                                      Comparison="GreaterThanOrEqual" />
+                                                    </VisualState.StateTriggers>
+                                                    <VisualState.Setters>
+                                                        <Setter Target="Pro.Foreground"
+                                                                Value="Red" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Image Height="50"
+                                               Width="50"
+                                               Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                               Stretch="Uniform"
+                                               x:Phase="1" />
+                                        <StackPanel Orientation="Vertical"
+                                                    Padding="5,0,0,0"
+                                                    Grid.Column="1">
+                                            <TextBlock HorizontalAlignment="Left"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{x:Bind DisplayName}"
+                                                       ToolTipService.ToolTip="{x:Bind DisplayName}" />
+                                            <muxc:ProgressBar x:Name="Pro"
+                                                              HorizontalAlignment="Stretch"
+                                                              Height="12"
+                                                              Margin="0,2,0,0"
+                                                              Maximum="1"
+                                                              Minimum="0"
+                                                              Value="{x:Bind Percent}" />
+                                            <TextBlock FontSize="13"
+                                                       HorizontalAlignment="Left"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{x:Bind DriveSpaceDescription}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </UserControl>
                             </DataTemplate>
                         </GridView.ItemTemplate>
                         <GridView.ItemsPanel>

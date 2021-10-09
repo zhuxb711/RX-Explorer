@@ -4289,6 +4289,10 @@ Les noms non valides incluent
           <source>Layout mode</source>
           <target state="translated">Mode de présentation</target>
         </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>CD-ROM drive</source>
+          <target state="translated">Lecteur CD ROM</target>
+        </trans-unit>
       </group>
     </body>
   </file>

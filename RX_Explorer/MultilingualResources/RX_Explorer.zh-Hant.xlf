@@ -4289,6 +4289,10 @@ Invalid names include
           <source>Layout mode</source>
           <target state="translated">排版方式</target>
         </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>CD-ROM drive</source>
+          <target state="translated">CD-ROM驅動器</target>
+        </trans-unit>
       </group>
     </body>
   </file>

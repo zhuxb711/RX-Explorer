@@ -112,6 +112,14 @@ namespace RX_Explorer
                     Story.Children.Add(Animation);
                     Story.Begin();
                 }
+
+                args.RegisterUpdateCallback(async (s, e) =>
+                {
+                    if (e.Item is DriveDataBase Drive)
+                    {
+                        await Drive.LoadAsync().ConfigureAwait(false);
+                    }
+                });
             }
         }
 
@@ -722,7 +730,7 @@ namespace RX_Explorer
 
             if (DriveFolder != null)
             {
-                if (DriveInfo.GetDrives().Where((Drive) => Drive.DriveType is DriveType.Fixed or DriveType.Removable or DriveType.Network)
+                if (DriveInfo.GetDrives().Where((Drive) => Drive.DriveType is DriveType.Fixed or DriveType.Removable or DriveType.Network or DriveType.CDRom)
                                          .Any((Item) => Item.RootDirectory.FullName.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (CommonAccessCollection.DriveList.Any((Item) => Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))

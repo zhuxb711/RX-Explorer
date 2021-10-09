@@ -114,9 +114,9 @@
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
                     </Grid.ColumnDefinitions>
-                    <Button HorizontalContentAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
+                    <Button HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="0"
                             x:Name="ListHeaderName"
@@ -136,9 +136,9 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
+                    <Button HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="1"
                             x:Name="ListHeaderOriginLocation"
@@ -158,9 +158,9 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
+                    <Button HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="2"
                             Name="ListHeaderModifiedTime"
@@ -202,8 +202,8 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
-                            HorizontalAlignment="Stretch"
+                    <Button HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             VerticalAlignment="Stretch"
                             Name="ListHeaderSize"

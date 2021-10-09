@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
+using System.Collections.Generic;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -6,6 +8,35 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class ColorTagConverter : IValueConverter
+    {
+        private IReadOnlyDictionary<ColorTag, string> ColorTagMap = new Dictionary<ColorTag, string>
+        {
+            { ColorTag.Transparent, "#00FFFFFF" },
+            { ColorTag.Orange, "#FFFFA500" },
+            { ColorTag.Green, "#FF22B324" },
+            { ColorTag.Purple, "#FFCC6EFF" },
+            { ColorTag.Blue, "#FF42C5FF" }
+        };
+
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ColorTag Tag)
+            {
+                return new SolidColorBrush(ColorTagMap[Tag].ToColor());
+            }
+            else
+            {
+                return new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class ThemeToIndexConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
@@ -462,7 +493,7 @@ namespace RX_Explorer.Class
         {
             if (value is SyncStatus Status)
             {
-                switch(Status)
+                switch (Status)
                 {
                     case SyncStatus.AvailableOffline:
                         {

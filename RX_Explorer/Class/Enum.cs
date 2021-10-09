@@ -2,6 +2,15 @@
 
 namespace RX_Explorer.Class
 {
+    public enum ColorTag
+    {
+        Transparent,
+        Orange,
+        Green,
+        Purple,
+        Blue
+    }
+
     public enum CommonChangeType
     {
         Added,

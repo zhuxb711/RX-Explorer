@@ -141,10 +141,13 @@ namespace MaintenanceTask
                 using SqliteTransaction Transaction = Connection.BeginTransaction();
 
                 StringBuilder Builder = new StringBuilder()
-                                        .Append("Update FileColor Set Color = '#22B324' Where Color = '#FFADFF2F';")
-                                        .Append("Update FileColor Set Color = '#CC6EFF' Where Color = '#FFFFFF00';")
-                                        .Append("Update FileColor Set Color = '#42C5FF' Where Color = '#FF409EFE';")
-                                        .Append("Delete From ProgramPicker Where FileType = '.*';");
+                                        .Append("Delete From ProgramPicker Where FileType = '.*';")
+                                        .Append("Insert Or Ignore Into FileTag (Path, ColorTag) Select Path, Color From FileColor;")
+                                        .Append("Update FileTag Set ColorTag = 'Blue' Where ColorTag = '#FF42C5FF';")
+                                        .Append("Update FileTag Set ColorTag = 'Green' Where ColorTag = '#FF22B324';")
+                                        .Append("Update FileTag Set ColorTag = 'Orange' Where ColorTag = '#FFFFA500';")
+                                        .Append("Update FileTag Set ColorTag = 'Purple' Where ColorTag = '#FFCC6EFF';")
+                                        .Append("Drop Table FileColor;");
 
                 bool HasGroupColumnColumn = false;
                 bool HasGroupDirectionColumn = false;

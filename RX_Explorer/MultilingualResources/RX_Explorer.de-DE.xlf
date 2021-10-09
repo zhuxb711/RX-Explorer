@@ -4287,6 +4287,10 @@ Inkorrekte Namen sind
           <source>Layout mode</source>
           <target state="translated">Layoutmodus</target>
         </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>CD-ROM drive</source>
+          <target state="translated">CD-ROM-Laufwerk</target>
+        </trans-unit>
       </group>
     </body>
   </file>

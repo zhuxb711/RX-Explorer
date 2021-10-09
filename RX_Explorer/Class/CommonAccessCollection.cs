@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -9,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
-using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
 
         public static event EventHandler<LibraryChangedDeferredEventArgs> LibraryChanged;
 
-        public static event EventHandler<Queue<string>> LibraryNotFound;
+        public static event EventHandler<IEnumerable<string>> LibraryNotFound;
 
         private static readonly SemaphoreSlim DriveChangeLocker = new SemaphoreSlim(1, 1);
 
@@ -51,6 +51,8 @@ namespace RX_Explorer.Class
         public static bool IsDriveLoaded { get; private set; }
 
         public static bool IsQuickStartLoaded { get; private set; }
+
+        private static readonly object DriveListModifyLocker = new object();
 
         private static int LoadDriveLockResource;
         private static int LoadLibraryLockResource;
@@ -134,11 +136,6 @@ namespace RX_Explorer.Class
                     if (!IsLibaryLoaded || IsRefresh)
                     {
                         IsLibaryLoaded = true;
-
-                        if (IsRefresh)
-                        {
-                            LibraryFolderList.Clear();
-                        }
 
                         try
                         {
@@ -238,29 +235,37 @@ namespace RX_Explorer.Class
                             SQLite.Current.UpdateLibraryPath(Array);
                         }
 
-                        Queue<string> ErrorList = new Queue<string>();
+                        ConcurrentBag<string> ErrorList = new ConcurrentBag<string>();
+                        List<Task<LibraryStorageFolder>> LoadTaskList = new List<Task<LibraryStorageFolder>>();
 
                         foreach ((string, LibraryType) Library in SQLite.Current.GetLibraryPath())
                         {
-                            LibraryStorageFolder Lib = await LibraryStorageFolder.CreateAsync(Library.Item2, Library.Item1);
-
-                            if (Lib != null)
+                            LoadTaskList.Add(LibraryStorageFolder.CreateAsync(Library.Item2, Library.Item1).ContinueWith((PreviousTask) =>
                             {
-                                LibraryFolderList.Add(Lib);
-                            }
-                            else
-                            {
-                                ErrorList.Enqueue(Library.Item1);
-                                SQLite.Current.DeleteLibrary(Library.Item1);
-                            }
+                                if (PreviousTask.Exception is Exception Ex)
+                                {
+                                    ErrorList.Add(Library.Item1);
+                                    SQLite.Current.DeleteLibrary(Library.Item1);
+                                    return null;
+                                }
+                                else
+                                {
+                                    return PreviousTask.Result;
+                                }
+                            }));
                         }
 
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.LibType == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
+                        LibraryStorageFolder[] Result = await Task.WhenAll(LoadTaskList);
 
+                        LibraryFolderList.Clear();
+                        LibraryFolderList.AddRange(Result.OfType<LibraryStorageFolder>().Distinct());
+                        
                         if (ErrorList.Count > 0)
                         {
                             LibraryNotFound?.Invoke(null, ErrorList);
                         }
+
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.LibType == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
                     }
                 }
                 finally
@@ -280,63 +285,62 @@ namespace RX_Explorer.Class
                     {
                         IsDriveLoaded = true;
 
-                        if (IsRefresh)
-                        {
-                            DriveList.Clear();
-                        }
+                        List<Task<DriveDataBase>> LoadTaskList = new List<Task<DriveDataBase>>();
 
-                        foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
-                                                                         .Where((NewItem) => DriveList.All((Item) => !Item.Path.Equals(NewItem.RootDirectory.FullName, StringComparison.OrdinalIgnoreCase))))
+                        foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType is DriveType.Fixed or DriveType.Network or DriveType.CDRom))
                         {
-                            try
+                            LoadTaskList.Add(DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
                             {
-                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (PreviousTask.Exception is Exception Ex)
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(Drive.DriveType, Folder));
+                                    LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
+                                    return null;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
-                            }
-                        }
-
-                        foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
-                        {
-                            try
-                            {
-                                if (DriveList.All((Drive) => Drive.DriveId != Device.Id))
+                                else
                                 {
-                                    DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, Device.Id);
-
-                                    if (DriveList.All((Drive) => !(Drive.Path?.Equals(NewDrive.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
-                                    {
-                                        DriveList.Add(NewDrive);
-                                    }
+                                    return PreviousTask.Result;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"Hide the device for error");
-                            }
+                            }));
                         }
 
+                        foreach (DeviceInformation Drive in await DeviceInformation.FindAllAsync(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice)))
+                        {
+                            LoadTaskList.Add(DriveDataBase.CreateAsync(DriveType.Removable, Drive.Id).ContinueWith((PreviousTask) =>
+                            {
+                                if (PreviousTask.Exception is Exception Ex)
+                                {
+                                    LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
+                                    return null;
+                                }
+                                else
+                                {
+                                    return PreviousTask.Result;
+                                }
+                            }));
+                        }
 
                         foreach (StorageFolder WslFolder in await GetWslDriveAsync())
                         {
-                            try
+                            LoadTaskList.Add(DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
                             {
-                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(WslFolder.Path)) ? !Item.Name.Equals(WslFolder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(WslFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                                if (PreviousTask.Exception is Exception Ex)
                                 {
-                                    DriveList.Add(await DriveDataBase.CreateAsync(DriveType.Network, WslFolder));
+                                    LogTracer.Log(Ex, $"Ignore the drive \"{WslFolder.Path}\" because we could not get details from this drive");
+                                    return null;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, $"An exception was threw and hide the drive: \"{WslFolder.Name}\"");
-                            }
+                                else
+                                {
+                                    return PreviousTask.Result;
+                                }
+                            }));
+                        }
+
+                        DriveDataBase[] Result = await Task.WhenAll(LoadTaskList);
+
+                        lock (DriveListModifyLocker)
+                        {
+                            DriveList.Clear();
+                            DriveList.AddRange(Result.OfType<DriveDataBase>().Distinct());
                         }
 
                         switch (PortalDriveWatcher.Status)
@@ -374,43 +378,47 @@ namespace RX_Explorer.Class
 
         private static async void PortalDriveWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            try
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    if (DriveList.FirstOrDefault((Drive) => Drive.DriveId == args.Id) is DriveDataBase RemovedDrive)
+                    lock (DriveListModifyLocker)
                     {
-                        DriveList.Remove(RemovedDrive);
+                        if (DriveList.FirstOrDefault((Drive) => Drive.DriveId == args.Id) is DriveDataBase RemovedDrive)
+                        {
+                            DriveList.Remove(RemovedDrive);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw im {nameof(PortalDriveWatcher_Removed)}");
-                }
-            });
+                });
+
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw im {nameof(PortalDriveWatcher_Removed)}");
+            }
         }
 
         private static async void PortalDriveWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            try
             {
-                try
-                {
-                    if (DriveList.All((Drive) => Drive.DriveId != args.Id))
-                    {
-                        DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, args.Id);
+                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveType.Removable, args.Id);
 
-                        if (DriveList.All((Drive) => !(Drive.Path?.Equals(NewDrive.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    lock (DriveListModifyLocker)
+                    {
+                        if (DriveList.All((Drive) => Drive != NewDrive))
                         {
                             DriveList.Add(NewDrive);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(PortalDriveWatcher_Added)}");
+            }
         }
 
         private async static void DriveList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -492,24 +500,37 @@ namespace RX_Explorer.Class
             DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
             DriveDataBase[] ExistNetworkDrive = DriveList.OfType<NormalDriveData>().Where((ExistDrive) => ExistDrive.DriveType == DriveType.Network).ToArray();
 
-            IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => !ExistDrive.Path.Equals(NewDrive.RootDirectory.FullName, StringComparison.OrdinalIgnoreCase)));
-            IEnumerable<DriveDataBase> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => !ExistDrive.Path.Equals(NewDrive.RootDirectory.FullName, StringComparison.OrdinalIgnoreCase)));
+            IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
+            IEnumerable<DriveDataBase> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => !ExistDrive.Path.Equals(NewDrive.Name, StringComparison.OrdinalIgnoreCase)));
 
-            foreach (DriveDataBase ExistDrive in RemoveList)
-            {
-                DriveList.Remove(ExistDrive);
-            }
+            List<Task<DriveDataBase>> LoadTaskList = new List<Task<DriveDataBase>>();
 
             foreach (DriveInfo Drive in AddList)
             {
-                try
+                LoadTaskList.Add(DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
                 {
-                    DriveList.Add(await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName)));
-                }
-                catch (Exception ex)
+                    if (PreviousTask.Exception is Exception Ex)
+                    {
+                        LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
+                        return null;
+                    }
+                    else
+                    {
+                        return PreviousTask.Result;
+                    }
+                }));
+            }
+
+            DriveDataBase[] Result = await Task.WhenAll(LoadTaskList);
+
+            lock (DriveListModifyLocker)
+            {
+                foreach (DriveDataBase ExistDrive in RemoveList)
                 {
-                    LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
+                    DriveList.Remove(ExistDrive);
                 }
+
+                DriveList.AddRange(Result.OfType<DriveDataBase>().Distinct());
             }
 
             NetworkDriveCheckTimer.Start();
@@ -519,9 +540,10 @@ namespace RX_Explorer.Class
         {
             PortalDriveWatcher.Added += PortalDriveWatcher_Added;
             PortalDriveWatcher.Removed += PortalDriveWatcher_Removed;
+            NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
+
             DriveList.CollectionChanged += DriveList_CollectionChanged;
             LibraryFolderList.CollectionChanged += LibraryFolderList_CollectionChanged;
-            NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
         }
 
         private static async void LibraryFolderList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

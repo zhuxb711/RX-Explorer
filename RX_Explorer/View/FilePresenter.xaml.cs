@@ -4765,8 +4765,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            SelectedItem.SetAccentColorAsNormal();
-            SQLite.Current.DeleteFileColor(SelectedItem.Path);
+            SelectedItem.ColorTag = ColorTag.Transparent;
         }
 
 
@@ -4776,8 +4775,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
             {
-                Item.SetAccentColorAsNormal();
-                SQLite.Current.DeleteFileColor(Item.Path);
+                Item.ColorTag = ColorTag.Transparent;
             }
         }
 
@@ -4785,10 +4783,10 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
-
-            SelectedItem.SetAccentColorAsSpecific(ForegroundColor);
-            SQLite.Current.SetFileColor(SelectedItem.Path, ForegroundColor.ToHex());
+            if (sender is AppBarButton Btn)
+            {
+                SelectedItem.ColorTag = Enum.Parse<ColorTag>(Convert.ToString(Btn.Tag));
+            }
         }
 
         private void ColorTag_Tapped(object sender, TappedRoutedEventArgs e)
@@ -4839,12 +4837,13 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
-            foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
+            if (sender is AppBarButton Btn)
             {
-                Item.SetAccentColorAsSpecific(ForegroundColor);
-                SQLite.Current.SetFileColor(Item.Path, ForegroundColor.ToHex());
+                foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
+                {
+                    Item.ColorTag = Enum.Parse<ColorTag>(Convert.ToString(Btn.Tag));
+                }
             }
         }
 

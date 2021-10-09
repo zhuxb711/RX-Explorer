@@ -70,7 +70,7 @@ namespace RX_Explorer.Class
                    .Append("Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));")
                    .Append("Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));")
                    .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size')), GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending')), Primary Key(Path));")
-                   .Append("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));");
+                   .Append("Create Table If Not Exists FileTag (Path Text Not Null Collate NoCase, ColorTag Text Not Null, Primary Key (Path));");
 
             InitCommand.CommandText = Builder.ToString();
             InitCommand.ExecuteNonQuery();
@@ -556,31 +556,17 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 取消文件颜色 
-        /// </summary>
-        /// <param name="Path">文件路径</param>
-        /// <returns></returns>
-        public void DeleteFileColor(string Path)
-        {
-            using (SqliteCommand Command = new SqliteCommand("Delete From FileColor Where Path = @Path", Connection))
-            {
-                Command.Parameters.AddWithValue("@Path", Path);
-                Command.ExecuteNonQuery();
-            }
-        }
-
-        /// <summary>
         /// 设置文件颜色 
         /// </summary>
         /// <param name="Path">文件路径</param>
         /// <param name="Color">颜色</param>
         /// <returns></returns>
-        public void SetFileColor(string Path, string Color)
+        public void SetColorTag(string Path, ColorTag Tag)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into FileColor Values (@Path, @Color)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into FileTag Values (@Path, @ColorTag)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                Command.Parameters.AddWithValue("@Color", Color);
+                Command.Parameters.AddWithValue("@ColorTag", Enum.GetName(typeof(ColorTag), Tag));
                 Command.ExecuteNonQuery();
             }
         }
@@ -589,12 +575,22 @@ namespace RX_Explorer.Class
         /// 获取所有文件颜色
         /// </summary>
         /// <returns></returns>
-        public string GetFileColor(string Path)
+        public ColorTag GetColorTag(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select Color From FileColor Where Path = @Path", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select ColorTag From FileTag Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                return Convert.ToString(Command.ExecuteScalar());
+
+                string Tag = Convert.ToString(Command.ExecuteScalar());
+
+                if (string.IsNullOrEmpty(Tag))
+                {
+                    return ColorTag.Transparent;
+                }
+                else
+                {
+                    return Enum.Parse<ColorTag>(Tag);
+                }
             }
         }
 

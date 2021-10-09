@@ -13,6 +13,7 @@
       Background="Transparent">
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+        <Cls:ColorTagConverter x:Key="ColorTagConverter" />
 
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
                                AlwaysExpanded="True"
@@ -172,14 +173,13 @@
                                        HorizontalAlignment="Stretch"
                                        PointerEntered="ListHeaderRelativePanel_PointerEntered"
                                        PointerExited="ListHeaderRelativePanel_PointerExited">
-                            <Button HorizontalContentAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
+                            <Button HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
                                     IsDoubleTapEnabled="True"
                                     DoubleTapped="ListHeader_DoubleTapped"
                                     x:Name="ListHeaderName"
                                     Click="ListHeader_Click"
-                                    Height="35"
                                     RelativePanel.LeftOf="NameFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Style="{StaticResource ListHeaderButtonStyle}">
@@ -199,15 +199,14 @@
                                              Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    x:Name="NameFilterHeader"
+                            <Button x:Name="NameFilterHeader"
                                     Visibility="Collapsed"
                                     Height="35"
                                     Width="25"
                                     Padding="2"
                                     Style="{StaticResource ListHeaderButtonStyle}"
-                                    RelativePanel.AlignRightWithPanel="True">
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True">
                                 <Viewbox Width="10">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE96E;" />
@@ -364,7 +363,6 @@
                                 DoubleTapped="ListHeader_DoubleTapped"
                                 x:Name="ListHeaderPath"
                                 Click="ListHeader_Click"
-                                Height="35"
                                 Grid.Column="1"
                                 RelativePanel.LeftOf="NameFilterHeader"
                                 RelativePanel.AlignLeftWithPanel="True"
@@ -393,7 +391,6 @@
                             <Button HorizontalContentAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
-                                    Height="35"
                                     IsDoubleTapEnabled="True"
                                     DoubleTapped="ListHeader_DoubleTapped"
                                     Name="ListHeaderModifiedTime"
@@ -417,15 +414,14 @@
                                              Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    x:Name="ModTimeFilterHeader"
+                            <Button x:Name="ModTimeFilterHeader"
                                     Visibility="Collapsed"
                                     Height="35"
                                     Width="25"
                                     Padding="2"
                                     Style="{StaticResource ListHeaderButtonStyle}"
-                                    RelativePanel.AlignRightWithPanel="True">
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True">
                                 <Viewbox Width="10">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE96E;" />
@@ -521,7 +517,6 @@
                                     DoubleTapped="ListHeader_DoubleTapped"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
-                                    Height="35"
                                     Name="ListHeaderType"
                                     Click="ListHeader_Click"
                                     RelativePanel.LeftOf="TypeFilterHeader"
@@ -543,15 +538,14 @@
                                              Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    x:Name="TypeFilterHeader"
+                            <Button x:Name="TypeFilterHeader"
                                     Visibility="Collapsed"
                                     Height="35"
                                     Width="25"
                                     Padding="2"
                                     Style="{StaticResource ListHeaderButtonStyle}"
-                                    RelativePanel.AlignRightWithPanel="True">
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True">
                                 <Viewbox Width="10">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE96E;" />
@@ -593,7 +587,6 @@
                                     Name="ListHeaderSize"
                                     RelativePanel.LeftOf="SizeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
-                                    Height="35"
                                     Click="ListHeader_Click"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
@@ -612,15 +605,14 @@
                                              Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    x:Name="SizeFilterHeader"
+                            <Button x:Name="SizeFilterHeader"
                                     Visibility="Collapsed"
                                     Height="35"
                                     Width="25"
                                     Padding="2"
                                     Style="{StaticResource ListHeaderButtonStyle}"
-                                    RelativePanel.AlignRightWithPanel="True">
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True">
                                 <Viewbox Width="10">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE96E;" />
@@ -739,7 +731,7 @@
                                     CornerRadius="2"
                                     Margin="0,5"
                                     Width="4"
-                                    Background="{x:Bind AccentColor,Mode=OneWay}"
+                                    Background="{x:Bind ColorTag,Mode=OneWay,Converter={StaticResource ColorTagConverter}}"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Stretch" />
                         </Grid>

@@ -3230,4 +3230,7 @@ Las denominaciones no válidas son:
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Modo de diseño</value>
   </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>Lector de CD ROM</value>
+  </data>
 </root>

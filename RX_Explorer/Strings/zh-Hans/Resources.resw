@@ -3230,4 +3230,7 @@
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>布局模式</value>
   </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>CD-ROM驱动器</value>
+  </data>
 </root>

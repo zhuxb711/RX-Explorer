@@ -117,8 +117,8 @@ namespace RX_Explorer
             }
         }
 
-        private readonly DisposableObservableCollection<AddressBlock> AddressButtonList = new DisposableObservableCollection<AddressBlock>();
-        private readonly DisposableObservableCollection<AddressBlock> AddressExtentionList = new DisposableObservableCollection<AddressBlock>();
+        private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
+        private readonly ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
         private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
         private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
         private readonly ObservableCollection<AddressNavigationRecord> NavigationRecordList = new ObservableCollection<AddressNavigationRecord>();
@@ -266,7 +266,7 @@ namespace RX_Explorer
                     {
                         foreach (AddressBlock Block in AddressButtonList.Skip(1))
                         {
-                            Block.SetAsGrayBlock();
+                            Block.BlockType = AddressBlockType.Gray;
                         }
                     }
                     else
@@ -290,7 +290,7 @@ namespace RX_Explorer
 
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
-                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
+                                    AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
                                 }
                             }
                         }
@@ -300,7 +300,7 @@ namespace RX_Explorer
                             {
                                 foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
                                 {
-                                    GrayBlock.SetAsNormalBlock();
+                                    GrayBlock.BlockType = AddressBlockType.Normal;
                                 }
                             }
                             else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
@@ -319,7 +319,7 @@ namespace RX_Explorer
 
                                     for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
-                                        AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
+                                        AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
                                     }
                                 }
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
@@ -338,7 +338,7 @@ namespace RX_Explorer
                                     {
                                         if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
                                         {
-                                            GrayBlock.SetAsNormalBlock();
+                                            GrayBlock.BlockType = AddressBlockType.Normal;
                                         }
                                     }
                                 }
@@ -346,7 +346,7 @@ namespace RX_Explorer
                                 {
                                     foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                     {
-                                        GrayBlock.SetAsNormalBlock();
+                                        GrayBlock.BlockType = AddressBlockType.Normal;
                                     }
                                 }
                             }

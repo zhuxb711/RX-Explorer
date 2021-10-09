@@ -176,7 +176,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task<BitmapImage> LoadThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {

@@ -8,6 +8,7 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+      xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
@@ -435,43 +436,71 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:AddressBlock">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="{x:Bind DisplayName}"
-                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
-                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
-                                    VerticalAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    Name="AddressButton"
-                                    Padding="4,0"
-                                    Click="AddressButton_Click"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center"
-                                    AllowDrop="True"
-                                    BorderThickness="0"
-                                    Drop="AddressButton_Drop"
-                                    DragEnter="AddressButton_DragEnter"
-                                    DragLeave="AddressButton_DragLeave"
-                                    DragOver="AddressButton_DragOver"
-                                    Background="Transparent" />
-                            <Button Background="Transparent"
-                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
-                                    Style="{ThemeResource WinUIBugFixedButtonStyle}"
-                                    VerticalAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalContentAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Padding="0"
-                                    BorderThickness="0"
-                                    Name="AddressExtention"
-                                    Click="AddressExtention_Click">
-                                <Button.Content>
-                                    <Viewbox Width="12">
-                                        <FontIcon FontFamily="Segoe UI Emoji"
-                                                  Glyph="&#x25B8;" />
-                                    </Viewbox>
-                                </Button.Content>
-                            </Button>
-                        </StackPanel>
+                        <UserControl>
+                            <StackPanel Orientation="Horizontal">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup>
+                                        <VisualState x:Name="NoramlState">
+                                            <VisualState.StateTriggers>
+                                                <Triggers:IsEqualStateTrigger Value="{x:Bind BlockType,Mode=OneWay}"
+                                                                              To="Normal" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="AddressButton.Foreground"
+                                                        Value="{ThemeResource SystemBaseHighColor}" />
+                                                <Setter Target="AddressExtention.Foreground"
+                                                        Value="{ThemeResource SystemBaseHighColor}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="GrayState">
+                                            <VisualState.StateTriggers>
+                                                <Triggers:IsEqualStateTrigger Value="{x:Bind BlockType,Mode=OneWay}"
+                                                                              To="Gray" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="AddressButton.Foreground"
+                                                        Value="DarkGray" />
+                                                <Setter Target="AddressExtention.Foreground"
+                                                        Value="DarkGray" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <Button Content="{x:Bind DisplayName}"
+                                        Style="{ThemeResource WinUIBugFixedButtonStyle}"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"
+                                        Name="AddressButton"
+                                        Padding="4,0"
+                                        Click="AddressButton_Click"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        AllowDrop="True"
+                                        BorderThickness="0"
+                                        Drop="AddressButton_Drop"
+                                        DragEnter="AddressButton_DragEnter"
+                                        DragLeave="AddressButton_DragLeave"
+                                        DragOver="AddressButton_DragOver"
+                                        Background="Transparent" />
+                                <Button Background="Transparent"
+                                        Style="{ThemeResource WinUIBugFixedButtonStyle}"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalContentAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="0"
+                                        BorderThickness="0"
+                                        Name="AddressExtention"
+                                        Click="AddressExtention_Click">
+                                    <Button.Content>
+                                        <Viewbox Width="12">
+                                            <FontIcon FontFamily="Segoe UI Emoji"
+                                                      Glyph="&#x25B8;" />
+                                        </Viewbox>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </UserControl>
                     </DataTemplate>
                 </ListView.ItemTemplate>
                 <ListView.ItemContainerStyle>
