@@ -1143,7 +1143,7 @@ namespace RX_Explorer
                 {
                     if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
                     {
-                        await new DeviceInfoDialog(Info).ShowAsync();
+                        await new DriveInfoDialog(Info).ShowAsync();
                     }
                     else
                     {

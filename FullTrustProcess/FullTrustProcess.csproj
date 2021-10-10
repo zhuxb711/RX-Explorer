@@ -141,6 +141,9 @@
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">
       <Version>3.3.13</Version>
     </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.Mpr">
+      <Version>3.3.13</Version>
+    </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
       <Version>3.3.13</Version>
     </PackageReference>

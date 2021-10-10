@@ -522,7 +522,7 @@ namespace RX_Explorer
 
                 if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    await new DeviceInfoDialog(Drive).ShowAsync();
+                    await new DriveInfoDialog(Drive).ShowAsync();
                 }
                 else
                 {
@@ -541,6 +541,30 @@ namespace RX_Explorer
 
                 if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                 {
+                    if (Library.Path.Equals(Path.GetPathRoot(Library.Path), StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Library.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                        {
+                            await new DriveInfoDialog(Drive).ShowAsync();
+                            return;
+                        }
+                        else if (Library.Path.StartsWith(@"\\"))
+                        {
+                            IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+
+                            if (NetworkDriveList.Count > 0)
+                            {
+                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+
+                                if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                                {
+                                    await new DriveInfoDialog(NetworkDrive).ShowAsync();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
                     PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
                     await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                 }
@@ -685,6 +709,30 @@ namespace RX_Explorer
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
+                if (Library.Path.Equals(Path.GetPathRoot(Library.Path), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Library.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                    {
+                        await new DriveInfoDialog(Drive).ShowAsync();
+                        return;
+                    }
+                    else if (Library.Path.StartsWith(@"\\"))
+                    {
+                        IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+
+                        if (NetworkDriveList.Count > 0)
+                        {
+                            string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+
+                            if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                            {
+                                await new DriveInfoDialog(NetworkDrive).ShowAsync();
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
                 await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
@@ -771,7 +819,7 @@ namespace RX_Explorer
         {
             if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
-                await new DeviceInfoDialog(Drive).ShowAsync();
+                await new DriveInfoDialog(Drive).ShowAsync();
             }
         }
 

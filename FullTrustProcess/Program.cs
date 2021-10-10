@@ -475,6 +475,60 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.MapToUNCPath:
+                        {
+                            IReadOnlyList<string> PathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(CommandValue["PathList"]);
+                            Dictionary<string, string> MapResult = new Dictionary<string, string>(PathList.Count);
+
+                            foreach (string Path in PathList)
+                            {
+                                uint BufferSize = 128;
+
+                                IntPtr BufferPtr = Marshal.AllocCoTaskMem((int)BufferSize);
+
+                                try
+                                {
+                                    Win32Error Error = Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, BufferPtr, ref BufferSize);
+
+                                    if (Error.Succeeded)
+                                    {
+                                        MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(BufferPtr).lpUniversalName.TrimEnd('\\'));
+                                    }
+                                    else if (Error == Win32Error.ERROR_MORE_DATA)
+                                    {
+                                        IntPtr NewBufferPtr = Marshal.AllocCoTaskMem((int)BufferSize);
+
+                                        try
+                                        {
+                                            if (Mpr.WNetGetUniversalName(Path, Mpr.INFO_LEVEL.UNIVERSAL_NAME_INFO_LEVEL, NewBufferPtr, ref BufferSize).Succeeded)
+                                            {
+                                                MapResult.Add(Path, Marshal.PtrToStructure<Mpr.UNIVERSAL_NAME_INFO>(NewBufferPtr).lpUniversalName.TrimEnd('\\'));
+                                            }
+                                            else
+                                            {
+                                                MapResult.Add(Path, Path);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            Marshal.FreeCoTaskMem(NewBufferPtr);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MapResult.Add(Path, Path);
+                                    }
+                                }
+                                finally
+                                {
+                                    Marshal.FreeCoTaskMem(BufferPtr);
+                                }
+                            }
+
+                            Value.Add("Success", JsonSerializer.Serialize(MapResult));
+
+                            break;
+                        }
                     case CommandType.GetDirectoryMonitorHandle:
                         {
                             if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())

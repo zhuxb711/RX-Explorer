@@ -728,6 +728,26 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<IReadOnlyDictionary<string, string>> MapToUNCPathAsync(IEnumerable<string> PathList)
+        {
+            if (await SendCommandAsync(CommandType.MapToUNCPath, ("PathList", JsonSerializer.Serialize(PathList))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string MapString))
+                {
+                    return JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(MapString);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MapToUNCPathAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return new Dictionary<string, string>(0);
+        }
+
         public async Task<SafeFileHandle> GetFileHandleAsync(string Path, AccessMode Access)
         {
             if (await SendCommandAsync(CommandType.GetFileHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access))) is IDictionary<string, string> Response)
@@ -742,14 +762,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
                     }
-
-                    return new SafeFileHandle(IntPtr.Zero, true);
                 }
             }
-            else
-            {
-                return new SafeFileHandle(IntPtr.Zero, true);
-            }
+
+            return new SafeFileHandle(IntPtr.Zero, true);
         }
 
         public async Task<IntPtr> GetDirectoryMonitorHandleAsync(string Path)
@@ -766,14 +782,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
                     }
-
-                    return IntPtr.Zero;
                 }
             }
-            else
-            {
-                return IntPtr.Zero;
-            }
+
+            return IntPtr.Zero;
         }
 
         public async Task<string> GetMIMEContentTypeAsync(string Path)
@@ -790,14 +802,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentTypeAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<string> GetUrlTargetPathAsync(string Path)
@@ -814,14 +822,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentTypeAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<string> GetTooltipTextAsync(string Path)
@@ -838,14 +842,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetTooltipTextAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<byte[]> GetThumbnailOverlayAsync(string Path)
@@ -862,14 +862,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailOverlayAsync)}, message: {ErrorMessage}");
                     }
-
-                    return Array.Empty<byte>();
                 }
             }
-            else
-            {
-                return Array.Empty<byte>();
-            }
+
+            return Array.Empty<byte>();
         }
 
         public async Task<string> CreateNewAsync(CreateType Type, string Path)
@@ -894,14 +890,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CreateNewAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<bool> SetAsTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
@@ -918,14 +910,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(SetAsTopMostWindowAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> RemoveTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
@@ -942,14 +930,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(RemoveTopMostWindowAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<Dictionary<string, string>> GetDocumentProperties(string Path)
@@ -966,14 +950,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
                     }
-
-                    return new Dictionary<string, string>(0);
                 }
             }
-            else
-            {
-                return new Dictionary<string, string>(0);
-            }
+
+            return new Dictionary<string, string>(0);
         }
 
         public async Task SetFileAttribute(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
@@ -1001,14 +981,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfEverythingIsAvailableAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex, bool IgnoreCase)
@@ -1019,11 +995,7 @@ namespace RX_Explorer.Class
                 {
                     string[] SearchResult = JsonSerializer.Deserialize<string[]>(Result);
 
-                    if (SearchResult.Length == 0)
-                    {
-                        return new List<FileSystemStorageItemBase>(0);
-                    }
-                    else
+                    if (SearchResult.Length > 0)
                     {
                         return await FileSystemStorageItemBase.OpenInBatchAsync(SearchResult);
                     }
@@ -1034,14 +1006,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(SearchByEverythingAsync)}, message: {ErrorMessage}");
                     }
-
-                    return new List<FileSystemStorageItemBase>(0);
                 }
             }
-            else
-            {
-                return new List<FileSystemStorageItemBase>(0);
-            }
+
+            return new List<FileSystemStorageItemBase>(0);
         }
 
         public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
@@ -1058,14 +1026,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromAUMIDAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> LaunchUWPFromPfnAsync(string PackageFamilyName, params string[] PathArray)
@@ -1082,14 +1046,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromPfnAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> CheckIfPackageFamilyNameExist(string PackageFamilyName)
@@ -1106,14 +1066,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExist)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<InstalledApplication> GetInstalledApplicationAsync(string PackageFamilyName)
@@ -1132,14 +1088,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetInstalledApplicationAsync)}, message: {ErrorMessage}");
                     }
-
-                    return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
 
@@ -1164,14 +1116,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledApplicationAsync)}, message: {ErrorMessage}");
                     }
-
-                    return Array.Empty<InstalledApplication>();
                 }
             }
-            else
-            {
-                return Array.Empty<InstalledApplication>();
-            }
+
+            return Array.Empty<InstalledApplication>();
         }
 
 
@@ -1189,14 +1137,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
                     }
-
-                    return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public async Task<byte[]> GetThumbnailAsync(string Path)
@@ -1213,14 +1157,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
                     }
-
-                    return Array.Empty<byte>();
                 }
             }
-            else
-            {
-                return Array.Empty<byte>();
-            }
+
+            return Array.Empty<byte>();
         }
 
         public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
@@ -1239,19 +1179,11 @@ namespace RX_Explorer.Class
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
                         }
-
-                        return new List<ContextMenuItem>(0);
                     }
                 }
-                else
-                {
-                    return new List<ContextMenuItem>(0);
-                }
             }
-            else
-            {
-                return new List<ContextMenuItem>(0);
-            }
+
+            return new List<ContextMenuItem>(0);
         }
 
         public async Task<bool> InvokeContextMenuItemAsync(ContextMenuPackage Package)
@@ -1262,25 +1194,18 @@ namespace RX_Explorer.Class
 
                 if (await SendCommandAsync(CommandType.InvokeContextMenuItem, ("DataPackage", JsonSerializer.Serialize(ClonePackage))) is IDictionary<string, string> Response)
                 {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
-                        return false;
-                    }
-                    else
+                    if (Response.ContainsKey("Success"))
                     {
                         return true;
                     }
-                }
-                else
-                {
-                    return false;
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
+                    }
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> CreateLinkAsync(LinkDataPackage Package)
@@ -1297,14 +1222,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CreateLinkAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task UpdateLinkAsync(LinkDataPackage Package)
@@ -1359,14 +1280,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePathAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<string> RenameAsync(string Path, string DesireName, bool SkipOperationRecord = false)
@@ -1429,14 +1346,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetLinkDataAsync)}, message: {ErrorMessage}");
                     }
-
-                    return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public async Task<UrlDataPackage> GetUrlDataAsync(string Path)
@@ -1453,14 +1366,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlDataAsync)}, message: {ErrorMessage}");
                     }
-
-                    return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public async Task<bool> InterceptWindowsPlusEAsync()
@@ -1477,14 +1386,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusEAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> RestoreWindowsPlusEAsync()
@@ -1501,14 +1406,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         /// <summary>
@@ -1528,20 +1429,21 @@ namespace RX_Explorer.Class
                                        ("ExecuteWorkDirectory", WorkDirectory ?? string.Empty),
                                        ("ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle))) is IDictionary<string, string> Response)
             {
-                if (Response.TryGetValue("Error", out string ErrorMessage2))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
-                    return false;
-                }
-                else
+                if (Response.ContainsKey("Success"))
                 {
                     return true;
                 }
+                else if (Response.TryGetValue("Error", out string ErrorMessage1))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage1}");
+                }
+                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage2))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
+                }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task ViewWithQuicklookAsync(string Path)
@@ -1563,14 +1465,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<string> GetDefaultAssociationFromPathAsync(string Path)
@@ -1587,14 +1485,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetDefaultAssociationFromPathAsync)}, message: {ErrorMessage}");
                     }
-
-                    return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         public async Task<IReadOnlyList<AssociationPackage>> GetAssociationFromPathAsync(string Path)
@@ -1611,14 +1505,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromPathAsync)}, message: {ErrorMessage}");
                     }
-
-                    return new List<AssociationPackage>(0);
                 }
             }
-            else
-            {
-                return new List<AssociationPackage>(0);
-            }
+
+            return new List<AssociationPackage>(0);
         }
 
         public async Task<bool> EmptyRecycleBinAsync()
@@ -1635,14 +1525,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(EmptyRecycleBinAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
@@ -1671,14 +1557,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
                     }
-
-                    return new List<IRecycleStorageItem>(0);
                 }
             }
-            else
-            {
-                return new List<IRecycleStorageItem>(0);
-            }
+
+            return new List<IRecycleStorageItem>(0);
         }
 
         public async Task<bool> TryUnlockFileOccupy(string Path, bool ForceClose = false)
@@ -2062,14 +1944,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
@@ -2086,14 +1964,10 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> DeleteItemInRecycleBinAsync(string Path)
@@ -2115,43 +1989,33 @@ namespace RX_Explorer.Class
                     {
                         LogTracer.Log($"An unexpected error was threw in {nameof(DeleteItemInRecycleBinAsync)}, message: {ErrorMessage}");
                     }
-
-                    return false;
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public async Task<bool> EjectPortableDevice(string Path)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (!string.IsNullOrWhiteSpace(Path))
             {
-                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
-            }
-
-            if (await SendCommandAsync(CommandType.EjectUSB, ("ExecutePath", Path)) is IDictionary<string, string> Response)
-            {
-                if (Response.TryGetValue("EjectResult", out string Result))
+                if (await SendCommandAsync(CommandType.EjectUSB, ("ExecutePath", Path)) is IDictionary<string, string> Response)
                 {
-                    return Convert.ToBoolean(Result);
-                }
-                else
-                {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    if (Response.TryGetValue("EjectResult", out string Result))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(EjectPortableDevice)}, message: {ErrorMessage}");
+                        return Convert.ToBoolean(Result);
                     }
-
-                    return false;
+                    else
+                    {
+                        if (Response.TryGetValue("Error", out string ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(EjectPortableDevice)}, message: {ErrorMessage}");
+                        }
+                    }
                 }
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public void Dispose()

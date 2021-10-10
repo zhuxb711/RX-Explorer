@@ -821,7 +821,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private async Task LoadDataForGeneralPage()
         {
             Thumbnail.Source = StorageItem.Thumbnail;
-            LocationContent.Text = Path.GetDirectoryName(StorageItem.Path);
+            LocationContent.Text = Path.GetDirectoryName(StorageItem.Path) ?? StorageItem.Path;
             CreatedContent.Text = StorageItem.CreationTime.ToString("F");
             ModifiedContent.Text = StorageItem.ModifiedTime.ToString("F");
             HiddenAttribute.IsChecked = StorageItem is IHiddenStorageItem;
@@ -1018,7 +1018,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     try
                     {
-                        if ((await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                        if (!string.IsNullOrEmpty(StorageItem.Type) && (await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                         {
                             OpenWithContent.Text = Info.Package.DisplayName;
 

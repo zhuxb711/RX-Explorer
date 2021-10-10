@@ -30,11 +30,11 @@ namespace RX_Explorer.Class
 
         public virtual string SizeDescription { get; }
 
-        public virtual string Name => System.IO.Path.GetFileName(Path);
+        public virtual string Name => System.IO.Path.GetFileName(Path) ?? string.Empty;
 
         public virtual string DisplayName => Name;
 
-        public virtual string Type => System.IO.Path.GetExtension(Path).ToUpper();
+        public virtual string Type => System.IO.Path.GetExtension(Path)?.ToUpper() ?? string.Empty;
 
         public virtual string DisplayType => Type;
 

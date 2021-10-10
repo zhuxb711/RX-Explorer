@@ -1,6 +1,5 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Deferred;
-using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -913,6 +912,23 @@ namespace RX_Explorer
                     }
                     else if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                     {
+                        //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
+                        //Use drive path could get more benefit from loading speed and directory monitor
+                        if (Folder.Path.StartsWith(@"\\"))
+                        {
+                            IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+
+                            if (NetworkDriveList.Count > 0)
+                            {
+                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Folder.Path);
+
+                                if (await FileSystemStorageItemBase.OpenAsync(RemappedPath) is FileSystemStorageFolder RemappedFolder)
+                                {
+                                    Folder = RemappedFolder;
+                                }
+                            }
+                        }
+
                         CurrentFolder = Folder;
 
                         if (Container.FolderTree.SelectedNode == null
@@ -2423,10 +2439,10 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
-                if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
-                     && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Data)
+                if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase) 
+                    && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                 {
-                    await new DeviceInfoDialog(Data).ShowAsync();
+                    await new DriveInfoDialog(Drive).ShowAsync();
                 }
                 else
                 {

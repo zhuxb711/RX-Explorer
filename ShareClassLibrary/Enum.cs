@@ -84,6 +84,7 @@
         GetFileHandle,
         GetTooltipText,
         GetVariablePathSuggestion,
-        GetDirectoryMonitorHandle
+        GetDirectoryMonitorHandle,
+        MapToUNCPath
     }
 }
