@@ -181,7 +181,7 @@
     <value>前进</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>返回上一级</value>
+    <value>返回上一级文件夹</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
@@ -2837,9 +2837,6 @@
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>分组依据</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
-    <value>回到主页</value>
-  </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -3232,5 +3229,8 @@
   </data>
   <data name="Device_Type_2" xml:space="preserve">
     <value>CD-ROM驱动器</value>
+  </data>
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>返回主页</value>
   </data>
 </root>

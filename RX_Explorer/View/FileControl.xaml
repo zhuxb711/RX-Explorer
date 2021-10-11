@@ -580,6 +580,8 @@
                             <RadioButton Content="使用内置搜索引擎 (默认)"
                                          x:Uid="SearchInDefaultEngine"
                                          GroupName="SearchEngine"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Name="SearchInDefaultEngine"
                                          Checked="SearchEngineChoiceSave_Checked" />
                             <StackPanel Orientation="Horizontal"
@@ -593,6 +595,8 @@
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
                                               x:Uid="SearchEngineIgnoreCase"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               x:Name="BuiltInEngineIgnoreCase"
@@ -601,52 +605,67 @@
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
-                                    <CheckBox Content="使用高级查询语法(AQS)"
+                                    <CheckBox x:Name="BuiltInEngineIncludeAQS"
                                               x:Uid="SearchEngineUseAQS"
-                                              x:Name="BuiltInEngineIncludeAQS"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <CheckBox Content="仅通过索引执行搜索"
-                                                  Name="BuiltInSearchUseIndexer"
-                                                  x:Uid="SearchEngineUseIndexer"
-                                                  Checked="SeachEngineOptionSave_Checked"
-                                                  Unchecked="SeachEngineOptionSave_UnChecked" />
-                                        <Viewbox Margin="10,0,0,0"
-                                                 Height="15"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE9CE;"
-                                                      Name="IndexerQuestion"
-                                                      Tapped="IndexerQuestion_Tapped" />
-                                        </Viewbox>
-                                    </StackPanel>
+                                    <CheckBox Name="BuiltInSearchUseIndexer"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked">
+                                        <RelativePanel HorizontalAlignment="Left">
+                                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
+                                                       RelativePanel.AlignLeftWithPanel="True"
+                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                       Name="BuiltInSearchUseIndexerText" />
+                                            <Viewbox Margin="10,0,0,0"
+                                                     Height="15"
+                                                     Name="IndexerQuestion"
+                                                     RelativePanel.RightOf="BuiltInSearchUseIndexerText"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon Glyph="&#xE9CE;"
+                                                          PointerPressed="IndexerQuestion_PointerPressed" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </CheckBox>
+
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
                                               x:Uid="SearchEngineAllSubFolders"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                 </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton Margin="0,5,0,0"
-                                             GroupName="SearchEngine"
+                            <RelativePanel Margin="0,5,0,0">
+                                <RadioButton GroupName="SearchEngine"
                                              x:Uid="SearchInEverythingEngine"
                                              Name="SearchInEverythingEngine"
                                              Content="使用Everything搜索引擎 (较快)"
-                                             Checked="SearchEngineChoiceSave_Checked" />
-                                <Viewbox Margin="10,8,0,0"
+                                             Checked="SearchEngineChoiceSave_Checked" 
+                                             Padding="8,0"
+                                             VerticalContentAlignment="Center"
+                                             RelativePanel.LeftOf="EverythingQuestion"
+                                             RelativePanel.AlignVerticalCenterWithPanel="True"
+                                             RelativePanel.AlignLeftWithPanel="True"/>
+                                <Viewbox Margin="10,0,0,0"
                                          Height="15"
+                                         Name="EverythingQuestion"
                                          Visibility="{x:Bind SearchInEverythingEngine.IsEnabled, Converter={StaticResource InverseConverter}, Mode=OneWay}"
-                                         VerticalAlignment="Center">
+                                         RelativePanel.AlignVerticalCenterWithPanel="True"
+                                         RelativePanel.AlignRightWithPanel="True">
                                     <FontIcon Glyph="&#xE9CE;"
-                                              Name="EverythingQuestion"
-                                              Tapped="EverythingQuestion_Tapped" />
+                                              PointerPressed="EverythingQuestion_PointerPressed" />
                                 </Viewbox>
-                            </StackPanel>
+                            </RelativePanel>
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInEverythingEngine.IsChecked, Mode=OneWay}">
                                 <Line X1="10"
@@ -659,16 +678,22 @@
                                     <CheckBox Content="忽略大小写"
                                               x:Uid="SearchEngineIgnoreCase"
                                               IsChecked="True"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               x:Name="EverythingEngineIgnoreCase"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               x:Name="EverythingEngineIncludeRegex"
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="全局搜索"
                                               x:Uid="SearchEngineGlobeSearch"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
                                               IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                               IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
                                               x:Name="EverythingEngineSearchGloble"
@@ -763,7 +788,6 @@
                                        Margin="5,0,0,0"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"
-                                       Style="{ThemeResource BodyTextBlockStyle}"
                                        RelativePanel.AlignRightWithPanel="True"
                                        RelativePanel.AlignVerticalCenterWithPanel="True"
                                        RelativePanel.RightOf="Icon" />

@@ -190,7 +190,7 @@
     <value>Vorwärts</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Oberer</value>
+    <value>Bis zum übergeordneten Ordner</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
@@ -2837,9 +2837,6 @@ Inkorrekte Namen sind
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>Gruppiere nach</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
-    <value>Zurück nach Hause</value>
-  </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
     <value>Startseite</value>
   </data>
@@ -3232,5 +3229,8 @@ Inkorrekte Namen sind
   </data>
   <data name="Device_Type_2" xml:space="preserve">
     <value>CD-ROM-Laufwerk</value>
+  </data>
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Zurück zur Startseite</value>
   </data>
 </root>

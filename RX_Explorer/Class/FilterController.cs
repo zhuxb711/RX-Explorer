@@ -556,8 +556,7 @@ namespace RX_Explorer.Class
 
                     InnerPanel.Children.Add(new Viewbox
                     {
-                        Height = 16,
-                        VerticalAlignment = VerticalAlignment.Bottom,
+                        Height = 15,
                         Child = new FontIcon
                         {
                             Glyph = "\uE81E"
@@ -573,6 +572,8 @@ namespace RX_Explorer.Class
                     CheckBox Box = new CheckBox
                     {
                         Content = InnerPanel,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        Padding = new Thickness(8, 0, 8, 0),
                         IsChecked = TypeFilter.Contains(Type.ToUpper())
                     };
 

@@ -406,17 +406,19 @@
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="BluetoothAudioItem"
                                          SelectsOnInvoked="False">
-                    <StackPanel Orientation="Horizontal">
+                    <RelativePanel>
                         <TextBlock Text="蓝牙音频"
+                                   Name="BluetoothAudioText"
                                    x:Uid="BluetoothAudio" />
-                        <Viewbox Margin="10,3,0,0"
+                        <Viewbox Margin="10,0,0,0"
                                  Height="15"
-                                 VerticalAlignment="Center">
+                                 RelativePanel.RightOf="BluetoothAudioText"
+                                 RelativePanel.AlignVerticalCenterWith="BluetoothAudioText">
                             <FontIcon Glyph="&#xE9CE;"
                                       Name="BluetoothAudioQuestion"
                                       PointerPressed="BluetoothAudioQuestion_PointerPressed" />
                         </Viewbox>
-                    </StackPanel>
+                    </RelativePanel>
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE702;"

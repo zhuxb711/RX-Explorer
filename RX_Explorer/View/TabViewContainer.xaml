@@ -20,6 +20,7 @@
             <StackPanel HorizontalAlignment="Stretch"
                         VerticalAlignment="Center">
                 <TextBlock Text="{Binding}"
+                           FontFamily="{StaticResource ContentControlThemeFontFamily}"
                            TextTrimming="CharacterEllipsis"
                            TextWrapping="NoWrap" />
             </StackPanel>

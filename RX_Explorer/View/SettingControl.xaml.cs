@@ -28,7 +28,6 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
@@ -347,8 +346,10 @@ namespace RX_Explorer
         public SettingControl()
         {
             InitializeComponent();
+
             Loading += SettingControl_Loading;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
+
             PictureGirdView.ItemsSource = PictureList;
             Version.Text = $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
 
@@ -2013,7 +2014,7 @@ namespace RX_Explorer
             }
         }
 
-        private void QuicklookQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        private void QuicklookQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             QuicklookTip.IsOpen = true;
         }
@@ -3206,7 +3207,7 @@ namespace RX_Explorer
             }
         }
 
-        private void IndexerQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        private void IndexerQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             UseIndexerTip.IsOpen = true;
         }

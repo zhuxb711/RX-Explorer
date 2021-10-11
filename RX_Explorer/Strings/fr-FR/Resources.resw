@@ -181,7 +181,7 @@
     <value>Suivant</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Monter</value>
+    <value>Jusqu'au dossier parent</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vide</value>
@@ -2837,9 +2837,6 @@ Les noms non valides incluent
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>Grouper par</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
-    <value>Retour à l'accueil</value>
-  </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
     <value>Page d'accueil</value>
   </data>
@@ -3232,5 +3229,8 @@ Les noms non valides incluent
   </data>
   <data name="Device_Type_2" xml:space="preserve">
     <value>Lecteur CD ROM</value>
+  </data>
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>De retour à la maison</value>
   </data>
 </root>

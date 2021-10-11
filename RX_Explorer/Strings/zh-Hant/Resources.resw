@@ -190,7 +190,7 @@
     <value>下一步</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>上一步</value>
+    <value>回到父文件夾</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>空白</value>
@@ -2837,9 +2837,6 @@
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>分組依據</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
-    <value>回到首頁</value>
-  </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
     <value>主頁</value>
   </data>
@@ -3232,5 +3229,8 @@
   </data>
   <data name="Device_Type_2" xml:space="preserve">
     <value>CD-ROM驅動器</value>
+  </data>
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>返回首頁</value>
   </data>
 </root>

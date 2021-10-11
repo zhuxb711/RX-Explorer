@@ -231,8 +231,8 @@
           <target state="translated">Suivant</target>
         </trans-unit>
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Upper</source>
-          <target state="translated">Monter</target>
+          <source>Up to parent folder</source>
+          <target state="translated">Jusqu'au dossier parent</target>
         </trans-unit>
         <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
           <source>Empty</source>
@@ -3766,10 +3766,6 @@ Les noms non valides incluent
           <source>Group by</source>
           <target state="translated">Grouper par</target>
         </trans-unit>
-        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
-          <source>Back to Home</source>
-          <target state="translated">Retour à l'accueil</target>
-        </trans-unit>
         <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
           <source>Home Page</source>
           <target state="translated">Page d'accueil</target>
@@ -4292,6 +4288,10 @@ Les noms non valides incluent
         <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
           <source>CD-ROM drive</source>
           <target state="translated">Lecteur CD ROM</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">De retour à la maison</target>
         </trans-unit>
       </group>
     </body>

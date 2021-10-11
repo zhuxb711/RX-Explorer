@@ -2239,11 +2239,6 @@ namespace RX_Explorer
             BlockKeyboardShortCutInput = false;
         }
 
-        private void EverythingQuestion_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            EverythingTip.IsOpen = true;
-        }
-
         private void SeachEngineOptionSave_Checked(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox Box)
@@ -3132,7 +3127,7 @@ namespace RX_Explorer
             }
         }
 
-        private void IndexerQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        private void IndexerQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             UseIndexerTip.IsOpen = true;
         }
@@ -3211,6 +3206,11 @@ namespace RX_Explorer
             {
                 Item.IsExpanded = !Item.IsExpanded;
             }
+        }
+
+        private void EverythingQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            EverythingTip.IsOpen = true;
         }
 
         public void Dispose()

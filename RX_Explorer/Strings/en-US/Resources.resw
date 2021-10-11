@@ -298,7 +298,7 @@
     <value>Forward</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Upper</value>
+    <value>Up to parent folder</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Empty</value>
@@ -2957,7 +2957,7 @@ Invalid names include
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>Group by</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Back to Home</value>
   </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">

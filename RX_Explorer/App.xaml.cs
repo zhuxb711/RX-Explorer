@@ -173,6 +173,8 @@ namespace RX_Explorer
 
         private async Task OnLaunchOrOnActivate(IActivatedEventArgs args)
         {
+            Resources["ContentControlThemeFontFamily"] = FontFamilyController.GetCurrentFontFamily();
+
             SystemInformation.Instance.TrackAppUse(args);
 
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;

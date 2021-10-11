@@ -977,7 +977,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (args.InvokedItem is StackPanel)
+                        if (args.InvokedItem is RelativePanel)
                         {
                             if (!BluetoothAudioQuestionTip.IsOpen)
                             {

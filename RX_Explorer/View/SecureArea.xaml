@@ -181,84 +181,93 @@
                    PaneClosing="SettingPane_PaneClosing"
                    PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
             <SplitView.Pane>
-                <StackPanel Padding="20">
-                    <TextBlock FontSize="22"
-                               Text="设置"
-                               x:Uid="SecureAreaSettingHeader" />
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,20,0,0">
-                        <ToggleSwitch Header="使用Windows Hello简化认证过程"
-                                      x:Name="UseWindowsHello"
-                                      x:Uid="SecureAreaSettingUseWH" />
-                        <Viewbox Margin="10,3,0,0"
-                                 Height="15"
-                                 VerticalAlignment="Top">
-                            <FontIcon Glyph="&#xE9CE;"
-                                      Name="WindowsHelloQuestion"
-                                      PointerPressed="WindowsHelloQuestion_PointerPressed" />
-                        </Viewbox>
-                    </StackPanel>
-                    <StackPanel Margin="0,20,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="加密模式"
-                                       x:Uid="SecureAreaSettingEncryptionHeader" />
-                            <Viewbox Margin="15,3,0,0"
-                                     Height="15"
-                                     VerticalAlignment="Top">
-                                <FontIcon Glyph="&#xE9CE;"
-                                          Name="EncryptionModeQuestion"
-                                          PointerPressed="EncryptionModeQuestion_PointerPressed" />
-                            </Viewbox>
+                <ScrollViewer VerticalScrollMode="Auto"
+                              HorizontalScrollMode="Disabled">
+                    <StackPanel Padding="20">
+                        <TextBlock FontSize="22"
+                                   Text="设置"
+                                   x:Uid="SecureAreaSettingHeader" />
+                        <StackPanel Margin="0,20,0,0">
+                            <RelativePanel>
+                                <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureAreaSettingUseWH/Header')}"
+                                           TextWrapping="WrapWholeWords"
+                                           RelativePanel.LeftOf="WindowsHelloQuestion" />
+                                <Viewbox Margin="10,0,0,0"
+                                         Height="15"
+                                         Name="WindowsHelloQuestion"
+                                         RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.AlignVerticalCenterWithPanel="True">
+                                    <FontIcon Glyph="&#xE9CE;"
+                                              PointerPressed="WindowsHelloQuestion_PointerPressed" />
+                                </Viewbox>
+                            </RelativePanel>
+                            <ToggleSwitch x:Name="UseWindowsHello"
+                                          Margin="0,4,0,0" />
                         </StackPanel>
-                        <RadioButton Content="AES-128bit CBC模式"
-                                     x:Uid="SecureAreaSettingAESMode1"
-                                     Margin="0,10,0,0"
-                                     Name="AES128Mode" />
-                        <RadioButton Content="AES-256bit CBC模式"
-                                     x:Uid="SecureAreaSettingAESMode2"
-                                     Margin="0,10,0,0"
-                                     Name="AES256Mode" />
+                        <StackPanel Margin="0,20,0,0">
+                            <RelativePanel>
+                                <TextBlock Text="加密模式"
+                                           Name="EncryptionModeText"
+                                           x:Uid="SecureAreaSettingEncryptionHeader" />
+                                <Viewbox Margin="10,0,0,0"
+                                         Height="15"
+                                         RelativePanel.RightOf="EncryptionModeText"
+                                         RelativePanel.AlignVerticalCenterWith="EncryptionModeText">
+                                    <FontIcon Glyph="&#xE9CE;"
+                                              Name="EncryptionModeQuestion"
+                                              PointerPressed="EncryptionModeQuestion_PointerPressed" />
+                                </Viewbox>
+                            </RelativePanel>
+                            <RadioButton Content="AES-128bit CBC模式"
+                                         x:Uid="SecureAreaSettingAESMode1"
+                                         Margin="0,10,0,0"
+                                         Name="AES128Mode" />
+                            <RadioButton Content="AES-256bit CBC模式"
+                                         x:Uid="SecureAreaSettingAESMode2"
+                                         Margin="0,10,0,0"
+                                         Name="AES256Mode" />
+                        </StackPanel>
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="安全域锁定模式"
+                                       x:Uid="SecureAreaSettingLockModeHeader" />
+                            <RadioButton Content="离开此页面时立刻锁定"
+                                         x:Uid="SecureAreaSettingLockMode1"
+                                         Margin="0,10,0,0"
+                                         Name="ImmediateLockMode" />
+                            <RadioButton Content="此应用关闭时锁定"
+                                         x:Uid="SecureAreaSettingLockMode2"
+                                         Margin="0,10,0,0"
+                                         Name="CloseLockMode" />
+                        </StackPanel>
+                        <StackPanel  Margin="0,20,0,0">
+                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
+                                       FontSize="22" />
+                            <TextBlock Margin="0,10"
+                                       TextWrapping="Wrap"
+                                       MaxLines="5"
+                                       IsTextSelectionEnabled="True"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTipService.ToolTip="{x:Bind StorageLocation.Text, Mode=OneWay}"
+                                       Name="StorageLocation" />
+                            <Button Content="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_ChangeButton')}"
+                                    MinWidth="100"
+                                    Name="ChangeLocation"
+                                    Click="ChangeLocation_Click" />
+                        </StackPanel>
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="关于"
+                                       x:Uid="SecureAreaSettingAboutHeader"
+                                       FontSize="22" />
+                            <TextBlock Margin="0,20,0,0"
+                                       Text="RX内建文件保险箱"
+                                       x:Uid="SecureAreaSettingAboutText1" />
+                            <TextBlock Margin="0,10,0,0"
+                                       TextWrapping="Wrap"
+                                       Text="基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储"
+                                       x:Uid="SecureAreaSettingAboutText2" />
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Margin="0,20,0,0">
-                        <TextBlock Text="安全域锁定模式"
-                                   x:Uid="SecureAreaSettingLockModeHeader" />
-                        <RadioButton Content="离开此页面时立刻锁定"
-                                     x:Uid="SecureAreaSettingLockMode1"
-                                     Margin="0,10,0,0"
-                                     Name="ImmediateLockMode" />
-                        <RadioButton Content="此应用关闭时锁定"
-                                     x:Uid="SecureAreaSettingLockMode2"
-                                     Margin="0,10,0,0"
-                                     Name="CloseLockMode" />
-                    </StackPanel>
-                    <StackPanel  Margin="0,20,0,0">
-                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_Title')}"
-                                   FontSize="22" />
-                        <TextBlock Margin="0,10"
-                                   TextWrapping="Wrap"
-                                   MaxLines="5"
-                                   IsTextSelectionEnabled="True"
-                                   TextTrimming="CharacterEllipsis"
-                                   ToolTipService.ToolTip="{x:Bind StorageLocation.Text, Mode=OneWay}"
-                                   Name="StorageLocation"/>
-                        <Button Content="{x:Bind Cls:Globalization.GetString('SecureArea_StorageLocation_ChangeButton')}"
-                                MinWidth="100"
-                                Name="ChangeLocation"
-                                Click="ChangeLocation_Click"/>
-                    </StackPanel>
-                    <StackPanel Margin="0,20,0,0">
-                        <TextBlock Text="关于"
-                                   x:Uid="SecureAreaSettingAboutHeader"
-                                   FontSize="22" />
-                        <TextBlock Margin="0,20,0,0"
-                                   Text="RX内建文件保险箱"
-                                   x:Uid="SecureAreaSettingAboutText1" />
-                        <TextBlock Margin="0,10,0,0"
-                                   TextWrapping="Wrap"
-                                   Text="基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储"
-                                   x:Uid="SecureAreaSettingAboutText2" />
-                    </StackPanel>
-                </StackPanel>
+                </ScrollViewer>
             </SplitView.Pane>
         </SplitView>
 

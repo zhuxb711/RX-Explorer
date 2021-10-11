@@ -10,7 +10,7 @@ namespace RX_Explorer.Class
 {
     public sealed class ColorTagConverter : IValueConverter
     {
-        private IReadOnlyDictionary<ColorTag, string> ColorTagMap = new Dictionary<ColorTag, string>
+        private readonly IReadOnlyDictionary<ColorTag, string> ColorTagMap = new Dictionary<ColorTag, string>
         {
             { ColorTag.Transparent, "#00FFFFFF" },
             { ColorTag.Orange, "#FFFFA500" },

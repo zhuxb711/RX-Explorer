@@ -231,8 +231,8 @@
           <target state="translated">前进</target>
         </trans-unit>
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Upper</source>
-          <target state="translated">返回上一级</target>
+          <source>Up to parent folder</source>
+          <target state="translated">返回上一级文件夹</target>
         </trans-unit>
         <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
           <source>Empty</source>
@@ -3766,10 +3766,6 @@ Invalid names include
           <source>Group by</source>
           <target state="translated">分组依据</target>
         </trans-unit>
-        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
-          <source>Back to Home</source>
-          <target state="translated">回到主页</target>
-        </trans-unit>
         <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
           <source>Home Page</source>
           <target state="translated">主页</target>
@@ -4292,6 +4288,10 @@ Invalid names include
         <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
           <source>CD-ROM drive</source>
           <target state="translated">CD-ROM驱动器</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">返回主页</target>
         </trans-unit>
       </group>
     </body>

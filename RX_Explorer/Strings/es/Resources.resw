@@ -190,7 +190,7 @@
     <value>Reenviar</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Superior</value>
+    <value>Hasta carpeta padre</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vaciar</value>
@@ -2837,9 +2837,6 @@ Las denominaciones no válidas son:
   <data name="Operate_Text_Grouping" xml:space="preserve">
     <value>Agrupar por</value>
   </data>
-  <data name="FileControlHomeButton" xml:space="preserve">
-    <value>De vuelta a casa</value>
-  </data>
   <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
     <value>Pagina de inicio</value>
   </data>
@@ -3232,5 +3229,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="Device_Type_2" xml:space="preserve">
     <value>Lector de CD ROM</value>
+  </data>
+  <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>De vuelta a casa</value>
   </data>
 </root>

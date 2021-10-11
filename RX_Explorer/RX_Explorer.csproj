@@ -189,6 +189,7 @@
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FileSystemStorageGroupItem.cs" />
     <Compile Include="Class\FilterController.cs" />
+    <Compile Include="Class\FontFamilyController.cs" />
     <Compile Include="Class\GroupCollectionGenerator.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
     <Compile Include="Class\LibraryChangedDeferredEventArgs.cs" />

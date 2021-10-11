@@ -191,6 +191,8 @@
                           Stroke="Gray" />
                     <CheckBox Content="隐藏受保护的系统文件(推荐)"
                               Margin="20,0,0,0"
+                              Padding="8,0"
+                              VerticalContentAlignment="Center"
                               x:Uid="SettingHideProtectedSystemItems"
                               Name="HideProtectedSystemItems" />
                 </StackPanel>
@@ -230,24 +232,29 @@
                               Margin="0,20,0,0" />
 
                 <StackPanel Margin="0,20,0,0">
-                    <StackPanel Orientation="Horizontal">
+                    <RelativePanel>
                         <TextBlock Text="QuickLook预览"
-                                   x:Uid="QuicklookHeader" />
-                        <Viewbox Margin="10,1,0,0"
+                                   x:Uid="QuicklookHeader"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                   Name="EnableQuicklookText" />
+                        <Viewbox Margin="10,0,0,0"
                                  Height="15"
-                                 VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE9CE;"
-                                      Name="QuicklookQuestion"
-                                      Tapped="QuicklookQuestion_Tapped" />
+                                 Name="QuicklookQuestion"
+                                 PointerPressed="QuicklookQuestion_PointerPressed"
+                                 RelativePanel.RightOf="EnableQuicklookText"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True">
+                            <FontIcon Glyph="&#xE9CE;" />
                         </Viewbox>
-                    </StackPanel>
-                    <ToggleSwitch OnContent="启用"
-                                  OffContent="禁用"
-                                  x:Uid="EnableQuicklook"
+                    </RelativePanel>
+                    <ToggleSwitch x:Uid="EnableQuicklook"
+                                  Margin="0,4,0,0"
                                   Name="EnableQuicklook"
+                                  Background="Transparent"
+                                  OnContent="启用"
+                                  OffContent="禁用"
                                   Toggled="EnableQuicklook_Toggled" />
                 </StackPanel>
-
                 <ToggleSwitch Header="悬浮于其他应用之上"
                               OnContent="启用"
                               OffContent="禁用"
@@ -255,20 +262,25 @@
                               x:Uid="AlwaysOnTop"
                               Margin="0,20,0,0" />
 
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,20,0,0">
-                    <ToggleSwitch Header="使用[Win+E]激活该应用"
-                                  Name="UseWinAndEActivate"
-                                  OnContent="启用"
-                                  OffContent="禁用"
-                                  x:Uid="UseWinAndEActivate" />
-                    <Viewbox Margin="10,3,0,0"
-                             Height="15"
-                             VerticalAlignment="Top">
-                        <FontIcon Glyph="&#xE9CE;"
-                                  Name="WIN_E_Question"
-                                  PointerPressed="WIN_E_Question_PointerPressed" />
-                    </Viewbox>
+                <StackPanel Margin="0,20,0,0">
+                    <RelativePanel>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/Header')}"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                   Name="UseWinAndEActivateText" />
+                        <Viewbox Margin="10,0,0,0"
+                                 Height="15"
+                                 Name="WIN_E_Question"
+                                 PointerPressed="WIN_E_Question_PointerPressed"
+                                 RelativePanel.RightOf="UseWinAndEActivateText"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True">
+                            <FontIcon Glyph="&#xE9CE;" />
+                        </Viewbox>
+                    </RelativePanel>
+                    <ToggleSwitch Name="UseWinAndEActivate"
+                                  Margin="0,4,0,0"
+                                  OnContent="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/OnContent')}"
+                                  OffContent="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/OffContent')}" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal"
@@ -282,6 +294,8 @@
                           Stroke="Gray" />
                     <CheckBox Content="激活时始终启动新的进程"
                               Margin="20,0,0,0"
+                              Padding="8,0"
+                              VerticalContentAlignment="Center"
                               x:Uid="SettingPageAlwaysLaunchNew"
                               Name="AlwaysLaunchNew"
                               Checked="AlwaysLaunchNew_Checked"
@@ -314,10 +328,11 @@
                           Stroke="Gray" />
                     <CheckBox Margin="20,0,0,0"
                               Name="AvoidRecycleBin"
+                              Padding="8,0"
+                              VerticalContentAlignment="Center"
                               Checked="AvoidRecycleBin_Checked"
                               Unchecked="AvoidRecycleBin_Unchecked">
-                        <StackPanel Orientation="Horizontal"
-                                    Padding="0,1,0,0">
+                        <StackPanel Orientation="Horizontal">
                             <Viewbox Height="16"
                                      Margin="0,1,0,0"
                                      VerticalAlignment="Center">
@@ -354,30 +369,44 @@
                             <StackPanel Margin="20,5,0,0">
                                 <CheckBox Content="忽略大小写"
                                           x:Uid="SearchEngineIgnoreCase"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                           IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                           x:Name="BuiltInEngineIgnoreCase" />
                                 <CheckBox Content="使用正则表达式"
                                           x:Uid="SearchEngineUseRegex"
                                           x:Name="BuiltInEngineIncludeRegex"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                 <CheckBox Content="使用高级查询语法(AQS)"
                                           x:Uid="SearchEngineUseAQS"
                                           x:Name="BuiltInEngineIncludeAQS"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox Content="仅通过索引执行搜索"
-                                              Name="BuiltInSearchUseIndexer"
-                                              x:Uid="SearchEngineUseIndexer"/>
-                                    <Viewbox Margin="10,0,0,0"
-                                             Height="15"
-                                             VerticalAlignment="Center">
-                                        <FontIcon Glyph="&#xE9CE;"
-                                                  Name="IndexerQuestion"
-                                                  Tapped="IndexerQuestion_Tapped" />
-                                    </Viewbox>
-                                </StackPanel>
+                                <CheckBox Name="BuiltInSearchUseIndexer"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center">
+                                    <RelativePanel HorizontalAlignment="Left">
+                                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                   Name="SearchEngineUseIndexerText" />
+                                        <Viewbox Margin="10,0,0,0"
+                                                 Height="15"
+                                                 Name="IndexerQuestion"
+                                                 RelativePanel.RightOf="SearchEngineUseIndexerText"
+                                                 RelativePanel.AlignVerticalCenterWithPanel="True">
+                                            <FontIcon Glyph="&#xE9CE;"
+                                                      PointerPressed="IndexerQuestion_PointerPressed" />
+                                        </Viewbox>
+                                    </RelativePanel>
+                                </CheckBox>
                                 <CheckBox Content="搜索所有子文件夹"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           Name="BuiltInSearchAllSubFolders"
                                           x:Uid="SearchEngineAllSubFolders" />
                             </StackPanel>
@@ -393,13 +422,19 @@
                                   Stroke="Gray" />
                             <StackPanel Margin="20,5,0,0">
                                 <CheckBox Content="忽略大小写"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           x:Uid="SearchEngineIgnoreCase"
                                           IsChecked="True"
                                           x:Name="EverythingEngineIgnoreCase" />
                                 <CheckBox Content="使用正则表达式"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           x:Uid="SearchEngineUseRegex"
                                           x:Name="EverythingEngineIncludeRegex"/>
                                 <CheckBox Content="全局搜索"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
                                           x:Uid="SearchEngineGlobeSearch"
                                           IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                           IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
@@ -470,11 +505,15 @@
                                                       x:Uid="SettingPagDisableSelectionAnimation"
                                                       IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
                                                       Name="DisableSelectionAnimation"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
                                                       Checked="DisableSelectionAnimation_Changed"
                                                       Unchecked="DisableSelectionAnimation_Changed"/>
 
                         <CheckBox Content="关闭初始动画以加快启动速度"
                                   x:Uid="SettingPageExceptAnimation"
+                                  Padding="8,0"
+                                  VerticalContentAlignment="Center"
                                   IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
                                   Name="DisableStartupAnimation" />
                     </StackPanel>
@@ -497,14 +536,23 @@
                             <RadioButton Content="Windows默认"
                                          Name="SolidColor_FollowSystem"
                                          x:Uid="SolidColor_FollowSystem"
+                                         Margin="0,5,0,0"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Checked="SolidColor_FollowSystem_Checked" />
                             <RadioButton Content="白色"
                                          x:Uid="SolidColor_White"
                                          Name="SolidColor_White"
+                                         Margin="0,5,0,0"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Checked="SolidColor_White_Checked" />
                             <RadioButton Content="黑色"
                                          x:Uid="SolidColor_Black"
                                          Name="SolidColor_Black"
+                                         Margin="0,5,0,0"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Checked="SolidColor_Black_Checked" />
                         </StackPanel>
                     </control:Case>
@@ -521,6 +569,8 @@
                                          x:Uid="CustomUISubtype1"
                                          Name="AcrylicMode"
                                          Margin="0,10,0,0"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Checked="AcrylicMode_Checked"
                                          GroupName="CustomSubRadio" />
                             <StackPanel Orientation="Horizontal"
@@ -539,82 +589,98 @@
                                             Name="AcrylicColor"
                                             Style="{ThemeResource ButtonRevealStyle}"
                                             Click="AcrylicColor_Click" />
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="0,20,0,0">
-                                        <CheckBox x:Name="PreventFallBack"
-                                                  Content="始终应用Acrylic效果"
-                                                  x:Uid="PreventFallBack"
-                                                  Checked="PreventFallBack_Checked"
-                                                  Unchecked="PreventFallBack_Unchecked" />
-                                        <Viewbox Margin="10,0,0,0"
-                                                 Height="15"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE9CE;"
-                                                      Name="PreventFallBackQuestion"
-                                                      PointerPressed="PreventFallBackQuestion_PointerPressed" />
-                                        </Viewbox>
-                                    </StackPanel>
+                                    <CheckBox x:Name="PreventFallBack"
+                                              Margin="0,20,0,0"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
+                                              Checked="PreventFallBack_Checked"
+                                              Unchecked="PreventFallBack_Unchecked">
+                                        <RelativePanel HorizontalAlignment="Left">
+                                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('PreventFallBack/Content')}"
+                                                       RelativePanel.AlignLeftWithPanel="True"
+                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                       Name="PreventFallBackText" />
+                                            <Viewbox Margin="10,0,0,0"
+                                                     Height="15"
+                                                     Name="PreventFallBackQuestion"
+                                                     RelativePanel.RightOf="PreventFallBackText"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon Glyph="&#xE9CE;"
+                                                          PointerPressed="PreventFallBackQuestion_PointerPressed" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </CheckBox>
                                     <StackPanel Margin="0,20,0,0"
                                                 Orientation="Horizontal"
                                                 Name="TintOpacityArea">
-                                        <StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Acrylic颜色透明度"
-                                                           x:Uid="SettingPageTintOpacitySliderHeader" />
-                                                <Viewbox Margin="10,0,0,0"
-                                                         Height="15"
-                                                         VerticalAlignment="Bottom">
-                                                    <FontIcon Glyph="&#xE9CE;"
-                                                              Name="TintOpacityQuestion"
-                                                              PointerPressed="TintOpacityQuestion_PointerPressed" />
-                                                </Viewbox>
-                                            </StackPanel>
-                                            <Slider Margin="0,5,0,0"
-                                                    IsThumbToolTipEnabled="False"
-                                                    Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                                    x:Name="TintOpacitySlider"
-                                                    StepFrequency="0.1"
-                                                    Maximum="1"
-                                                    Minimum="0"
-                                                    Width="220"
-                                                    HorizontalAlignment="Left" />
-                                        </StackPanel>
+                                        <Slider IsThumbToolTipEnabled="False"
+                                                Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                                x:Name="TintOpacitySlider"
+                                                StepFrequency="0.1"
+                                                Maximum="1"
+                                                Minimum="0"
+                                                Width="220"
+                                                HorizontalAlignment="Left">
+                                            <Slider.Header>
+                                                <RelativePanel HorizontalAlignment="Left">
+                                                    <TextBlock Text="Acrylic颜色透明度"
+                                                               x:Uid="SettingPageTintOpacitySliderHeader"
+                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                               Name="TintOpacitySliderText" />
+                                                    <Viewbox Margin="10,0,0,0"
+                                                             Height="15"
+                                                             Name="TintOpacityQuestion"
+                                                             RelativePanel.RightOf="TintOpacitySliderText"
+                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                        <FontIcon Glyph="&#xE9CE;"
+                                                                  PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                                    </Viewbox>
+                                                </RelativePanel>
+                                            </Slider.Header>
+                                        </Slider>
                                         <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                                   Margin="5,20,0,0"
-                                                   VerticalAlignment="Center" />
+                                                   Margin="10,0,0,5"
+                                                   VerticalAlignment="Bottom" />
                                     </StackPanel>
                                     <StackPanel Margin="0,10,0,0"
                                                 Orientation="Horizontal">
-                                        <StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Acrylic背景透光度"
-                                                           x:Uid="SettingPageTintLuminositySliderHeader" />
-                                                <Viewbox Margin="10,0,0,0"
-                                                         Height="15"
-                                                         VerticalAlignment="Bottom">
-                                                    <FontIcon Glyph="&#xE9CE;"
-                                                              Name="TintLuminosityQuestion"
-                                                              PointerPressed="TintLuminosityQuestion_PointerPressed" />
-                                                </Viewbox>
-                                            </StackPanel>
-                                            <Slider Margin="0,5,0,0"
-                                                    IsThumbToolTipEnabled="False"
-                                                    Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                                    x:Name="TintLuminositySlider"
-                                                    StepFrequency="0.1"
-                                                    Maximum="1"
-                                                    Minimum="0"
-                                                    Width="220"
-                                                    HorizontalAlignment="Left" />
-                                        </StackPanel>
+                                        <Slider IsThumbToolTipEnabled="False"
+                                                Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                                x:Name="TintLuminositySlider"
+                                                StepFrequency="0.1"
+                                                Maximum="1"
+                                                Minimum="0"
+                                                Width="220"
+                                                HorizontalAlignment="Left">
+                                            <Slider.Header>
+                                                <RelativePanel HorizontalAlignment="Left">
+                                                    <TextBlock Text="Acrylic背景透光度"
+                                                               x:Uid="SettingPageTintLuminositySliderHeader"
+                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                               Name="TintLuminositySliderText" />
+                                                    <Viewbox Margin="10,0,0,0"
+                                                             Height="15"
+                                                             Name="TintLuminosityQuestion"
+                                                             RelativePanel.RightOf="TintLuminositySliderText"
+                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                        <FontIcon Glyph="&#xE9CE;"
+                                                                  PointerPressed="TintLuminosityQuestion_PointerPressed" />
+                                                    </Viewbox>
+                                                </RelativePanel>
+                                            </Slider.Header>
+                                        </Slider>
                                         <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                                   Margin="5,20,0,0"
-                                                   VerticalAlignment="Center" />
+                                                   Margin="10,0,0,5"
+                                                   VerticalAlignment="Bottom" />
                                     </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                             <RadioButton Margin="0,10,0,0"
                                          Name="BingPictureMode"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Checked="BingPictureMode_Checked"
                                          GroupName="CustomSubRadio">
                                 <StackPanel Orientation="Horizontal">
@@ -672,6 +738,8 @@
                             <RadioButton Content="自定义图片背景"
                                          x:Uid="CustomUISubtype2"
                                          Margin="0,10,0,0"
+                                         Padding="8,0"
+                                         VerticalContentAlignment="Center"
                                          Name="PictureMode"
                                          GroupName="CustomSubRadio"
                                          Checked="PictureMode_Checked" />
@@ -765,16 +833,22 @@
                 <StackPanel Margin="0,10,0,0">
                     <RadioButton Content="打开新标签页"
                                  Margin="0,5,0,0"
+                                 Padding="8,0"
+                                 VerticalContentAlignment="Center"
                                  x:Uid="SettingStartupWithNewTab"
                                  Name="StartupWithNewTab"
                                  Checked="StartupWithNewTab_Checked" />
                     <RadioButton Content="恢复上次打开的标签页"
                                  Margin="0,5,0,0"
+                                 Padding="8,0"
+                                 VerticalContentAlignment="Center"
                                  x:Uid="SettingStartupWithLastTab"
                                  Name="StartupWithLastTab"
                                  Checked="StartupWithLastTab_Checked" />
                     <RadioButton Content="打开一个或多个指定标签页"
                                  Margin="0,5,0,0"
+                                 Padding="8,0"
+                                 VerticalContentAlignment="Center"
                                  x:Uid="SettingStartupWithSpecificTab"
                                  Name="StartupSpecificTab"
                                  Checked="StartupSpecificTab_Checked" />

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -82,6 +83,7 @@ namespace RX_Explorer.Class
                         Tag = SubItem,
                         MinWidth = 150,
                         MaxWidth = 300,
+                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                         Icon = new FontIcon
                         {
                             Glyph = "\uE2AC"
@@ -99,7 +101,8 @@ namespace RX_Explorer.Class
                         Text = SubItem.Name,
                         Tag = SubItem,
                         MinWidth = 150,
-                        MaxWidth = 300
+                        MaxWidth = 300,
+                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                     };
 
                     if (SubItem.IconData.Length != 0)
@@ -135,6 +138,7 @@ namespace RX_Explorer.Class
                 Label = Name,
                 Tag = this,
                 Width = 300,
+                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                 Name = "ExtraButton"
             };
             Button.Click += ClickHandler;

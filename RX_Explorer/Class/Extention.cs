@@ -485,7 +485,8 @@ namespace RX_Explorer.Class
                                                     Text = Item.Name,
                                                     Icon = new ImageIcon { Source = Item.Thumbnuil },
                                                     Tag = (PathArray.First(), Item),
-                                                    MinWidth = 160
+                                                    MinWidth = 160,
+                                                    FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                                                 };
                                                 MenuItem.Click += ClickHandler;
 

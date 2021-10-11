@@ -243,8 +243,8 @@
           <target state="translated">Reenviar</target>
         </trans-unit>
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Upper</source>
-          <target state="translated">Superior</target>
+          <source>Up to parent folder</source>
+          <target state="translated">Hasta carpeta padre</target>
         </trans-unit>
         <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
           <source>Empty</source>
@@ -3764,10 +3764,6 @@ Las denominaciones no válidas son:
           <source>Group by</source>
           <target state="translated">Agrupar por</target>
         </trans-unit>
-        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
-          <source>Back to Home</source>
-          <target state="translated">De vuelta a casa</target>
-        </trans-unit>
         <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
           <source>Home Page</source>
           <target state="translated">Pagina de inicio</target>
@@ -4290,6 +4286,10 @@ Las denominaciones no válidas son:
         <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
           <source>CD-ROM drive</source>
           <target state="translated">Lector de CD ROM</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">De vuelta a casa</target>
         </trans-unit>
       </group>
     </body>
