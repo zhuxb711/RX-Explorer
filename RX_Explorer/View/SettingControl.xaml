@@ -519,6 +519,13 @@
                     </StackPanel>
                 </StackPanel>
 
+                <ComboBox Header="字体"
+                          Margin="0,20,0,0"
+                          MinWidth="120"
+                          Name="FontFamilyComboBox"
+                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                          ItemsSource="{x:Bind Cls:FontFamilyController.GetExistingFontFamily()}"/>
+
                 <ComboBox Header="模式"
                           x:Uid="SettingPageUIMode"
                           Margin="0,20,0,0"

@@ -173,7 +173,8 @@ namespace RX_Explorer
 
         private async Task OnLaunchOrOnActivate(IActivatedEventArgs args)
         {
-            Resources["ContentControlThemeFontFamily"] = FontFamilyController.GetCurrentFontFamily();
+            Globalization.Initialize();
+            FontFamilyController.Initialize();
 
             SystemInformation.Instance.TrackAppUse(args);
 

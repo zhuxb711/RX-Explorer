@@ -32,6 +32,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
@@ -721,6 +722,7 @@ namespace RX_Explorer
                 TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
                 FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
                 LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
+                FontFamilyComboBox.SelectionChanged -= FontFamilyComboBox_SelectionChanged;
                 AlwaysOnTop.Toggled -= AlwaysOnTop_Toggled;
             }
 
@@ -749,6 +751,7 @@ namespace RX_Explorer
             EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
+            FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetExistingFontFamily().ToArray(), FontFamilyController.Current.Source);
 
             BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
             BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
@@ -946,6 +949,7 @@ namespace RX_Explorer
                 TreeViewDetach.Toggled += TreeViewDetach_Toggled;
                 FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
                 LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
+                FontFamilyComboBox.SelectionChanged += FontFamilyComboBox_SelectionChanged;
                 AlwaysOnTop.Toggled += AlwaysOnTop_Toggled;
             }
 
@@ -972,6 +976,32 @@ namespace RX_Explorer
             EverythingEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
             EverythingEngineSearchGloble.Checked += SeachEngineOptionSave_Checked;
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
+        }
+
+        private void FontFamilyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (FontFamilyComboBox.SelectedItem is string NewFontString)
+                {
+                    if (FontFamilyController.SwitchTo(new FontFamily(NewFontString)))
+                    {
+                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                    }
+                    else
+                    {
+                        MainPage.Current.HideInfoTip();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private void DefaultDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2029,89 +2059,24 @@ namespace RX_Explorer
         {
             try
             {
-                string TipTitle = Globalization.GetString("SystemTip_RestartTitle");
-                string TipContent = Globalization.GetString("SystemTip_RestartContent");
-
-                switch (LanguageComboBox.SelectedIndex)
+                bool ShouldDisplayTips = LanguageComboBox.SelectedIndex switch
                 {
-                    case 0:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.Chinese_Simplified))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
+                    0 => Globalization.SwitchTo(LanguageEnum.Chinese_Simplified),
+                    1 => Globalization.SwitchTo(LanguageEnum.English),
+                    2 => Globalization.SwitchTo(LanguageEnum.French),
+                    3 => Globalization.SwitchTo(LanguageEnum.Chinese_Traditional),
+                    4 => Globalization.SwitchTo(LanguageEnum.Spanish),
+                    5 => Globalization.SwitchTo(LanguageEnum.German),
+                    _ => throw new NotSupportedException()
+                };
 
-                            break;
-                        }
-                    case 1:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.English))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
-
-                            break;
-                        }
-                    case 2:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.French))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
-
-                            break;
-                        }
-                    case 3:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.Chinese_Traditional))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
-
-                            break;
-                        }
-                    case 4:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.Spanish))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
-
-                            break;
-                        }
-                    case 5:
-                        {
-                            if (Globalization.SwitchTo(LanguageEnum.German))
-                            {
-                                MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
-                            }
-                            else
-                            {
-                                MainPage.Current.HideInfoTip();
-                            }
-
-                            break;
-                        }
+                if (ShouldDisplayTips)
+                {
+                    MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                }
+                else
+                {
+                    MainPage.Current.HideInfoTip();
                 }
             }
             catch (Exception ex)
