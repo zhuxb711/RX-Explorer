@@ -4291,6 +4291,10 @@ Inkorrekte Namen sind
           <source>Back to Home</source>
           <target state="translated">Zurück zur Startseite</target>
         </trans-unit>
+        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Font family</source>
+          <target state="translated">Schriftfamilie</target>
+        </trans-unit>
       </group>
     </body>
   </file>

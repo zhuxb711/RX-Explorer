@@ -3338,4 +3338,7 @@ Invalid names include
   <data name="Device_Type_2" xml:space="preserve">
     <value>CD-ROM drive</value>
   </data>
+  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+    <value>Font family</value>
+  </data>
 </root>

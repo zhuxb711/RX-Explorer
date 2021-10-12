@@ -192,6 +192,7 @@
     <Compile Include="Class\FontFamilyController.cs" />
     <Compile Include="Class\GroupCollectionGenerator.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
+    <Compile Include="Class\InfoTipController.cs" />
     <Compile Include="Class\InstalledFonts.cs" />
     <Compile Include="Class\LibraryChangedDeferredEventArgs.cs" />
     <Compile Include="Class\LockedDriveData.cs" />

@@ -4293,6 +4293,10 @@ Les noms non valides incluent
           <source>Back to Home</source>
           <target state="translated">De retour à la maison</target>
         </trans-unit>
+        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Font family</source>
+          <target state="translated">Famille de polices</target>
+        </trans-unit>
       </group>
     </body>
   </file>

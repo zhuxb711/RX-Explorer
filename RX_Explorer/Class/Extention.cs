@@ -1151,7 +1151,7 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"), DismissAfter: 10000);
+                        InfoTipController.Current.Show(InfoTipType.ThumbnailDelay);
 
                         return null;
                     }

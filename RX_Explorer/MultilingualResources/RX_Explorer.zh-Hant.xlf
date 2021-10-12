@@ -4293,6 +4293,10 @@ Invalid names include
           <source>Back to Home</source>
           <target state="translated">返回首頁</target>
         </trans-unit>
+        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Font family</source>
+          <target state="translated">字體</target>
+        </trans-unit>
       </group>
     </body>
   </file>

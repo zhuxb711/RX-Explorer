@@ -26,25 +26,6 @@
                              Storyboard.TargetProperty="Opacity" />
         </Storyboard>
 
-        <Storyboard x:Name="InfoTipShowAnimation">
-            <DoubleAnimation EnableDependentAnimation="True"
-                             From="0"
-                             To="1"
-                             Duration="00:00:00.500"
-                             Storyboard.TargetName="InfoTip"
-                             Storyboard.TargetProperty="Opacity" />
-        </Storyboard>
-
-        <Storyboard x:Name="InfoTipHideAnimation"
-                    Completed="InfoTipHideAnimation_Completed">
-            <DoubleAnimation EnableDependentAnimation="True"
-                             From="1"
-                             To="0"
-                             Duration="00:00:00.500"
-                             Storyboard.TargetName="InfoTip"
-                             Storyboard.TargetProperty="Opacity" />
-        </Storyboard>
-
         <DataTemplate x:DataType="Cls:QuickStartItem"
                       x:Key="NormalButtonTemplate">
             <StackPanel Orientation="Vertical"
@@ -446,7 +427,7 @@
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
             <muxc:NavigationView.Content>
-                <Grid>
+                <Grid Name="RootGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -460,10 +441,6 @@
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"
                                           Grid.RowSpan="2" />
-                    <muxc:InfoBar IsOpen="False"
-                                  x:Name="InfoTip"
-                                  Opacity="0"
-                                  Closing="InfoTip_Closing" />
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

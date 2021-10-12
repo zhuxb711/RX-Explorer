@@ -2,6 +2,17 @@
 
 namespace RX_Explorer.Class
 {
+    public enum InfoTipType
+    {
+        UpdateAvailable,
+        MandatoryUpdateAvailable,
+        LanguageRestartRequired,
+        FontFamilyRestartRequired,
+        ForceRestartRequired,
+        ThumbnailDelay,
+        FullTrustBusy
+    }
+
     public enum ColorTag
     {
         Transparent,

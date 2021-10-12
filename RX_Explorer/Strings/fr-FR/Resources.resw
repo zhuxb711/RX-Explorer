@@ -3233,4 +3233,7 @@ Les noms non valides incluent
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>De retour à la maison</value>
   </data>
+  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+    <value>Famille de polices</value>
+  </data>
 </root>

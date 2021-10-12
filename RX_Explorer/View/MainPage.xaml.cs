@@ -86,6 +86,7 @@ namespace RX_Explorer
             FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
             MSStoreHelper.Current.PreLoadStoreData();
+            InfoTipController.Current.SetInfoTipPanel(RootGrid);
 
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
@@ -171,46 +172,13 @@ namespace RX_Explorer
             {
                 if (IsBusy)
                 {
-                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_FullTrustBusyTitle"), Globalization.GetString("SystemTip_FullTrustBusyContent"));
+                    InfoTipController.Current.Show(InfoTipType.FullTrustBusy);
                 }
                 else
                 {
-                    HideInfoTip();
+                    InfoTipController.Current.Hide(InfoTipType.FullTrustBusy);
                 }
             });
-        }
-
-        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message, bool Closable = true, ButtonBase ActionButton = null, int DismissAfter = -1)
-        {            
-            InfoTip.Severity = Severity;
-            InfoTip.Title = Title;
-            InfoTip.Message = Message;
-            InfoTip.IsClosable = Closable;
-            InfoTip.ActionButton = ActionButton;
-
-            InfoTip.IsOpen = true;
-            InfoTipShowAnimation.Begin();
-
-            if (DismissAfter > 0)
-            {
-                Task.Delay(DismissAfter).ContinueWith((_) =>
-                {
-                    HideInfoTip();
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-            }
-        }
-
-        public void HideInfoTip()
-        {
-            if (InfoTip.IsOpen)
-            {
-                InfoTipHideAnimation.Begin();
-            }
-        }
-
-        private void InfoTipHideAnimation_Completed(object sender, object e)
-        {
-            InfoTip.IsOpen = false;
         }
 
         private async void Current_ThemeChanged(object sender, ElementTheme Theme)
@@ -592,29 +560,11 @@ namespace RX_Explorer
             {
                 if (await MSStoreHelper.Current.CheckIfUpdateIsMandatoryAsync())
                 {
-                    Button ActionButton = new Button
-                    {
-                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                    };
-                    ActionButton.Click += async (s, e) =>
-                    {
-                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                    };
-
-                    ShowInfoTip(InfoBarSeverity.Error, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("QueueDialog_ForceUpdate_Content"), ActionButton: ActionButton);
+                    InfoTipController.Current.Show(InfoTipType.MandatoryUpdateAvailable);
                 }
                 else
                 {
-                    Button ActionButton = new Button
-                    {
-                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                    };
-                    ActionButton.Click += async (s, e) =>
-                    {
-                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                    };
-
-                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                    InfoTipController.Current.Hide(InfoTipType.UpdateAvailable);
                 }
             }
         }
@@ -1597,15 +1547,6 @@ namespace RX_Explorer
                             break;
                         }
                 }
-            }
-        }
-
-        private void InfoTip_Closing(InfoBar sender, InfoBarClosingEventArgs args)
-        {
-            if (args.Reason == InfoBarCloseReason.CloseButton)
-            {
-                args.Cancel = true;
-                InfoTipHideAnimation.Begin();
             }
         }
     }

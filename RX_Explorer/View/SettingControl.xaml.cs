@@ -991,11 +991,14 @@ namespace RX_Explorer
                 {
                     if (FontFamilyController.SwitchTo(NewFont))
                     {
-                        MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                        if (!InfoTipController.Current.CheckIfAlreadyOpened(InfoTipType.FontFamilyRestartRequired))
+                        {
+                            InfoTipController.Current.Show(InfoTipType.FontFamilyRestartRequired);
+                        }
                     }
                     else
                     {
-                        MainPage.Current.HideInfoTip();
+                        InfoTipController.Current.Hide(InfoTipType.FontFamilyRestartRequired);
                     }
                 }
             }
@@ -2077,11 +2080,14 @@ namespace RX_Explorer
 
                 if (ShouldDisplayTips)
                 {
-                    MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                    if (!InfoTipController.Current.CheckIfAlreadyOpened(InfoTipType.LanguageRestartRequired))
+                    {
+                        InfoTipController.Current.Show(InfoTipType.LanguageRestartRequired);
+                    }
                 }
                 else
                 {
-                    MainPage.Current.HideInfoTip();
+                    InfoTipController.Current.Hide(InfoTipType.LanguageRestartRequired);
                 }
             }
             catch (Exception ex)
@@ -2552,7 +2558,7 @@ namespace RX_Explorer
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             }.ShowAsync();
 
-                                            MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
+                                            InfoTipController.Current.Show(InfoTipType.ForceRestartRequired);
                                         }
                                         else
                                         {

@@ -4291,6 +4291,10 @@ Las denominaciones no válidas son:
           <source>Back to Home</source>
           <target state="translated">De vuelta a casa</target>
         </trans-unit>
+        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Font family</source>
+          <target state="translated">Familia tipográfica</target>
+        </trans-unit>
       </group>
     </body>
   </file>

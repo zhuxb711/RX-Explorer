@@ -3233,4 +3233,7 @@
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回主页</value>
   </data>
+  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+    <value>字体</value>
+  </data>
 </root>

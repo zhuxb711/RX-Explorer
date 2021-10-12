@@ -3233,4 +3233,7 @@ Las denominaciones no válidas son:
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>De vuelta a casa</value>
   </data>
+  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+    <value>Familia tipográfica</value>
+  </data>
 </root>

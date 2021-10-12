@@ -3233,4 +3233,7 @@ Inkorrekte Namen sind
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Zurück zur Startseite</value>
   </data>
+  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+    <value>Schriftfamilie</value>
+  </data>
 </root>
