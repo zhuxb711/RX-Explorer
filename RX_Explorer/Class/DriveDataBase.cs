@@ -369,7 +369,7 @@ namespace RX_Explorer.Class
 
         public override string ToString()
         {
-            return $"Path: {Path}, DriveId: {DriveId}";
+            return $"Path: {Path}, DriveId: {DriveId ?? "<None>"}";
         }
 
         public static bool operator ==(DriveDataBase left, DriveDataBase right)

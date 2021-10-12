@@ -32,7 +32,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
@@ -352,6 +351,7 @@ namespace RX_Explorer
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
 
             PictureGirdView.ItemsSource = PictureList;
+
             Version.Text = $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
 
             if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
@@ -381,10 +381,10 @@ namespace RX_Explorer
 
         private async void SettingControl_Loading(FrameworkElement sender, object args)
         {
-            await Initialize();
+            await InitializeAsync();
         }
 
-        public async Task Initialize()
+        public async Task InitializeAsync()
         {
             if (!HasInit)
             {
@@ -413,10 +413,7 @@ namespace RX_Explorer
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
 
-                foreach (TerminalProfile Profile in SQLite.Current.GetAllTerminalProfile())
-                {
-                    DefaultTerminal.Items.Add(Profile.Name);
-                }
+                DefaultTerminal.Items.AddRange(SQLite.Current.GetAllTerminalProfile().Select((Item) => Item.Name));
 
                 await ApplyLocalSetting(true);
 
@@ -751,7 +748,15 @@ namespace RX_Explorer
             EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-            FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetExistingFontFamily().ToArray(), FontFamilyController.Current.Source);
+
+            if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString)
+            {
+                FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString));
+            }
+            else
+            {
+                FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
+            }
 
             BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
             BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
@@ -982,9 +987,9 @@ namespace RX_Explorer
         {
             try
             {
-                if (FontFamilyComboBox.SelectedItem is string NewFontString)
+                if (FontFamilyComboBox.SelectedItem is InstalledFonts NewFont)
                 {
-                    if (FontFamilyController.SwitchTo(new FontFamily(NewFontString)))
+                    if (FontFamilyController.SwitchTo(NewFont))
                     {
                         MainPage.Current.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
                     }
@@ -996,7 +1001,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(FontFamilyComboBox_SelectionChanged)}");
             }
             finally
             {
@@ -2081,7 +2086,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(LanguageComboBox_SelectionChanged)}");
             }
             finally
             {

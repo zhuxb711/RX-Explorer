@@ -1,6 +1,7 @@
-﻿using Microsoft.Graphics.Canvas.Text;
+﻿using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using FontFamily = Windows.UI.Xaml.Media.FontFamily;
@@ -9,57 +10,121 @@ namespace RX_Explorer.Class
 {
     public static class FontFamilyController
     {
-        public static FontFamily Current
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string SavedFontFamilyName)
-                {
-                    return new FontFamily(SavedFontFamilyName);
-                }
-                else
-                {
-                    return FontFamily.XamlAutoFontFamily;
-                }
-            }
-        }
+        public static InstalledFonts Current { get; }
 
-        public static bool SwitchTo(FontFamily NewFont)
+        public static InstalledFonts Default { get; }
+
+        private static IReadOnlyList<InstalledFonts> FontCache;
+
+        public static bool SwitchTo(InstalledFonts NewFont)
         {
-            if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string SavedFontFamilyName)
+            if (NewFont == Default)
             {
-                if (!SavedFontFamilyName.Equals(NewFont.Source, StringComparison.OrdinalIgnoreCase))
-                {
-                    ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] = NewFont.Source;
-                }
+                ApplicationData.Current.LocalSettings.Values.Remove("FontFamilyOverride");
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] = NewFont.Source;
+                ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] = JsonSerializer.Serialize(NewFont);
             }
 
-            return !NewFont.Source.Equals(Current.Source, StringComparison.OrdinalIgnoreCase);
+            return Current != NewFont;
         }
 
         public static void Initialize()
         {
-            Application.Current.Resources["ContentControlThemeFontFamily"] = Current;
+            Application.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(Current.Name);
         }
 
-        public static IReadOnlyList<string> GetExistingFontFamily()
+        public static InstalledFonts Transform(FontFamily Fonts)
         {
-            string CurrentLocaleName = Globalization.CurrentLanguage switch
+            using (Factory FontFactory = new Factory())
+            using (FontCollection Collection = FontFactory.GetSystemFontCollection(false))
             {
-                LanguageEnum.Chinese_Simplified => "zh-Hans",
-                LanguageEnum.Chinese_Traditional => "zh-Hant",
-                LanguageEnum.English => "en-US",
-                LanguageEnum.French => "fr-FR",
-                LanguageEnum.Spanish => "es",
-                LanguageEnum.German => "de-DE",
-                _ => throw new NotSupportedException()
-            };
+                if (Collection.FindFamilyName(Fonts.Source, out int FontIndex))
+                {
+                    using (SharpDX.DirectWrite.FontFamily Family = Collection.GetFontFamily(FontIndex))
+                    using (LocalizedStrings LocalizedNames = Family.FamilyNames)
+                    {
+                        for (int FamilyIndex = 0; FamilyIndex < LocalizedNames.Count; FamilyIndex++)
+                        {
+                            if (LocalizedNames.GetString(FamilyIndex).Equals(Fonts.Source, StringComparison.OrdinalIgnoreCase))
+                            {
+                                return new InstalledFonts(FontIndex, FamilyIndex, Fonts.Source);
+                            }
+                        }
+                    }
+                }
+            }
 
-            return CanvasTextFormat.GetSystemFontFamilies(CurrentLocaleName == "en-US" ? new string[] { "en-US" } : new string[] { CurrentLocaleName, "en-US" });
+            return null;
+        }
+
+        public static IEnumerable<InstalledFonts> GetInstalledFontFamily()
+        {
+            return FontCache ??= GetInstalledFontFamilyCore();
+        }
+
+        private static IReadOnlyList<InstalledFonts> GetInstalledFontFamilyCore()
+        {
+            List<InstalledFonts> FontList = new List<InstalledFonts>();
+
+            using (Factory FontFactory = new Factory())
+            using (FontCollection Collection = FontFactory.GetSystemFontCollection(false))
+            {
+                string CurrentLocaleName = Globalization.CurrentLanguage switch
+                {
+                    LanguageEnum.Chinese_Simplified => "zh-Hans",
+                    LanguageEnum.Chinese_Traditional => "zh-Hant",
+                    LanguageEnum.English => "en-US",
+                    LanguageEnum.French => "fr-FR",
+                    LanguageEnum.Spanish => "es",
+                    LanguageEnum.German => "de-DE",
+                    _ => throw new NotSupportedException()
+                };
+
+                for (int FontIndex = 0; FontIndex < Collection.FontFamilyCount; FontIndex++)
+                {
+                    using (SharpDX.DirectWrite.FontFamily Family = Collection.GetFontFamily(FontIndex))
+                    using (Font Font = Family.GetFont(0))
+                    using (FontFace Face = new FontFace(Font))
+                    {
+                        if (!Face.IsSymbolFont)
+                        {
+                            using (LocalizedStrings LocalizedNames = Family.FamilyNames)
+                            {
+                                int FamilyIndex = 0;
+
+                                if (LocalizedNames.FindLocaleName(CurrentLocaleName, out int LocaleNameIndex))
+                                {
+                                    FamilyIndex = LocaleNameIndex;
+                                }
+                                else if (LocalizedNames.FindLocaleName("en-US", out int EngNameIndex))
+                                {
+                                    FamilyIndex = EngNameIndex;
+                                }
+
+                                FontList.Add(new InstalledFonts(FontIndex, FamilyIndex, LocalizedNames.GetString(FamilyIndex)));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return FontList;
+        }
+
+        static FontFamilyController()
+        {
+            Default = Transform(FontFamily.XamlAutoFontFamily);
+
+            if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString)
+            {
+                Current = JsonSerializer.Deserialize<InstalledFonts>(OverrideString);
+            }
+            else
+            {
+                Current = Default;
+            }
         }
     }
 }

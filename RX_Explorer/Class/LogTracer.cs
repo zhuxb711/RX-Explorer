@@ -153,7 +153,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                    if (string.IsNullOrEmpty(Ex.StackTrace))
                     {
                         StackTraceSplit = Array.Empty<string>();
                     }

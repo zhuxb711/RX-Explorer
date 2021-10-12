@@ -107,13 +107,12 @@ namespace RX_Explorer
             }
         }
 
-        private async void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+        private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
-            LogTracer.MakeSureLogIsFlushed(1000);
-
-            if (!e.IsTerminating && e.ExceptionObject is Exception ex)
+            if (e.ExceptionObject is Exception ex)
             {
-                await LeadToBlueScreen(ex);
+                LogTracer.Log(ex, "UnhandleException");
+                LogTracer.MakeSureLogIsFlushed(1000);
             }
         }
 
@@ -157,7 +156,6 @@ namespace RX_Explorer
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
-            LogTracer.MakeSureLogIsFlushed(1000);
             await LeadToBlueScreen(e.Exception);
         }
 

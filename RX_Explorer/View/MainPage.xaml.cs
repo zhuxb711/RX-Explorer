@@ -181,36 +181,36 @@ namespace RX_Explorer
         }
 
         public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message, bool Closable = true, ButtonBase ActionButton = null, int DismissAfter = -1)
-        {
+        {            
             InfoTip.Severity = Severity;
             InfoTip.Title = Title;
             InfoTip.Message = Message;
             InfoTip.IsClosable = Closable;
-            InfoTip.ActionButton = null;
-
-            if (ActionButton != null)
-            {
-                InfoTip.ActionButton = ActionButton;
-            }
+            InfoTip.ActionButton = ActionButton;
 
             InfoTip.IsOpen = true;
+            InfoTipShowAnimation.Begin();
 
             if (DismissAfter > 0)
             {
                 Task.Delay(DismissAfter).ContinueWith((_) =>
                 {
-                    if (InfoTip.Message == Message)
-                    {
-                        InfoTip.IsOpen = false;
-                    }
+                    HideInfoTip();
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
         public void HideInfoTip()
         {
+            if (InfoTip.IsOpen)
+            {
+                InfoTipHideAnimation.Begin();
+            }
+        }
+
+        private void InfoTipHideAnimation_Completed(object sender, object e)
+        {
             InfoTip.IsOpen = false;
-            InfoTip.ActionButton = null;
         }
 
         private async void Current_ThemeChanged(object sender, ElementTheme Theme)
@@ -245,7 +245,7 @@ namespace RX_Explorer
                     BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
                 }
 
-                await SettingControl.Initialize();
+                await SettingControl.InitializeAsync();
             });
         }
 
@@ -1486,11 +1486,6 @@ namespace RX_Explorer
             }
         }
 
-        private void InfoTip_Closed(InfoBar sender, InfoBarClosedEventArgs args)
-        {
-            sender.ActionButton = null;
-        }
-
         private void NavView_PaneClosing(NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewPaneClosingEventArgs args)
         {
             if (sender.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact)
@@ -1602,6 +1597,15 @@ namespace RX_Explorer
                             break;
                         }
                 }
+            }
+        }
+
+        private void InfoTip_Closing(InfoBar sender, InfoBarClosingEventArgs args)
+        {
+            if (args.Reason == InfoBarCloseReason.CloseButton)
+            {
+                args.Cancel = true;
+                InfoTipHideAnimation.Begin();
             }
         }
     }
