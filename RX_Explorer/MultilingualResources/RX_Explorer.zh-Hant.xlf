@@ -3800,7 +3800,7 @@ Invalid names include
           <source>Successfully imported configuration</source>
           <target state="translated">成功導入配置</target>
         </trans-unit>
-        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ConfigRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
           <target state="translated">請重新啟動應用程序以激活新配置。 您也可以繼續使用此應用，但某些配置可能要等到下次啟動時才能生效。</target>
         </trans-unit>
@@ -4157,7 +4157,7 @@ Invalid names include
           <source>Preferred file layout mode</source>
           <target state="translated">首選文件佈局模式</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ForeUpdateAvailableContent" translate="yes" xml:space="preserve">
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</target>
         </trans-unit>
@@ -4296,6 +4296,14 @@ Invalid names include
         <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">字體</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FontFamilyRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new font family. You can also continue to use this app, but the new font family may not take effect until the next time you start it</source>
+          <target state="translated">請重新啟動應用程序以激活新的字體。 您也可以繼續使用此應用程序，但新的字體可能要到您下次啟動時才會生效</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
+          <target state="translated">請重新啟動應用程序以激活新語言。您也可以繼續使用此應用程序，但新語言可能要到您下次啟動時才會生效</target>
         </trans-unit>
       </group>
     </body>

@@ -771,7 +771,7 @@ namespace RX_Explorer
                                     {
                                         PreviewFlyout.ShowAt(Item, new FlyoutShowOptions
                                         {
-                                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
+                                            Placement = FlyoutPlacementMode.Bottom,
                                             ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway
                                         });
                                     }
@@ -1149,12 +1149,13 @@ namespace RX_Explorer
             {
                 TabViewControl.SelectedItem = Item;
 
-                FlyoutShowOptions Option = new FlyoutShowOptions
-                {
-                    Position = e.GetPosition(Item)
-                };
 
-                TabCommandFlyout?.ShowAt(Item, Option);
+                TabCommandFlyout?.ShowAt(Item, new FlyoutShowOptions
+                {
+                    Position = e.GetPosition(Item),
+                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                    ShowMode = FlyoutShowMode.Transient
+                });
             }
         }
 

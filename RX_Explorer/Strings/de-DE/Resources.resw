@@ -2863,7 +2863,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Konfiguration erfolgreich importiert</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>Bitte starten Sie die Anwendung neu, um die neue Konfiguration zu aktivieren. Sie können diese App auch weiterhin verwenden, einige Konfigurationen werden jedoch möglicherweise erst beim nächsten Start wirksam</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3131,7 +3131,7 @@ Inkorrekte Namen sind
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Bevorzugter Dateilayoutmodus</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3235,5 +3235,11 @@ Inkorrekte Namen sind
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>Schriftfamilie</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>Bitte starten Sie die Anwendung neu, um die neue Schriftfamilie zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Schriftfamilie wird möglicherweise erst beim nächsten Start wirksam</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>Bitte starten Sie die Anwendung neu, um die neue Sprache zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Sprache wird möglicherweise erst beim nächsten Start wirksam</value>
   </data>
 </root>

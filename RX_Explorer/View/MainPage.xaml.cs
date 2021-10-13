@@ -1498,7 +1498,13 @@ namespace RX_Explorer
                 case Grid Gr when Gr.Name == "LayoutRoot" || Gr.Name == "PaneRoot":
                 case DependencyObject Obj when Obj.FindParentOfType<NavigationViewItem>() != null:
                     {
-                        NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions { Position = e.GetPosition(NavView) });
+                        NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions
+                        {
+                            Position = e.GetPosition(NavView),
+                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Transient
+                        });
+
                         break;
                     }
             }
@@ -1543,7 +1549,13 @@ namespace RX_Explorer
                     case Grid Gr when Gr.Name == "LayoutRoot" || Gr.Name == "PaneRoot":
                     case DependencyObject Obj when Obj.FindParentOfType<NavigationViewItem>() != null:
                         {
-                            NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions { Position = e.GetPosition(NavView) });
+                            NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions
+                            {
+                                Position = e.GetPosition(NavView),
+                                Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                                ShowMode = FlyoutShowMode.Transient
+                            });
+
                             break;
                         }
                 }

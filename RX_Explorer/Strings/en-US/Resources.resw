@@ -2986,7 +2986,7 @@ Invalid names include
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Successfully imported configuration</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3239,7 +3239,7 @@ Invalid names include
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Preferred file layout mode</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3340,5 +3340,11 @@ Invalid names include
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>Font family</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>Please restart the application to activate the new font family. You can also continue to use this app, but the new font family may not take effect until the next time you start it</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</value>
   </data>
 </root>

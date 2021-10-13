@@ -15,26 +15,28 @@
     <Cls:QueueContentDialog.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
     </Cls:QueueContentDialog.Resources>
-    <StackPanel HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Width="400">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="正在搜索"
+    
+    <Grid MinWidth="400"
+          MaxHeight="320">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Text="{x:Bind Cls:Globalization.GetString('BluetoothUI_Status_Text_1')}"
                        Name="StatusText" />
-            <muxc:ProgressRing Margin="8,3,0,0"
-                               Name="Progress"
-                               Width="16"
-                               Height="16"
-                               VerticalAlignment="Center" />
+            <muxc:ProgressBar Name="Progress"
+                              IsIndeterminate="True"
+                              HorizontalAlignment="Stretch" />
         </StackPanel>
         <ListView Margin="0,10,0,0"
+                  Grid.Row="1"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   Name="BluetoothControl"
                   ItemsSource="{x:Bind BluetoothDeviceCollection}"
                   Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                   IsItemClickEnabled="False"
-                  MaxHeight="300"
                   ScrollViewer.VerticalScrollMode="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
             <ListView.ItemTemplate>
@@ -116,5 +118,5 @@
                         Click="PinRefuse_Click" />
             </RelativePanel>
         </RelativePanel>
-    </StackPanel>
+    </Grid>
 </Cls:QueueContentDialog>

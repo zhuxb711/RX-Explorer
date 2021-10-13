@@ -133,6 +133,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Delete"
                               Label="删除"
+                              MinWidth="200"
                               x:Name="DeletePictureButton"
                               Click="DeletePictureButton_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>

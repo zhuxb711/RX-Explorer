@@ -83,7 +83,7 @@ namespace RX_Explorer.Class
                             };
 
                             InfoTip.Title = Globalization.GetString("SystemTip_UpdateAvailableTitle");
-                            InfoTip.Message = Globalization.GetString("QueueDialog_ForceUpdate_Content");
+                            InfoTip.Message = Globalization.GetString("SystemTip_ForeUpdateAvailableContent");
                             InfoTip.Severity = InfoBarSeverity.Error;
                             InfoTip.ActionButton = ActionButton;
 
@@ -107,12 +107,26 @@ namespace RX_Explorer.Class
 
                             break;
                         }
-                    case InfoTipType.ForceRestartRequired:
+                    case InfoTipType.ConfigRestartRequired:
+                        {
+                            InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
+                            InfoTip.Message = Globalization.GetString("SystemTip_ConfigRestartContent");
+                            InfoTip.Severity = InfoBarSeverity.Warning;
+
+                            break;
+                        }
                     case InfoTipType.LanguageRestartRequired:
+                        {
+                            InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
+                            InfoTip.Message = Globalization.GetString("SystemTip_LanguageRestartContent");
+                            InfoTip.Severity = InfoBarSeverity.Warning;
+
+                            break;
+                        }
                     case InfoTipType.FontFamilyRestartRequired:
                         {
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
-                            InfoTip.Message = Globalization.GetString("SystemTip_RestartContent");
+                            InfoTip.Message = Globalization.GetString("SystemTip_FontFamilyRestartContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
 
                             break;

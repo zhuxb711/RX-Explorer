@@ -57,11 +57,10 @@
         </DataTemplate>
 
         <muxc:CommandBarFlyout x:Name="NavigationViewFlyout"
-                               AlwaysExpanded="True"
-                               Placement="BottomEdgeAlignedLeft">
+                               AlwaysExpanded="True">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('CustomText')}"
-                              MinWidth="150"
+                              MinWidth="200"
                               Icon="Edit"
                               x:Name="EditNavItem"
                               Click="EditNavItem_Click" />
@@ -200,11 +199,13 @@
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
                                       Label="编辑"
+                                      MinWidth="200"
                                       x:Uid="AppEdit"
                                       Name="AppEdit"
                                       Click="QuickStartItemEdit_Click" />
                         <AppBarButton Icon="Delete"
                                       Name="AppDelete"
+                                      MinWidth="200"
                                       x:Uid="AppDelete"
                                       Label="删除"
                                       Click="QuickStartItemDelete_Click" />
@@ -216,12 +217,14 @@
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
                                       Label="编辑"
+                                      MinWidth="200"
                                       x:Uid="AppEdit"
                                       Name="WebEdit"
                                       Click="QuickStartItemEdit_Click" />
                         <AppBarButton Icon="Delete"
                                       Name="WebDelete"
                                       x:Uid="AppDelete"
+                                      MinWidth="200"
                                       Label="删除"
                                       Click="QuickStartItemDelete_Click" />
                     </muxc:CommandBarFlyout.SecondaryCommands>
@@ -232,6 +235,7 @@
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"
                                       Label="添加"
+                                      MinWidth="200"
                                       x:Uid="QuickStartAddButton"
                                       x:Name="AddQuickStartApp"
                                       Click="AddQuickStartItem_Click" />
@@ -243,6 +247,7 @@
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"
                                       Label="添加"
+                                      MinWidth="200"
                                       x:Uid="QuickStartAddButton"
                                       x:Name="AddQuickStartWeb"
                                       Click="AddQuickStartItem_Click" />

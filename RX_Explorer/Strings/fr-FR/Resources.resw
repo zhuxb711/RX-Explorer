@@ -2863,7 +2863,7 @@ Les noms non valides incluent
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Configuration importée avec succès</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>Veuillez redémarrer l'application pour activer la nouvelle configuration. Vous pouvez également continuer à utiliser cette application, mais certaines configurations peuvent ne prendre effet qu'au prochain démarrage.</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3131,7 +3131,7 @@ Les noms non valides incluent
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Mode de disposition de fichier préféré</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3235,5 +3235,11 @@ Les noms non valides incluent
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>Famille de polices</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>Veuillez redémarrer l'application pour activer la nouvelle famille de polices. Vous pouvez également continuer à utiliser cette application, mais la nouvelle famille de polices peut ne prendre effet qu'au prochain démarrage.</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>Veuillez redémarrer l'application pour activer la nouvelle langue. Vous pouvez également continuer à utiliser cette application, mais la nouvelle langue peut ne prendre effet qu'au prochain démarrage.</value>
   </data>
 </root>

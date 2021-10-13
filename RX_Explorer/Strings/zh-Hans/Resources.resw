@@ -2863,7 +2863,7 @@
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>导入配置成功</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>请重启本应用以激活新配置。您亦可以继续使用本应用，但部分配置可能在下一次启动时才会生效</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3131,7 +3131,7 @@
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>首选文件布局模式</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>一个强制更新已发布，这表明您正在使用的版本可能存在严重问题，请停止使用当前版本并尽快更新至最新版</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3235,5 +3235,11 @@
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>字体</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>请重启本应用以激活新字体。您亦可以继续使用本应用，但新字体可能在下一次启动时才会生效</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>请重启本应用以激活新语言。您亦可以继续使用本应用，但新语言可能在下一次启动时才会生效</value>
   </data>
 </root>

@@ -126,9 +126,6 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            Progress.IsActive = true;
-            StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
-
             //根据指定的筛选条件创建检测器
             BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"",
                                                                new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected", "System.Devices.Aep.Bluetooth.Le.IsConnectable" },
@@ -144,9 +141,9 @@ namespace RX_Explorer.Dialog
 
         private async void BluetoothWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Progress.IsActive = false;
+                Progress.Visibility = Visibility.Collapsed;
                 StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_2");
             });
         }

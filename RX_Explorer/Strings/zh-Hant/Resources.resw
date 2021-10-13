@@ -2863,7 +2863,7 @@
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>成功導入配置</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>請重新啟動應用程序以激活新配置。 您也可以繼續使用此應用，但某些配置可能要等到下次啟動時才能生效。</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3131,7 +3131,7 @@
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>首選文件佈局模式</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3235,5 +3235,11 @@
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>字體</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>請重新啟動應用程序以激活新的字體。 您也可以繼續使用此應用程序，但新的字體可能要到您下次啟動時才會生效</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>請重新啟動應用程序以激活新語言。您也可以繼續使用此應用程序，但新語言可能要到您下次啟動時才會生效</value>
   </data>
 </root>

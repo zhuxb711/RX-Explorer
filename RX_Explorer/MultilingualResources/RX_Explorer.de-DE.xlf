@@ -3798,7 +3798,7 @@ Inkorrekte Namen sind
           <source>Successfully imported configuration</source>
           <target state="translated">Konfiguration erfolgreich importiert</target>
         </trans-unit>
-        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ConfigRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
           <target state="translated">Bitte starten Sie die Anwendung neu, um die neue Konfiguration zu aktivieren. Sie können diese App auch weiterhin verwenden, einige Konfigurationen werden jedoch möglicherweise erst beim nächsten Start wirksam</target>
         </trans-unit>
@@ -4155,7 +4155,7 @@ Inkorrekte Namen sind
           <source>Preferred file layout mode</source>
           <target state="translated">Bevorzugter Dateilayoutmodus</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ForeUpdateAvailableContent" translate="yes" xml:space="preserve">
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</target>
         </trans-unit>
@@ -4294,6 +4294,14 @@ Inkorrekte Namen sind
         <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">Schriftfamilie</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FontFamilyRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new font family. You can also continue to use this app, but the new font family may not take effect until the next time you start it</source>
+          <target state="translated">Bitte starten Sie die Anwendung neu, um die neue Schriftfamilie zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Schriftfamilie wird möglicherweise erst beim nächsten Start wirksam</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
+          <target state="translated">Bitte starten Sie die Anwendung neu, um die neue Sprache zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Sprache wird möglicherweise erst beim nächsten Start wirksam</target>
         </trans-unit>
       </group>
     </body>

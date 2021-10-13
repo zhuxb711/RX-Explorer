@@ -17,8 +17,7 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
-        <muxc:CommandBarFlyout x:Name="ItemFlyout"
-                               Placement="BottomEdgeAlignedLeft">
+        <muxc:CommandBarFlyout x:Name="ItemFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
                               MinWidth="200"
@@ -43,8 +42,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="EmptyFlyout"
-                               Placement="BottomEdgeAlignedLeft">
+        <muxc:CommandBarFlyout x:Name="EmptyFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="全部解压"
                               x:Uid="ExtractAll"

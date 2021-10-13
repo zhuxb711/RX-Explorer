@@ -3777,7 +3777,7 @@ namespace RX_Explorer
                                     {
                                         Position = new Point(Point.Position.X, Point.Position.Y + 20),
                                         ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
+                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft
                                     });
                                 }
                             }

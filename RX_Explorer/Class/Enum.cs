@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
         MandatoryUpdateAvailable,
         LanguageRestartRequired,
         FontFamilyRestartRequired,
-        ForceRestartRequired,
+        ConfigRestartRequired,
         ThumbnailDelay,
         FullTrustBusy
     }

@@ -20,7 +20,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="QuickStartAddButton"
                               x:Name="AddLibraryButton"
                               Click="AddLibraryButton_Click" />
@@ -40,7 +40,7 @@
 
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              Width="300"
+                              MinWidth="300"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="OpenLibrary"
                               Click="OpenLibrary_Click">
@@ -51,7 +51,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
-                              Width="300"
+                              MinWidth="300"
                               x:Name="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
@@ -65,7 +65,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
-                              Width="300"
+                              MinWidth="300"
                               x:Name="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
@@ -79,7 +79,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
-                              Width="300"
+                              MinWidth="300"
                               Visibility="Collapsed"
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
@@ -96,7 +96,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              Width="300"
+                              MinWidth="300"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -105,7 +105,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
-                              Width="300"
+                              MinWidth="300"
                               x:Name="LibraryProperty"
                               Click="LibraryProperties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -118,7 +118,7 @@
                 <AppBarButton Icon="Refresh"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
                               x:Name="Refresh"
-                              MinWidth="160"
+                              MinWidth="200"
                               Click="Refresh_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="F5"
@@ -127,7 +127,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Add"
                               Label="添加驱动器"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="AddDevice"
                               x:Name="AddDrive"
                               Click="AddDrive_Click" />
@@ -140,7 +140,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="OpenDevice"
                               Click="OpenDrive_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -151,7 +151,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
                               Click="Properties_Click" />
@@ -164,7 +164,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="OpenDevice"
                               Click="OpenDrive_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -174,7 +174,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="弹出"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="EjectUSB"
                               Name="EjectButton"
                               Click="EjectButton_Click">
@@ -186,7 +186,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
-                              MinWidth="160"
+                              MinWidth="200"
                               x:Uid="DeviceAttribute"
                               Click="Properties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -197,7 +197,7 @@
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"
-                              MinWidth="160"
+                              MinWidth="200"
                               Name="UnlockBitlocker"
                               x:Uid="UnlockBitlocker"
                               Click="UnlockBitlocker_Click">

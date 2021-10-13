@@ -3800,7 +3800,7 @@ Les noms non valides incluent
           <source>Successfully imported configuration</source>
           <target state="translated">Configuration importée avec succès</target>
         </trans-unit>
-        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ConfigRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
           <target state="translated">Veuillez redémarrer l'application pour activer la nouvelle configuration. Vous pouvez également continuer à utiliser cette application, mais certaines configurations peuvent ne prendre effet qu'au prochain démarrage.</target>
         </trans-unit>
@@ -4157,7 +4157,7 @@ Les noms non valides incluent
           <source>Preferred file layout mode</source>
           <target state="translated">Mode de disposition de fichier préféré</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_ForceUpdate_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_ForeUpdateAvailableContent" translate="yes" xml:space="preserve">
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</target>
         </trans-unit>
@@ -4296,6 +4296,14 @@ Les noms non valides incluent
         <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">Famille de polices</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FontFamilyRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new font family. You can also continue to use this app, but the new font family may not take effect until the next time you start it</source>
+          <target state="translated">Veuillez redémarrer l'application pour activer la nouvelle famille de polices. Vous pouvez également continuer à utiliser cette application, mais la nouvelle famille de polices peut ne prendre effet qu'au prochain démarrage.</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
+          <target state="translated">Veuillez redémarrer l'application pour activer la nouvelle langue. Vous pouvez également continuer à utiliser cette application, mais la nouvelle langue peut ne prendre effet qu'au prochain démarrage.</target>
         </trans-unit>
       </group>
     </body>

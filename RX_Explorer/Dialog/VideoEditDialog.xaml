@@ -53,12 +53,11 @@
                 <Grid Margin="0,5,0,0"
                       Background="Transparent">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             BorderThickness="0"
+                    <TextBox BorderThickness="0"
                              MaxLength="12"
                              TextWrapping="Wrap"
                              LostFocus="TrimStartTime_LostFocus"

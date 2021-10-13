@@ -2863,7 +2863,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Configuración importada correctamente</value>
   </data>
-  <data name="SystemTip_RestartContent" xml:space="preserve">
+  <data name="SystemTip_ConfigRestartContent" xml:space="preserve">
     <value>Reinicie la aplicación para activar la nueva configuración. También puede seguir utilizando esta aplicación, pero es posible que algunas configuraciones no surtan efecto hasta la próxima vez que la inicie.</value>
   </data>
   <data name="SystemTip_RestartTitle" xml:space="preserve">
@@ -3131,7 +3131,7 @@ Las denominaciones no válidas son:
   <data name="DefaultDisplayMode.Header" xml:space="preserve">
     <value>Modo de diseño de archivo preferido</value>
   </data>
-  <data name="QueueDialog_ForceUpdate_Content" xml:space="preserve">
+  <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</value>
   </data>
   <data name="SettingTabPreview.Header" xml:space="preserve">
@@ -3235,5 +3235,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="FontFamilyComboBox.Header" xml:space="preserve">
     <value>Familia tipográfica</value>
+  </data>
+  <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">
+    <value>Reinicie la aplicación para activar la nueva familia de fuentes. También puede seguir utilizando esta aplicación, pero es posible que la nueva familia de fuentes no entre en vigor hasta la próxima vez que la inicie.</value>
+  </data>
+  <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
+    <value>Reinicie la aplicación para activar el nuevo idioma. También puede seguir utilizando esta aplicación, pero es posible que el nuevo idioma no entre en vigor hasta la próxima vez que la inicie.</value>
   </data>
 </root>

@@ -498,17 +498,24 @@ namespace RX_Explorer
                 {
                     if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
                     {
-                        SearchResultList.ContextFlyout = MixCommandFlyout;
+                        MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                        {
+                            Position = e.GetPosition((FrameworkElement)sender),
+                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Transient
+                        });
                     }
                     else
                     {
-                        SearchResultList.ContextFlyout = SingleCommandFlyout;
                         SearchResultList.SelectedItem = Context;
+
+                        SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                        {
+                            Position = e.GetPosition((FrameworkElement)sender),
+                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Transient
+                        });
                     }
-                }
-                else
-                {
-                    SearchResultList.ContextFlyout = null;
                 }
 
                 e.Handled = true;

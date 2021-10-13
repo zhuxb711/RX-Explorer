@@ -16,8 +16,7 @@
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
 
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
-                               AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               AlwaysExpanded="True">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                           Name="Copy"
@@ -41,7 +40,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
-                              MinWidth="250"
+                              MinWidth="200"
                               x:Name="Open"
                               Click="Open_Click" />
                 <AppBarButton x:Uid="SearchLocation"
@@ -61,7 +60,7 @@
                 </AppBarButton>
                 <AppBarButton x:Name="CopyPath"
                               Label="复制完整路径"
-                              MinWidth="250"
+                              MinWidth="200"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click">
                     <AppBarButton.Icon>
@@ -73,13 +72,12 @@
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"
-                              MinWidth="250"
+                              MinWidth="200"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
-                               AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               AlwaysExpanded="True">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">
                 <AppBarButton.Icon>
@@ -90,7 +88,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Copy"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
-                              MinWidth="250"
+                              MinWidth="200"
                               Click="Copy_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="C"
@@ -100,7 +98,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Cut"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
-                              MinWidth="250"
+                              MinWidth="200"
                               Click="Cut_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="X"
@@ -110,7 +108,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Delete"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
-                              MinWidth="250"
+                              MinWidth="200"
                               Click="Delete_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Key="D"

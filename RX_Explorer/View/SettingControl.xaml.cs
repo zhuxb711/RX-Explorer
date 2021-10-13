@@ -2558,7 +2558,7 @@ namespace RX_Explorer
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             }.ShowAsync();
 
-                                            InfoTipController.Current.Show(InfoTipType.ForceRestartRequired);
+                                            InfoTipController.Current.Show(InfoTipType.ConfigRestartRequired);
                                         }
                                         else
                                         {

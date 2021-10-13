@@ -485,7 +485,8 @@ namespace RX_Explorer.Class
                                                     Text = Item.Name,
                                                     Icon = new ImageIcon { Source = Item.Thumbnuil },
                                                     Tag = (PathArray.First(), Item),
-                                                    MinWidth = 160,
+                                                    MinWidth = 150,
+                                                    MaxWidth = 300,
                                                     FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                                                 };
                                                 MenuItem.Click += ClickHandler;
@@ -591,7 +592,7 @@ namespace RX_Explorer.Class
                                             Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                             Icon = new SymbolIcon(Symbol.More),
                                             Name = "ExtraButton",
-                                            Width = 300,
+                                            MinWidth = 300,
                                             Flyout = MoreFlyout
                                         });
 
@@ -623,7 +624,9 @@ namespace RX_Explorer.Class
                     {
                         Flyout?.ShowAt(RelatedTo, new FlyoutShowOptions
                         {
-                            Position = ShowAt
+                            Position = ShowAt,
+                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                            ShowMode = FlyoutShowMode.Transient
                         });
                     }
                     catch (Exception ex)
