@@ -1,4 +1,37 @@
 ﻿*****
+###What's new in Ver.7.1.7.0
+
+#####Feature update
+
+>#####Now you can customize the font of the app
+
+>#####When accessing a network path that has been mapped as a disk, it will be automatically redirected to the disk path
+
+#####UI update
+
+>#####Updated the control layout
+
+>#####Updated the in-app notification banner animation and visual status
+
+#####Performance improvement
+
+>#####Improved loading speed of drives and library folders
+
+#####Bug fix
+
+>#####Fixed an issue where multiple identical drives may be displayed
+
+>#####Fixed the problem of incomplete loading of some file icons
+
+>#####Fixed the problem that caused the built-in compressed file viewer to crash
+
+>#####Fixed a problem that caused a crash when opening the property window in some cases
+
+>#####Fixed the problem of preventing the right-click menu from expanding
+
+>#####Fixed the problem that the file renaming function could not be activated on the large, medium and small icons
+
+*****
 ###What's new in Ver.7.1.4.0
 
 #####Feature update

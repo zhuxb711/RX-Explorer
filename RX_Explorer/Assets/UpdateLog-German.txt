@@ -1,4 +1,37 @@
 ﻿*****
+###Was ist neu in Ver.7.1.7.0
+
+#####Funktionsupdate
+
+>#####Jetzt können Sie die Schriftart der App anpassen
+
+>#####Beim Zugriff auf einen als Datenträger zugeordneten Netzwerkpfad wird dieser automatisch auf den Datenträgerpfad umgeleitet
+
+#####UI-Update
+
+>#####Das Steuerelement-Layout wurde aktualisiert
+
+>#####Die Animation des In-App-Benachrichtigungsbanners und der visuelle Status wurden aktualisiert
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Ladegeschwindigkeit von Laufwerken und Bibliotheksordnern
+
+#####Fehlerbehebung
+
+>#####Es wurde ein Problem behoben, bei dem mehrere identische Laufwerke angezeigt werden können
+
+>#####Das Problem des unvollständigen Ladens einiger Dateisymbole wurde behoben
+
+>#####Das Problem wurde behoben, das zum Absturz des integrierten Viewers für komprimierte Dateien führte
+
+>#####Es wurde ein Problem behoben, das in einigen Fällen zu einem Absturz beim Öffnen des Eigenschaftsfensters führte
+
+>#####Problem behoben, das verhindert, dass das Kontextmenü mit der rechten Maustaste erweitert wird
+
+>#####Problem behoben, dass die Funktion zum Umbenennen von Dateien bei den großen, mittleren und kleinen Symbolen nicht aktiviert werden konnte
+
+*****
 ###Was ist neu in Ver.7.1.4.0
 
 #####Funktionsupdate

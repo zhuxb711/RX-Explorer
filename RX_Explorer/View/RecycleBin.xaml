@@ -265,7 +265,6 @@
                                        Grid.Column="1"
                                        HorizontalAlignment="Left"
                                        Text="{x:Bind Name}"
-                                       x:Phase="0"
                                        ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
@@ -274,7 +273,6 @@
                                    Text="{x:Bind OriginPath}"
                                    ToolTipService.ToolTip="{x:Bind OriginPath}"
                                    Grid.Column="1"
-                                   x:Phase="0"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
@@ -282,7 +280,6 @@
                                    Text="{x:Bind ModifiedTimeDescription}"
                                    ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription}"
                                    Grid.Column="2"
-                                   x:Phase="0"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
@@ -290,7 +287,6 @@
                                    Text="{x:Bind DisplayType, Mode=OneWay}"
                                    ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
                                    Grid.Column="3"
-                                   x:Phase="0"
                                    Padding="10,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"

@@ -1,4 +1,37 @@
 ﻿*****
+###Novedades de la versión 7.1.7.0
+
+#####Actualización de funciones
+
+>#####Ahora puedes personalizar la fuente de la aplicación
+
+>#####Al acceder a una ruta de red que se ha asignado como un disco, se redirigirá automáticamente a la ruta del disco
+
+#####Actualización de la interfaz de usuario
+
+>#####Actualizado el diseño de control
+
+>#####Actualización de la animación del banner de notificación en la aplicación y el estado visual
+
+#####Mejora del rendimiento
+
+>#####Velocidad de carga mejorada de unidades y carpetas de biblioteca
+
+#####Arreglo del fallo
+
+>#####Se solucionó un problema por el cual se podían mostrar varias unidades idénticas
+
+>#####Se solucionó el problema de la carga incompleta de algunos iconos de archivos
+
+>#####Se solucionó el problema que causaba que el visor de archivos comprimidos incorporado se bloqueara
+
+>#####Se solucionó un problema que causaba un bloqueo al abrir la ventana de la propiedad en algunos casos
+
+>#####Se solucionó el problema de evitar que el menú del botón derecho se expandiera
+
+>#####Se solucionó el problema de que la función de cambio de nombre de archivo no se podía activar en los íconos grandes, medianos y pequeños
+
+*****
 ###Novedades de la versión 7.1.4.0
 
 #####Actualización de funciones

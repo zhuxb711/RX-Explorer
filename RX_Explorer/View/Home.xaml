@@ -294,7 +294,6 @@
                                                 Margin="5,0,0,0">
                                         <TextBlock Text="{x:Bind Name}"
                                                    ToolTipService.ToolTip="{x:Bind Name,Converter={StaticResource EmptyTextFiliter}}"
-                                                   x:Phase="0"
                                                    HorizontalTextAlignment="Left"
                                                    HorizontalAlignment="Stretch"
                                                    TextTrimming="CharacterEllipsis"/>

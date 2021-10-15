@@ -1,4 +1,37 @@
 ﻿*****
+###Quoi de neuf dans la version 7.1.7.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Maintenant, vous pouvez personnaliser la police de l'application
+
+>#####Lors de l'accès à un chemin réseau qui a été mappé en tant que disque, il sera automatiquement redirigé vers le chemin du disque
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour de la disposition des commandes
+
+>#####Mise à jour de l'animation de la bannière de notification dans l'application et de l'état visuel
+
+#####Amélioration des performances
+
+>#####Amélioration de la vitesse de chargement des lecteurs et des dossiers de bibliothèque
+
+#####Correction d'un bug
+
+>#####Correction d'un problème où plusieurs lecteurs identiques peuvent être affichés
+
+>#####Correction du problème de chargement incomplet de certaines icônes de fichiers
+
+>#####Correction du problème qui provoquait le plantage de la visionneuse de fichiers compressés intégrée
+
+>#####Correction d'un problème qui provoquait un plantage lors de l'ouverture de la fenêtre des propriétés dans certains cas
+
+>#####Correction du problème empêchant le menu contextuel de se développer
+
+>#####Correction du problème selon lequel la fonction de changement de nom de fichier ne pouvait pas être activée sur les grandes, moyennes et petites icônes
+
+*****
 ###Quoi de neuf dans la version 7.1.4.0
 
 #####Mise à jour des fonctionnalités

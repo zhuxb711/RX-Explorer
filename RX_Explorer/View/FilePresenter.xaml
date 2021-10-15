@@ -1092,7 +1092,6 @@
                                                                 Margin="5,0,0,0">
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                                                    ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                                                                   x:Phase="0"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Stretch"
                                                                    TextTrimming="CharacterEllipsis"
@@ -1113,7 +1112,6 @@
                                                                    MaxWidth="145" />
                                                         <TextBlock Text="{x:Bind SizeDescription,Mode=OneWay}"
                                                                    FontSize="12"
-                                                                   x:Phase="0"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Left"
                                                                    TextTrimming="CharacterEllipsis" />
@@ -1230,8 +1228,8 @@
                                                            PointerPressed="GetFocus_PointerPressed" />
                                                     <Image x:Name="ThumbnailOverlay"
                                                            Margin="2,0,0,0"
-                                                           Width="23"
-                                                           Height="23"
+                                                           Width="20"
+                                                           Height="20"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Bottom"
                                                            Grid.Column="1"
@@ -1244,7 +1242,6 @@
                                                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="2"
-                                                               x:Phase="0"
                                                                PointerPressed="NameLabel_PointerPressed"
                                                                x:Name="NameLabel" />
                                                     <TextBox VerticalAlignment="Center"
@@ -1377,11 +1374,17 @@
                                                         </Border>
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                                                    ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                                                                   FontSize="15"
                                                                    Grid.Column="1"
-                                                                   x:Phase="0"
+                                                                   x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
+                                                        <TextBox VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 x:Name="NameEditBox"
+                                                                 Grid.Column="1"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -1506,11 +1509,17 @@
                                                         </Border>
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                                                    ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                                                                   FontSize="15"
                                                                    Grid.Column="1"
-                                                                   x:Phase="0"
+                                                                   x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
+                                                        <TextBox VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 x:Name="NameEditBox"
+                                                                 Grid.Column="1"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -1636,9 +1645,16 @@
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                                                    ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    Grid.Column="1"
-                                                                   x:Phase="0"
+                                                                   x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis" />
+                                                        <TextBox VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 x:Name="NameEditBox"
+                                                                 Grid.Column="1"
+                                                                 IsSpellCheckEnabled="False"
+                                                                 Visibility="Collapsed"
+                                                                 x:Load="False" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -1754,8 +1770,8 @@
                                                                PointerPressed="GetFocus_PointerPressed" />
                                                         <Image x:Name="ThumbnailOverlay"
                                                                Margin="5,0,0,0"
-                                                               Width="23"
-                                                               Height="23"
+                                                               Width="20"
+                                                               Height="20"
                                                                HorizontalAlignment="Left"
                                                                VerticalAlignment="Bottom"
                                                                x:Phase="1"
@@ -1765,7 +1781,6 @@
                                                         <TextBlock VerticalAlignment="Center"
                                                                    HorizontalAlignment="Left"
                                                                    Grid.Column="1"
-                                                                   x:Phase="0"
                                                                    Text="{x:Bind Name, Mode=OneWay}"
                                                                    ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    TextTrimming="CharacterEllipsis"
@@ -1803,7 +1818,6 @@
                                                                Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
                                                                ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                Grid.Column="1"
-                                                               x:Phase="0"
                                                                TextTrimming="CharacterEllipsis"
                                                                PointerPressed="GetFocus_PointerPressed" />
                                                     <TextBlock VerticalAlignment="Center"
@@ -1822,7 +1836,6 @@
                                                                ToolTipService.ToolTip="{x:Bind SizeDescription, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="3"
-                                                               x:Phase="0"
                                                                PointerPressed="GetFocus_PointerPressed" />
                                                 </Grid>
                                             </DataTemplate>

@@ -2439,7 +2439,7 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
-                if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase) 
+                if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
                     && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                 {
                     await new DriveInfoDialog(Drive).ShowAsync();
@@ -5251,7 +5251,9 @@ namespace RX_Explorer
                 Name = "FolderItem",
                 Icon = new ImageIcon
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"))
+                    Source = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11)
+                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"))
                 },
                 Text = Globalization.GetString("Operate_Text_CreateFolder"),
                 MinWidth = 160

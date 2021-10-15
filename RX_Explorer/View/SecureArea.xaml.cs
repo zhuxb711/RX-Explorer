@@ -405,17 +405,10 @@ namespace RX_Explorer
 
                 try
                 {
-                    ulong TotalSize = 0;
+                    IReadOnlyList<FileSystemStorageFile> NewFileList = new List<FileSystemStorageFile>(FileList.Select((Item) => new FileSystemStorageFile(Item)));
+
                     ulong CurrentPosition = 0;
-
-                    List<FileSystemStorageFile> NewFileList = new List<FileSystemStorageFile>();
-
-                    foreach (StorageFile ImportFile in FileList)
-                    {
-                        FileSystemStorageFile File = new FileSystemStorageFile(ImportFile);
-                        NewFileList.Add(File);
-                        TotalSize += File.Size;
-                    }
+                    ulong TotalSize = Convert.ToUInt64(NewFileList.Sum((Item) => Convert.ToInt64(Item.Size)));
 
                     foreach (FileSystemStorageFile OriginFile in NewFileList)
                     {
@@ -487,7 +480,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
                 finally
                 {

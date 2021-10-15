@@ -734,7 +734,6 @@
                                        HorizontalAlignment="Left"
                                        Grid.Column="1"
                                        Text="{x:Bind Name}"
-                                       x:Phase="0"
                                        ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
                             <Border Grid.Column="2"
@@ -748,14 +747,12 @@
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind Path}"
-                                   x:Phase="0"
                                    Padding="10,0,0,0"
                                    ToolTipService.ToolTip="{x:Bind Path}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="1" />
                         <TextBlock VerticalAlignment="Center"
                                    HorizontalAlignment="Left"
-                                   x:Phase="0"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
                                    ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
@@ -773,7 +770,6 @@
                                    HorizontalAlignment="Left"
                                    Padding="10,0,0,0"
                                    Text="{x:Bind SizeDescription}"
-                                   x:Phase="0"
                                    ToolTipService.ToolTip="{x:Bind SizeDescription}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />

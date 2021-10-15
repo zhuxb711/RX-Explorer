@@ -32,7 +32,7 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Use64BitCompiler>false</Use64BitCompiler>
+    <Use64BitCompiler>true</Use64BitCompiler>
     <UseAppLocalCoreFramework>true</UseAppLocalCoreFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -458,6 +458,7 @@
     <Content Include="Assets\DesktopIcon.ico" />
     <Content Include="Assets\DocumentIcon.ico" />
     <Content Include="Assets\ExcelFileIcon.png" />
+    <Content Include="Assets\FolderIcon_Win11.png" />
     <Content Include="Assets\Github-Intro1.png" />
     <Content Include="Assets\Github-Intro2.png" />
     <Content Include="Assets\Github-Intro3.png" />
@@ -474,7 +475,7 @@
     <Content Include="Assets\KeyboardShortcut_fr.txt" />
     <Content Include="Assets\lnkFileIcon.png" />
     <Content Include="Assets\NormalDriveLocked.ico" />
-    <Content Include="Assets\FolderIcon.png" />
+    <Content Include="Assets\FolderIcon_Win10.png" />
     <Content Include="Assets\IntroFile-Chinese_S.txt" />
     <Content Include="Assets\IntroFile-Chinese_T.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
@@ -818,7 +819,7 @@
       <Version>5.0.11</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.12</Version>
+      <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>7.1.0</Version>
