@@ -355,46 +355,50 @@ namespace RX_Explorer.Class
             Transaction.Commit();
         }
 
-        public void SetProgramPickerRecord(params AssociationPackage[] Packages)
+        public void AddProgramPickerRecord(AssociationPackage Package)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded)", Connection, Transaction);
+            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded)", Connection, Transaction);
 
-            foreach (AssociationPackage Pack in Packages)
-            {
-                Command.Parameters.Clear();
-                Command.Parameters.AddWithValue("@Extension", Pack.Extension);
-                Command.Parameters.AddWithValue("@ExecutablePath", Pack.ExecutablePath);
-                Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Pack.IsRecommanded));
-                Command.ExecuteNonQuery();
-            }
+            Command.Parameters.AddWithValue("@Extension", Package.Extension);
+            Command.Parameters.AddWithValue("@ExecutablePath", Package.ExecutablePath);
+            Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Package.IsRecommanded));
+            Command.ExecuteNonQuery();
 
             Transaction.Commit();
         }
 
-        public void UpdateProgramPickerRecord(string Extension, params AssociationPackage[] AssociationList)
+        public void UpdateProgramPickerRecord(IEnumerable<AssociationPackage> AssociationList)
         {
-            string DefaultPath = GetDefaultProgramPickerRecord(Extension);
-
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
-
-            Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-            Command.ExecuteNonQuery();
-
-            Command.CommandText = $"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);";
-
-            foreach (AssociationPackage Package in AssociationList)
+            if (AssociationList.Any())
             {
-                Command.Parameters.Clear();
-                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                Command.Parameters.AddWithValue("@ExecutablePath", Package.ExecutablePath);
-                Command.Parameters.AddWithValue("@IsDefault", Convert.ToString(Package.ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase)));
-                Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Package.IsRecommanded));
-                Command.ExecuteNonQuery();
-            }
+                string Extension = AssociationList.First().Extension;
 
-            Transaction.Commit();
+                if (AssociationList.Skip(1).All((Item) => Item.Extension.Equals(Extension, StringComparison.OrdinalIgnoreCase)))
+                {
+                    string DefaultPath = GetDefaultProgramPickerRecord(Extension);
+
+                    using SqliteTransaction Transaction = Connection.BeginTransaction();
+                    using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
+
+                    Command.Parameters.AddWithValue("@FileType", Extension);
+                    Command.ExecuteNonQuery();
+
+                    Command.CommandText = $"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);";
+
+                    foreach (AssociationPackage Package in AssociationList)
+                    {
+                        Command.Parameters.Clear();
+                        Command.Parameters.AddWithValue("@FileType", Package.Extension);
+                        Command.Parameters.AddWithValue("@ExecutablePath", Package.ExecutablePath);
+                        Command.Parameters.AddWithValue("@IsDefault", Convert.ToString(Package.ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase)));
+                        Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Package.IsRecommanded));
+                        Command.ExecuteNonQuery();
+                    }
+
+                    Transaction.Commit();
+                }
+            }
         }
 
         public string GetDefaultProgramPickerRecord(string Extension)
@@ -422,7 +426,7 @@ namespace RX_Explorer.Class
             Transaction.Commit();
         }
 
-        public IReadOnlyList<AssociationPackage> GetProgramPickerRecord(string Extension, bool IncludeUWPApplication)
+        public IReadOnlyList<AssociationPackage> GetProgramPickerRecord(string Extension)
         {
             try
             {
@@ -436,17 +440,9 @@ namespace RX_Explorer.Class
                     {
                         while (Reader.Read())
                         {
-                            //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
-                            if (IncludeUWPApplication)
+                            if (Path.IsPathRooted(Convert.ToString(Reader[1])))
                             {
-                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
-                            }
-                            else
-                            {
-                                if (Path.IsPathRooted(Convert.ToString(Reader[1])))
-                                {
-                                    Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
-                                }
+                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
                             }
                         }
                     }
@@ -467,7 +463,7 @@ namespace RX_Explorer.Class
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType And Path = @Path", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", Package.Extension.ToLower());
+                Command.Parameters.AddWithValue("@FileType", Package.Extension);
                 Command.Parameters.AddWithValue("@Path", Package.ExecutablePath);
                 Command.ExecuteNonQuery();
             }

@@ -500,10 +500,10 @@
     <value>基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
-    <value>AES-128bit CBC 模式</value>
+    <value>AES-128bit 模式</value>
   </data>
   <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
-    <value>AES-256bit CBC 模式</value>
+    <value>AES-256bit 模式</value>
   </data>
   <data name="SecureAreaSettingButton.Label" xml:space="preserve">
     <value>设置</value>

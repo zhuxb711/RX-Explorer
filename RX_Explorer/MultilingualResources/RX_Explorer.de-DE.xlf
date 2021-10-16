@@ -677,12 +677,12 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Basierend auf dem AES-CBC-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
-          <source>AES-128bit CBC mode</source>
-          <target state="translated">AES-128bit CBC Modus</target>
+          <source>AES-128bit mode</source>
+          <target state="translated">AES-128bit Modus</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
-          <source>AES-256bit CBC mode</source>
-          <target state="translated">AES-256bit CBC Modus</target>
+          <source>AES-256bit mode</source>
+          <target state="translated">AES-256bit Modus</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
           <source>Setting</source>

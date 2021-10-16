@@ -677,12 +677,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Basado en un algoritmo AES-CB, combinado con múltiples medidas de autenticación de seguridad a nivel del sistema para garantizar un almacenamiento seguro de los archivos.</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
-          <source>AES-128bit CBC mode</source>
-          <target state="translated">AES-128 bits en modo CBC</target>
+          <source>AES-128bit mode</source>
+          <target state="translated">Modo AES-128bit</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
-          <source>AES-256bit CBC mode</source>
-          <target state="translated">AES-256 bits en modo CBC</target>
+          <source>AES-256bit mode</source>
+          <target state="translated">Modo AES-256bit</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
           <source>Setting</source>

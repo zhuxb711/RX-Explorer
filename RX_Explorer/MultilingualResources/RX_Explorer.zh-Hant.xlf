@@ -669,12 +669,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">基於AES-CBC算法及結合多種系統級安全認證措施，確保檔案安全無虞</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
-          <source>AES-128bit CBC mode</source>
-          <target state="translated">AES-128bit CBC 模式</target>
+          <source>AES-128bit mode</source>
+          <target state="translated">AES-128bit 模式</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
-          <source>AES-256bit CBC mode</source>
-          <target state="translated">AES-256bit CBC 模式</target>
+          <source>AES-256bit mode</source>
+          <target state="translated">AES-256bit 模式</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
           <source>Setting</source>

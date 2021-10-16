@@ -657,12 +657,12 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
-          <source>AES-128bit CBC mode</source>
-          <target state="translated">AES-128bit CBC 模式</target>
+          <source>AES-128bit mode</source>
+          <target state="translated">AES-128bit 模式</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
-          <source>AES-256bit CBC mode</source>
-          <target state="translated">AES-256bit CBC 模式</target>
+          <source>AES-256bit mode</source>
+          <target state="translated">AES-256bit 模式</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
           <source>Setting</source>

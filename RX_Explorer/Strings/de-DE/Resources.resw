@@ -515,10 +515,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Basierend auf dem AES-CBC-Algorithmus, kombiniert mit mehreren Sicherheitsauthentifizierungsmaßnahmen auf Systemebene, um die sichere Speicherung von Dateien zu gewährleisten</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
-    <value>AES-128bit CBC Modus</value>
+    <value>AES-128bit Modus</value>
   </data>
   <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
-    <value>AES-256bit CBC Modus</value>
+    <value>AES-256bit Modus</value>
   </data>
   <data name="SecureAreaSettingButton.Label" xml:space="preserve">
     <value>Einstellung</value>

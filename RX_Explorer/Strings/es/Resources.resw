@@ -515,10 +515,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Basado en un algoritmo AES-CB, combinado con múltiples medidas de autenticación de seguridad a nivel del sistema para garantizar un almacenamiento seguro de los archivos.</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
-    <value>AES-128 bits en modo CBC</value>
+    <value>Modo AES-128bit</value>
   </data>
   <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
-    <value>AES-256 bits en modo CBC</value>
+    <value>Modo AES-256bit</value>
   </data>
   <data name="SecureAreaSettingButton.Label" xml:space="preserve">
     <value>Ajustes</value>

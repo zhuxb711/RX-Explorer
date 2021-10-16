@@ -626,10 +626,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
-    <value>AES-128bit CBC mode</value>
+    <value>AES-128bit mode</value>
   </data>
   <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
-    <value>AES-256bit CBC mode</value>
+    <value>AES-256bit mode</value>
   </data>
   <data name="SecureAreaSettingButton.Label" xml:space="preserve">
     <value>Setting</value>

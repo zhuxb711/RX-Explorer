@@ -77,7 +77,7 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
-                return new ProgramPickerItem(App.DisplayInfo.DisplayName, App.DisplayInfo.Description, App.PackageFamilyName);
+                return new ProgramPickerItem(null, App.DisplayInfo.DisplayName, App.DisplayInfo.Description, App.PackageFamilyName);
             }
         }
 
@@ -92,14 +92,10 @@ namespace RX_Explorer.Class
                 ExtraAppName = Convert.ToString(DescriptionRaw);
             }
 
-            if (await ExecuteFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) is BitmapImage Logo)
-            {
-                return new ProgramPickerItem(Logo, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path);
-            }
-            else
-            {
-                return new ProgramPickerItem(string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path);
-            }
+            return new ProgramPickerItem(await ExecuteFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem),
+                                         string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName,
+                                         Globalization.GetString("Application_Admin_Name"),
+                                         ExecuteFile.Path);
         }
 
         public static async Task<ProgramPickerItem> CreateAsync(FileSystemStorageFile File)
@@ -110,7 +106,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return new ProgramPickerItem(File.DisplayName, Globalization.GetString("Application_Admin_Name"), File.Path);
+                return new ProgramPickerItem(null, File.DisplayName, Globalization.GetString("Application_Admin_Name"), File.Path);
             }
         }
 
@@ -205,15 +201,7 @@ namespace RX_Explorer.Class
         /// <param name="Path">应用可执行文件路径</param>
         private ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string Path)
         {
-            this.Thumbnuil = Thumbnuil;
-            this.Name = Name;
-            this.Description = Description;
-            this.Path = Path;
-        }
-
-        private ProgramPickerItem(string Name, string Description, string Path)
-        {
-            this.Thumbnuil = DefaultThumbnuil;
+            this.Thumbnuil = Thumbnuil ?? DefaultThumbnuil;
             this.Name = Name;
             this.Description = Description;
             this.Path = Path;

@@ -190,12 +190,14 @@
                         <StackPanel Margin="0,20,0,0">
                             <RelativePanel>
                                 <TextBlock Text="{x:Bind Cls:Globalization.GetString('SecureAreaSettingUseWH/Header')}"
-                                           TextWrapping="WrapWholeWords"
-                                           RelativePanel.LeftOf="WindowsHelloQuestion" />
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                                           TextTrimming="CharacterEllipsis"
+                                           Name="UseWindowsHelloHeader"/>
                                 <Viewbox Margin="10,0,0,0"
                                          Height="15"
                                          Name="WindowsHelloQuestion"
-                                         RelativePanel.AlignRightWithPanel="True"
+                                         RelativePanel.RightOf="UseWindowsHelloHeader"
                                          RelativePanel.AlignVerticalCenterWithPanel="True">
                                     <FontIcon Glyph="&#xE9CE;"
                                               PointerPressed="WindowsHelloQuestion_PointerPressed" />
@@ -218,11 +220,11 @@
                                               PointerPressed="EncryptionModeQuestion_PointerPressed" />
                                 </Viewbox>
                             </RelativePanel>
-                            <RadioButton Content="AES-128bit CBC模式"
+                            <RadioButton Content="AES-128bit模式"
                                          x:Uid="SecureAreaSettingAESMode1"
                                          Margin="0,10,0,0"
                                          Name="AES128Mode" />
-                            <RadioButton Content="AES-256bit CBC模式"
+                            <RadioButton Content="AES-256bit模式"
                                          x:Uid="SecureAreaSettingAESMode2"
                                          Margin="0,10,0,0"
                                          Name="AES256Mode" />

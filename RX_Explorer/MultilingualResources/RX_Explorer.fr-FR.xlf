@@ -657,12 +657,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Basé sur l'algorithme AES-CBC et combiné à de multiples mesures d'authentification de sécurité au niveau du système pour garantir le stockage sécurisé des fichiers</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
-          <source>AES-128bit CBC mode</source>
-          <target state="translated">AES-128bit CBC mode</target>
+          <source>AES-128bit mode</source>
+          <target state="translated">AES-128bit mode</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
-          <source>AES-256bit CBC mode</source>
-          <target state="translated">AES-256bit CBC mode</target>
+          <source>AES-256bit mode</source>
+          <target state="translated">AES-256bit mode</target>
         </trans-unit>
         <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
           <source>Setting</source>

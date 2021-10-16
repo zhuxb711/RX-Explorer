@@ -500,10 +500,10 @@
     <value>Basé sur l'algorithme AES-CBC et combiné à de multiples mesures d'authentification de sécurité au niveau du système pour garantir le stockage sécurisé des fichiers</value>
   </data>
   <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
-    <value>AES-128bit CBC mode</value>
+    <value>AES-128bit mode</value>
   </data>
   <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
-    <value>AES-256bit CBC mode</value>
+    <value>AES-256bit mode</value>
   </data>
   <data name="SecureAreaSettingButton.Label" xml:space="preserve">
     <value>Paramètres</value>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Vanara.PInvoke;
+using Windows.Management.Deployment;
 
 namespace FullTrustProcess
 {
@@ -28,14 +29,16 @@ namespace FullTrustProcess
                         {
                             Array.Resize(ref Handlers, Convert.ToInt32(FetchedNum));
 
+                            IEnumerable<string> UWPInstallLocationBase = new PackageManager().GetPackageVolumesAsync().AsTask().Result.Select((Volume) => Volume.PackageStorePath);
+
                             foreach (Shell32.IAssocHandler Handler in Handlers)
                             {
                                 try
                                 {
                                     if (Handler.GetName(out string FullPath) == HRESULT.S_OK && Handler.GetUIName(out string DisplayName) == HRESULT.S_OK)
                                     {
-                                        //For UWP application, DisplayName == FullPath
-                                        if (DisplayName != FullPath)
+                                        //For most UWP application, DisplayName == FullPath
+                                        if (DisplayName != FullPath && UWPInstallLocationBase.All((BasePath) => !FullPath.StartsWith(BasePath, StringComparison.OrdinalIgnoreCase)))
                                         {
                                             Association.Add(new AssociationPackage(Extension, FullPath, Handler.IsRecommended() == HRESULT.S_OK));
                                         }

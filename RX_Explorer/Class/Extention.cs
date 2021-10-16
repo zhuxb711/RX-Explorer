@@ -508,9 +508,31 @@ namespace RX_Explorer.Class
 
                                     SideloadTask = Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath))).ContinueWith((PreviousTask) =>
                                     {
-                                        foreach (MenuFlyoutItem Item in PreviousTask.Result.Reverse().OfType<MenuFlyoutItem>())
+                                        IEnumerable<MenuFlyoutItem> OpenWithItem = PreviousTask.Result.Reverse().OfType<MenuFlyoutItem>();
+
+                                        if (OpenWithItem.Any())
                                         {
-                                            OpenWithFlyout.Items.Insert(0, Item);
+                                            foreach (MenuFlyoutItem Item in OpenWithItem)
+                                            {
+                                                OpenWithFlyout.Items.Insert(0, Item);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
+
+                                            MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                            {
+                                                Text = Item.Name,
+                                                Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                                Tag = (PathArray.First(), Item),
+                                                MinWidth = 150,
+                                                MaxWidth = 300,
+                                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                            };
+                                            MenuItem.Click += ClickHandler;
+
+                                            OpenWithFlyout.Items.Insert(0, MenuItem);
                                         }
 
                                         if (OpenWithFlyout.Items.Count > 2)

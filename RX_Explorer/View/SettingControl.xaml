@@ -222,7 +222,7 @@
 
                 <ComboBox Header="字体"
                           Margin="0,20,0,0"
-                          MinWidth="180"
+                          Width="220"
                           x:Uid="FontFamilyComboBox"
                           Name="FontFamilyComboBox"
                           ItemsSource="{x:Bind Cls:FontFamilyController.GetInstalledFontFamily()}"
@@ -232,6 +232,8 @@
                             <Grid>
                                 <TextBlock Text="{x:Bind Name}"
                                            FontFamily="{x:Bind Name}"
+                                           ToolTipService.ToolTip="{x:Bind Name}"
+                                           TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center" />
                             </Grid>
                         </DataTemplate>
