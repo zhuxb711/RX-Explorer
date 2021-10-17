@@ -19,7 +19,6 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
-using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -650,30 +649,31 @@ namespace RX_Explorer
                     FolderTree.RootNodes.Add(RootNode);
                 }
 
-                IReadOnlyList<Task> SyncTreeViewFromDriveList(IEnumerable<StorageFolder> DriveList)
+                IReadOnlyList<Task<TreeViewNode>> SyncTreeViewFromDriveList(IEnumerable<StorageFolder> DriveList)
                 {
-                    List<Task> LongLoadList = new List<Task>();
+                    List<Task<TreeViewNode>> LongLoadList = new List<Task<TreeViewNode>>();
 
                     foreach (StorageFolder DriveFolder in DriveList)
                     {
                         if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task, _) =>
+                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
                             {
-                                try
+                                if (task.Exception is Exception Ex)
                                 {
-                                    FolderTree.RootNodes.Add(new TreeViewNode
+                                    LogTracer.Log(Ex, "Could not add a new node to TreeView");
+                                    return null;
+                                }
+                                else
+                                {
+                                    return new TreeViewNode
                                     {
                                         Content = new TreeViewNodeContent(DriveFolder),
                                         IsExpanded = false,
                                         HasUnrealizedChildren = task.Result
-                                    });
+                                    };
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, $"Could not add drive to FolderTree, path: \"{DriveFolder.Path}\"");
-                                }
-                            }, null, default, TaskContinuationOptions.PreferFairness, TaskScheduler.FromCurrentSynchronizationContext()));
+                            }, TaskScheduler.FromCurrentSynchronizationContext()));
                         }
                     }
 
@@ -682,7 +682,7 @@ namespace RX_Explorer
 
                 IEnumerable<StorageFolder> CurrentDrives = CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray();
 
-                IReadOnlyList<Task> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
+                IReadOnlyList<Task<TreeViewNode>> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
 
                 foreach (string TargetPath in InitPathArray.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
@@ -692,7 +692,19 @@ namespace RX_Explorer
                 CommonAccessCollection.DriveChanged += CommonAccessCollection_DriveChanged;
                 CommonAccessCollection.LibraryChanged += CommonAccessCollection_LibraryChanged;
 
-                await Task.WhenAll(TaskList.Concat(SyncTreeViewFromDriveList(CommonAccessCollection.GetMissedDriveBeforeSubscribeEvents().Except(CurrentDrives))));
+                foreach (TreeViewNode Node in await Task.WhenAll(TaskList.Concat(SyncTreeViewFromDriveList(CommonAccessCollection.GetMissedDriveBeforeSubscribeEvents()))))
+                {
+                    if (Node?.Content is TreeViewNodeContent NewContent)
+                    {
+                        if (FolderTree.RootNodes.Select((Node) => Node.Content)
+                                                .OfType<TreeViewNodeContent>()
+                                                .Select((Item) => Item.Path)
+                                                .All((Path) => !Path.Equals(NewContent.Path, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            FolderTree.RootNodes.Add(Node);
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
