@@ -238,19 +238,12 @@ namespace RX_Explorer
         {
             if (!QueueContentDialog.IsRunningOrWaiting)
             {
-                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+                bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+                bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabViewControl.SelectedItem is TabViewItem Tab:
-                        {
-                            args.Handled = true;
-
-                            await CleanUpAndRemoveTabItem(Tab);
-
-                            break;
-                        }
-                    case VirtualKey.PageUp when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabCollection.Count > 1:
+                    case VirtualKey.Tab when CtrlDown && ShiftDown && TabCollection.Count > 1:
                         {
                             args.Handled = true;
 
@@ -265,7 +258,45 @@ namespace RX_Explorer
 
                             break;
                         }
-                    case VirtualKey.PageDown when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabCollection.Count > 1:
+                    case VirtualKey.Tab when CtrlDown && TabCollection.Count > 1:
+                        {
+                            args.Handled = true;
+
+                            if (TabViewControl.SelectedIndex < TabCollection.Count - 1)
+                            {
+                                TabViewControl.SelectedIndex++;
+                            }
+                            else
+                            {
+                                TabViewControl.SelectedIndex = 0;
+                            }
+
+                            break;
+                        }
+                    case VirtualKey.W when CtrlDown && TabViewControl.SelectedItem is TabViewItem Tab:
+                        {
+                            args.Handled = true;
+
+                            await CleanUpAndRemoveTabItem(Tab);
+
+                            break;
+                        }
+                    case VirtualKey.PageUp when CtrlDown && TabCollection.Count > 1:
+                        {
+                            args.Handled = true;
+
+                            if (TabViewControl.SelectedIndex > 0)
+                            {
+                                TabViewControl.SelectedIndex--;
+                            }
+                            else
+                            {
+                                TabViewControl.SelectedIndex = TabCollection.Count - 1;
+                            }
+
+                            break;
+                        }
+                    case VirtualKey.PageDown when CtrlDown && TabCollection.Count > 1:
                         {
                             args.Handled = true;
 
@@ -309,7 +340,7 @@ namespace RX_Explorer
 
                                             break;
                                         }
-                                    case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                    case VirtualKey.B when CtrlDown:
                                         {
                                             if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
                                             {
@@ -360,7 +391,7 @@ namespace RX_Explorer
 
                                             break;
                                         }
-                                    case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                    case VirtualKey.Q when CtrlDown:
                                         {
                                             if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
                                             {
@@ -405,7 +436,7 @@ namespace RX_Explorer
 
                                             break;
                                         }
-                                    case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                    case VirtualKey.T when CtrlDown:
                                         {
                                             if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
                                             {
@@ -503,7 +534,7 @@ namespace RX_Explorer
 
                                             break;
                                         }
-                                    case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                    case VirtualKey.T when CtrlDown:
                                         {
                                             args.Handled = true;
 
@@ -867,7 +898,7 @@ namespace RX_Explorer
 
                     if (ContentFrame.Content is FileControl Control)
                     {
-                        switch(Control.CurrentPresenter?.CurrentFolder)
+                        switch (Control.CurrentPresenter?.CurrentFolder)
                         {
                             case RootStorageFolder:
                                 {
@@ -1332,6 +1363,31 @@ namespace RX_Explorer
 
                         break;
                     }
+            }
+        }
+
+        private void TabViewControl_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            CoreWindow Window = CoreWindow.GetForCurrentThread();
+
+            bool CtrlDown = Window.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+            bool ShiftDown = Window.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+            switch (e.Key)
+            {
+                case VirtualKey.Tab when ((CtrlDown && ShiftDown) || CtrlDown) && TabCollection.Count > 1:
+                    {
+                        e.Handled = true;
+                        break;
+                    }
+            }
+        }
+
+        private void ViewModeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModeFlyout.IsOpen)
+            {
+                ViewModeFlyout.Hide();
             }
         }
     }

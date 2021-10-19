@@ -603,15 +603,14 @@ namespace RX_Explorer
                 && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
-                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-                CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+                bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+                bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
                 if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
                 {
-                    args.Handled = true;
-
-                    if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                    if (!CtrlDown && !ShiftDown)
                     {
+                        args.Handled = true;
                         NavigateToStorageItem(args.VirtualKey);
                     }
 
@@ -619,6 +618,8 @@ namespace RX_Explorer
                     {
                         case VirtualKey.Space when SettingControl.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1:
                             {
+                                args.Handled = true;
+
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
@@ -648,41 +649,57 @@ namespace RX_Explorer
                             }
                         case VirtualKey.F2:
                             {
+                                args.Handled = true;
+
                                 Rename_Click(null, null);
                                 break;
                             }
                         case VirtualKey.F5:
                             {
+                                args.Handled = true;
+
                                 Refresh_Click(null, null);
                                 break;
                             }
                         case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
                             {
+                                args.Handled = true;
+
                                 await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                                 break;
                             }
                         case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
                             {
+                                args.Handled = true;
+
                                 Container.GoBackRecord_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.L when CtrlDown:
                             {
+                                args.Handled = true;
+
                                 Container.AddressBox.Focus(FocusState.Programmatic);
                                 break;
                             }
-                        case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.V when CtrlDown:
                             {
+                                args.Handled = true;
+
                                 Paste_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.A when CtrlDown:
                             {
+                                args.Handled = true;
+
                                 ItemPresenter.SelectAll();
                                 break;
                             }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.C when CtrlDown && ShiftDown:
                             {
+                                args.Handled = true;
+
                                 Clipboard.Clear();
 
                                 DataPackage Package = new DataPackage
@@ -695,49 +712,67 @@ namespace RX_Explorer
                                 Clipboard.SetContent(Package);
                                 break;
                             }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
+                        case VirtualKey.C when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
                             {
+                                args.Handled = true;
+
                                 Copy_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
+                        case VirtualKey.X when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
                             {
+                                args.Handled = true;
+
                                 Cut_Click(null, null);
                                 break;
                             }
                         case VirtualKey.Delete when ItemPresenter.SelectedItems.Count > 0:
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count > 0:
+                        case VirtualKey.D when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
                             {
+                                args.Handled = true;
+
                                 Delete_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.F when CtrlDown:
                             {
+                                args.Handled = true;
+
                                 Container.GlobeSearch.Focus(FocusState.Programmatic);
                                 break;
                             }
-                        case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.N when CtrlDown && ShiftDown:
                             {
+                                args.Handled = true;
+
                                 CreateFolder_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.IsNotEmpty:
+                        case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
                             {
-                                await Ctrl_Z_Click();
+                                args.Handled = true;
+
+                                await ExecuteUndoAsync();
                                 break;
                             }
-                        case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
+                        case VirtualKey.E when ShiftDown && CurrentFolder != null:
                             {
+                                args.Handled = true;
+
                                 await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                                 break;
                             }
-                        case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.T when ShiftDown:
                             {
+                                args.Handled = true;
+
                                 OpenInTerminal_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count <= 1:
+                        case VirtualKey.T when CtrlDown && ItemPresenter.SelectedItems.Count <= 1:
                             {
+                                args.Handled = true;
+
                                 CloseAllFlyout();
 
                                 if (SelectedItem is FileSystemStorageFolder)
@@ -751,23 +786,25 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ItemPresenter.SelectedItems.Count == 1:
+                        case VirtualKey.Q when CtrlDown && ItemPresenter.SelectedItems.Count == 1:
                             {
+                                args.Handled = true;
+
                                 OpenFolderInNewWindow_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Up:
-                        case VirtualKey.Down:
+                        case VirtualKey.Up when SelectedItem == null:
+                        case VirtualKey.Down when SelectedItem == null:
                             {
-                                if (SelectedItem == null)
-                                {
-                                    SelectedItem = FileCollection.FirstOrDefault();
-                                }
+                                args.Handled = true;
 
+                                SelectedItem = FileCollection.FirstOrDefault();
                                 break;
                             }
-                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        case VirtualKey.B when CtrlDown:
                             {
+                                args.Handled = true;
+
                                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
                                     if (ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
@@ -780,11 +817,6 @@ namespace RX_Explorer
                                     }
                                 }
 
-                                break;
-                            }
-                        default:
-                            {
-                                args.Handled = false;
                                 break;
                             }
                     }
@@ -1292,7 +1324,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task Ctrl_Z_Click()
+        private async Task ExecuteUndoAsync()
         {
             try
             {
@@ -4264,7 +4296,7 @@ namespace RX_Explorer
 
             if (OperationRecorder.Current.IsNotEmpty)
             {
-                await Ctrl_Z_Click();
+                await ExecuteUndoAsync();
             }
         }
 

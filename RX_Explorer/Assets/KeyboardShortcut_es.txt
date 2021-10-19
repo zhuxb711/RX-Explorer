@@ -21,6 +21,7 @@ Ctrl + E|Ninguno|Vaciar la papelera de reciclaje
 Ctrl + R|Seleccionar cualquier archivo o carpeta|Restaurar todos los elementos seleccionados en la papelera de reciclaje
 Ctrl + Rueda del mouse|ninguno|cambiar el modo de visualización del archivo
 Ctrl + Doble clic|Seleccionar cualquier carpeta|Abrir la carpeta especificada en una nueva pestaña
+Ctrl + Tab|Se abrieron varias pestañas|Cambiar pestañas a la derecha
 Ctrl + PageUp|Ninguno|Cambiar a la pestaña de la izquierda
 Ctrl + PageDown|Ninguno|Cambiar a la pestaña de la derecha
 Shift + E|Ninguno|Use el Explorador de Windows para abrir la carpeta actual
@@ -30,3 +31,4 @@ Alt + Derecha|Ninguno|Navegar a la siguiente carpeta
 Alt + Enter|Seleccionar solo un archivo o carpeta|Iniciar la ventana de propiedades
 Ctrl + Shift + N|Ninguno|Crear nueva carpeta
 Ctrl + Shift + C|Ninguno|Copiar la ruta del elemento seleccionado. Si no se selecciona ningún elemento, copie la ruta de la carpeta actual
+Ctrl + Shift + Tab|Se abrieron varias pestañas|Cambiar a la pestaña de la izquierda

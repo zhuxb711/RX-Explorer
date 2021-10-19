@@ -79,6 +79,7 @@
                           AllowDropTabs="True"
                           AllowDrop="True"
                           CanDragTabs="True"
+                          PreviewKeyDown="TabViewControl_PreviewKeyDown"
                           RightTapped="TabViewControl_RightTapped"
                           PointerWheelChanged="TabViewControl_PointerWheelChanged"
                           TabStripDragOver="TabViewControl_TabStripDragOver"
@@ -168,7 +169,8 @@
                                           Glyph="&#xF246;" />
                             </Viewbox>
                             <muxc:SplitButton.Flyout>
-                                <Flyout Placement="BottomEdgeAlignedRight">
+                                <Flyout Placement="BottomEdgeAlignedRight"
+                                        x:Name="ViewModeFlyout">
                                     <Flyout.FlyoutPresenterStyle>
                                         <Style TargetType="FlyoutPresenter">
                                             <Setter Property="CornerRadius"
@@ -184,7 +186,8 @@
                                               MinWidth="200"
                                               Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                               ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
-                                              SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}">
+                                              SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
+                                              SelectionChanged="ViewModeList_SelectionChanged">
                                         <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="Cls:LayoutModeModel">
                                                 <Grid Padding="10,0">

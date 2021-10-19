@@ -21,6 +21,7 @@ Ctrl + E|Keine|Papierkorb leeren
 Ctrl + R|Beliebige Datei oder Ordner auswählen|Alle im Papierkorb ausgewählten Elemente wiederherstellen
 Ctrl + Mausrad|keine|Dateianzeigemodus ändern
 Ctrl + Doppelklick|Beliebigen Ordner auswählen|Angegebenen Ordner in einem neuen Tab öffnen
+Ctrl + Tab|Mehrere Tabs wurden geöffnet|Tabs rechts wechseln
 Ctrl + PageUp|Keine|Wechseln Sie zum Tab links
 Ctrl + PageDown|Keine|Wechseln Sie zum Reiter rechts
 Shift + E |Keine|Verwenden Sie den Windows Explorer, um den aktuellen Ordner zu öffnen
@@ -30,3 +31,4 @@ Alt + Rechts|Keine|Navigiere zum nächsten Ordner
 Alt + Enter|Wählen Sie nur eine Datei oder einen Ordner aus|Starten Sie das Eigenschaftenfenster
 Ctrl + Shift + N|Keine|Neuen Ordner erstellen
 Ctrl + Shift + C|Keine|Kopiert den Pfad des ausgewählten Elements. Wenn kein Element ausgewählt ist, kopieren Sie den Pfad des aktuellen Ordners
+Ctrl + Shift + Tab|Es wurden mehrere Tabs geöffnet|Wechseln Sie zum Tab auf der linken Seite
