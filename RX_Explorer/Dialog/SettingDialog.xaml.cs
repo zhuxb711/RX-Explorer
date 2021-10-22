@@ -3,7 +3,6 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
@@ -34,16 +34,17 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
+using AnimationDirection = Windows.UI.Composition.AnimationDirection;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
-namespace RX_Explorer
+namespace RX_Explorer.Dialog
 {
-    public sealed partial class SettingControl : UserControl
+    public sealed partial class SettingDialog : QueueContentDialog
     {
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
 
-        public static bool IsDisplayProtectedSystemItems
+        public bool IsDisplayProtectedSystemItems
         {
             get
             {
@@ -63,7 +64,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsDoubleClickEnabled
+        public bool IsDoubleClickEnabled
         {
             get
             {
@@ -83,7 +84,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsDetachTreeViewAndPresenter
+        public bool IsDetachTreeViewAndPresenter
         {
             get
             {
@@ -103,7 +104,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsQuicklookEnabled
+        public bool IsQuicklookEnabled
         {
             get
             {
@@ -123,7 +124,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsDisplayHiddenItem
+        public bool IsDisplayHiddenItem
         {
             get
             {
@@ -143,7 +144,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsTabPreviewEnabled
+        public bool IsTabPreviewEnabled
         {
             get
             {
@@ -163,7 +164,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsPathHistoryEnabled
+        public bool IsPathHistoryEnabled
         {
             get
             {
@@ -188,7 +189,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsSearchHistoryEnabled
+        public bool IsSearchHistoryEnabled
         {
             get
             {
@@ -215,7 +216,7 @@ namespace RX_Explorer
 
 
 
-        public static NavigationViewPaneDisplayMode LayoutMode
+        public NavigationViewPaneDisplayMode LayoutMode
         {
             get
             {
@@ -234,7 +235,7 @@ namespace RX_Explorer
             }
         }
 
-        public static LoadMode ContentLoadMode
+        public LoadMode ContentLoadMode
         {
             get
             {
@@ -267,7 +268,7 @@ namespace RX_Explorer
             }
         }
 
-        public static SearchEngineFlyoutMode SearchEngineMode
+        public SearchEngineFlyoutMode SearchEngineMode
         {
             get
             {
@@ -300,7 +301,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool LibraryExpanderIsExpanded
+        public bool LibraryExpanderIsExpanded
         {
             get
             {
@@ -317,7 +318,7 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
         }
 
-        public static bool DeviceExpanderIsExpanded
+        public bool DeviceExpanderIsExpanded
         {
             get
             {
@@ -334,8 +335,13 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
-        public bool IsOpened { get; private set; }
-        public bool IsAnimating { get; private set; }
+        public string Version
+        {
+            get
+            {
+                return $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
+            }
+        }
 
         private bool HasInit;
 
@@ -343,16 +349,21 @@ namespace RX_Explorer
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
-        public SettingControl()
+        private static SettingDialog Instance;
+        public static SettingDialog Current
+        {
+            get
+            {
+                return Instance ??= new SettingDialog();
+            }
+        }
+
+        private SettingDialog()
         {
             InitializeComponent();
 
-            Loading += SettingControl_Loading;
+            Loading += SettingDialog_Loading;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
-
-            PictureGirdView.ItemsSource = PictureList;
-
-            Version.Text = $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
 
             if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
             {
@@ -360,6 +371,28 @@ namespace RX_Explorer
                 {
                     Btn.Visibility = Visibility.Visible;
                 }
+            }
+        }
+
+        private async void SettingDialog_Loading(FrameworkElement sender, object args)
+        {
+            try
+            {
+                await InitializeAsync();
+
+                if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
+                {
+                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
+                }
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
             }
         }
 
@@ -377,11 +410,6 @@ namespace RX_Explorer
                     }
                 }
             }
-        }
-
-        private async void SettingControl_Loading(FrameworkElement sender, object args)
-        {
-            await InitializeAsync();
         }
 
         public async Task InitializeAsync()
@@ -573,103 +601,6 @@ namespace RX_Explorer
                     SyncLocker.Release();
                 }
             });
-        }
-
-        public async Task Show()
-        {
-            if (IsAnimating)
-            {
-                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 2000));
-            }
-
-            if (!IsOpened)
-            {
-                try
-                {
-                    IsAnimating = true;
-
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Scroll.ChangeView(null, 0, null, true);
-
-                        ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
-                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 300, false);
-                    }
-
-                    Visibility = Visibility.Visible;
-
-                    if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
-                    {
-                        PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
-                    }
-
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
-                    }
-
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        await Task.Delay(800);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
-                }
-                finally
-                {
-                    IsAnimating = false;
-                    IsOpened = true;
-                }
-            }
-        }
-
-        public async Task Hide()
-        {
-            if (IsAnimating)
-            {
-                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 2000));
-            }
-
-            if (IsOpened)
-            {
-                try
-                {
-                    IsAnimating = true;
-
-                    if (TabViewContainer.CurrentNavigationControl is Frame Fra)
-                    {
-                        if (Fra.Content is Control Con)
-                        {
-                            Con.Focus(FocusState.Programmatic);
-                        }
-
-                        MainPage.Current.NavView.IsBackEnabled = Fra.CanGoBack;
-                    }
-
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 300, true);
-                        ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
-                    }
-
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        await Task.Delay(800);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
-                }
-                finally
-                {
-                    Visibility = Visibility.Collapsed;
-                    IsAnimating = false;
-                    IsOpened = false;
-                }
-            }
         }
 
         private void ActivateAnimation(UIElement Element, TimeSpan Duration, TimeSpan DelayTime, float VerticalOffset, bool IsReverse)
@@ -3221,5 +3152,6 @@ namespace RX_Explorer
                 }
             }
         }
+
     }
 }

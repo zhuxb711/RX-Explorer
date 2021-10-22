@@ -252,6 +252,9 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\SettingDialog.xaml.cs">
+      <DependentUpon>SettingDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\TextEncodingDialog.xaml.cs">
       <DependentUpon>TextEncodingDialog.xaml</DependentUpon>
     </Compile>
@@ -384,9 +387,6 @@
     </Compile>
     <Compile Include="View\SecureAreaContainer.xaml.cs">
       <DependentUpon>SecureAreaContainer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SettingControl.xaml.cs">
-      <DependentUpon>SettingControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TabViewContainer.xaml.cs">
       <DependentUpon>TabViewContainer.xaml</DependentUpon>
@@ -668,6 +668,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\SettingDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\SystemInfoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -744,10 +748,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SettingControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\TabViewContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -819,22 +819,22 @@
       <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Connectivity">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Animations">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Media">
-      <Version>7.1.0</Version>
+      <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.7.0</Version>

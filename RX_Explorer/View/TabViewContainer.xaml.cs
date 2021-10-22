@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -162,7 +163,7 @@ namespace RX_Explorer
         {
             if (MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                && SettingControl.IsTabPreviewEnabled)
+                && SettingDialog.Current.IsTabPreviewEnabled)
             {
                 try
                 {
@@ -319,7 +320,7 @@ namespace RX_Explorer
 
                                 switch (args.VirtualKey)
                                 {
-                                    case VirtualKey.Space when SettingControl.IsQuicklookEnabled:
+                                    case VirtualKey.Space when SettingDialog.Current.IsQuicklookEnabled:
                                         {
                                             args.Handled = true;
 
@@ -670,7 +671,7 @@ namespace RX_Explorer
                 CommonAccessCollection.LoadDriveAsync()
             };
 
-            if (SettingControl.LibraryExpanderIsExpanded)
+            if (SettingDialog.Current.LibraryExpanderIsExpanded)
             {
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
@@ -782,7 +783,7 @@ namespace RX_Explorer
 
         private void Item_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (SettingControl.IsTabPreviewEnabled)
+            if (SettingDialog.Current.IsTabPreviewEnabled)
             {
                 DelayPreviewCancel?.Cancel();
                 DelayPreviewCancel?.Dispose();
@@ -919,7 +920,7 @@ namespace RX_Explorer
                 }
 
                 TaskBarController.SetText(Convert.ToString(Item.Header));
-                MainPage.Current.NavView.IsBackEnabled = (MainPage.Current.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
+                MainPage.Current.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
             }
         }
 

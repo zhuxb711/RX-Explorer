@@ -167,11 +167,11 @@ namespace RX_Explorer
         {
             if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
             {
-                TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(Scale * ActualWidth);
+                TreeViewGridCol.Width = SettingDialog.Current.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(Scale * ActualWidth);
             }
             else
             {
-                TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+                TreeViewGridCol.Width = SettingDialog.Current.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
             }
 
             if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
@@ -501,7 +501,7 @@ namespace RX_Explorer
 
                             if (QuickAccessNode.IsExpanded)
                             {
-                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
                                 if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                                 {
@@ -561,7 +561,7 @@ namespace RX_Explorer
                         {
                             if (FolderTree.RootNodes.Select((Node) => Node.Content).OfType<TreeViewNodeContent>().All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                             {
-                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
                                 TreeViewNode RootNode;
 
@@ -657,7 +657,7 @@ namespace RX_Explorer
                     {
                         if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
+                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
                             {
                                 if (task.Exception is Exception Ex)
                                 {
@@ -728,7 +728,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                 {
-                    IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
+                    IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder);
 
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -739,7 +739,7 @@ namespace RX_Explorer
                                 TreeViewNode NewNode = new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(DeviceFolder.Path),
-                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder)
                                 };
 
                                 Node.Children.Add(NewNode);
@@ -768,7 +768,7 @@ namespace RX_Explorer
                                 {
                                     Content = new TreeViewNodeContent(Folder),
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder)
                                 };
 
                                 args.Node.Children.Add(LibNode);
@@ -779,14 +779,14 @@ namespace RX_Explorer
                                 {
                                     Content = new TreeViewNodeContent(LibFolder.Path),
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                    HasUnrealizedChildren = await LibFolder.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder)
                                 };
 
                                 args.Node.Children.Add(LibNode);
                             }
                         }
                     }
-                    else if (!SettingControl.LibraryExpanderIsExpanded)
+                    else if (!SettingDialog.Current.LibraryExpanderIsExpanded)
                     {
                         await CommonAccessCollection.LoadLibraryFoldersAsync();
                     }
@@ -1219,7 +1219,7 @@ namespace RX_Explorer
                 SearchInEverythingEngine.IsEnabled = false;
             }
 
-            SearchOptions Options = SettingControl.SearchEngineMode switch
+            SearchOptions Options = SettingDialog.Current.SearchEngineMode switch
             {
                 SearchEngineFlyoutMode.UseBuildInEngineAsDefault => SearchOptions.LoadSavedConfiguration(SearchCategory.BuiltInEngine),
                 SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled => SearchOptions.LoadSavedConfiguration(SearchCategory.EverythingEngine),
@@ -1501,7 +1501,7 @@ namespace RX_Explorer
 
                                 if (await CurrentPresenter.DisplayItemsInFolder(Folder))
                                 {
-                                    if (SettingControl.IsPathHistoryEnabled)
+                                    if (SettingDialog.Current.IsPathHistoryEnabled)
                                     {
                                         SQLite.Current.SetPathHistory(Folder.Path);
                                     }
@@ -1591,8 +1591,8 @@ namespace RX_Explorer
                                 if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder ParentFolder)
                                 {
                                     IReadOnlyList<FileSystemStorageItemBase> Result = string.IsNullOrEmpty(FileName)
-                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)
-                                                                                      : await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, 20)
+                                                                                      : await ParentFolder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
                                     if (args.CheckCurrent())
                                     {
@@ -1858,7 +1858,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                     {
-                        foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder))
+                        foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder))
                         {
                             AddressExtentionList.Add(new AddressBlock(SubFolder.Path));
                         }

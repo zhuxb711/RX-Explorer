@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -819,7 +820,7 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
                     List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                     List<string> AddList = FolderList.Except(PathList).ToList();
                     List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -833,7 +834,7 @@ namespace RX_Explorer.Class
                                 Node.Children.Add(new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder),
                                     IsExpanded = false
                                 });
                             }
@@ -855,7 +856,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems, BasicFilters.Folder);
                 }
             }
         }

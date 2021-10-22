@@ -1,5 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using Microsoft.Win32.SafeHandles;
+﻿using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -14,9 +14,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -101,7 +99,7 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
-        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.All;
+        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingDialog.Current.ContentLoadMode == LoadMode.OnlyFile) || SettingDialog.Current.ContentLoadMode == LoadMode.All;
 
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 

@@ -1,20 +1,18 @@
-﻿<UserControl x:Class="RX_Explorer.SettingControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Cls="using:RX_Explorer.Class"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
-             xmlns:sys="using:System"
-             xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
-             xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
-             xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
-             mc:Ignorable="d"
-             d:DesignHeight="3500"
-             d:DesignWidth="1280">
-
-    <UserControl.Resources>
+﻿<Cls:QueueContentDialog xmlns:Cls="using:RX_Explorer.Class"
+                        x:Class="RX_Explorer.Dialog.SettingDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+                        xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
+                        xmlns:sys="using:System"
+                        xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+                        xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
+                        xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+                        mc:Ignorable="d"
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}">
+    <Cls:QueueContentDialog.Resources>
         <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
 
@@ -24,7 +22,7 @@
                           x:Uid="SettingPageColorPickerTip"
                           Target="{x:Bind AcrylicColor}">
             <muxc:TeachingTip.Content>
-                <control:ColorPicker ColorSpectrumShape="Box"
+                <muxc:ColorPicker ColorSpectrumShape="Box"
                                      IsAlphaEnabled="True"
                                      Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
                                      x:Name="AcrylicColorPicker" />
@@ -138,27 +136,39 @@
                               Click="DeletePictureButton_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-    </UserControl.Resources>
+    </Cls:QueueContentDialog.Resources>
+    <Grid x:Name="RootGrid">
+        <Pivot>
+            <PivotItem Header="{x:Bind Cls:Globalization.GetString('SettingBasicText/Text')}">
+                <StackPanel>
+                    <Border Margin="0,20,0,0"
+                            Padding="20,10"
+                            CornerRadius="{StaticResource ControlCornerRadius}"
+                            Background="{ThemeResource SystemAltHighColor}">
+                        <RelativePanel>
+                            <TextBlock Text="文件夹目录树"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.LeftOf="TreeViewDetach" />
+                            <ToggleSwitch OnContent="启用"
+                                          OffContent="隐藏"
+                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                          RelativePanel.AlignRightWithPanel="True"
+                                          RelativePanel.AlignVerticalCenterWithPanel="True"
+                                          x:Name="TreeViewDetach" />
+                        </RelativePanel>
+                    </Border>
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
 
-    <Grid x:Name="Gr"
-          Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
         <ScrollViewer IsVerticalScrollChainingEnabled="True"
                       Padding="20"
                       x:Name="Scroll">
             <StackPanel Name="LeftPanel"
                         ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                <TextBlock Text="基本"
-                           FontSize="22"
-                           x:Uid="SettingBasicText" />
 
-                <ToggleSwitch Margin="0,20,0,0"
-                              Header="文件夹目录树"
-                              OnContent="启用"
-                              OffContent="隐藏"
-                              x:Name="TreeViewDetach"
-                              x:Uid="SettingTreeViewDetach" />
-
-                <ToggleSwitch Margin="0,20,0,0"
+                <ToggleSwitch Margin="0,100,0,0"
                               Header="导航视图布局"
                               OnContent="左侧"
                               OffContent="顶端"
@@ -172,7 +182,7 @@
                               OffContent="禁用"
                               x:Uid="SettingTabPreview"
                               Name="TabPreviewSwitch"
-                              Toggled="TabPreviewSwitch_Toggled"/>
+                              Toggled="TabPreviewSwitch_Toggled" />
 
                 <ToggleSwitch Margin="0,20,0,0"
                               Header="显示隐藏文件/文件夹"
@@ -239,7 +249,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                
+
                 <TextBlock Text="高级"
                            x:Uid="SettingAdvance"
                            FontSize="22"
@@ -374,7 +384,7 @@
                           x:Uid="SettingPageSearchEngineConfig"
                           Name="SearchEngineConfig"
                           Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                          SelectionChanged="SearchEngineConfig_SelectionChanged"/>
+                          SelectionChanged="SearchEngineConfig_SelectionChanged" />
 
                 <control:SwitchPresenter Value="{x:Bind SearchEngineConfig.SelectedItem,Mode=OneWay}"
                                          ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
@@ -452,7 +462,7 @@
                                           Padding="8,0"
                                           VerticalContentAlignment="Center"
                                           x:Uid="SearchEngineUseRegex"
-                                          x:Name="EverythingEngineIncludeRegex"/>
+                                          x:Name="EverythingEngineIncludeRegex" />
                                 <CheckBox Content="全局搜索"
                                           Padding="8,0"
                                           VerticalContentAlignment="Center"
@@ -464,7 +474,7 @@
                         </StackPanel>
                     </control:Case>
                 </control:SwitchPresenter>
-                
+
                 <ComboBox Header="图标加载模式"
                           Margin="0,20,0,0"
                           MinWidth="150"
@@ -783,7 +793,8 @@
                                                   ScrollViewer.HorizontalScrollMode="Enabled"
                                                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                                   ScrollViewer.VerticalScrollMode="Disabled"
-                                                  SelectionChanged="PictureGirdView_SelectionChanged">
+                                                  SelectionChanged="PictureGirdView_SelectionChanged"
+                                                  ItemsSource="{x:Bind PictureList}">
                                             <GridView.ItemTemplate>
                                                 <DataTemplate x:DataType="Cls:BackgroundPicture">
                                                     <Image Width="70"
@@ -921,7 +932,7 @@
                                                IsTextSelectionEnabled="True"
                                                TextTrimming="CharacterEllipsis"
                                                VerticalAlignment="Center"
-                                               Padding="0,0,5,0"/>
+                                               Padding="0,0,5,0" />
                                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Style="{ThemeResource ButtonRevealStyle}"
                                             Content="删除"
@@ -939,7 +950,7 @@
                 <TextBlock Text="隐私"
                            FontSize="22"
                            x:Uid="SettingPrivacy"
-                           Margin="0,30,0,0"/>
+                           Margin="0,30,0,0" />
 
                 <ToggleSwitch Header="路径历史记录"
                               Margin="0,20,0,0"
@@ -947,15 +958,15 @@
                               OffContent="清除"
                               x:Uid="SettingPathHistory"
                               Name="PathHistory"
-                              Toggled="PathHistory_Toggled"/>
+                              Toggled="PathHistory_Toggled" />
 
                 <ToggleSwitch Header="搜索历史记录"
                               Margin="0,20,0,0"
                               OnContent="保存"
                               OffContent="清除"
                               x:Uid="SettingSearchHistory"
-                              Name="SearchHistory" 
-                              Toggled="SearchHistory_Toggled"/>
+                              Name="SearchHistory"
+                              Toggled="SearchHistory_Toggled" />
 
                 <TextBlock Text="版本"
                            x:Uid="SettingVersion"
@@ -977,7 +988,8 @@
                                           Glyph="&#xE930;" />
                             </Viewbox>
                             <StackPanel Margin="10,0,0,0">
-                                <TextBlock x:Name="Version" />
+                                <TextBlock x:Name="VersionText"
+                                           Text="{x:Bind Version}"/>
                                 <TextBlock Foreground="Gray"
                                            FontSize="12"
                                            Text="{x:Bind Cls:Globalization.GetString('UpdateLatest')}"
@@ -1087,8 +1099,8 @@
                             <Flyout Placement="Bottom">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
-                                        <Setter Property="CornerRadius" 
-                                                Value="{StaticResource CustomCornerRadius}"/>
+                                        <Setter Property="CornerRadius"
+                                                Value="{StaticResource CustomCornerRadius}" />
                                         <Setter Property="Background"
                                                 Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                     </Style>
@@ -1324,4 +1336,4 @@
             </StackPanel>
         </control:Loading>
     </Grid>
-</UserControl>
+</Cls:QueueContentDialog>

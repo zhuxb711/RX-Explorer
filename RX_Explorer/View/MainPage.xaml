@@ -442,10 +442,6 @@
                            Navigated="Nav_Navigated"
                            x:FieldModifier="public"
                            Grid.RowSpan="2" />
-                    <local:SettingControl x:Name="SettingControl"
-                                          Visibility="Collapsed"
-                                          x:FieldModifier="public"
-                                          Grid.RowSpan="2" />
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

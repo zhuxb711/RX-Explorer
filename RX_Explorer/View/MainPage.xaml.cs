@@ -96,7 +96,7 @@ namespace RX_Explorer
             }
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
-            NavView.PaneDisplayMode = SettingControl.LayoutMode;
+            NavView.PaneDisplayMode = SettingDialog.Current.LayoutMode;
 
             if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
             {
@@ -213,7 +213,7 @@ namespace RX_Explorer
                     BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
                 }
 
-                await SettingControl.InitializeAsync();
+                await SettingDialog.Current.InitializeAsync();
             });
         }
 
@@ -884,7 +884,7 @@ namespace RX_Explorer
                 {
                     NavView.IsBackEnabled = true;
 
-                    await SettingControl.Show();
+                    await SettingDialog.Current.ShowAsync();
                 }
                 else
                 {
@@ -892,17 +892,14 @@ namespace RX_Explorer
 
                     if (InvokeString == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                     {
-                        await SettingControl.Hide();
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                     {
-                        await SettingControl.Hide();
                         Nav.Navigate(typeof(SecureAreaContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
                     {
-                        await SettingControl.Hide();
                         Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (InvokeString == Globalization.GetString("MainPage_QuickStart_Label"))
@@ -962,48 +959,28 @@ namespace RX_Explorer
             }
         }
 
-        public async void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        public void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             try
             {
-                if (SettingControl.IsOpened || SettingControl.IsAnimating)
+                if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                 {
-                    if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                    if ((TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault())
                     {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
+                        TabViewContainer.CurrentNavigationControl.GoBack();
                     }
-                    else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
-                    {
-                        NavView.IsBackEnabled = (SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault();
-                    }
-                    else
-                    {
-                        NavView.IsBackEnabled = false;
-                    }
-
-                    if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
-                    {
-                        Item.IsSelected = true;
-                    }
-
-                    await SettingControl.Hide();
                 }
-                else
+                else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
                 {
-                    if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                    if ((SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault())
                     {
-                        if ((TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault())
-                        {
-                            TabViewContainer.CurrentNavigationControl.GoBack();
-                        }
+                        SecureAreaContainer.Current.Nav.GoBack();
                     }
-                    else if (Nav.CurrentSourcePageType == typeof(SecureAreaContainer))
-                    {
-                        if ((SecureAreaContainer.Current.Nav?.CanGoBack).GetValueOrDefault())
-                        {
-                            SecureAreaContainer.Current.Nav.GoBack();
-                        }
-                    }
+                }
+
+                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
+                {
+                    Item.IsSelected = true;
                 }
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+      xmlns:Dialog="using:RX_Explorer.Dialog"
       mc:Ignorable="d"
       Background="Transparent">
 
@@ -220,7 +221,7 @@
                                    VerticalAlignment="Stretch"
                                    AllowFocusOnInteraction="False"
                                    Background="Transparent"
-                                   IsExpanded="{x:Bind local:SettingControl.LibraryExpanderIsExpanded,Mode=TwoWay}"
+                                   IsExpanded="{x:Bind Dialog:SettingDialog.Current.LibraryExpanderIsExpanded,Mode=TwoWay}"
                                    Expanded="LibraryExpander_Expanded"
                                    Collapsed="LibraryExpander_Collapsed"
                                    ExpandDirection="Down"
@@ -319,7 +320,7 @@
                                    Background="Transparent"
                                    VerticalAlignment="Stretch"
                                    HorizontalContentAlignment="Stretch"
-                                   IsExpanded="{x:Bind local:SettingControl.DeviceExpanderIsExpanded,Mode=TwoWay}"
+                                   IsExpanded="{x:Bind Dialog:SettingDialog.Current.DeviceExpanderIsExpanded,Mode=TwoWay}"
                                    ExpandDirection="Down"
                                    Expanded="DeviceExpander_Expanded"
                                    Collapsed="DeviceExpander_Collapsed"
