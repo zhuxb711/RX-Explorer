@@ -57,7 +57,7 @@
   <data name="AttributeType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+  <data name="AutoBootOnStartupLabel.Text" xml:space="preserve">
     <value>Lancement au démarrage</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
@@ -541,7 +541,7 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basique</value>
   </data>
-  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>Méthode d'ouverture de dossier</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
@@ -766,7 +766,7 @@
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>Partage par WiFi</value>
   </data>
-  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+  <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
     <value>Arborescence des dossiers</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
@@ -784,7 +784,7 @@
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>Quicklook</value>
   </data>
-  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+  <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorateur et appuyer sur la barre d'espace pour activer QuickLook</value>
   </data>
   <data name="AppName.Text" xml:space="preserve">
@@ -793,7 +793,7 @@
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personnalisé</value>
   </data>
-  <data name="LanguageComboBox.Header" xml:space="preserve">
+  <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Langue</value>
   </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
@@ -1684,7 +1684,7 @@
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>Supprimer les attributs masqués</value>
   </data>
-  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+  <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
     <value>Afficher les fichiers/dossiers</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
@@ -1720,7 +1720,7 @@
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>Impossible de restaurer Win + E en raison d'une erreur inattendue</value>
   </data>
-  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+  <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Utilisez [Win+E] pour activer l'application</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
@@ -2753,21 +2753,6 @@ Les noms non valides incluent
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Étiquette violette</value>
   </data>
-  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
-    <value>Y a-t-il un problème? Essayez ce qui suit</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
-    <value>Cliquez ici pour aller</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
-    <value>Cliquez ici pour exporter</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
-    <value>1. Comment ouvrir le Win+E manuellement? Lien du didacticiel:</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
-    <value>2. Comment restaurer manuellement Win+E? Restaurer le fichier:</value>
-  </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algorithme de compression</value>
   </data>
@@ -2938,7 +2923,7 @@ Les noms non valides incluent
   <data name="AttributeVersion.Text" xml:space="preserve">
     <value>Version</value>
   </data>
-  <data name="AlwaysOnTop.Header" xml:space="preserve">
+  <data name="AlwaysOnTopLabel.Text" xml:space="preserve">
     <value>Toujours au top</value>
   </data>
   <data name="AlwaysOnTop.OffContent" xml:space="preserve">
@@ -3028,7 +3013,7 @@ Les noms non valides incluent
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Utilisez toujours le moteur de recherche "Everything"</value>
   </data>
-  <data name="SettingNavLayout.Header" xml:space="preserve">
+  <data name="SettingNavLayoutLabel.Text" xml:space="preserve">
     <value>Disposition de la vue de navigation</value>
   </data>
   <data name="SettingNavLayout.OffContent" xml:space="preserve">
@@ -3134,7 +3119,7 @@ Les noms non valides incluent
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</value>
   </data>
-  <data name="SettingTabPreview.Header" xml:space="preserve">
+  <data name="SettingTabPreviewLabel.Text" xml:space="preserve">
     <value>Aperçu de l'onglet</value>
   </data>
   <data name="SettingTabPreview.OffContent" xml:space="preserve">
@@ -3233,7 +3218,7 @@ Les noms non valides incluent
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>De retour à la maison</value>
   </data>
-  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+  <data name="FontFamilyComboBoxLabel.Text" xml:space="preserve">
     <value>Famille de polices</value>
   </data>
   <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">

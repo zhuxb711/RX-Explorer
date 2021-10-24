@@ -162,7 +162,7 @@
   <data name="AttributeType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+  <data name="AutoBootOnStartupLabel.Text" xml:space="preserve">
     <value>Auto start at boot</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
@@ -667,7 +667,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basic</value>
   </data>
-  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>Folder open method</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
@@ -920,7 +920,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="CompressDialogName.Header" xml:space="preserve">
     <value>File name</value>
   </data>
-  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+  <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
     <value>Folder tree</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
@@ -938,7 +938,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>Quicklook</value>
   </data>
-  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+  <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</value>
   </data>
   <data name="AppName.Text" xml:space="preserve">
@@ -947,7 +947,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personalize</value>
   </data>
-  <data name="LanguageComboBox.Header" xml:space="preserve">
+  <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Language</value>
   </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
@@ -1850,7 +1850,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>Remove hidden attributes</value>
   </data>
-  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+  <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
     <value>Show hidden files/folders</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
@@ -1886,7 +1886,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>Unable to restore Win+E due to an unexpected error</value>
   </data>
-  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+  <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Use [Win+E] to activate this app</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
@@ -2879,21 +2879,6 @@ Invalid names include
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>Tag</value>
   </data>
-  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
-    <value>Is there a problem? Try the following</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
-    <value>Click here to go</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
-    <value>Click here to export</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
-    <value>1. How to open the Win+E manually? Tutorial link:</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
-    <value>2. How to manually restore Win+E? Restore file:</value>
-  </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Compression algorithm</value>
   </data>
@@ -3058,7 +3043,7 @@ Invalid names include
   <data name="AttributeVersion.Text" xml:space="preserve">
     <value>Version</value>
   </data>
-  <data name="AlwaysOnTop.Header" xml:space="preserve">
+  <data name="AlwaysOnTopLabel.Text" xml:space="preserve">
     <value>Always On Top</value>
   </data>
   <data name="AlwaysOnTop.OffContent" xml:space="preserve">
@@ -3139,7 +3124,7 @@ Invalid names include
   <data name="UpdateLatest" xml:space="preserve">
     <value>Already the latest version</value>
   </data>
-  <data name="SettingNavLayout.Header" xml:space="preserve">
+  <data name="SettingNavLayoutLabel.Text" xml:space="preserve">
     <value>Navigation view layout</value>
   </data>
   <data name="SettingNavLayout.OffContent" xml:space="preserve">
@@ -3242,7 +3227,7 @@ Invalid names include
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</value>
   </data>
-  <data name="SettingTabPreview.Header" xml:space="preserve">
+  <data name="SettingTabPreviewLabel.Text" xml:space="preserve">
     <value>Tab preview</value>
   </data>
   <data name="SettingTabPreview.OffContent" xml:space="preserve">
@@ -3338,7 +3323,7 @@ Invalid names include
   <data name="Device_Type_2" xml:space="preserve">
     <value>CD-ROM drive</value>
   </data>
-  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+  <data name="FontFamilyComboBoxLabel.Text" xml:space="preserve">
     <value>Font family</value>
   </data>
   <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">

@@ -57,7 +57,7 @@
   <data name="AttributeType.Text" xml:space="preserve">
     <value>类型</value>
   </data>
-  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+  <data name="AutoBootOnStartupLabel.Text" xml:space="preserve">
     <value>随系统自动启动</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
@@ -541,7 +541,7 @@
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>基本</value>
   </data>
-  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>文件夹打开方式</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
@@ -766,7 +766,7 @@
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>WiFi共享</value>
   </data>
-  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+  <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
     <value>文件夹目录树</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
@@ -784,7 +784,7 @@
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>Quicklook预览</value>
   </data>
-  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+  <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</value>
   </data>
   <data name="AppName.Text" xml:space="preserve">
@@ -793,7 +793,7 @@
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>个性化</value>
   </data>
-  <data name="LanguageComboBox.Header" xml:space="preserve">
+  <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>语言</value>
   </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
@@ -1684,7 +1684,7 @@
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>尝试移除隐藏属性</value>
   </data>
-  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+  <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
     <value>显示隐藏文件/文件夹</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
@@ -1720,7 +1720,7 @@
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>由于出现了意外错误，无法还原Win+E键</value>
   </data>
-  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+  <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>使用[Win+E]激活此应用</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
@@ -2753,21 +2753,6 @@
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>紫色标记</value>
   </data>
-  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
-    <value>存在问题? 尝试以下方法</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
-    <value>点击这里前往</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
-    <value>点击这里导出</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
-    <value>1. 如何手动开启Win+E? 教程链接:</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
-    <value>2. 如何手动还原Win+E? 还原文件:</value>
-  </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>压缩算法</value>
   </data>
@@ -2938,7 +2923,7 @@
   <data name="AttributeVersion.Text" xml:space="preserve">
     <value>版本</value>
   </data>
-  <data name="AlwaysOnTop.Header" xml:space="preserve">
+  <data name="AlwaysOnTopLabel.Text" xml:space="preserve">
     <value>悬浮于其他应用之上</value>
   </data>
   <data name="AlwaysOnTop.OffContent" xml:space="preserve">
@@ -3028,7 +3013,7 @@
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>始终使用Everything搜索引擎</value>
   </data>
-  <data name="SettingNavLayout.Header" xml:space="preserve">
+  <data name="SettingNavLayoutLabel.Text" xml:space="preserve">
     <value>导航视图布局</value>
   </data>
   <data name="SettingNavLayout.OffContent" xml:space="preserve">
@@ -3134,7 +3119,7 @@
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>一个强制更新已发布，这表明您正在使用的版本可能存在严重问题，请停止使用当前版本并尽快更新至最新版</value>
   </data>
-  <data name="SettingTabPreview.Header" xml:space="preserve">
+  <data name="SettingTabPreviewLabel.Text" xml:space="preserve">
     <value>标签页预览</value>
   </data>
   <data name="SettingTabPreview.OffContent" xml:space="preserve">
@@ -3233,7 +3218,7 @@
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回主页</value>
   </data>
-  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+  <data name="FontFamilyComboBoxLabel.Text" xml:space="preserve">
     <value>字体</value>
   </data>
   <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">

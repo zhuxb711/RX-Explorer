@@ -66,7 +66,7 @@
           <source>Type</source>
           <target state="translated">Typ</target>
         </trans-unit>
-        <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AutoBootOnStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>Auto start at boot</source>
           <target state="translated">Autostart beim Hochfahren</target>
         </trans-unit>
@@ -732,7 +732,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Basic</source>
           <target state="translated">Grundlegend</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Ordneröffnungsmethode</target>
         </trans-unit>
@@ -1069,7 +1069,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>File name</source>
           <target state="translated">Dateiname</target>
         </trans-unit>
-        <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTreeViewDetachLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder tree</source>
           <target state="translated">Ordnerbaum</target>
         </trans-unit>
@@ -1093,7 +1093,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Quicklook</source>
           <target state="translated">Quicklook</target>
         </trans-unit>
-        <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook ist eine Hilfssoftware für die bequeme und schnelle Anzeige von Dateiinhalten. Um diese Funktion zu aktivieren, müssen Sie QuickLook im Voraus installieren und sicherstellen, dass QuickLook ordnungsgemäß funktioniert. Sie können auf eine beliebige Datei im RX Explorer klicken und die Leertaste drücken, um QuickLook zu aktivieren.</target>
         </trans-unit>
@@ -1105,7 +1105,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Personalize</source>
           <target state="translated">Personalisieren</target>
         </trans-unit>
-        <trans-unit id="LanguageComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="LanguageComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Language</source>
           <target state="translated">Sprache</target>
         </trans-unit>
@@ -2297,7 +2297,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Remove hidden attributes</source>
           <target state="translated">Ausgeblendete Eigenschaften entfernen</target>
         </trans-unit>
-        <trans-unit id="SettingDisplayHiddenItem.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
           <source>Show hidden files/folders</source>
           <target state="translated">Ausgeblendete Dateien/Ordner anzeigen</target>
         </trans-unit>
@@ -2345,7 +2345,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Unable to restore Win+E due to an unexpected error</source>
           <target state="translated">Die Win+E Tastenkombination konnte wegen eines unerwarteten Fehlers nicht zurückgesetzt werden.</target>
         </trans-unit>
-        <trans-unit id="UseWinAndEActivate.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
           <source>Use [Win+E] to activate this app</source>
           <target state="translated">Win+E benutzen um diese App zu öffnen</target>
         </trans-unit>
@@ -3652,26 +3652,6 @@ Inkorrekte Namen sind
           <source>Purple tag</source>
           <target state="translated">Lila Etikett</target>
         </trans-unit>
-        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
-          <source>Is there a problem? Try the following</source>
-          <target state="translated">Gibt es ein Problem? Versuche Folgendes</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
-          <source>Click here to go</source>
-          <target state="translated">Klicken Sie hier, um zu gehen</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
-          <source>Click here to export</source>
-          <target state="translated">Klicken Sie hier zum Exportieren</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
-          <source>1. How to open the Win+E manually? Tutorial link:</source>
-          <target state="translated">1. Wie öffne ich Win+E manuell? Tutorial Link:</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
-          <source>2. How to manually restore Win+E? Restore file:</source>
-          <target state="translated">2. Wie kann man Win+E manuell wiederherstellen? Datei wiederherstellen:</target>
-        </trans-unit>
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">Komprimierungsalgorithmus</target>
@@ -3898,7 +3878,7 @@ Inkorrekte Namen sind
           <source>Version</source>
           <target state="translated">Fassung</target>
         </trans-unit>
-        <trans-unit id="AlwaysOnTop.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AlwaysOnTopLabel.Text" translate="yes" xml:space="preserve">
           <source>Always On Top</source>
           <target state="translated">Immer oben</target>
         </trans-unit>
@@ -4018,7 +3998,7 @@ Inkorrekte Namen sind
           <source>Always use the Everything search engine</source>
           <target state="translated">Verwenden Sie immer die Suchmaschine "Everything"</target>
         </trans-unit>
-        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingNavLayoutLabel.Text" translate="yes" xml:space="preserve">
           <source>Navigation view layout</source>
           <target state="translated">Layout der Navigationsansicht</target>
         </trans-unit>
@@ -4159,7 +4139,7 @@ Inkorrekte Namen sind
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</target>
         </trans-unit>
-        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTabPreviewLabel.Text" translate="yes" xml:space="preserve">
           <source>Tab preview</source>
           <target state="translated">Registerkarten Vorschau</target>
         </trans-unit>
@@ -4291,7 +4271,7 @@ Inkorrekte Namen sind
           <source>Back to Home</source>
           <target state="translated">Zurück zur Startseite</target>
         </trans-unit>
-        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="FontFamilyComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">Schriftfamilie</target>
         </trans-unit>

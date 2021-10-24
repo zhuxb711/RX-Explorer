@@ -492,6 +492,11 @@ namespace RX_Explorer
                     await EntranceAnimationPreloadTask;
                 }
 
+                if (NavView.SettingsItem is NavigationViewItem SettingItem)
+                {
+                    SettingItem.SelectsOnInvoked = false;
+                }
+
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
                 if (AnimationController.Current.IsDisableStartupAnimation)

@@ -11,10 +11,16 @@
                         xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
                         xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
                         mc:Ignorable="d"
-                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}">
+                        Style="{ThemeResource CustomContentDialogStyle}">
     <Cls:QueueContentDialog.Resources>
         <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
+       
+        <StaticResource x:Key="ExpanderHeaderBackground"
+                        ResourceKey="SystemControlAcrylicElementMediumHighBrush" />
+
+        <SolidColorBrush x:Key="ExpanderContentBackground" 
+                         Color="Transparent"/>
 
         <muxc:TeachingTip x:Name="ColorPickerTeachTip"
                           IsLightDismissEnabled="True"
@@ -78,53 +84,12 @@
             </StackPanel>
         </muxc:TeachingTip>
 
-        <muxc:TeachingTip x:Name="QuicklookTip"
-                          IsLightDismissEnabled="True"
-                          PreferredPlacement="TopRight"
-                          x:Uid="QuicklookTip"
-                          Target="{x:Bind QuicklookQuestion}"
-                          Title="QuickLook"
-                          Subtitle="QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook" />
-
         <muxc:TeachingTip x:Name="PreventFallbackTip"
                           IsLightDismissEnabled="True"
                           x:Uid="SettingPagePreventFallbackTip"
                           Target="{x:Bind PreventFallBackQuestion}"
                           Title="Acrylic省电模式"
                           Subtitle="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担" />
-
-        <muxc:TeachingTip x:Name="WIN_E_Tip"
-                          IsLightDismissEnabled="True"
-                          PreferredPlacement="Right"
-                          Target="{x:Bind WIN_E_Question}"
-                          x:Uid="SettingPageWinEQuestion"
-                          Title="存在问题?尝试以下方法">
-            <StackPanel>
-                <StackPanel>
-                    <TextBlock Text="1. 如何手动开启Win+E? 教程链接:"
-                               x:Uid="SettingPageWinEQuestionLine1"
-                               TextWrapping="WrapWholeWords"
-                               VerticalAlignment="Center" />
-                    <HyperlinkButton Content="点击这里前往"
-                                     Margin="15,0,0,0"
-                                     x:Uid="SettingPageWinEQuestionAction1"
-                                     VerticalAlignment="Center"
-                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues/27#issuecomment-692418152" />
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="2. 如何手动还原Win+E? 还原文件:"
-                               x:Uid="SettingPageWinEQuestionLine2"
-                               TextWrapping="WrapWholeWords"
-                               VerticalAlignment="Center" />
-                    <HyperlinkButton Content="点击这里导出"
-                                     Margin="15,0,0,0"
-                                     x:Uid="SettingPageWinEQuestionAction2"
-                                     VerticalAlignment="Center"
-                                     Name="ExportWinERestoreFile"
-                                     Click="ExportWinERestoreFile_Click" />
-                </StackPanel>
-            </StackPanel>
-        </muxc:TeachingTip>
 
         <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
                                x:Name="PictureFlyout">
@@ -137,1188 +102,1482 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Cls:QueueContentDialog.Resources>
-    <Grid x:Name="RootGrid">
-        <Pivot>
-            <PivotItem Header="{x:Bind Cls:Globalization.GetString('SettingBasicText/Text')}">
-                <StackPanel>
-                    <Border Margin="0,20,0,0"
-                            Padding="20,10"
-                            CornerRadius="{StaticResource ControlCornerRadius}"
-                            Background="{ThemeResource SystemAltHighColor}">
-                        <RelativePanel>
-                            <TextBlock Text="文件夹目录树"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.LeftOf="TreeViewDetach" />
-                            <ToggleSwitch OnContent="启用"
-                                          OffContent="隐藏"
-                                          Style="{StaticResource SettingToggleSwitchStyle}"
-                                          RelativePanel.AlignRightWithPanel="True"
-                                          RelativePanel.AlignVerticalCenterWithPanel="True"
-                                          x:Name="TreeViewDetach" />
-                        </RelativePanel>
-                    </Border>
-                </StackPanel>
-            </PivotItem>
-        </Pivot>
+    <Grid x:Name="RootGrid"
+          Height="600"
+          Width="800">
+        <muxc:NavigationView Name="SettingNavigation"
+                             PaneDisplayMode="Left"
+                             IsPaneOpen="True"
+                             OpenPaneLength="200"
+                             IsBackButtonVisible="Collapsed"
+                             IsPaneToggleButtonVisible="False"
+                             IsSettingsVisible="False"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             ItemInvoked="SettingNavigation_ItemInvoked">
+            <muxc:NavigationView.Resources>
+                <StaticResource x:Key="NavigationViewContentBackground"
+                                ResourceKey="SystemControlAcrylicElementMediumHighBrush" />
+                <Thickness x:Key="NavigationViewPaneContentGridMargin">5,10</Thickness>
+            </muxc:NavigationView.Resources>
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem IsSelected="True">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE3BC;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingBasicText/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16"/>
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEBD2;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingAdvance/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE2B1;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingPersonalize/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE7E8;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingStartup/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEA18;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingPrivacy/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE930;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingVersion/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE823;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingRecovery/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF0B9;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingOther/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE946;" />
+                    </muxc:NavigationViewItem.Icon>
+                    <muxc:NavigationViewItem.Content>
+                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SettingAbout/Text')}"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="16" />
+                    </muxc:NavigationViewItem.Content>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
+            <control:SwitchPresenter Name="PresenterSwitcher" 
+                                     ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingBasicText/Text')}"
+                              IsDefault="True">
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                                  Padding="20">
+                        <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                            <TextBlock Text="基本"
+                                       x:Uid="SettingBasicText"
+                                       FontSize="18" />
+                            <Border Padding="20,10"
+                                    MinHeight="60"
+                                    Margin="0,10,0,0"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="文件夹目录"
+                                               x:Uid="SettingTreeViewDetachLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="TreeViewDetach" />
+                                    <ToggleSwitch OnContent="启用"
+                                                  OffContent="隐藏"
+                                                  x:Uid="SettingTreeViewDetach"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                  x:Name="TreeViewDetach" />
+                                </RelativePanel>
+                            </Border>
 
-        <ScrollViewer IsVerticalScrollChainingEnabled="True"
-                      Padding="20"
-                      x:Name="Scroll">
-            <StackPanel Name="LeftPanel"
-                        ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                            <Border Margin="0,5,0,0"
+                                    Padding="20,10"
+                                    MinHeight="60"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="导航视图布局"
+                                               x:Uid="SettingNavLayoutLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="NavigationViewLayout" />
+                                    <ToggleSwitch OnContent="左侧"
+                                                  OffContent="顶端"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  x:Uid="SettingNavLayout"
+                                                  Name="NavigationViewLayout"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                  Toggled="NavigationViewLayout_Toggled" />
+                                </RelativePanel>
+                            </Border>
 
-                <ToggleSwitch Margin="0,100,0,0"
-                              Header="导航视图布局"
-                              OnContent="左侧"
-                              OffContent="顶端"
-                              x:Uid="SettingNavLayout"
-                              Name="NavigationViewLayout"
-                              Toggled="NavigationViewLayout_Toggled" />
+                            <Border Margin="0,5,0,0"
+                                    Padding="20,10"
+                                    MinHeight="60"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="标签页预览"
+                                               x:Uid="SettingTabPreviewLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="TabPreviewSwitch" />
+                                    <ToggleSwitch OnContent="启用"
+                                                  OffContent="禁用"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  x:Uid="SettingTabPreview"
+                                                  Name="TabPreviewSwitch"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                  Toggled="TabPreviewSwitch_Toggled" />
+                                </RelativePanel>
+                            </Border>
 
-                <ToggleSwitch Margin="0,20,0,0"
-                              Header="标签页预览"
-                              OnContent="启用"
-                              OffContent="禁用"
-                              x:Uid="SettingTabPreview"
-                              Name="TabPreviewSwitch"
-                              Toggled="TabPreviewSwitch_Toggled" />
-
-                <ToggleSwitch Margin="0,20,0,0"
-                              Header="显示隐藏文件/文件夹"
-                              x:Uid="SettingDisplayHiddenItem"
-                              OnContent="启用"
-                              OffContent="禁用"
-                              Name="DisplayHiddenItem" />
-
-                <StackPanel Orientation="Horizontal"
-                            Name="HideProtectedSystemItemsArea"
-                            Visibility="{x:Bind DisplayHiddenItem.IsOn, Mode=OneWay}">
-                    <Line X1="15"
-                          X2="15"
-                          Y1="3"
-                          Y2="29"
-                          StrokeThickness="3"
-                          Stroke="Gray" />
-                    <CheckBox Content="隐藏受保护的系统文件(推荐)"
-                              Margin="20,0,0,0"
-                              Padding="8,0"
-                              VerticalContentAlignment="Center"
-                              x:Uid="SettingHideProtectedSystemItems"
-                              Name="HideProtectedSystemItems" />
-                </StackPanel>
-
-                <ComboBox Margin="0,20,0,0"
-                          Header="文件夹打开方式"
-                          x:Uid="SettingFolderOpenMethod"
-                          MinWidth="120"
-                          Name="FolderOpenMethod"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                          SelectionChanged="FolderOpenMethod_SelectionChanged" />
-
-                <ComboBox Margin="0,20,0,0"
-                          Header="语言"
-                          MinWidth="150"
-                          Name="LanguageComboBox"
-                          x:Uid="LanguageComboBox"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
-                    <x:String>中文(简体)</x:String>
-                    <x:String>English (United States)</x:String>
-                    <x:String>Français</x:String>
-                    <x:String>中文(繁體)</x:String>
-                    <x:String>Español</x:String>
-                    <x:String>Deutsche</x:String>
-                </ComboBox>
-
-                <ComboBox Header="字体"
-                          Margin="0,20,0,0"
-                          Width="220"
-                          x:Uid="FontFamilyComboBox"
-                          Name="FontFamilyComboBox"
-                          ItemsSource="{x:Bind Cls:FontFamilyController.GetInstalledFontFamily()}"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:InstalledFonts">
-                            <Grid>
-                                <TextBlock Text="{x:Bind Name}"
-                                           FontFamily="{x:Bind Name}"
-                                           ToolTipService.ToolTip="{x:Bind Name}"
-                                           TextTrimming="CharacterEllipsis"
-                                           VerticalAlignment="Center" />
-                            </Grid>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-                <TextBlock Text="高级"
-                           x:Uid="SettingAdvance"
-                           FontSize="22"
-                           Margin="0,30,0,0" />
-
-                <ToggleSwitch Header="随系统自动启动"
-                              OnContent="启用"
-                              OffContent="禁用"
-                              Name="AutoBoot"
-                              x:Uid="AutoBootOnStartup"
-                              Margin="0,20,0,0" />
-
-                <StackPanel Margin="0,20,0,0">
-                    <RelativePanel>
-                        <TextBlock Text="QuickLook预览"
-                                   x:Uid="QuicklookHeader"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                   Name="EnableQuicklookText" />
-                        <Viewbox Margin="10,0,0,0"
-                                 Height="15"
-                                 Name="QuicklookQuestion"
-                                 PointerPressed="QuicklookQuestion_PointerPressed"
-                                 RelativePanel.RightOf="EnableQuicklookText"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True">
-                            <FontIcon Glyph="&#xE9CE;" />
-                        </Viewbox>
-                    </RelativePanel>
-                    <ToggleSwitch x:Uid="EnableQuicklook"
-                                  Margin="0,4,0,0"
-                                  Name="EnableQuicklook"
-                                  Background="Transparent"
-                                  OnContent="启用"
-                                  OffContent="禁用"
-                                  Toggled="EnableQuicklook_Toggled" />
-                </StackPanel>
-                <ToggleSwitch Header="悬浮于其他应用之上"
-                              OnContent="启用"
-                              OffContent="禁用"
-                              Name="AlwaysOnTop"
-                              x:Uid="AlwaysOnTop"
-                              Margin="0,20,0,0" />
-
-                <StackPanel Margin="0,20,0,0">
-                    <RelativePanel>
-                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/Header')}"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                   Name="UseWinAndEActivateText" />
-                        <Viewbox Margin="10,0,0,0"
-                                 Height="15"
-                                 Name="WIN_E_Question"
-                                 PointerPressed="WIN_E_Question_PointerPressed"
-                                 RelativePanel.RightOf="UseWinAndEActivateText"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True">
-                            <FontIcon Glyph="&#xE9CE;" />
-                        </Viewbox>
-                    </RelativePanel>
-                    <ToggleSwitch Name="UseWinAndEActivate"
-                                  Margin="0,4,0,0"
-                                  OnContent="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/OnContent')}"
-                                  OffContent="{x:Bind Cls:Globalization.GetString('UseWinAndEActivate/OffContent')}" />
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal"
-                            Name="AlwaysLaunchNewArea"
-                            Visibility="{x:Bind UseWinAndEActivate.IsOn, Mode=OneWay}">
-                    <Line X1="15"
-                          X2="15"
-                          Y1="3"
-                          Y2="29"
-                          StrokeThickness="3"
-                          Stroke="Gray" />
-                    <CheckBox Content="激活时始终启动新的进程"
-                              Margin="20,0,0,0"
-                              Padding="8,0"
-                              VerticalContentAlignment="Center"
-                              x:Uid="SettingPageAlwaysLaunchNew"
-                              Name="AlwaysLaunchNew"
-                              Checked="AlwaysLaunchNew_Checked"
-                              Unchecked="AlwaysLaunchNew_Unchecked" />
-                </StackPanel>
-
-                <ToggleSwitch Header="扩展右键菜单"
-                              Margin="0,20,0,0"
-                              x:Uid="SettingPageContextMenuExt"
-                              Name="ContextMenuExtSwitch"
-                              Toggled="ContextMenuExtSwitch_Toggled"
-                              OnContent="启用"
-                              OffContent="禁用" />
-
-                <ToggleSwitch Header="弹出删除确认提示框"
-                              Margin="0,20,0,0"
-                              Name="DeleteConfirmSwitch"
-                              x:Uid="DeleteConfirmSwitch"
-                              Toggled="DeleteConfirmSwitch_Toggled"
-                              OnContent="启用"
-                              OffContent="禁用" />
-
-                <StackPanel Orientation="Horizontal"
-                            Name="DeleteConfirmArea">
-                    <Line X1="15"
-                          X2="15"
-                          Y1="3"
-                          Y2="29"
-                          StrokeThickness="3"
-                          Stroke="Gray" />
-                    <CheckBox Margin="20,0,0,0"
-                              Name="AvoidRecycleBin"
-                              Padding="8,0"
-                              VerticalContentAlignment="Center"
-                              Checked="AvoidRecycleBin_Checked"
-                              Unchecked="AvoidRecycleBin_Unchecked">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="16"
-                                     Margin="0,1,0,0"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="&#xE7BA;"
-                                          Foreground="Yellow" />
-                            </Viewbox>
-                            <TextBlock Text="绕过回收站并永久删除"
-                                       Margin="5,0,0,0"
-                                       x:Uid="AvoidRecycleBin" />
-                        </StackPanel>
-                    </CheckBox>
-                </StackPanel>
-
-                <ComboBox Header="搜索引擎配置"
-                          Margin="0,20,0,0"
-                          MinWidth="150"
-                          x:Uid="SettingPageSearchEngineConfig"
-                          Name="SearchEngineConfig"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                          SelectionChanged="SearchEngineConfig_SelectionChanged" />
-
-                <control:SwitchPresenter Value="{x:Bind SearchEngineConfig.SelectedItem,Mode=OneWay}"
-                                         ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseBuildInAsDefault')}">
-                        <StackPanel Orientation="Horizontal"
-                                    Name="DefaultSearchEngineConfig">
-                            <Line X1="15"
-                                  X2="15"
-                                  Y1="8"
-                                  Y2="162"
-                                  StrokeThickness="3"
-                                  Stroke="Gray" />
-                            <StackPanel Margin="20,5,0,0">
-                                <CheckBox Content="忽略大小写"
-                                          x:Uid="SearchEngineIgnoreCase"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                          IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
-                                          x:Name="BuiltInEngineIgnoreCase" />
-                                <CheckBox Content="使用正则表达式"
-                                          x:Uid="SearchEngineUseRegex"
-                                          x:Name="BuiltInEngineIncludeRegex"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
-                                <CheckBox Content="使用高级查询语法(AQS)"
-                                          x:Uid="SearchEngineUseAQS"
-                                          x:Name="BuiltInEngineIncludeAQS"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
-                                <CheckBox Name="BuiltInSearchUseIndexer"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center">
-                                    <RelativePanel HorizontalAlignment="Left">
-                                        <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
-                                                   RelativePanel.AlignLeftWithPanel="True"
+                            <muxc:Expander Margin="0,5,0,0"
+                                           ExpandDirection="Down"
+                                           HorizontalAlignment="Stretch"
+                                           HorizontalContentAlignment="Stretch"
+                                           VerticalContentAlignment="Top"
+                                           Padding="0"
+                                           MinHeight="60"
+                                           Background="Transparent"
+                                           CornerRadius="4,4,0,0">
+                                <muxc:Expander.Header>
+                                    <RelativePanel Padding="4,10,0,10">
+                                        <TextBlock Text="显示隐藏文件"
+                                                   x:Uid="SettingDisplayHiddenItemLabel"
                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                   Name="SearchEngineUseIndexerText" />
-                                        <Viewbox Margin="10,0,0,0"
-                                                 Height="15"
-                                                 Name="IndexerQuestion"
-                                                 RelativePanel.RightOf="SearchEngineUseIndexerText"
-                                                 RelativePanel.AlignVerticalCenterWithPanel="True">
-                                            <FontIcon Glyph="&#xE9CE;"
-                                                      PointerPressed="IndexerQuestion_PointerPressed" />
-                                        </Viewbox>
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.LeftOf="DisplayHiddenItem" />
+                                        <ToggleSwitch OnContent="启用"
+                                                      OffContent="禁用"
+                                                      Style="{StaticResource SettingToggleSwitchStyle}"
+                                                      x:Uid="SettingDisplayHiddenItem"
+                                                      Name="DisplayHiddenItem"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
                                     </RelativePanel>
-                                </CheckBox>
-                                <CheckBox Content="搜索所有子文件夹"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          Name="BuiltInSearchAllSubFolders"
-                                          x:Uid="SearchEngineAllSubFolders" />
-                            </StackPanel>
+                                </muxc:Expander.Header>
+                                <muxc:Expander.Content>
+                                    <Border Margin="0,1,0,0"
+                                            Padding="40,10,14,10"
+                                            MinHeight="45"
+                                            CornerRadius="0,0,4,4"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <CheckBox Content="隐藏受保护的系统文件(推荐)"
+                                                  Padding="8,0"
+                                                  IsEnabled="{x:Bind DisplayHiddenItem.IsOn,Mode=OneWay}"
+                                                  VerticalContentAlignment="Center"
+                                                  x:Uid="SettingHideProtectedSystemItems"
+                                                  Name="HideProtectedSystemItems" />
+                                    </Border>
+                                </muxc:Expander.Content>
+                            </muxc:Expander>
+
+                            <Border Margin="0,5,0,0"
+                                    Padding="20,10"
+                                    MinHeight="60"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="文件夹打开方式"
+                                               x:Uid="SettingFolderOpenMethodLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="FolderOpenMethod" />
+                                    <ComboBox x:Uid="SettingFolderOpenMethod"
+                                              MinWidth="120"
+                                              Name="FolderOpenMethod"
+                                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                              RelativePanel.AlignRightWithPanel="True"
+                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                              SelectionChanged="FolderOpenMethod_SelectionChanged" />
+
+                                </RelativePanel>
+                            </Border>
+
+                            <Border Margin="0,5,0,0"
+                                    Padding="20,10"
+                                    MinHeight="60"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="语言"
+                                               x:Uid="LanguageComboBoxLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="LanguageComboBox" />
+                                    <ComboBox MinWidth="180"
+                                              Name="LanguageComboBox"
+                                              x:Uid="LanguageComboBox"
+                                              RelativePanel.AlignRightWithPanel="True"
+                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
+                                        <x:String>中文(简体)</x:String>
+                                        <x:String>English (United States)</x:String>
+                                        <x:String>Français</x:String>
+                                        <x:String>中文(繁體)</x:String>
+                                        <x:String>Español</x:String>
+                                        <x:String>Deutsche</x:String>
+                                    </ComboBox>
+                                </RelativePanel>
+                            </Border>
+
+                            <Border Margin="0,5,0,0"
+                                    Padding="20,10"
+                                    MinHeight="60"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="字体"
+                                               x:Uid="FontFamilyComboBoxLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="FontFamilyComboBox" />
+                                    <ComboBox Width="220"
+                                              x:Uid="FontFamilyComboBox"
+                                              Name="FontFamilyComboBox"
+                                              RelativePanel.AlignRightWithPanel="True"
+                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                              ItemsSource="{x:Bind Cls:FontFamilyController.GetInstalledFontFamily()}"
+                                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="Cls:InstalledFonts">
+                                                <Grid>
+                                                    <TextBlock Text="{x:Bind Name}"
+                                                               FontFamily="{x:Bind Name}"
+                                                               ToolTipService.ToolTip="{x:Bind Name}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </RelativePanel>
+                            </Border>
                         </StackPanel>
-                    </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseEverythingAsDefault')}">
-                        <StackPanel Orientation="Horizontal">
-                            <Line X1="15"
-                                  X2="15"
-                                  Y1="8"
-                                  Y2="98"
-                                  StrokeThickness="3"
-                                  Stroke="Gray" />
-                            <StackPanel Margin="20,5,0,0">
-                                <CheckBox Content="忽略大小写"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          x:Uid="SearchEngineIgnoreCase"
-                                          IsChecked="True"
-                                          x:Name="EverythingEngineIgnoreCase" />
-                                <CheckBox Content="使用正则表达式"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          x:Uid="SearchEngineUseRegex"
-                                          x:Name="EverythingEngineIncludeRegex" />
-                                <CheckBox Content="全局搜索"
-                                          Padding="8,0"
-                                          VerticalContentAlignment="Center"
-                                          x:Uid="SearchEngineGlobeSearch"
-                                          IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
-                                          IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
-                                          x:Name="EverythingEngineSearchGloble" />
-                            </StackPanel>
-                        </StackPanel>
-                    </control:Case>
-                </control:SwitchPresenter>
+                    </ScrollViewer>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingAdvance/Text')}">
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                                  Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="高级"
+                                       x:Uid="SettingAdvance"
+                                       FontSize="18" />
+                            <Border Padding="20,10"
+                                    MinHeight="60"
+                                    Margin="0,10,0,0"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="随系统自动启动"
+                                               x:Uid="AutoBootOnStartupLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="AutoBoot" />
+                                    <ToggleSwitch OnContent="启用"
+                                                  OffContent="禁用"
+                                                  Name="AutoBoot"
+                                                  x:Uid="AutoBootOnStartup"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                </RelativePanel>
+                            </Border>
 
-                <ComboBox Header="图标加载模式"
-                          Margin="0,20,0,0"
-                          MinWidth="150"
-                          x:Uid="FileLoadMode"
-                          Name="FileLoadMode"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-
-                <ComboBox Header="首选文件布局模式"
-                          Margin="0,20,0,0"
-                          MinWidth="150"
-                          Name="DefaultDisplayMode"
-                          x:Uid="DefaultDisplayMode"
-                          DisplayMemberPath="DisplayName"
-                          ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,20,0,0">
-                    <ComboBox Header="默认终端应用"
-                              Name="DefaultTerminal"
-                              x:Uid="DefaultTerminal"
-                              MinWidth="150"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-                    <Viewbox VerticalAlignment="Bottom"
-                             Margin="10,0,0,8"
-                             Width="15">
-                        <SymbolIcon Symbol="Edit"
-                                    Foreground="{ThemeResource SystemAccentColor}"
-                                    x:Name="ModifyTerminal"
-                                    Tapped="ModifyTerminal_Tapped" />
-                    </Viewbox>
-                </StackPanel>
-
-                <TextBlock Text="个性化"
-                           x:Uid="SettingPersonalize"
-                           FontSize="22"
-                           Margin="0,30,0,0" />
-
-                <ToggleSwitch Margin="0,20,0,0"
-                              Header="动画效果"
-                              OffContent="禁用"
-                              OnContent="启用"
-                              x:Uid="SettingPageAnimationSwitch"
-                              Name="AnimationSwitch"
-                              Toggled="AnimationSwitch_Toggled"
-                              IsOn="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
-
-                <StackPanel Orientation="Horizontal"
-                            Name="ExceptAnimationArea">
-                    <Line X1="15"
-                          X2="15"
-                          Y1="3"
-                          Windows11Present:Y2="30"
-                          Windows11NotPresent:Y2="60"
-                          StrokeThickness="3"
-                          Stroke="Gray" />
-                    <StackPanel Margin="20,0,0,0">
-                        <Windows11NotPresent:CheckBox Content="关闭列表选中动画"
-                                                      x:Uid="SettingPagDisableSelectionAnimation"
-                                                      IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
-                                                      Name="DisableSelectionAnimation"
-                                                      Padding="8,0"
-                                                      VerticalContentAlignment="Center"
-                                                      Checked="DisableSelectionAnimation_Changed"
-                                                      Unchecked="DisableSelectionAnimation_Changed" />
-
-                        <CheckBox Content="关闭初始动画以加快启动速度"
-                                  x:Uid="SettingPageExceptAnimation"
-                                  Padding="8,0"
-                                  VerticalContentAlignment="Center"
-                                  IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
-                                  Name="DisableStartupAnimation" />
-                    </StackPanel>
-                </StackPanel>
-
-                <ComboBox Header="模式"
-                          x:Uid="SettingPageUIMode"
-                          Margin="0,20,0,0"
-                          SelectionChanged="UIMode_SelectionChanged"
-                          Name="UIMode"
-                          MinWidth="120"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-
-                <control:SwitchPresenter Margin="10,0,0,0"
-                                         Value="{x:Bind UIMode.SelectedItem,Mode=OneWay}"
-                                         ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_SolidColor')}">
-                        <StackPanel Margin="0,10,0,0"
-                                    Name="SolidColorArea">
-                            <RadioButton Content="Windows默认"
-                                         Name="SolidColor_FollowSystem"
-                                         x:Uid="SolidColor_FollowSystem"
-                                         Margin="0,5,0,0"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Checked="SolidColor_FollowSystem_Checked" />
-                            <RadioButton Content="白色"
-                                         x:Uid="SolidColor_White"
-                                         Name="SolidColor_White"
-                                         Margin="0,5,0,0"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Checked="SolidColor_White_Checked" />
-                            <RadioButton Content="黑色"
-                                         x:Uid="SolidColor_Black"
-                                         Name="SolidColor_Black"
-                                         Margin="0,5,0,0"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Checked="SolidColor_Black_Checked" />
-                        </StackPanel>
-                    </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Custom')}">
-                        <StackPanel Margin="0,10,0,0"
-                                    Name="CustomUIArea">
-                            <ComboBox Header="主题颜色"
-                                      MinWidth="120"
-                                      SelectedIndex="{x:Bind Cls:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
-                                      x:Uid="ThemeColor"
-                                      Name="ThemeColor"
-                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-                            <RadioButton Content="Acrylic背景"
-                                         x:Uid="CustomUISubtype1"
-                                         Name="AcrylicMode"
-                                         Margin="0,10,0,0"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Checked="AcrylicMode_Checked"
-                                         GroupName="CustomSubRadio" />
-                            <StackPanel Orientation="Horizontal"
-                                        x:Name="CustomAcrylicArea">
-                                <Line X1="10"
-                                      X2="10"
-                                      Y1="5"
-                                      Y2="240"
-                                      x:Name="CustomUIAreaLine"
-                                      StrokeThickness="3"
-                                      Stroke="Gray" />
-                                <StackPanel Margin="15,10,0,0">
-                                    <Button Content="Acrylic主题颜色"
-                                            Margin="0,0,0,0"
-                                            x:Uid="SettingPageThemeColorButton"
-                                            Name="AcrylicColor"
-                                            Style="{ThemeResource ButtonRevealStyle}"
-                                            Click="AcrylicColor_Click" />
-                                    <CheckBox x:Name="PreventFallBack"
-                                              Margin="0,20,0,0"
-                                              Padding="8,0"
-                                              VerticalContentAlignment="Center"
-                                              Checked="PreventFallBack_Checked"
-                                              Unchecked="PreventFallBack_Unchecked">
-                                        <RelativePanel HorizontalAlignment="Left">
-                                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('PreventFallBack/Content')}"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       Name="PreventFallBackText" />
-                                            <Viewbox Margin="10,0,0,0"
-                                                     Height="15"
-                                                     Name="PreventFallBackQuestion"
-                                                     RelativePanel.RightOf="PreventFallBackText"
-                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                <FontIcon Glyph="&#xE9CE;"
-                                                          PointerPressed="PreventFallBackQuestion_PointerPressed" />
-                                            </Viewbox>
-                                        </RelativePanel>
-                                    </CheckBox>
-                                    <StackPanel Margin="0,20,0,0"
-                                                Orientation="Horizontal"
-                                                Name="TintOpacityArea">
-                                        <Slider IsThumbToolTipEnabled="False"
-                                                Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                                x:Name="TintOpacitySlider"
-                                                StepFrequency="0.1"
-                                                Maximum="1"
-                                                Minimum="0"
-                                                Width="220"
-                                                HorizontalAlignment="Left">
-                                            <Slider.Header>
-                                                <RelativePanel HorizontalAlignment="Left">
-                                                    <TextBlock Text="Acrylic颜色透明度"
-                                                               x:Uid="SettingPageTintOpacitySliderHeader"
-                                                               RelativePanel.AlignLeftWithPanel="True"
-                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                               Name="TintOpacitySliderText" />
-                                                    <Viewbox Margin="10,0,0,0"
-                                                             Height="15"
-                                                             Name="TintOpacityQuestion"
-                                                             RelativePanel.RightOf="TintOpacitySliderText"
-                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                        <FontIcon Glyph="&#xE9CE;"
-                                                                  PointerPressed="TintOpacityQuestion_PointerPressed" />
-                                                    </Viewbox>
-                                                </RelativePanel>
-                                            </Slider.Header>
-                                        </Slider>
-                                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                                   Margin="10,0,0,5"
-                                                   VerticalAlignment="Bottom" />
+                            <Border Padding="20,10"
+                                    MinHeight="60"
+                                    Margin="0,5,0,0"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                RelativePanel.AlignLeftWithPanel="True"
+                                                RelativePanel.LeftOf="EnableQuicklook"
+                                                Margin="0,0,20,0">
+                                        <TextBlock Text="QuickLook预览"
+                                                   x:Uid="QuicklookHeader" />
+                                        <TextBlock x:Uid="QuicklookTipContent"
+                                                   FontSize="12"
+                                                   TextWrapping="WrapWholeWords"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="Gray"
+                                                   Text="QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook" />
                                     </StackPanel>
-                                    <StackPanel Margin="0,10,0,0"
-                                                Orientation="Horizontal">
-                                        <Slider IsThumbToolTipEnabled="False"
-                                                Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                                x:Name="TintLuminositySlider"
-                                                StepFrequency="0.1"
-                                                Maximum="1"
-                                                Minimum="0"
-                                                Width="220"
-                                                HorizontalAlignment="Left">
-                                            <Slider.Header>
-                                                <RelativePanel HorizontalAlignment="Left">
-                                                    <TextBlock Text="Acrylic背景透光度"
-                                                               x:Uid="SettingPageTintLuminositySliderHeader"
-                                                               RelativePanel.AlignLeftWithPanel="True"
-                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                               Name="TintLuminositySliderText" />
-                                                    <Viewbox Margin="10,0,0,0"
-                                                             Height="15"
-                                                             Name="TintLuminosityQuestion"
-                                                             RelativePanel.RightOf="TintLuminositySliderText"
-                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                        <FontIcon Glyph="&#xE9CE;"
-                                                                  PointerPressed="TintLuminosityQuestion_PointerPressed" />
-                                                    </Viewbox>
-                                                </RelativePanel>
-                                            </Slider.Header>
-                                        </Slider>
-                                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                                   Margin="10,0,0,5"
-                                                   VerticalAlignment="Bottom" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                            <RadioButton Margin="0,10,0,0"
-                                         Name="BingPictureMode"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Checked="BingPictureMode_Checked"
-                                         GroupName="CustomSubRadio">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="必应图片"
-                                               x:Uid="CustomUISubtype3" />
-                                    <muxc:ProgressRing IsActive="True"
-                                                       Margin="10,0,0,0"
-                                                       Height="18"
-                                                       Width="18"
-                                                       Name="GetBingPhotoState"
-                                                       Visibility="Collapsed" />
-                                </StackPanel>
-                            </RadioButton>
-                            <StackPanel Name="BackgroundBlurSliderArea1"
-                                        Orientation="Horizontal">
-                                <Line X1="10"
-                                      X2="10"
-                                      Y1="5"
-                                      Y2="130"
-                                      StrokeThickness="3"
-                                      Stroke="Gray" />
-                                <StackPanel Margin="15,10,0,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Slider Maximum="100"
-                                                Minimum="0"
-                                                Width="220"
-                                                Header="调整背景模糊效果"
-                                                x:Uid="SettingPageBackgroundBlurSlider"
-                                                Name="BackgroundBlurSlider1"
-                                                ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                                StepFrequency="5"
-                                                VerticalAlignment="Center" />
-                                        <TextBlock Margin="5,20,0,0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider1.Value),Mode=OneWay}" />
+                                    <ToggleSwitch x:Uid="EnableQuicklook"
+                                                  Name="EnableQuicklook"
+                                                  OnContent="启用"
+                                                  OffContent="禁用"
+                                                  Toggled="EnableQuicklook_Toggled"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                </RelativePanel>
+                            </Border>
 
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Slider Maximum="100"
-                                                Minimum="0"
-                                                Width="220"
-                                                Margin="0,10,0,0"
-                                                Header="调整背景亮度"
-                                                Name="BackgroundLightSlider1"
-                                                x:Uid="SettingPageBackgroundLightSlider"
-                                                ValueChanged="BackgroundLightSlider_ValueChanged"
-                                                StepFrequency="5"
-                                                VerticalAlignment="Center" />
-                                        <TextBlock Margin="5,20,0,0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider1.Value),Mode=OneWay}" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                            <RadioButton Content="自定义图片背景"
-                                         x:Uid="CustomUISubtype2"
-                                         Margin="0,10,0,0"
-                                         Padding="8,0"
-                                         VerticalContentAlignment="Center"
-                                         Name="PictureMode"
-                                         GroupName="CustomSubRadio"
-                                         Checked="PictureMode_Checked" />
-                            <StackPanel Name="CustomPictureArea"
-                                        Orientation="Horizontal">
-                                <Line X1="10"
-                                      X2="10"
-                                      Y1="5"
-                                      Y2="215"
-                                      StrokeThickness="3"
-                                      Stroke="Gray" />
-                                <StackPanel Margin="15,0,0,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <GridView Name="PictureGirdView"
-                                                  MaxWidth="320"
-                                                  Margin="0,15,0,0"
-                                                  VerticalAlignment="Top"
-                                                  IsRightTapEnabled="True"
-                                                  RightTapped="PictureGirdView_RightTapped"
-                                                  ScrollViewer.HorizontalScrollMode="Enabled"
-                                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                                  ScrollViewer.VerticalScrollMode="Disabled"
-                                                  SelectionChanged="PictureGirdView_SelectionChanged"
-                                                  ItemsSource="{x:Bind PictureList}">
-                                            <GridView.ItemTemplate>
-                                                <DataTemplate x:DataType="Cls:BackgroundPicture">
-                                                    <Image Width="70"
-                                                           Height="70"
-                                                           Stretch="UniformToFill"
-                                                           Source="{x:Bind Thumbnail}" />
-                                                </DataTemplate>
-                                            </GridView.ItemTemplate>
-                                            <GridView.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <ItemsStackPanel Orientation="Horizontal" />
-                                                </ItemsPanelTemplate>
-                                            </GridView.ItemsPanel>
-                                        </GridView>
-                                        <Button Margin="5,15,0,0"
-                                                Width="70"
-                                                Height="70"
-                                                Name="AddImageToPictureButton"
-                                                Click="AddImageToPictureButton_Click"
-                                                VerticalAlignment="Top">
-                                            <Viewbox>
-                                                <SymbolIcon Symbol="Add" />
-                                            </Viewbox>
+                            <Border Padding="20,10"
+                                    MinHeight="60"
+                                    Margin="0,5,0,0"
+                                    CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                <RelativePanel>
+                                    <TextBlock Text="悬浮于其他应用之上"
+                                               x:Uid="AlwaysOnTopLabel"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.LeftOf="AlwaysOnTop" />
+                                    <ToggleSwitch OnContent="启用"
+                                                  OffContent="禁用"
+                                                  Name="AlwaysOnTop"
+                                                  x:Uid="AlwaysOnTop"
+                                                  Style="{StaticResource SettingToggleSwitchStyle}"
+                                                  RelativePanel.AlignRightWithPanel="True"
+                                                  RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                </RelativePanel>
+                            </Border>
+
+                            <muxc:Expander Margin="0,5,0,0"
+                                           ExpandDirection="Down"
+                                           HorizontalAlignment="Stretch"
+                                           HorizontalContentAlignment="Stretch"
+                                           VerticalContentAlignment="Top"
+                                           Padding="0"
+                                           MinHeight="60"
+                                           Background="Transparent"
+                                           CornerRadius="4,4,0,0">
+                                <muxc:Expander.Header>
+                                    <RelativePanel Padding="4,10,0,10">
+                                        <TextBlock Text="使用[Win+E]激活此应用"
+                                                   x:Uid="UseWinAndEActivateLabel"
+                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.LeftOf="UseWinAndEActivate"
+                                                   Margin="0,0,20,0" />
+                                        <ToggleSwitch Name="UseWinAndEActivate"
+                                                      OnContent="启用"
+                                                      OffContent="禁用"
+                                                      x:Uid="UseWinAndEActivate"
+                                                      Style="{StaticResource SettingToggleSwitchStyle}"
+                                                      RelativePanel.AlignRightWithPanel="True"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    </RelativePanel>
+                                </muxc:Expander.Header>
+                                <muxc:Expander.Content>
+                                    <StackPanel>
+                                        <Button Padding="40,10,14,10"
+                                                MinHeight="45"
+                                                Margin="0,1,0,0"
+                                                BorderThickness="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                CornerRadius="0"
+                                                Name="WinEManualGuidence"
+                                                Click="WinEManualGuidence_Click"
+                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                            <RelativePanel>
+                                                <TextBlock Text="有关自行重定向Win+E的教程"
+                                                           TextWrapping="WrapWholeWords"
+                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                           RelativePanel.LeftOf="SettingPageWinEQuestionAction1" />
+                                                <Viewbox Name="SettingPageWinEQuestionAction1"
+                                                         Height="20"
+                                                         Width="20"
+                                                         RelativePanel.AlignRightWithPanel="True"
+                                                         RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                              Glyph="&#xE71B;" />
+                                                </Viewbox>
+                                            </RelativePanel>
+                                        </Button>
+                                        <Button Padding="40,10,14,10"
+                                                MinHeight="45"
+                                                Margin="0,1,0,0"
+                                                BorderThickness="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                CornerRadius="0,0,4,4"
+                                                Name="WinEExportRestoreFile"
+                                                Click="WinEExportRestoreFile_Click"
+                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                            <RelativePanel>
+                                                <TextBlock Text="导出用于自行关闭Win+E重定向的文件"
+                                                           TextWrapping="WrapWholeWords"
+                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                           RelativePanel.AlignLeftWithPanel="True"
+                                                           RelativePanel.LeftOf="SettingPageWinEQuestionAction2" />
+                                                <Viewbox Name="SettingPageWinEQuestionAction2"
+                                                         Height="20"
+                                                         Width="20"
+                                                         RelativePanel.AlignRightWithPanel="True"
+                                                         RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                              Glyph="&#xE792;" />
+                                                </Viewbox>
+                                            </RelativePanel>
                                         </Button>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="0,10,0,0"
-                                                Name="BackgroundBlurSliderArea2">
-                                        <Slider Maximum="100"
-                                                Minimum="0"
-                                                Width="220"
-                                                Header="调整背景模糊效果"
-                                                x:Uid="SettingPageBackgroundBlurSlider"
-                                                Name="BackgroundBlurSlider2"
-                                                ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                                StepFrequency="5"
-                                                VerticalAlignment="Center" />
-                                        <TextBlock Margin="5,20,0,0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider2.Value),Mode=OneWay}" />
-                                    </StackPanel>
+                                </muxc:Expander.Content>
+                            </muxc:Expander>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Name="AlwaysLaunchNewArea"
+                                        Visibility="{x:Bind UseWinAndEActivate.IsOn, Mode=OneWay}">
+                                <Line X1="15"
+                                      X2="15"
+                                      Y1="3"
+                                      Y2="29"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <CheckBox Content="激活时始终启动新的进程"
+                                          Margin="20,0,0,0"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
+                                          x:Uid="SettingPageAlwaysLaunchNew"
+                                          Name="AlwaysLaunchNew"
+                                          Checked="AlwaysLaunchNew_Checked"
+                                          Unchecked="AlwaysLaunchNew_Unchecked" />
+                            </StackPanel>
+
+                            <ToggleSwitch Header="扩展右键菜单"
+                                          Margin="0,20,0,0"
+                                          x:Uid="SettingPageContextMenuExt"
+                                          Name="ContextMenuExtSwitch"
+                                          Toggled="ContextMenuExtSwitch_Toggled"
+                                          OnContent="启用"
+                                          OffContent="禁用" />
+
+                            <ToggleSwitch Header="弹出删除确认提示框"
+                                          Margin="0,20,0,0"
+                                          Name="DeleteConfirmSwitch"
+                                          x:Uid="DeleteConfirmSwitch"
+                                          Toggled="DeleteConfirmSwitch_Toggled"
+                                          OnContent="启用"
+                                          OffContent="禁用" />
+
+                            <StackPanel Orientation="Horizontal"
+                                        Name="DeleteConfirmArea">
+                                <Line X1="15"
+                                      X2="15"
+                                      Y1="3"
+                                      Y2="29"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <CheckBox Margin="20,0,0,0"
+                                          Name="AvoidRecycleBin"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
+                                          Checked="AvoidRecycleBin_Checked"
+                                          Unchecked="AvoidRecycleBin_Unchecked">
                                     <StackPanel Orientation="Horizontal">
-                                        <Slider Maximum="100"
-                                                Minimum="0"
-                                                Width="220"
-                                                Margin="0,10,0,0"
-                                                Header="调整背景亮度"
-                                                Name="BackgroundLightSlider2"
-                                                x:Uid="SettingPageBackgroundLightSlider"
-                                                ValueChanged="BackgroundLightSlider_ValueChanged"
-                                                StepFrequency="5"
-                                                VerticalAlignment="Center" />
-                                        <TextBlock Margin="5,20,0,0"
-                                                   VerticalAlignment="Center"
-                                                   Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider2.Value),Mode=OneWay}" />
+                                        <Viewbox Height="16"
+                                                 Margin="0,1,0,0"
+                                                 VerticalAlignment="Center">
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                      Glyph="&#xE7BA;"
+                                                      Foreground="Yellow" />
+                                        </Viewbox>
+                                        <TextBlock Text="绕过回收站并永久删除"
+                                                   Margin="5,0,0,0"
+                                                   x:Uid="AvoidRecycleBin" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </StackPanel>
+
+                            <ComboBox Header="搜索引擎配置"
+                                      Margin="0,20,0,0"
+                                      MinWidth="150"
+                                      x:Uid="SettingPageSearchEngineConfig"
+                                      Name="SearchEngineConfig"
+                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                                      SelectionChanged="SearchEngineConfig_SelectionChanged" />
+
+                            <control:SwitchPresenter Value="{x:Bind SearchEngineConfig.SelectedItem,Mode=OneWay}"
+                                                     ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                                <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseBuildInAsDefault')}">
+                                    <StackPanel Orientation="Horizontal"
+                                                Name="DefaultSearchEngineConfig">
+                                        <Line X1="15"
+                                              X2="15"
+                                              Y1="8"
+                                              Y2="162"
+                                              StrokeThickness="3"
+                                              Stroke="Gray" />
+                                        <StackPanel Margin="20,5,0,0">
+                                            <CheckBox Content="忽略大小写"
+                                                      x:Uid="SearchEngineIgnoreCase"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                      IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                      x:Name="BuiltInEngineIgnoreCase" />
+                                            <CheckBox Content="使用正则表达式"
+                                                      x:Uid="SearchEngineUseRegex"
+                                                      x:Name="BuiltInEngineIncludeRegex"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
+                                            <CheckBox Content="使用高级查询语法(AQS)"
+                                                      x:Uid="SearchEngineUseAQS"
+                                                      x:Name="BuiltInEngineIncludeAQS"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
+                                            <CheckBox Name="BuiltInSearchUseIndexer"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center">
+                                                <RelativePanel HorizontalAlignment="Left">
+                                                    <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
+                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                               Name="SearchEngineUseIndexerText" />
+                                                    <Viewbox Margin="10,0,0,0"
+                                                             Height="15"
+                                                             Name="IndexerQuestion"
+                                                             RelativePanel.RightOf="SearchEngineUseIndexerText"
+                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                        <FontIcon Glyph="&#xE9CE;"
+                                                                  PointerPressed="IndexerQuestion_PointerPressed" />
+                                                    </Viewbox>
+                                                </RelativePanel>
+                                            </CheckBox>
+                                            <CheckBox Content="搜索所有子文件夹"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      Name="BuiltInSearchAllSubFolders"
+                                                      x:Uid="SearchEngineAllSubFolders" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </control:Case>
+                                <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseEverythingAsDefault')}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Line X1="15"
+                                              X2="15"
+                                              Y1="8"
+                                              Y2="98"
+                                              StrokeThickness="3"
+                                              Stroke="Gray" />
+                                        <StackPanel Margin="20,5,0,0">
+                                            <CheckBox Content="忽略大小写"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      x:Uid="SearchEngineIgnoreCase"
+                                                      IsChecked="True"
+                                                      x:Name="EverythingEngineIgnoreCase" />
+                                            <CheckBox Content="使用正则表达式"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      x:Uid="SearchEngineUseRegex"
+                                                      x:Name="EverythingEngineIncludeRegex" />
+                                            <CheckBox Content="全局搜索"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      x:Uid="SearchEngineGlobeSearch"
+                                                      IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
+                                                      IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+                                                      x:Name="EverythingEngineSearchGloble" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </control:Case>
+                            </control:SwitchPresenter>
+
+                            <ComboBox Header="图标加载模式"
+                                      Margin="0,20,0,0"
+                                      MinWidth="150"
+                                      x:Uid="FileLoadMode"
+                                      Name="FileLoadMode"
+                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+
+                            <ComboBox Header="首选文件布局模式"
+                                      Margin="0,20,0,0"
+                                      MinWidth="150"
+                                      Name="DefaultDisplayMode"
+                                      x:Uid="DefaultDisplayMode"
+                                      DisplayMemberPath="DisplayName"
+                                      ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
+                                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,20,0,0">
+                                <ComboBox Header="默认终端应用"
+                                          Name="DefaultTerminal"
+                                          x:Uid="DefaultTerminal"
+                                          MinWidth="150"
+                                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                                <Viewbox VerticalAlignment="Bottom"
+                                         Margin="10,0,0,8"
+                                         Width="15">
+                                    <SymbolIcon Symbol="Edit"
+                                                Foreground="{ThemeResource SystemAccentColor}"
+                                                x:Name="ModifyTerminal"
+                                                Tapped="ModifyTerminal_Tapped" />
+                                </Viewbox>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingPersonalize/Text')}">
+                    <StackPanel>
+                        <ToggleSwitch Margin="0,20,0,0"
+                                      Header="动画效果"
+                                      OffContent="禁用"
+                                      OnContent="启用"
+                                      x:Uid="SettingPageAnimationSwitch"
+                                      Name="AnimationSwitch"
+                                      Toggled="AnimationSwitch_Toggled"
+                                      IsOn="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    Name="ExceptAnimationArea">
+                            <Line X1="15"
+                                  X2="15"
+                                  Y1="3"
+                                  Windows11Present:Y2="30"
+                                  Windows11NotPresent:Y2="60"
+                                  StrokeThickness="3"
+                                  Stroke="Gray" />
+                            <StackPanel Margin="20,0,0,0">
+                                <Windows11NotPresent:CheckBox Content="关闭列表选中动画"
+                                                              x:Uid="SettingPagDisableSelectionAnimation"
+                                                              IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
+                                                              Name="DisableSelectionAnimation"
+                                                              Padding="8,0"
+                                                              VerticalContentAlignment="Center"
+                                                              Checked="DisableSelectionAnimation_Changed"
+                                                              Unchecked="DisableSelectionAnimation_Changed" />
+
+                                <CheckBox Content="关闭初始动画以加快启动速度"
+                                          x:Uid="SettingPageExceptAnimation"
+                                          Padding="8,0"
+                                          VerticalContentAlignment="Center"
+                                          IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
+                                          Name="DisableStartupAnimation" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <ComboBox Header="模式"
+                                  x:Uid="SettingPageUIMode"
+                                  Margin="0,20,0,0"
+                                  SelectionChanged="UIMode_SelectionChanged"
+                                  Name="UIMode"
+                                  MinWidth="120"
+                                  Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+
+                        <control:SwitchPresenter Margin="10,0,0,0"
+                                                 Value="{x:Bind UIMode.SelectedItem,Mode=OneWay}"
+                                                 ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                            <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_SolidColor')}">
+                                <StackPanel Margin="0,10,0,0"
+                                            Name="SolidColorArea">
+                                    <RadioButton Content="Windows默认"
+                                                 Name="SolidColor_FollowSystem"
+                                                 x:Uid="SolidColor_FollowSystem"
+                                                 Margin="0,5,0,0"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Checked="SolidColor_FollowSystem_Checked" />
+                                    <RadioButton Content="白色"
+                                                 x:Uid="SolidColor_White"
+                                                 Name="SolidColor_White"
+                                                 Margin="0,5,0,0"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Checked="SolidColor_White_Checked" />
+                                    <RadioButton Content="黑色"
+                                                 x:Uid="SolidColor_Black"
+                                                 Name="SolidColor_Black"
+                                                 Margin="0,5,0,0"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Checked="SolidColor_Black_Checked" />
+                                </StackPanel>
+                            </control:Case>
+                            <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Custom')}">
+                                <StackPanel Margin="0,10,0,0"
+                                            Name="CustomUIArea">
+                                    <ComboBox Header="主题颜色"
+                                              MinWidth="120"
+                                              SelectedIndex="{x:Bind Cls:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
+                                              x:Uid="ThemeColor"
+                                              Name="ThemeColor"
+                                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                                    <RadioButton Content="Acrylic背景"
+                                                 x:Uid="CustomUISubtype1"
+                                                 Name="AcrylicMode"
+                                                 Margin="0,10,0,0"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Checked="AcrylicMode_Checked"
+                                                 GroupName="CustomSubRadio" />
+                                    <StackPanel Orientation="Horizontal"
+                                                x:Name="CustomAcrylicArea">
+                                        <Line X1="10"
+                                              X2="10"
+                                              Y1="5"
+                                              Y2="240"
+                                              x:Name="CustomUIAreaLine"
+                                              StrokeThickness="3"
+                                              Stroke="Gray" />
+                                        <StackPanel Margin="15,10,0,0">
+                                            <Button Content="Acrylic主题颜色"
+                                                    Margin="0,0,0,0"
+                                                    x:Uid="SettingPageThemeColorButton"
+                                                    Name="AcrylicColor"
+                                                    Style="{ThemeResource ButtonRevealStyle}"
+                                                    Click="AcrylicColor_Click" />
+                                            <CheckBox x:Name="PreventFallBack"
+                                                      Margin="0,20,0,0"
+                                                      Padding="8,0"
+                                                      VerticalContentAlignment="Center"
+                                                      Checked="PreventFallBack_Checked"
+                                                      Unchecked="PreventFallBack_Unchecked">
+                                                <RelativePanel HorizontalAlignment="Left">
+                                                    <TextBlock Text="{x:Bind Cls:Globalization.GetString('PreventFallBack/Content')}"
+                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                               Name="PreventFallBackText" />
+                                                    <Viewbox Margin="10,0,0,0"
+                                                             Height="15"
+                                                             Name="PreventFallBackQuestion"
+                                                             RelativePanel.RightOf="PreventFallBackText"
+                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                        <FontIcon Glyph="&#xE9CE;"
+                                                                  PointerPressed="PreventFallBackQuestion_PointerPressed" />
+                                                    </Viewbox>
+                                                </RelativePanel>
+                                            </CheckBox>
+                                            <StackPanel Margin="0,20,0,0"
+                                                        Orientation="Horizontal"
+                                                        Name="TintOpacityArea">
+                                                <Slider IsThumbToolTipEnabled="False"
+                                                        Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                                        x:Name="TintOpacitySlider"
+                                                        StepFrequency="0.1"
+                                                        Maximum="1"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        HorizontalAlignment="Left">
+                                                    <Slider.Header>
+                                                        <RelativePanel HorizontalAlignment="Left">
+                                                            <TextBlock Text="Acrylic颜色透明度"
+                                                                       x:Uid="SettingPageTintOpacitySliderHeader"
+                                                                       RelativePanel.AlignLeftWithPanel="True"
+                                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                       Name="TintOpacitySliderText" />
+                                                            <Viewbox Margin="10,0,0,0"
+                                                                     Height="15"
+                                                                     Name="TintOpacityQuestion"
+                                                                     RelativePanel.RightOf="TintOpacitySliderText"
+                                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                <FontIcon Glyph="&#xE9CE;"
+                                                                          PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                                            </Viewbox>
+                                                        </RelativePanel>
+                                                    </Slider.Header>
+                                                </Slider>
+                                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
+                                                           Margin="10,0,0,5"
+                                                           VerticalAlignment="Bottom" />
+                                            </StackPanel>
+                                            <StackPanel Margin="0,10,0,0"
+                                                        Orientation="Horizontal">
+                                                <Slider IsThumbToolTipEnabled="False"
+                                                        Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                                        x:Name="TintLuminositySlider"
+                                                        StepFrequency="0.1"
+                                                        Maximum="1"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        HorizontalAlignment="Left">
+                                                    <Slider.Header>
+                                                        <RelativePanel HorizontalAlignment="Left">
+                                                            <TextBlock Text="Acrylic背景透光度"
+                                                                       x:Uid="SettingPageTintLuminositySliderHeader"
+                                                                       RelativePanel.AlignLeftWithPanel="True"
+                                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                       Name="TintLuminositySliderText" />
+                                                            <Viewbox Margin="10,0,0,0"
+                                                                     Height="15"
+                                                                     Name="TintLuminosityQuestion"
+                                                                     RelativePanel.RightOf="TintLuminositySliderText"
+                                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                <FontIcon Glyph="&#xE9CE;"
+                                                                          PointerPressed="TintLuminosityQuestion_PointerPressed" />
+                                                            </Viewbox>
+                                                        </RelativePanel>
+                                                    </Slider.Header>
+                                                </Slider>
+                                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
+                                                           Margin="10,0,0,5"
+                                                           VerticalAlignment="Bottom" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <RadioButton Margin="0,10,0,0"
+                                                 Name="BingPictureMode"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Checked="BingPictureMode_Checked"
+                                                 GroupName="CustomSubRadio">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="必应图片"
+                                                       x:Uid="CustomUISubtype3" />
+                                            <muxc:ProgressRing IsActive="True"
+                                                               Margin="10,0,0,0"
+                                                               Height="18"
+                                                               Width="18"
+                                                               Name="GetBingPhotoState"
+                                                               Visibility="Collapsed" />
+                                        </StackPanel>
+                                    </RadioButton>
+                                    <StackPanel Name="BackgroundBlurSliderArea1"
+                                                Orientation="Horizontal">
+                                        <Line X1="10"
+                                              X2="10"
+                                              Y1="5"
+                                              Y2="130"
+                                              StrokeThickness="3"
+                                              Stroke="Gray" />
+                                        <StackPanel Margin="15,10,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Maximum="100"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        Header="调整背景模糊效果"
+                                                        x:Uid="SettingPageBackgroundBlurSlider"
+                                                        Name="BackgroundBlurSlider1"
+                                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
+                                                        StepFrequency="5"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Margin="5,20,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider1.Value),Mode=OneWay}" />
+
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Maximum="100"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        Margin="0,10,0,0"
+                                                        Header="调整背景亮度"
+                                                        Name="BackgroundLightSlider1"
+                                                        x:Uid="SettingPageBackgroundLightSlider"
+                                                        ValueChanged="BackgroundLightSlider_ValueChanged"
+                                                        StepFrequency="5"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Margin="5,20,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider1.Value),Mode=OneWay}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <RadioButton Content="自定义图片背景"
+                                                 x:Uid="CustomUISubtype2"
+                                                 Margin="0,10,0,0"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 Name="PictureMode"
+                                                 GroupName="CustomSubRadio"
+                                                 Checked="PictureMode_Checked" />
+                                    <StackPanel Name="CustomPictureArea"
+                                                Orientation="Horizontal">
+                                        <Line X1="10"
+                                              X2="10"
+                                              Y1="5"
+                                              Y2="215"
+                                              StrokeThickness="3"
+                                              Stroke="Gray" />
+                                        <StackPanel Margin="15,0,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <GridView Name="PictureGirdView"
+                                                          MaxWidth="320"
+                                                          Margin="0,15,0,0"
+                                                          VerticalAlignment="Top"
+                                                          IsRightTapEnabled="True"
+                                                          RightTapped="PictureGirdView_RightTapped"
+                                                          ScrollViewer.HorizontalScrollMode="Enabled"
+                                                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                          ScrollViewer.VerticalScrollMode="Disabled"
+                                                          SelectionChanged="PictureGirdView_SelectionChanged"
+                                                          ItemsSource="{x:Bind PictureList}">
+                                                    <GridView.ItemTemplate>
+                                                        <DataTemplate x:DataType="Cls:BackgroundPicture">
+                                                            <Image Width="70"
+                                                                   Height="70"
+                                                                   Stretch="UniformToFill"
+                                                                   Source="{x:Bind Thumbnail}" />
+                                                        </DataTemplate>
+                                                    </GridView.ItemTemplate>
+                                                    <GridView.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <ItemsStackPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </GridView.ItemsPanel>
+                                                </GridView>
+                                                <Button Margin="5,15,0,0"
+                                                        Width="70"
+                                                        Height="70"
+                                                        Name="AddImageToPictureButton"
+                                                        Click="AddImageToPictureButton_Click"
+                                                        VerticalAlignment="Top">
+                                                    <Viewbox>
+                                                        <SymbolIcon Symbol="Add" />
+                                                    </Viewbox>
+                                                </Button>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,10,0,0"
+                                                        Name="BackgroundBlurSliderArea2">
+                                                <Slider Maximum="100"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        Header="调整背景模糊效果"
+                                                        x:Uid="SettingPageBackgroundBlurSlider"
+                                                        Name="BackgroundBlurSlider2"
+                                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
+                                                        StepFrequency="5"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Margin="5,20,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider2.Value),Mode=OneWay}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Slider Maximum="100"
+                                                        Minimum="0"
+                                                        Width="220"
+                                                        Margin="0,10,0,0"
+                                                        Header="调整背景亮度"
+                                                        Name="BackgroundLightSlider2"
+                                                        x:Uid="SettingPageBackgroundLightSlider"
+                                                        ValueChanged="BackgroundLightSlider_ValueChanged"
+                                                        StepFrequency="5"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Margin="5,20,0,0"
+                                                           VerticalAlignment="Center"
+                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider2.Value),Mode=OneWay}" />
+                                            </StackPanel>
+                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </control:Case>
-                </control:SwitchPresenter>
-
-                <TextBlock Text="启动时"
-                           FontSize="22"
-                           Margin="0,30,0,0"
-                           x:Uid="SettingStartup" />
-
-                <StackPanel Margin="0,10,0,0">
-                    <RadioButton Content="打开新标签页"
-                                 Margin="0,5,0,0"
-                                 Padding="8,0"
-                                 VerticalContentAlignment="Center"
-                                 x:Uid="SettingStartupWithNewTab"
-                                 Name="StartupWithNewTab"
-                                 Checked="StartupWithNewTab_Checked" />
-                    <RadioButton Content="恢复上次打开的标签页"
-                                 Margin="0,5,0,0"
-                                 Padding="8,0"
-                                 VerticalContentAlignment="Center"
-                                 x:Uid="SettingStartupWithLastTab"
-                                 Name="StartupWithLastTab"
-                                 Checked="StartupWithLastTab_Checked" />
-                    <RadioButton Content="打开一个或多个指定标签页"
-                                 Margin="0,5,0,0"
-                                 Padding="8,0"
-                                 VerticalContentAlignment="Center"
-                                 x:Uid="SettingStartupWithSpecificTab"
-                                 Name="StartupSpecificTab"
-                                 Checked="StartupSpecificTab_Checked" />
-                    <ListView Width="400"
-                              Margin="29,5,0,0"
-                              HorizontalAlignment="Left"
-                              Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
-                              x:Name="SpecificTabListView"
-                              SelectionMode="None">
-                        <ListView.Header>
-                            <Grid Padding="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="25" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="指定文件夹"
-                                           x:Uid="SpecificTabListViewHeader"
-                                           VerticalAlignment="Center" />
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        Style="{ThemeResource ButtonRevealStyle}"
-                                        VerticalAlignment="Center"
-                                        Padding="5"
-                                        Grid.Column="1"
-                                        Name="AddSpecificTab"
-                                        Click="AddSpecificTab_Click">
-                                    <Viewbox>
-                                        <SymbolIcon Symbol="Add" />
-                                    </Viewbox>
-                                </Button>
-                            </Grid>
-                        </ListView.Header>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment"
-                                        Value="Stretch" />
-                                <Setter Property="Padding"
-                                        Value="0" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
+                            </control:Case>
+                        </control:SwitchPresenter>
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingStartup/Text')}">
+                    <StackPanel>
+                        <RadioButton Content="打开新标签页"
+                                     Margin="0,5,0,0"
+                                     Padding="8,0"
+                                     VerticalContentAlignment="Center"
+                                     x:Uid="SettingStartupWithNewTab"
+                                     Name="StartupWithNewTab"
+                                     Checked="StartupWithNewTab_Checked" />
+                        <RadioButton Content="恢复上次打开的标签页"
+                                     Margin="0,5,0,0"
+                                     Padding="8,0"
+                                     VerticalContentAlignment="Center"
+                                     x:Uid="SettingStartupWithLastTab"
+                                     Name="StartupWithLastTab"
+                                     Checked="StartupWithLastTab_Checked" />
+                        <RadioButton Content="打开一个或多个指定标签页"
+                                     Margin="0,5,0,0"
+                                     Padding="8,0"
+                                     VerticalContentAlignment="Center"
+                                     x:Uid="SettingStartupWithSpecificTab"
+                                     Name="StartupSpecificTab"
+                                     Checked="StartupSpecificTab_Checked" />
+                        <ListView Width="400"
+                                  Margin="29,5,0,0"
+                                  HorizontalAlignment="Left"
+                                  Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
+                                  x:Name="SpecificTabListView"
+                                  SelectionMode="None">
+                            <ListView.Header>
+                                <Grid Padding="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="25" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding}"
-                                               ToolTipService.ToolTip="{Binding}"
-                                               IsTextSelectionEnabled="True"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Padding="0,0,5,0" />
+                                    <TextBlock Text="指定文件夹"
+                                               x:Uid="SpecificTabListViewHeader"
+                                               VerticalAlignment="Center" />
                                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Style="{ThemeResource ButtonRevealStyle}"
-                                            Content="删除"
-                                            x:Uid="SpecificTabListViewDelete"
+                                            VerticalAlignment="Center"
+                                            Padding="5"
                                             Grid.Column="1"
-                                            HorizontalAlignment="Stretch"
-                                            Name="DeleteSpecificTabButton"
-                                            Click="DeleteSpecificTabButton_Click" />
+                                            Name="AddSpecificTab"
+                                            Click="AddSpecificTab_Click">
+                                        <Viewbox>
+                                            <SymbolIcon Symbol="Add" />
+                                        </Viewbox>
+                                    </Button>
                                 </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
+                            </ListView.Header>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch" />
+                                    <Setter Property="Padding"
+                                            Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding}"
+                                                   ToolTipService.ToolTip="{Binding}"
+                                                   IsTextSelectionEnabled="True"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Padding="0,0,5,0" />
+                                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                                Style="{ThemeResource ButtonRevealStyle}"
+                                                Content="删除"
+                                                x:Uid="SpecificTabListViewDelete"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                Name="DeleteSpecificTabButton"
+                                                Click="DeleteSpecificTabButton_Click" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingPrivacy/Text')}">
+                    <StackPanel>
+                        <ToggleSwitch Header="路径历史记录"
+                                      Margin="0,20,0,0"
+                                      OnContent="保存"
+                                      OffContent="清除"
+                                      x:Uid="SettingPathHistory"
+                                      Name="PathHistory"
+                                      Toggled="PathHistory_Toggled" />
 
-                <TextBlock Text="隐私"
-                           FontSize="22"
-                           x:Uid="SettingPrivacy"
-                           Margin="0,30,0,0" />
+                        <ToggleSwitch Header="搜索历史记录"
+                                      Margin="0,20,0,0"
+                                      OnContent="保存"
+                                      OffContent="清除"
+                                      x:Uid="SettingSearchHistory"
+                                      Name="SearchHistory"
+                                      Toggled="SearchHistory_Toggled" />
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingVersion/Text')}">
+                    <StackPanel HorizontalAlignment="Left"
+                                Margin="0,20,0,0">
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="Update_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE930;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock x:Name="VersionText"
+                                               Text="{x:Bind Version}" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               Text="{x:Bind Cls:Globalization.GetString('UpdateLatest')}"
+                                               Name="VersionTip" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="NavigateGithub_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xEDE4;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="前往Github"
+                                               x:Uid="SettingGoGithubTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingGoGithubContent"
+                                               Text="贡献代码来帮助改进本应用" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="ShowUpdateLog_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xF000;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="更新历史"
+                                               x:Uid="SettingUpdateLogTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingUpdateLogContent"
+                                               Text="查看最近更新内容和以前的更新记录" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingRecovery/Text')}">
+                    <StackPanel Margin="0,20,0,0"
+                                HorizontalAlignment="Left">
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="ClearUp_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE7BA;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="初始化应用程序"
+                                               x:Uid="SettingInitAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingInitAppContent"
+                                               Text="删除所有数据并恢复成初始状态" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Name="ConfigManagerButton">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE148;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="管理配置文件"
+                                               x:Uid="SettingManageConfigTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingManageConfigContent"
+                                               Text="执行保存或恢复配置操作" />
+                                </StackPanel>
+                            </StackPanel>
+                            <Button.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Flyout.FlyoutPresenterStyle>
+                                        <Style TargetType="FlyoutPresenter">
+                                            <Setter Property="CornerRadius"
+                                                    Value="{StaticResource CustomCornerRadius}" />
+                                            <Setter Property="Background"
+                                                    Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                        </Style>
+                                    </Flyout.FlyoutPresenterStyle>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="导出"
+                                                x:Uid="SettingConfiguration_Export"
+                                                Name="ExportConfiguration"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0,0,5,0"
+                                                MinWidth="80"
+                                                Click="ExportConfiguration_Click" />
+                                        <Button Content="导入"
+                                                Name="ImportConfiguration"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="5,0,0,0"
+                                                x:Uid="SettingConfiguration_Import"
+                                                MinWidth="80"
+                                                Grid.Column="1"
+                                                Click="ImportConfiguration_Click" />
+                                    </Grid>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingOther/Text')}">
+                    <StackPanel Margin="0,20,0,0"
+                                HorizontalAlignment="Left">
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Name="PurchaseApp"
+                                BorderThickness="0"
+                                Click="PurchaseApp_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE14D;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="购买本应用"
+                                               x:Uid="SettingPurchaseAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingPurchaseAppContent"
+                                               Text="购买此应用以解锁全部功能并支持开发" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="ReviewButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE134;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="编写评价"
+                                               x:Uid="SettingReviewAppTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingReviewAppContent"
+                                               Text="在微软应用商店中留下您对本应用的评价吧" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="SystemInfoButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE946;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="系统信息"
+                                               x:Uid="SettingSystemInfoTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingSystemInfoContent"
+                                               Text="查看软硬件系统信息" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="ExportLog_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE9F9;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="日志文件"
+                                               x:Uid="SettingLogTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingLogContent"
+                                               Text="导出错误日志文件以供开发者分析相关问题" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="ShortcutGuide_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE816;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="键盘快捷键指南"
+                                               x:Uid="SettingKeyboardGuideTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingKeyboardGuideContent"
+                                               Text="包含所有受本应用支持的键盘快捷键说明" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Click="AQSGuide_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE816;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="高级查询语法(AQS)指南"
+                                               x:Uid="SettingAQSGuideTitle" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               x:Uid="SettingAQSGuideContent"
+                                               Text="Advanced Query Syntax 使用方法和结构说明" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                BorderThickness="0"
+                                Name="CopyQQ"
+                                x:Load="False"
+                                Visibility="Collapsed"
+                                Click="CopyQQ_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Height="30"
+                                         Width="30"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Foreground="{ThemeResource SystemAccentColor}"
+                                              Glyph="&#xE136;" />
+                                </Viewbox>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="QQ交流群" />
+                                    <TextBlock Foreground="Gray"
+                                               FontSize="12"
+                                               Text="点击复制: 937294538" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingAbout/Text')}">
+                    <StackPanel>
+                        <TextBlock FontSize="15"
+                                   Text="特别感谢以下提供翻译的人员:"
+                                   Margin="0,10,0,0"
+                                   x:Uid="ThankTranslate"
+                                   Name="ThankTranslate" />
+                        <TextBlock Text="• Yann Lacroix (French)"
+                                   Margin="5,5,0,0" />
+                        <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))"
+                                   Margin="5,5,0,0" />
+                        <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
+                                   Margin="5,5,0,0" />
+                        <TextBlock Text="• Jonas Gunkel (German)"
+                                   Margin="5,5,0,0" />
+                    </StackPanel>
+                </control:Case>
+            </control:SwitchPresenter>
+        </muxc:NavigationView>
 
-                <ToggleSwitch Header="路径历史记录"
-                              Margin="0,20,0,0"
-                              OnContent="保存"
-                              OffContent="清除"
-                              x:Uid="SettingPathHistory"
-                              Name="PathHistory"
-                              Toggled="PathHistory_Toggled" />
-
-                <ToggleSwitch Header="搜索历史记录"
-                              Margin="0,20,0,0"
-                              OnContent="保存"
-                              OffContent="清除"
-                              x:Uid="SettingSearchHistory"
-                              Name="SearchHistory"
-                              Toggled="SearchHistory_Toggled" />
-
-                <TextBlock Text="版本"
-                           x:Uid="SettingVersion"
-                           FontSize="22"
-                           Margin="0,30,0,0" />
-                <StackPanel HorizontalAlignment="Left"
-                            Margin="0,20,0,0">
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="Update_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE930;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock x:Name="VersionText"
-                                           Text="{x:Bind Version}"/>
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           Text="{x:Bind Cls:Globalization.GetString('UpdateLatest')}"
-                                           Name="VersionTip" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="NavigateGithub_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xEDE4;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="前往Github"
-                                           x:Uid="SettingGoGithubTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingGoGithubContent"
-                                           Text="贡献代码来帮助改进本应用" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="ShowUpdateLog_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xF000;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="更新历史"
-                                           x:Uid="SettingUpdateLogTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingUpdateLogContent"
-                                           Text="查看最近更新内容和以前的更新记录" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-                <TextBlock Text="恢复"
-                           x:Uid="SettingRecovery"
-                           FontSize="22"
-                           Margin="0,30,0,0" />
-                <StackPanel Margin="0,20,0,0"
-                            HorizontalAlignment="Left">
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="ClearUp_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE7BA;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="初始化应用程序"
-                                           x:Uid="SettingInitAppTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingInitAppContent"
-                                           Text="删除所有数据并恢复成初始状态" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Name="ConfigManagerButton">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE148;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="管理配置文件"
-                                           x:Uid="SettingManageConfigTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingManageConfigContent"
-                                           Text="执行保存或恢复配置操作" />
-                            </StackPanel>
-                        </StackPanel>
-                        <Button.Flyout>
-                            <Flyout Placement="Bottom">
-                                <Flyout.FlyoutPresenterStyle>
-                                    <Style TargetType="FlyoutPresenter">
-                                        <Setter Property="CornerRadius"
-                                                Value="{StaticResource CustomCornerRadius}" />
-                                        <Setter Property="Background"
-                                                Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                    </Style>
-                                </Flyout.FlyoutPresenterStyle>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Button Content="导出"
-                                            x:Uid="SettingConfiguration_Export"
-                                            Name="ExportConfiguration"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="0,0,5,0"
-                                            MinWidth="80"
-                                            Click="ExportConfiguration_Click" />
-                                    <Button Content="导入"
-                                            Name="ImportConfiguration"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="5,0,0,0"
-                                            x:Uid="SettingConfiguration_Import"
-                                            MinWidth="80"
-                                            Grid.Column="1"
-                                            Click="ImportConfiguration_Click" />
-                                </Grid>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                </StackPanel>
-                <TextBlock Margin="0,30,0,0"
-                           x:Uid="SettingOther"
-                           Text="其他"
-                           FontSize="22" />
-                <StackPanel Margin="0,20,0,0"
-                            HorizontalAlignment="Left">
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            Name="PurchaseApp"
-                            BorderThickness="0"
-                            Click="PurchaseApp_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE14D;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="购买本应用"
-                                           x:Uid="SettingPurchaseAppTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingPurchaseAppContent"
-                                           Text="购买此应用以解锁全部功能并支持开发" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="ReviewButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE134;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="编写评价"
-                                           x:Uid="SettingReviewAppTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingReviewAppContent"
-                                           Text="在微软应用商店中留下您对本应用的评价吧" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="SystemInfoButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE946;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="系统信息"
-                                           x:Uid="SettingSystemInfoTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingSystemInfoContent"
-                                           Text="查看软硬件系统信息" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="ExportLog_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE9F9;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="日志文件"
-                                           x:Uid="SettingLogTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingLogContent"
-                                           Text="导出错误日志文件以供开发者分析相关问题" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="ShortcutGuide_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE816;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="键盘快捷键指南"
-                                           x:Uid="SettingKeyboardGuideTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingKeyboardGuideContent"
-                                           Text="包含所有受本应用支持的键盘快捷键说明" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Click="AQSGuide_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE816;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="高级查询语法(AQS)指南"
-                                           x:Uid="SettingAQSGuideTitle" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           x:Uid="SettingAQSGuideContent"
-                                           Text="Advanced Query Syntax 使用方法和结构说明" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            BorderThickness="0"
-                            Name="CopyQQ"
-                            x:Load="False"
-                            Visibility="Collapsed"
-                            Click="CopyQQ_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox Height="30"
-                                     Width="30"
-                                     VerticalAlignment="Center">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Foreground="{ThemeResource SystemAccentColor}"
-                                          Glyph="&#xE136;" />
-                            </Viewbox>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="QQ交流群" />
-                                <TextBlock Foreground="Gray"
-                                           FontSize="12"
-                                           Text="点击复制: 937294538" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-                <TextBlock Margin="0,30,0,0"
-                           x:Uid="SettingAbout"
-                           Text="关于"
-                           FontSize="22" />
-                <TextBlock FontSize="15"
-                           Text="特别感谢以下提供翻译的人员:"
-                           Margin="0,10,0,0"
-                           x:Uid="ThankTranslate"
-                           Name="ThankTranslate" />
-                <TextBlock Text="• Yann Lacroix (French)"
-                           Margin="5,5,0,0" />
-                <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))"
-                           Margin="5,5,0,0" />
-                <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
-                           Margin="5,5,0,0" />
-                <TextBlock Text="• Jonas Gunkel (German)"
-                           Margin="5,5,0,0" />
-            </StackPanel>
-        </ScrollViewer>
         <control:Loading x:Name="LoadingControl"
                          IsLoading="False">
             <control:Loading.Background>

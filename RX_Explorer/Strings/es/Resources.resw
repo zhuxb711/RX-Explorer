@@ -57,7 +57,7 @@
   <data name="AttributeType.Text" xml:space="preserve">
     <value>Tipo</value>
   </data>
-  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+  <data name="AutoBootOnStartupLabel.Text" xml:space="preserve">
     <value>Ejecutar al inicio</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
@@ -556,7 +556,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Básico</value>
   </data>
-  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+  <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>Método para abrir carpetas</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
@@ -809,7 +809,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="CompressDialogName.Header" xml:space="preserve">
     <value>Nombre de archivo</value>
   </data>
-  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+  <data name="SettingTreeViewDetachLabel.Text" xml:space="preserve">
     <value>Árbol de carpetas</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
@@ -827,7 +827,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>QuickLook</value>
   </data>
-  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+  <data name="QuicklookTipContent.Text" xml:space="preserve">
     <value>QuickLook es un programa auxiliar para poder ver de manera rápida y práctica el contenido de archivos. Para habilitar esta función, debes instalar antes QuickLook y asegurarte de que funciona correctamente. Puedes seleccionar cualquier archivo dentro de RX Explorer y pulsar la barra espaciadora para activar QuickLook.</value>
   </data>
   <data name="AppName.Text" xml:space="preserve">
@@ -836,7 +836,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personalizar</value>
   </data>
-  <data name="LanguageComboBox.Header" xml:space="preserve">
+  <data name="LanguageComboBoxLabel.Text" xml:space="preserve">
     <value>Idioma</value>
   </data>
   <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
@@ -1739,7 +1739,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>Eliminar atributos ocultos</value>
   </data>
-  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+  <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
     <value>Mostrar archivos/carpetas ocultos</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
@@ -1775,7 +1775,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>No se ha podido restablecer Win+E debido a un error inesperado.</value>
   </data>
-  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+  <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Usar [Win+E] para activar esta aplicación</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
@@ -2753,21 +2753,6 @@ Las denominaciones no válidas son:
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Etiqueta morada</value>
   </data>
-  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
-    <value>¿Hay algún problema? Prueba lo siguiente</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
-    <value>Haga clic aquí para ir</value>
-  </data>
-  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
-    <value>Haga clic aquí para exportar</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
-    <value>1. ¿Cómo abrir Win+E manualmente? Enlace tutorial:</value>
-  </data>
-  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
-    <value>2. ¿Cómo restaurar manualmente Win+E? Restaurar archivo:</value>
-  </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algoritmo de compresión</value>
   </data>
@@ -2938,7 +2923,7 @@ Las denominaciones no válidas son:
   <data name="AttributeVersion.Text" xml:space="preserve">
     <value>Versión</value>
   </data>
-  <data name="AlwaysOnTop.Header" xml:space="preserve">
+  <data name="AlwaysOnTopLabel.Text" xml:space="preserve">
     <value>Siempre en la cima</value>
   </data>
   <data name="AlwaysOnTop.OffContent" xml:space="preserve">
@@ -3028,7 +3013,7 @@ Las denominaciones no válidas son:
   <data name="SearchEngineConfig_UseEverythingAsDefault" xml:space="preserve">
     <value>Utilice siempre el motor de búsqueda de "Everything"</value>
   </data>
-  <data name="SettingNavLayout.Header" xml:space="preserve">
+  <data name="SettingNavLayoutLabel.Text" xml:space="preserve">
     <value>Diseño de la vista de navegación</value>
   </data>
   <data name="SettingNavLayout.OffContent" xml:space="preserve">
@@ -3134,7 +3119,7 @@ Las denominaciones no válidas son:
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</value>
   </data>
-  <data name="SettingTabPreview.Header" xml:space="preserve">
+  <data name="SettingTabPreviewLabel.Text" xml:space="preserve">
     <value>Vista previa de la pestaña</value>
   </data>
   <data name="SettingTabPreview.OffContent" xml:space="preserve">
@@ -3233,7 +3218,7 @@ Las denominaciones no válidas son:
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>De vuelta a casa</value>
   </data>
-  <data name="FontFamilyComboBox.Header" xml:space="preserve">
+  <data name="FontFamilyComboBoxLabel.Text" xml:space="preserve">
     <value>Familia tipográfica</value>
   </data>
   <data name="SystemTip_FontFamilyRestartContent" xml:space="preserve">

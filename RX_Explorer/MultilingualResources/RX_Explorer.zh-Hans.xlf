@@ -66,7 +66,7 @@
           <source>Type</source>
           <target state="translated">类型</target>
         </trans-unit>
-        <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AutoBootOnStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>Auto start at boot</source>
           <target state="translated">随系统自动启动</target>
         </trans-unit>
@@ -712,7 +712,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Basic</source>
           <target state="translated">基本</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">文件夹打开方式</target>
         </trans-unit>
@@ -1012,7 +1012,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>WiFi Share</source>
           <target state="translated">WiFi共享</target>
         </trans-unit>
-        <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTreeViewDetachLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder tree</source>
           <target state="translated">文件夹目录树</target>
         </trans-unit>
@@ -1036,7 +1036,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Quicklook</source>
           <target state="translated">Quicklook预览</target>
         </trans-unit>
-        <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</target>
         </trans-unit>
@@ -1048,7 +1048,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Personalize</source>
           <target state="translated">个性化</target>
         </trans-unit>
-        <trans-unit id="LanguageComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="LanguageComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Language</source>
           <target state="translated">语言</target>
         </trans-unit>
@@ -2224,7 +2224,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Remove hidden attributes</source>
           <target state="translated">尝试移除隐藏属性</target>
         </trans-unit>
-        <trans-unit id="SettingDisplayHiddenItem.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
           <source>Show hidden files/folders</source>
           <target state="translated">显示隐藏文件/文件夹</target>
         </trans-unit>
@@ -2272,7 +2272,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Unable to restore Win+E due to an unexpected error</source>
           <target state="translated">由于出现了意外错误，无法还原Win+E键</target>
         </trans-unit>
-        <trans-unit id="UseWinAndEActivate.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
           <source>Use [Win+E] to activate this app</source>
           <target state="translated">使用[Win+E]激活此应用</target>
         </trans-unit>
@@ -3654,26 +3654,6 @@ Invalid names include
           <source>Purple tag</source>
           <target state="translated">紫色标记</target>
         </trans-unit>
-        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
-          <source>Is there a problem? Try the following</source>
-          <target state="translated">存在问题? 尝试以下方法</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
-          <source>Click here to go</source>
-          <target state="translated">点击这里前往</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
-          <source>Click here to export</source>
-          <target state="translated">点击这里导出</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
-          <source>1. How to open the Win+E manually? Tutorial link:</source>
-          <target state="translated">1. 如何手动开启Win+E? 教程链接:</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
-          <source>2. How to manually restore Win+E? Restore file:</source>
-          <target state="translated">2. 如何手动还原Win+E? 还原文件:</target>
-        </trans-unit>
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">压缩算法</target>
@@ -3900,7 +3880,7 @@ Invalid names include
           <source>Version</source>
           <target state="translated">版本</target>
         </trans-unit>
-        <trans-unit id="AlwaysOnTop.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AlwaysOnTopLabel.Text" translate="yes" xml:space="preserve">
           <source>Always On Top</source>
           <target state="translated">悬浮于其他应用之上</target>
         </trans-unit>
@@ -4020,7 +4000,7 @@ Invalid names include
           <source>Always use the Everything search engine</source>
           <target state="translated">始终使用Everything搜索引擎</target>
         </trans-unit>
-        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingNavLayoutLabel.Text" translate="yes" xml:space="preserve">
           <source>Navigation view layout</source>
           <target state="translated">导航视图布局</target>
         </trans-unit>
@@ -4161,7 +4141,7 @@ Invalid names include
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">一个强制更新已发布，这表明您正在使用的版本可能存在严重问题，请停止使用当前版本并尽快更新至最新版</target>
         </trans-unit>
-        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTabPreviewLabel.Text" translate="yes" xml:space="preserve">
           <source>Tab preview</source>
           <target state="translated">标签页预览</target>
         </trans-unit>
@@ -4293,7 +4273,7 @@ Invalid names include
           <source>Back to Home</source>
           <target state="translated">返回主页</target>
         </trans-unit>
-        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="FontFamilyComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">字体</target>
         </trans-unit>

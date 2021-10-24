@@ -66,7 +66,7 @@
           <source>Type</source>
           <target state="translated" state-qualifier="tm-suggestion">類型</target>
         </trans-unit>
-        <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AutoBootOnStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>Auto start at boot</source>
           <target state="translated">開機自動啟動</target>
         </trans-unit>
@@ -724,7 +724,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Basic</source>
           <target state="translated" state-qualifier="tm-suggestion">基本</target>
         </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">資料夾開啟方式</target>
         </trans-unit>
@@ -1024,7 +1024,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>WiFi Share</source>
           <target state="translated">Wi-Fi 分享</target>
         </trans-unit>
-        <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTreeViewDetachLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder tree</source>
           <target state="translated">資料夾目錄樹</target>
         </trans-unit>
@@ -1048,7 +1048,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Quicklook</source>
           <target state="translated">Quicklook</target>
         </trans-unit>
-        <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="QuicklookTipContent.Text" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一個輔助軟體，可方便快捷地查看檔案內容。若要啟用此功能，必須預先安裝QuickLook並確保QuickLook正常執行。 您可以在RX 檔案總管中單擊任意檔案，然後按空格鍵以使用QuickLook</target>
         </trans-unit>
@@ -1060,7 +1060,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Personalize</source>
           <target state="translated" state-qualifier="tm-suggestion">個人化</target>
         </trans-unit>
-        <trans-unit id="LanguageComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="LanguageComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Language</source>
           <target state="translated" state-qualifier="tm-suggestion">語言</target>
         </trans-unit>
@@ -2228,7 +2228,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Remove hidden attributes</source>
           <target state="translated">刪除隱藏的屬性</target>
         </trans-unit>
-        <trans-unit id="SettingDisplayHiddenItem.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
           <source>Show hidden files/folders</source>
           <target state="translated">顯示隱藏的檔案/資料夾</target>
         </trans-unit>
@@ -2276,7 +2276,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Unable to restore Win+E due to an unexpected error</source>
           <target state="translated">由於意外錯誤，無法定向Win + E</target>
         </trans-unit>
-        <trans-unit id="UseWinAndEActivate.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
           <source>Use [Win+E] to activate this app</source>
           <target state="translated">使用[Win + E]執行此程式</target>
         </trans-unit>
@@ -3654,26 +3654,6 @@ Invalid names include
           <source>Purple tag</source>
           <target state="translated">紫色標籤</target>
         </trans-unit>
-        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
-          <source>Is there a problem? Try the following</source>
-          <target state="translated">有問題嗎? 嘗試以下</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
-          <source>Click here to go</source>
-          <target state="translated">點擊這裡進入</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
-          <source>Click here to export</source>
-          <target state="translated">點擊這裡導出</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
-          <source>1. How to open the Win+E manually? Tutorial link:</source>
-          <target state="translated">1.如何手動打開Win+E? 教程鏈接:</target>
-        </trans-unit>
-        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
-          <source>2. How to manually restore Win+E? Restore file:</source>
-          <target state="translated">2. 如何手動還原Win+E? 恢復文件:</target>
-        </trans-unit>
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">壓縮算法</target>
@@ -3900,7 +3880,7 @@ Invalid names include
           <source>Version</source>
           <target state="translated">版本</target>
         </trans-unit>
-        <trans-unit id="AlwaysOnTop.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="AlwaysOnTopLabel.Text" translate="yes" xml:space="preserve">
           <source>Always On Top</source>
           <target state="translated">總在最前面</target>
         </trans-unit>
@@ -4020,7 +4000,7 @@ Invalid names include
           <source>Always use the Everything search engine</source>
           <target state="translated">始終使用Everything搜索引擎</target>
         </trans-unit>
-        <trans-unit id="SettingNavLayout.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingNavLayoutLabel.Text" translate="yes" xml:space="preserve">
           <source>Navigation view layout</source>
           <target state="translated">導航視圖佈局</target>
         </trans-unit>
@@ -4161,7 +4141,7 @@ Invalid names include
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>
           <target state="translated">已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</target>
         </trans-unit>
-        <trans-unit id="SettingTabPreview.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingTabPreviewLabel.Text" translate="yes" xml:space="preserve">
           <source>Tab preview</source>
           <target state="translated">標籤頁預覽</target>
         </trans-unit>
@@ -4293,7 +4273,7 @@ Invalid names include
           <source>Back to Home</source>
           <target state="translated">返回首頁</target>
         </trans-unit>
-        <trans-unit id="FontFamilyComboBox.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="FontFamilyComboBoxLabel.Text" translate="yes" xml:space="preserve">
           <source>Font family</source>
           <target state="translated">字體</target>
         </trans-unit>

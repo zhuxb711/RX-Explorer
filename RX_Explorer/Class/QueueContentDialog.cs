@@ -48,9 +48,8 @@ namespace RX_Explorer.Class
         public QueueContentDialog()
         {
             DefaultButton = ContentDialogButton.Primary;
-            Style = Application.Current.Resources["CustomContentDialogStyle"] as Style;
-            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
             RequestedTheme = AppThemeController.Current.Theme;
+            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
         }
     }
 }

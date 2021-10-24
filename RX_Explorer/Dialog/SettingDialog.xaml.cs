@@ -362,6 +362,8 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
 
+            CloseButtonText = Globalization.GetString("Common_Dialog_ConfirmButton");
+
             Loading += SettingDialog_Loading;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
 
@@ -1983,11 +1985,6 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void QuicklookQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            QuicklookTip.IsOpen = true;
-        }
-
         private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
         {
             IsQuicklookEnabled = EnableQuicklook.IsOn;
@@ -2837,12 +2834,12 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void WIN_E_Question_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private async void WinEManualGuidence_Click(object sender, RoutedEventArgs e)
         {
-            WIN_E_Tip.IsOpen = true;
+            await Launcher.LaunchUriAsync(new Uri("https://github.com/zhuxb711/RX-Explorer/issues/27#issuecomment-692418152"));
         }
 
-        private async void ExportWinERestoreFile_Click(object sender, RoutedEventArgs e)
+        private async void WinEExportRestoreFile_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -3153,5 +3150,12 @@ namespace RX_Explorer.Dialog
             }
         }
 
+        private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+        {
+            if (args.InvokedItem is TextBlock Block)
+            {
+                PresenterSwitcher.Value = Convert.ToString(Block.Text);
+            }
+        }
     }
 }
