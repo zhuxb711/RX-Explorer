@@ -1,18 +1,18 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.RenameDialog"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          x:Uid="RenameDialog"
-                          Title="重命名"
-                          CloseButtonText="取消"
-                          PrimaryButtonText="确定"
-                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.RenameDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         x:Uid="RenameDialog"
+                         Title="重命名"
+                         CloseButtonText="取消"
+                         PrimaryButtonText="确定"
+                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <local:QueueContentDialog.Resources>
+    <Cls:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="InvalidNameTip"
                               IsLightDismissEnabled="True"
                               x:Uid="PresentInvalidNameTip"
@@ -23,7 +23,7 @@
                               x:Uid="RenameDialogInvalidCharTip"
                               Title="错误"
                               Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
-    </local:QueueContentDialog.Resources>
+    </Cls:QueueContentDialog.Resources>
     <Grid>
         <StackPanel Orientation="Vertical"
                     Width="300">
@@ -43,4 +43,4 @@
             </ScrollViewer>
         </StackPanel>
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

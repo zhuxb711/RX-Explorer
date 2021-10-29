@@ -1857,28 +1857,22 @@
   <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
     <value>{ItemNum} 个项目</value>
   </data>
-  <data name="TerminalDialogFormatErrorTip.Subtitle" xml:space="preserve">
+  <data name="TerminalArgumentErrorText.Text" xml:space="preserve">
     <value>必须包含[CurrentLocation], 该参数用于指导RX如何填写当前文件夹路径。格式: &lt;切换至目录命令&gt; [CurrentLocation]</value>
-  </data>
-  <data name="TerminalDialogFormatErrorTip.Title" xml:space="preserve">
-    <value>错误</value>
   </data>
   <data name="Common_Dialog_ModifyButton" xml:space="preserve">
     <value>修改</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog.Title" xml:space="preserve">
-    <value>终端配置</value>
-  </data>
-  <data name="ModifyDefaultTerminalDialog_Argument.Header" xml:space="preserve">
+  <data name="ModifyTerminalArgumentLabel.Text" xml:space="preserve">
     <value>参数</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_Argument.PlaceholderText" xml:space="preserve">
+  <data name="ModifyTerminalArgument.PlaceholderText" xml:space="preserve">
     <value>[CurrentLocation]代表当前文件夹路径</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_ExecutablePath.Header" xml:space="preserve">
+  <data name="ModifyTerminalExecutablePathLabel.Text" xml:space="preserve">
     <value>路径</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" xml:space="preserve">
+  <data name="ModifyTerminalExecutablePath.PlaceholderText" xml:space="preserve">
     <value>可执行文件路径</value>
   </data>
   <data name="ModifyDefaultTerminalDialog_ProfileSelector.Header" xml:space="preserve">
@@ -1887,10 +1881,10 @@
   <data name="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" xml:space="preserve">
     <value>新建或选择配置文件</value>
   </data>
-  <data name="DefaultTerminal.Header" xml:space="preserve">
+  <data name="DefaultTerminalLabel.Text" xml:space="preserve">
     <value>默认终端应用</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
+  <data name="ModifyTerminalRemoveProfile.Content" xml:space="preserve">
     <value>移除配置文件</value>
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
@@ -1962,7 +1956,7 @@
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>正在获取必应图片...</value>
   </data>
-  <data name="FileLoadMode.Header" xml:space="preserve">
+  <data name="FileLoadModeLabel.Text" xml:space="preserve">
     <value>图标加载模式</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
@@ -2094,7 +2088,7 @@
   <data name="SettingConfiguration_Import.Content" xml:space="preserve">
     <value>导入</value>
   </data>
-  <data name="SettingPageContextMenuExt.Header" xml:space="preserve">
+  <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>扩展右键菜单</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
@@ -2112,7 +2106,7 @@
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>关闭此标签页</value>
   </data>
-  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+  <data name="SettingPageSearchEngineConfigLabel.Text" xml:space="preserve">
     <value>搜索引擎配置</value>
   </data>
   <data name="NameFilterCheckBox6Text.Header" xml:space="preserve">
@@ -2170,7 +2164,7 @@
   <data name="AvoidRecycleBin.Text" xml:space="preserve">
     <value>绕过回收站并永久删除</value>
   </data>
-  <data name="DeleteConfirmSwitch.Header" xml:space="preserve">
+  <data name="DeleteConfirmSwitchLabel.Text" xml:space="preserve">
     <value>弹出删除确认提示框</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
@@ -3113,7 +3107,7 @@
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>用户已取消该任务</value>
   </data>
-  <data name="DefaultDisplayMode.Header" xml:space="preserve">
+  <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
     <value>首选文件布局模式</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">

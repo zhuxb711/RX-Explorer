@@ -1,27 +1,27 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.BluetoothFileTransfer"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          Title="正在初始化"
-                          x:Uid="BluetoothTranfer"
-                          SecondaryButtonText="中止"
-                          SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick">
-    <local:QueueContentDialog.Resources>
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.BluetoothFileTransfer"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         Title="正在初始化"
+                         x:Uid="BluetoothTranfer"
+                         SecondaryButtonText="中止"
+                         SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick">
+    <Cls:QueueContentDialog.Resources>
         <x:Double x:Key="ContentDialogMaxWidth">350</x:Double>
-    </local:QueueContentDialog.Resources>
+    </Cls:QueueContentDialog.Resources>
 
     <StackPanel Orientation="Vertical"
                 VerticalAlignment="Center">
         <TextBlock Name="TransferName"
                    TextTrimming="CharacterEllipsis"
-                   ToolTipService.ToolTip="{x:Bind TransferName.Text}"/>
-        <TextBlock Name="TransferDeviceName" 
+                   ToolTipService.ToolTip="{x:Bind TransferName.Text}" />
+        <TextBlock Name="TransferDeviceName"
                    ToolTipService.ToolTip="{x:Bind TransferDeviceName.Text}"
-                   Margin="0,5,0,0"/>
+                   Margin="0,5,0,0" />
         <muxc:ProgressBar Name="ProgressControl"
                           Height="8"
                           Margin="0,10,0,0"
@@ -33,4 +33,4 @@
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="Wrap" />
     </StackPanel>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

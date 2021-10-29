@@ -7,48 +7,52 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 提供ContentDialog队列(按序)弹出的实现
-    /// </summary>
     public class QueueContentDialog : ContentDialog
     {
         private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
 
-        private static volatile int WaitCount;
+        public static bool IsRunningOrWaiting => Locker.CurrentCount == 0;
 
-        /// <summary>
-        /// 指示当前是否存在正处于弹出状态的ContentDialog
-        /// </summary>
-        public static bool IsRunningOrWaiting => WaitCount != 0;
-
-        /// <summary>
-        /// 显示对话框
-        /// </summary>
-        /// <returns></returns>
         public new async Task<ContentDialogResult> ShowAsync()
         {
             try
             {
-                Interlocked.Increment(ref WaitCount);
-
                 await Locker.WaitAsync();
-
                 return await base.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not pop up the ContentDialog");
+                return ContentDialogResult.None;
             }
             finally
             {
                 Locker.Release();
-                Interlocked.Decrement(ref WaitCount);
             }
         }
 
-        /// <summary>
-        /// 初始化QueueContentDialog
-        /// </summary>
         public QueueContentDialog()
         {
             DefaultButton = ContentDialogButton.Primary;
             RequestedTheme = AppThemeController.Current.Theme;
+            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+            Opened += QueueContentDialog_Opened;
+            Closed += QueueContentDialog_Closed;
+        }
+
+        private void QueueContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
+        {
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
+        }
+
+        private void QueueContentDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+        {
+            AppThemeController.Current.ThemeChanged -= Current_ThemeChanged;
+        }
+
+        private void Current_ThemeChanged(object sender, ElementTheme newTheme)
+        {
+            RequestedTheme = newTheme;
             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
         }
     }

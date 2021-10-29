@@ -1857,28 +1857,22 @@
   <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
     <value>{ItemNum} 個項目</value>
   </data>
-  <data name="TerminalDialogFormatErrorTip.Subtitle" xml:space="preserve">
+  <data name="TerminalArgumentErrorText.Text" xml:space="preserve">
     <value>必須包含[CurrentLocation]，此參數用於指示RX如何填寫當前文件夾位置.。格式: &lt;切換到目錄命令&gt; [CurrentLocation]</value>
-  </data>
-  <data name="TerminalDialogFormatErrorTip.Title" xml:space="preserve">
-    <value>錯誤</value>
   </data>
   <data name="Common_Dialog_ModifyButton" xml:space="preserve">
     <value>修改</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog.Title" xml:space="preserve">
-    <value>終端配置</value>
-  </data>
-  <data name="ModifyDefaultTerminalDialog_Argument.Header" xml:space="preserve">
+  <data name="ModifyTerminalArgumentLabel.Text" xml:space="preserve">
     <value>參數</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_Argument.PlaceholderText" xml:space="preserve">
+  <data name="ModifyTerminalArgument.PlaceholderText" xml:space="preserve">
     <value>[CurrentLocation]代表當前文件夾路徑</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_ExecutablePath.Header" xml:space="preserve">
+  <data name="ModifyTerminalExecutablePathLabel.Text" xml:space="preserve">
     <value>路徑</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" xml:space="preserve">
+  <data name="ModifyTerminalExecutablePath.PlaceholderText" xml:space="preserve">
     <value>可執行文件路徑</value>
   </data>
   <data name="ModifyDefaultTerminalDialog_ProfileSelector.Header" xml:space="preserve">
@@ -1887,10 +1881,10 @@
   <data name="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" xml:space="preserve">
     <value>創建或選擇一個配置文件</value>
   </data>
-  <data name="DefaultTerminal.Header" xml:space="preserve">
+  <data name="DefaultTerminalLabel.Text" xml:space="preserve">
     <value>默認終端</value>
   </data>
-  <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
+  <data name="ModifyTerminalRemoveProfile.Content" xml:space="preserve">
     <value>刪除配置</value>
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
@@ -1962,7 +1956,7 @@
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>正在取得Bing圖片</value>
   </data>
-  <data name="FileLoadMode.Header" xml:space="preserve">
+  <data name="FileLoadModeLabel.Text" xml:space="preserve">
     <value>圖標加載方式</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
@@ -2094,7 +2088,7 @@
   <data name="SettingConfiguration_Import.Content" xml:space="preserve">
     <value>導入</value>
   </data>
-  <data name="SettingPageContextMenuExt.Header" xml:space="preserve">
+  <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>擴展上下文菜單</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
@@ -2112,7 +2106,7 @@
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>關閉此選項卡</value>
   </data>
-  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+  <data name="SettingPageSearchEngineConfigLabel.Text" xml:space="preserve">
     <value>搜索引擎配置</value>
   </data>
   <data name="NameFilterCheckBox6Text.Header" xml:space="preserve">
@@ -2170,7 +2164,7 @@
   <data name="AvoidRecycleBin.Text" xml:space="preserve">
     <value>跳過回收站並永久刪除</value>
   </data>
-  <data name="DeleteConfirmSwitch.Header" xml:space="preserve">
+  <data name="DeleteConfirmSwitchLabel.Text" xml:space="preserve">
     <value>彈出刪除確認</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
@@ -3113,7 +3107,7 @@
   <data name="QueueDialog_TaskCanceledByUser_Content" xml:space="preserve">
     <value>任務已被用戶取消</value>
   </data>
-  <data name="DefaultDisplayMode.Header" xml:space="preserve">
+  <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
     <value>首選文件佈局模式</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">

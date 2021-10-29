@@ -1,36 +1,35 @@
-﻿<local:QueueContentDialog
-    x:Class="RX_Explorer.Dialog.VideoEditDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RX_Explorer.Class"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:control="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d"
-    x:Uid="VideoEditDialog"
-    Title="剪辑"
-    PrimaryButtonText="确定"
-    CloseButtonText="取消"
-    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
-    CloseButtonClick="QueueContentDialog_CloseButtonClick">
+﻿<Cls:QueueContentDialog x:Class="RX_Explorer.Dialog.VideoEditDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:Cls="using:RX_Explorer.Class"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+                        xmlns:control="using:Microsoft.UI.Xaml.Controls"
+                        mc:Ignorable="d"
+                        x:Uid="VideoEditDialog"
+                        Title="剪辑"
+                        PrimaryButtonText="确定"
+                        CloseButtonText="取消"
+                        PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
+                        CloseButtonClick="QueueContentDialog_CloseButtonClick">
 
-    <local:QueueContentDialog.Resources>
-        <local:TimespanConverter x:Key="Converter" />
-        <local:InverseConverter x:Key="BooleanConverter"/>
+    <Cls:QueueContentDialog.Resources>
+        <Cls:TimespanConverter x:Key="Converter" />
+        <Cls:InverseConverter x:Key="BooleanConverter" />
         <control:TeachingTip x:Name="FormatErrorTip"
                              Title="提示"
                              x:Uid="VideoEditDialogErrorTip"
                              Subtitle="此时间格式不正确，请重新输入"
                              IsLightDismissEnabled="True"
-                             PreferredPlacement="TopRight"/>
-    </local:QueueContentDialog.Resources>
+                             PreferredPlacement="TopRight" />
+    </Cls:QueueContentDialog.Resources>
 
     <Grid Background="Transparent">
         <ScrollViewer VerticalScrollBarVisibility="Hidden"
                       VerticalScrollMode="Enabled"
                       HorizontalScrollMode="Disabled">
-            <StackPanel ChildrenTransitions="{x:Bind local:AnimationController.Current.EntranceTransitions,Mode=OneWay}">
+            <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.EntranceTransitions,Mode=OneWay}">
                 <MediaPlayerElement Name="MediaPlay"
                                     MinWidth="320"
                                     MinHeight="180"
@@ -91,9 +90,9 @@
                 <Grid Visibility="{x:Bind UseSameProfile.IsChecked,Mode=OneWay,Converter={StaticResource BooleanConverter}}"
                       Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
                     <ComboBox Margin="0,0,5,0"
                               Name="EncodingProfile"
@@ -116,4 +115,4 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

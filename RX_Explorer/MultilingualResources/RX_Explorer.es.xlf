@@ -2519,39 +2519,31 @@ Las denominaciones no válidas son:
           <source>{ItemNum} items</source>
           <target state="translated">{ItemNum} ítems</target>
         </trans-unit>
-        <trans-unit id="TerminalDialogFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="TerminalArgumentErrorText.Text" translate="yes" xml:space="preserve">
           <source>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</source>
           <target state="translated">Debe contener [CurrentLocation]; este parámetro se usa para enseñar a RX a rellenar la ubicación actual de la carpeta. Formato: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</target>
-        </trans-unit>
-        <trans-unit id="TerminalDialogFormatErrorTip.Title" translate="yes" xml:space="preserve">
-          <source>Error</source>
-          <target state="translated">Error</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_ModifyButton" translate="yes" xml:space="preserve">
           <source>Modify</source>
           <target state="translated">Modificar</target>
         </trans-unit>
-        <trans-unit id="DefaultTerminal.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DefaultTerminalLabel.Text" translate="yes" xml:space="preserve">
           <source>Default terminal</source>
           <target state="translated">Terminal por defecto</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog.Title" translate="yes" xml:space="preserve">
-          <source>Terminal configuration</source>
-          <target state="translated">Configuración de terminal</target>
-        </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_Argument.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalArgumentLabel.Text" translate="yes" xml:space="preserve">
           <source>Arguments</source>
           <target state="translated">Argumentos</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_Argument.PlaceholderText" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalArgument.PlaceholderText" translate="yes" xml:space="preserve">
           <source>[CurrentLocation] represents the current folder path</source>
           <target state="translated">[CurrentLocation] representa la ruta de carpeta actual.</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalExecutablePathLabel.Text" translate="yes" xml:space="preserve">
           <source>Path</source>
           <target state="translated">Ruta</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Executable file path</source>
           <target state="translated">Ruta de archivo ejecutable</target>
         </trans-unit>
@@ -2563,7 +2555,7 @@ Las denominaciones no válidas son:
           <source>Create or select a profile</source>
           <target state="translated">Crear o elige un perfil</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_RemoveProfile.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalRemoveProfile.Content" translate="yes" xml:space="preserve">
           <source>Remove configuration</source>
           <target state="translated">Eliminar configuración</target>
         </trans-unit>
@@ -2659,7 +2651,7 @@ Las denominaciones no válidas son:
           <source>Fetching Bing Pictures</source>
           <target state="translated">Obteniendo imágenes de Bing</target>
         </trans-unit>
-        <trans-unit id="FileLoadMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Icon loading mode</source>
           <target state="translated">Modo de carga de icono</target>
         </trans-unit>
@@ -2815,7 +2807,7 @@ Las denominaciones no válidas son:
           <source>Import</source>
           <target state="translated">Importar</target>
         </trans-unit>
-        <trans-unit id="SettingPageContextMenuExt.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
           <target state="translated">Menú contextual extendido</target>
         </trans-unit>
@@ -2839,7 +2831,7 @@ Las denominaciones no válidas son:
           <source>Close this tab</source>
           <target state="translated">Cerrar esta ventana</target>
         </trans-unit>
-        <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageSearchEngineConfigLabel.Text" translate="yes" xml:space="preserve">
           <source>Search engine configuration</source>
           <target state="translated">Configuración de motor de búsqueda</target>
         </trans-unit>
@@ -2903,7 +2895,7 @@ Las denominaciones no válidas son:
           <source>Skip the recycle bin and delete permanently</source>
           <target state="translated">Omitir papelera y eliminar permanentemente</target>
         </trans-unit>
-        <trans-unit id="DeleteConfirmSwitch.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DeleteConfirmSwitchLabel.Text" translate="yes" xml:space="preserve">
           <source>Pop-up the confirmation for deletion</source>
           <target state="translated">Mostrar confirmación para eliminarla</target>
         </trans-unit>
@@ -4131,7 +4123,7 @@ Las denominaciones no válidas son:
           <source>The task has been cancelled by the user</source>
           <target state="translated">La tarea ha sido cancelada por el usuario</target>
         </trans-unit>
-        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DefaultDisplayModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Preferred file layout mode</source>
           <target state="translated">Modo de diseño de archivo preferido</target>
         </trans-unit>

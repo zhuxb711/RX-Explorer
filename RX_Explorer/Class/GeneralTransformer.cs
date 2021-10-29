@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
 using System.Threading;

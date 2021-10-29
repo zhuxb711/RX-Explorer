@@ -43,6 +43,7 @@ namespace RX_Explorer.Dialog
     public sealed partial class SettingDialog : QueueContentDialog
     {
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
+        private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
 
         public bool IsDisplayProtectedSystemItems
         {
@@ -443,7 +444,7 @@ namespace RX_Explorer.Dialog
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseBuildInAsDefault"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfig_UseEverythingAsDefault"));
 
-                DefaultTerminal.Items.AddRange(SQLite.Current.GetAllTerminalProfile().Select((Item) => Item.Name));
+                TerminalList.AddRange(SQLite.Current.GetAllTerminalProfile());
 
                 await ApplyLocalSetting(true);
 
@@ -478,16 +479,16 @@ namespace RX_Explorer.Dialog
             {
                 try
                 {
-                    IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
+                    IEnumerable<TerminalProfile> CurrentTerminalProfiles = SQLite.Current.GetAllTerminalProfile();
 
-                    foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToArray())
+                    foreach (TerminalProfile NewProfile in CurrentTerminalProfiles.Except(TerminalList).ToArray())
                     {
-                        DefaultTerminal.Items.Add(NewProfile);
+                        TerminalList.Add(NewProfile);
                     }
 
-                    foreach (string RemoveProfile in DefaultTerminal.Items.Except(DataBase).ToArray())
+                    foreach (TerminalProfile RemoveProfile in TerminalList.Except(CurrentTerminalProfiles).ToArray())
                     {
-                        DefaultTerminal.Items.Remove(RemoveProfile);
+                        TerminalList.Remove(RemoveProfile);
                     }
 
                     await ApplyLocalSetting(false);
@@ -2164,35 +2165,6 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async void ModifyTerminal_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
-
-            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-            {
-                IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
-
-                foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
-                {
-                    DefaultTerminal.Items.Add(NewProfile);
-                }
-
-                foreach (string RemoveProfile in DefaultTerminal.Items.Except(DataBase).ToList())
-                {
-                    DefaultTerminal.Items.Remove(RemoveProfile);
-                }
-
-                if (DefaultTerminal.SelectedItem == null && DefaultTerminal.Items.Count > 0)
-                {
-                    DefaultTerminal.SelectedIndex = 0;
-                }
-                else
-                {
-                    ApplicationData.Current.SignalDataChanged();
-                }
-            }
-        }
-
         private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             if (Interlocked.Exchange(ref SliderValueChangeLock, 1) == 0)
@@ -3156,6 +3128,31 @@ namespace RX_Explorer.Dialog
             {
                 PresenterSwitcher.Value = Convert.ToString(Block.Text);
             }
+        }
+
+        private void RemoveProfile_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is TerminalProfile Profile)
+            {
+                try
+                {
+                    SQLite.Current.DeleteTerminalProfile(Profile);
+                    TerminalList.Remove(Profile);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not remove the terminal profile: {Profile}");
+                }
+                finally
+                {
+                    ApplicationData.Current.SignalDataChanged();
+                }
+            }
+        }
+
+        private void AddTerminalProfile_Click(object sender, RoutedEventArgs e)
+        {
+            TerminalList.Add(new TerminalProfile("New Terminal Porfile", "<>", string.Empty, default));
         }
     }
 }

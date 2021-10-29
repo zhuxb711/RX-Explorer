@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Interface;
+﻿using RX_Explorer.Dialog;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.IO;

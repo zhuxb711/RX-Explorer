@@ -1,18 +1,18 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.SecureAreaVerifyDialog"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          x:Uid="SAVerifyDialog"
-                          Title="输入凭据"
-                          PrimaryButtonText="确定"
-                          CloseButtonText="取消"
-                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.SecureAreaVerifyDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         x:Uid="SAVerifyDialog"
+                         Title="输入凭据"
+                         PrimaryButtonText="确定"
+                         CloseButtonText="取消"
+                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <local:QueueContentDialog.Resources>
+    <Cls:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="ErrorTip"
                               Title="错误"
                               x:Uid="SAVerifyDialogErrorTip"
@@ -20,7 +20,7 @@
                               IsLightDismissEnabled="True"
                               PreferredPlacement="TopRight"
                               Target="{x:Bind PrimaryPassword}" />
-    </local:QueueContentDialog.Resources>
+    </Cls:QueueContentDialog.Resources>
 
     <Grid>
         <PasswordBox Header="密码"
@@ -28,4 +28,4 @@
                      PlaceholderText="输入解锁密码"
                      Name="PrimaryPassword" />
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

@@ -1,52 +1,52 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.ResetDialog"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          Title="警告"
-                          x:Uid="ResetDialog"
-                          PrimaryButtonText="确认"
-                          CloseButtonText="取消"
-                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.ResetDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         Title="警告"
+                         x:Uid="ResetDialog"
+                         PrimaryButtonText="确认"
+                         CloseButtonText="取消"
+                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
-    <local:QueueContentDialog.Resources>
+    <Cls:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="ChoosePositionTip"
                               Title="Tips"
                               IsLightDismissEnabled="True"
                               PreferredPlacement="TopRight"
                               x:Uid="ResetDialogTip"
                               Target="{x:Bind ExportLocation}"
-                              Subtitle="请选择一个导出文件夹"/>
-    </local:QueueContentDialog.Resources>
+                              Subtitle="请选择一个导出文件夹" />
+    </Cls:QueueContentDialog.Resources>
 
     <Grid>
         <StackPanel>
             <TextBlock Text="此操作将初始化RX文件管理器"
                        FontSize="16"
-                       x:Uid="ResetDialogText1"/>
+                       x:Uid="ResetDialogText1" />
             <TextBlock Text="包括："
                        FontSize="16"
                        Margin="0,10,0,5"
-                       x:Uid="ResetDialogText2"/>
+                       x:Uid="ResetDialogText2" />
             <CheckBox Content="应用保存的设置、数据库存储的内容"
                       IsChecked="True"
-                      Name="ClearSetting" 
+                      Name="ClearSetting"
                       IsEnabled="False"
-                      x:Uid="ResetDialogCheckBox1"/>
+                      x:Uid="ResetDialogCheckBox1" />
             <CheckBox Content="安全域存储的文件"
                       Margin="0,5,0,0"
                       Name="ClearSecure"
                       x:Uid="ResetDialogCheckBox2"
                       Checked="ClearSecure_Checked"
-                      Unchecked="ClearSecure_Unchecked"/>
+                      Unchecked="ClearSecure_Unchecked" />
             <Button Content="选择导出位置"
                     Margin="28,5,0,0"
                     Name="ExportLocation"
                     x:Uid="ResetDialogButton"
-                    Click="ExportLocation_Click"/>
+                    Click="ExportLocation_Click" />
         </StackPanel>
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

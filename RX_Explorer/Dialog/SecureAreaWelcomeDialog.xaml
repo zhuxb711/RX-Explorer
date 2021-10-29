@@ -1,24 +1,24 @@
-﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.SecureAreaWelcomeDialog"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:local="using:RX_Explorer.Class"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          x:Uid="SAWelcomeDialog"
-                          Title="首次激活安全域"
-                          PrimaryButtonText="确定"
-                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-                          CloseButtonText="返回">
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.SecureAreaWelcomeDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         x:Uid="SAWelcomeDialog"
+                         Title="首次激活安全域"
+                         PrimaryButtonText="确定"
+                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+                         CloseButtonText="返回">
 
-    <local:QueueContentDialog.Resources>
+    <Cls:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="EmptyTip"
                               x:Uid="SAWelcomeDialogEmptyTip"
                               Title="Tips"
                               Subtitle="此处为必填项，不能留空"
                               IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"/>
+                              PreferredPlacement="TopRight" />
 
         <controls:TeachingTip x:Name="PasswordErrorTip"
                               Title="Tips"
@@ -26,25 +26,25 @@
                               Subtitle="输入的密码不一致，请检查一下密码"
                               IsLightDismissEnabled="True"
                               PreferredPlacement="TopRight"
-                              Target="{x:Bind ConfirmPassword}"/>
-    </local:QueueContentDialog.Resources>
-    
+                              Target="{x:Bind ConfirmPassword}" />
+    </Cls:QueueContentDialog.Resources>
+
     <Grid MinWidth="320">
         <StackPanel>
             <PasswordBox Header="主密码"
                          PlaceholderText="设置解锁密码"
                          x:Uid="SAWelcomeDialogPrimaryPassword"
-                         Name="PrimaryPassword"/>
+                         Name="PrimaryPassword" />
             <PasswordBox Header="再次输入密码"
                          PlaceholderText="输入密码"
                          x:Uid="SAWelcomeDialogConfrimPassword"
                          Margin="0,10,0,0"
-                         Name="ConfirmPassword"/>
+                         Name="ConfirmPassword" />
             <ComboBox Header="安全等级"
                       x:Uid="SAWelcomeDialogSecureLevel"
                       Margin="0,10,0,0"
                       Name="SecureLevel"
-                      Width="220"/>
+                      Width="220" />
             <StackPanel Orientation="Horizontal">
                 <CheckBox Content="使用Windows Hello代替密码认证"
                           x:Uid="SAWelcomeDialogUseWH"
@@ -52,7 +52,7 @@
                           Checked="UseWinHel_Checked"
                           Unchecked="UseWinHel_Unchecked"
                           Name="UseWinHel"
-                          IsEnabled="False"/>
+                          IsEnabled="False" />
                 <Viewbox Margin="4,8,0,0"
                          Width="25"
                          Visibility="Collapsed"
@@ -74,4 +74,4 @@
             </StackPanel>
         </StackPanel>
     </Grid>
-</local:QueueContentDialog>
+</Cls:QueueContentDialog>

@@ -1,7 +1,6 @@
 ﻿<Cls:QueueContentDialog x:Class="RX_Explorer.Dialog.DecompressDialog"
                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                        xmlns:local="using:RX_Explorer.Dialog"
                         xmlns:Cls="using:RX_Explorer.Class"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -31,7 +30,7 @@
                      RelativePanel.AlignLeftWithPanel="True"
                      Name="LocationText"
                      RelativePanel.LeftOf="SelectLocationButton"
-                     Text="{x:Bind ExtractLocation, Mode=TwoWay}"/>
+                     Text="{x:Bind ExtractLocation, Mode=TwoWay}" />
             <Button Content="选择位置"
                     x:Uid="DecompressionOptionDialog_LocationButton"
                     RelativePanel.AlignBottomWithPanel="True"
@@ -39,7 +38,7 @@
                     MinWidth="80"
                     Margin="10,0,0,0"
                     Name="SelectLocationButton"
-                    Click="SelectLocationButton_Click"/>
+                    Click="SelectLocationButton_Click" />
         </RelativePanel>
         <ComboBox Header="指定编码格式"
                   IsEditable="True"
@@ -52,6 +51,6 @@
                   SelectionChanged="EncodingOption_SelectionChanged"
                   Name="EncodingOption"
                   DisplayMemberPath="EncodingName"
-                  ItemsSource="{x:Bind AvailableEncoding}"/>
+                  ItemsSource="{x:Bind AvailableEncoding}" />
     </StackPanel>
 </Cls:QueueContentDialog>

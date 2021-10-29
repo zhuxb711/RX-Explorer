@@ -2460,35 +2460,27 @@ Invalid names include
           <target state="translated">{ItemNum} 個項目</target>
           <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
         </trans-unit>
-        <trans-unit id="TerminalDialogFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="TerminalArgumentErrorText.Text" translate="yes" xml:space="preserve">
           <source>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</source>
           <target state="translated">必須包含[CurrentLocation]，此參數用於指示RX如何填寫當前文件夾位置.。格式: <it id="1" pos="open">&lt;切換到目錄命令&gt;</it> [CurrentLocation]</target>
-        </trans-unit>
-        <trans-unit id="TerminalDialogFormatErrorTip.Title" translate="yes" xml:space="preserve">
-          <source>Error</source>
-          <target state="translated">錯誤</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_ModifyButton" translate="yes" xml:space="preserve">
           <source>Modify</source>
           <target state="translated">修改</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog.Title" translate="yes" xml:space="preserve">
-          <source>Terminal configuration</source>
-          <target state="translated">終端配置</target>
-        </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_Argument.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalArgumentLabel.Text" translate="yes" xml:space="preserve">
           <source>Arguments</source>
           <target state="translated">參數</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_Argument.PlaceholderText" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalArgument.PlaceholderText" translate="yes" xml:space="preserve">
           <source>[CurrentLocation] represents the current folder path</source>
           <target state="translated">[CurrentLocation]代表當前文件夾路徑</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalExecutablePathLabel.Text" translate="yes" xml:space="preserve">
           <source>Path</source>
           <target state="translated">路徑</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Executable file path</source>
           <target state="translated">可執行文件路徑</target>
         </trans-unit>
@@ -2500,11 +2492,11 @@ Invalid names include
           <source>Create or select a profile</source>
           <target state="translated">創建或選擇一個配置文件</target>
         </trans-unit>
-        <trans-unit id="DefaultTerminal.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DefaultTerminalLabel.Text" translate="yes" xml:space="preserve">
           <source>Default terminal</source>
           <target state="translated">默認終端</target>
         </trans-unit>
-        <trans-unit id="ModifyDefaultTerminalDialog_RemoveProfile.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="ModifyTerminalRemoveProfile.Content" translate="yes" xml:space="preserve">
           <source>Remove configuration</source>
           <target state="translated">刪除配置</target>
         </trans-unit>
@@ -2600,7 +2592,7 @@ Invalid names include
           <source>Fetching Bing Pictures</source>
           <target state="translated">正在取得Bing圖片</target>
         </trans-unit>
-        <trans-unit id="FileLoadMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Icon loading mode</source>
           <target state="translated">圖標加載方式</target>
         </trans-unit>
@@ -2776,7 +2768,7 @@ Invalid names include
           <source>Import</source>
           <target state="translated">導入</target>
         </trans-unit>
-        <trans-unit id="SettingPageContextMenuExt.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
           <target state="translated">擴展上下文菜單</target>
         </trans-unit>
@@ -2800,7 +2792,7 @@ Invalid names include
           <source>Close this tab</source>
           <target state="translated">關閉此選項卡</target>
         </trans-unit>
-        <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageSearchEngineConfigLabel.Text" translate="yes" xml:space="preserve">
           <source>Search engine configuration</source>
           <target state="translated">搜索引擎配置</target>
         </trans-unit>
@@ -2877,7 +2869,7 @@ Invalid names include
           <source>Skip the recycle bin and delete permanently</source>
           <target state="translated">跳過回收站並永久刪除</target>
         </trans-unit>
-        <trans-unit id="DeleteConfirmSwitch.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DeleteConfirmSwitchLabel.Text" translate="yes" xml:space="preserve">
           <source>Pop-up the confirmation for deletion</source>
           <target state="translated">彈出刪除確認</target>
         </trans-unit>
@@ -4133,7 +4125,7 @@ Invalid names include
           <source>The task has been cancelled by the user</source>
           <target state="translated">任務已被用戶取消</target>
         </trans-unit>
-        <trans-unit id="DefaultDisplayMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="DefaultDisplayModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Preferred file layout mode</source>
           <target state="translated">首選文件佈局模式</target>
         </trans-unit>

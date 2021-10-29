@@ -3,7 +3,6 @@
                     x:Class="RX_Explorer.GlobeDictionary"
                     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-                    xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
                     xmlns:Cls="using:RX_Explorer.Class">
 
     <ResourceDictionary.ThemeDictionaries>

@@ -1,17 +1,17 @@
-﻿<Cls:QueueContentDialog x:Class="RX_Explorer.Dialog.QuickStartModifiedDialog"
-                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                          xmlns:Cls="using:RX_Explorer.Class"
-                          xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
-                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-                          x:Uid="QuickStartDialog"
-                          Title="自定义区域"
-                          PrimaryButtonText="确定"
-                          CloseButtonText="取消"
-                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+﻿<Cls:QueueContentDialog  x:Class="RX_Explorer.Dialog.QuickStartModifiedDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:Cls="using:RX_Explorer.Class"
+                         xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                         mc:Ignorable="d"
+                         x:Uid="QuickStartDialog"
+                         Title="自定义区域"
+                         PrimaryButtonText="确定"
+                         CloseButtonText="取消"
+                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Cls:QueueContentDialog.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
@@ -86,17 +86,17 @@
                                         Background="{ThemeResource SystemBaseMediumLowColor}">
                                     <Image Stretch="Uniform"
                                            Width="30"
-                                           Height="30" 
-                                           Source="{x:Bind Logo}"/>
+                                           Height="30"
+                                           Source="{x:Bind Logo}" />
                                 </Border>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{x:Bind AppName}"
                                                ToolTipService.ToolTip="{x:Bind AppName}"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextTrimming="CharacterEllipsis" />
                                     <TextBlock Text="{x:Bind AppDescription}"
                                                ToolTipService.ToolTip="{x:Bind AppDescription}"
                                                FontSize="12"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
@@ -111,11 +111,11 @@
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                     <controls:ProgressBar IsIndeterminate="True"
-                                      Width="150"
-                                      Name="ProBar"
-                                      Minimum="0"
-                                      Maximum="100"
-                                      Margin="0,10,0,0" />
+                                          Width="150"
+                                          Name="ProBar"
+                                          Minimum="0"
+                                          Maximum="100"
+                                          Margin="0,10,0,0" />
                 </StackPanel>
             </Grid>
         </controls:TeachingTip>
@@ -152,7 +152,7 @@
                             Margin="5,0,0,0"
                             MinWidth="100"
                             x:Uid="QuickStartPickLogo"
-                            Click="PickWebLogo"/>
+                            Click="PickWebLogo" />
                     <Button Name="PickApp"
                             Content="选择应用"
                             Margin="5,0,0,0"
@@ -172,19 +172,19 @@
                                 <StackPanel MaxWidth="230">
                                     <TextBlock Text="您要选择哪一种应用?"
                                                TextWrapping="WrapWholeWords"
-                                               x:Uid="QuickStartPickFileType"/>
+                                               x:Uid="QuickStartPickFileType" />
                                     <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center"
                                                 Margin="0,10,0,0">
                                         <Button Content="UWP"
                                                 Width="100"
                                                 Name="PickUWP"
-                                                Click="PickUWP_Click"/>
+                                                Click="PickUWP_Click" />
                                         <Button Content="Win32"
                                                 Width="100"
                                                 Margin="10,0,0,0"
                                                 Name="PickWin32"
-                                                Click="PickWin32_Click"/>
+                                                Click="PickWin32_Click" />
                                     </StackPanel>
                                 </StackPanel>
                             </Flyout>

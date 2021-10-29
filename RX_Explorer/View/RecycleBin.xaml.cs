@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;

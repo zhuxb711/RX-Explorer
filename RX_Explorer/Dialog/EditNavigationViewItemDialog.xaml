@@ -1,25 +1,25 @@
-﻿<Cls:QueueContentDialog xmlns:Cls="using:RX_Explorer.Class"
-                        x:Class="RX_Explorer.Dialog.EditNavigationViewItemDialog"
-                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                        mc:Ignorable="d"
-                        Title="{x:Bind Cls:Globalization.GetString('CustomText')}"
-                        PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
-                        SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
-                        PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+﻿<Cls:QueueContentDialog  xmlns:Cls="using:RX_Explorer.Class"
+                         x:Class="RX_Explorer.Dialog.EditNavigationViewItemDialog"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         mc:Ignorable="d"
+                         Title="{x:Bind Cls:Globalization.GetString('CustomText')}"
+                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
+                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                         PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <StackPanel>
         <CheckBox Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                   IsChecked="True"
-                  IsEnabled="False"/>
+                  IsEnabled="False" />
         <CheckBox Name="RecycleBinItemCheckBox"
-                  Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"/>
+                  Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}" />
         <CheckBox Name="QuickStartItemCheckBox"
-                  Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"/>
+                  Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}" />
         <CheckBox Name="SecureAreaItemCheckBox"
-                  Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"/>
+                  Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}" />
         <CheckBox Name="BluetoothAudioItemCheckBox"
                   Content="{x:Bind Cls:Globalization.GetString('BluetoothAudio/Text')}" />
     </StackPanel>
