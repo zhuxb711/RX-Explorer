@@ -1927,7 +1927,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Auf Zwischenablage kann nicht zugegriffen werden. Kopier-/Ausschneidevorgang fehlgeschlagen</value>
   </data>
-  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+  <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Unschärfeeffekt des Hintergrundes anpassen</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
@@ -1981,11 +1981,8 @@ Inkorrekte Namen sind
   <data name="PreventFallBack.Content" xml:space="preserve">
     <value>Acryl-Effect immer anwenden</value>
   </data>
-  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+  <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Wenn Sie diese Option aktivieren, kann verhindert werden, dass Windows den Acryleffekt ausschaltet, wenn Sie diese Anwendung nicht verwenden. In diesem Modus darf nur die Acryl-Übertragung angepasst werden, und die Acrylfarbtransparenz ist nicht verfügbar. Hinweis: Das Aktivieren dieser Option kann die Akkulaufzeit verkürzen, und die kontinuierliche Lichtberechnung erhöht die Belastung der CPU.</value>
-  </data>
-  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
-    <value>Acryl Energiesparmodus</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>Abrufen von Bing-Wallpaper Bildern</value>
@@ -2811,7 +2808,7 @@ Inkorrekte Namen sind
     <value>Mit {Placeholder} ausführen</value>
     <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
   </data>
-  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+  <data name="BackgroundLightSliderLabel.Text" xml:space="preserve">
     <value>Passen Sie die Hintergrundhelligkeit an</value>
   </data>
   <data name="Items_Description" xml:space="preserve">
@@ -2980,7 +2977,7 @@ Inkorrekte Namen sind
   <data name="UpdateAvailable" xml:space="preserve">
     <value>Update verfügbar</value>
   </data>
-  <data name="UpdateLatest" xml:space="preserve">
+  <data name="UpdateLatest.Text" xml:space="preserve">
     <value>Bereits die neueste Version</value>
   </data>
   <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
@@ -3083,7 +3080,7 @@ Inkorrekte Namen sind
   <data name="IndexerQuestion.Title" xml:space="preserve">
     <value>Nur nach Index suchen</value>
   </data>
-  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
     <value>Nur nach Index suchen</value>
   </data>
   <data name="CustomText" xml:space="preserve">

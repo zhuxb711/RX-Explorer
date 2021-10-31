@@ -2547,7 +2547,7 @@ Las denominaciones no válidas son:
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">No se ha podido acceder al portapapeles; la operación copiar/pegar ha fallado.</target>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundBlurSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">Ajustar efecto de difuminación del fondo</target>
         </trans-unit>
@@ -2619,13 +2619,9 @@ Las denominaciones no válidas son:
           <source>Always apply Acrylic effect</source>
           <target state="translated">Aplicar siempre efecto acrílico</target>
         </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="PreventFallbackTipContent.Text" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">Marcar esta opción puede evitar que Windows desactive el efecto acrílico mientras no se usa esta aplicación. En este modo, solo se permite ajustar la transmitancia acrílica y la transparencia de color acrílico no está disponible. Nota: Activar esta opción puede acortar la vida de la batería y el cálculo continuo de luz sobrecargará la CPU.</target>
-        </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic power saving mode</source>
-          <target state="translated">Modo de ahorro de energía acrílico</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
           <source>Fetching Bing Pictures</source>
@@ -3729,7 +3725,7 @@ Las denominaciones no válidas son:
           <target state="translated">Ejecutar con {Placeholder}</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundLightSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Ajustar el brillo del fondo</target>
         </trans-unit>
@@ -3954,7 +3950,7 @@ Las denominaciones no válidas son:
           <source>Update available</source>
           <target state="translated">Actualización disponible</target>
         </trans-unit>
-        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+        <trans-unit id="UpdateLatest.Text" translate="yes" xml:space="preserve">
           <source>Already the latest version</source>
           <target state="translated">Ya es la última versión</target>
         </trans-unit>
@@ -4091,7 +4087,7 @@ Las denominaciones no válidas son:
           <source>Search by index only</source>
           <target state="translated">Buscar solo por índice</target>
         </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">Buscar solo por índice</target>
         </trans-unit>
@@ -4254,6 +4250,10 @@ Las denominaciones no válidas son:
         <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
           <target state="translated">Reinicie la aplicación para activar el nuevo idioma. También puede seguir utilizando esta aplicación, pero es posible que el nuevo idioma no entre en vigor hasta la próxima vez que la inicie.</target>
+        </trans-unit>
+        <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
+          <source>Could not be empty here</source>
+          <target state="new">Could not be empty here</target>
         </trans-unit>
       </group>
     </body>

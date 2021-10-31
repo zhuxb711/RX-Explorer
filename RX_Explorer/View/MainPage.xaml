@@ -444,6 +444,7 @@
                            x:FieldModifier="public"
                            Grid.RowSpan="2" />
                     <dialog:SettingDialog x:Name="Settings"
+                                          x:Load="False"
                                           x:FieldModifier="public"/>
                 </Grid>
             </muxc:NavigationView.Content>

@@ -2488,7 +2488,7 @@ Les noms non valides incluent
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</target>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundBlurSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
         </trans-unit>
@@ -2560,13 +2560,9 @@ Les noms non valides incluent
           <source>Always apply Acrylic effect</source>
           <target state="translated">Appliquez toujours l'effet acrylique</target>
         </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="PreventFallbackTipContent.Text" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</target>
-        </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic power saving mode</source>
-          <target state="translated">Mode d'économie d'énergie acrylique</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
           <source>Fetching Bing Pictures</source>
@@ -3731,7 +3727,7 @@ Les noms non valides incluent
           <target state="translated">Exécuter avec {Placeholder}</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundLightSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Ajuster la luminosité de l'arrière-plan</target>
         </trans-unit>
@@ -3956,7 +3952,7 @@ Les noms non valides incluent
           <source>Update available</source>
           <target state="translated">Mise à jour disponible</target>
         </trans-unit>
-        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+        <trans-unit id="UpdateLatest.Text" translate="yes" xml:space="preserve">
           <source>Already the latest version</source>
           <target state="translated">Déjà la dernière version</target>
         </trans-unit>
@@ -4093,7 +4089,7 @@ Les noms non valides incluent
           <source>Search by index only</source>
           <target state="translated">Recherche par index uniquement</target>
         </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">Recherche par index uniquement</target>
         </trans-unit>
@@ -4256,6 +4252,10 @@ Les noms non valides incluent
         <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
           <target state="translated">Veuillez redémarrer l'application pour activer la nouvelle langue. Vous pouvez également continuer à utiliser cette application, mais la nouvelle langue peut ne prendre effet qu'au prochain démarrage.</target>
+        </trans-unit>
+        <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
+          <source>Could not be empty here</source>
+          <target state="new">Could not be empty here</target>
         </trans-unit>
       </group>
     </body>

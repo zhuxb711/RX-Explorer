@@ -98,7 +98,7 @@ namespace RX_Explorer
 
                     if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
                     {
-                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(MainPage.Current.Settings.IsDisplayHiddenItem, MainPage.Current.Settings.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
+                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(SettingDialog.IsDisplayHiddenItem, SettingDialog.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
                         {
                             string Extension = Path.GetExtension(Name);
                             return Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase);

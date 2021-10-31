@@ -621,7 +621,8 @@
                                               Checked="SeachEngineOptionSave_Checked"
                                               Unchecked="SeachEngineOptionSave_UnChecked">
                                         <RelativePanel HorizontalAlignment="Left">
-                                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
+                                            <TextBlock Text="仅通过索引执行搜索"
+                                                       x:Uid="SearchEngineUseIndexer"
                                                        RelativePanel.AlignLeftWithPanel="True"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True"
                                                        Name="BuiltInSearchUseIndexerText" />

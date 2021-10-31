@@ -1878,7 +1878,7 @@ Les noms non valides incluent
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</value>
   </data>
-  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+  <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Ajuster l'effet de flou d'arrière-plan</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
@@ -1932,11 +1932,8 @@ Les noms non valides incluent
   <data name="PreventFallBack.Content" xml:space="preserve">
     <value>Appliquez toujours l'effet acrylique</value>
   </data>
-  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+  <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</value>
-  </data>
-  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
-    <value>Mode d'économie d'énergie acrylique</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>Récupération de photos Bing</value>
@@ -2811,7 +2808,7 @@ Les noms non valides incluent
     <value>Exécuter avec {Placeholder}</value>
     <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
   </data>
-  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+  <data name="BackgroundLightSliderLabel.Text" xml:space="preserve">
     <value>Ajuster la luminosité de l'arrière-plan</value>
   </data>
   <data name="Items_Description" xml:space="preserve">
@@ -2980,7 +2977,7 @@ Les noms non valides incluent
   <data name="UpdateAvailable" xml:space="preserve">
     <value>Mise à jour disponible</value>
   </data>
-  <data name="UpdateLatest" xml:space="preserve">
+  <data name="UpdateLatest.Text" xml:space="preserve">
     <value>Déjà la dernière version</value>
   </data>
   <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
@@ -3083,7 +3080,7 @@ Les noms non valides incluent
   <data name="IndexerQuestion.Title" xml:space="preserve">
     <value>Recherche par index uniquement</value>
   </data>
-  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
     <value>Recherche par index uniquement</value>
   </data>
   <data name="CustomText" xml:space="preserve">

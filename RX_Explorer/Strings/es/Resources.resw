@@ -1924,7 +1924,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>No se ha podido acceder al portapapeles; la operación copiar/pegar ha fallado.</value>
   </data>
-  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+  <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Ajustar efecto de difuminación del fondo</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
@@ -1978,11 +1978,8 @@ Las denominaciones no válidas son:
   <data name="PreventFallBack.Content" xml:space="preserve">
     <value>Aplicar siempre efecto acrílico</value>
   </data>
-  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+  <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Marcar esta opción puede evitar que Windows desactive el efecto acrílico mientras no se usa esta aplicación. En este modo, solo se permite ajustar la transmitancia acrílica y la transparencia de color acrílico no está disponible. Nota: Activar esta opción puede acortar la vida de la batería y el cálculo continuo de luz sobrecargará la CPU.</value>
-  </data>
-  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
-    <value>Modo de ahorro de energía acrílico</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>Obteniendo imágenes de Bing</value>
@@ -2811,7 +2808,7 @@ Las denominaciones no válidas son:
     <value>Ejecutar con {Placeholder}</value>
     <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
   </data>
-  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+  <data name="BackgroundLightSliderLabel.Text" xml:space="preserve">
     <value>Ajustar el brillo del fondo</value>
   </data>
   <data name="Items_Description" xml:space="preserve">
@@ -2980,7 +2977,7 @@ Las denominaciones no válidas son:
   <data name="UpdateAvailable" xml:space="preserve">
     <value>Actualización disponible</value>
   </data>
-  <data name="UpdateLatest" xml:space="preserve">
+  <data name="UpdateLatest.Text" xml:space="preserve">
     <value>Ya es la última versión</value>
   </data>
   <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
@@ -3083,7 +3080,7 @@ Las denominaciones no válidas son:
   <data name="IndexerQuestion.Title" xml:space="preserve">
     <value>Buscar solo por índice</value>
   </data>
-  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
     <value>Buscar solo por índice</value>
   </data>
   <data name="CustomText" xml:space="preserve">

@@ -99,7 +99,7 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
-        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && MainPage.Current.Settings.ContentLoadMode == LoadMode.OnlyFile) || MainPage.Current.Settings.ContentLoadMode == LoadMode.All;
+        protected virtual bool ShouldGenerateThumbnail => (this is FileSystemStorageFile && SettingDialog.ContentLoadMode == LoadMode.OnlyFile) || SettingDialog.ContentLoadMode == LoadMode.All;
 
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 

@@ -1878,7 +1878,7 @@
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>无法访问剪切板，复制/剪切操作失败</value>
   </data>
-  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+  <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>调整背景模糊效果</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
@@ -1932,11 +1932,8 @@
   <data name="PreventFallBack.Content" xml:space="preserve">
     <value>始终应用Acrylic效果</value>
   </data>
-  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+  <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</value>
-  </data>
-  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
-    <value>Acrylic省电模式</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>正在获取必应图片...</value>
@@ -2811,7 +2808,7 @@
     <value>使用{Placeholder}运行</value>
     <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
   </data>
-  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+  <data name="BackgroundLightSliderLabel.Text" xml:space="preserve">
     <value>调整背景亮度</value>
   </data>
   <data name="Items_Description" xml:space="preserve">
@@ -2980,7 +2977,7 @@
   <data name="UpdateAvailable" xml:space="preserve">
     <value>有更新可用</value>
   </data>
-  <data name="UpdateLatest" xml:space="preserve">
+  <data name="UpdateLatest.Text" xml:space="preserve">
     <value>已经是最新版本</value>
   </data>
   <data name="SearchEngineConfig_AlwaysPopup" xml:space="preserve">
@@ -3083,7 +3080,7 @@
   <data name="IndexerQuestion.Title" xml:space="preserve">
     <value>仅通过索引执行搜索</value>
   </data>
-  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
     <value>仅通过索引执行搜索</value>
   </data>
   <data name="CustomText" xml:space="preserve">

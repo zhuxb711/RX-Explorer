@@ -2038,7 +2038,7 @@ Invalid names include
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Cannot access clipboard, copy/cut operation failed</value>
   </data>
-  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+  <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Adjust background blur effect</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
@@ -2092,11 +2092,8 @@ Invalid names include
   <data name="PreventFallBack.Content" xml:space="preserve">
     <value>Always apply Acrylic effect</value>
   </data>
-  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+  <data name="PreventFallbackTipContent.Text" xml:space="preserve">
     <value>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</value>
-  </data>
-  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
-    <value>Acrylic power saving mode</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
     <value>Fetching Bing Pictures</value>
@@ -2934,7 +2931,7 @@ Invalid names include
     <value>Run with {Placeholder}</value>
     <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
   </data>
-  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+  <data name="BackgroundLightSliderLabel.Text" xml:space="preserve">
     <value>Adjust background brightness</value>
   </data>
   <data name="Items_Description" xml:space="preserve">
@@ -3100,7 +3097,7 @@ Invalid names include
   <data name="UpdateAvailable" xml:space="preserve">
     <value>Update available</value>
   </data>
-  <data name="UpdateLatest" xml:space="preserve">
+  <data name="UpdateLatest.Text" xml:space="preserve">
     <value>Already the latest version</value>
   </data>
   <data name="SettingNavLayoutLabel.Text" xml:space="preserve">
@@ -3191,7 +3188,7 @@ Invalid names include
   <data name="IndexerQuestion.Title" xml:space="preserve">
     <value>Search by index only</value>
   </data>
-  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
     <value>Search by index only</value>
   </data>
   <data name="CustomText" xml:space="preserve">
@@ -3310,5 +3307,8 @@ Invalid names include
   </data>
   <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
     <value>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</value>
+  </data>
+  <data name="EmptyNotAllowed.Text" xml:space="preserve">
+    <value>Could not be empty here</value>
   </data>
 </root>

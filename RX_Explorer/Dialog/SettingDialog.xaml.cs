@@ -35,6 +35,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
 using AnimationDirection = Windows.UI.Composition.AnimationDirection;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
@@ -45,7 +46,7 @@ namespace RX_Explorer.Dialog
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
 
-        public bool IsDisplayProtectedSystemItems
+        public static bool IsDisplayProtectedSystemItems
         {
             get
             {
@@ -65,7 +66,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsDoubleClickEnabled
+        public static bool IsDoubleClickEnabled
         {
             get
             {
@@ -85,7 +86,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsDetachTreeViewAndPresenter
+        public static bool IsDetachTreeViewAndPresenter
         {
             get
             {
@@ -105,7 +106,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsQuicklookEnabled
+        public static bool IsQuicklookEnabled
         {
             get
             {
@@ -125,7 +126,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsDisplayHiddenItem
+        public static bool IsDisplayHiddenItem
         {
             get
             {
@@ -145,7 +146,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsTabPreviewEnabled
+        public static bool IsTabPreviewEnabled
         {
             get
             {
@@ -165,7 +166,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsPathHistoryEnabled
+        public static bool IsPathHistoryEnabled
         {
             get
             {
@@ -190,7 +191,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool IsSearchHistoryEnabled
+        public static bool IsSearchHistoryEnabled
         {
             get
             {
@@ -217,7 +218,7 @@ namespace RX_Explorer.Dialog
 
 
 
-        public NavigationViewPaneDisplayMode LayoutMode
+        public static NavigationViewPaneDisplayMode LayoutMode
         {
             get
             {
@@ -236,7 +237,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public LoadMode ContentLoadMode
+        public static LoadMode ContentLoadMode
         {
             get
             {
@@ -269,7 +270,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public SearchEngineFlyoutMode SearchEngineMode
+        public static SearchEngineFlyoutMode SearchEngineMode
         {
             get
             {
@@ -302,7 +303,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        public bool LibraryExpanderIsExpanded
+        public static bool LibraryExpanderIsExpanded
         {
             get
             {
@@ -319,7 +320,7 @@ namespace RX_Explorer.Dialog
             set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
         }
 
-        public bool DeviceExpanderIsExpanded
+        public static bool DeviceExpanderIsExpanded
         {
             get
             {
@@ -336,7 +337,7 @@ namespace RX_Explorer.Dialog
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
-        public string Version
+        private string Version
         {
             get
             {
@@ -683,10 +684,8 @@ namespace RX_Explorer.Dialog
                 FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
             }
 
-            BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
-            BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
-            BackgroundLightSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
-            BackgroundLightSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
+            BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+            BackgroundLightSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
 
             switch ((await StartupTask.GetAsync("RXExplorer")).State)
             {
@@ -1212,9 +1211,6 @@ namespace RX_Explorer.Dialog
                 {
                     case 0:
                         {
-                            CustomUIArea.Visibility = Visibility.Collapsed;
-                            SolidColorArea.Visibility = Visibility.Collapsed;
-
                             AcrylicMode.IsChecked = null;
                             PictureMode.IsChecked = null;
                             BingPictureMode.IsChecked = null;
@@ -1236,9 +1232,6 @@ namespace RX_Explorer.Dialog
                         }
                     case 1:
                         {
-                            CustomUIArea.Visibility = Visibility.Collapsed;
-                            SolidColorArea.Visibility = Visibility.Visible;
-
                             AcrylicMode.IsChecked = null;
                             PictureMode.IsChecked = null;
                             PreventFallBack.IsChecked = null;
@@ -1268,8 +1261,6 @@ namespace RX_Explorer.Dialog
                         }
                     case 2:
                         {
-                            CustomUIArea.Visibility = Visibility.Visible;
-                            SolidColorArea.Visibility = Visibility.Collapsed;
                             SolidColor_White.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
@@ -1328,9 +1319,6 @@ namespace RX_Explorer.Dialog
                         }
                     case 3:
                         {
-                            CustomUIArea.Visibility = Visibility.Collapsed;
-                            SolidColorArea.Visibility = Visibility.Collapsed;
-
                             AcrylicMode.IsChecked = null;
                             PictureMode.IsChecked = null;
                             BingPictureMode.IsChecked = null;
@@ -1383,10 +1371,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
 
                 MainPage.Current.BackgroundBlur.BlurAmount = 0;
                 MainPage.Current.BackgroundBlur.TintOpacity = 0;
@@ -1463,10 +1448,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomPictureArea.Visibility = Visibility.Visible;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea2.Visibility = Visibility.Visible;
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
@@ -1554,10 +1536,8 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Visible;
-                BackgroundBlurSliderArea1.Visibility = Visibility.Visible;
-                BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
+
                 MainPage.Current.BackgroundBlur.BlurAmount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 10;
                 MainPage.Current.BackgroundBlur.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]) / 200;
 
@@ -2230,11 +2210,6 @@ namespace RX_Explorer.Dialog
             {
                 ApplicationData.Current.SignalDataChanged();
             }
-        }
-
-        private void PreventFallBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            PreventFallbackTip.IsOpen = true;
         }
 
         private async void ImportConfiguration_Click(object sender, RoutedEventArgs e)
@@ -3082,9 +3057,9 @@ namespace RX_Explorer.Dialog
 
         private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is TextBlock Block)
+            if (args.InvokedItemContainer is NavigationViewItem Item)
             {
-                PresenterSwitcher.Value = Convert.ToString(Block.Text);
+                PresenterSwitcher.Value = Convert.ToString(sender.MenuItems.IndexOf(Item));
             }
         }
 

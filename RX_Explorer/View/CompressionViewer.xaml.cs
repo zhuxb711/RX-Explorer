@@ -829,7 +829,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (ListViewControl.SelectedItem == Context && MainPage.Current.Settings.IsDoubleClickEnabled)
+                            if (ListViewControl.SelectedItem == Context && SettingDialog.IsDoubleClickEnabled)
                             {
                                 ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                 {
@@ -901,7 +901,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (ListViewControl.SelectedItem == Context && MainPage.Current.Settings.IsDoubleClickEnabled)
+                            if (ListViewControl.SelectedItem == Context && SettingDialog.IsDoubleClickEnabled)
                             {
                                 ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                 {

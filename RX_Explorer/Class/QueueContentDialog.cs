@@ -34,8 +34,10 @@ namespace RX_Explorer.Class
         public QueueContentDialog()
         {
             DefaultButton = ContentDialogButton.Primary;
+
             RequestedTheme = AppThemeController.Current.Theme;
             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+
             Opened += QueueContentDialog_Opened;
             Closed += QueueContentDialog_Closed;
         }

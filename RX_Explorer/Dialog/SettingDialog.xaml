@@ -44,13 +44,6 @@
                               x:Name="UseIndexerTip"
                               Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确" />
 
-            <muxc:TeachingTip x:Name="PreventFallbackTip"
-                              IsLightDismissEnabled="True"
-                              x:Uid="SettingPagePreventFallbackTip"
-                              Target="{x:Bind PreventFallBackQuestion}"
-                              Title="Acrylic省电模式"
-                              Subtitle="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担" />
-
             <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
                                    x:Name="PictureFlyout">
                 <muxc:CommandBarFlyout.SecondaryCommands>
@@ -63,8 +56,10 @@
             </muxc:CommandBarFlyout>
         </ResourceDictionary>
     </Cls:QueueContentDialog.Resources>
+
     <Grid x:Name="RootGrid"
-          Width="800">
+          Width="850"
+          Height="560">
         <muxc:NavigationView Name="SettingNavigation"
                              PaneDisplayMode="Left"
                              IsPaneOpen="True"
@@ -188,7 +183,8 @@
             <muxc:NavigationView.Content>
                 <control:SwitchPresenter Name="PresenterSwitcher"
                                          ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingBasicText/Text')}">
+                    <control:Case Value="0"
+                                  IsDefault="True">
                         <ScrollViewer Padding="20"
                                       VerticalScrollBarVisibility="Hidden">
                             <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -287,7 +283,7 @@
                                     </muxc:Expander.Header>
                                     <muxc:Expander.Content>
                                         <Border Margin="0,1,0,0"
-                                                Padding="40,10,14,10"
+                                                Padding="40,10,10,10"
                                                 MinHeight="45"
                                                 CornerRadius="0,0,4,4"
                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -385,7 +381,7 @@
                             </StackPanel>
                         </ScrollViewer>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingAdvance/Text')}">
+                    <control:Case Value="1">
                         <ScrollViewer Padding="20"
                                       VerticalScrollBarVisibility="Hidden">
                             <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -515,7 +511,7 @@
                                     <muxc:Expander.Content>
                                         <StackPanel>
                                             <Border Margin="0,1,0,0"
-                                                    Padding="40,10,14,10"
+                                                    Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                 <CheckBox Content="激活时始终启动新的进程"
@@ -526,7 +522,7 @@
                                                           Checked="AlwaysLaunchNew_Checked"
                                                           Unchecked="AlwaysLaunchNew_Unchecked" />
                                             </Border>
-                                            <Button Padding="40,10,14,10"
+                                            <Button Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     Margin="0,1,0,0"
                                                     BorderThickness="0"
@@ -552,7 +548,7 @@
                                                     </Viewbox>
                                                 </RelativePanel>
                                             </Button>
-                                            <Button Padding="40,10,14,10"
+                                            <Button Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     Margin="0,1,0,0"
                                                     BorderThickness="0"
@@ -611,7 +607,7 @@
                                     </muxc:Expander.Header>
                                     <muxc:Expander.Content>
                                         <Border Margin="0,1,0,0"
-                                                Padding="40,10,14,10"
+                                                Padding="40,10,10,10"
                                                 MinHeight="45"
                                                 CornerRadius="0,0,4,4"
                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -837,7 +833,7 @@
                                                                                 <TextBlock Name="TerminalExecutablePathErrorText"
                                                                                            Grid.Row="1"
                                                                                            Grid.Column="1"
-                                                                                           Text="{x:Bind Cls:Globalization.GetString('QuickStartEmptyTip/Subtitle')}"
+                                                                                           x:Uid="EmptyNotAllowed"
                                                                                            FontSize="12"
                                                                                            Margin="5"
                                                                                            Foreground="Red"
@@ -933,12 +929,12 @@
                                         </RelativePanel>
                                     </muxc:Expander.Header>
                                     <muxc:Expander.Content>
-                                        <control:SwitchPresenter Value="{x:Bind SearchEngineConfig.SelectedItem,Mode=OneWay}"
+                                        <control:SwitchPresenter Value="{x:Bind sys:Convert.ToString(SearchEngineConfig.SelectedIndex),Mode=OneWay}"
                                                                  ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                                            <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseBuildInAsDefault')}">
+                                            <control:Case Value="0">
                                                 <StackPanel>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -951,7 +947,7 @@
                                                                   x:Name="BuiltInEngineIgnoreCase" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -963,7 +959,7 @@
                                                                   IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -975,7 +971,7 @@
                                                                   IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -983,7 +979,8 @@
                                                                   Padding="8,0"
                                                                   VerticalContentAlignment="Center">
                                                             <RelativePanel HorizontalAlignment="Left">
-                                                                <TextBlock Text="{x:Bind Cls:Globalization.GetString('SearchEngineUseIndexer/Content')}"
+                                                                <TextBlock x:Uid="SearchEngineUseIndexer"
+                                                                           Text="仅通过索引执行搜索"
                                                                            RelativePanel.AlignLeftWithPanel="True"
                                                                            RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                            Name="SearchEngineUseIndexerText" />
@@ -999,7 +996,7 @@
                                                         </CheckBox>
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0,0,4,4"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1011,10 +1008,10 @@
                                                     </Border>
                                                 </StackPanel>
                                             </control:Case>
-                                            <control:Case Value="{x:Bind Cls:Globalization.GetString('SearchEngineConfig_UseEverythingAsDefault')}">
+                                            <control:Case Value="0">
                                                 <StackPanel>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1026,7 +1023,7 @@
                                                                   x:Name="EverythingEngineIgnoreCase" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1037,7 +1034,7 @@
                                                                   x:Name="EverythingEngineIncludeRegex" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0,0,4,4"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1067,7 +1064,7 @@
                             </StackPanel>
                         </ScrollViewer>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingPersonalize/Text')}">
+                    <control:Case Value="2">
                         <ScrollViewer Padding="20"
                                       VerticalScrollBarVisibility="Hidden">
                             <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
@@ -1103,7 +1100,7 @@
                                     <muxc:Expander.Content>
                                         <StackPanel>
                                             <Windows11NotPresent:Border Margin="0,1,0,0"
-                                                                        Padding="40,10,14,10"
+                                                                        Padding="40,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1118,7 +1115,7 @@
                                                                               Unchecked="DisableSelectionAnimation_Changed" />
                                             </Windows11NotPresent:Border>
                                             <Border Margin="0,1,0,0"
-                                                    Padding="40,10,14,10"
+                                                    Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     CornerRadius="0,0,4,4"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1134,7 +1131,7 @@
                                     </muxc:Expander.Content>
                                 </muxc:Expander>
 
-                                <muxc:Expander Margin="0,10,0,0"
+                                <muxc:Expander Margin="0,5,0,0"
                                                ExpandDirection="Down"
                                                HorizontalAlignment="Stretch"
                                                HorizontalContentAlignment="Stretch"
@@ -1160,14 +1157,13 @@
                                         </RelativePanel>
                                     </muxc:Expander.Header>
                                     <muxc:Expander.Content>
-                                        <control:SwitchPresenter Value="{x:Bind UIMode.SelectedItem,Mode=OneWay}"
-                                                                 ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
-                                            <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_SolidColor')}">
-                                                <StackPanel Name="SolidColorArea">
+                                        <control:SwitchPresenter Value="{x:Bind sys:Convert.ToString(UIMode.SelectedIndex),Mode=OneWay}">
+                                            <control:Case Value="1">
+                                                <StackPanel>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
-                                                            CornerRadius="0,0,4,4"
+                                                            CornerRadius="00"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <RadioButton Content="Windows默认"
                                                                      Name="SolidColor_FollowSystem"
@@ -1175,9 +1171,9 @@
                                                                      Checked="SolidColor_FollowSystem_Checked" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
-                                                            CornerRadius="0,0,4,4"
+                                                            CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <RadioButton Content="白色"
                                                                      x:Uid="SolidColor_White"
@@ -1185,7 +1181,7 @@
                                                                      Checked="SolidColor_White_Checked" />
                                                     </Border>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
                                                             CornerRadius="0,0,4,4"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
@@ -1196,15 +1192,14 @@
                                                     </Border>
                                                 </StackPanel>
                                             </control:Case>
-                                            <control:Case Value="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Custom')}">
-                                                <StackPanel Margin="0,10,0,0"
-                                                            Name="CustomUIArea">
+                                            <control:Case Value="2">
+                                                <StackPanel>
                                                     <Border Margin="0,1,0,0"
-                                                            Padding="40,10,14,10"
+                                                            Padding="40,10,10,10"
                                                             MinHeight="45"
-                                                            CornerRadius="0,0,4,4"
+                                                            CornerRadius="0"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                        <RelativePanel Padding="4,10,0,10">
+                                                        <RelativePanel>
                                                             <TextBlock Text="主题颜色"
                                                                        x:Uid="ThemeColorLabel"
                                                                        RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1228,9 +1223,9 @@
                                                                    Padding="0"
                                                                    MinHeight="45"
                                                                    Background="Transparent"
-                                                                   CornerRadius="4,4,0,0">
+                                                                   CornerRadius="0">
                                                         <muxc:Expander.Header>
-                                                            <StackPanel Padding="4,10,0,10">
+                                                            <StackPanel Padding="25,10,0,10">
                                                                 <RadioButton Content="Acrylic背景"
                                                                              x:Uid="CustomUISubtype1"
                                                                              Name="AcrylicMode"
@@ -1241,29 +1236,49 @@
                                                         <muxc:Expander.Content>
                                                             <StackPanel>
                                                                 <Border Margin="0,1,0,0"
-                                                                        Padding="40,10,14,10"
+                                                                        Padding="68,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <RelativePanel Padding="4,10,0,10">
+                                                                    <StackPanel>
+                                                                        <CheckBox x:Name="PreventFallBack"
+                                                                                  x:Uid="PreventFallBack"
+                                                                                  Checked="PreventFallBack_Checked"
+                                                                                  Unchecked="PreventFallBack_Unchecked" />
+                                                                        <TextBlock Text="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担"
+                                                                                   FontSize="12"
+                                                                                   Foreground="Gray"
+                                                                                   x:Uid="PreventFallbackTipContent"
+                                                                                   TextTrimming="CharacterEllipsis"
+                                                                                   TextWrapping="WrapWholeWords" />
+                                                                    </StackPanel>
+                                                                </Border>
+
+                                                                <Border Margin="0,1,0,0"
+                                                                        Padding="68,10,10,10"
+                                                                        MinHeight="45"
+                                                                        CornerRadius="0"
+                                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                    <RelativePanel>
                                                                         <TextBlock Text="Acrylic主题颜色"
                                                                                    x:Uid="AccentColorLabel"
                                                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                    RelativePanel.AlignLeftWithPanel="True"
                                                                                    RelativePanel.LeftOf="AcrylicColor" />
                                                                         <muxc:SplitButton Name="AcrylicColor"
+                                                                                          Padding="0"
                                                                                           RelativePanel.AlignRightWithPanel="True"
                                                                                           RelativePanel.AlignVerticalCenterWithPanel="True">
                                                                             <Border x:Name="CurrentColor"
-                                                                                    Width="32"
-                                                                                    Height="32"
+                                                                                    Height="30"
+                                                                                    Width="35"
                                                                                     CornerRadius="4,0,0,4">
                                                                                 <Border.Background>
                                                                                     <SolidColorBrush Color="{x:Bind AcrylicColorPicker.Color,Mode=OneWay}" />
                                                                                 </Border.Background>
                                                                             </Border>
                                                                             <muxc:SplitButton.Flyout>
-                                                                                <Flyout Placement="Bottom">
+                                                                                <Flyout Placement="Left">
                                                                                     <muxc:ColorPicker ColorSpectrumShape="Box"
                                                                                                       IsAlphaEnabled="True"
                                                                                                       Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
@@ -1275,36 +1290,11 @@
                                                                 </Border>
 
                                                                 <Border Margin="0,1,0,0"
-                                                                        Padding="40,10,14,10"
+                                                                        Padding="68,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <CheckBox x:Name="PreventFallBack"
-                                                                              Checked="PreventFallBack_Checked"
-                                                                              Unchecked="PreventFallBack_Unchecked">
-                                                                        <RelativePanel HorizontalAlignment="Left">
-                                                                            <TextBlock Text="{x:Bind Cls:Globalization.GetString('PreventFallBack/Content')}"
-                                                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                       Name="PreventFallBackText" />
-                                                                            <Viewbox Margin="10,0,0,0"
-                                                                                     Height="15"
-                                                                                     Name="PreventFallBackQuestion"
-                                                                                     RelativePanel.RightOf="PreventFallBackText"
-                                                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                                <FontIcon Glyph="&#xE9CE;"
-                                                                                          PointerPressed="PreventFallBackQuestion_PointerPressed" />
-                                                                            </Viewbox>
-                                                                        </RelativePanel>
-                                                                    </CheckBox>
-                                                                </Border>
-
-                                                                <Border Margin="0,1,0,0"
-                                                                        Padding="40,10,14,10"
-                                                                        MinHeight="45"
-                                                                        CornerRadius="0"
-                                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <RelativePanel Padding="4,10,0,10">
+                                                                    <RelativePanel>
                                                                         <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                     RelativePanel.AlignLeftWithPanel="True"
                                                                                     RelativePanel.LeftOf="TintOpacitySliderArea">
@@ -1319,6 +1309,7 @@
                                                                         </StackPanel>
                                                                         <StackPanel Orientation="Horizontal"
                                                                                     Name="TintOpacitySliderArea"
+                                                                                    Margin="10,0,0,0"
                                                                                     RelativePanel.AlignRightWithPanel="True"
                                                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
                                                                             <Slider IsThumbToolTipEnabled="False"
@@ -1326,21 +1317,22 @@
                                                                                     StepFrequency="0.1"
                                                                                     Maximum="1"
                                                                                     Minimum="0"
-                                                                                    Width="220"
+                                                                                    Width="180"
                                                                                     Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                                                                       Margin="10,0,0,5"
-                                                                                       VerticalAlignment="Bottom" />
+                                                                                       Margin="5,0"
+                                                                                       Width="40"
+                                                                                       VerticalAlignment="Center" />
                                                                         </StackPanel>
                                                                     </RelativePanel>
                                                                 </Border>
 
                                                                 <Border Margin="0,1,0,0"
-                                                                        Padding="40,10,14,10"
+                                                                        Padding="68,10,10,10"
                                                                         MinHeight="45"
-                                                                        CornerRadius="0"
+                                                                        CornerRadius="0,0,4,4"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <RelativePanel Padding="4,10,0,10">
+                                                                    <RelativePanel>
                                                                         <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                     RelativePanel.AlignLeftWithPanel="True"
                                                                                     RelativePanel.LeftOf="TintLuminositySliderArea">
@@ -1355,6 +1347,7 @@
                                                                         </StackPanel>
                                                                         <StackPanel Orientation="Horizontal"
                                                                                     Name="TintLuminositySliderArea"
+                                                                                    Margin="10,0,0,0"
                                                                                     RelativePanel.AlignRightWithPanel="True"
                                                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
                                                                             <Slider IsThumbToolTipEnabled="False"
@@ -1362,11 +1355,13 @@
                                                                                     StepFrequency="0.1"
                                                                                     Maximum="1"
                                                                                     Minimum="0"
-                                                                                    Width="220"
+                                                                                    Width="180"
+                                                                                    IsEnabled="{x:Bind PreventFallBack.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                                     Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                                                                       Margin="10,0,0,5"
-                                                                                       VerticalAlignment="Bottom" />
+                                                                                       Margin="5,0"
+                                                                                       Width="40"
+                                                                                       VerticalAlignment="Center" />
                                                                         </StackPanel>
                                                                     </RelativePanel>
                                                                 </Border>
@@ -1374,150 +1369,155 @@
                                                         </muxc:Expander.Content>
                                                     </muxc:Expander>
 
-                                                    <RadioButton Margin="0,10,0,0"
-                                                                 Name="BingPictureMode"
-                                                                 Padding="8,0"
-                                                                 VerticalContentAlignment="Center"
-                                                                 Checked="BingPictureMode_Checked"
-                                                                 GroupName="CustomSubRadio">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="必应图片"
-                                                                       x:Uid="CustomUISubtype3" />
-                                                            <muxc:ProgressRing IsActive="True"
-                                                                               Margin="10,0,0,0"
-                                                                               Height="18"
-                                                                               Width="18"
-                                                                               Name="GetBingPhotoState"
-                                                                               Visibility="Collapsed" />
-                                                        </StackPanel>
-                                                    </RadioButton>
-                                                    <StackPanel Name="BackgroundBlurSliderArea1"
-                                                                Orientation="Horizontal">
-                                                        <Line X1="10"
-                                                              X2="10"
-                                                              Y1="5"
-                                                              Y2="130"
-                                                              StrokeThickness="3"
-                                                              Stroke="Gray" />
-                                                        <StackPanel Margin="15,10,0,0">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Slider Maximum="100"
-                                                                        Minimum="0"
-                                                                        Width="220"
-                                                                        Header="调整背景模糊效果"
-                                                                        x:Uid="SettingPageBackgroundBlurSlider"
-                                                                        Name="BackgroundBlurSlider1"
-                                                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                                                        StepFrequency="5"
-                                                                        VerticalAlignment="Center" />
-                                                                <TextBlock Margin="5,20,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider1.Value),Mode=OneWay}" />
+                                                    <muxc:Expander Margin="0,1,0,0"
+                                                                   ExpandDirection="Down"
+                                                                   HorizontalAlignment="Stretch"
+                                                                   HorizontalContentAlignment="Stretch"
+                                                                   VerticalContentAlignment="Top"
+                                                                   Padding="0"
+                                                                   MinHeight="45"
+                                                                   Background="Transparent"
+                                                                   CornerRadius="0">
+                                                        <muxc:Expander.Header>
+                                                            <StackPanel Padding="25,10,0,10">
+                                                                <RadioButton Content="自定义图片背景"
+                                                                             x:Uid="CustomUISubtype2"
+                                                                             Name="PictureMode"
+                                                                             GroupName="CustomSubRadio"
+                                                                             Checked="PictureMode_Checked" />
+                                                            </StackPanel>
+                                                        </muxc:Expander.Header>
+                                                        <muxc:Expander.Content>
+                                                            <StackPanel>
+                                                                <Border Margin="0,1,0,0"
+                                                                        Padding="68,10,10,10"
+                                                                        MinHeight="45"
+                                                                        CornerRadius="0"
+                                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <GridView Name="PictureGirdView"
+                                                                                  MaxWidth="400"
+                                                                                  IsRightTapEnabled="True"
+                                                                                  VerticalAlignment="Top"
+                                                                                  SelectionMode="Single"
+                                                                                  ItemsSource="{x:Bind PictureList}"
+                                                                                  RightTapped="PictureGirdView_RightTapped"
+                                                                                  ScrollViewer.HorizontalScrollMode="Enabled"
+                                                                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                                                                  SelectionChanged="PictureGirdView_SelectionChanged">
+                                                                            <GridView.ItemTemplate>
+                                                                                <DataTemplate x:DataType="Cls:BackgroundPicture">
+                                                                                    <Image Width="80"
+                                                                                           Height="80"
+                                                                                           Stretch="UniformToFill"
+                                                                                           Source="{x:Bind Thumbnail}" />
+                                                                                </DataTemplate>
+                                                                            </GridView.ItemTemplate>
+                                                                            <GridView.ItemsPanel>
+                                                                                <ItemsPanelTemplate>
+                                                                                    <ItemsStackPanel Orientation="Horizontal" />
+                                                                                </ItemsPanelTemplate>
+                                                                            </GridView.ItemsPanel>
+                                                                        </GridView>
+                                                                        <Button Margin="5,0,0,0"
+                                                                                Width="80"
+                                                                                Height="80"
+                                                                                Name="AddImageToPictureButton"
+                                                                                Click="AddImageToPictureButton_Click"
+                                                                                VerticalAlignment="Top">
+                                                                            <Viewbox>
+                                                                                <SymbolIcon Symbol="Add" />
+                                                                            </Viewbox>
+                                                                        </Button>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </StackPanel>
+                                                        </muxc:Expander.Content>
+                                                    </muxc:Expander>
 
-                                                            </StackPanel>
+                                                    <Border Margin="0,1,0,0"
+                                                            Padding="41,10,10,10"
+                                                            MinHeight="45"
+                                                            CornerRadius="0"
+                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                        <RadioButton Name="BingPictureMode"
+                                                                     Checked="BingPictureMode_Checked"
+                                                                     GroupName="CustomSubRadio">
                                                             <StackPanel Orientation="Horizontal">
-                                                                <Slider Maximum="100"
-                                                                        Minimum="0"
-                                                                        Width="220"
-                                                                        Margin="0,10,0,0"
-                                                                        Header="调整背景亮度"
-                                                                        Name="BackgroundLightSlider1"
-                                                                        x:Uid="SettingPageBackgroundLightSlider"
-                                                                        ValueChanged="BackgroundLightSlider_ValueChanged"
-                                                                        StepFrequency="5"
-                                                                        VerticalAlignment="Center" />
-                                                                <TextBlock Margin="5,20,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider1.Value),Mode=OneWay}" />
+                                                                <TextBlock Text="必应图片"
+                                                                           x:Uid="CustomUISubtype3" />
+                                                                <muxc:ProgressRing IsActive="True"
+                                                                                   Margin="10,0,0,0"
+                                                                                   Height="18"
+                                                                                   Width="18"
+                                                                                   Name="GetBingPhotoState"
+                                                                                   Visibility="Collapsed" />
                                                             </StackPanel>
-                                                        </StackPanel>
-                                                    </StackPanel>
-                                                    <RadioButton Content="自定义图片背景"
-                                                                 x:Uid="CustomUISubtype2"
-                                                                 Margin="0,10,0,0"
-                                                                 Padding="8,0"
-                                                                 VerticalContentAlignment="Center"
-                                                                 Name="PictureMode"
-                                                                 GroupName="CustomSubRadio"
-                                                                 Checked="PictureMode_Checked" />
-                                                    <StackPanel Name="CustomPictureArea"
-                                                                Orientation="Horizontal">
-                                                        <Line X1="10"
-                                                              X2="10"
-                                                              Y1="5"
-                                                              Y2="215"
-                                                              StrokeThickness="3"
-                                                              Stroke="Gray" />
-                                                        <StackPanel Margin="15,0,0,0">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <GridView Name="PictureGirdView"
-                                                                          MaxWidth="320"
-                                                                          Margin="0,15,0,0"
-                                                                          VerticalAlignment="Top"
-                                                                          IsRightTapEnabled="True"
-                                                                          RightTapped="PictureGirdView_RightTapped"
-                                                                          ScrollViewer.HorizontalScrollMode="Enabled"
-                                                                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                                                          ScrollViewer.VerticalScrollMode="Disabled"
-                                                                          SelectionChanged="PictureGirdView_SelectionChanged"
-                                                                          ItemsSource="{x:Bind PictureList}">
-                                                                    <GridView.ItemTemplate>
-                                                                        <DataTemplate x:DataType="Cls:BackgroundPicture">
-                                                                            <Image Width="70"
-                                                                                   Height="70"
-                                                                                   Stretch="UniformToFill"
-                                                                                   Source="{x:Bind Thumbnail}" />
-                                                                        </DataTemplate>
-                                                                    </GridView.ItemTemplate>
-                                                                    <GridView.ItemsPanel>
-                                                                        <ItemsPanelTemplate>
-                                                                            <ItemsStackPanel Orientation="Horizontal" />
-                                                                        </ItemsPanelTemplate>
-                                                                    </GridView.ItemsPanel>
-                                                                </GridView>
-                                                                <Button Margin="5,15,0,0"
-                                                                        Width="70"
-                                                                        Height="70"
-                                                                        Name="AddImageToPictureButton"
-                                                                        Click="AddImageToPictureButton_Click"
-                                                                        VerticalAlignment="Top">
-                                                                    <Viewbox>
-                                                                        <SymbolIcon Symbol="Add" />
-                                                                    </Viewbox>
-                                                                </Button>
-                                                            </StackPanel>
-                                                            <StackPanel Orientation="Horizontal"
-                                                                        Margin="0,10,0,0"
-                                                                        Name="BackgroundBlurSliderArea2">
-                                                                <Slider Maximum="100"
-                                                                        Minimum="0"
-                                                                        Width="220"
-                                                                        Header="调整背景模糊效果"
-                                                                        x:Uid="SettingPageBackgroundBlurSlider"
-                                                                        Name="BackgroundBlurSlider2"
-                                                                        ValueChanged="BackgroundBlurSlider_ValueChanged"
-                                                                        StepFrequency="5"
-                                                                        VerticalAlignment="Center" />
-                                                                <TextBlock Margin="5,20,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider2.Value),Mode=OneWay}" />
-                                                            </StackPanel>
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Slider Maximum="100"
-                                                                        Minimum="0"
-                                                                        Width="220"
-                                                                        Margin="0,10,0,0"
-                                                                        Header="调整背景亮度"
-                                                                        Name="BackgroundLightSlider2"
-                                                                        x:Uid="SettingPageBackgroundLightSlider"
-                                                                        ValueChanged="BackgroundLightSlider_ValueChanged"
-                                                                        StepFrequency="5"
-                                                                        VerticalAlignment="Center" />
-                                                                <TextBlock Margin="5,20,0,0"
-                                                                           VerticalAlignment="Center"
-                                                                           Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider2.Value),Mode=OneWay}" />
-                                                            </StackPanel>
-                                                        </StackPanel>
+                                                        </RadioButton>
+                                                    </Border>
+
+                                                    <StackPanel>
+                                                        <Border Margin="0,1,0,0"
+                                                                Padding="41,10,10,10"
+                                                                MinHeight="45"
+                                                                CornerRadius="0"
+                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                            <RelativePanel>
+                                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                                            RelativePanel.LeftOf="BackgroundBlurSliderArea">
+                                                                    <TextBlock Text="调整背景模糊效果"
+                                                                               x:Uid="BackgroundBlurSliderLabel" />
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal"
+                                                                            Name="BackgroundBlurSliderArea"
+                                                                            Margin="10,0,0,0"
+                                                                            RelativePanel.AlignRightWithPanel="True"
+                                                                            RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                    <Slider Maximum="100"
+                                                                            Minimum="0"
+                                                                            Width="180"
+                                                                            StepFrequency="5"
+                                                                            Name="BackgroundBlurSlider"
+                                                                            ValueChanged="BackgroundBlurSlider_ValueChanged" />
+                                                                    <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}"
+                                                                               Margin="5,0"
+                                                                               Width="40"
+                                                                               VerticalAlignment="Center" />
+                                                                </StackPanel>
+                                                            </RelativePanel>
+                                                        </Border>
+                                                        <Border Margin="0,1,0,0"
+                                                                Padding="41,10,10,10"
+                                                                MinHeight="45"
+                                                                CornerRadius="0,0,4,4"
+                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                            <RelativePanel>
+                                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                                            RelativePanel.LeftOf="BackgroundLightSliderArea">
+                                                                    <TextBlock Text="调整背景亮度"
+                                                                               x:Uid="BackgroundLightSliderLabel" />
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal"
+                                                                            Name="BackgroundLightSliderArea"
+                                                                            Margin="10,0,0,0"
+                                                                            RelativePanel.AlignRightWithPanel="True"
+                                                                            RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                    <Slider Maximum="100"
+                                                                            Minimum="0"
+                                                                            Width="180"
+                                                                            StepFrequency="5"
+                                                                            Name="BackgroundLightSlider"
+                                                                            ValueChanged="BackgroundLightSlider_ValueChanged" />
+                                                                    <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider.Value),Mode=OneWay}"
+                                                                               Margin="5,0"
+                                                                               Width="40"
+                                                                               VerticalAlignment="Center" />
+                                                                </StackPanel>
+                                                            </RelativePanel>
+                                                        </Border>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </control:Case>
@@ -1527,7 +1527,7 @@
                             </StackPanel>
                         </ScrollViewer>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingStartup/Text')}">
+                    <control:Case Value="3">
                         <StackPanel>
                             <RadioButton Content="打开新标签页"
                                          Margin="0,5,0,0"
@@ -1613,7 +1613,7 @@
                             </ListView>
                         </StackPanel>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingPrivacy/Text')}">
+                    <control:Case Value="4">
                         <StackPanel>
                             <ToggleSwitch Header="路径历史记录"
                                           Margin="0,20,0,0"
@@ -1632,7 +1632,7 @@
                                           Toggled="SearchHistory_Toggled" />
                         </StackPanel>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingVersion/Text')}">
+                    <control:Case Value="5">
                         <StackPanel HorizontalAlignment="Left"
                                     Margin="0,20,0,0">
                             <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
@@ -1653,7 +1653,8 @@
                                                    Text="{x:Bind Version}" />
                                         <TextBlock Foreground="Gray"
                                                    FontSize="12"
-                                                   Text="{x:Bind Cls:Globalization.GetString('UpdateLatest')}"
+                                                   x:Uid="UpdateLatest"
+                                                   Text="已经是最新版本"
                                                    Name="VersionTip" />
                                     </StackPanel>
                                 </StackPanel>
@@ -1706,7 +1707,7 @@
                             </Button>
                         </StackPanel>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingRecovery/Text')}">
+                    <control:Case Value="6">
                         <StackPanel Margin="0,20,0,0"
                                     HorizontalAlignment="Left">
                             <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
@@ -1790,7 +1791,7 @@
                             </Button>
                         </StackPanel>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingOther/Text')}">
+                    <control:Case Value="7">
                         <StackPanel Margin="0,20,0,0"
                                     HorizontalAlignment="Left">
                             <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
@@ -1958,7 +1959,7 @@
                             </Button>
                         </StackPanel>
                     </control:Case>
-                    <control:Case Value="{x:Bind Cls:Globalization.GetString('SettingAbout/Text')}">
+                    <control:Case Value="8">
                         <StackPanel>
                             <TextBlock FontSize="15"
                                        Text="特别感谢以下提供翻译的人员:"

@@ -2488,7 +2488,7 @@ Invalid names include
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">無法訪問剪貼板，複製/剪切操作失敗</target>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundBlurSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">調整背景模糊效果</target>
         </trans-unit>
@@ -2560,13 +2560,9 @@ Invalid names include
           <source>Always apply Acrylic effect</source>
           <target state="translated">始終施加Acrylic效果</target>
         </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="PreventFallbackTipContent.Text" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">不使用此應用程序時，選中此選項可以防止Windows關閉亞克力效果。 在此模式下，僅允許調整丙烯酸透射率，而丙烯酸顏色透明度不可用。 注意：打開此選項可能會縮短電池壽命，並且連續的光線計算會增加CPU的負擔</target>
-        </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic power saving mode</source>
-          <target state="translated">Acrylic節電模式</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
           <source>Fetching Bing Pictures</source>
@@ -3731,7 +3727,7 @@ Invalid names include
           <target state="translated">用{Placeholder}運行</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundLightSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">調整背景亮度</target>
         </trans-unit>
@@ -3956,7 +3952,7 @@ Invalid names include
           <source>Update available</source>
           <target state="translated">有可用的更新</target>
         </trans-unit>
-        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+        <trans-unit id="UpdateLatest.Text" translate="yes" xml:space="preserve">
           <source>Already the latest version</source>
           <target state="translated">已經是最新版本</target>
         </trans-unit>
@@ -4093,7 +4089,7 @@ Invalid names include
           <source>Search by index only</source>
           <target state="translated">僅按索引搜索</target>
         </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">僅按索引搜索</target>
         </trans-unit>
@@ -4256,6 +4252,10 @@ Invalid names include
         <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
           <target state="translated">請重新啟動應用程序以激活新語言。您也可以繼續使用此應用程序，但新語言可能要到您下次啟動時才會生效</target>
+        </trans-unit>
+        <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
+          <source>Could not be empty here</source>
+          <target state="new">Could not be empty here</target>
         </trans-unit>
       </group>
     </body>

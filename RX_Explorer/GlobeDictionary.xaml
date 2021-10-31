@@ -1043,9 +1043,9 @@
                                     BackgroundSizing="InnerBorderEdge"
                                     CornerRadius="{TemplateBinding CornerRadius}"
                                     MinWidth="{ThemeResource ContentDialogMinWidth}"
-                                    MaxWidth="800"
+                                    MaxWidth="850"
                                     MinHeight="{ThemeResource ContentDialogMinHeight}"
-                                    MaxHeight="600"
+                                    MaxHeight="650"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     RenderTransformOrigin="0.5,0.5">

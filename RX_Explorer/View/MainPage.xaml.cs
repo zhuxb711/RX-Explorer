@@ -96,7 +96,7 @@ namespace RX_Explorer
             }
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
-            NavView.PaneDisplayMode = Settings.LayoutMode;
+            NavView.PaneDisplayMode = SettingDialog.LayoutMode;
 
             if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
             {
@@ -213,7 +213,10 @@ namespace RX_Explorer
                     BluetoothAudioItem.Visibility = ShowBluetoothAudio ? Visibility.Visible : Visibility.Collapsed;
                 }
 
-                await MainPage.Current.Settings.InitializeAsync();
+                if (FindName(nameof(Settings)) is SettingDialog Dialog)
+                {
+                    await Dialog.InitializeAsync();
+                }
             });
         }
 
@@ -889,7 +892,10 @@ namespace RX_Explorer
                 {
                     NavView.IsBackEnabled = true;
 
-                    await Settings.ShowAsync();
+                    if (FindName(nameof(Settings)) is SettingDialog Dialog)
+                    {
+                        await Dialog.ShowAsync();
+                    }
                 }
                 else
                 {

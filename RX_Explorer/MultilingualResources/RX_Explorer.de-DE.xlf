@@ -2551,7 +2551,7 @@ Inkorrekte Namen sind
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">Auf Zwischenablage kann nicht zugegriffen werden. Kopier-/Ausschneidevorgang fehlgeschlagen</target>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundBlurSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">Unschärfeeffekt des Hintergrundes anpassen</target>
         </trans-unit>
@@ -2623,13 +2623,9 @@ Inkorrekte Namen sind
           <source>Always apply Acrylic effect</source>
           <target state="translated">Acryl-Effect immer anwenden</target>
         </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
+        <trans-unit id="PreventFallbackTipContent.Text" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
           <target state="translated">Wenn Sie diese Option aktivieren, kann verhindert werden, dass Windows den Acryleffekt ausschaltet, wenn Sie diese Anwendung nicht verwenden. In diesem Modus darf nur die Acryl-Übertragung angepasst werden, und die Acrylfarbtransparenz ist nicht verfügbar. Hinweis: Das Aktivieren dieser Option kann die Akkulaufzeit verkürzen, und die kontinuierliche Lichtberechnung erhöht die Belastung der CPU.</target>
-        </trans-unit>
-        <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic power saving mode</source>
-          <target state="translated">Acryl Energiesparmodus</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
           <source>Fetching Bing Pictures</source>
@@ -3729,7 +3725,7 @@ Inkorrekte Namen sind
           <target state="translated">Mit {Placeholder} ausführen</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
         </trans-unit>
-        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="BackgroundLightSliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Passen Sie die Hintergrundhelligkeit an</target>
         </trans-unit>
@@ -3954,7 +3950,7 @@ Inkorrekte Namen sind
           <source>Update available</source>
           <target state="translated">Update verfügbar</target>
         </trans-unit>
-        <trans-unit id="UpdateLatest" translate="yes" xml:space="preserve">
+        <trans-unit id="UpdateLatest.Text" translate="yes" xml:space="preserve">
           <source>Already the latest version</source>
           <target state="translated">Bereits die neueste Version</target>
         </trans-unit>
@@ -4091,7 +4087,7 @@ Inkorrekte Namen sind
           <source>Search by index only</source>
           <target state="translated">Nur nach Index suchen</target>
         </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">Nur nach Index suchen</target>
         </trans-unit>
@@ -4254,6 +4250,10 @@ Inkorrekte Namen sind
         <trans-unit id="SystemTip_LanguageRestartContent" translate="yes" xml:space="preserve">
           <source>Please restart the application to activate the new language. You can also continue to use this app, but the new language may not take effect until the next time you start it</source>
           <target state="translated">Bitte starten Sie die Anwendung neu, um die neue Sprache zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Sprache wird möglicherweise erst beim nächsten Start wirksam</target>
+        </trans-unit>
+        <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
+          <source>Could not be empty here</source>
+          <target state="new">Could not be empty here</target>
         </trans-unit>
       </group>
     </body>

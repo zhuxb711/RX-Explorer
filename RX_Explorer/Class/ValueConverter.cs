@@ -82,83 +82,89 @@ namespace RX_Explorer.Class
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            switch (value)
+            if (targetType == typeof(Visibility))
             {
-                case bool Bool:
-                    {
-                        if (targetType == typeof(Visibility))
+                switch (value)
+                {
+                    case bool Bool:
                         {
                             return Bool ? Visibility.Collapsed : Visibility.Visible;
                         }
-                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
-                        {
-                            return !Bool;
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                case Visibility Vis:
-                    {
-                        if (targetType == typeof(Visibility))
+                    case Visibility Vis:
                         {
                             return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
                         }
-                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
+                    default:
                         {
-                            return Vis == Visibility.Visible;
+                            return Visibility.Visible;
                         }
-                        else
+                }
+            }
+            else if (targetType == typeof(bool) || targetType == typeof(bool?))
+            {
+                switch (value)
+                {
+                    case bool Bool:
                         {
-                            return null;
+                            return !Bool;
                         }
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                    case Visibility Vis:
+                        {
+                            return Vis != Visibility.Visible;
+                        }
+                    default:
+                        {
+                            return true;
+                        }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            switch (value)
+            if (targetType == typeof(Visibility))
             {
-                case bool Bool:
-                    {
-                        if (targetType == typeof(Visibility))
+                switch (value)
+                {
+                    case bool Bool:
                         {
                             return Bool ? Visibility.Collapsed : Visibility.Visible;
                         }
-                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
-                        {
-                            return !Bool;
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                case Visibility Vis:
-                    {
-                        if (targetType == typeof(Visibility))
+                    case Visibility Vis:
                         {
                             return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
                         }
-                        else if (targetType == typeof(bool) || targetType == typeof(bool?))
+                    default:
                         {
-                            return Vis == Visibility.Visible;
+                            return Visibility.Visible;
                         }
-                        else
+                }
+            }
+            else if (targetType == typeof(bool) || targetType == typeof(bool?))
+            {
+                switch (value)
+                {
+                    case bool Bool:
                         {
-                            return null;
+                            return !Bool;
                         }
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                    case Visibility Vis:
+                        {
+                            return Vis != Visibility.Visible;
+                        }
+                    default:
+                        {
+                            return true;
+                        }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
         }
     }
