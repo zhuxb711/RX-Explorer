@@ -252,7 +252,7 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Saving</value>
   </data>
-  <data name="ThemeColor.Header" xml:space="preserve">
+  <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Theme color</value>
   </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
@@ -673,37 +673,22 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
   </data>
-  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
-    <value>Acrylic theme color</value>
-  </data>
-  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Acrylic transmittance</value>
-  </data>
-  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+  <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
   </data>
-  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
-    <value>Adjusting this value may result in unclear or unrecognized content</value>
-  </data>
-  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
-    <value>Color transparency</value>
-  </data>
-  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+  <data name="TintOpacityTipContent.Text" xml:space="preserve">
     <value>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</value>
   </data>
-  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
-    <value>This value defaults to 60% in 'Recommend' mode</value>
-  </data>
-  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+  <data name="AccentColorLabel.Text" xml:space="preserve">
     <value>Acrylic theme color</value>
   </data>
-  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+  <data name="TintLuminositySliderLabel.Text" xml:space="preserve">
     <value>Acrylic background transmittance</value>
   </data>
-  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+  <data name="TintOpacitySliderLabel.Text" xml:space="preserve">
     <value>Acrylic color transparency</value>
   </data>
-  <data name="SettingPageUIMode.Header" xml:space="preserve">
+  <data name="SettingPageUIModeLabel.Text" xml:space="preserve">
     <value>Mode</value>
   </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
@@ -1727,7 +1712,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>New_Zip</value>
   </data>
-  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+  <data name="SettingPageAnimationSwitchLabel.Text" xml:space="preserve">
     <value>Animation effect</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">

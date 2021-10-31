@@ -366,7 +366,7 @@ namespace RX_Explorer
             {
                 switch (Item)
                 {
-                    case LibraryStorageFolder when !SettingDialog.Current.IsDoubleClickEnabled
+                    case LibraryStorageFolder when !MainPage.Current.Settings.IsDoubleClickEnabled
                                                    && LibraryGrid.SelectedItem != Item
                                                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                                                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift):
@@ -386,7 +386,7 @@ namespace RX_Explorer
 
                             break;
                         }
-                    case DriveDataBase when !SettingDialog.Current.IsDoubleClickEnabled
+                    case DriveDataBase when !MainPage.Current.Settings.IsDoubleClickEnabled
                                             && LibraryGrid.SelectedItem != Item
                                             && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                                             && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift):
@@ -579,7 +579,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }
@@ -661,7 +661,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }
@@ -751,7 +751,7 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (!SettingDialog.Current.IsDoubleClickEnabled && e.ClickedItem is DriveDataBase Drive)
+            if (!MainPage.Current.Settings.IsDoubleClickEnabled && e.ClickedItem is DriveDataBase Drive)
             {
                 await OpenTargetDriveAsync(Drive);
             }
@@ -761,7 +761,7 @@ namespace RX_Explorer
         {
             DriveGrid.SelectedIndex = -1;
 
-            if (!SettingDialog.Current.IsDoubleClickEnabled && e.ClickedItem is LibraryStorageFolder Library)
+            if (!MainPage.Current.Settings.IsDoubleClickEnabled && e.ClickedItem is LibraryStorageFolder Library)
             {
                 await OpenTargetFolder(Library.Path);
             }
@@ -831,7 +831,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }
@@ -857,7 +857,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }

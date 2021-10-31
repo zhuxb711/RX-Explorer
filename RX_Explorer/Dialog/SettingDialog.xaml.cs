@@ -350,16 +350,7 @@ namespace RX_Explorer.Dialog
 
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
-        private static SettingDialog Instance;
-        public static SettingDialog Current
-        {
-            get
-            {
-                return Instance ??= new SettingDialog();
-            }
-        }
-
-        private SettingDialog()
+        public SettingDialog()
         {
             InitializeComponent();
 
@@ -880,8 +871,6 @@ namespace RX_Explorer.Dialog
                     }
             }
 
-            ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
-
             if (IsCallFromInit)
             {
                 DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
@@ -1365,21 +1354,6 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void AcrylicColor_Click(object sender, RoutedEventArgs e)
-        {
-            ColorPickerTeachTip.IsOpen = true;
-        }
-
-        private void TintOpacityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            OpacityTip.IsOpen = true;
-        }
-
-        private void TintLuminosityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            LuminosityTip.IsOpen = true;
-        }
-
         private async void ShowUpdateLog_Click(object sender, RoutedEventArgs e)
         {
             await new WhatIsNew().ShowAsync();
@@ -1409,7 +1383,6 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomAcrylicArea.Visibility = Visibility.Visible;
                 CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
                 BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
@@ -1490,7 +1463,6 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomAcrylicArea.Visibility = Visibility.Collapsed;
                 CustomPictureArea.Visibility = Visibility.Visible;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
                 BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
@@ -1582,7 +1554,6 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                CustomAcrylicArea.Visibility = Visibility.Collapsed;
                 CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Visible;
                 BackgroundBlurSliderArea1.Visibility = Visibility.Visible;
@@ -2231,11 +2202,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                TintOpacityArea.Visibility = Visibility.Collapsed;
-                CustomUIAreaLine.Y2 = 170;
-
                 BackgroundController.Current.IsCompositionAcrylicEnabled = true;
-
                 ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = true;
             }
             catch (Exception ex)
@@ -2252,11 +2219,7 @@ namespace RX_Explorer.Dialog
         {
             try
             {
-                TintOpacityArea.Visibility = Visibility.Visible;
-                CustomUIAreaLine.Y2 = 240;
-
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
-
                 ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = false;
             }
             catch (Exception ex)
@@ -2594,11 +2557,6 @@ namespace RX_Explorer.Dialog
             {
                 LogTracer.Log(ex);
             }
-        }
-
-        private void AnimationSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ContextMenuExtSwitch_Toggled(object sender, RoutedEventArgs e)
@@ -3152,7 +3110,7 @@ namespace RX_Explorer.Dialog
 
         private void AddTerminalProfile_Click(object sender, RoutedEventArgs e)
         {
-            TerminalList.Add(new TerminalProfile("New Terminal Porfile", "<>", string.Empty, default));
+            TerminalList.Add(new TerminalProfile("New Terminal Porfile", string.Empty, string.Empty, default));
         }
     }
 }

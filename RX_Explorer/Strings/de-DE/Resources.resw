@@ -562,37 +562,22 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Andere</value>
   </data>
-  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
-    <value>Acryl-Thema Farbe</value>
-  </data>
-  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Acryl Lichtdurchlässigkeit</value>
-  </data>
-  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+  <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acryl-Lichtdurchlässigkeit bestimmt, wie viel Licht aus dem Hintergrund durch das Acrylmaterial der App kommen darf. Je kleiner der Wert, desto höher das Farbverhältnis des Acryl-Themas und desto höher der Lichtanteil aus dem Hintergrund.</value>
   </data>
-  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
-    <value>Das Anpassen dieses Wertes kann zu unklaren oder unerkennbaren Inhalten führen.</value>
-  </data>
-  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
-    <value>Farbtransparenz</value>
-  </data>
-  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+  <data name="TintOpacityTipContent.Text" xml:space="preserve">
     <value>Acrylthema-Farbtransparenz  Je höher der Wert ist, desto heller ist die Acrylfarbe. Je kleiner der Wert ist, desto dunkler ist die Farbe.</value>
   </data>
-  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
-    <value>Es wird empfohlen diesen Wert auf 60% zu stellen.</value>
-  </data>
-  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+  <data name="AccentColorLabel.Text" xml:space="preserve">
     <value>Acrylthema-Farbe</value>
   </data>
-  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+  <data name="TintLuminositySliderLabel.Text" xml:space="preserve">
     <value>Lichtdurchlässigkeit des Acrylhintergrundes</value>
   </data>
-  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+  <data name="TintOpacitySliderLabel.Text" xml:space="preserve">
     <value>Acrylfarbtransparenz</value>
   </data>
-  <data name="SettingPageUIMode.Header" xml:space="preserve">
+  <data name="SettingPageUIModeLabel.Text" xml:space="preserve">
     <value>Modus</value>
   </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
@@ -1616,7 +1601,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>Neu_ZIP.</value>
   </data>
-  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+  <data name="SettingPageAnimationSwitchLabel.Text" xml:space="preserve">
     <value>Animationseffekt</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
@@ -3031,7 +3016,7 @@ Inkorrekte Namen sind
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Dateien überschreiben</value>
   </data>
-  <data name="ThemeColor.Header" xml:space="preserve">
+  <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Themenfarbe</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">

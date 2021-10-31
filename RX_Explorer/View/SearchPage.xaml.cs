@@ -138,7 +138,7 @@ namespace RX_Explorer
                             Delete_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Space when SettingDialog.Current.IsQuicklookEnabled && SearchResultList.SelectedItems.Count <= 1:
+                    case VirtualKey.Space when MainPage.Current.Settings.IsQuicklookEnabled && SearchResultList.SelectedItems.Count <= 1:
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -232,7 +232,7 @@ namespace RX_Explorer
             SDirection = SortDirection.Ascending;
             HasItem.Visibility = Visibility.Collapsed;
 
-            if (SettingDialog.Current.IsSearchHistoryEnabled)
+            if (MainPage.Current.Settings.IsSearchHistoryEnabled)
             {
                 SQLite.Current.SetSearchHistory(Options.SearchText);
             }
@@ -252,8 +252,8 @@ namespace RX_Explorer
                         {
                             IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText,
                                                                                                                      Options.DeepSearch,
-                                                                                                                     SettingDialog.Current.IsDisplayHiddenItem,
-                                                                                                                     SettingDialog.Current.IsDisplayProtectedSystemItems,
+                                                                                                                     MainPage.Current.Settings.IsDisplayHiddenItem,
+                                                                                                                     MainPage.Current.Settings.IsDisplayProtectedSystemItems,
                                                                                                                      Options.UseRegexExpression,
                                                                                                                      Options.UseAQSExpression,
                                                                                                                      Options.UseIndexerOnly,

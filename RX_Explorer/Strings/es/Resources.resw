@@ -562,37 +562,22 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Otros</value>
   </data>
-  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
-    <value>Color de tema acrílico</value>
-  </data>
-  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Transmitancia acrílica</value>
-  </data>
-  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+  <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>La transmitancia acrílica determina cuánta luz puede atravesar el material acrílico de la aplicación. Cuanto menor sea el valor, mayor será la relación de color del tema acrílico y mayor será el porcentaje de luz del fondo.</value>
   </data>
-  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
-    <value>Si se ajusta este valor, el contenido puede resultar poco claro o irreconocible.</value>
-  </data>
-  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
-    <value>Transparencia de color</value>
-  </data>
-  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+  <data name="TintOpacityTipContent.Text" xml:space="preserve">
     <value>Transparencia de capa de color del tema acrílico: cuanto mayor sea el valor, más claro será el color acrílico; cuanto menor sea el color indicado, más oscuro será el color.</value>
   </data>
-  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
-    <value>Este valor predetermina a 60 % en el modo "Recomendado"</value>
-  </data>
-  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+  <data name="AccentColorLabel.Text" xml:space="preserve">
     <value>Color de tema acrílico</value>
   </data>
-  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+  <data name="TintLuminositySliderLabel.Text" xml:space="preserve">
     <value>Transmitancia de fondo acrílico</value>
   </data>
-  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+  <data name="TintOpacitySliderLabel.Text" xml:space="preserve">
     <value>Transparencia de color acrílico</value>
   </data>
-  <data name="SettingPageUIMode.Header" xml:space="preserve">
+  <data name="SettingPageUIModeLabel.Text" xml:space="preserve">
     <value>Modo</value>
   </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
@@ -1616,7 +1601,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>Nuevo_Zip</value>
   </data>
-  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+  <data name="SettingPageAnimationSwitchLabel.Text" xml:space="preserve">
     <value>Efecto de animación</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
@@ -3031,7 +3016,7 @@ Las denominaciones no válidas son:
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Anular archivos</value>
   </data>
-  <data name="ThemeColor.Header" xml:space="preserve">
+  <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Color del tema</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">

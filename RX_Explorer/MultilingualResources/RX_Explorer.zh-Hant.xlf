@@ -732,47 +732,27 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Other</source>
           <target state="translated" state-qualifier="tm-suggestion">其他</target>
         </trans-unit>
-        <trans-unit id="SettingPageColorPickerTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic theme color</source>
-          <target state="translated">透明主題顏色</target>
-        </trans-unit>
-        <trans-unit id="SettingPageLuminosityTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic transmittance</source>
-          <target state="translated">Acrylic透明度</target>
-        </trans-unit>
-        <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
           <target state="translated">Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。</target>
         </trans-unit>
-        <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
-          <source>Adjusting this value may result in unclear or unrecognized content</source>
-          <target state="translated">調整此數值可能會導致內容不清楚或無法清晰識別</target>
-        </trans-unit>
-        <trans-unit id="SettingPageOpacityTip.Title" translate="yes" xml:space="preserve">
-          <source>Color transparency</source>
-          <target state="translated">顏色透明度</target>
-        </trans-unit>
-        <trans-unit id="SettingPageOpacityTipText1.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintOpacityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</source>
           <target state="translated">透明效果顏色的透明度，該數值越大，透明效果顏色越淺，越小表示顏色越深</target>
         </trans-unit>
-        <trans-unit id="SettingPageOpacityTipText2.Text" translate="yes" xml:space="preserve">
-          <source>This value defaults to 60% in 'Recommend' mode</source>
-          <target state="translated">推薦模式下此數值為60%</target>
-        </trans-unit>
-        <trans-unit id="SettingPageThemeColorButton.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="AccentColorLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic theme color</source>
           <target state="translated">透明效果主題色</target>
         </trans-unit>
-        <trans-unit id="SettingPageTintLuminositySliderHeader.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintLuminositySliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic background transmittance</source>
           <target state="translated">透明效果透光率</target>
         </trans-unit>
-        <trans-unit id="SettingPageTintOpacitySliderHeader.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintOpacitySliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic color transparency</source>
           <target state="translated">透明效果顏色透明度</target>
         </trans-unit>
-        <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageUIModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Mode</source>
           <target state="translated">模式</target>
         </trans-unit>
@@ -2064,7 +2044,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Application</source>
           <target state="translated" state-qualifier="tm-suggestion">應用程式</target>
         </trans-unit>
-        <trans-unit id="SettingPageAnimationSwitch.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAnimationSwitchLabel.Text" translate="yes" xml:space="preserve">
           <source>Animation effect</source>
           <target state="translated">動畫效果</target>
         </trans-unit>
@@ -4024,7 +4004,7 @@ Invalid names include
           <source>Override files</source>
           <target state="translated">覆蓋文件</target>
         </trans-unit>
-        <trans-unit id="ThemeColor.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ThemeColorLabel.Text" translate="yes" xml:space="preserve">
           <source>Theme color</source>
           <target state="translated">主題色</target>
         </trans-unit>

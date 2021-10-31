@@ -547,37 +547,22 @@
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Autre</value>
   </data>
-  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
-    <value>Couleur de l'acrylique</value>
-  </data>
-  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Transmission acrylique</value>
-  </data>
-  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+  <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. </value>
   </data>
-  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
-    <value>L'ajustement de cette valeur peut entraîner un contenu peu clair ou non reconnu</value>
-  </data>
-  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
-    <value>Transparence des couleurs</value>
-  </data>
-  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+  <data name="TintOpacityTipContent.Text" xml:space="preserve">
     <value>Transparence de la couleur du thème acrylique, plus la valeur est grande, plus la couleur acrylique est claire, plus la valeur est faible, plus la couleur est foncée.</value>
   </data>
-  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
-    <value>Cette valeur est à 60% par défaut</value>
-  </data>
-  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+  <data name="AccentColorLabel.Text" xml:space="preserve">
     <value>Couleur de l'acrylique</value>
   </data>
-  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+  <data name="TintLuminositySliderLabel.Text" xml:space="preserve">
     <value>Transmittance de l'arrière-plan acrylique</value>
   </data>
-  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+  <data name="TintOpacitySliderLabel.Text" xml:space="preserve">
     <value>Transparence de la couleur de l'acrylique</value>
   </data>
-  <data name="SettingPageUIMode.Header" xml:space="preserve">
+  <data name="SettingPageUIModeLabel.Text" xml:space="preserve">
     <value>Mode</value>
   </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
@@ -1542,7 +1527,7 @@
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>Application</value>
   </data>
-  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+  <data name="SettingPageAnimationSwitchLabel.Text" xml:space="preserve">
     <value>Effet d'animation</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
@@ -3031,7 +3016,7 @@ Les noms non valides incluent
   <data name="NameCollision_Override" xml:space="preserve">
     <value>Remplacer les fichiers</value>
   </data>
-  <data name="ThemeColor.Header" xml:space="preserve">
+  <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>Couleur du thème</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">

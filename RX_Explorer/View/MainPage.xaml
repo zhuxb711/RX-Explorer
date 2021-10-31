@@ -7,6 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:dialog="using:RX_Explorer.Dialog"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
@@ -442,6 +443,8 @@
                            Navigated="Nav_Navigated"
                            x:FieldModifier="public"
                            Grid.RowSpan="2" />
+                    <dialog:SettingDialog x:Name="Settings"
+                                          x:FieldModifier="public"/>
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

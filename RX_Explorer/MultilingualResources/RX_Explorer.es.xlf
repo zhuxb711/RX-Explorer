@@ -740,47 +740,27 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Other</source>
           <target state="translated">Otros</target>
         </trans-unit>
-        <trans-unit id="SettingPageColorPickerTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic theme color</source>
-          <target state="translated">Color de tema acrílico</target>
-        </trans-unit>
-        <trans-unit id="SettingPageLuminosityTip.Title" translate="yes" xml:space="preserve">
-          <source>Acrylic transmittance</source>
-          <target state="translated">Transmitancia acrílica</target>
-        </trans-unit>
-        <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
           <target state="translated">La transmitancia acrílica determina cuánta luz puede atravesar el material acrílico de la aplicación. Cuanto menor sea el valor, mayor será la relación de color del tema acrílico y mayor será el porcentaje de luz del fondo.</target>
         </trans-unit>
-        <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
-          <source>Adjusting this value may result in unclear or unrecognized content</source>
-          <target state="translated">Si se ajusta este valor, el contenido puede resultar poco claro o irreconocible.</target>
-        </trans-unit>
-        <trans-unit id="SettingPageOpacityTip.Title" translate="yes" xml:space="preserve">
-          <source>Color transparency</source>
-          <target state="translated">Transparencia de color</target>
-        </trans-unit>
-        <trans-unit id="SettingPageOpacityTipText1.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintOpacityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</source>
           <target state="translated">Transparencia de capa de color del tema acrílico: cuanto mayor sea el valor, más claro será el color acrílico; cuanto menor sea el color indicado, más oscuro será el color.</target>
         </trans-unit>
-        <trans-unit id="SettingPageOpacityTipText2.Text" translate="yes" xml:space="preserve">
-          <source>This value defaults to 60% in 'Recommend' mode</source>
-          <target state="translated">Este valor predetermina a 60 % en el modo "Recomendado"</target>
-        </trans-unit>
-        <trans-unit id="SettingPageThemeColorButton.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="AccentColorLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic theme color</source>
           <target state="translated">Color de tema acrílico</target>
         </trans-unit>
-        <trans-unit id="SettingPageTintLuminositySliderHeader.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintLuminositySliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic background transmittance</source>
           <target state="translated">Transmitancia de fondo acrílico</target>
         </trans-unit>
-        <trans-unit id="SettingPageTintOpacitySliderHeader.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="TintOpacitySliderLabel.Text" translate="yes" xml:space="preserve">
           <source>Acrylic color transparency</source>
           <target state="translated">Transparencia de color acrílico</target>
         </trans-unit>
-        <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageUIModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Mode</source>
           <target state="translated">Modo</target>
         </trans-unit>
@@ -2133,7 +2113,7 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>New_Zip</source>
           <target state="translated">Nuevo_Zip</target>
         </trans-unit>
-        <trans-unit id="SettingPageAnimationSwitch.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAnimationSwitchLabel.Text" translate="yes" xml:space="preserve">
           <source>Animation effect</source>
           <target state="translated">Efecto de animación</target>
         </trans-unit>
@@ -4022,7 +4002,7 @@ Las denominaciones no válidas son:
           <source>Override files</source>
           <target state="translated">Anular archivos</target>
         </trans-unit>
-        <trans-unit id="ThemeColor.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="ThemeColorLabel.Text" translate="yes" xml:space="preserve">
           <source>Theme color</source>
           <target state="translated">Color del tema</target>
         </trans-unit>

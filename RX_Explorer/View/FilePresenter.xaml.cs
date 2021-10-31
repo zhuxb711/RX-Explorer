@@ -265,9 +265,9 @@ namespace RX_Explorer
                                     {
                                         if (await FileSystemStorageItemBase.OpenAsync(AddedArgs.Path) is FileSystemStorageItemBase NewItem)
                                         {
-                                            if (SettingDialog.Current.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
+                                            if (MainPage.Current.Settings.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
                                             {
-                                                if ((NewItem is IHiddenStorageItem && SettingDialog.Current.IsDisplayHiddenItem) || NewItem is not IHiddenStorageItem)
+                                                if ((NewItem is IHiddenStorageItem && MainPage.Current.Settings.IsDisplayHiddenItem) || NewItem is not IHiddenStorageItem)
                                                 {
                                                     if (FileCollection.Any())
                                                     {
@@ -289,7 +289,7 @@ namespace RX_Explorer
                                                         FileCollection.Add(NewItem);
                                                     }
 
-                                                    if (NewItem is FileSystemStorageFolder && !SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                                    if (NewItem is FileSystemStorageFolder && !MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                                     {
                                                         if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(CurrentFolder.Path).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                         {
@@ -317,7 +317,7 @@ namespace RX_Explorer
                                     {
                                         FileCollection.Remove(Item);
 
-                                        if (Item is FileSystemStorageFolder && !SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                        if (Item is FileSystemStorageFolder && !MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                         {
                                             ShouldRefreshTreeView = true;
                                         }
@@ -396,9 +396,9 @@ namespace RX_Explorer
                                             {
                                                 FileCollection.Remove(OldItem);
 
-                                                if (SettingDialog.Current.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
+                                                if (MainPage.Current.Settings.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
                                                 {
-                                                    if ((ModifiedItem is IHiddenStorageItem && SettingDialog.Current.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
+                                                    if ((ModifiedItem is IHiddenStorageItem && MainPage.Current.Settings.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
                                                     {
                                                         if (FileCollection.Any())
                                                         {
@@ -454,9 +454,9 @@ namespace RX_Explorer
 
                                     if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
                                     {
-                                        if (SettingDialog.Current.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
+                                        if (MainPage.Current.Settings.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
                                         {
-                                            if ((Item is IHiddenStorageItem && SettingDialog.Current.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
+                                            if ((Item is IHiddenStorageItem && MainPage.Current.Settings.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
                                             {
                                                 foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
                                                                                                                                || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
@@ -484,7 +484,7 @@ namespace RX_Explorer
                                                     FileCollection.Add(Item);
                                                 }
 
-                                                if (Item is FileSystemStorageFolder && !SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                                if (Item is FileSystemStorageFolder && !MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                                 {
                                                     if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => Path.GetPathRoot(CurrentFolder.Path).Equals((Node.Content as TreeViewNodeContent).Path, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RootNode)
                                                     {
@@ -616,7 +616,7 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingDialog.Current.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1:
+                        case VirtualKey.Space when MainPage.Current.Settings.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1:
                             {
                                 args.Handled = true;
 
@@ -978,7 +978,7 @@ namespace RX_Explorer
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
-                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingDialog.Current.IsDisplayHiddenItem, SettingDialog.Current.IsDisplayProtectedSystemItems);
+                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(MainPage.Current.Settings.IsDisplayHiddenItem, MainPage.Current.Settings.IsDisplayProtectedSystemItems);
 
                         if (ChildItems.Count > 0)
                         {
@@ -1352,7 +1352,7 @@ namespace RX_Explorer
                                     {
                                         QueueTaskController.EnqueueDeleteUndoOpeartion(SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
                                         {
-                                            if (!SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                            if (!MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                             {
                                                 foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -1374,7 +1374,7 @@ namespace RX_Explorer
 
                                         QueueTaskController.EnqueueMoveUndoOpeartion(Dic, OriginFolderPath, OnCompleted: async (s, e) =>
                                         {
-                                            if (!SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                            if (!MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                             {
                                                 foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -1389,7 +1389,7 @@ namespace RX_Explorer
                                     {
                                         QueueTaskController.EnqueueCopyUndoOpeartion(SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
                                         {
-                                            if (!SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                            if (!MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                             {
                                                 foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -1404,7 +1404,7 @@ namespace RX_Explorer
                                     {
                                         QueueTaskController.EnqueueRenameUndoOpeartion(SplitGroup.Select((Item) => Item[2]).First(), SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
                                         {
-                                            if (!SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                            if (!MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                             {
                                                 foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -1419,7 +1419,7 @@ namespace RX_Explorer
                                     {
                                         QueueTaskController.EnqueueNewUndoOpeartion(SplitGroup.Select((Item) => Item[0]).First(), OnCompleted: async (s, e) =>
                                         {
-                                            if (!SettingDialog.Current.IsDetachTreeViewAndPresenter)
+                                            if (!MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
                                             {
                                                 foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                                                 {
@@ -2032,7 +2032,7 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }
@@ -2633,7 +2633,7 @@ namespace RX_Explorer
 
         private async void EmptyFlyout_Opening(object sender, object e)
         {
-            if (SettingDialog.Current.IsDetachTreeViewAndPresenter)
+            if (MainPage.Current.Settings.IsDetachTreeViewAndPresenter)
             {
                 ExpandToCurrentFolder.Visibility = Visibility.Collapsed;
             }
@@ -2743,7 +2743,7 @@ namespace RX_Explorer
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingDialog.Current.IsDoubleClickEnabled
+            if (!MainPage.Current.Settings.IsDoubleClickEnabled
                 && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                 && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
@@ -3759,7 +3759,7 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if (!SettingDialog.Current.IsDoubleClickEnabled
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                     && !Container.BlockKeyboardShortCutInput
                     && !ItemPresenter.SelectedItems.Contains(Item)
@@ -3886,7 +3886,7 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingDialog.Current.IsDoubleClickEnabled)
+                if (!MainPage.Current.Settings.IsDoubleClickEnabled)
                 {
                     DelaySelectionCancellation?.Cancel();
                 }
@@ -4101,7 +4101,7 @@ namespace RX_Explorer
         {
             TextBlock NameLabel = (TextBlock)sender;
 
-            if (e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && SettingDialog.Current.IsDoubleClickEnabled)
+            if (e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && MainPage.Current.Settings.IsDoubleClickEnabled)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {

@@ -556,37 +556,22 @@
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
   </data>
-  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
-    <value>透明主題顏色</value>
-  </data>
-  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Acrylic透明度</value>
-  </data>
-  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+  <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。</value>
   </data>
-  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
-    <value>調整此數值可能會導致內容不清楚或無法清晰識別</value>
-  </data>
-  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
-    <value>顏色透明度</value>
-  </data>
-  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+  <data name="TintOpacityTipContent.Text" xml:space="preserve">
     <value>透明效果顏色的透明度，該數值越大，透明效果顏色越淺，越小表示顏色越深</value>
   </data>
-  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
-    <value>推薦模式下此數值為60%</value>
-  </data>
-  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+  <data name="AccentColorLabel.Text" xml:space="preserve">
     <value>透明效果主題色</value>
   </data>
-  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+  <data name="TintLuminositySliderLabel.Text" xml:space="preserve">
     <value>透明效果透光率</value>
   </data>
-  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+  <data name="TintOpacitySliderLabel.Text" xml:space="preserve">
     <value>透明效果顏色透明度</value>
   </data>
-  <data name="SettingPageUIMode.Header" xml:space="preserve">
+  <data name="SettingPageUIModeLabel.Text" xml:space="preserve">
     <value>模式</value>
   </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
@@ -1564,7 +1549,7 @@
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>應用程式</value>
   </data>
-  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+  <data name="SettingPageAnimationSwitchLabel.Text" xml:space="preserve">
     <value>動畫效果</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
@@ -3031,7 +3016,7 @@
   <data name="NameCollision_Override" xml:space="preserve">
     <value>覆蓋文件</value>
   </data>
-  <data name="ThemeColor.Header" xml:space="preserve">
+  <data name="ThemeColorLabel.Text" xml:space="preserve">
     <value>主題色</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">

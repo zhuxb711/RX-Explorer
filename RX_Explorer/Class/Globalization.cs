@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Windows.ApplicationModel;
@@ -20,7 +21,7 @@ namespace RX_Explorer.Class
         public static LanguageEnum CurrentLanguage { get; private set; }
 
         private static readonly ResourceLoader Loader;
-        private static readonly Dictionary<string, string> ResourceCache;
+        private static readonly ConcurrentDictionary<string, string> ResourceCache;
 
         public static bool SwitchTo(LanguageEnum Language)
         {
@@ -92,26 +93,26 @@ namespace RX_Explorer.Class
 
         public static string GetString(string Key)
         {
-            if (ResourceCache.TryGetValue(Key, out string Value))
+            if (ResourceCache.TryGetValue(Key, out string ExistingValue))
             {
-                return Value;
+                return ExistingValue;
             }
             else
             {
                 try
                 {
-                    Value = Loader.GetString(Key);
+                    string TranslatedValue = Loader.GetString(Key).Replace(@"\r", Environment.NewLine);
 
-                    if (string.IsNullOrEmpty(Value))
+                    if (string.IsNullOrEmpty(TranslatedValue))
                     {
-                        throw new Exception("Value is empty");
+                        throw new Exception("TranslatedValue is empty");
                     }
                     else
                     {
-                        Value = Value.Replace(@"\r", Environment.NewLine);
-                        ResourceCache.Add(Key, Value);
-                        return Value;
+                        ResourceCache.TryAdd(Key, TranslatedValue);
                     }
+
+                    return TranslatedValue;
                 }
                 catch (Exception ex)
                 {
@@ -231,7 +232,7 @@ namespace RX_Explorer.Class
             }
 
             Loader = ResourceLoader.GetForViewIndependentUse();
-            ResourceCache = new Dictionary<string, string>();
+            ResourceCache = new ConcurrentDictionary<string, string>();
         }
     }
 }
