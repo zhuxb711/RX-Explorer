@@ -163,7 +163,7 @@ namespace RX_Explorer
         {
             if (MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                && SettingDialog.IsTabPreviewEnabled)
+                && SettingPage.IsTabPreviewEnabled)
             {
                 try
                 {
@@ -320,7 +320,7 @@ namespace RX_Explorer
 
                                 switch (args.VirtualKey)
                                 {
-                                    case VirtualKey.Space when SettingDialog.IsQuicklookEnabled:
+                                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled:
                                         {
                                             args.Handled = true;
 
@@ -671,7 +671,7 @@ namespace RX_Explorer
                 CommonAccessCollection.LoadDriveAsync()
             };
 
-            if (SettingDialog.LibraryExpanderIsExpanded)
+            if (SettingPage.LibraryExpanderIsExpanded)
             {
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
@@ -783,7 +783,7 @@ namespace RX_Explorer
 
         private void Item_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (SettingDialog.IsTabPreviewEnabled)
+            if (SettingPage.IsTabPreviewEnabled)
             {
                 DelayPreviewCancel?.Cancel();
                 DelayPreviewCancel?.Dispose();

@@ -674,6 +674,8 @@ namespace RX_Explorer.Class
         {
             CurrentType = Type;
 
+            OnPropertyChanged(nameof(CurrentType));
+
             switch (Type)
             {
                 case BackgroundBrushType.Acrylic:

@@ -367,16 +367,16 @@
                              PaneClosing="NavView_PaneClosing"
                              PaneOpening="NavView_PaneOpening"
                              RightTapped="NavView_RightTapped"
-                             Loaded="NavView_Loaded" >
+                             Loaded="NavView_Loaded">
             <muxc:NavigationView.Resources>
                 <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
-                                 Color="Transparent"/>
+                                 Color="Transparent" />
                 <SolidColorBrush x:Key="NavigationViewContentBackground"
                                  Color="Transparent" />
                 <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
                                  Color="Transparent" />
-                <StaticResource x:Key="NavigationViewExpandedPaneBackground" 
-                                ResourceKey="ElementCustomAcrylicBrush"/>
+                <StaticResource x:Key="NavigationViewExpandedPaneBackground"
+                                ResourceKey="ElementCustomAcrylicBrush" />
                 <StaticResource x:Key="NavigationViewDefaultPaneBackground"
                                 ResourceKey="ElementCustomAcrylicBrush" />
             </muxc:NavigationView.Resources>
@@ -443,12 +443,14 @@
                            Navigated="Nav_Navigated"
                            x:FieldModifier="public"
                            Grid.RowSpan="2" />
-                    <dialog:SettingDialog x:Name="Settings"
-                                          x:Load="False"
-                                          x:FieldModifier="public"/>
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>
+
+        <local:SettingPage x:Name="Settings"
+                           x:Load="False"
+                           Visibility="Collapsed"
+                           x:FieldModifier="public" />
 
         <Border x:Name="TitleBar"
                 Height="32"

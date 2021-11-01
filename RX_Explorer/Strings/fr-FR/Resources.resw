@@ -2125,7 +2125,7 @@ Les noms non valides incluent
     <value>Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement \rEnsuite, redémarrez l'application</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="SettingStartup.Text" xml:space="preserve">
+  <data name="SettingStartupLabel.Text" xml:space="preserve">
     <value>Au démarrage</value>
   </data>
   <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
@@ -3149,7 +3149,7 @@ Les noms non valides incluent
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Visionneuse zip intégrée</value>
   </data>
-  <data name="SettingPathHistory.Header" xml:space="preserve">
+  <data name="SettingPathHistoryLabel.Text" xml:space="preserve">
     <value>Historique du chemin</value>
   </data>
   <data name="SettingPathHistory.OffContent" xml:space="preserve">
@@ -3161,7 +3161,7 @@ Les noms non valides incluent
   <data name="SettingPrivacy.Text" xml:space="preserve">
     <value>Intimité</value>
   </data>
-  <data name="SettingSearchHistory.Header" xml:space="preserve">
+  <data name="SettingSearchHistoryLabel.Text" xml:space="preserve">
     <value>Historique des recherches</value>
   </data>
   <data name="SettingSearchHistory.OffContent" xml:space="preserve">

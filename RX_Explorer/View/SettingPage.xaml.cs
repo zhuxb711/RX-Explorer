@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -39,9 +40,9 @@ using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewPaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
-namespace RX_Explorer.Dialog
+namespace RX_Explorer
 {
-    public sealed partial class SettingDialog : QueueContentDialog
+    public sealed partial class SettingPage : UserControl
     {
         private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
         private readonly ObservableCollection<TerminalProfile> TerminalList = new ObservableCollection<TerminalProfile>();
@@ -347,15 +348,14 @@ namespace RX_Explorer.Dialog
 
         private bool HasInit;
 
-        private int SliderValueChangeLock;
-
         private readonly SemaphoreSlim SyncLocker = new SemaphoreSlim(1, 1);
 
-        public SettingDialog()
+        public SettingPage()
         {
             InitializeComponent();
 
-            CloseButtonText = Globalization.GetString("Common_Dialog_ConfirmButton");
+            PictureGirdView.ItemsSource = PictureList;
+            CloseButton.Content = Globalization.GetString("Common_Dialog_ConfirmButton");
 
             Loading += SettingDialog_Loading;
             AnimationController.Current.AnimationStateChanged += Current_AnimationStateChanged;
@@ -369,16 +369,45 @@ namespace RX_Explorer.Dialog
             }
         }
 
+        public async Task ShowAsync()
+        {
+            try
+            {
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false),
+                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 300, false),
+                                       Task.Factory.StartNew(() => Visibility = Visibility.Visible, default, default, TaskScheduler.FromCurrentSynchronizationContext()));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+        }
+
+        public async Task HideAsync()
+        {
+            try
+            {
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true),
+                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 300, true))
+                              .ContinueWith((_) => Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+        }
+
         private async void SettingDialog_Loading(FrameworkElement sender, object args)
         {
             try
             {
                 await InitializeAsync();
-
-                if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
-                {
-                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
-                }
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
@@ -459,6 +488,11 @@ namespace RX_Explorer.Dialog
                 if (await MSStoreHelper.Current.CheckHasUpdateAsync())
                 {
                     VersionTip.Text = Globalization.GetString("UpdateAvailable");
+                }
+
+                if (PictureList.Count == 0)
+                {
+                    PictureList.AddRange(await GetCustomPictureAsync());
                 }
             }
         }
@@ -598,9 +632,11 @@ namespace RX_Explorer.Dialog
             });
         }
 
-        private void ActivateAnimation(UIElement Element, TimeSpan Duration, TimeSpan DelayTime, float VerticalOffset, bool IsReverse)
+        private Task ActivateAnimation(UIElement Element, TimeSpan Duration, TimeSpan DelayTime, float VerticalOffset, bool IsReverse)
         {
             Visual Visual = ElementCompositionPreview.GetElementVisual(Element);
+
+            CompositionScopedBatch Batch = Visual.Compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
 
             Vector3KeyFrameAnimation EntranceAnimation = Visual.Compositor.CreateVector3KeyFrameAnimation();
             ScalarKeyFrameAnimation FadeAnimation = Visual.Compositor.CreateScalarKeyFrameAnimation();
@@ -635,6 +671,16 @@ namespace RX_Explorer.Dialog
             AnimationGroup.Add(FadeAnimation);
 
             Visual.StartAnimationGroup(AnimationGroup);
+
+            TaskCompletionSource<bool> CompletionTask = new TaskCompletionSource<bool>();
+
+            Batch.End();
+            Batch.Completed += (s, e) =>
+            {
+                CompletionTask.SetResult(true);
+            };
+
+            return CompletionTask.Task;
         }
 
         private async Task ApplyLocalSetting(bool IsCallFromInit)
@@ -1457,23 +1503,7 @@ namespace RX_Explorer.Dialog
 
                 if (PictureList.Count == 0)
                 {
-                    foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
-                    {
-                        try
-                        {
-                            BackgroundPicture Picture = await BackgroundPicture.CreateAsync(ImageUri);
-
-                            if (!PictureList.Contains(Picture))
-                            {
-                                PictureList.Add(Picture);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
-                            SQLite.Current.DeleteBackgroundPicture(ImageUri);
-                        }
-                    }
+                    PictureList.AddRange(await GetCustomPictureAsync());
                 }
 
                 ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
@@ -2118,22 +2148,18 @@ namespace RX_Explorer.Dialog
 
         private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            if (Interlocked.Exchange(ref SliderValueChangeLock, 1) == 0)
+            try
             {
-                try
-                {
-                    MainPage.Current.BackgroundBlur.BlurAmount = e.NewValue / 10;
-                    ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Change BackgroundBlur failed");
-                }
-                finally
-                {
-                    ApplicationData.Current.SignalDataChanged();
-                    Interlocked.Exchange(ref SliderValueChangeLock, 0);
-                }
+                MainPage.Current.BackgroundBlur.BlurAmount = e.NewValue / 10;
+                ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Change BackgroundBlur failed");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -2770,22 +2796,18 @@ namespace RX_Explorer.Dialog
 
         private void BackgroundLightSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            if (Interlocked.Exchange(ref SliderValueChangeLock, 1) == 0)
+            try
             {
-                try
-                {
-                    MainPage.Current.BackgroundBlur.TintOpacity = e.NewValue / 200;
-                    ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = Convert.ToSingle(e.NewValue);
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Change BackgroundLight failed");
-                }
-                finally
-                {
-                    ApplicationData.Current.SignalDataChanged();
-                    Interlocked.Exchange(ref SliderValueChangeLock, 0);
-                }
+                MainPage.Current.BackgroundBlur.TintOpacity = e.NewValue / 200;
+                ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = Convert.ToSingle(e.NewValue);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Change BackgroundLight failed");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -3086,6 +3108,36 @@ namespace RX_Explorer.Dialog
         private void AddTerminalProfile_Click(object sender, RoutedEventArgs e)
         {
             TerminalList.Add(new TerminalProfile("New Terminal Porfile", string.Empty, string.Empty, default));
+        }
+
+        private async void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            await HideAsync();
+        }
+
+        private async Task<IReadOnlyList<BackgroundPicture>> GetCustomPictureAsync()
+        {
+            List<BackgroundPicture> PictureList = new List<BackgroundPicture>();
+
+            foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
+            {
+                try
+                {
+                    PictureList.Add(await BackgroundPicture.CreateAsync(ImageUri));
+                }
+                catch (Exception ex)
+                {
+                    SQLite.Current.DeleteBackgroundPicture(ImageUri);
+                    LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
+                }
+            }
+
+            return PictureList;
+        }
+
+        private async void NavigatePrivacyLink_Click(object sender, RoutedEventArgs e)
+        {
+            await Launcher.LaunchUriAsync(new Uri("https://github.com/zhuxb711/RX-Explorer/blob/master/README.md"));
         }
     }
 }

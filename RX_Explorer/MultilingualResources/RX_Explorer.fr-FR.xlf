@@ -2817,7 +2817,7 @@ Les noms non valides incluent
           <target state="translated">Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement \rEnsuite, redémarrez l'application</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="SettingStartup.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>On startup</source>
           <target state="translated">Au démarrage</target>
         </trans-unit>
@@ -4181,7 +4181,7 @@ Les noms non valides incluent
           <source>Built-in Zip viewer</source>
           <target state="translated">Visionneuse zip intégrée</target>
         </trans-unit>
-        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPathHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Path history</source>
           <target state="translated">Historique du chemin</target>
         </trans-unit>
@@ -4197,7 +4197,7 @@ Les noms non valides incluent
           <source>Privacy</source>
           <target state="translated">Intimité</target>
         </trans-unit>
-        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingSearchHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Search history</source>
           <target state="translated">Historique des recherches</target>
         </trans-unit>

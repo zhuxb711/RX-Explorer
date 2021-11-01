@@ -2149,7 +2149,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>Anwendung konnte nicht gestartet werden</value>
   </data>
-  <data name="SettingStartup.Text" xml:space="preserve">
+  <data name="SettingStartupLabel.Text" xml:space="preserve">
     <value>Beim Start</value>
   </data>
   <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
@@ -3149,7 +3149,7 @@ Inkorrekte Namen sind
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Integrierter Zip-Viewer</value>
   </data>
-  <data name="SettingPathHistory.Header" xml:space="preserve">
+  <data name="SettingPathHistoryLabel.Text" xml:space="preserve">
     <value>Pfadverlauf</value>
   </data>
   <data name="SettingPathHistory.OffContent" xml:space="preserve">
@@ -3161,7 +3161,7 @@ Inkorrekte Namen sind
   <data name="SettingPrivacy.Text" xml:space="preserve">
     <value>Privatsphäre</value>
   </data>
-  <data name="SettingSearchHistory.Header" xml:space="preserve">
+  <data name="SettingSearchHistoryLabel.Text" xml:space="preserve">
     <value>Suchverlauf</value>
   </data>
   <data name="SettingSearchHistory.OffContent" xml:space="preserve">

@@ -2275,7 +2275,7 @@ Invalid names include
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>Unable to start the application</value>
   </data>
-  <data name="SettingStartup.Text" xml:space="preserve">
+  <data name="SettingStartupLabel.Text" xml:space="preserve">
     <value>On startup</value>
   </data>
   <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
@@ -3257,7 +3257,7 @@ Invalid names include
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Built-in Zip viewer</value>
   </data>
-  <data name="SettingPathHistory.Header" xml:space="preserve">
+  <data name="SettingPathHistoryLabel.Text" xml:space="preserve">
     <value>Path history</value>
   </data>
   <data name="SettingPathHistory.OffContent" xml:space="preserve">
@@ -3269,7 +3269,7 @@ Invalid names include
   <data name="SettingPrivacy.Text" xml:space="preserve">
     <value>Privacy</value>
   </data>
-  <data name="SettingSearchHistory.Header" xml:space="preserve">
+  <data name="SettingSearchHistoryLabel.Text" xml:space="preserve">
     <value>Search history</value>
   </data>
   <data name="SettingSearchHistory.OffContent" xml:space="preserve">

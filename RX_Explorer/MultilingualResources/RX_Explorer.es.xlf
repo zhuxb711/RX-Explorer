@@ -2843,7 +2843,7 @@ Las denominaciones no válidas son:
           <source>Unable to start the application</source>
           <target state="translated">No se ha podido iniciar la aplicación.</target>
         </trans-unit>
-        <trans-unit id="SettingStartup.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>On startup</source>
           <target state="translated">Al inicio</target>
         </trans-unit>
@@ -4179,7 +4179,7 @@ Las denominaciones no válidas son:
           <source>Built-in Zip viewer</source>
           <target state="translated">Visor Zip incorporado</target>
         </trans-unit>
-        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPathHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Path history</source>
           <target state="translated">Historia de la ruta</target>
         </trans-unit>
@@ -4195,7 +4195,7 @@ Las denominaciones no válidas son:
           <source>Privacy</source>
           <target state="translated">Intimidad</target>
         </trans-unit>
-        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingSearchHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Search history</source>
           <target state="translated">Buscar Historia</target>
         </trans-unit>

@@ -2847,7 +2847,7 @@ Inkorrekte Namen sind
           <source>Unable to start the application</source>
           <target state="translated">Anwendung konnte nicht gestartet werden</target>
         </trans-unit>
-        <trans-unit id="SettingStartup.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>On startup</source>
           <target state="translated">Beim Start</target>
         </trans-unit>
@@ -4179,7 +4179,7 @@ Inkorrekte Namen sind
           <source>Built-in Zip viewer</source>
           <target state="translated">Integrierter Zip-Viewer</target>
         </trans-unit>
-        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPathHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Path history</source>
           <target state="translated">Pfadverlauf</target>
         </trans-unit>
@@ -4195,7 +4195,7 @@ Inkorrekte Namen sind
           <source>Privacy</source>
           <target state="translated">Privatsphäre</target>
         </trans-unit>
-        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingSearchHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Search history</source>
           <target state="translated">Suchverlauf</target>
         </trans-unit>

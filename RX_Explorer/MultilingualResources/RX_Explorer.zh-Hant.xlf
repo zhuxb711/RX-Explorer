@@ -2817,7 +2817,7 @@ Invalid names include
           <target state="translated">請啟用此應用程序的文件系統訪問權限，以使其正常運行\r然後重新啟動該應用程序</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="SettingStartup.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingStartupLabel.Text" translate="yes" xml:space="preserve">
           <source>On startup</source>
           <target state="translated">啟動時</target>
         </trans-unit>
@@ -4181,7 +4181,7 @@ Invalid names include
           <source>Built-in Zip viewer</source>
           <target state="translated">內置Zip查看器</target>
         </trans-unit>
-        <trans-unit id="SettingPathHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPathHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Path history</source>
           <target state="translated">路徑歷史記錄</target>
         </trans-unit>
@@ -4197,7 +4197,7 @@ Invalid names include
           <source>Privacy</source>
           <target state="translated">隱私</target>
         </trans-unit>
-        <trans-unit id="SettingSearchHistory.Header" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingSearchHistoryLabel.Text" translate="yes" xml:space="preserve">
           <source>Search history</source>
           <target state="translated">搜索歷史記錄</target>
         </trans-unit>

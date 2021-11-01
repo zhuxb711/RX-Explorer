@@ -2146,7 +2146,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>No se ha podido iniciar la aplicación.</value>
   </data>
-  <data name="SettingStartup.Text" xml:space="preserve">
+  <data name="SettingStartupLabel.Text" xml:space="preserve">
     <value>Al inicio</value>
   </data>
   <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
@@ -3149,7 +3149,7 @@ Las denominaciones no válidas son:
   <data name="BuildIn_CompressionViewer_Description" xml:space="preserve">
     <value>Visor Zip incorporado</value>
   </data>
-  <data name="SettingPathHistory.Header" xml:space="preserve">
+  <data name="SettingPathHistoryLabel.Text" xml:space="preserve">
     <value>Historia de la ruta</value>
   </data>
   <data name="SettingPathHistory.OffContent" xml:space="preserve">
@@ -3161,7 +3161,7 @@ Las denominaciones no válidas son:
   <data name="SettingPrivacy.Text" xml:space="preserve">
     <value>Intimidad</value>
   </data>
-  <data name="SettingSearchHistory.Header" xml:space="preserve">
+  <data name="SettingSearchHistoryLabel.Text" xml:space="preserve">
     <value>Buscar Historia</value>
   </data>
   <data name="SettingSearchHistory.OffContent" xml:space="preserve">
