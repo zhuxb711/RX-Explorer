@@ -94,7 +94,7 @@
                     <muxc:NavigationViewItem>
                         <muxc:NavigationViewItem.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xEBD2;" />
+                                      Glyph="&#xF8A6;" />
                         </muxc:NavigationViewItem.Icon>
                         <muxc:NavigationViewItem.Content>
                             <TextBlock Text="高级"
@@ -135,30 +135,6 @@
                         <muxc:NavigationViewItem.Content>
                             <TextBlock Text="版本"
                                        x:Uid="SettingVersion"
-                                       TextTrimming="CharacterEllipsis"
-                                       FontSize="16" />
-                        </muxc:NavigationViewItem.Content>
-                    </muxc:NavigationViewItem>
-                    <muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE823;" />
-                        </muxc:NavigationViewItem.Icon>
-                        <muxc:NavigationViewItem.Content>
-                            <TextBlock Text="恢复"
-                                       x:Uid="SettingRecovery"
-                                       TextTrimming="CharacterEllipsis"
-                                       FontSize="16" />
-                        </muxc:NavigationViewItem.Content>
-                    </muxc:NavigationViewItem>
-                    <muxc:NavigationViewItem>
-                        <muxc:NavigationViewItem.Icon>
-                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xF0B9;" />
-                        </muxc:NavigationViewItem.Icon>
-                        <muxc:NavigationViewItem.Content>
-                            <TextBlock Text="其他"
-                                       x:Uid="SettingOther"
                                        TextTrimming="CharacterEllipsis"
                                        FontSize="16" />
                         </muxc:NavigationViewItem.Content>
@@ -519,7 +495,7 @@
                                                               Checked="AlwaysLaunchNew_Checked"
                                                               Unchecked="AlwaysLaunchNew_Unchecked" />
                                                 </Border>
-                                                <Button Padding="40,10,10,10"
+                                                <Button Padding="40,10,20,10"
                                                         MinHeight="45"
                                                         Margin="0,1,0,0"
                                                         BorderThickness="0"
@@ -541,11 +517,12 @@
                                                                  RelativePanel.AlignRightWithPanel="True"
                                                                  RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                      Foreground="{ThemeResource SystemAccentColor}"
                                                                       Glyph="&#xE71B;" />
                                                         </Viewbox>
                                                     </RelativePanel>
                                                 </Button>
-                                                <Button Padding="40,10,10,10"
+                                                <Button Padding="40,10,20,10"
                                                         MinHeight="45"
                                                         Margin="0,1,0,0"
                                                         BorderThickness="0"
@@ -567,7 +544,8 @@
                                                                  RelativePanel.AlignRightWithPanel="True"
                                                                  RelativePanel.AlignVerticalCenterWithPanel="True">
                                                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                      Glyph="&#xE792;" />
+                                                                      Foreground="{ThemeResource SystemAccentColor}"
+                                                                      Glyph="&#xEE71;" />
                                                         </Viewbox>
                                                     </RelativePanel>
                                                 </Button>
@@ -1769,6 +1747,7 @@
                                                      RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
                                                           Glyph="&#xE71B;" />
                                             </Viewbox>
                                         </RelativePanel>
@@ -1841,8 +1820,7 @@
                                                         RelativePanel.AlignLeftWithPanel="True"
                                                         RelativePanel.LeftOf="VersionTipIcon">
                                                 <TextBlock Text="{x:Bind Version}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords"/>
+                                                           TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Foreground="Gray"
                                                            FontSize="12"
                                                            x:Uid="UpdateLatest"
@@ -1857,6 +1835,7 @@
                                                      RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
                                                           Glyph="&#xE930;" />
                                             </Viewbox>
                                         </RelativePanel>
@@ -1877,8 +1856,7 @@
                                                         RelativePanel.LeftOf="GoGithubTipIcon">
                                                 <TextBlock Text="前往Github"
                                                            x:Uid="SettingGoGithubTitle"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords" />
+                                                           TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Foreground="Gray"
                                                            FontSize="12"
                                                            x:Uid="SettingGoGithubContent"
@@ -1892,6 +1870,7 @@
                                                      RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
                                                           Glyph="&#xEDE4;" />
                                             </Viewbox>
                                         </RelativePanel>
@@ -1912,8 +1891,7 @@
                                                         RelativePanel.LeftOf="ShowUpdateLogTipIcon">
                                                 <TextBlock Text="更新历史"
                                                            x:Uid="SettingUpdateLogTitle"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords" />
+                                                           TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Foreground="Gray"
                                                            FontSize="12"
                                                            x:Uid="SettingUpdateLogContent"
@@ -1927,281 +1905,442 @@
                                                      RelativePanel.AlignRightWithPanel="True"
                                                      RelativePanel.AlignVerticalCenterWithPanel="True">
                                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
                                                           Glyph="&#xF000;" />
                                             </Viewbox>
                                         </RelativePanel>
                                     </Button>
+
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Top"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <StackPanel Padding="4,10,0,10">
+                                                <TextBlock Text="恢复"
+                                                           x:Uid="SettingRecovery"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           Text="尝试恢复应用程序或导入或导出配置文件以供以后使用"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <StackPanel>
+                                                <Button Margin="0,1,0,0"
+                                                        Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        Click="ClearUp_Click"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="重置应用程序"
+                                                                   x:Uid="SettingInitAppTitle"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Foreground="Gray"
+                                                                   FontSize="12"
+                                                                   x:Uid="SettingInitAppContent"
+                                                                   Text="删除所有数据并恢复成初始状态"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <muxc:Expander Margin="0,1,0,0"
+                                                               ExpandDirection="Down"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Stretch"
+                                                               VerticalContentAlignment="Top"
+                                                               Padding="0"
+                                                               MinHeight="45"
+                                                               Background="Transparent"
+                                                               CornerRadius="0">
+                                                    <muxc:Expander.Header>
+                                                        <StackPanel Padding="25,10,0,10">
+                                                            <TextBlock Text="管理配置文件"
+                                                                       x:Uid="SettingManageConfigTitle"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Foreground="Gray"
+                                                                       FontSize="12"
+                                                                       x:Uid="SettingManageConfigContent"
+                                                                       Text="执行保存或恢复配置操作"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </muxc:Expander.Header>
+                                                    <muxc:Expander.Content>
+                                                        <StackPanel>
+                                                            <Button Margin="0,1,0,0"
+                                                                    Padding="68,10,20,10"
+                                                                    MinHeight="45"
+                                                                    CornerRadius="0"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Stretch"
+                                                                    Click="ExportConfiguration_Click"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <TextBlock Text="导出配置文件"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                                               RelativePanel.LeftOf="ExportConfigIcon" />
+                                                                    <Viewbox Name="ExportConfigIcon"
+                                                                             Height="20"
+                                                                             Width="20"
+                                                                             RelativePanel.AlignRightWithPanel="True"
+                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                                                  Glyph="&#xEE71;" />
+                                                                    </Viewbox>
+                                                                </RelativePanel>
+                                                            </Button>
+                                                            <Button Margin="0,1,0,0"
+                                                                    Padding="68,10,20,10"
+                                                                    MinHeight="45"
+                                                                    CornerRadius="0,0,4,4"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Stretch"
+                                                                    Click="ImportConfiguration_Click"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <TextBlock Text="导入配置文件"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                                               RelativePanel.LeftOf="ImportConfigIcon" />
+                                                                    <Viewbox Name="ImportConfigIcon"
+                                                                             Height="20"
+                                                                             Width="20"
+                                                                             RelativePanel.AlignRightWithPanel="True"
+                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                                                  Glyph="&#xEE71;" />
+                                                                    </Viewbox>
+                                                                </RelativePanel>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </muxc:Expander.Content>
+                                                </muxc:Expander>
+                                            </StackPanel>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
                                 </StackPanel>
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="5">
-                            <StackPanel Margin="0,20,0,0"
-                                        HorizontalAlignment="Left">
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="ClearUp_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE7BA;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="初始化应用程序"
-                                                       x:Uid="SettingInitAppTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingInitAppContent"
-                                                       Text="删除所有数据并恢复成初始状态" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Name="ConfigManagerButton">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE148;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="管理配置文件"
-                                                       x:Uid="SettingManageConfigTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingManageConfigContent"
-                                                       Text="执行保存或恢复配置操作" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                    <Button.Flyout>
-                                        <Flyout Placement="Bottom">
-                                            <Flyout.FlyoutPresenterStyle>
-                                                <Style TargetType="FlyoutPresenter">
-                                                    <Setter Property="CornerRadius"
-                                                            Value="{StaticResource CustomCornerRadius}" />
-                                                    <Setter Property="Background"
-                                                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
-                                                </Style>
-                                            </Flyout.FlyoutPresenterStyle>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <Button Content="导出"
-                                                        x:Uid="SettingConfiguration_Export"
-                                                        Name="ExportConfiguration"
-                                                        HorizontalAlignment="Stretch"
-                                                        Margin="0,0,5,0"
-                                                        MinWidth="80"
-                                                        Click="ExportConfiguration_Click" />
-                                                <Button Content="导入"
-                                                        Name="ImportConfiguration"
-                                                        HorizontalAlignment="Stretch"
-                                                        Margin="5,0,0,0"
-                                                        x:Uid="SettingConfiguration_Import"
-                                                        MinWidth="80"
-                                                        Grid.Column="1"
-                                                        Click="ImportConfiguration_Click" />
-                                            </Grid>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </StackPanel>
-                        </control:Case>
-                        <control:Case Value="6">
-                            <StackPanel Margin="0,20,0,0"
-                                        HorizontalAlignment="Left">
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        Name="PurchaseApp"
-                                        BorderThickness="0"
-                                        Click="PurchaseApp_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE14D;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="购买本应用"
-                                                       x:Uid="SettingPurchaseAppTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingPurchaseAppContent"
-                                                       Text="购买此应用以解锁全部功能并支持开发" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="ReviewButton_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE134;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="编写评价"
-                                                       x:Uid="SettingReviewAppTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingReviewAppContent"
-                                                       Text="在微软应用商店中留下您对本应用的评价吧" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="SystemInfoButton_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE946;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="系统信息"
-                                                       x:Uid="SettingSystemInfoTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingSystemInfoContent"
-                                                       Text="查看软硬件系统信息" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="ExportLog_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE9F9;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="日志文件"
-                                                       x:Uid="SettingLogTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingLogContent"
-                                                       Text="导出错误日志文件以供开发者分析相关问题" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="ShortcutGuide_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE816;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="键盘快捷键指南"
-                                                       x:Uid="SettingKeyboardGuideTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingKeyboardGuideContent"
-                                                       Text="包含所有受本应用支持的键盘快捷键说明" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Click="AQSGuide_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE816;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="高级查询语法(AQS)指南"
-                                                       x:Uid="SettingAQSGuideTitle" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       x:Uid="SettingAQSGuideContent"
-                                                       Text="Advanced Query Syntax 使用方法和结构说明" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                                <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="0"
-                                        Name="CopyQQ"
-                                        x:Load="False"
-                                        Visibility="Collapsed"
-                                        Click="CopyQQ_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Height="30"
-                                                 Width="30"
-                                                 VerticalAlignment="Center">
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                      Glyph="&#xE136;" />
-                                        </Viewbox>
-                                        <StackPanel Margin="10,0,0,0">
-                                            <TextBlock Text="QQ交流群" />
-                                            <TextBlock Foreground="Gray"
-                                                       FontSize="12"
-                                                       Text="点击复制: 937294538" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </control:Case>
-                        <control:Case Value="7">
-                            <StackPanel>
-                                <TextBlock FontSize="15"
-                                           Text="特别感谢以下提供翻译的人员:"
-                                           Margin="0,10,0,0"
-                                           x:Uid="ThankTranslate"
-                                           Name="ThankTranslate" />
-                                <TextBlock Text="• Yann Lacroix (French)"
-                                           Margin="5,5,0,0" />
-                                <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))"
-                                           Margin="5,5,0,0" />
-                                <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
-                                           Margin="5,5,0,0" />
-                                <TextBlock Text="• Jonas Gunkel (German)"
-                                           Margin="5,5,0,0" />
-                            </StackPanel>
+                            <ScrollViewer Padding="20"
+                                          VerticalScrollBarVisibility="Hidden">
+                                <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                    <TextBlock Text="关于"
+                                               x:Uid="SettingAbout"
+                                               FontSize="18" />
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,10,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Name="PurchaseApp"
+                                            Click="PurchaseApp_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="PurchaseTipIcon">
+                                                <TextBlock Text="购买本应用"
+                                                           x:Uid="SettingPurchaseAppTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingPurchaseAppContent"
+                                                           Text="购买此应用以解锁全部功能并支持开发"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="PurchaseTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE14D;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="ReviewButton_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="ReviewTipIcon">
+                                                <TextBlock Text="编写评价"
+                                                           x:Uid="SettingReviewAppTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingReviewAppContent"
+                                                           Text="在微软应用商店中留下您对本应用的评价吧"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="ReviewTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE134;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="SystemInfoButton_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="SystemInfoTipIcon">
+                                                <TextBlock Text="系统信息"
+                                                           x:Uid="SettingSystemInfoTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingSystemInfoContent"
+                                                           Text="查看软硬件系统信息"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="SystemInfoTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE946;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="ExportLog_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="LogTipIcon">
+                                                <TextBlock Text="日志文件"
+                                                           x:Uid="SettingLogTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingLogContent"
+                                                           Text="导出错误日志文件以供开发者分析相关问题"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="LogTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE9F9;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="ShortcutGuide_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="KeyboardGuideTipIcon">
+                                                <TextBlock Text="键盘快捷键指南"
+                                                           x:Uid="SettingKeyboardGuideTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingKeyboardGuideContent"
+                                                           Text="包含所有受本应用支持的键盘快捷键说明"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="KeyboardGuideTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE816;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="AQSGuide_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="AQSGuideTipIcon">
+                                                <TextBlock Text="高级查询语法(AQS)指南"
+                                                           x:Uid="SettingAQSGuideTitle"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           x:Uid="SettingAQSGuideContent"
+                                                           Text="Advanced Query Syntax 使用方法和结构说明"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="AQSGuideTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE816;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <Button Padding="20,10"
+                                            MinHeight="60"
+                                            Margin="0,5,0,0"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Name="CopyQQ"
+                                            Click="CopyQQ_Click"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                        <RelativePanel>
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="QQTipIcon">
+                                                <TextBlock Text="QQ交流群"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           Text="点击复制: 937294538"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                            <Viewbox Name="QQTipIcon"
+                                                     Height="20"
+                                                     Width="20"
+                                                     RelativePanel.AlignRightWithPanel="True"
+                                                     RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Foreground="{ThemeResource SystemAccentColor}"
+                                                          Glyph="&#xE136;" />
+                                            </Viewbox>
+                                        </RelativePanel>
+                                    </Button>
+
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Top"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <StackPanel Padding="4,10,0,10">
+                                                <TextBlock Text="翻译贡献者名单"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Foreground="Gray"
+                                                           FontSize="12"
+                                                           Text="特别感谢以下提供翻译的人员:"
+                                                           x:Uid="ThankTranslate"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <StackPanel>
+                                                <Border Margin="0,1,0,0"
+                                                        Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <TextBlock Text="• Yann Lacroix (French)" />
+                                                </Border>
+                                                <Border Margin="0,1,0,0"
+                                                        Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))" />
+                                                </Border>
+                                                <Border Margin="0,1,0,0"
+                                                        Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)" />
+                                                </Border>
+                                                <Border Margin="0,1,0,0"
+                                                        Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        CornerRadius="0"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <TextBlock Text="• Jonas Gunkel (German)" />
+                                                </Border>
+                                            </StackPanel>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
+                                </StackPanel>
+                            </ScrollViewer>
                         </control:Case>
                     </control:SwitchPresenter>
                 </muxc:NavigationView.Content>

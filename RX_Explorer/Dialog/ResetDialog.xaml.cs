@@ -41,7 +41,7 @@ namespace RX_Explorer.Dialog
                 ClearSecure.IsEnabled = false;
             }
 
-            ClearSecure.Content += $"({Globalization.GetString("Reset_Dialog_TotalFile")}: {Count})";
+            ClearSecure.Content += $" ({Globalization.GetString("Reset_Dialog_TotalFile")}: {Count})";
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

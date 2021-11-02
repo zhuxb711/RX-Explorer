@@ -472,14 +472,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Files stored in Security Area</source>
           <target state="translated">Fichiers dans l'Espace Securisé</target>
         </trans-unit>
-        <trans-unit id="ResetDialogText1.Text" translate="yes" xml:space="preserve">
-          <source>This will initialize the RX Explorer</source>
-          <target state="translated">Cela va réinitialiser RX Explorateur</target>
-        </trans-unit>
-        <trans-unit id="ResetDialogText2.Text" translate="yes" xml:space="preserve">
-          <source>Including:</source>
-          <target state="translated">Notamment:</target>
-        </trans-unit>
         <trans-unit id="ResetDialogTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Please select an export folder</source>
           <target state="translated">Veuillez sélectionner un dossier de destination</target>
@@ -715,10 +707,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Méthode d'ouverture de dossier</target>
-        </trans-unit>
-        <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
-          <source>Other</source>
-          <target state="translated">Autre</target>
         </trans-unit>
         <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
@@ -2028,8 +2016,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Activé</target>
         </trans-unit>
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
-          <source>Special thanks to the following translators:</source>
-          <target state="translated">Remerciements particuliers aux traducteurs suivants:</target>
+          <source>Special thanks to the following translators</source>
+          <target state="translated">Remerciements particuliers aux traducteurs suivants</target>
         </trans-unit>
         <trans-unit id="PurchaseTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Purchase</source>
@@ -2735,14 +2723,6 @@ Les noms non valides incluent
         <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
           <source>Encoding error</source>
           <target state="translated">Erreur d'encodage</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
-          <source>Export</source>
-          <target state="translated">Exporter</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration_Import.Content" translate="yes" xml:space="preserve">
-          <source>Import</source>
-          <target state="translated">Importer</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
@@ -4256,6 +4236,10 @@ Les noms non valides incluent
         <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
           <source>Could not be empty here</source>
           <target state="new">Could not be empty here</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogText.Text" translate="yes" xml:space="preserve">
+          <source>This action will reset the RX-Explorer, including: </source>
+          <target state="new">This action will reset the RX-Explorer, including: </target>
         </trans-unit>
       </group>
     </body>

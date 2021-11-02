@@ -370,12 +370,6 @@
   <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
     <value>檔案儲存在加密庫</value>
   </data>
-  <data name="ResetDialogText1.Text" xml:space="preserve">
-    <value>此行為將會重置 RX 檔案總管</value>
-  </data>
-  <data name="ResetDialogText2.Text" xml:space="preserve">
-    <value>包含</value>
-  </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>請選擇輸出的資料夾</value>
   </data>
@@ -552,9 +546,6 @@
   </data>
   <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>資料夾開啟方式</value>
-  </data>
-  <data name="SettingOther.Text" xml:space="preserve">
-    <value>其他</value>
   </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。</value>
@@ -1559,7 +1550,7 @@
     <value>啟用</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
-    <value>特別感謝以下翻譯人員：</value>
+    <value>特別感謝以下翻譯人員</value>
   </data>
   <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
     <value>您已經購買了此應用程式，無法重複購買</value>
@@ -2063,12 +2054,6 @@
   </data>
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>編碼錯誤</value>
-  </data>
-  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
-    <value>導出</value>
-  </data>
-  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
-    <value>導入</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>擴展上下文菜單</value>

@@ -487,11 +487,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
     <value>Files stored in Security Area</value>
   </data>
-  <data name="ResetDialogText1.Text" xml:space="preserve">
-    <value>This will initialize the RX Explorer</value>
-  </data>
-  <data name="ResetDialogText2.Text" xml:space="preserve">
-    <value>Including:</value>
+  <data name="ResetDialogText.Text" xml:space="preserve">
+    <value>This action will reset the RX-Explorer, including: </value>
   </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>Please select an export folder</value>
@@ -669,9 +666,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>Folder open method</value>
-  </data>
-  <data name="SettingOther.Text" xml:space="preserve">
-    <value>Other</value>
   </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
@@ -1722,7 +1716,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Enabled</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
-    <value>Special thanks to the following translators:</value>
+    <value>Special thanks to the following translators</value>
   </data>
   <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
     <value>You have already purchased this application and cannot be purchased repeatedly</value>
@@ -2211,12 +2205,6 @@ Invalid names include
   </data>
   <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
     <value>Enter the name of encoding or codepage</value>
-  </data>
-  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
-    <value>Import</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>Extended context menu</value>

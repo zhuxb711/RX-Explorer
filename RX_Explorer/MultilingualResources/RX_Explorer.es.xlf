@@ -492,14 +492,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Files stored in Security Area</source>
           <target state="translated">Archivos almacenados en el área de seguridad</target>
         </trans-unit>
-        <trans-unit id="ResetDialogText1.Text" translate="yes" xml:space="preserve">
-          <source>This will initialize the RX Explorer</source>
-          <target state="translated">Esto iniciará RX Explorer</target>
-        </trans-unit>
-        <trans-unit id="ResetDialogText2.Text" translate="yes" xml:space="preserve">
-          <source>Including:</source>
-          <target state="translated">Incluyendo:</target>
-        </trans-unit>
         <trans-unit id="ResetDialogTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Please select an export folder</source>
           <target state="translated">Elige una carpeta donde exportar</target>
@@ -735,10 +727,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="SettingFolderOpenMethodLabel.Text" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Método para abrir carpetas</target>
-        </trans-unit>
-        <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
-          <source>Other</source>
-          <target state="translated">Otros</target>
         </trans-unit>
         <trans-unit id="TintLuminosityTipContent.Text" translate="yes" xml:space="preserve">
           <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
@@ -2126,8 +2114,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
-          <source>Special thanks to the following translators:</source>
-          <target state="translated">Agradecimiento especial a los siguientes traductores:</target>
+          <source>Special thanks to the following translators</source>
+          <target state="translated">Agradecimiento especial a los siguientes traductores</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Store_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
           <source>You have already purchased this application and cannot be purchased repeatedly</source>
@@ -2774,14 +2762,6 @@ Las denominaciones no válidas son:
         <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
           <source>The encoding is incorrect, please re-enter the encoding</source>
           <target state="translated">La codificación es incorrecta; vuelve a introducirla.</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
-          <source>Export</source>
-          <target state="translated">Exportar</target>
-        </trans-unit>
-        <trans-unit id="SettingConfiguration_Import.Content" translate="yes" xml:space="preserve">
-          <source>Import</source>
-          <target state="translated">Importar</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
@@ -4254,6 +4234,10 @@ Las denominaciones no válidas son:
         <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
           <source>Could not be empty here</source>
           <target state="new">Could not be empty here</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogText.Text" translate="yes" xml:space="preserve">
+          <source>This action will reset the RX-Explorer, including: </source>
+          <target state="new">This action will reset the RX-Explorer, including: </target>
         </trans-unit>
       </group>
     </body>

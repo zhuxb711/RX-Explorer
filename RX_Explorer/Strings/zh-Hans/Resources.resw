@@ -361,12 +361,6 @@
   <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
     <value>安全域存储的文件</value>
   </data>
-  <data name="ResetDialogText1.Text" xml:space="preserve">
-    <value>此操作将初始化RX文件管理器"</value>
-  </data>
-  <data name="ResetDialogText2.Text" xml:space="preserve">
-    <value>包括:</value>
-  </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>请选择一个导出文件夹</value>
   </data>
@@ -543,9 +537,6 @@
   </data>
   <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>文件夹打开方式</value>
-  </data>
-  <data name="SettingOther.Text" xml:space="preserve">
-    <value>其他</value>
   </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。</value>
@@ -1537,7 +1528,7 @@
     <value>启用</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
-    <value>特别感谢以下翻译人员:</value>
+    <value>特别感谢以下翻译人员</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
     <value>购买</value>
@@ -2063,12 +2054,6 @@
   </data>
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>编码错误</value>
-  </data>
-  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
-    <value>导出</value>
-  </data>
-  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
-    <value>导入</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>扩展右键菜单</value>

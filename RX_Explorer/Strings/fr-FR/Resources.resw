@@ -361,12 +361,6 @@
   <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
     <value>Fichiers dans l'Espace Securisé</value>
   </data>
-  <data name="ResetDialogText1.Text" xml:space="preserve">
-    <value>Cela va réinitialiser RX Explorateur</value>
-  </data>
-  <data name="ResetDialogText2.Text" xml:space="preserve">
-    <value>Notamment:</value>
-  </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>Veuillez sélectionner un dossier de destination</value>
   </data>
@@ -543,9 +537,6 @@
   </data>
   <data name="SettingFolderOpenMethodLabel.Text" xml:space="preserve">
     <value>Méthode d'ouverture de dossier</value>
-  </data>
-  <data name="SettingOther.Text" xml:space="preserve">
-    <value>Autre</value>
   </data>
   <data name="TintLuminosityTipContent.Text" xml:space="preserve">
     <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. </value>
@@ -1537,7 +1528,7 @@
     <value>Activé</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
-    <value>Remerciements particuliers aux traducteurs suivants:</value>
+    <value>Remerciements particuliers aux traducteurs suivants</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
     <value>Achat</value>
@@ -2063,12 +2054,6 @@ Les noms non valides incluent
   </data>
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>Erreur d'encodage</value>
-  </data>
-  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
-    <value>Exporter</value>
-  </data>
-  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
-    <value>Importer</value>
   </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>Menu contextuel étendu</value>
