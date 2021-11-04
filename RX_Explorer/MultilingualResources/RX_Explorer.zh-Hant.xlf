@@ -4061,15 +4061,7 @@ Invalid names include
           <source>Advanced Query Syntax (AQS) guide</source>
           <target state="translated">高級查詢語法 (AQS) 指南</target>
         </trans-unit>
-        <trans-unit id="IndexerQuestion.Subtitle" translate="yes" xml:space="preserve">
-          <source>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</source>
-          <target state="translated">僅搜索已編入索引的所有文件。 如果當前位置已被 Windows 編入索引，使用此選項將大大提高搜索速度。 注意：當沒有使用索引或索引器已被禁用時不要使用此選項，否則搜索結果將不正確</target>
-        </trans-unit>
-        <trans-unit id="IndexerQuestion.Title" translate="yes" xml:space="preserve">
-          <source>Search by index only</source>
-          <target state="translated">僅按索引搜索</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">僅按索引搜索</target>
         </trans-unit>
@@ -4235,11 +4227,47 @@ Invalid names include
         </trans-unit>
         <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
           <source>Could not be empty here</source>
-          <target state="new">Could not be empty here</target>
+          <target state="translated">此處不能為空</target>
         </trans-unit>
         <trans-unit id="ResetDialogText.Text" translate="yes" xml:space="preserve">
           <source>This action will reset the RX-Explorer, including: </source>
-          <target state="new">This action will reset the RX-Explorer, including: </target>
+          <target state="translated">此操作將重置RX-Explorer，包括:</target>
+        </trans-unit>
+        <trans-unit id="NewTerminalProfileDefaultName" translate="yes" xml:space="preserve">
+          <source>New Terminal Profile</source>
+          <target state="translated">新的終端配置文件</target>
+        </trans-unit>
+        <trans-unit id="RedirectWinEGuidence.Text" translate="yes" xml:space="preserve">
+          <source>The tutorial on redirecting Win+E manually</source>
+          <target state="translated">手动重定向Win+E教程</target>
+        </trans-unit>
+        <trans-unit id="SettingNoMoreOption.Text" translate="yes" xml:space="preserve">
+          <source>No more options</source>
+          <target state="translated">沒有更多選項</target>
+        </trans-unit>
+        <trans-unit id="ShutdownWinEGuidence.Text" translate="yes" xml:space="preserve">
+          <source>Export the file used to close Win+E redirection manually</source>
+          <target state="translated">導出用於手動關閉 Win+E 重定向的文件</target>
+        </trans-unit>
+        <trans-unit id="PrivacyPolicy.Text" translate="yes" xml:space="preserve">
+          <source>Privacy policy</source>
+          <target state="translated">隱私政策</target>
+        </trans-unit>
+        <trans-unit id="SettingRecoveryTip.Text" translate="yes" xml:space="preserve">
+          <source>Try to restore the application or import/export configuration files for later use</source>
+          <target state="translated">嘗試恢復應用程序或導入/導出配置文件以備後用</target>
+        </trans-unit>
+        <trans-unit id="ExportConfiguration.Text" translate="yes" xml:space="preserve">
+          <source>Export configuration file</source>
+          <target state="translated">導出配置文件</target>
+        </trans-unit>
+        <trans-unit id="ImportConfiguration.Text" translate="yes" xml:space="preserve">
+          <source>Import configuration file</source>
+          <target state="translated">導入配置文件</target>
+        </trans-unit>
+        <trans-unit id="TranslatorList.Text" translate="yes" xml:space="preserve">
+          <source>List of translation contributors</source>
+          <target state="translated">翻譯貢獻者名單</target>
         </trans-unit>
       </group>
     </body>

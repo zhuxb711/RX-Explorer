@@ -2916,9 +2916,12 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
-                    CommonAccessCollection.LibraryFolderList.Add(await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path));
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                    {
+                        CommonAccessCollection.LibraryFolderList.Add(LibFolder);
+                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                    }
                 }
             }
         }
@@ -3141,11 +3144,6 @@ namespace RX_Explorer
                     await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }
             }
-        }
-
-        private void IndexerQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            UseIndexerTip.IsOpen = true;
         }
 
         private void AddressBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)

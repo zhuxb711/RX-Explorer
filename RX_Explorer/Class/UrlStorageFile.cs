@@ -43,19 +43,21 @@ namespace RX_Explorer.Class
             return await Controller.GetUrlDataAsync(Path);
         }
 
-        public async Task LaunchAsync()
+        public async Task<bool> LaunchAsync()
         {
             if (!string.IsNullOrWhiteSpace(UrlTargetPath))
             {
                 if (Uri.TryCreate(UrlTargetPath, UriKind.RelativeOrAbsolute, out Uri Url))
                 {
-                    await Launcher.LaunchUriAsync(Url);
+                    return await Launcher.LaunchUriAsync(Url);
                 }
                 else
                 {
-                    throw new InvalidOperationException();
+                    return false;
                 }
             }
+
+            return false;
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()

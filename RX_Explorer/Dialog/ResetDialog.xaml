@@ -23,7 +23,7 @@
     </Cls:QueueContentDialog.Resources>
 
     <StackPanel MinWidth="300">
-        <TextBlock Text="此操作将重置RX文件管理器"
+        <TextBlock Text="此操作将重置RX文件管理器，包括:"
                    x:Uid="ResetDialogText"
                    Margin="0,10"/>
         <CheckBox Content="应用保存的设置、数据库存储的内容"

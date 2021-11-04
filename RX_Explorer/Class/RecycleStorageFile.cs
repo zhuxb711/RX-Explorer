@@ -36,7 +36,13 @@ namespace RX_Explorer.Class
             return DeleteAsync();
         }
 
-        public RecycleStorageFile(string Path, string OriginPath, DateTimeOffset DeleteTime) : base(Win32_Native_API.GetStorageItemRawData(Path))
+        public RecycleStorageFile(StorageFile File, string OriginPath, DateTimeOffset DeleteTime) : base(File)
+        {
+            this.OriginPath = OriginPath;
+            ModifiedTime = DeleteTime.ToLocalTime();
+        }
+
+        public RecycleStorageFile(Win32_File_Data Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();

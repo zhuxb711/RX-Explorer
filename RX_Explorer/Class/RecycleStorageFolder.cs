@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -45,7 +46,13 @@ namespace RX_Explorer.Class
             return DeleteAsync();
         }
 
-        public RecycleStorageFolder(string Path, string OriginPath, DateTimeOffset DeleteTime) : base(Win32_Native_API.GetStorageItemRawData(Path))
+        public RecycleStorageFolder(StorageFolder Folder, string OriginPath, DateTimeOffset DeleteTime) : base(Folder)
+        {
+            this.OriginPath = OriginPath;
+            ModifiedTime = DeleteTime.ToLocalTime();
+        }
+
+        public RecycleStorageFolder(Win32_File_Data Data, string OriginPath, DateTimeOffset DeleteTime) : base(Data)
         {
             this.OriginPath = OriginPath;
             ModifiedTime = DeleteTime.ToLocalTime();

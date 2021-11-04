@@ -84,28 +84,35 @@ namespace RX_Explorer.Class
 
                 for (int FontIndex = 0; FontIndex < Collection.FontFamilyCount; FontIndex++)
                 {
-                    using (SharpDX.DirectWrite.FontFamily Family = Collection.GetFontFamily(FontIndex))
-                    using (Font Font = Family.GetFont(0))
-                    using (FontFace Face = new FontFace(Font))
+                    try
                     {
-                        if (!Face.IsSymbolFont)
+                        using (SharpDX.DirectWrite.FontFamily Family = Collection.GetFontFamily(FontIndex))
+                        using (Font Font = Family.GetFont(0))
+                        using (FontFace Face = new FontFace(Font))
                         {
-                            using (LocalizedStrings LocalizedNames = Family.FamilyNames)
+                            if (!Face.IsSymbolFont)
                             {
-                                int FamilyIndex = 0;
-
-                                if (LocalizedNames.FindLocaleName(CurrentLocaleName, out int LocaleNameIndex))
+                                using (LocalizedStrings LocalizedNames = Family.FamilyNames)
                                 {
-                                    FamilyIndex = LocaleNameIndex;
-                                }
-                                else if (LocalizedNames.FindLocaleName("en-US", out int EngNameIndex))
-                                {
-                                    FamilyIndex = EngNameIndex;
-                                }
+                                    int FamilyIndex = 0;
 
-                                FontList.Add(new InstalledFonts(FontIndex, FamilyIndex, LocalizedNames.GetString(FamilyIndex)));
+                                    if (LocalizedNames.FindLocaleName(CurrentLocaleName, out int LocaleNameIndex))
+                                    {
+                                        FamilyIndex = LocaleNameIndex;
+                                    }
+                                    else if (LocalizedNames.FindLocaleName("en-US", out int EngNameIndex))
+                                    {
+                                        FamilyIndex = EngNameIndex;
+                                    }
+
+                                    FontList.Add(new InstalledFonts(FontIndex, FamilyIndex, LocalizedNames.GetString(FamilyIndex)));
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Could not load the fontfamily, index: {FontIndex}");
                     }
                 }
             }

@@ -224,9 +224,7 @@
                                             </Style>
                                         </Flyout.FlyoutPresenterStyle>
                                         <StackPanel MinWidth="230">
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -237,9 +235,7 @@
                                                                Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -250,9 +246,7 @@
                                                                Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -263,9 +257,7 @@
                                                                Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -276,9 +268,7 @@
                                                                Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -288,9 +278,7 @@
                                                                Text="A - G" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox2,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox2,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -300,9 +288,7 @@
                                                                Text="H - N" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox3,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox3,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -312,9 +298,7 @@
                                                                Text="O - T" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox4,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox4,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -324,9 +308,7 @@
                                                                Text="U - Z" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox5,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox5,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -337,9 +319,7 @@
                                                                x:Uid="NameFilterCheckBox5Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -444,9 +424,7 @@
                                             </Style>
                                         </Flyout.FlyoutPresenterStyle>
                                         <StackPanel MinWidth="230">
-                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -469,9 +447,7 @@
                                                     </StackPanel>
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox2,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox2,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -482,9 +458,7 @@
                                                                x:Uid="ModTimeFilterCheckBox2Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -495,9 +469,7 @@
                                                                x:Uid="ModTimeFilterCheckBox3Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -638,9 +610,7 @@
                                             </Style>
                                         </Flyout.FlyoutPresenterStyle>
                                         <StackPanel MinWidth="200">
-                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox1,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox1,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -651,9 +621,7 @@
                                                                x:Uid="SizeFilterCheckBox1Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -664,9 +632,7 @@
                                                                x:Uid="SizeFilterCheckBox2Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -677,9 +643,7 @@
                                                                x:Uid="SizeFilterCheckBox3Text" />
                                                 </StackPanel>
                                             </CheckBox>
-                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}"
-                                                      VerticalContentAlignment="Center"
-                                                      Padding="8,0">
+                                            <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="15">
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"

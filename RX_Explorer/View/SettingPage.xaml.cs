@@ -3038,11 +3038,6 @@ namespace RX_Explorer
             }
         }
 
-        private void IndexerQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            UseIndexerTip.IsOpen = true;
-        }
-
         private void TabPreviewSwitch_Toggled(object sender, RoutedEventArgs e)
         {
             IsTabPreviewEnabled = TabPreviewSwitch.IsOn;
@@ -3089,10 +3084,17 @@ namespace RX_Explorer
         {
             if ((sender as FrameworkElement)?.DataContext is TerminalProfile Profile)
             {
+                bool SholdRaiseDataChangedEvent = false;
+
                 try
                 {
-                    SQLite.Current.DeleteTerminalProfile(Profile);
                     TerminalList.Remove(Profile);
+
+                    if (SQLite.Current.GetTerminalProfileByName(Profile.Name) != null)
+                    {
+                        SQLite.Current.DeleteTerminalProfile(Profile);
+                        SholdRaiseDataChangedEvent = true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -3100,18 +3102,46 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    ApplicationData.Current.SignalDataChanged();
+                    if (SholdRaiseDataChangedEvent)
+                    {
+                        ApplicationData.Current.SignalDataChanged();
+                    }
                 }
             }
         }
 
         private void AddTerminalProfile_Click(object sender, RoutedEventArgs e)
         {
-            TerminalList.Add(new TerminalProfile("New Terminal Porfile", string.Empty, string.Empty, default));
+            string NewProfileName = string.Empty;
+            short Count = 0;
+
+            while (true)
+            {
+                NewProfileName = $"{Globalization.GetString("NewTerminalProfileDefaultName")} ({++Count})";
+
+                if (!TerminalList.Select((Profile) => Profile.Name).Contains(NewProfileName))
+                {
+                    break;
+                }
+            }
+
+            TerminalList.Add(new TerminalProfile(NewProfileName, string.Empty, string.Empty, default));
         }
 
         private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            bool SholdRaiseDataChangedEvent = SQLite.Current.GetAllTerminalProfile().Count != TerminalList.Count;
+
+            foreach (TerminalProfile Profile in TerminalList.Where((Profile) => !string.IsNullOrWhiteSpace(Profile.Name) && !string.IsNullOrWhiteSpace(Profile.Path) && !string.IsNullOrWhiteSpace(Profile.Argument)))
+            {
+                SQLite.Current.SetTerminalProfile(Profile);
+            }
+
+            if (SholdRaiseDataChangedEvent)
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+
             await HideAsync();
         }
 
@@ -3138,6 +3168,31 @@ namespace RX_Explorer
         private async void NavigatePrivacyLink_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri("https://github.com/zhuxb711/RX-Explorer/blob/master/README.md"));
+        }
+
+        private void TerminalEditName_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            if (sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<RelativePanel>() is RelativePanel RootPanel)
+                {
+                    if (RootPanel.FindChildOfName<TextBox>("TerminalNameInput") is TextBox Input)
+                    {
+                        Input.Visibility = Visibility.Visible;
+                        Input.Focus(FocusState.Programmatic);
+                    }
+                }
+            }
+        }
+
+        private void TerminalNameInput_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement Element)
+            {
+                Element.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

@@ -1173,7 +1173,7 @@ namespace RX_Explorer.Class
                             {
 
                             }
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+                        }, default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 
                         Cancellation.Cancel();
 

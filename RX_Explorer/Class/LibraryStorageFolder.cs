@@ -20,17 +20,20 @@ namespace RX_Explorer.Class
         {
             try
             {
-                try
+                Win32_File_Data Data = await Task.Run(() => Win32_Native_API.GetStorageItemRawData(Path));
+
+                if (Data.IsDataValid)
                 {
-                    return new LibraryStorageFolder(LibType, Path);
+                    return new LibraryStorageFolder(LibType, Data);
                 }
-                catch (LocationNotAvailableException)
+                else
                 {
                     return new LibraryStorageFolder(LibType, await StorageFolder.GetFolderFromPathAsync(Path));
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not create the library folder");
                 return null;
             }
         }
@@ -40,7 +43,7 @@ namespace RX_Explorer.Class
             this.LibType = LibType;
         }
 
-        private LibraryStorageFolder(LibraryType LibType, string Path) : base(Win32_Native_API.GetStorageItemRawData(Path))
+        private LibraryStorageFolder(LibraryType LibType, Win32_File_Data Data) : base(Data)
         {
             this.LibType = LibType;
         }

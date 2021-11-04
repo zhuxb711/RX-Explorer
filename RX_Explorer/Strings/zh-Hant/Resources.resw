@@ -3059,13 +3059,7 @@
   <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
     <value>高級查詢語法 (AQS) 指南</value>
   </data>
-  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
-    <value>僅搜索已編入索引的所有文件。 如果當前位置已被 Windows 編入索引，使用此選項將大大提高搜索速度。 注意：當沒有使用索引或索引器已被禁用時不要使用此選項，否則搜索結果將不正確</value>
-  </data>
-  <data name="IndexerQuestion.Title" xml:space="preserve">
-    <value>僅按索引搜索</value>
-  </data>
-  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>僅按索引搜索</value>
   </data>
   <data name="CustomText" xml:space="preserve">
@@ -3187,5 +3181,38 @@
   </data>
   <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
     <value>請重新啟動應用程序以激活新語言。您也可以繼續使用此應用程序，但新語言可能要到您下次啟動時才會生效</value>
+  </data>
+  <data name="EmptyNotAllowed.Text" xml:space="preserve">
+    <value>此處不能為空</value>
+  </data>
+  <data name="ResetDialogText.Text" xml:space="preserve">
+    <value>此操作將重置RX-Explorer，包括:</value>
+  </data>
+  <data name="NewTerminalProfileDefaultName" xml:space="preserve">
+    <value>新的終端配置文件</value>
+  </data>
+  <data name="RedirectWinEGuidence.Text" xml:space="preserve">
+    <value>手动重定向Win+E教程</value>
+  </data>
+  <data name="SettingNoMoreOption.Text" xml:space="preserve">
+    <value>沒有更多選項</value>
+  </data>
+  <data name="ShutdownWinEGuidence.Text" xml:space="preserve">
+    <value>導出用於手動關閉 Win+E 重定向的文件</value>
+  </data>
+  <data name="PrivacyPolicy.Text" xml:space="preserve">
+    <value>隱私政策</value>
+  </data>
+  <data name="SettingRecoveryTip.Text" xml:space="preserve">
+    <value>嘗試恢復應用程序或導入/導出配置文件以備後用</value>
+  </data>
+  <data name="ExportConfiguration.Text" xml:space="preserve">
+    <value>導出配置文件</value>
+  </data>
+  <data name="ImportConfiguration.Text" xml:space="preserve">
+    <value>導入配置文件</value>
+  </data>
+  <data name="TranslatorList.Text" xml:space="preserve">
+    <value>翻譯貢獻者名單</value>
   </data>
 </root>

@@ -1538,18 +1538,28 @@ namespace RX_Explorer.Class
                 if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
                 {
                     List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Result);
-                    List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
+                    ConcurrentBag<IRecycleStorageItem> ResultBag = new ConcurrentBag<IRecycleStorageItem>();
 
-                    foreach (Dictionary<string, string> PropertyDic in JsonList)
+                    Parallel.ForEach(JsonList, (PropertyDic) =>
                     {
-                        IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                    ? new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                    : new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+                        Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
-                        RecycleItems.Add(Item);
-                    }
+                        if (Data.IsDataValid)
+                        {
+                            ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                    : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
 
-                    return RecycleItems;
+                        }
+                        else
+                        {
+                            ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                    ? new RecycleStorageFolder(StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                    : new RecycleStorageFile(StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                        }
+                    });
+
+                    return ResultBag.ToList();
                 }
                 else
                 {

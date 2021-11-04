@@ -452,7 +452,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
+                    Win32_File_Data Data = await Task.Run(() => Win32_Native_API.GetStorageItemRawData(Path));
 
                     if (Data.IsDataValid)
                     {

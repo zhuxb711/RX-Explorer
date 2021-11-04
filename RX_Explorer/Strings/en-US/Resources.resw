@@ -3170,13 +3170,7 @@ Invalid names include
   <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
     <value>Advanced Query Syntax (AQS) guide</value>
   </data>
-  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
-    <value>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</value>
-  </data>
-  <data name="IndexerQuestion.Title" xml:space="preserve">
-    <value>Search by index only</value>
-  </data>
-  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Search by index only</value>
   </data>
   <data name="CustomText" xml:space="preserve">
@@ -3298,5 +3292,32 @@ Invalid names include
   </data>
   <data name="EmptyNotAllowed.Text" xml:space="preserve">
     <value>Could not be empty here</value>
+  </data>
+  <data name="ExportConfiguration.Text" xml:space="preserve">
+    <value>Export configuration file</value>
+  </data>
+  <data name="ImportConfiguration.Text" xml:space="preserve">
+    <value>Import configuration file</value>
+  </data>
+  <data name="NewTerminalProfileDefaultName" xml:space="preserve">
+    <value>New Terminal Profile</value>
+  </data>
+  <data name="PrivacyPolicy.Text" xml:space="preserve">
+    <value>Privacy policy</value>
+  </data>
+  <data name="RedirectWinEGuidence.Text" xml:space="preserve">
+    <value>The tutorial on redirecting Win+E manually</value>
+  </data>
+  <data name="SettingNoMoreOption.Text" xml:space="preserve">
+    <value>No more options</value>
+  </data>
+  <data name="SettingRecoveryTip.Text" xml:space="preserve">
+    <value>Try to restore the application or import/export configuration files for later use</value>
+  </data>
+  <data name="ShutdownWinEGuidence.Text" xml:space="preserve">
+    <value>Export the file used to close Win+E redirection manually</value>
+  </data>
+  <data name="TranslatorList.Text" xml:space="preserve">
+    <value>List of translation contributors</value>
   </data>
 </root>

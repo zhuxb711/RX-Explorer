@@ -3059,13 +3059,7 @@ Les noms non valides incluent
   <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
     <value>Guide de la syntaxe de requête avancée (AQS)</value>
   </data>
-  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
-    <value>Recherchez uniquement tous les fichiers qui ont été indexés. Si l'emplacement actuel a été indexé par Windows, l'utilisation de cette option augmentera considérablement la vitesse de recherche. Attention : N'utilisez pas cette option lorsque l'index n'est pas utilisé ou que l'indexeur a été désactivé, sinon les résultats de la recherche seront incorrects</value>
-  </data>
-  <data name="IndexerQuestion.Title" xml:space="preserve">
-    <value>Recherche par index uniquement</value>
-  </data>
-  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Recherche par index uniquement</value>
   </data>
   <data name="CustomText" xml:space="preserve">
@@ -3187,5 +3181,38 @@ Les noms non valides incluent
   </data>
   <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
     <value>Veuillez redémarrer l'application pour activer la nouvelle langue. Vous pouvez également continuer à utiliser cette application, mais la nouvelle langue peut ne prendre effet qu'au prochain démarrage.</value>
+  </data>
+  <data name="EmptyNotAllowed.Text" xml:space="preserve">
+    <value>Ne pouvait pas être vide ici</value>
+  </data>
+  <data name="ResetDialogText.Text" xml:space="preserve">
+    <value>Cette action réinitialisera le RX-Explorer, notamment :</value>
+  </data>
+  <data name="NewTerminalProfileDefaultName" xml:space="preserve">
+    <value>Nouveau profil de terminal</value>
+  </data>
+  <data name="RedirectWinEGuidence.Text" xml:space="preserve">
+    <value>Le tutoriel sur la redirection manuelle de Win+E</value>
+  </data>
+  <data name="SettingNoMoreOption.Text" xml:space="preserve">
+    <value>Aucune autre option</value>
+  </data>
+  <data name="ShutdownWinEGuidence.Text" xml:space="preserve">
+    <value>Exporter le fichier utilisé pour fermer la redirection Win+E manuellement</value>
+  </data>
+  <data name="PrivacyPolicy.Text" xml:space="preserve">
+    <value>Politique de confidentialité</value>
+  </data>
+  <data name="SettingRecoveryTip.Text" xml:space="preserve">
+    <value>Essayez de restaurer l'application ou les fichiers de configuration d'importation/exportation pour une utilisation ultérieure</value>
+  </data>
+  <data name="ExportConfiguration.Text" xml:space="preserve">
+    <value>Exporter le fichier de configuration</value>
+  </data>
+  <data name="ImportConfiguration.Text" xml:space="preserve">
+    <value>Importer le fichier de configuration</value>
+  </data>
+  <data name="TranslatorList.Text" xml:space="preserve">
+    <value>Liste des contributeurs à la traduction</value>
   </data>
 </root>

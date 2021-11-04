@@ -1,5 +1,4 @@
 ﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -837,14 +836,34 @@ namespace RX_Explorer
                                                         }
                                                     case FileSystemStorageFile:
                                                         {
-                                                            await LinkItem.LaunchAsync();
+                                                            if (!await LinkItem.LaunchAsync())
+                                                            {
+                                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                                {
+                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                };
+
+                                                                await Dialog.ShowAsync();
+                                                            }
                                                             break;
                                                         }
                                                 }
                                             }
                                             else
                                             {
-                                                await LinkItem.LaunchAsync();
+                                                if (!await LinkItem.LaunchAsync())
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
                                             }
                                         }
 
@@ -854,7 +873,17 @@ namespace RX_Explorer
                                     {
                                         if (File is UrlStorageFile UrlItem)
                                         {
-                                            await UrlItem.LaunchAsync();
+                                            if(!await UrlItem.LaunchAsync())
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
                                         }
 
                                         break;

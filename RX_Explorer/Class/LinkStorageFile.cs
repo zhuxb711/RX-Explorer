@@ -1,13 +1,10 @@
-﻿using RX_Explorer.Dialog;
-using RX_Explorer.Interface;
+﻿using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -82,7 +79,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task LaunchAsync()
+        public async Task<bool> LaunchAsync()
         {
             try
             {
@@ -90,55 +87,18 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        if (!await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments))
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            });
-                        }
+                        return await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments);
                     }
                     else
                     {
-                        if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(LinkTargetPath))
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            });
-                        }
+                        return await Exclusive.Controller.LaunchUWPFromPfnAsync(LinkTargetPath);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
-                });
+                LogTracer.Log(ex, "Could not launch the link file");
+                return false;
             }
         }
 

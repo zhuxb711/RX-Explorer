@@ -2863,14 +2863,34 @@ namespace RX_Explorer
                                                             }
                                                         case FileSystemStorageFile:
                                                             {
-                                                                await Item.LaunchAsync();
+                                                                if (!await Item.LaunchAsync())
+                                                                {
+                                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                                    {
+                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                    };
+
+                                                                    await Dialog.ShowAsync();
+                                                                }
                                                                 break;
                                                             }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    await Item.LaunchAsync();
+                                                    if (!await Item.LaunchAsync())
+                                                    {
+                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
+
+                                                        await Dialog.ShowAsync();
+                                                    }
                                                 }
                                             }
 
@@ -2880,7 +2900,17 @@ namespace RX_Explorer
                                         {
                                             if (File is UrlStorageFile Item)
                                             {
-                                                await Item.LaunchAsync();
+                                                if (!await Item.LaunchAsync())
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
                                             }
 
                                             break;
@@ -3784,7 +3814,7 @@ namespace RX_Explorer
                     DelayTooltipCancellation?.Dispose();
                     DelayTooltipCancellation = new CancellationTokenSource();
 
-                    Task.Delay(1200).ContinueWith(async (task, input) =>
+                    Task.Delay(800).ContinueWith(async (task, input) =>
                     {
                         if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {

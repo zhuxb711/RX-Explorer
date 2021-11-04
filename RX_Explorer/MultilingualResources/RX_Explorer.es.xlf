@@ -4059,15 +4059,7 @@ Las denominaciones no válidas son:
           <source>Advanced Query Syntax (AQS) guide</source>
           <target state="translated">Sintaxis de consulta avanzada (AQS) guía</target>
         </trans-unit>
-        <trans-unit id="IndexerQuestion.Subtitle" translate="yes" xml:space="preserve">
-          <source>Only search all files that have been indexed. If the current location has been indexed by Windows, using this option will greatly increase the search speed. Attention: Do not use this option when the index is not used or the indexer has been disabled, otherwise the search results will be incorrect</source>
-          <target state="translated">Busque solo todos los archivos que se hayan indexado. Si Windows ha indexado la ubicación actual, el uso de esta opción aumentará considerablemente la velocidad de búsqueda. Atención: No utilice esta opción cuando no se utilice el índice o el indexador esté desactivado, de lo contrario los resultados de la búsqueda serán incorrectos.</target>
-        </trans-unit>
-        <trans-unit id="IndexerQuestion.Title" translate="yes" xml:space="preserve">
-          <source>Search by index only</source>
-          <target state="translated">Buscar solo por índice</target>
-        </trans-unit>
-        <trans-unit id="SearchEngineUseIndexer.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchEngineUseIndexer.Content" translate="yes" xml:space="preserve">
           <source>Search by index only</source>
           <target state="translated">Buscar solo por índice</target>
         </trans-unit>
@@ -4233,11 +4225,47 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="EmptyNotAllowed.Text" translate="yes" xml:space="preserve">
           <source>Could not be empty here</source>
-          <target state="new">Could not be empty here</target>
+          <target state="translated">No pudo estar vacío aquí</target>
         </trans-unit>
         <trans-unit id="ResetDialogText.Text" translate="yes" xml:space="preserve">
           <source>This action will reset the RX-Explorer, including: </source>
-          <target state="new">This action will reset the RX-Explorer, including: </target>
+          <target state="translated">Esta acción restablecerá el RX-Explorer, que incluye:</target>
+        </trans-unit>
+        <trans-unit id="NewTerminalProfileDefaultName" translate="yes" xml:space="preserve">
+          <source>New Terminal Profile</source>
+          <target state="translated">Nuevo perfil de terminal</target>
+        </trans-unit>
+        <trans-unit id="RedirectWinEGuidence.Text" translate="yes" xml:space="preserve">
+          <source>The tutorial on redirecting Win+E manually</source>
+          <target state="translated">El tutorial sobre cómo redireccionar Win+E manualmente</target>
+        </trans-unit>
+        <trans-unit id="SettingNoMoreOption.Text" translate="yes" xml:space="preserve">
+          <source>No more options</source>
+          <target state="translated">No mas opciones</target>
+        </trans-unit>
+        <trans-unit id="ShutdownWinEGuidence.Text" translate="yes" xml:space="preserve">
+          <source>Export the file used to close Win+E redirection manually</source>
+          <target state="translated">Exporte el archivo utilizado para cerrar la redirección de Win+E manualmente</target>
+        </trans-unit>
+        <trans-unit id="PrivacyPolicy.Text" translate="yes" xml:space="preserve">
+          <source>Privacy policy</source>
+          <target state="translated">Política de privacidad</target>
+        </trans-unit>
+        <trans-unit id="SettingRecoveryTip.Text" translate="yes" xml:space="preserve">
+          <source>Try to restore the application or import/export configuration files for later use</source>
+          <target state="translated">Intente restaurar la aplicación o importar/exportar archivos de configuración para su uso posterior</target>
+        </trans-unit>
+        <trans-unit id="ExportConfiguration.Text" translate="yes" xml:space="preserve">
+          <source>Export configuration file</source>
+          <target state="translated">Exportar archivo de configuración</target>
+        </trans-unit>
+        <trans-unit id="ImportConfiguration.Text" translate="yes" xml:space="preserve">
+          <source>Import configuration file</source>
+          <target state="translated">Importar archivo de configuración</target>
+        </trans-unit>
+        <trans-unit id="TranslatorList.Text" translate="yes" xml:space="preserve">
+          <source>List of translation contributors</source>
+          <target state="translated">Lista de contribuyentes de traducción</target>
         </trans-unit>
       </group>
     </body>

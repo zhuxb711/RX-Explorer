@@ -3059,13 +3059,7 @@ Inkorrekte Namen sind
   <data name="SettingAQSGuideTitle.Text" xml:space="preserve">
     <value>Leitfaden zur erweiterten Abfragesyntax (AQS)</value>
   </data>
-  <data name="IndexerQuestion.Subtitle" xml:space="preserve">
-    <value>Durchsuchen Sie nur alle Dateien, die indiziert wurden. Wenn der aktuelle Speicherort von Windows indiziert wurde, erhöht die Verwendung dieser Option die Suchgeschwindigkeit erheblich. Achtung: Verwenden Sie diese Option nicht, wenn der Index nicht verwendet wird oder der Indexer deaktiviert wurde, da sonst die Suchergebnisse falsch sind</value>
-  </data>
-  <data name="IndexerQuestion.Title" xml:space="preserve">
-    <value>Nur nach Index suchen</value>
-  </data>
-  <data name="SearchEngineUseIndexer.Text" xml:space="preserve">
+  <data name="SearchEngineUseIndexer.Content" xml:space="preserve">
     <value>Nur nach Index suchen</value>
   </data>
   <data name="CustomText" xml:space="preserve">
@@ -3187,5 +3181,38 @@ Inkorrekte Namen sind
   </data>
   <data name="SystemTip_LanguageRestartContent" xml:space="preserve">
     <value>Bitte starten Sie die Anwendung neu, um die neue Sprache zu aktivieren. Sie können diese App auch weiterhin verwenden, aber die neue Sprache wird möglicherweise erst beim nächsten Start wirksam</value>
+  </data>
+  <data name="EmptyNotAllowed.Text" xml:space="preserve">
+    <value>Konnte hier nicht leer sein</value>
+  </data>
+  <data name="ResetDialogText.Text" xml:space="preserve">
+    <value>Diese Aktion setzt den RX-Explorer zurück, einschließlich:</value>
+  </data>
+  <data name="NewTerminalProfileDefaultName" xml:space="preserve">
+    <value>Neues Terminalprofil</value>
+  </data>
+  <data name="RedirectWinEGuidence.Text" xml:space="preserve">
+    <value>Das Tutorial zum manuellen Umleiten von Win+E</value>
+  </data>
+  <data name="SettingNoMoreOption.Text" xml:space="preserve">
+    <value>Keine weiteren Optionen</value>
+  </data>
+  <data name="ShutdownWinEGuidence.Text" xml:space="preserve">
+    <value>Exportieren Sie die Datei, die verwendet wird, um die Win+E-Umleitung manuell zu schließen</value>
+  </data>
+  <data name="PrivacyPolicy.Text" xml:space="preserve">
+    <value>Datenschutz-Bestimmungen</value>
+  </data>
+  <data name="SettingRecoveryTip.Text" xml:space="preserve">
+    <value>Versuchen Sie, die Anwendung wiederherzustellen oder Konfigurationsdateien zur späteren Verwendung zu importieren/exportieren</value>
+  </data>
+  <data name="ExportConfiguration.Text" xml:space="preserve">
+    <value>Konfigurationsdatei exportieren</value>
+  </data>
+  <data name="ImportConfiguration.Text" xml:space="preserve">
+    <value>Konfigurationsdatei importieren</value>
+  </data>
+  <data name="TranslatorList.Text" xml:space="preserve">
+    <value>Liste der Mitwirkenden an Übersetzungen</value>
   </data>
 </root>

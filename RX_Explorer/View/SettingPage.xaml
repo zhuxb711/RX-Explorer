@@ -35,13 +35,6 @@
             <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
             <Cls:InverseConverter x:Key="InverseConverter" />
 
-            <muxc:TeachingTip Title="仅通过索引执行搜索"
-                              IsLightDismissEnabled="True"
-                              x:Uid="IndexerQuestion"
-                              Target="{x:Bind IndexerQuestion}"
-                              x:Name="UseIndexerTip"
-                              Subtitle="仅搜索所有已被索引的文件，若当前位置已被Windows索引，则使用该选项将能够大幅提升搜索速度。注意: 请勿在未使用索引或索引器已被禁用的情况下使用此选项，否则将导致搜索结果不正确" />
-
             <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
                                    x:Name="PictureFlyout">
                 <muxc:CommandBarFlyout.SecondaryCommands>
@@ -82,7 +75,7 @@
                     <muxc:NavigationViewItem IsSelected="True">
                         <muxc:NavigationViewItem.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xE3BC;" />
+                                      Glyph="&#xE10F;" />
                         </muxc:NavigationViewItem.Icon>
                         <muxc:NavigationViewItem.Content>
                             <TextBlock Text="基本"
@@ -260,9 +253,7 @@
                                                     CornerRadius="0,0,4,4"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                 <CheckBox Content="隐藏受保护的系统文件(推荐)"
-                                                          Padding="8,0"
                                                           IsEnabled="{x:Bind DisplayHiddenItem.IsOn,Mode=OneWay}"
-                                                          VerticalContentAlignment="Center"
                                                           x:Uid="SettingHideProtectedSystemItems"
                                                           Name="HideProtectedSystemItems" />
                                             </Border>
@@ -487,9 +478,7 @@
                                                         MinHeight="45"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <CheckBox Content="激活时始终启动新的进程"
-                                                              Padding="8,0"
                                                               IsEnabled="{x:Bind UseWinAndEActivate.IsOn,Mode=OneWay}"
-                                                              VerticalContentAlignment="Center"
                                                               x:Uid="SettingPageAlwaysLaunchNew"
                                                               Name="AlwaysLaunchNew"
                                                               Checked="AlwaysLaunchNew_Checked"
@@ -506,7 +495,8 @@
                                                         Click="WinEManualGuidence_Click"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RelativePanel>
-                                                        <TextBlock Text="有关自行重定向Win+E的教程"
+                                                        <TextBlock Text="有关手动重定向Win+E的教程"
+                                                                   x:Uid="RedirectWinEGuidence"
                                                                    TextWrapping="WrapWholeWords"
                                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                    RelativePanel.AlignLeftWithPanel="True"
@@ -534,6 +524,7 @@
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RelativePanel>
                                                         <TextBlock Text="导出用于自行关闭Win+E重定向的文件"
+                                                                   x:Uid="ShutdownWinEGuidence"
                                                                    TextWrapping="WrapWholeWords"
                                                                    RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                    RelativePanel.AlignLeftWithPanel="True"
@@ -587,9 +578,7 @@
                                                     CornerRadius="0,0,4,4"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                 <CheckBox Name="AvoidRecycleBin"
-                                                          Padding="8,0"
                                                           IsEnabled="{x:Bind DeleteConfirmSwitch.IsOn,Mode=OneWay}"
-                                                          VerticalContentAlignment="Center"
                                                           Checked="AvoidRecycleBin_Checked"
                                                           Unchecked="AvoidRecycleBin_Unchecked">
                                                     <StackPanel Orientation="Horizontal">
@@ -711,6 +700,9 @@
                                                                             <VisualState.StateTriggers>
                                                                                 <Triggers:IsNullOrEmptyStateTrigger Value="{Binding ElementName=TerminalExecutablePath,Path=Text,Mode=OneWay}" />
                                                                                 <Triggers:IsNullOrEmptyStateTrigger Value="{Binding ElementName=TerminalArgument,Path=Text,Mode=OneWay}" />
+                                                                                <Triggers:RegexStateTrigger Value="{Binding ElementName=TerminalArgument,Path=Text,Mode=OneWay}"
+                                                                                                            Expression="^(?!.*\[CurrentLocation\]).*$"
+                                                                                                            Options="IgnoreCase" />
                                                                             </VisualState.StateTriggers>
                                                                             <VisualState.Setters>
                                                                                 <Setter Target="TerminalWarningIcon.Visibility"
@@ -735,6 +727,9 @@
                                                                         <VisualState x:Name="TerminalArgumentErrorTextErrorState">
                                                                             <VisualState.StateTriggers>
                                                                                 <Triggers:IsNullOrEmptyStateTrigger Value="{Binding ElementName=TerminalArgument,Path=Text,Mode=OneWay}" />
+                                                                                <Triggers:RegexStateTrigger Value="{Binding ElementName=TerminalArgument,Path=Text,Mode=OneWay}"
+                                                                                                            Expression="^(?!.*\[CurrentLocation\]).*$"
+                                                                                                            Options="IgnoreCase" />
                                                                             </VisualState.StateTriggers>
                                                                             <VisualState.Setters>
                                                                                 <Setter Target="TerminalArgumentErrorText.Visibility"
@@ -758,10 +753,28 @@
                                                                                         RelativePanel.AlignLeftWithPanel="True"
                                                                                         RelativePanel.LeftOf="RemoveProfile"
                                                                                         Orientation="Horizontal">
-                                                                                <TextBlock Text="{x:Bind Name}"
-                                                                                           TextTrimming="CharacterEllipsis" />
+                                                                                <Grid VerticalAlignment="Center">
+                                                                                    <TextBlock Text="{Binding ElementName=TerminalNameInput,Path=Text,Mode=OneWay}"
+                                                                                               Name="TerminalName"
+                                                                                               Visibility="{Binding ElementName=TerminalNameInput,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                                                               TextTrimming="CharacterEllipsis" />
+                                                                                    <TextBox HorizontalAlignment="Stretch"
+                                                                                             Width="200"
+                                                                                             Text="{x:Bind Name,Mode=TwoWay}"
+                                                                                             Name="TerminalNameInput"
+                                                                                             LostFocus="TerminalNameInput_LostFocus"
+                                                                                             Visibility="Collapsed" />
+                                                                                </Grid>
+                                                                                <Viewbox Height="12"
+                                                                                         Margin="10,0,0,0"
+                                                                                         Name="TerminalEditIcon">
+                                                                                    <SymbolIcon Symbol="Edit"
+                                                                                                x:Name="TerminalEditName"
+                                                                                                PointerPressed="TerminalEditName_PointerPressed"
+                                                                                                Foreground="{ThemeResource SystemAccentColor}" />
+                                                                                </Viewbox>
                                                                                 <Viewbox Height="15"
-                                                                                         Margin="5,0,0,0"
+                                                                                         Margin="10,0,0,0"
                                                                                          Visibility="Collapsed"
                                                                                          Name="TerminalWarningIcon">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -864,8 +877,6 @@
                                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                                 <CheckBox Content="以管理员身份启动终端"
                                                                                           Name="RunAsAdmin"
-                                                                                          Padding="8,0"
-                                                                                          VerticalContentAlignment="Center"
                                                                                           IsChecked="{x:Bind RunAsAdmin,Mode=TwoWay}"
                                                                                           x:Uid="ModifyDefaultTerminalDialog_RunAsAdmin" />
                                                                             </Border>
@@ -891,7 +902,7 @@
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
                                                 <TextBlock Text="搜索引擎配置"
-                                                           x:Uid="SearchEngineConfigLabel"
+                                                           x:Uid="SettingPageSearchEngineConfigLabel"
                                                            RelativePanel.AlignVerticalCenterWithPanel="True"
                                                            RelativePanel.AlignLeftWithPanel="True"
                                                            RelativePanel.LeftOf="SearchEngineConfig" />
@@ -916,8 +927,6 @@
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="忽略大小写"
                                                                       x:Uid="SearchEngineIgnoreCase"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       IsChecked="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                       x:Name="BuiltInEngineIgnoreCase" />
@@ -930,8 +939,6 @@
                                                             <CheckBox Content="使用正则表达式"
                                                                       x:Uid="SearchEngineUseRegex"
                                                                       x:Name="BuiltInEngineIncludeRegex"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                         </Border>
                                                         <Border Margin="0,1,0,0"
@@ -942,8 +949,6 @@
                                                             <CheckBox Content="使用高级查询语法(AQS)"
                                                                       x:Uid="SearchEngineUseAQS"
                                                                       x:Name="BuiltInEngineIncludeAQS"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                         </Border>
                                                         <Border Margin="0,1,0,0"
@@ -952,24 +957,8 @@
                                                                 CornerRadius="0"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Name="BuiltInSearchUseIndexer"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center">
-                                                                <RelativePanel HorizontalAlignment="Left">
-                                                                    <TextBlock x:Uid="SearchEngineUseIndexer"
-                                                                               Text="仅通过索引执行搜索"
-                                                                               RelativePanel.AlignLeftWithPanel="True"
-                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                               Name="SearchEngineUseIndexerText" />
-                                                                    <Viewbox Margin="10,0,0,0"
-                                                                             Height="15"
-                                                                             Name="IndexerQuestion"
-                                                                             RelativePanel.RightOf="SearchEngineUseIndexerText"
-                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                        <FontIcon Glyph="&#xE9CE;"
-                                                                                  PointerPressed="IndexerQuestion_PointerPressed" />
-                                                                    </Viewbox>
-                                                                </RelativePanel>
-                                                            </CheckBox>
+                                                                      Content="仅通过索引执行搜索"
+                                                                      x:Uid="SearchEngineUseIndexer" />
                                                         </Border>
                                                         <Border Margin="0,1,0,0"
                                                                 Padding="40,10,10,10"
@@ -977,8 +966,6 @@
                                                                 CornerRadius="0,0,4,4"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="搜索所有子文件夹"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       Name="BuiltInSearchAllSubFolders"
                                                                       x:Uid="SearchEngineAllSubFolders" />
                                                         </Border>
@@ -992,8 +979,6 @@
                                                                 CornerRadius="0"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="忽略大小写"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       x:Uid="SearchEngineIgnoreCase"
                                                                       IsChecked="True"
                                                                       x:Name="EverythingEngineIgnoreCase" />
@@ -1004,8 +989,6 @@
                                                                 CornerRadius="0"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="使用正则表达式"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       x:Uid="SearchEngineUseRegex"
                                                                       x:Name="EverythingEngineIncludeRegex" />
                                                         </Border>
@@ -1015,8 +998,6 @@
                                                                 CornerRadius="0,0,4,4"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="全局搜索"
-                                                                      Padding="8,0"
-                                                                      VerticalContentAlignment="Center"
                                                                       x:Uid="SearchEngineGlobeSearch"
                                                                       IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                                                       IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
@@ -1030,6 +1011,7 @@
                                                             CornerRadius="0,0,4,4"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <TextBlock Text="无更多选项"
+                                                                   x:Uid="SettingNoMoreOption"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center" />
                                                     </Border>
@@ -1085,8 +1067,6 @@
                                                                                   IsEnabled="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=OneWay}"
                                                                                   IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
                                                                                   Name="DisableSelectionAnimation"
-                                                                                  Padding="8,0"
-                                                                                  VerticalContentAlignment="Center"
                                                                                   Checked="DisableSelectionAnimation_Changed"
                                                                                   Unchecked="DisableSelectionAnimation_Changed" />
                                                 </Windows11NotPresent:Border>
@@ -1097,8 +1077,6 @@
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <CheckBox Content="关闭初始动画以加快启动速度"
                                                               x:Uid="SettingPageExceptAnimation"
-                                                              Padding="8,0"
-                                                              VerticalContentAlignment="Center"
                                                               IsEnabled="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=OneWay}"
                                                               IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
                                                               Name="DisableStartupAnimation" />
@@ -1588,6 +1566,7 @@
                                                             CornerRadius="0,0,4,4"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <TextBlock Text="无更多选项"
+                                                                   x:Uid="SettingNoMoreOption"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center" />
                                                     </Border>
@@ -1737,6 +1716,7 @@
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
                                             <TextBlock Text="隐私策略"
+                                                       x:Uid="PrivacyPolicy"
                                                        TextWrapping="WrapWholeWords"
                                                        RelativePanel.AlignVerticalCenterWithPanel="True"
                                                        RelativePanel.AlignLeftWithPanel="True"
@@ -1827,7 +1807,7 @@
                                                            Text="已经是最新版本"
                                                            Name="VersionTip"
                                                            TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords"/>
+                                                           TextWrapping="WrapWholeWords" />
                                             </StackPanel>
                                             <Viewbox Name="VersionTipIcon"
                                                      Height="20"
@@ -1924,10 +1904,11 @@
                                             <StackPanel Padding="4,10,0,10">
                                                 <TextBlock Text="恢复"
                                                            x:Uid="SettingRecovery"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                           TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Foreground="Gray"
                                                            FontSize="12"
-                                                           Text="尝试恢复应用程序或导入或导出配置文件以供以后使用"
+                                                           x:Uid="SettingRecoveryTip"
+                                                           Text="尝试恢复应用程序或导入/导出配置文件以供以后使用"
                                                            TextTrimming="CharacterEllipsis"
                                                            TextWrapping="WrapWholeWords" />
                                             </StackPanel>
@@ -1988,6 +1969,7 @@
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RelativePanel>
                                                                     <TextBlock Text="导出配置文件"
+                                                                               x:Uid="ExportConfiguration"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                RelativePanel.AlignLeftWithPanel="True"
@@ -2013,6 +1995,7 @@
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RelativePanel>
                                                                     <TextBlock Text="导入配置文件"
+                                                                               x:Uid="ImportConfiguration"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                RelativePanel.AlignLeftWithPanel="True"
@@ -2260,6 +2243,8 @@
                                             HorizontalContentAlignment="Stretch"
                                             Name="CopyQQ"
                                             Click="CopyQQ_Click"
+                                            x:Load="False"
+                                            Visibility="Collapsed"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2297,6 +2282,7 @@
                                         <muxc:Expander.Header>
                                             <StackPanel Padding="4,10,0,10">
                                                 <TextBlock Text="翻译贡献者名单"
+                                                           x:Uid="TranslatorList"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <TextBlock Foreground="Gray"
                                                            FontSize="12"
@@ -2350,16 +2336,16 @@
                   Padding="20,0"
                   Background="{ThemeResource SystemControlAcrylicElementBrush}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         MinWidth="120"
                         Grid.Column="1"
-                        Content="确认" 
+                        Content="确认"
                         Name="CloseButton"
-                        Click="CloseButton_Click"/>
+                        Click="CloseButton_Click" />
             </Grid>
 
             <control:Loading x:Name="LoadingControl"
