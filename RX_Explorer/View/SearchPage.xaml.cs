@@ -30,6 +30,8 @@ namespace RX_Explorer
     {
         private CancellationTokenSource SearchCancellation;
         private CancellationTokenSource DelayDragCancellation;
+        private CancellationTokenSource DelaySelectionCancellation;
+        private CancellationTokenSource DelayTooltipCancellation;
 
         private ListViewBaseSelectionExtention SelectionExtention;
         private readonly PointerEventHandler PointerPressedEventHandler;
@@ -338,6 +340,14 @@ namespace RX_Explorer
             DelayDragCancellation?.Dispose();
             DelayDragCancellation = null;
 
+            DelaySelectionCancellation?.Cancel();
+            DelaySelectionCancellation?.Dispose();
+            DelaySelectionCancellation = null;
+
+            DelayTooltipCancellation?.Cancel();
+            DelayTooltipCancellation?.Dispose();
+            DelayTooltipCancellation = null;
+
             if (e.NavigationMode == NavigationMode.Back)
             {
                 SearchResult.Clear();
@@ -494,6 +504,13 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
+                e.Handled = true;
+
+                if (!SettingPage.IsDoubleClickEnabled)
+                {
+                    DelaySelectionCancellation?.Cancel();
+                }
+
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                 {
                     if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
@@ -517,8 +534,6 @@ namespace RX_Explorer
                         });
                     }
                 }
-
-                e.Handled = true;
             }
         }
 
@@ -550,6 +565,13 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
+                e.Handled = true;
+
+                if (!SettingPage.IsDoubleClickEnabled)
+                {
+                    DelaySelectionCancellation?.Cancel();
+                }
+
                 if (SearchResultList.SelectedItems.Count > 1)
                 {
                     SearchResultList.ContextFlyout = MixCommandFlyout;
@@ -566,8 +588,6 @@ namespace RX_Explorer
                         SearchResultList.ContextFlyout = null;
                     }
                 }
-
-                e.Handled = true;
             }
         }
 
@@ -576,10 +596,16 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
             }
             else
             {
                 args.ItemContainer.DragStarting += ItemContainer_DragStarting;
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
 
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
@@ -588,6 +614,72 @@ namespace RX_Explorer
                         await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
+            }
+        }
+
+        private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancellation?.Cancel();
+            DelayTooltipCancellation?.Cancel();
+        }
+
+        private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancellation?.Cancel();
+            DelayTooltipCancellation?.Cancel();
+        }
+
+        private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if ((sender as SelectorItem)?.Content is FileSystemStorageItemBase Item)
+            {
+                if (!SettingPage.IsDoubleClickEnabled
+                    && !SearchResultList.SelectedItems.Contains(Item)
+                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                {
+                    DelaySelectionCancellation?.Cancel();
+                    DelaySelectionCancellation?.Dispose();
+                    DelaySelectionCancellation = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith((task, input) =>
+                    {
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        {
+                            SearchResultList.SelectedItem = Item;
+                        }
+                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }
+
+                DelayTooltipCancellation?.Cancel();
+                DelayTooltipCancellation?.Dispose();
+                DelayTooltipCancellation = new CancellationTokenSource();
+
+                Task.Delay(800).ContinueWith(async (task, input) =>
+                {
+                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    {
+                        TooltipFlyout.Hide();
+
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+
+                            if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                && !Cancel.IsCancellationRequested)
+                            {
+                                PointerPoint Point = e.GetCurrentPoint(SearchResultList);
+
+                                TooltipFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                                {
+                                    Position = new Point(Point.Position.X, Point.Position.Y + 20),
+                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                });
+                            }
+                        }
+                    }
+                }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -748,10 +840,14 @@ namespace RX_Explorer
             }
         }
 
-        private async void SearchResultList_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void SearchResultList_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageItemBase Item)
             {
+                DelayDragCancellation?.Cancel();
+                DelaySelectionCancellation?.Cancel();
+                DelayTooltipCancellation?.Cancel();
+
                 await LaunchSelectedItem(Item);
             }
         }
@@ -1049,6 +1145,10 @@ namespace RX_Explorer
 
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
+                DelayDragCancellation?.Cancel();
+                DelaySelectionCancellation?.Cancel();
+                DelayTooltipCancellation?.Cancel();
+
                 await LaunchSelectedItem(Item);
             }
         }

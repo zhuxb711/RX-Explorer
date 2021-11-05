@@ -3787,7 +3787,7 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            if ((sender as SelectorItem)?.Content is FileSystemStorageItemBase Item)
             {
                 if (!SettingPage.IsDoubleClickEnabled
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
@@ -3808,44 +3808,42 @@ namespace RX_Explorer
                         }
                     }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
                 }
-                else
+
+                DelayTooltipCancellation?.Cancel();
+                DelayTooltipCancellation?.Dispose();
+                DelayTooltipCancellation = new CancellationTokenSource();
+
+                Task.Delay(800).ContinueWith(async (task, input) =>
                 {
-                    DelayTooltipCancellation?.Cancel();
-                    DelayTooltipCancellation?.Dispose();
-                    DelayTooltipCancellation = new CancellationTokenSource();
-
-                    Task.Delay(800).ContinueWith(async (task, input) =>
+                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        TooltipFlyout.Hide();
+
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            TooltipFlyout.Hide();
+                            TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                && !Cancel.IsCancellationRequested
+                                && !Container.BlockKeyboardShortCutInput
+                                && !FileFlyout.IsOpen
+                                && !FolderFlyout.IsOpen
+                                && !EmptyFlyout.IsOpen
+                                && !MixedFlyout.IsOpen
+                                && !LinkItemFlyout.IsOpen)
                             {
-                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                                PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
 
-                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                    && !Cancel.IsCancellationRequested
-                                    && !Container.BlockKeyboardShortCutInput
-                                    && !FileFlyout.IsOpen
-                                    && !FolderFlyout.IsOpen
-                                    && !EmptyFlyout.IsOpen
-                                    && !MixedFlyout.IsOpen
-                                    && !LinkItemFlyout.IsOpen)
+                                TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                 {
-                                    PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
-
-                                    TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
-                                    {
-                                        Position = new Point(Point.Position.X, Point.Position.Y + 20),
-                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft
-                                    });
-                                }
+                                    Position = new Point(Point.Position.X, Point.Position.Y + 20),
+                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                });
                             }
                         }
-                    }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
-                }
+                    }
+                }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 

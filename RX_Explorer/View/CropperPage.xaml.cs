@@ -223,7 +223,7 @@ namespace RX_Explorer
             AspList.SelectedIndex = 0;
             ResetButton.IsEnabled = false;
 
-            OriginImage.Dispose();
+            OriginImage?.Dispose();
             OriginImage = SoftwareBitmap.Copy(OriginBackupImage);
             WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
             OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
@@ -342,13 +342,13 @@ namespace RX_Explorer
                 RotatedImage.CopyToBuffer(WBitmap.PixelBuffer);
                 Cropper.Source = WBitmap;
 
-                OriginImage.Dispose();
+                OriginImage?.Dispose();
                 OriginImage = RotatedImage;
             }
             else
             {
                 SoftwareBitmap OringinRotatedImage = ComputerVisionProvider.RotateEffect(OriginImage, 90);
-                OriginImage.Dispose();
+                OriginImage?.Dispose();
                 OriginImage = OringinRotatedImage;
 
                 SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(FilterImage, 90);
@@ -368,7 +368,7 @@ namespace RX_Explorer
             if (FilterImage == null)
             {
                 SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginImage, false);
-                OriginImage.Dispose();
+                OriginImage?.Dispose();
                 OriginImage = FlipImage;
 
                 WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
@@ -378,7 +378,7 @@ namespace RX_Explorer
             else
             {
                 SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginImage, false);
-                OriginImage.Dispose();
+                OriginImage?.Dispose();
                 OriginImage = FlipImage;
 
                 SoftwareBitmap FilterFlipImage = ComputerVisionProvider.FlipEffect(FilterImage, false);
@@ -400,7 +400,7 @@ namespace RX_Explorer
                 ResetButton.IsEnabled = true;
                 if (FilterImage == null)
                 {
-                    OriginImage.Dispose();
+                    OriginImage?.Dispose();
                     OriginImage = ComputerVisionProvider.AdjustBrightnessContrast(OriginBackupImage, e.NewValue, BetaSlider.Value);
 
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
@@ -440,7 +440,7 @@ namespace RX_Explorer
                 ResetButton.IsEnabled = true;
                 if (FilterImage == null)
                 {
-                    OriginImage.Dispose();
+                    OriginImage?.Dispose();
                     OriginImage = ComputerVisionProvider.AdjustBrightnessContrast(OriginBackupImage, AlphaSlider.Value, e.NewValue);
 
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);

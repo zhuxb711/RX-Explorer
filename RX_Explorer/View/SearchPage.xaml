@@ -15,6 +15,29 @@
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
 
+        <Flyout x:Name="TooltipFlyout"
+                ShouldConstrainToRootBounds="False">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="Background"
+                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                    <Setter Property="Padding"
+                            Value="5" />
+                    <Setter Property="CornerRadius"
+                            Value="{StaticResource CustomCornerRadius}" />
+                    <Setter Property="MinHeight"
+                            Value="0" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <StackPanel>
+                <TextBlock x:Name="TooltipFlyoutText"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="Wrap"
+                           IsTextSelectionEnabled="True"
+                           MaxWidth="400" />
+            </StackPanel>
+        </Flyout>
+
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
                                AlwaysExpanded="True">
             <AppBarButton Icon="Copy"

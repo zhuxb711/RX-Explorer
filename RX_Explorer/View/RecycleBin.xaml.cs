@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.System;
@@ -131,6 +132,8 @@ namespace RX_Explorer.View
 
         private readonly PointerEventHandler PointerPressedHandler;
 
+        private CancellationTokenSource DelaySelectionCancellation;
+
         public RecycleBin()
         {
             InitializeComponent();
@@ -206,6 +209,11 @@ namespace RX_Explorer.View
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             SelectionExtention?.Dispose();
+
+            DelaySelectionCancellation?.Cancel();
+            DelaySelectionCancellation?.Dispose();
+            DelaySelectionCancellation = null;
+
             CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
 
@@ -277,8 +285,18 @@ namespace RX_Explorer.View
 
         private void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            if (!args.InRecycleQueue)
+            if (args.InRecycleQueue)
             {
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
+            }
+            else
+            {
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
+
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
@@ -289,10 +307,49 @@ namespace RX_Explorer.View
             }
         }
 
+        private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancellation?.Cancel();
+        }
+
+        private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancellation?.Cancel();
+        }
+
+        private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if ((sender as SelectorItem)?.Content is FileSystemStorageItemBase Item)
+            {
+                if (!SettingPage.IsDoubleClickEnabled
+                && !ListViewControl.SelectedItems.Contains(Item)
+                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
+                {
+                    DelaySelectionCancellation?.Cancel();
+                    DelaySelectionCancellation?.Dispose();
+                    DelaySelectionCancellation = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith((task, input) =>
+                    {
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        {
+                            ListViewControl.SelectedItem = Item;
+                        }
+                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }
+            }
+        }
+
         private void ListViewControl_Holding(object sender, HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == HoldingState.Started)
             {
+                if (!SettingPage.IsDoubleClickEnabled)
+                {
+                    DelaySelectionCancellation?.Cancel();
+                }
+
                 if (e.OriginalSource is ListViewItemPresenter)
                 {
                     ListViewControl.SelectedItem = null;
@@ -327,6 +384,11 @@ namespace RX_Explorer.View
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
+                if (!SettingPage.IsDoubleClickEnabled)
+                {
+                    DelaySelectionCancellation?.Cancel();
+                }
+
                 if (e.OriginalSource is FrameworkElement Element)
                 {
                     if (Element.DataContext is IRecycleStorageItem Context)

@@ -173,8 +173,9 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not generate the image with specific rotation");
                 return null;
             }
         }
