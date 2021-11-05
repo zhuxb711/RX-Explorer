@@ -1,4 +1,31 @@
 ﻿*****
+###Quoi de neuf dans la version 7.1.9.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de nouvelles touches de raccourci Ctrl+Tab et Ctrl+Shift+Tab
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La conception de l'interface utilisateur des paramètres a été entièrement mise à jour
+
+#####Amélioration des performances
+
+>#####Amélioration de la vitesse de chargement des fichiers de la corbeille
+
+>>#####Par rapport à avant, la vitesse moyenne de chargement a augmenté de 50%
+
+#####Correction d'un bug
+
+>#####Correction du problème pouvant provoquer un plantage lors du changement de police
+
+>#####Correction d'un problème qui pouvait empêcher l'interface utilisateur de répondre
+
+>#####Correction d'un problème de plantage après l'ajout d'un dossier aux "Bibliothèques" dans certains cas
+
+>#####Correction du problème des éléments en double possibles dans la boîte de dialogue "Choisir une autre application"
+
+*****
 ###Quoi de neuf dans la version 7.1.7.0
 
 #####Mise à jour des fonctionnalités

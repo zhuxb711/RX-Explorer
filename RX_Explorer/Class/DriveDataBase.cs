@@ -34,7 +34,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 驱动器对象
         /// </summary>
-        public StorageFolder DriveFolder { get; }
+        public FileSystemStorageFolder DriveFolder { get; }
 
         public string Name
         {
@@ -170,49 +170,63 @@ namespace RX_Explorer.Class
 
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
         {
-            return await CreateAsync(DriveType, await Task.Run(() => StorageDevice.FromId(DriveId)), DriveId);
+            return await CreateAsync(DriveType, await Task.Run(() => new FileSystemStorageFolder(StorageDevice.FromId(DriveId))), DriveId);
         }
 
         public static async Task<DriveDataBase> CreateAsync(DriveInfo Info)
         {
-            return await CreateAsync(Info.DriveType, await StorageFolder.GetFolderFromPathAsync(Info.Name));
-        }
-
-        public static Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder)
-        {
-            return CreateAsync(DriveType, DriveFolder, null);
-        }
-
-        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder, string DriveId = null)
-        {
-            BasicProperties Properties = await DriveFolder.GetBasicPropertiesAsync();
-
-            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-            if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
+            if (await FileSystemStorageItemBase.OpenAsync(Info.Name) is FileSystemStorageFolder Folder)
             {
-                return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
+                return await CreateAsync(Info.DriveType, Folder);
             }
             else
             {
-                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
+                throw new DirectoryNotFoundException();
+            }
+        }
+
+        public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, StorageFolder DriveFolder)
+        {
+            return await CreateAsync(DriveType, await Task.Run(() => new FileSystemStorageFolder(DriveFolder)), null);
+        }
+
+        private static async Task<DriveDataBase> CreateAsync(DriveType DriveType, FileSystemStorageFolder DriveFolder, string DriveId = null)
+        {
+            if (await DriveFolder.GetStorageItemAsync() is IStorageItem Item)
+            {
+                BasicProperties Properties = await Item.GetBasicPropertiesAsync();
+
+                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                if (DriveFolder.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
                 {
-                    switch (BitlockerState)
-                    {
-                        case 6 when !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"):
-                            {
-                                return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                            }
-                        default:
-                            {
-                                return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
-                            }
-                    }
+                    return new WslDriveData(DriveFolder, PropertiesRetrieve, DriveId);
                 }
                 else
                 {
-                    return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                    if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
+                    {
+                        switch (BitlockerState)
+                        {
+                            case 6 when !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"):
+                                {
+                                    return new LockedDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                                }
+                            default:
+                                {
+                                    return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                                }
+                        }
+                    }
+                    else
+                    {
+                        return new NormalDriveData(DriveFolder, PropertiesRetrieve, DriveType, DriveId);
+                    }
                 }
+            }
+            else
+            {
+                return new NormalDriveData(DriveFolder, null, DriveType, DriveId);
             }
         }
 
@@ -237,71 +251,78 @@ namespace RX_Explorer.Class
 
         private async Task<BitmapImage> GetThumbnailAsync()
         {
-            switch (BitlockerStatusCode)
+            if (await DriveFolder.GetStorageItemAsync() is IStorageItem Item)
             {
-                case -1:
-                    {
-                        BitmapImage Thumbnail = await DriveFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                        if (Thumbnail == null)
+                switch (BitlockerStatusCode)
+                {
+                    case -1:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                            if (Thumbnail == null)
                             {
-                                Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                }
+                                else if (DriveType == DriveType.Network)
+                                {
+                                    Thumbnail = new BitmapImage(NetworkDriveIconUri);
+                                }
+                                else
+                                {
+                                    Thumbnail = new BitmapImage(NormalDriveIconUri);
+                                }
                             }
-                            else if (DriveType == DriveType.Network)
-                            {
-                                Thumbnail = new BitmapImage(NetworkDriveIconUri);
-                            }
-                            else
-                            {
-                                Thumbnail = new BitmapImage(NormalDriveIconUri);
-                            }
+
+                            return Thumbnail;
                         }
-
-                        return Thumbnail;
-                    }
-                case 6:
-                    {
-                        return await DriveFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri);
-                    }
-                case 3:
-                case 2:
-                    {
-                        BitmapImage Thumbnail = await DriveFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                        if (Thumbnail == null)
+                    case 6:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                Thumbnail = new BitmapImage(SystemDriveIconUri);
-                            }
-                            else
-                            {
-                                Thumbnail = new BitmapImage(NormalDriveIconUri);
-                            }
+                            return await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri);
                         }
-
-                        return Thumbnail;
-                    }
-                default:
-                    {
-                        BitmapImage Thumbnail = await DriveFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                        if (Thumbnail == null)
+                    case 3:
+                    case 2:
                         {
-                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
-                            }
-                            else
-                            {
-                                Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
-                            }
-                        }
+                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
 
-                        return Thumbnail;
-                    }
+                            if (Thumbnail == null)
+                            {
+                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                }
+                                else
+                                {
+                                    Thumbnail = new BitmapImage(NormalDriveIconUri);
+                                }
+                            }
+
+                            return Thumbnail;
+                        }
+                    default:
+                        {
+                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                            if (Thumbnail == null)
+                            {
+                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
+                                }
+                                else
+                                {
+                                    Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
+                                }
+                            }
+
+                            return Thumbnail;
+                        }
+                }
+            }
+            else
+            {
+                return new BitmapImage(NormalDriveIconUri);
             }
         }
 
@@ -430,7 +451,7 @@ namespace RX_Explorer.Class
         /// <param name="DriveFolder">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        protected DriveDataBase(StorageFolder DriveFolder, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
+        protected DriveDataBase(FileSystemStorageFolder DriveFolder, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null)
         {
             this.DriveFolder = DriveFolder ?? throw new FileNotFoundException();
             this.DriveType = DriveType;

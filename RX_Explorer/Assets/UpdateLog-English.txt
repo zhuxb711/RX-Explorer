@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.7.1.9.0
+
+#####Feature update
+
+>#####Added new shortcut keys Ctrl+Tab and Ctrl+Shift+Tab
+
+#####UI update
+
+>#####The UI design of settings has been fully updated
+
+#####Performance improvement
+
+>#####Improved the speed of loading recycle bin files
+
+>>#####Compared with before, the average loading speed has increased by 50%
+
+#####Bug fix
+
+>#####Fixed the problem that may cause a crash when changing fonts
+
+>#####Fixed an issue that may cause the UI to stop responding
+
+>#####Fixed a crash issue after adding a folder to the "Libraries" in some cases
+
+>#####Fixed the problem of possible duplicate items in the "Choose another app" dialog
+
+*****
 ###What's new in Ver.7.1.7.0
 
 #####Feature update

@@ -1,4 +1,31 @@
 ﻿*****
+###Novedades de la versión 7.1.9.0
+
+#####Actualización de funciones
+
+>#####Se agregaron nuevas teclas de método abreviado Ctrl+Tab y Ctrl+Shift+Tab
+
+#####Actualización de la interfaz de usuario
+
+>#####El diseño de la interfaz de usuario de la configuración se ha actualizado por completo
+
+#####Mejora del rendimiento
+
+>#####Se mejoró la velocidad de carga de los archivos de la papelera de reciclaje
+
+>>#####En comparación con antes, la velocidad de carga promedio ha aumentado en un 50%
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema que podía causar un bloqueo al cambiar las fuentes
+
+>#####Se solucionó un problema que podía hacer que la interfaz de usuario dejara de responder
+
+>#####Se solucionó un problema de bloqueo después de agregar una carpeta a las "Bibliotecas" en algunos casos
+
+>#####Se solucionó el problema de posibles elementos duplicados en el cuadro de diálogo "Elegir otra aplicación"
+
+*****
 ###Novedades de la versión 7.1.7.0
 
 #####Actualización de funciones

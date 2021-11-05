@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -17,7 +15,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public LockedDriveData(StorageFolder Device, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Device, PropertiesRetrieve, DriveType, DriveId)
+        public LockedDriveData(FileSystemStorageFolder Drive, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType, string DriveId = null) : base(Drive, PropertiesRetrieve, DriveType, DriveId)
         {
 
         }

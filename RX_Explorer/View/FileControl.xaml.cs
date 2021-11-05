@@ -563,25 +563,19 @@ namespace RX_Explorer
                             {
                                 bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
-                                TreeViewNode RootNode;
+                                TreeViewNode RootNode = new TreeViewNode
+                                {
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
 
                                 if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                                 {
-                                    RootNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(Folder),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = HasAnyFolder
-                                    };
+                                    RootNode.Content = new TreeViewNodeContent(Folder);
                                 }
                                 else
                                 {
-                                    RootNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(args.StorageItem.Path),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = HasAnyFolder
-                                    };
+                                    RootNode.Content = new TreeViewNodeContent(args.StorageItem.Path);
                                 }
 
                                 FolderTree.RootNodes.Add(RootNode);
@@ -649,38 +643,62 @@ namespace RX_Explorer
                     FolderTree.RootNodes.Add(RootNode);
                 }
 
-                IReadOnlyList<Task<TreeViewNode>> SyncTreeViewFromDriveList(IEnumerable<StorageFolder> DriveList)
+                IReadOnlyList<Task<TreeViewNode>> SyncTreeViewFromDriveList(IEnumerable<FileSystemStorageFolder> DriveList)
                 {
                     List<Task<TreeViewNode>> LongLoadList = new List<Task<TreeViewNode>>();
 
-                    foreach (StorageFolder DriveFolder in DriveList)
+                    foreach (FileSystemStorageFolder DriveFolder in DriveList)
                     {
                         if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
-                            LongLoadList.Add(new FileSystemStorageFolder(DriveFolder).CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder).ContinueWith((task) =>
-                            {
-                                if (task.Exception is Exception Ex)
-                                {
-                                    LogTracer.Log(Ex, "Could not add a new node to TreeView");
-                                    return null;
-                                }
-                                else
-                                {
-                                    return new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(DriveFolder),
-                                        IsExpanded = false,
-                                        HasUnrealizedChildren = task.Result
-                                    };
-                                }
-                            }, TaskScheduler.FromCurrentSynchronizationContext()));
+                            LongLoadList.Add(DriveFolder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder)
+                                                        .ContinueWith((task) =>
+                                                        {
+                                                            if (task.Exception is Exception Ex)
+                                                            {
+                                                                throw Ex;
+                                                            }
+                                                            else
+                                                            {
+                                                                return (task.Result, DriveFolder.GetStorageItemAsync().Result);
+                                                            }
+                                                        })
+                                                        .ContinueWith((task) =>
+                                                        {
+                                                            if (task.Exception is Exception Ex)
+                                                            {
+                                                                LogTracer.Log(Ex, "Could not add a new node to TreeView");
+                                                                return null;
+                                                            }
+                                                            else
+                                                            {
+                                                                if (task.Result.Item2 is StorageFolder Folder)
+                                                                {
+                                                                    return new TreeViewNode
+                                                                    {
+                                                                        Content = new TreeViewNodeContent(Folder),
+                                                                        IsExpanded = false,
+                                                                        HasUnrealizedChildren = task.Result.Item1
+                                                                    };
+                                                                }
+                                                                else
+                                                                {
+                                                                    return new TreeViewNode
+                                                                    {
+                                                                        Content = new TreeViewNodeContent(DriveFolder.Path),
+                                                                        IsExpanded = false,
+                                                                        HasUnrealizedChildren = task.Result.Item1
+                                                                    };
+                                                                }
+                                                            }
+                                                        }, TaskScheduler.FromCurrentSynchronizationContext()));
                         }
                     }
 
                     return LongLoadList;
                 }
 
-                IEnumerable<StorageFolder> CurrentDrives = CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray();
+                IEnumerable<FileSystemStorageFolder> CurrentDrives = CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray();
 
                 IReadOnlyList<Task<TreeViewNode>> TaskList = SyncTreeViewFromDriveList(CurrentDrives);
 

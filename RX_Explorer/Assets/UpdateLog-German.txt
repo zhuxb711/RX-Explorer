@@ -1,4 +1,31 @@
 ﻿*****
+###Was ist neu in Ver.7.1.9.0
+
+#####Funktionsupdate
+
+>#####Neue Tastenkombinationen Ctrl+Tab und Ctrl+Shift+Tab hinzugefügt
+
+#####UI-Update
+
+>#####Das UI-Design der Einstellungen wurde vollständig aktualisiert
+
+#####Leistungsverbesserung
+
+>#####Die Geschwindigkeit beim Laden von Papierkorbdateien wurde verbessert
+
+>>#####Im Vergleich zu früher hat sich die durchschnittliche Ladegeschwindigkeit um 50% erhöht
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, das beim Ändern von Schriftarten zu einem Absturz führen konnte
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass die Benutzeroberfläche nicht mehr reagiert
+
+>#####Absturzproblem behoben, nachdem in einigen Fällen ein Ordner zu den "Bibliotheken" hinzugefügt wurde
+
+>#####Das Problem möglicher doppelter Elemente im Dialog "Eine andere App auswählen" wurde behoben
+
+*****
 ###Was ist neu in Ver.7.1.7.0
 
 #####Funktionsupdate

@@ -1928,18 +1928,24 @@ namespace RX_Explorer
                         {
                             Control.FolderTree.RootNodes.Clear();
 
-                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                            foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                             {
-                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder);
-
-                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                bool HasAnyFolder = await DriveFolder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
-                                    Content = new TreeViewNodeContent(DriveFolder),
                                     IsExpanded = false,
                                     HasUnrealizedChildren = HasAnyFolder
                                 };
+
+                                if (await DriveFolder.GetStorageItemAsync() is StorageFolder Folder)
+                                {
+                                    RootNode.Content = new TreeViewNodeContent(Folder);
+                                }
+                                else
+                                {
+                                    RootNode.Content = new TreeViewNodeContent(DriveFolder.Path);
+                                }
 
                                 Control.FolderTree.RootNodes.Add(RootNode);
 

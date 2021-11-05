@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
         public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
 
-        private static readonly List<StorageFolder> DriveCache = new List<StorageFolder>();
+        private static readonly List<FileSystemStorageFolder> DriveCache = new List<FileSystemStorageFolder>();
 
         private static readonly DeviceWatcher PortalDriveWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
@@ -371,7 +371,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IReadOnlyList<StorageFolder> GetMissedDriveBeforeSubscribeEvents()
+        public static IReadOnlyList<FileSystemStorageFolder> GetMissedDriveBeforeSubscribeEvents()
         {
             return DriveCache.AsReadOnly();
         }
@@ -435,7 +435,7 @@ namespace RX_Explorer.Class
                             {
                                 foreach (DriveDataBase Drive in e.NewItems)
                                 {
-                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Added, new FileSystemStorageFolder(Drive.DriveFolder)));
+                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Added, Drive.DriveFolder));
                                 }
                             }
                             else
@@ -451,7 +451,7 @@ namespace RX_Explorer.Class
                             {
                                 foreach (DriveDataBase Drive in e.OldItems)
                                 {
-                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Removed, new FileSystemStorageFolder(Drive.DriveFolder)));
+                                    await DriveChanged.InvokeAsync(null, new DriveChangedDeferredEventArgs(CommonChangeType.Removed, Drive.DriveFolder));
                                 }
                             }
                             else

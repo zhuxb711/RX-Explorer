@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Deferred;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
-using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -406,7 +405,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not get file handle from COMInterface");
+                LogTracer.Log(ex, $"Could not get file handle from COMInterface, path: \"{Item.Path}\"");
                 return new SafeFileHandle(IntPtr.Zero, true);
             }
         }
