@@ -2543,7 +2543,7 @@ Inkorrekte Namen sind
           <source>Adjust background blur effect</source>
           <target state="translated">Unschärfeeffekt des Hintergrundes anpassen</target>
         </trans-unit>
-        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAlwaysLaunchNew.Text" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">Immer einen neuen Prozess beim Start starten</target>
         </trans-unit>
@@ -3564,7 +3564,7 @@ Inkorrekte Namen sind
           <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
           <target state="translated">Versteckte Systemdateien sollten nicht geändert werden. Es wird empfohlen, diesen Schalter nicht einzuschalten, um fortzufahren.</target>
         </trans-unit>
-        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingHideProtectedSystemItems.Text" translate="yes" xml:space="preserve">
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Geschützte Systemdateien ausblenden (empfohlen)</target>
         </trans-unit>

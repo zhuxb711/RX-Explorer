@@ -1918,7 +1918,7 @@ Las denominaciones no válidas son:
   <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Ajustar efecto de difuminación del fondo</value>
   </data>
-  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+  <data name="SettingPageAlwaysLaunchNew.Text" xml:space="preserve">
     <value>Iniciar siempre un nuevo proceso si está activado.</value>
   </data>
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
@@ -2687,7 +2687,7 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
     <value>Los archivos ocultos del sistema no deben modificarse, se recomienda no activar este interruptor, ¿continuar?</value>
   </data>
-  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+  <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Ocultar archivos de sistema protegidos (Recomendado)</value>
   </data>
   <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">

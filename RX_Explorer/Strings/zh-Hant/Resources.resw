@@ -1872,7 +1872,7 @@
   <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>調整背景模糊效果</value>
   </data>
-  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+  <data name="SettingPageAlwaysLaunchNew.Text" xml:space="preserve">
     <value>激活後始終啟動新流程</value>
   </data>
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
@@ -2687,7 +2687,7 @@
   <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
     <value>隱藏的系統文件不應修改，建議不要打開此開關，是否繼續？</value>
   </data>
-  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+  <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>隱藏受保護的系統文件(推薦)</value>
   </data>
   <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">

@@ -2035,7 +2035,7 @@ Invalid names include
   <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Adjust background blur effect</value>
   </data>
-  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+  <data name="SettingPageAlwaysLaunchNew.Text" xml:space="preserve">
     <value>Always start a new process when activated</value>
   </data>
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
@@ -2816,7 +2816,7 @@ Invalid names include
   <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
     <value>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</value>
   </data>
-  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+  <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Hide protected system files (Recommended)</value>
   </data>
   <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">

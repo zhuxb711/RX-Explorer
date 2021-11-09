@@ -330,11 +330,11 @@ namespace RX_Explorer
                                                 {
                                                     if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                                     {
-                                                        await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
+                                                        await Exclusive.Controller.ToggleQuicklookAsync(Device.Path);
                                                     }
                                                     else if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder Library && !string.IsNullOrEmpty(Library.Path))
                                                     {
-                                                        await Exclusive.Controller.ViewWithQuicklookAsync(Library.Path);
+                                                        await Exclusive.Controller.ToggleQuicklookAsync(Library.Path);
                                                     }
                                                 }
                                             }

@@ -1821,13 +1821,24 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Quicklook:
+                    case CommandType.ToggleQuicklook:
                         {
                             string ExecutePath = CommandValue["ExecutePath"];
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                QuicklookConnector.SendMessage(ExecutePath);
+                                QuicklookConnector.ToggleQuicklook(ExecutePath);
+                            }
+
+                            break;
+                        }
+                    case CommandType.SwitchQuicklook:
+                        {
+                            string ExecutePath = CommandValue["ExecutePath"];
+
+                            if (!string.IsNullOrEmpty(ExecutePath))
+                            {
+                                QuicklookConnector.SwitchQuicklook(ExecutePath);
                             }
 
                             break;

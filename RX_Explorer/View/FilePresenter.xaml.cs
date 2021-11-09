@@ -640,7 +640,7 @@ namespace RX_Explorer
 
                                         if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook);
+                                            await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
                                         }
                                     }
                                 }
@@ -1800,7 +1800,7 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DelayRenameCancellation?.Cancel();
 
@@ -1896,6 +1896,34 @@ namespace RX_Explorer
                 if (StatusTipsSplit.Length > 0)
                 {
                     StatusTips.Text = StatusTipsSplit[0];
+                }
+            }
+
+            if (SettingPage.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    {
+                        string ViewPathWithQuicklook = null;
+
+                        if (string.IsNullOrEmpty(SelectedItem?.Path))
+                        {
+                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
+                            {
+                                ViewPathWithQuicklook = CurrentFolder.Path;
+                            }
+                        }
+                        else
+                        {
+                            ViewPathWithQuicklook = SelectedItem.Path;
+                        }
+
+                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                        {
+                            await Exclusive.Controller.SwitchQuicklookAsync(ViewPathWithQuicklook);
+                        }
+                    }
                 }
             }
         }

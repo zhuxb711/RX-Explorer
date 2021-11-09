@@ -105,7 +105,12 @@ namespace RX_Explorer.Class
                                         FamilyIndex = EngNameIndex;
                                     }
 
-                                    FontList.Add(new InstalledFonts(FontIndex, FamilyIndex, LocalizedNames.GetString(FamilyIndex)));
+                                    string DisplayName = LocalizedNames.GetString(FamilyIndex);
+
+                                    if (!string.IsNullOrEmpty(DisplayName))
+                                    {
+                                        FontList.Add(new InstalledFonts(FontIndex, FamilyIndex, DisplayName));
+                                    }
                                 }
                             }
                         }

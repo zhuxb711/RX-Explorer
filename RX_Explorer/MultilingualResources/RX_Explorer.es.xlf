@@ -2539,7 +2539,7 @@ Las denominaciones no válidas son:
           <source>Adjust background blur effect</source>
           <target state="translated">Ajustar efecto de difuminación del fondo</target>
         </trans-unit>
-        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAlwaysLaunchNew.Text" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">Iniciar siempre un nuevo proceso si está activado.</target>
         </trans-unit>
@@ -3564,7 +3564,7 @@ Las denominaciones no válidas son:
           <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
           <target state="translated">Los archivos ocultos del sistema no deben modificarse, se recomienda no activar este interruptor, ¿continuar?</target>
         </trans-unit>
-        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingHideProtectedSystemItems.Text" translate="yes" xml:space="preserve">
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Ocultar archivos de sistema protegidos (Recomendado)</target>
         </trans-unit>

@@ -1446,9 +1446,26 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task ViewWithQuicklookAsync(string Path)
+        public async Task ToggleQuicklookAsync(string Path)
         {
-            await SendCommandAsync(CommandType.Quicklook, ("ExecutePath", Path));
+            if (await SendCommandAsync(CommandType.ToggleQuicklook, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(ToggleQuicklookAsync)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task SwitchQuicklookAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.SwitchQuicklook, ("ExecutePath", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SwitchQuicklookAsync)}, message: {ErrorMessage}");
+                }
+            }
         }
 
         public async Task<bool> CheckIfQuicklookIsAvaliableAsync()

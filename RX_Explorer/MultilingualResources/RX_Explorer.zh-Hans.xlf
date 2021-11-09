@@ -2480,7 +2480,7 @@ Invalid names include
           <source>Adjust background blur effect</source>
           <target state="translated">调整背景模糊效果</target>
         </trans-unit>
-        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAlwaysLaunchNew.Text" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">激活时始终启动新的进程</target>
         </trans-unit>
@@ -3566,7 +3566,7 @@ Invalid names include
           <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
           <target state="translated">隐藏的系统文件不应被修改，建议不要打开此开关，是否继续？</target>
         </trans-unit>
-        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingHideProtectedSystemItems.Text" translate="yes" xml:space="preserve">
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">隐藏受保护的系统文件(推荐)</target>
         </trans-unit>

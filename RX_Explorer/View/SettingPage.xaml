@@ -19,19 +19,34 @@
                                     ResourceKey="SystemAltMediumLowColor" />
                     <StaticResource x:Key="ExpanderHeaderBackground"
                                     ResourceKey="SystemControlAcrylicElementMediumHighBrush" />
-
+                    <StaticResource x:Key="ExpanderContentBorderBrush"
+                                    ResourceKey="TransparentBrush" />
+                    <SolidColorBrush x:Key="BorderDefaultBrush"
+                                     Color="#19000000" />
+                    <SolidColorBrush x:Key="TransparentBrush"
+                                     Color="Transparent" />
+                    <SolidColorBrush x:Key="WarningIconBrush"
+                                     Color="Yellow" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Light">
                     <StaticResource x:Key="NavigationViewContentBackground"
                                     ResourceKey="SystemAltLowColor" />
                     <StaticResource x:Key="ExpanderHeaderBackground"
                                     ResourceKey="SystemControlAcrylicElementMediumHighBrush" />
+                    <StaticResource x:Key="ExpanderContentBorderBrush"
+                                    ResourceKey="TransparentBrush" />
+                    <SolidColorBrush x:Key="BorderDefaultBrush"
+                                     Color="#0F000000" />
+                    <SolidColorBrush x:Key="TransparentBrush"
+                                     Color="Transparent" />
+                    <SolidColorBrush x:Key="WarningIconBrush"
+                                     Color="OrangeRed" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 
             <Thickness x:Key="NavigationViewPaneContentGridMargin">5,10</Thickness>
-            <Thickness x:Key="ExpanderHeaderBorderThickness">0</Thickness>
-
+            <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
+            
             <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
             <Cls:InverseConverter x:Key="InverseConverter" />
 
@@ -52,23 +67,22 @@
           Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
 
         <Grid HorizontalAlignment="Center"
-              VerticalAlignment="Center">
+              VerticalAlignment="Center"
+              Width="850">
             <Grid.RowDefinitions>
-                <RowDefinition />
+                <RowDefinition Height="550"/>
                 <RowDefinition Height="60" />
             </Grid.RowDefinitions>
 
             <muxc:NavigationView Name="SettingNavigation"
                                  PaneDisplayMode="Left"
                                  IsPaneOpen="True"
-                                 OpenPaneLength="200"
+                                 OpenPaneLength="220"
                                  IsBackButtonVisible="Collapsed"
                                  IsPaneToggleButtonVisible="False"
                                  IsSettingsVisible="False"
                                  HorizontalAlignment="Stretch"
                                  VerticalAlignment="Stretch"
-                                 Width="850"
-                                 Height="550"
                                  Background="{ThemeResource DialogAcrylicBrush}"
                                  ItemInvoked="SettingNavigation_ItemInvoked">
                 <muxc:NavigationView.MenuItems>
@@ -159,14 +173,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="文件夹目录"
-                                                       x:Uid="SettingTreeViewDetachLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="TreeViewDetach" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="TreeViewDetach"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="文件夹目录"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingTreeViewDetachLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="控制是否显示位于页面左侧的目录树" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="隐藏"
                                                           x:Uid="SettingTreeViewDetach"
@@ -180,14 +204,24 @@
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="导航视图布局"
-                                                       x:Uid="SettingNavLayoutLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="NavigationViewLayout" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="NavigationViewLayout"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="导航视图布局"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingNavLayoutLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="控制导航栏布局位置" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="左侧"
                                                           OffContent="顶端"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
@@ -202,14 +236,24 @@
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="标签页预览"
-                                                       x:Uid="SettingTabPreviewLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="TabPreviewSwitch" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="TabPreviewSwitch"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="标签页预览"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingTabPreviewLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           Style="{StaticResource SettingToggleSwitchStyle}"
@@ -232,11 +276,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="显示隐藏文件"
-                                                           x:Uid="SettingDisplayHiddenItemLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="DisplayHiddenItem" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="DisplayHiddenItem"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="显示隐藏文件"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingDisplayHiddenItemLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="启用此选项后将显示隐藏文件" />
+                                                </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
                                                               Style="{StaticResource SettingToggleSwitchStyle}"
@@ -247,15 +299,25 @@
                                             </RelativePanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
-                                            <Border Margin="0,1,0,0"
-                                                    Padding="40,10,10,10"
+                                            <Border Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     CornerRadius="0,0,4,4"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                <CheckBox Content="隐藏受保护的系统文件(推荐)"
-                                                          IsEnabled="{x:Bind DisplayHiddenItem.IsOn,Mode=OneWay}"
-                                                          x:Uid="SettingHideProtectedSystemItems"
-                                                          Name="HideProtectedSystemItems" />
+                                                <CheckBox IsEnabled="{x:Bind DisplayHiddenItem.IsOn,Mode=OneWay}"
+                                                          Name="HideProtectedSystemItems">
+                                                    <StackPanel>
+                                                        <TextBlock Text="隐藏受保护的系统文件(推荐)"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   x:Uid="SettingHideProtectedSystemItems" />
+                                                        <TextBlock Text="强烈建议保持此项选中，系统文件不应被修改或移动"
+                                                                   FontSize="12"
+                                                                   Foreground="Gray"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                    </StackPanel>
+                                                </CheckBox>
                                             </Border>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
@@ -263,14 +325,24 @@
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="文件夹打开方式"
-                                                       x:Uid="SettingFolderOpenMethodLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="FolderOpenMethod" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="FolderOpenMethod"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="文件夹打开方式"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingFolderOpenMethodLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="根据您的喜好选择符合的操作习惯" />
+                                            </StackPanel>
                                             <ComboBox x:Uid="SettingFolderOpenMethod"
                                                       MinWidth="120"
                                                       Name="FolderOpenMethod"
@@ -278,21 +350,30 @@
                                                       RelativePanel.AlignRightWithPanel="True"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
                                                       SelectionChanged="FolderOpenMethod_SelectionChanged" />
-
                                         </RelativePanel>
                                     </Border>
 
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="语言"
-                                                       x:Uid="LanguageComboBoxLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="LanguageComboBox" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="LanguageComboBox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="语言"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="LanguageComboBoxLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="指定应用使用的语言，更改后需要重启以生效" />
+                                            </StackPanel>
                                             <ComboBox MinWidth="180"
                                                       Name="LanguageComboBox"
                                                       x:Uid="LanguageComboBox"
@@ -312,14 +393,24 @@
                                     <Border Margin="0,5,0,0"
                                             Padding="20,10"
                                             MinHeight="60"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="字体"
-                                                       x:Uid="FontFamilyComboBoxLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="FontFamilyComboBox" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="FontFamilyComboBox"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="字体"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="FontFamilyComboBoxLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="指定应用使用的字体，更改后需要重启以生效" />
+                                            </StackPanel>
                                             <ComboBox Width="220"
                                                       x:Uid="FontFamilyComboBox"
                                                       Name="FontFamilyComboBox"
@@ -354,14 +445,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="随系统自动启动"
-                                                       x:Uid="AutoBootOnStartupLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="AutoBoot" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="AutoBoot"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="随系统自动启动"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="AutoBootOnStartupLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="启用此选项后本应用将在Windows启动后自动启动"/>
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           Name="AutoBoot"
@@ -375,6 +476,8 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -383,6 +486,7 @@
                                                         RelativePanel.LeftOf="EnableQuicklook"
                                                         Margin="0,0,20,0">
                                                 <TextBlock Text="QuickLook预览"
+                                                           TextTrimming="CharacterEllipsis"
                                                            x:Uid="QuicklookHeader" />
                                                 <TextBlock x:Uid="QuicklookTipContent"
                                                            FontSize="12"
@@ -405,14 +509,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="悬浮于其他应用之上"
-                                                       x:Uid="AlwaysOnTopLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="AlwaysOnTop" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="AlwaysOnTop"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="悬浮于其他应用之上"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="AlwaysOnTopLabel" />
+                                                <TextBlock Text="启用此选项后将保持此应用置于所有窗口最前方"
+                                                           FontSize="12"
+                                                           Foreground="Gray"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords"/>
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           Name="AlwaysOnTop"
@@ -426,14 +540,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="扩展右键菜单"
-                                                       x:Uid="SettingPageContextMenuExtLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="ContextMenuExtSwitch" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="ContextMenuExtSwitch"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="扩展右键菜单"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingPageContextMenuExtLabel" />
+                                                <TextBlock Text="启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响"
+                                                           FontSize="12"
+                                                           Foreground="Gray"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           x:Uid="SettingPageContextMenuExt"
@@ -456,12 +580,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="使用[Win+E]激活此应用"
-                                                           x:Uid="UseWinAndEActivateLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="UseWinAndEActivate"
-                                                           Margin="0,0,20,0" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="UseWinAndEActivate"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="使用[Win+E]激活此应用"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="UseWinAndEActivateLabel" />
+                                                    <TextBlock Text="启用此选项后将拦截系统[Win+E]快捷键调用并重定向至本应用"
+                                                               FontSize="12"
+                                                               Foreground="Gray"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="WrapWholeWords" />
+                                                </StackPanel>
                                                 <ToggleSwitch Name="UseWinAndEActivate"
                                                               OnContent="启用"
                                                               OffContent="禁用"
@@ -473,26 +604,36 @@
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                    <CheckBox Content="激活时始终启动新的进程"
-                                                              IsEnabled="{x:Bind UseWinAndEActivate.IsOn,Mode=OneWay}"
-                                                              x:Uid="SettingPageAlwaysLaunchNew"
+                                                    <CheckBox IsEnabled="{x:Bind UseWinAndEActivate.IsOn,Mode=OneWay}"
                                                               Name="AlwaysLaunchNew"
                                                               Checked="AlwaysLaunchNew_Checked"
-                                                              Unchecked="AlwaysLaunchNew_Unchecked" />
+                                                              Unchecked="AlwaysLaunchNew_Unchecked">
+                                                        <StackPanel>
+                                                            <TextBlock Text="激活时始终启动新的进程"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       x:Uid="SettingPageAlwaysLaunchNew"/>
+                                                            <TextBlock Text="启用此选项后Win+E将始终打开一个新的进程，否则Win+E将仅打开一个新的标签页"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                    </CheckBox>
                                                 </Border>
                                                 <Button Padding="40,10,20,10"
                                                         MinHeight="45"
-                                                        Margin="0,1,0,0"
-                                                        BorderThickness="0"
                                                         HorizontalAlignment="Stretch"
                                                         HorizontalContentAlignment="Stretch"
                                                         CornerRadius="0"
                                                         Name="WinEManualGuidence"
                                                         Click="WinEManualGuidence_Click"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RelativePanel>
                                                         <TextBlock Text="有关手动重定向Win+E的教程"
@@ -514,13 +655,13 @@
                                                 </Button>
                                                 <Button Padding="40,10,20,10"
                                                         MinHeight="45"
-                                                        Margin="0,1,0,0"
-                                                        BorderThickness="0"
                                                         HorizontalAlignment="Stretch"
                                                         HorizontalContentAlignment="Stretch"
                                                         CornerRadius="0,0,4,4"
                                                         Name="WinEExportRestoreFile"
                                                         Click="WinEExportRestoreFile_Click"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RelativePanel>
                                                         <TextBlock Text="导出用于自行关闭Win+E重定向的文件"
@@ -555,12 +696,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="弹出删除确认提示框"
-                                                           x:Uid="DeleteConfirmSwitchLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="DeleteConfirmSwitch"
-                                                           Margin="0,0,20,0" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="DeleteConfirmSwitch"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="弹出删除确认提示框"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="DeleteConfirmSwitchLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="启用此选项后将在用户删除文件时进行二次确认" />
+                                                </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
                                                               Name="DeleteConfirmSwitch"
@@ -572,10 +720,11 @@
                                             </RelativePanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
-                                            <Border Margin="0,1,0,0"
-                                                    Padding="40,10,10,10"
+                                            <Border Padding="40,10,10,10"
                                                     MinHeight="45"
                                                     CornerRadius="0,0,4,4"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                 <CheckBox Name="AvoidRecycleBin"
                                                           IsEnabled="{x:Bind DeleteConfirmSwitch.IsOn,Mode=OneWay}"
@@ -587,11 +736,19 @@
                                                                  VerticalAlignment="Center">
                                                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                       Glyph="&#xE7BA;"
-                                                                      Foreground="Yellow" />
+                                                                      Foreground="{ThemeResource WarningIconBrush}" />
                                                         </Viewbox>
-                                                        <TextBlock Text="绕过回收站并永久删除"
-                                                                   Margin="5,0,0,0"
-                                                                   x:Uid="AvoidRecycleBin" />
+                                                        <StackPanel Margin="5,0,0,0">
+                                                            <TextBlock Text="绕过回收站并永久删除"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       x:Uid="AvoidRecycleBin" />
+                                                            <TextBlock FontSize="12"
+                                                                       TextWrapping="WrapWholeWords"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Foreground="Gray"
+                                                                       Text="启用此选项后将直接永久删除文件，请特别注意数据丢失的风险" />
+                                                        </StackPanel>
+                                                        
                                                     </StackPanel>
                                                 </CheckBox>
                                             </Border>
@@ -601,14 +758,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="图标加载模式"
-                                                       x:Uid="FileLoadModeLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="FileLoadMode" />
+                                            <StackPanel  RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                         RelativePanel.AlignLeftWithPanel="True"
+                                                         RelativePanel.LeftOf="FileLoadMode"
+                                                         Margin="0,0,20,0">
+                                                <TextBlock Text="图标加载模式"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="FileLoadModeLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="根据选中项的不同，平衡文件加载性能" />
+                                            </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       x:Uid="FileLoadMode"
                                                       Name="FileLoadMode"
@@ -621,14 +788,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="首选文件布局模式"
-                                                       x:Uid="DefaultDisplayModeLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="DefaultDisplayMode" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="DefaultDisplayMode"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="首选文件布局模式"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="DefaultDisplayModeLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="指定所有文件夹的首选布局模式，除非用户已更改当前路径的布局模式" />
+                                            </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       Name="DefaultDisplayMode"
                                                       x:Uid="DefaultDisplayMode"
@@ -651,11 +828,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="默认终端应用"
-                                                           x:Uid="DefaultTerminalLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="DefaultTerminalArea" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="DefaultTerminalArea"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="默认终端应用"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="DefaultTerminalLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="指定右键菜单中所使用的默认终端应用" />
+                                                </StackPanel>
                                                 <StackPanel Orientation="Horizontal"
                                                             Name="DefaultTerminalArea"
                                                             RelativePanel.AlignRightWithPanel="True"
@@ -740,7 +925,6 @@
                                                                 </VisualStateManager.VisualStateGroups>
                                                                 <muxc:Expander MinHeight="45"
                                                                                Padding="0"
-                                                                               Margin="0,1,0,0"
                                                                                CornerRadius="0"
                                                                                ExpandDirection="Down"
                                                                                HorizontalAlignment="Stretch"
@@ -779,7 +963,7 @@
                                                                                          Name="TerminalWarningIcon">
                                                                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                                               Glyph="&#xE7BA;"
-                                                                                              Foreground="Yellow" />
+                                                                                              Foreground="{ThemeResource WarningIconBrush}" />
                                                                                 </Viewbox>
                                                                             </StackPanel>
                                                                             <Button Content="移除配置文件"
@@ -792,10 +976,11 @@
                                                                     </muxc:Expander.Header>
                                                                     <muxc:Expander.Content>
                                                                         <StackPanel>
-                                                                            <Border Margin="0,1,0,0"
-                                                                                    Padding="60,10,14,10"
+                                                                            <Border Padding="60,10,14,10"
                                                                                     MinHeight="45"
                                                                                     CornerRadius="0"
+                                                                                    BorderThickness="1"
+                                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                                 <Grid>
                                                                                     <Grid.RowDefinitions>
@@ -831,10 +1016,11 @@
                                                                                                Visibility="Collapsed" />
                                                                                 </Grid>
                                                                             </Border>
-                                                                            <Border Margin="0,1,0,0"
-                                                                                    Padding="60,10,14,10"
+                                                                            <Border Padding="60,10,14,10"
                                                                                     MinHeight="45"
                                                                                     CornerRadius="0"
+                                                                                    BorderThickness="1"
+                                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                                 <Grid>
                                                                                     <Grid.RowDefinitions>
@@ -870,10 +1056,11 @@
                                                                                                Visibility="Collapsed" />
                                                                                 </Grid>
                                                                             </Border>
-                                                                            <Border Margin="0,1,0,0"
-                                                                                    Padding="60,10,14,10"
+                                                                            <Border Padding="60,10,14,10"
                                                                                     MinHeight="45"
                                                                                     CornerRadius="0,0,4,4"
+                                                                                    BorderThickness="1"
+                                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                                 <CheckBox Content="以管理员身份启动终端"
                                                                                           Name="RunAsAdmin"
@@ -901,11 +1088,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="搜索引擎配置"
-                                                           x:Uid="SettingPageSearchEngineConfigLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="SearchEngineConfig" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="SearchEngineConfig"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="搜索引擎配置"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingPageSearchEngineConfigLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="指定搜索引擎配置，可始终使用特定配置或每次询问" />
+                                                </StackPanel>
                                                 <ComboBox x:Uid="SettingPageSearchEngineConfig"
                                                           Name="SearchEngineConfig"
                                                           MinWidth="240"
@@ -920,10 +1115,11 @@
                                                                      ContentTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
                                                 <control:Case Value="1">
                                                     <StackPanel>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="忽略大小写"
                                                                       x:Uid="SearchEngineIgnoreCase"
@@ -931,39 +1127,43 @@
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                       x:Name="BuiltInEngineIgnoreCase" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="使用正则表达式"
                                                                       x:Uid="SearchEngineUseRegex"
                                                                       x:Name="BuiltInEngineIncludeRegex"
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeAQS.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="使用高级查询语法(AQS)"
                                                                       x:Uid="SearchEngineUseAQS"
                                                                       x:Name="BuiltInEngineIncludeAQS"
                                                                       IsEnabled="{x:Bind BuiltInEngineIncludeRegex.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Name="BuiltInSearchUseIndexer"
                                                                       Content="仅通过索引执行搜索"
                                                                       x:Uid="SearchEngineUseIndexer" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0,0,4,4"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="搜索所有子文件夹"
                                                                       Name="BuiltInSearchAllSubFolders"
@@ -973,29 +1173,32 @@
                                                 </control:Case>
                                                 <control:Case Value="2">
                                                     <StackPanel>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="忽略大小写"
                                                                       x:Uid="SearchEngineIgnoreCase"
                                                                       IsChecked="True"
                                                                       x:Name="EverythingEngineIgnoreCase" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="使用正则表达式"
                                                                       x:Uid="SearchEngineUseRegex"
                                                                       x:Name="EverythingEngineIncludeRegex" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0,0,4,4"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <CheckBox Content="全局搜索"
                                                                       x:Uid="SearchEngineGlobeSearch"
@@ -1006,9 +1209,10 @@
                                                     </StackPanel>
                                                 </control:Case>
                                                 <control:Case IsDefault="True">
-                                                    <Border Margin="0,1,0,0"
-                                                            MinHeight="45"
+                                                    <Border MinHeight="45"
                                                             CornerRadius="0,0,4,4"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <TextBlock Text="无更多选项"
                                                                    x:Uid="SettingNoMoreOption"
@@ -1040,11 +1244,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="动画效果"
-                                                           x:Uid="SettingPageAnimationSwitchLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="AnimationSwitch" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="AnimationSwitch"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="动画效果"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingPageAnimationSwitchLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="控制应用内各组件是否启用动画效果" />
+                                                </StackPanel>
                                                 <ToggleSwitch OffContent="禁用"
                                                               OnContent="启用"
                                                               x:Uid="SettingPageAnimationSwitch"
@@ -1057,10 +1269,11 @@
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
-                                                <Windows11NotPresent:Border Margin="0,1,0,0"
-                                                                            Padding="40,10,10,10"
+                                                <Windows11NotPresent:Border Padding="40,10,10,10"
                                                                             MinHeight="45"
                                                                             CornerRadius="0"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <Windows11NotPresent:CheckBox Content="关闭列表选中动画"
                                                                                   x:Uid="SettingPagDisableSelectionAnimation"
@@ -1070,10 +1283,11 @@
                                                                                   Checked="DisableSelectionAnimation_Changed"
                                                                                   Unchecked="DisableSelectionAnimation_Changed" />
                                                 </Windows11NotPresent:Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0,0,4,4"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <CheckBox Content="关闭初始动画以加快启动速度"
                                                               x:Uid="SettingPageExceptAnimation"
@@ -1096,11 +1310,19 @@
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
-                                                <TextBlock Text="模式"
-                                                           x:Uid="SettingPageUIModeLabel"
-                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                           RelativePanel.LeftOf="UIMode" />
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="UIMode"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="模式"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingPageUIModeLabel" />
+                                                    <TextBlock FontSize="12"
+                                                               TextWrapping="WrapWholeWords"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="Gray"
+                                                               Text="控制应用全局背景效果" />
+                                                </StackPanel>
                                                 <ComboBox Name="UIMode"
                                                           MinWidth="150"
                                                           SelectionChanged="UIMode_SelectionChanged"
@@ -1114,30 +1336,33 @@
                                                                      ContentTransitions="{x:Bind Cls:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
                                                 <control:Case Value="1">
                                                     <StackPanel>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
-                                                                CornerRadius="00"
+                                                                CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <RadioButton Content="Windows默认"
                                                                          Name="SolidColor_FollowSystem"
                                                                          x:Uid="SolidColor_FollowSystem"
                                                                          Checked="SolidColor_FollowSystem_Checked" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <RadioButton Content="白色"
                                                                          x:Uid="SolidColor_White"
                                                                          Name="SolidColor_White"
                                                                          Checked="SolidColor_White_Checked" />
                                                         </Border>
-                                                        <Border Margin="0,1,0,0"
-                                                                Padding="40,10,10,10"
+                                                        <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
                                                                 CornerRadius="0,0,4,4"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                             <RadioButton Content="黑色"
                                                                          x:Uid="SolidColor_Black"
@@ -1231,10 +1456,11 @@
                                                                     </VisualState>
                                                                 </VisualStateGroup>
                                                             </VisualStateManager.VisualStateGroups>
-                                                            <Border Margin="0,1,0,0"
-                                                                    Padding="40,10,10,10"
+                                                            <Border Padding="40,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RelativePanel>
                                                                     <TextBlock Text="主题颜色"
@@ -1252,8 +1478,7 @@
 
                                                                 </RelativePanel>
                                                             </Border>
-                                                            <muxc:Expander Margin="0,1,0,0"
-                                                                           ExpandDirection="Down"
+                                                            <muxc:Expander ExpandDirection="Down"
                                                                            HorizontalAlignment="Stretch"
                                                                            HorizontalContentAlignment="Stretch"
                                                                            VerticalContentAlignment="Top"
@@ -1272,10 +1497,11 @@
                                                                 </muxc:Expander.Header>
                                                                 <muxc:Expander.Content>
                                                                     <StackPanel>
-                                                                        <Border Margin="0,1,0,0"
-                                                                                Padding="68,10,10,10"
+                                                                        <Border Padding="68,10,10,10"
                                                                                 MinHeight="45"
                                                                                 CornerRadius="0"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                             <StackPanel>
                                                                                 <CheckBox x:Name="PreventFallBack"
@@ -1291,10 +1517,11 @@
                                                                             </StackPanel>
                                                                         </Border>
 
-                                                                        <Border Margin="0,1,0,0"
-                                                                                Padding="68,10,10,10"
+                                                                        <Border Padding="68,10,10,10"
                                                                                 MinHeight="45"
                                                                                 CornerRadius="0"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                             <RelativePanel>
                                                                                 <TextBlock Text="Acrylic主题颜色"
@@ -1327,16 +1554,18 @@
                                                                             </RelativePanel>
                                                                         </Border>
 
-                                                                        <Border Margin="0,1,0,0"
-                                                                                Padding="68,10,10,10"
+                                                                        <Border Padding="68,10,10,10"
                                                                                 MinHeight="45"
                                                                                 CornerRadius="0"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                             <RelativePanel>
                                                                                 <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                             RelativePanel.AlignLeftWithPanel="True"
                                                                                             RelativePanel.LeftOf="TintOpacitySliderArea">
                                                                                     <TextBlock Text="Acrylic颜色透明度"
+                                                                                               TextTrimming="CharacterEllipsis"
                                                                                                x:Name="TintOpacitySliderLabel"
                                                                                                x:Uid="TintOpacitySliderLabel" />
                                                                                     <TextBlock TextTrimming="CharacterEllipsis"
@@ -1366,16 +1595,18 @@
                                                                             </RelativePanel>
                                                                         </Border>
 
-                                                                        <Border Margin="0,1,0,0"
-                                                                                Padding="68,10,10,10"
+                                                                        <Border Padding="68,10,10,10"
                                                                                 MinHeight="45"
                                                                                 CornerRadius="0,0,4,4"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                             <RelativePanel>
                                                                                 <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                             RelativePanel.AlignLeftWithPanel="True"
                                                                                             RelativePanel.LeftOf="TintLuminositySliderArea">
                                                                                     <TextBlock Text="Acrylic背景透光度"
+                                                                                               TextTrimming="CharacterEllipsis"
                                                                                                x:Name="TintLuminositySliderLabel"
                                                                                                x:Uid="TintLuminositySliderLabel" />
                                                                                     <TextBlock TextTrimming="CharacterEllipsis"
@@ -1408,8 +1639,7 @@
                                                                 </muxc:Expander.Content>
                                                             </muxc:Expander>
 
-                                                            <muxc:Expander Margin="0,1,0,0"
-                                                                           ExpandDirection="Down"
+                                                            <muxc:Expander ExpandDirection="Down"
                                                                            HorizontalAlignment="Stretch"
                                                                            HorizontalContentAlignment="Stretch"
                                                                            VerticalContentAlignment="Top"
@@ -1428,10 +1658,11 @@
                                                                 </muxc:Expander.Header>
                                                                 <muxc:Expander.Content>
                                                                     <StackPanel>
-                                                                        <Border Margin="0,1,0,0"
-                                                                                Padding="68,10,10,10"
+                                                                        <Border Padding="68,10,10,10"
                                                                                 MinHeight="45"
                                                                                 CornerRadius="0"
+                                                                                BorderThickness="1"
+                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                                 Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                             <StackPanel Orientation="Horizontal">
                                                                                 <GridView Name="PictureGirdView"
@@ -1474,16 +1705,18 @@
                                                                 </muxc:Expander.Content>
                                                             </muxc:Expander>
 
-                                                            <Border Margin="0,1,0,0"
-                                                                    Padding="41,10,10,10"
+                                                            <Border Padding="41,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RadioButton Name="BingPictureMode"
                                                                              Checked="BingPictureMode_Checked"
                                                                              GroupName="CustomSubRadio">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="必应图片"
+                                                                                   TextTrimming="CharacterEllipsis"
                                                                                    x:Uid="CustomUISubtype3" />
                                                                         <muxc:ProgressRing IsActive="True"
                                                                                            Margin="10,0,0,0"
@@ -1496,16 +1729,18 @@
                                                             </Border>
 
                                                             <StackPanel x:Name="BackgroundEffectArea">
-                                                                <Border Margin="0,1,0,0"
-                                                                        Padding="41,10,10,10"
+                                                                <Border Padding="41,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                     <RelativePanel>
                                                                         <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                     RelativePanel.AlignLeftWithPanel="True"
                                                                                     RelativePanel.LeftOf="BackgroundBlurSliderArea">
                                                                             <TextBlock Text="调整背景模糊效果"
+                                                                                       TextTrimming="CharacterEllipsis"
                                                                                        x:Uid="BackgroundBlurSliderLabel" />
                                                                         </StackPanel>
                                                                         <StackPanel Orientation="Horizontal"
@@ -1526,16 +1761,18 @@
                                                                         </StackPanel>
                                                                     </RelativePanel>
                                                                 </Border>
-                                                                <Border Margin="0,1,0,0"
-                                                                        Padding="41,10,10,10"
+                                                                <Border Padding="41,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0,0,4,4"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                     <RelativePanel>
                                                                         <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                     RelativePanel.AlignLeftWithPanel="True"
                                                                                     RelativePanel.LeftOf="BackgroundLightSliderArea">
                                                                             <TextBlock Text="调整背景亮度"
+                                                                                       TextTrimming="CharacterEllipsis"
                                                                                        x:Uid="BackgroundLightSliderLabel" />
                                                                         </StackPanel>
                                                                         <StackPanel Orientation="Horizontal"
@@ -1561,11 +1798,13 @@
                                                     </UserControl>
                                                 </control:Case>
                                                 <control:Case IsDefault="True">
-                                                    <Border Margin="0,1,0,0"
-                                                            MinHeight="45"
+                                                    <Border MinHeight="45"
                                                             CornerRadius="0,0,4,4"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                         <TextBlock Text="无更多选项"
+                                                                   TextTrimming="CharacterEllipsis"
                                                                    x:Uid="SettingNoMoreOption"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center" />
@@ -1585,17 +1824,24 @@
                                                    Background="Transparent"
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
-                                            <StackPanel Padding="4,10,0,10">
+                                            <StackPanel Padding="4,10,20,10">
                                                 <TextBlock Text="启动时"
+                                                           TextTrimming="CharacterEllipsis"
                                                            x:Uid="SettingStartupLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="控制启动时的行为" />
                                             </StackPanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RadioButton Content="打开新标签页"
                                                                  x:Uid="SettingStartupWithNewTab"
@@ -1603,10 +1849,11 @@
                                                                  GroupName="Startup"
                                                                  Checked="StartupWithNewTab_Checked" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RadioButton Content="恢复上次打开的标签页"
                                                                  x:Uid="SettingStartupWithLastTab"
@@ -1614,10 +1861,11 @@
                                                                  GroupName="Startup"
                                                                  Checked="StartupWithLastTab_Checked" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <RadioButton Content="打开一个或多个指定标签页"
                                                                  x:Uid="SettingStartupWithSpecificTab"
@@ -1625,10 +1873,11 @@
                                                                  GroupName="Startup"
                                                                  Checked="StartupSpecificTab_Checked" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0,0,4,4"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <ListView Margin="30,0,0,0"
@@ -1707,20 +1956,28 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Name="NavigatePrivacyLink"
                                             Click="NavigatePrivacyLink_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="隐私策略"
-                                                       x:Uid="PrivacyPolicy"
-                                                       TextWrapping="WrapWholeWords"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="PrivacyLinkIcon" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="PrivacyLinkIcon"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="隐私策略"
+                                                           x:Uid="PrivacyPolicy"
+                                                           TextWrapping="WrapWholeWords" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="查看本应用的隐私策略" />
+                                            </StackPanel>
                                             <Viewbox Name="PrivacyLinkIcon"
                                                      Height="20"
                                                      Width="20"
@@ -1736,14 +1993,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="路径历史记录"
-                                                       x:Uid="SettingPathHistoryLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="PathHistory" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="PathHistory"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="路径历史记录"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingPathHistoryLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="启用此选项后将保存最后25条访问记录" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="保存"
                                                           OffContent="清除"
                                                           Name="PathHistory"
@@ -1758,14 +2025,24 @@
                                     <Border Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
-                                            <TextBlock Text="搜索历史记录"
-                                                       x:Uid="SettingSearchHistoryLabel"
-                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                       RelativePanel.AlignLeftWithPanel="True"
-                                                       RelativePanel.LeftOf="SearchHistory" />
+                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                        RelativePanel.LeftOf="SearchHistory"
+                                                        Margin="0,0,20,0">
+                                                <TextBlock Text="搜索历史记录"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="SettingSearchHistoryLabel" />
+                                                <TextBlock FontSize="12"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="Gray"
+                                                           Text="启用此选项后将保存最后25条搜索记录" />
+                                            </StackPanel>
                                             <ToggleSwitch OnContent="保存"
                                                           OffContent="清除"
                                                           x:Uid="SettingSearchHistory"
@@ -1789,11 +2066,12 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Click="Update_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1824,11 +2102,12 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Click="NavigateGithub_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1859,11 +2138,12 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Click="ShowUpdateLog_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
                                             <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -1915,13 +2195,14 @@
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
-                                                <Button Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Button Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
                                                         HorizontalAlignment="Stretch"
                                                         HorizontalContentAlignment="Stretch"
                                                         Click="ClearUp_Click"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <StackPanel>
                                                         <TextBlock Text="重置应用程序"
@@ -1935,8 +2216,7 @@
                                                                    TextWrapping="WrapWholeWords" />
                                                     </StackPanel>
                                                 </Button>
-                                                <muxc:Expander Margin="0,1,0,0"
-                                                               ExpandDirection="Down"
+                                                <muxc:Expander ExpandDirection="Down"
                                                                HorizontalAlignment="Stretch"
                                                                HorizontalContentAlignment="Stretch"
                                                                VerticalContentAlignment="Top"
@@ -1959,13 +2239,14 @@
                                                     </muxc:Expander.Header>
                                                     <muxc:Expander.Content>
                                                         <StackPanel>
-                                                            <Button Margin="0,1,0,0"
-                                                                    Padding="68,10,20,10"
+                                                            <Button Padding="68,10,20,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
                                                                     HorizontalAlignment="Stretch"
                                                                     HorizontalContentAlignment="Stretch"
                                                                     Click="ExportConfiguration_Click"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RelativePanel>
                                                                     <TextBlock Text="导出配置文件"
@@ -1985,13 +2266,14 @@
                                                                     </Viewbox>
                                                                 </RelativePanel>
                                                             </Button>
-                                                            <Button Margin="0,1,0,0"
-                                                                    Padding="68,10,20,10"
+                                                            <Button Padding="68,10,20,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0,0,4,4"
                                                                     HorizontalAlignment="Stretch"
                                                                     HorizontalContentAlignment="Stretch"
                                                                     Click="ImportConfiguration_Click"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                                 <RelativePanel>
                                                                     <TextBlock Text="导入配置文件"
@@ -2030,11 +2312,12 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,10,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Name="PurchaseApp"
                                             Click="PurchaseApp_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2066,10 +2349,11 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Click="ReviewButton_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2101,10 +2385,11 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Click="SystemInfoButton_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2136,10 +2421,11 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Click="ExportLog_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2170,10 +2456,11 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Click="ShortcutGuide_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2204,10 +2491,11 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Click="AQSGuide_Click"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2238,13 +2526,14 @@
                                     <Button Padding="20,10"
                                             MinHeight="60"
                                             Margin="0,5,0,0"
-                                            BorderThickness="0"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
                                             Name="CopyQQ"
                                             Click="CopyQQ_Click"
                                             x:Load="False"
                                             Visibility="Collapsed"
+                                            BorderThickness="1"
+                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
                                             CornerRadius="{StaticResource ControlCornerRadius}"
                                             Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                         <RelativePanel>
@@ -2294,31 +2583,35 @@
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <TextBlock Text="• Yann Lacroix (French)" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)" />
                                                 </Border>
-                                                <Border Margin="0,1,0,0"
-                                                        Padding="40,10,10,10"
+                                                <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         CornerRadius="0"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                                     <TextBlock Text="• Jonas Gunkel (German)" />
                                                 </Border>

@@ -147,7 +147,7 @@ namespace RX_Explorer
                                 {
                                     if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
                                     {
-                                        await Exclusive.Controller.ViewWithQuicklookAsync(Item.Path);
+                                        await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
                                     }
                                 }
                             }

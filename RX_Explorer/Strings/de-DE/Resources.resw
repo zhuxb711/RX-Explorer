@@ -1921,7 +1921,7 @@ Inkorrekte Namen sind
   <data name="BackgroundBlurSliderLabel.Text" xml:space="preserve">
     <value>Unschärfeeffekt des Hintergrundes anpassen</value>
   </data>
-  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+  <data name="SettingPageAlwaysLaunchNew.Text" xml:space="preserve">
     <value>Immer einen neuen Prozess beim Start starten</value>
   </data>
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
@@ -2687,7 +2687,7 @@ Inkorrekte Namen sind
   <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
     <value>Versteckte Systemdateien sollten nicht geändert werden. Es wird empfohlen, diesen Schalter nicht einzuschalten, um fortzufahren.</value>
   </data>
-  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+  <data name="SettingHideProtectedSystemItems.Text" xml:space="preserve">
     <value>Geschützte Systemdateien ausblenden (empfohlen)</value>
   </data>
   <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">

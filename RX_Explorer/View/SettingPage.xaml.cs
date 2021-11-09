@@ -454,8 +454,8 @@ namespace RX_Explorer
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
 
-                ThemeColor.Items.Add(Globalization.GetString("Font_Color_White"));
                 ThemeColor.Items.Add(Globalization.GetString("Font_Color_Black"));
+                ThemeColor.Items.Add(Globalization.GetString("Font_Color_White"));
 
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_None_Text"));
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_OnlyFile_Text"));

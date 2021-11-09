@@ -2480,7 +2480,7 @@ Les noms non valides incluent
           <source>Adjust background blur effect</source>
           <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
         </trans-unit>
-        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingPageAlwaysLaunchNew.Text" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">Toujours démarrer un nouveau processus lorsqu'il est activé</target>
         </trans-unit>
@@ -3566,7 +3566,7 @@ Les noms non valides incluent
           <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
           <target state="translated">Les fichiers système cachés ne doivent pas être modifiés, il est recommandé de ne pas activer ce commutateur, que vous souhaitiez continuer?</target>
         </trans-unit>
-        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="SettingHideProtectedSystemItems.Text" translate="yes" xml:space="preserve">
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
