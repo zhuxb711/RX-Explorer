@@ -987,6 +987,7 @@ namespace RX_Explorer.Class
         public static T FindChildOfType<T>(this DependencyObject root) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
+            
             ObjectQueue.Enqueue(root);
 
             while (ObjectQueue.Count > 0)
@@ -1010,6 +1011,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
+
             return null;
         }
 
@@ -1023,6 +1025,7 @@ namespace RX_Explorer.Class
         public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
+            
             ObjectQueue.Enqueue(root);
 
             while (ObjectQueue.Count > 0)

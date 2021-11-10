@@ -13,14 +13,6 @@
 
     <Page.Resources>
         <Cls:InverseConverter x:Key="InverseConverter" />
-        <Storyboard x:Name="EnterAnimation">
-            <DoubleAnimation EnableDependentAnimation="True"
-                             From="0"
-                             To="1"
-                             Duration="0:0:0.5"
-                             Storyboard.TargetProperty="Opacity"
-                             Storyboard.TargetName="PhotoFlip"/>
-        </Storyboard>
     </Page.Resources>
 
     <Grid>
@@ -61,9 +53,9 @@
         </CommandBar>
         <FlipView x:Name="PhotoFlip"
                   Grid.Row="1"
-                  Opacity="0"
+                  Background="Transparent"
                   ItemsSource="{x:Bind PhotoCollection}"
-                  Background="Transparent">
+                  SelectionChanged="PhotoFlip_SelectionChanged">
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="Cls:PhotoDisplayItem">
                     <Grid>
@@ -98,12 +90,10 @@
             </FlipView.ItemTemplate>
         </FlipView>
 
-        <Grid Grid.Row="2"
-              x:Name="ExtraArea"
-              Visibility="Collapsed">
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
-                <RowDefinition Height="80" />
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <muxc:PipsPager Name="Pips"
                             SelectedPageIndex="{x:Bind PhotoFlip.SelectedIndex,Mode=OneWay}"
@@ -112,9 +102,8 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             SelectedIndexChanged="Pips_SelectedIndexChanged" />
-
             <GridView Name="PhotoGirdView"
-                      MaxWidth="400"
+                      MaxWidth="500"
                       Margin="10"
                       Grid.Row="1"
                       IsRightTapEnabled="True"
@@ -131,20 +120,12 @@
                       ScrollViewer.VerticalScrollBarVisibility="Hidden">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:PhotoDisplayItem">
-                        <Image Width="60"
-                               Height="60"
+                        <Image Width="80"
+                               Height="80"
                                Stretch="Uniform"
                                Source="{x:Bind ThumbnailSource,Mode=OneWay}" />
                     </DataTemplate>
                 </GridView.ItemTemplate>
-                <GridView.ItemContainerStyle>
-                    <Style TargetType="GridViewItem">
-                        <Setter Property="VerticalContentAlignment"
-                                Value="Center" />
-                        <Setter Property="Padding"
-                                Value="0" />
-                    </Style>
-                </GridView.ItemContainerStyle>
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsStackPanel Orientation="Horizontal" />

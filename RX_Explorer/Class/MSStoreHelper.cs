@@ -204,7 +204,7 @@ namespace RX_Explorer.Class
                     ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
 
 #if !DEBUG
-                    if (Package.Current.SignatureKind == PackageSignatureKind.Store)
+                    if (Windows.ApplicationModel.Package.Current.SignatureKind == Windows.ApplicationModel.PackageSignatureKind.Store)
                     {
                         Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
                     }

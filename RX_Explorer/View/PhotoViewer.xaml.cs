@@ -1,5 +1,4 @@
-﻿using AnimationEffectProvider;
-using Microsoft.Toolkit.Uwp.UI;
+﻿using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -28,8 +27,7 @@ namespace RX_Explorer
 {
     public sealed partial class PhotoViewer : Page
     {
-        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
-        private readonly AnimationFlipViewBehavior AnimationBehavior;
+        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
         private CancellationTokenSource Cancellation;
 
         private int LastSelectIndex;
@@ -40,9 +38,6 @@ namespace RX_Explorer
         public PhotoViewer()
         {
             InitializeComponent();
-
-            PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
-            AnimationBehavior = new AnimationFlipViewBehavior();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -58,8 +53,6 @@ namespace RX_Explorer
             try
             {
                 Cancellation = new CancellationTokenSource();
-
-                AnimationBehavior.Attach(PhotoFlip);
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
@@ -78,11 +71,6 @@ namespace RX_Explorer
                                 await Image.SetSourceAsync(RandomStream);
 
                                 PhotoCollection.Add(new PhotoDisplayItem(Image));
-                            }
-
-                            if (!Cancellation.IsCancellationRequested)
-                            {
-                                EnterAnimation.Begin();
                             }
                         }
                         else
@@ -104,11 +92,22 @@ namespace RX_Explorer
                             return Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase);
                         });
 
-                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
+                        if (SearchResult.Count > 0)
+                        {
+                            Pips.NumberOfPages = SearchResult.Count;
 
-                        FileSystemStorageFile[] PictureFileList = SortCollectionGenerator.GetSortedCollection(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()).ToArray();
+                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(Path.GetDirectoryName(File.Path));
+                            List<FileSystemStorageFile> PictureFileList = SortCollectionGenerator.GetSortedCollection(SearchResult.Cast<FileSystemStorageFile>(), Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()).ToList();
 
-                        if (PictureFileList.Length == 0)
+                            PhotoCollection.AddRange(PictureFileList.Select((Item) => new PhotoDisplayItem(Item)));
+                            PhotoFlip.SelectedIndex = Math.Max(0, PictureFileList.IndexOf(File));
+
+                            if (PhotoFlip.SelectedIndex == 0)
+                            {
+                                await PhotoCollection[0].GenerateActualSourceAsync();
+                            }
+                        }
+                        else
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -120,30 +119,6 @@ namespace RX_Explorer
                             await Dialog.ShowAsync();
 
                             Frame.GoBack();
-                        }
-                        else
-                        {
-                            Pips.NumberOfPages = PictureFileList.Length;
-                            ExtraArea.Visibility = Visibility.Visible;
-
-                            int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase));
-
-                            if (LastSelectIndex < 0 || LastSelectIndex > PictureFileList.Length - 1)
-                            {
-                                LastSelectIndex = 0;
-                            }
-
-                            PhotoCollection.AddRange(PictureFileList.Select((Item) => new PhotoDisplayItem(Item)));
-
-                            await PhotoCollection[LastSelectIndex].GenerateActualSourceAsync();
-
-                            if (!Cancellation.IsCancellationRequested)
-                            {
-                                PhotoFlip.SelectedIndex = LastSelectIndex;
-                                PhotoFlip.SelectionChanged += Flip_SelectionChanged;
-
-                                EnterAnimation.Begin();
-                            }
                         }
                     }
                     else
@@ -162,46 +137,35 @@ namespace RX_Explorer
         {
             if (e.NavigationMode == NavigationMode.Back)
             {
-                PhotoFlip.SelectionChanged -= Flip_SelectionChanged;
-
                 Cancellation?.Cancel();
                 Cancellation?.Dispose();
-                AnimationBehavior.Detach();
                 PhotoCollection.Clear();
-
-                PhotoFlip.Opacity = 0;
-                ExtraArea.Visibility = Visibility.Collapsed;
             }
         }
 
-        private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void PhotoFlip_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int CurrentIndex = PhotoFlip.SelectedIndex;
-
-            if (CurrentIndex >= 0 && CurrentIndex < PhotoCollection.Count)
+            foreach (PhotoDisplayItem Item in e.AddedItems)
             {
-                try
+                int CurrentIndex = PhotoCollection.IndexOf(Item);
+
+                if (CurrentIndex >= 0 && CurrentIndex < PhotoCollection.Count)
                 {
-                    AnimationBehavior.InitAnimation(InitOption.AroundImage);
-
-                    int CurrentLoadingThumbnail;
-
-                    if (Interlocked.Exchange(ref LastSelectIndex, CurrentIndex) < CurrentIndex)
+                    try
                     {
-                        CurrentLoadingThumbnail = Convert.ToInt32(Math.Min(CurrentIndex + 4, PhotoCollection.Count - 1));
-                        PhotoFlip.ContainerFromIndex(Math.Max(CurrentIndex - 1, 0))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
-                    }
-                    else
-                    {
-                        CurrentLoadingThumbnail = Convert.ToInt32(Math.Max(CurrentIndex - 4, 0));
-                        PhotoFlip.ContainerFromIndex(Math.Min(CurrentIndex + 1, PhotoCollection.Count - 1))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
-                    }
+                        int LastIndex = Interlocked.Exchange(ref LastSelectIndex, CurrentIndex);
 
-                    await PhotoCollection[CurrentIndex].GenerateActualSourceAsync();
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not load the image on selection changed");
+                        if (LastIndex >= 0 && LastIndex < PhotoCollection.Count)
+                        {
+                            PhotoFlip.ContainerFromIndex(LastIndex)?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                        }
+
+                        await PhotoCollection[CurrentIndex].GenerateActualSourceAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not load the image on selection changed");
+                    }
                 }
             }
         }
@@ -236,9 +200,7 @@ namespace RX_Explorer
 
                     if (Point.Properties.IsLeftButtonPressed)
                     {
-                        Point Position = Point.Position;
-
-                        Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Position.Y), null);
+                        Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Point.Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Point.Position.Y), null);
                     }
                 }
             }
@@ -352,23 +314,24 @@ namespace RX_Explorer
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (PhotoFlip.SelectedItem is PhotoDisplayItem Item)
             {
-                PhotoDisplayItem Item = PhotoCollection[PhotoFlip.SelectedIndex];
-                await Item.PhotoFile.DeleteAsync(true);
-                PhotoCollection.Remove(Item);
-                AnimationBehavior.InitAnimation(InitOption.Full);
-            }
-            catch (Exception)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
+                try
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                    PhotoCollection.Remove(Item);
+                    await Item.PhotoFile.DeleteAsync(true);
+                }
+                catch (Exception)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
+                }
             }
         }
 
@@ -477,7 +440,7 @@ namespace RX_Explorer
             {
                 if (args.Item is PhotoDisplayItem Item)
                 {
-                    await Item.GenerateThumbnailAsync();
+                    await Item.GenerateThumbnailAsync().ConfigureAwait(false);
                 }
             }
         }
