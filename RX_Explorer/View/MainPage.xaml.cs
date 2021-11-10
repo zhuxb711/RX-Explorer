@@ -90,10 +90,9 @@ namespace RX_Explorer
 
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
-            if (Package.Current.IsDevelopmentMode)
-            {
-                AppName.Text += $" ({Globalization.GetString("Development_Version")})";
-            }
+#if DEBUG
+            AppName.Text += $" ({Globalization.GetString("Development_Version")})";
+#endif
 
             NavView.RegisterPropertyChangedCallback(NavigationView.PaneDisplayModeProperty, new DependencyPropertyChangedCallback(OnPaneDisplayModeChanged));
             NavView.PaneDisplayMode = SettingPage.LayoutMode;

@@ -12,125 +12,77 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    /// <summary>
-    /// 为图片查看提供支持
-    /// </summary>
-    public sealed class PhotoDisplaySupport : INotifyPropertyChanged
+    public sealed class PhotoDisplayItem : INotifyPropertyChanged
     {
-        /// <summary>
-        /// 获取Bitmap图片对象
-        /// </summary>
-        public BitmapImage BitmapSource { get; private set; }
+        public BitmapImage ActualSource { get; private set; }
 
-        /// <summary>
-        /// 获取Photo文件名称
-        /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return PhotoFile.Name;
-            }
-        }
+        public BitmapImage ThumbnailSource { get; private set; }
 
-        /// <summary>
-        /// 指示当前的显示是否是缩略图
-        /// </summary>
-        private bool IsThumbnailPicture = true;
+        public string FileName => PhotoFile.Name;
 
-        private bool IsErrorWhenGenerateBitmap;
-
-        /// <summary>
-        /// 旋转角度
-        /// </summary>
         public int RotateAngle { get; set; }
 
-        /// <summary>
-        /// 获取Photo的StorageFile对象
-        /// </summary>
-        public FileSystemStorageFile PhotoFile { get; private set; }
+        public bool IsErrorInLoading { get; private set; }
+
+        public FileSystemStorageFile PhotoFile { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>
-        /// 初始化PhotoDisplaySupport的实例
-        /// </summary>
-        /// <param name="ImageSource">缩略图</param>
-        /// <param name="File">文件</param>
-        public PhotoDisplaySupport(FileSystemStorageFile Item)
+        public PhotoDisplayItem(FileSystemStorageFile Item)
         {
             PhotoFile = Item;
         }
 
-        public PhotoDisplaySupport(BitmapImage Image)
+        public PhotoDisplayItem(BitmapImage Image)
         {
-            BitmapSource = Image;
-            IsThumbnailPicture = false;
+            ActualSource = Image;
         }
 
-        /// <summary>
-        /// 使用原图替换缩略图
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> ReplaceThumbnailBitmapAsync()
+        public async Task GenerateActualSourceAsync()
         {
-            if (IsThumbnailPicture || IsErrorWhenGenerateBitmap)
+            if (ActualSource == null)
             {
-                IsThumbnailPicture = false;
-
                 try
                 {
+                    BitmapImage TempImage = new BitmapImage();
+
                     using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                     {
-                        if (BitmapSource == null)
-                        {
-                            BitmapSource = new BitmapImage();
-                        }
-
-                        await BitmapSource.SetSourceAsync(Stream);
+                        await TempImage.SetSourceAsync(Stream);
                     }
 
-                    OnPropertyChanged(nameof(BitmapSource));
+                    ActualSource = TempImage;
+
+                    OnPropertyChanged(nameof(ActualSource));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    IsErrorWhenGenerateBitmap = true;
-                    return false;
+                    LogTracer.Log(ex, "Could not get the image data from file");
+                    IsErrorInLoading = true;
+                    OnPropertyChanged(nameof(IsErrorInLoading));
                 }
             }
-
-            return true;
         }
 
         public async Task GenerateThumbnailAsync()
         {
-            if (BitmapSource == null)
+            if (ThumbnailSource == null)
             {
                 try
                 {
                     if ((await PhotoFile.GetStorageItemAsync()) is StorageFile File)
                     {
-                        BitmapSource = new BitmapImage();
-
-                        using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
-                        {
-                            await BitmapSource.SetSourceAsync(ThumbnailStream);
-                        }
-
-                        OnPropertyChanged(nameof(BitmapSource));
+                        ThumbnailSource = await File.GetThumbnailBitmapAsync(ThumbnailMode.PicturesView);
+                        OnPropertyChanged(nameof(ThumbnailSource));
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    BitmapSource = new BitmapImage(new Uri("ms-appx:///Assets/AlphaPNG.png"));
+                    LogTracer.Log(ex, "Could not get the thumbnail data from file");
                 }
             }
         }
 
-        /// <summary>
-        /// 根据RotateAngle的值来旋转图片
-        /// </summary>
-        /// <returns></returns>
         public async Task<SoftwareBitmap> GenerateImageWithRotation()
         {
             try

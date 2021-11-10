@@ -154,18 +154,28 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not open .pdf file");
-
-                QueueContentDialog Dialog = new QueueContentDialog
+                try
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                };
+                    LogTracer.Log(ex, "Could not open .pdf file");
 
-                await Dialog.ShowAsync();
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                    };
 
-                Frame.GoBack();
+                    await Dialog.ShowAsync();
+
+                    if (Frame.CanGoBack)
+                    {
+                        Frame.GoBack();
+                    }
+                }
+                catch (Exception Ex)
+                {
+                    LogTracer.Log(Ex, "Exception was threw when exiting the PDF Viewer");
+                }
             }
             finally
             {

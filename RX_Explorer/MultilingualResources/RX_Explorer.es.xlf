@@ -4267,6 +4267,106 @@ Las denominaciones no válidas son:
           <source>List of translation contributors</source>
           <target state="translated">Lista de contribuyentes de traducción</target>
         </trans-unit>
+        <trans-unit id="AlwaysOnTopDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will keep this app at the forefront of all windows</source>
+          <target state="translated">Habilitar esta opción mantendrá esta aplicación a la vanguardia de todas las ventanas</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>The app will start automatically with Windows starts after enabling this option</source>
+          <target state="translated">La aplicación se iniciará automáticamente con Windows se inicia después de habilitar esta opción</target>
+        </trans-unit>
+        <trans-unit id="AvoidRecycleBinDescription.Text" translate="yes" xml:space="preserve">
+          <source>The file will be deleted permanently after enabling this option, please pay special attention to the risk of data loss</source>
+          <target state="translated">El archivo se eliminará de forma permanente después de habilitar esta opción, preste especial atención al riesgo de pérdida de datos</target>
+        </trans-unit>
+        <trans-unit id="DefaultDisplayModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the preferred layout mode for all folders, unless the user has changed the layout mode of the path</source>
+          <target state="translated">Especifique el modo de diseño preferido para todas las carpetas, a menos que el usuario haya cambiado el modo de diseño de la ruta.</target>
+        </trans-unit>
+        <trans-unit id="DefaultTerminalDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the default terminal application used in the context menu</source>
+          <target state="translated">Especifique la aplicación de terminal predeterminada utilizada en el menú contextual</target>
+        </trans-unit>
+        <trans-unit id="DeleteConfirmSwitchDescription.Text" translate="yes" xml:space="preserve">
+          <source>A double confirmation dialog will pop up when the user deletes the file</source>
+          <target state="translated">Aparecerá un cuadro de diálogo de confirmación doble cuando el usuario elimine el archivo.</target>
+        </trans-unit>
+        <trans-unit id="FileLoadModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Balance file loading performance based on different options</source>
+          <target state="translated">Equilibrar el rendimiento de carga de archivos en función de diferentes opciones</target>
+        </trans-unit>
+        <trans-unit id="FontFamilyComboBoxDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the font used by the application, need to restart to take effect</source>
+          <target state="translated">Especifique la fuente utilizada por la aplicación, es necesario reiniciar para que surta efecto</target>
+        </trans-unit>
+        <trans-unit id="LanguageComboBoxDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the language used by the application, need to restart to take effect</source>
+          <target state="translated">Especifique el idioma utilizado por la aplicación, es necesario reiniciar para que surta efecto</target>
+        </trans-unit>
+        <trans-unit id="PrivacyPolicyDescription.Text" translate="yes" xml:space="preserve">
+          <source>View the privacy policy of this application</source>
+          <target state="translated">Ver la política de privacidad de esta aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItemDescription.Text" translate="yes" xml:space="preserve">
+          <source>Hidden files will be shown after enabling this option</source>
+          <target state="translated">Los archivos ocultos se mostrarán después de habilitar esta opción</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethodDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the appropriate operating habits according to your preferences</source>
+          <target state="translated">Elija los hábitos operativos adecuados según sus preferencias</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItemsDescription.Text" translate="yes" xml:space="preserve">
+          <source>It is strongly recommended to keep this option selected, system files should not be modified or moved</source>
+          <target state="translated">Se recomienda encarecidamente mantener esta opción seleccionada, los archivos del sistema no deben modificarse ni moverse</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayoutDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control the layout of the navigation view</source>
+          <target state="translated">Controlar el diseño de la vista de navegación</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysLaunchNewDescription.Text" translate="yes" xml:space="preserve">
+          <source>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</source>
+          <target state="translated">[Win+E] siempre abrirá un nuevo proceso después de habilitar esta opción, de lo contrario [Win+E] solo abrirá una nueva pestaña</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAnimationSwitchDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control whether animation effects are enabled for each component in the application</source>
+          <target state="translated">Controlar si los efectos de animación están habilitados para cada componente de la aplicación</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtDescription.Text" translate="yes" xml:space="preserve">
+          <source>The menu items of third-party programs in the system will be obtained after enabling this option. Note: This option will have a significant impact on the pop-up speed of the context menu</source>
+          <target state="translated">Los elementos del menú de programas de terceros en el sistema se obtendrán después de habilitar esta opción. Nota: esta opción tendrá un impacto significativo en la velocidad emergente del menú contextual</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSearchEngineConfigDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify search engine configuration, you can always use a specific configuration or ask every time</source>
+          <target state="translated">Especifique la configuración del motor de búsqueda, siempre puede usar una configuración específica o preguntar cada vez</target>
+        </trans-unit>
+        <trans-unit id="SettingPageUIModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Customize the appearance of the application</source>
+          <target state="translated">Personaliza la apariencia de la aplicación.</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistoryDescription.Text" translate="yes" xml:space="preserve">
+          <source>The last 25 visit records will be saved after enabling this option</source>
+          <target state="translated">Los últimos 25 registros de visitas se guardarán después de habilitar esta opción.</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistoryDescription.Text" translate="yes" xml:space="preserve">
+          <source>The last 25 search records will be saved after enabling this option</source>
+          <target state="translated">Los últimos 25 registros de búsqueda se guardarán después de habilitar esta opción</target>
+        </trans-unit>
+        <trans-unit id="SettingStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control the behavior at startup</source>
+          <target state="translated">Controla el comportamiento al inicio</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreviewDescription.Text" translate="yes" xml:space="preserve">
+          <source>A preview of the tab will be displayed when the mouse hovers over the title after enabling this option</source>
+          <target state="translated">Se mostrará una vista previa de la pestaña cuando el mouse se desplace sobre el título después de habilitar esta opción</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetachDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control whether to display the folder tree located on the left side of the page</source>
+          <target state="translated">Controlar si mostrar el árbol de carpetas ubicado en el lado izquierdo de la página</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivateDescription.Text" translate="yes" xml:space="preserve">
+          <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
+          <target state="translated">El acceso directo [Win+E] será interceptado y redirigido a esta aplicación después de habilitar esta opción.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3215,4 +3215,79 @@ Las denominaciones no válidas son:
   <data name="TranslatorList.Text" xml:space="preserve">
     <value>Lista de contribuyentes de traducción</value>
   </data>
+  <data name="AlwaysOnTopDescription.Text" xml:space="preserve">
+    <value>Habilitar esta opción mantendrá esta aplicación a la vanguardia de todas las ventanas</value>
+  </data>
+  <data name="AutoBootOnStartupDescription.Text" xml:space="preserve">
+    <value>La aplicación se iniciará automáticamente con Windows se inicia después de habilitar esta opción</value>
+  </data>
+  <data name="AvoidRecycleBinDescription.Text" xml:space="preserve">
+    <value>El archivo se eliminará de forma permanente después de habilitar esta opción, preste especial atención al riesgo de pérdida de datos</value>
+  </data>
+  <data name="DefaultDisplayModeDescription.Text" xml:space="preserve">
+    <value>Especifique el modo de diseño preferido para todas las carpetas, a menos que el usuario haya cambiado el modo de diseño de la ruta.</value>
+  </data>
+  <data name="DefaultTerminalDescription.Text" xml:space="preserve">
+    <value>Especifique la aplicación de terminal predeterminada utilizada en el menú contextual</value>
+  </data>
+  <data name="DeleteConfirmSwitchDescription.Text" xml:space="preserve">
+    <value>Aparecerá un cuadro de diálogo de confirmación doble cuando el usuario elimine el archivo.</value>
+  </data>
+  <data name="FileLoadModeDescription.Text" xml:space="preserve">
+    <value>Equilibrar el rendimiento de carga de archivos en función de diferentes opciones</value>
+  </data>
+  <data name="FontFamilyComboBoxDescription.Text" xml:space="preserve">
+    <value>Especifique la fuente utilizada por la aplicación, es necesario reiniciar para que surta efecto</value>
+  </data>
+  <data name="LanguageComboBoxDescription.Text" xml:space="preserve">
+    <value>Especifique el idioma utilizado por la aplicación, es necesario reiniciar para que surta efecto</value>
+  </data>
+  <data name="PrivacyPolicyDescription.Text" xml:space="preserve">
+    <value>Ver la política de privacidad de esta aplicación</value>
+  </data>
+  <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
+    <value>Los archivos ocultos se mostrarán después de habilitar esta opción</value>
+  </data>
+  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+    <value>Elija los hábitos operativos adecuados según sus preferencias</value>
+  </data>
+  <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
+    <value>Se recomienda encarecidamente mantener esta opción seleccionada, los archivos del sistema no deben modificarse ni moverse</value>
+  </data>
+  <data name="SettingNavLayoutDescription.Text" xml:space="preserve">
+    <value>Controlar el diseño de la vista de navegación</value>
+  </data>
+  <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
+    <value>[Win+E] siempre abrirá un nuevo proceso después de habilitar esta opción, de lo contrario [Win+E] solo abrirá una nueva pestaña</value>
+  </data>
+  <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
+    <value>Controlar si los efectos de animación están habilitados para cada componente de la aplicación</value>
+  </data>
+  <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
+    <value>Los elementos del menú de programas de terceros en el sistema se obtendrán después de habilitar esta opción. Nota: esta opción tendrá un impacto significativo en la velocidad emergente del menú contextual</value>
+  </data>
+  <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
+    <value>Especifique la configuración del motor de búsqueda, siempre puede usar una configuración específica o preguntar cada vez</value>
+  </data>
+  <data name="SettingPageUIModeDescription.Text" xml:space="preserve">
+    <value>Personaliza la apariencia de la aplicación.</value>
+  </data>
+  <data name="SettingPathHistoryDescription.Text" xml:space="preserve">
+    <value>Los últimos 25 registros de visitas se guardarán después de habilitar esta opción.</value>
+  </data>
+  <data name="SettingSearchHistoryDescription.Text" xml:space="preserve">
+    <value>Los últimos 25 registros de búsqueda se guardarán después de habilitar esta opción</value>
+  </data>
+  <data name="SettingStartupDescription.Text" xml:space="preserve">
+    <value>Controla el comportamiento al inicio</value>
+  </data>
+  <data name="SettingTabPreviewDescription.Text" xml:space="preserve">
+    <value>Se mostrará una vista previa de la pestaña cuando el mouse se desplace sobre el título después de habilitar esta opción</value>
+  </data>
+  <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
+    <value>Controlar si mostrar el árbol de carpetas ubicado en el lado izquierdo de la página</value>
+  </data>
+  <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
+    <value>El acceso directo [Win+E] será interceptado y redirigido a esta aplicación después de habilitar esta opción.</value>
+  </data>
 </root>

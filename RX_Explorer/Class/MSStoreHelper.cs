@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Services.Store;
 using Windows.Storage;
 
@@ -204,10 +203,12 @@ namespace RX_Explorer.Class
                     License = Store.GetAppLicenseAsync().AsTask().Result;
                     ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
 
-                    if (!Package.Current.IsDevelopmentMode && Package.Current.SignatureKind == PackageSignatureKind.Store)
+#if !DEBUG
+                    if (Package.Current.SignatureKind == PackageSignatureKind.Store)
                     {
                         Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
                     }
+#endif
                 }
                 catch (Exception ex)
                 {

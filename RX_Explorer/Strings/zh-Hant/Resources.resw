@@ -3215,4 +3215,79 @@
   <data name="TranslatorList.Text" xml:space="preserve">
     <value>翻譯貢獻者名單</value>
   </data>
+  <data name="AlwaysOnTopDescription.Text" xml:space="preserve">
+    <value>啟用此選項將使此應用程序位於所有窗口的最前面</value>
+  </data>
+  <data name="AutoBootOnStartupDescription.Text" xml:space="preserve">
+    <value>啟用此選項後，該應用程序將隨 Windows 啟動而自動啟動</value>
+  </data>
+  <data name="AvoidRecycleBinDescription.Text" xml:space="preserve">
+    <value>啟用此選項後文件將被永久刪除，請特別注意數據丟失風險</value>
+  </data>
+  <data name="DefaultDisplayModeDescription.Text" xml:space="preserve">
+    <value>為所有文件夾指定首選佈局模式，除非用戶更改了路徑的佈局模式</value>
+  </data>
+  <data name="DefaultTerminalDescription.Text" xml:space="preserve">
+    <value>指定上下文菜單中使用的默認終端應用程序</value>
+  </data>
+  <data name="DeleteConfirmSwitchDescription.Text" xml:space="preserve">
+    <value>用戶刪除文件時會彈出雙重確認對話框</value>
+  </data>
+  <data name="FileLoadModeDescription.Text" xml:space="preserve">
+    <value>根據不同的選項平衡文件加載性能</value>
+  </data>
+  <data name="FontFamilyComboBoxDescription.Text" xml:space="preserve">
+    <value>指定應用程序使用的字體，需要重啟生效</value>
+  </data>
+  <data name="LanguageComboBoxDescription.Text" xml:space="preserve">
+    <value>指定應用程序使用的語言，需要重啟生效</value>
+  </data>
+  <data name="PrivacyPolicyDescription.Text" xml:space="preserve">
+    <value>查看此應用程序的隱私政策</value>
+  </data>
+  <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
+    <value>啟用此選項後將顯示隱藏文件</value>
+  </data>
+  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+    <value>根據自己的喜好選擇合適的操作習慣</value>
+  </data>
+  <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
+    <value>強烈建議保持選中此選項，不應修改或移動系統文件</value>
+  </data>
+  <data name="SettingNavLayoutDescription.Text" xml:space="preserve">
+    <value>控制導航視圖的佈局</value>
+  </data>
+  <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
+    <value>[Win+E]開啟此選項後會一直打開新進程，否則[Win+E]只會打開新標籤頁</value>
+  </data>
+  <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
+    <value>控制是否為應用中的每個組件啟用動畫效果</value>
+  </data>
+  <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
+    <value>啟用該選項後，將獲得系統中第三方程序的菜單項。 注意：這個選項會對上下文菜單的彈出速度有很大的影響</value>
+  </data>
+  <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
+    <value>指定搜索引擎配置，您可以一直使用特定配置或每次詢問</value>
+  </data>
+  <data name="SettingPageUIModeDescription.Text" xml:space="preserve">
+    <value>自定義應用程序的外觀</value>
+  </data>
+  <data name="SettingPathHistoryDescription.Text" xml:space="preserve">
+    <value>啟用此選項後將保存最近25條訪問記錄</value>
+  </data>
+  <data name="SettingSearchHistoryDescription.Text" xml:space="preserve">
+    <value>啟用此選項後將保存最近25條搜索記錄</value>
+  </data>
+  <data name="SettingStartupDescription.Text" xml:space="preserve">
+    <value>控制啟動時的行為</value>
+  </data>
+  <data name="SettingTabPreviewDescription.Text" xml:space="preserve">
+    <value>啟用此選項後，當鼠標懸停在標題上時，將顯示選項卡的預覽</value>
+  </data>
+  <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
+    <value>控制是否顯示位於頁面左側的文件夾樹</value>
+  </data>
+  <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
+    <value>啟用該選項後，快捷鍵[Win+E]將被攔截並重定向到該應用程序</value>
+  </data>
 </root>

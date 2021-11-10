@@ -28,7 +28,7 @@ namespace RX_Explorer
 {
     public sealed partial class PhotoViewer : Page
     {
-        private readonly ObservableCollection<PhotoDisplaySupport> PhotoCollection;
+        private readonly ObservableCollection<PhotoDisplayItem> PhotoCollection;
         private readonly AnimationFlipViewBehavior AnimationBehavior;
         private CancellationTokenSource Cancellation;
 
@@ -41,7 +41,7 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
+            PhotoCollection = new ObservableCollection<PhotoDisplayItem>();
             AnimationBehavior = new AnimationFlipViewBehavior();
         }
 
@@ -59,7 +59,7 @@ namespace RX_Explorer
             {
                 Cancellation = new CancellationTokenSource();
 
-                AnimationBehavior.Attach(Flip);
+                AnimationBehavior.Attach(PhotoFlip);
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
@@ -77,7 +77,7 @@ namespace RX_Explorer
                                 BitmapImage Image = new BitmapImage();
                                 await Image.SetSourceAsync(RandomStream);
 
-                                PhotoCollection.Add(new PhotoDisplaySupport(Image));
+                                PhotoCollection.Add(new PhotoDisplayItem(Image));
                             }
 
                             if (!Cancellation.IsCancellationRequested)
@@ -124,7 +124,7 @@ namespace RX_Explorer
                         else
                         {
                             Pips.NumberOfPages = PictureFileList.Length;
-                            Pips.Visibility = Visibility.Visible;
+                            ExtraArea.Visibility = Visibility.Visible;
 
                             int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase));
 
@@ -133,25 +133,14 @@ namespace RX_Explorer
                                 LastSelectIndex = 0;
                             }
 
-                            foreach (PhotoDisplaySupport Photo in PictureFileList.Select((Item) => new PhotoDisplaySupport(Item)))
-                            {
-                                PhotoCollection.Add(Photo);
-                            }
+                            PhotoCollection.AddRange(PictureFileList.Select((Item) => new PhotoDisplayItem(Item)));
 
-                            if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync())
-                            {
-                                CouldnotLoadTip.Visibility = Visibility.Visible;
-                            }
-
-                            for (int i = Math.Max(LastSelectIndex - 4, 0); i < Math.Min(LastSelectIndex + 4, PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
-                            {
-                                await PhotoCollection[i].GenerateThumbnailAsync();
-                            }
+                            await PhotoCollection[LastSelectIndex].GenerateActualSourceAsync();
 
                             if (!Cancellation.IsCancellationRequested)
                             {
-                                Flip.SelectedIndex = LastSelectIndex;
-                                Flip.SelectionChanged += Flip_SelectionChanged;
+                                PhotoFlip.SelectedIndex = LastSelectIndex;
+                                PhotoFlip.SelectionChanged += Flip_SelectionChanged;
 
                                 EnterAnimation.Begin();
                             }
@@ -165,7 +154,6 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                CouldnotLoadTip.Visibility = Visibility.Visible;
                 LogTracer.Log(ex, "An error was threw when initialize PhotoViewer");
             }
         }
@@ -174,28 +162,26 @@ namespace RX_Explorer
         {
             if (e.NavigationMode == NavigationMode.Back)
             {
-                Flip.SelectionChanged -= Flip_SelectionChanged;
+                PhotoFlip.SelectionChanged -= Flip_SelectionChanged;
 
                 Cancellation?.Cancel();
                 Cancellation?.Dispose();
                 AnimationBehavior.Detach();
                 PhotoCollection.Clear();
 
-                Flip.Opacity = 0;
-                Pips.Visibility = Visibility.Collapsed;
+                PhotoFlip.Opacity = 0;
+                ExtraArea.Visibility = Visibility.Collapsed;
             }
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int CurrentIndex = Flip.SelectedIndex;
+            int CurrentIndex = PhotoFlip.SelectedIndex;
 
             if (CurrentIndex >= 0 && CurrentIndex < PhotoCollection.Count)
             {
                 try
                 {
-                    CouldnotLoadTip.Visibility = Visibility.Collapsed;
-
                     AnimationBehavior.InitAnimation(InitOption.AroundImage);
 
                     int CurrentLoadingThumbnail;
@@ -203,21 +189,15 @@ namespace RX_Explorer
                     if (Interlocked.Exchange(ref LastSelectIndex, CurrentIndex) < CurrentIndex)
                     {
                         CurrentLoadingThumbnail = Convert.ToInt32(Math.Min(CurrentIndex + 4, PhotoCollection.Count - 1));
-                        Flip.ContainerFromIndex(Math.Max(CurrentIndex - 1, 0))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                        PhotoFlip.ContainerFromIndex(Math.Max(CurrentIndex - 1, 0))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
                     }
                     else
                     {
                         CurrentLoadingThumbnail = Convert.ToInt32(Math.Max(CurrentIndex - 4, 0));
-                        Flip.ContainerFromIndex(Math.Min(CurrentIndex + 1, PhotoCollection.Count - 1))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                        PhotoFlip.ContainerFromIndex(Math.Min(CurrentIndex + 1, PhotoCollection.Count - 1))?.FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
                     }
 
-                    if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync()
-                        && CurrentIndex == LastSelectIndex)
-                    {
-                        CouldnotLoadTip.Visibility = Visibility.Visible;
-                    }
-
-                    await PhotoCollection[CurrentLoadingThumbnail].GenerateThumbnailAsync();
+                    await PhotoCollection[CurrentIndex].GenerateActualSourceAsync();
                 }
                 catch (Exception ex)
                 {
@@ -291,9 +271,9 @@ namespace RX_Explorer
 
         private async void ImageRotate_Click(object sender, RoutedEventArgs e)
         {
-            PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
+            PhotoDisplayItem Item = PhotoCollection[PhotoFlip.SelectedIndex];
 
-            if (Flip.ContainerFromItem(Item) is FlipViewItem Container
+            if (PhotoFlip.ContainerFromItem(Item) is FlipViewItem Container
                 && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
             {
                 VisualExtensions.SetNormalizedCenterPoint(Viewer, "0.5");
@@ -350,7 +330,7 @@ namespace RX_Explorer
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageFile Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
+            FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
 
             TranscodeImageDialog Dialog = null;
             using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
@@ -374,7 +354,7 @@ namespace RX_Explorer
         {
             try
             {
-                PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
+                PhotoDisplayItem Item = PhotoCollection[PhotoFlip.SelectedIndex];
                 await Item.PhotoFile.DeleteAsync(true);
                 PhotoCollection.Remove(Item);
                 AnimationBehavior.InitAnimation(InitOption.Full);
@@ -398,11 +378,11 @@ namespace RX_Explorer
             {
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    Frame.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
+                    Frame.Navigate(typeof(CropperPage), PhotoFlip.SelectedItem, new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    Frame.Navigate(typeof(CropperPage), Flip.SelectedItem, new SuppressNavigationTransitionInfo());
+                    Frame.Navigate(typeof(CropperPage), PhotoFlip.SelectedItem, new SuppressNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -428,7 +408,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (Flip.SelectedItem is PhotoDisplaySupport Photo)
+                    if (PhotoFlip.SelectedItem is PhotoDisplayItem Photo)
                     {
                         if (await Photo.PhotoFile.GetStorageItemAsync() is StorageFile File)
                         {
@@ -488,6 +468,42 @@ namespace RX_Explorer
                 };
 
                 _ = await Dialog.ShowAsync().ConfigureAwait(false);
+            }
+        }
+
+        private async void PhotoGirdView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (!args.InRecycleQueue)
+            {
+                if (args.Item is PhotoDisplayItem Item)
+                {
+                    await Item.GenerateThumbnailAsync();
+                }
+            }
+        }
+
+        private async void PhotoGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PhotoGirdView.SelectedIndex >= 0)
+            {
+                PhotoFlip.SelectedIndex = PhotoGirdView.SelectedIndex;
+
+                if (PhotoGirdView.IsLoaded)
+                {
+                    await PhotoGirdView.SmoothScrollIntoViewWithIndexAsync(PhotoGirdView.SelectedIndex, ScrollItemPlacement.Center);
+                }
+                else
+                {
+                    PhotoGirdView.ScrollIntoView(PhotoCollection[PhotoGirdView.SelectedIndex], ScrollIntoViewAlignment.Leading);
+                }
+            }
+        }
+
+        private void Pips_SelectedIndexChanged(Microsoft.UI.Xaml.Controls.PipsPager sender, Microsoft.UI.Xaml.Controls.PipsPagerSelectedIndexChangedEventArgs args)
+        {
+            if (sender.SelectedPageIndex >= 0)
+            {
+                PhotoFlip.SelectedIndex = sender.SelectedPageIndex;
             }
         }
     }

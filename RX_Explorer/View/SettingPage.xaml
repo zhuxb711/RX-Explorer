@@ -189,6 +189,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingTreeViewDetachDescription"
                                                            Text="控制是否显示位于页面左侧的目录树" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
@@ -220,6 +221,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingNavLayoutDescription"
                                                            Text="控制导航栏布局位置" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="左侧"
@@ -252,6 +254,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingTabPreviewDescription"
                                                            Text="启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
@@ -287,7 +290,8 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
-                                                               Text="启用此选项后将显示隐藏文件" />
+                                                               Text="启用此选项后将显示隐藏文件"
+                                                               x:Uid="SettingDisplayHiddenItemDescription"/>
                                                 </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
@@ -312,6 +316,7 @@
                                                                    TextTrimming="CharacterEllipsis"
                                                                    x:Uid="SettingHideProtectedSystemItems" />
                                                         <TextBlock Text="强烈建议保持此项选中，系统文件不应被修改或移动"
+                                                                   x:Uid="SettingHideProtectedSystemItemsDescription"
                                                                    FontSize="12"
                                                                    Foreground="Gray"
                                                                    TextTrimming="CharacterEllipsis"
@@ -341,6 +346,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingFolderOpenMethodDescription"
                                                            Text="根据您的喜好选择符合的操作习惯" />
                                             </StackPanel>
                                             <ComboBox x:Uid="SettingFolderOpenMethod"
@@ -372,7 +378,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="指定应用使用的语言，更改后需要重启以生效" />
+                                                           x:Uid="LanguageComboBoxDescription"
+                                                           Text="指定应用使用的语言，需要重启以生效" />
                                             </StackPanel>
                                             <ComboBox MinWidth="180"
                                                       Name="LanguageComboBox"
@@ -409,7 +416,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="指定应用使用的字体，更改后需要重启以生效" />
+                                                           x:Uid="FontFamilyComboBoxDescription"
+                                                           Text="指定应用使用的字体，需要重启以生效" />
                                             </StackPanel>
                                             <ComboBox Width="220"
                                                       x:Uid="FontFamilyComboBox"
@@ -461,7 +469,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="启用此选项后本应用将在Windows启动后自动启动"/>
+                                                           x:Uid="AutoBootOnStartupDescription"
+                                                           Text="启用此选项后本应用将随Windows的启动而自动启动"/>
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
@@ -524,6 +533,7 @@
                                                 <TextBlock Text="启用此选项后将保持此应用置于所有窗口最前方"
                                                            FontSize="12"
                                                            Foreground="Gray"
+                                                           x:Uid="AlwaysOnTopDescription"
                                                            TextTrimming="CharacterEllipsis"
                                                            TextWrapping="WrapWholeWords"/>
                                             </StackPanel>
@@ -555,6 +565,7 @@
                                                 <TextBlock Text="启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响"
                                                            FontSize="12"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingPageContextMenuExtDescription"
                                                            TextTrimming="CharacterEllipsis"
                                                            TextWrapping="WrapWholeWords" />
                                             </StackPanel>
@@ -587,7 +598,8 @@
                                                     <TextBlock Text="使用[Win+E]激活此应用"
                                                                TextTrimming="CharacterEllipsis"
                                                                x:Uid="UseWinAndEActivateLabel" />
-                                                    <TextBlock Text="启用此选项后将拦截系统[Win+E]快捷键调用并重定向至本应用"
+                                                    <TextBlock Text="启用此选项后将拦截[Win+E]快捷键并重定向至本应用"
+                                                               x:Uid="UseWinAndEActivateDescription"
                                                                FontSize="12"
                                                                Foreground="Gray"
                                                                TextTrimming="CharacterEllipsis"
@@ -617,9 +629,10 @@
                                                             <TextBlock Text="激活时始终启动新的进程"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        x:Uid="SettingPageAlwaysLaunchNew"/>
-                                                            <TextBlock Text="启用此选项后Win+E将始终打开一个新的进程，否则Win+E将仅打开一个新的标签页"
+                                                            <TextBlock Text="启用此选项后[Win+E]将始终打开一个新的进程，否则[Win+E]将仅打开一个新的标签页"
                                                                        FontSize="12"
                                                                        Foreground="Gray"
+                                                                       x:Uid="SettingPageAlwaysLaunchNewDescription"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        TextWrapping="WrapWholeWords" />
                                                         </StackPanel>
@@ -707,7 +720,8 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
-                                                               Text="启用此选项后将在用户删除文件时进行二次确认" />
+                                                               x:Uid="DeleteConfirmSwitchDescription"
+                                                               Text="启用此选项后将在用户删除文件时弹出二次确认对话框" />
                                                 </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
@@ -743,6 +757,7 @@
                                                                        TextTrimming="CharacterEllipsis"
                                                                        x:Uid="AvoidRecycleBin" />
                                                             <TextBlock FontSize="12"
+                                                                       x:Uid="AvoidRecycleBinDescription"
                                                                        TextWrapping="WrapWholeWords"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        Foreground="Gray"
@@ -774,7 +789,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="根据选中项的不同，平衡文件加载性能" />
+                                                           x:Uid="FileLoadModeDescription"
+                                                           Text="根据不同选项来平衡文件加载性能" />
                                             </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       x:Uid="FileLoadMode"
@@ -804,7 +820,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="指定所有文件夹的首选布局模式，除非用户已更改当前路径的布局模式" />
+                                                           x:Uid="DefaultDisplayModeDescription"
+                                                           Text="指定所有文件夹的首选布局模式，除非用户已更改路径的布局模式" />
                                             </StackPanel>
                                             <ComboBox MinWidth="200"
                                                       Name="DefaultDisplayMode"
@@ -839,6 +856,7 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
+                                                               x:Uid="DefaultTerminalDescription"
                                                                Text="指定右键菜单中所使用的默认终端应用" />
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal"
@@ -1099,6 +1117,7 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
+                                                               x:Uid="SettingPageSearchEngineConfigDescription"
                                                                Text="指定搜索引擎配置，可始终使用特定配置或每次询问" />
                                                 </StackPanel>
                                                 <ComboBox x:Uid="SettingPageSearchEngineConfig"
@@ -1255,6 +1274,7 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
+                                                               x:Uid="SettingPageAnimationSwitchDescription"
                                                                Text="控制应用内各组件是否启用动画效果" />
                                                 </StackPanel>
                                                 <ToggleSwitch OffContent="禁用"
@@ -1321,7 +1341,8 @@
                                                                TextWrapping="WrapWholeWords"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
-                                                               Text="控制应用全局背景效果" />
+                                                               x:Uid="SettingPageUIModeDescription"
+                                                               Text="自定义应用的外观" />
                                                 </StackPanel>
                                                 <ComboBox Name="UIMode"
                                                           MinWidth="150"
@@ -1674,6 +1695,7 @@
                                                                                           ScrollViewer.HorizontalScrollMode="Enabled"
                                                                                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                                                                           ScrollViewer.VerticalScrollMode="Disabled"
+                                                                                          ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                                                                           SelectionChanged="PictureGirdView_SelectionChanged">
                                                                                     <GridView.ItemTemplate>
                                                                                         <DataTemplate x:DataType="Cls:BackgroundPicture">
@@ -1832,7 +1854,8 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
-                                                           Text="控制启动时的行为" />
+                                                           Text="控制启动时的行为"
+                                                           x:Uid="SettingStartupDescription"/>
                                             </StackPanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
@@ -1976,6 +1999,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="PrivacyPolicyDescription"
                                                            Text="查看本应用的隐私策略" />
                                             </StackPanel>
                                             <Viewbox Name="PrivacyLinkIcon"
@@ -2009,6 +2033,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingPathHistoryDescription"
                                                            Text="启用此选项后将保存最后25条访问记录" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="保存"
@@ -2041,6 +2066,7 @@
                                                            TextWrapping="WrapWholeWords"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
+                                                           x:Uid="SettingSearchHistoryDescription"
                                                            Text="启用此选项后将保存最后25条搜索记录" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="保存"

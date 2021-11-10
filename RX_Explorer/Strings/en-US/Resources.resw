@@ -3320,4 +3320,79 @@ Invalid names include
   <data name="TranslatorList.Text" xml:space="preserve">
     <value>List of translation contributors</value>
   </data>
+  <data name="AlwaysOnTopDescription.Text" xml:space="preserve">
+    <value>Enabling this option will keep this app at the forefront of all windows</value>
+  </data>
+  <data name="AutoBootOnStartupDescription.Text" xml:space="preserve">
+    <value>The app will start automatically with Windows starts after enabling this option</value>
+  </data>
+  <data name="AvoidRecycleBinDescription.Text" xml:space="preserve">
+    <value>The file will be deleted permanently after enabling this option, please pay special attention to the risk of data loss</value>
+  </data>
+  <data name="DefaultDisplayModeDescription.Text" xml:space="preserve">
+    <value>Specify the preferred layout mode for all folders, unless the user has changed the layout mode of the path</value>
+  </data>
+  <data name="DefaultTerminalDescription.Text" xml:space="preserve">
+    <value>Specify the default terminal application used in the context menu</value>
+  </data>
+  <data name="DeleteConfirmSwitchDescription.Text" xml:space="preserve">
+    <value>A double confirmation dialog will pop up when the user deletes the file</value>
+  </data>
+  <data name="FileLoadModeDescription.Text" xml:space="preserve">
+    <value>Balance file loading performance based on different options</value>
+  </data>
+  <data name="FontFamilyComboBoxDescription.Text" xml:space="preserve">
+    <value>Specify the font used by the application, need to restart to take effect</value>
+  </data>
+  <data name="LanguageComboBoxDescription.Text" xml:space="preserve">
+    <value>Specify the language used by the application, need to restart to take effect</value>
+  </data>
+  <data name="PrivacyPolicyDescription.Text" xml:space="preserve">
+    <value>View the privacy policy of this application</value>
+  </data>
+  <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
+    <value>Hidden files will be shown after enabling this option</value>
+  </data>
+  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+    <value>Choose the appropriate operating habits according to your preferences</value>
+  </data>
+  <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
+    <value>It is strongly recommended to keep this option selected, system files should not be modified or moved</value>
+  </data>
+  <data name="SettingNavLayoutDescription.Text" xml:space="preserve">
+    <value>Control the layout of the navigation view</value>
+  </data>
+  <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
+    <value>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</value>
+  </data>
+  <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
+    <value>Control whether animation effects are enabled for each component in the application</value>
+  </data>
+  <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
+    <value>The menu items of third-party programs in the system will be obtained after enabling this option. Note: This option will have a significant impact on the pop-up speed of the context menu</value>
+  </data>
+  <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
+    <value>Specify search engine configuration, you can always use a specific configuration or ask every time</value>
+  </data>
+  <data name="SettingPageUIModeDescription.Text" xml:space="preserve">
+    <value>Customize the appearance of the application</value>
+  </data>
+  <data name="SettingPathHistoryDescription.Text" xml:space="preserve">
+    <value>The last 25 visit records will be saved after enabling this option</value>
+  </data>
+  <data name="SettingSearchHistoryDescription.Text" xml:space="preserve">
+    <value>The last 25 search records will be saved after enabling this option</value>
+  </data>
+  <data name="SettingStartupDescription.Text" xml:space="preserve">
+    <value>Control the behavior at startup</value>
+  </data>
+  <data name="SettingTabPreviewDescription.Text" xml:space="preserve">
+    <value>A preview of the tab will be displayed when the mouse hovers over the title after enabling this option</value>
+  </data>
+  <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
+    <value>Control whether to display the folder tree located on the left side of the page</value>
+  </data>
+  <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
+    <value>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</value>
+  </data>
 </root>

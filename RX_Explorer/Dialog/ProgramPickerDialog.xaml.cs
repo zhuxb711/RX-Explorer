@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.UI;
+using RX_Explorer.Class;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -201,7 +202,7 @@ namespace RX_Explorer.Dialog
                 else if (OtherProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item2)
                 {
                     OtherProgramList.SelectedItem = Item2;
-                    OtherProgramList.ScrollIntoViewSmoothly(Item2);
+                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(Item2);
                 }
                 else if (NotRecommandList.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item3)
                 {
@@ -212,7 +213,7 @@ namespace RX_Explorer.Dialog
                     }
 
                     OtherProgramList.SelectedItem = Item3;
-                    OtherProgramList.ScrollIntoViewSmoothly(Item3);
+                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(Item3);
                 }
                 else
                 {
@@ -220,7 +221,7 @@ namespace RX_Explorer.Dialog
 
                     OtherProgramCollection.Add(NewItem);
                     OtherProgramList.SelectedItem = NewItem;
-                    OtherProgramList.ScrollIntoViewSmoothly(NewItem);
+                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(NewItem);
                 }
 
                 SQLite.Current.AddProgramPickerRecord(new AssociationPackage(OpenFile.Type, ExecutablePath, true));

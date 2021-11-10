@@ -46,7 +46,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (e?.Parameter is PhotoDisplaySupport Item)
+                if (e?.Parameter is PhotoDisplayItem Item)
                 {
                     OriginFile = Item.PhotoFile;
                     OriginImage = await Item.GenerateImageWithRotation();

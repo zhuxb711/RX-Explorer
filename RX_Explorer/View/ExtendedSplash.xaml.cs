@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Windows.System;
@@ -45,10 +44,9 @@ namespace RX_Explorer
 
             Window.Current.SetTitleBar(TitleBar);
 
-            if (Package.Current.IsDevelopmentMode)
-            {
-                AppName.Text += $" ({Globalization.GetString("Development_Version")})";
-            }
+#if DEBUG
+            AppName.Text += $" ({Globalization.GetString("Development_Version")})";
+#endif
 
             Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");
 

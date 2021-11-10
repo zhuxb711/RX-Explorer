@@ -345,7 +345,7 @@
     <Compile Include="Class\LibraryStorageFolder.cs" />
     <Compile Include="Class\ObexServiceProvider.cs" />
     <Compile Include="Class\PathAnalysis.cs" />
-    <Compile Include="Class\PhotoDisplaySupport.cs" />
+    <Compile Include="Class\PhotoDisplayItem.cs" />
     <Compile Include="Class\QuickStartItem.cs" />
     <Compile Include="Class\SQLite.cs" />
     <Compile Include="Interface\IStorageItemPropertiesBase.cs" />

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Resources;
 using Windows.Globalization;
 using Windows.Storage;
@@ -118,17 +116,16 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log(ex, "Could not find the key, return empty string instead");
 
-                    if (Package.Current.IsDevelopmentMode)
+#if DEBUG
+                    if (Debugger.IsAttached)
                     {
-                        if (Debugger.IsAttached)
-                        {
-                            Debugger.Break();
-                        }
-                        else
-                        {
-                            Debugger.Launch();
-                        }
+                        Debugger.Break();
                     }
+                    else
+                    {
+                        Debugger.Launch();
+                    }
+#endif
 
                     return string.Empty;
                 }

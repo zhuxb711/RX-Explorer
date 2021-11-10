@@ -1255,53 +1255,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 平滑滚动至指定的项
-        /// </summary>
-        /// <param name="listViewBase"></param>
-        /// <param name="item">指定项</param>
-        /// <param name="alignment">对齐方式</param>
-        public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
-        {
-            if (listViewBase == null)
-            {
-                throw new ArgumentNullException(nameof(listViewBase), "listViewBase could not be null");
-            }
-
-            if (listViewBase.FindChildOfType<ScrollViewer>() is ScrollViewer scrollViewer)
-            {
-                double originHorizontalOffset = scrollViewer.HorizontalOffset;
-                double originVerticalOffset = scrollViewer.VerticalOffset;
-
-                void layoutUpdatedHandler(object sender, object e)
-                {
-                    listViewBase.LayoutUpdated -= layoutUpdatedHandler;
-
-                    double targetHorizontalOffset = scrollViewer.HorizontalOffset;
-                    double targetVerticalOffset = scrollViewer.VerticalOffset;
-
-                    void scrollHandler(object s, ScrollViewerViewChangedEventArgs t)
-                    {
-                        scrollViewer.ViewChanged -= scrollHandler;
-
-                        scrollViewer.ChangeView(targetHorizontalOffset, targetVerticalOffset, null);
-                    }
-
-                    scrollViewer.ViewChanged += scrollHandler;
-
-                    scrollViewer.ChangeView(originHorizontalOffset, originVerticalOffset, null, true);
-                }
-
-                listViewBase.LayoutUpdated += layoutUpdatedHandler;
-
-                listViewBase.ScrollIntoView(item, alignment);
-            }
-            else
-            {
-                listViewBase.ScrollIntoView(item, alignment);
-            }
-        }
-
         public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default)
         {
             Func<string> ComputeFunction = new Func<string>(() =>

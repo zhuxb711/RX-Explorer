@@ -4269,6 +4269,106 @@ Invalid names include
           <source>List of translation contributors</source>
           <target state="translated">翻译贡献者名单</target>
         </trans-unit>
+        <trans-unit id="AlwaysOnTopDescription.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will keep this app at the forefront of all windows</source>
+          <target state="translated">启用此选项后将保持此应用置于所有窗口最前方</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>The app will start automatically with Windows starts after enabling this option</source>
+          <target state="translated">启用此选项后本应用将随Windows的启动而自动启动</target>
+        </trans-unit>
+        <trans-unit id="AvoidRecycleBinDescription.Text" translate="yes" xml:space="preserve">
+          <source>The file will be deleted permanently after enabling this option, please pay special attention to the risk of data loss</source>
+          <target state="translated">启用此选项后将直接永久删除文件，请特别注意数据丢失的风险</target>
+        </trans-unit>
+        <trans-unit id="DefaultDisplayModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the preferred layout mode for all folders, unless the user has changed the layout mode of the path</source>
+          <target state="translated">指定所有文件夹的首选布局模式，除非用户已更改路径的布局模式</target>
+        </trans-unit>
+        <trans-unit id="DefaultTerminalDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the default terminal application used in the context menu</source>
+          <target state="translated">指定右键菜单中所使用的默认终端应用</target>
+        </trans-unit>
+        <trans-unit id="DeleteConfirmSwitchDescription.Text" translate="yes" xml:space="preserve">
+          <source>A double confirmation dialog will pop up when the user deletes the file</source>
+          <target state="translated">启用此选项后将在用户删除文件时弹出二次确认对话框</target>
+        </trans-unit>
+        <trans-unit id="FileLoadModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Balance file loading performance based on different options</source>
+          <target state="translated">根据不同选项来平衡文件加载性能</target>
+        </trans-unit>
+        <trans-unit id="FontFamilyComboBoxDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the font used by the application, need to restart to take effect</source>
+          <target state="translated">指定应用使用的字体，需要重启以生效</target>
+        </trans-unit>
+        <trans-unit id="LanguageComboBoxDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify the language used by the application, need to restart to take effect</source>
+          <target state="translated">指定应用使用的语言，需要重启以生效</target>
+        </trans-unit>
+        <trans-unit id="PrivacyPolicyDescription.Text" translate="yes" xml:space="preserve">
+          <source>View the privacy policy of this application</source>
+          <target state="translated">查看本应用的隐私策略</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItemDescription.Text" translate="yes" xml:space="preserve">
+          <source>Hidden files will be shown after enabling this option</source>
+          <target state="translated">启用此选项后将显示隐藏文件</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethodDescription.Text" translate="yes" xml:space="preserve">
+          <source>Choose the appropriate operating habits according to your preferences</source>
+          <target state="translated">根据您的喜好选择符合的操作习惯</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItemsDescription.Text" translate="yes" xml:space="preserve">
+          <source>It is strongly recommended to keep this option selected, system files should not be modified or moved</source>
+          <target state="translated">强烈建议保持此项选中，系统文件不应被修改或移动</target>
+        </trans-unit>
+        <trans-unit id="SettingNavLayoutDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control the layout of the navigation view</source>
+          <target state="translated">控制导航栏布局位置</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAlwaysLaunchNewDescription.Text" translate="yes" xml:space="preserve">
+          <source>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</source>
+          <target state="translated">启用此选项后[Win+E]将始终打开一个新的进程，否则[Win+E]将仅打开一个新的标签页</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAnimationSwitchDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control whether animation effects are enabled for each component in the application</source>
+          <target state="translated">控制应用内各组件是否启用动画效果</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtDescription.Text" translate="yes" xml:space="preserve">
+          <source>The menu items of third-party programs in the system will be obtained after enabling this option. Note: This option will have a significant impact on the pop-up speed of the context menu</source>
+          <target state="translated">启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSearchEngineConfigDescription.Text" translate="yes" xml:space="preserve">
+          <source>Specify search engine configuration, you can always use a specific configuration or ask every time</source>
+          <target state="translated">指定搜索引擎配置，可始终使用特定配置或每次询问</target>
+        </trans-unit>
+        <trans-unit id="SettingPageUIModeDescription.Text" translate="yes" xml:space="preserve">
+          <source>Customize the appearance of the application</source>
+          <target state="translated">自定义应用的外观</target>
+        </trans-unit>
+        <trans-unit id="SettingPathHistoryDescription.Text" translate="yes" xml:space="preserve">
+          <source>The last 25 visit records will be saved after enabling this option</source>
+          <target state="translated">启用此选项后将保存最后25条访问记录</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchHistoryDescription.Text" translate="yes" xml:space="preserve">
+          <source>The last 25 search records will be saved after enabling this option</source>
+          <target state="translated">启用此选项后将保存最后25条搜索记录</target>
+        </trans-unit>
+        <trans-unit id="SettingStartupDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control the behavior at startup</source>
+          <target state="translated">控制启动时的行为</target>
+        </trans-unit>
+        <trans-unit id="SettingTabPreviewDescription.Text" translate="yes" xml:space="preserve">
+          <source>A preview of the tab will be displayed when the mouse hovers over the title after enabling this option</source>
+          <target state="translated">启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetachDescription.Text" translate="yes" xml:space="preserve">
+          <source>Control whether to display the folder tree located on the left side of the page</source>
+          <target state="translated">控制是否显示位于页面左侧的目录树</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivateDescription.Text" translate="yes" xml:space="preserve">
+          <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
+          <target state="translated">启用此选项后将拦截[Win+E]快捷键并重定向至本应用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

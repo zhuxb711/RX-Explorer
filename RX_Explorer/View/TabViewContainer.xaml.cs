@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1119,34 +1118,47 @@ namespace RX_Explorer
                 throw new ArgumentNullException(nameof(Tab), "Argument could not be null");
             }
 
-            TabCollection.Remove(Tab);
-
-            if (Tab.Content is Frame BaseFrame)
+            try
             {
-                while (BaseFrame.CanGoBack)
+                if (TabCollection.Remove(Tab))
                 {
-                    BaseFrame.GoBack();
+                    if (Tab.Content is Frame BaseFrame)
+                    {
+                        while (BaseFrame.CanGoBack)
+                        {
+                            BaseFrame.GoBack(new SuppressNavigationTransitionInfo());
+                        }
+                    }
+
+                    if (Tab.Tag is FileControl Control)
+                    {
+                        Control.Dispose();
+                    }
+
+                    Tab.DragEnter -= Item_DragEnter;
+                    Tab.PointerEntered -= Item_PointerEntered;
+                    Tab.PointerExited -= Item_PointerExited;
+                    Tab.PointerPressed -= Item_PointerPressed;
+                    Tab.PointerCanceled -= Item_PointerCanceled;
+                    Tab.DoubleTapped -= Item_DoubleTapped;
+                    Tab.Content = null;
+
+                    if (TabCollection.Count == 0)
+                    {
+                        if (!await ApplicationView.GetForCurrentView().TryConsolidateAsync())
+                        {
+                            Application.Current.Exit();
+                        }
+                    }
+                    else
+                    {
+                        FullTrustProcessController.RequestResizeController(TabCollection.Count);
+                    }
                 }
             }
-
-            if (Tab.Tag is FileControl Control)
+            catch (Exception ex)
             {
-                Control.Dispose();
-            }
-
-            Tab.DragEnter -= Item_DragEnter;
-            Tab.PointerEntered -= Item_PointerEntered;
-            Tab.PointerExited -= Item_PointerExited;
-            Tab.PointerPressed -= Item_PointerPressed;
-            Tab.PointerCanceled -= Item_PointerCanceled;
-            Tab.DoubleTapped -= Item_DoubleTapped;
-            Tab.Content = null;
-
-            FullTrustProcessController.RequestResizeController(TabCollection.Count);
-
-            if (TabCollection.Count == 0)
-            {
-                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                LogTracer.Log(ex, "Could not close the tab and cleanup the resource correctly");
             }
         }
 

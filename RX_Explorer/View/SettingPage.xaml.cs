@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -1671,7 +1672,15 @@ namespace RX_Explorer
                     if (await PictureItem.GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
-                        PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
+
+                        if (PictureGirdView.IsLoaded)
+                        {
+                            await PictureGirdView.SmoothScrollIntoViewWithItemAsync(PictureItem, ScrollItemPlacement.Center);
+                        }
+                        else
+                        {
+                            PictureGirdView.ScrollIntoView(PictureItem, ScrollIntoViewAlignment.Leading);
+                        }
 
                         if (e.RemovedItems.Count > 0)
                         {

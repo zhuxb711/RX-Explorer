@@ -3215,4 +3215,79 @@
   <data name="TranslatorList.Text" xml:space="preserve">
     <value>翻译贡献者名单</value>
   </data>
+  <data name="AlwaysOnTopDescription.Text" xml:space="preserve">
+    <value>启用此选项后将保持此应用置于所有窗口最前方</value>
+  </data>
+  <data name="AutoBootOnStartupDescription.Text" xml:space="preserve">
+    <value>启用此选项后本应用将随Windows的启动而自动启动</value>
+  </data>
+  <data name="AvoidRecycleBinDescription.Text" xml:space="preserve">
+    <value>启用此选项后将直接永久删除文件，请特别注意数据丢失的风险</value>
+  </data>
+  <data name="DefaultDisplayModeDescription.Text" xml:space="preserve">
+    <value>指定所有文件夹的首选布局模式，除非用户已更改路径的布局模式</value>
+  </data>
+  <data name="DefaultTerminalDescription.Text" xml:space="preserve">
+    <value>指定右键菜单中所使用的默认终端应用</value>
+  </data>
+  <data name="DeleteConfirmSwitchDescription.Text" xml:space="preserve">
+    <value>启用此选项后将在用户删除文件时弹出二次确认对话框</value>
+  </data>
+  <data name="FileLoadModeDescription.Text" xml:space="preserve">
+    <value>根据不同选项来平衡文件加载性能</value>
+  </data>
+  <data name="FontFamilyComboBoxDescription.Text" xml:space="preserve">
+    <value>指定应用使用的字体，需要重启以生效</value>
+  </data>
+  <data name="LanguageComboBoxDescription.Text" xml:space="preserve">
+    <value>指定应用使用的语言，需要重启以生效</value>
+  </data>
+  <data name="PrivacyPolicyDescription.Text" xml:space="preserve">
+    <value>查看本应用的隐私策略</value>
+  </data>
+  <data name="SettingDisplayHiddenItemDescription.Text" xml:space="preserve">
+    <value>启用此选项后将显示隐藏文件</value>
+  </data>
+  <data name="SettingFolderOpenMethodDescription.Text" xml:space="preserve">
+    <value>根据您的喜好选择符合的操作习惯</value>
+  </data>
+  <data name="SettingHideProtectedSystemItemsDescription.Text" xml:space="preserve">
+    <value>强烈建议保持此项选中，系统文件不应被修改或移动</value>
+  </data>
+  <data name="SettingNavLayoutDescription.Text" xml:space="preserve">
+    <value>控制导航栏布局位置</value>
+  </data>
+  <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
+    <value>启用此选项后[Win+E]将始终打开一个新的进程，否则[Win+E]将仅打开一个新的标签页</value>
+  </data>
+  <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
+    <value>控制应用内各组件是否启用动画效果</value>
+  </data>
+  <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
+    <value>启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响</value>
+  </data>
+  <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
+    <value>指定搜索引擎配置，可始终使用特定配置或每次询问</value>
+  </data>
+  <data name="SettingPageUIModeDescription.Text" xml:space="preserve">
+    <value>自定义应用的外观</value>
+  </data>
+  <data name="SettingPathHistoryDescription.Text" xml:space="preserve">
+    <value>启用此选项后将保存最后25条访问记录</value>
+  </data>
+  <data name="SettingSearchHistoryDescription.Text" xml:space="preserve">
+    <value>启用此选项后将保存最后25条搜索记录</value>
+  </data>
+  <data name="SettingStartupDescription.Text" xml:space="preserve">
+    <value>控制启动时的行为</value>
+  </data>
+  <data name="SettingTabPreviewDescription.Text" xml:space="preserve">
+    <value>启用此选项后将在鼠标悬停于标签页标题上时显示该标签页的预览</value>
+  </data>
+  <data name="SettingTreeViewDetachDescription.Text" xml:space="preserve">
+    <value>控制是否显示位于页面左侧的目录树</value>
+  </data>
+  <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
+    <value>启用此选项后将拦截[Win+E]快捷键并重定向至本应用</value>
+  </data>
 </root>
