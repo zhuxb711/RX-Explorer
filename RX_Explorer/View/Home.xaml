@@ -8,12 +8,13 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
-      xmlns:Dialog="using:RX_Explorer.Dialog"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       mc:Ignorable="d"
       Background="Transparent">
 
     <Page.Resources>
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
                                AlwaysExpanded="True"
@@ -265,11 +266,14 @@
                               PointerPressed="LibraryGrid_PointerPressed"
                               DoubleTapped="LibraryGrid_DoubleTapped"
                               ContainerContentChanging="LibraryGrid_ContainerContentChanging"
+                              SelectionChanged="LibraryGrid_SelectionChanged"
+                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:LibraryStorageFolder">
-                                <Grid Padding="5,4,5,5"
-                                      Width="250">
+                                <Grid Padding="5"
+                                      Width="250"
+                                      Background="Transparent">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="60" />
                                         <ColumnDefinition Width="*" />
@@ -360,12 +364,15 @@
                               PointerPressed="DriveGrid_PointerPressed"
                               RightTapped="DriveGrid_RightTapped"
                               DoubleTapped="DriveGrid_DoubleTapped"
+                              SelectionChanged="DriveGrid_SelectionChanged"
+                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:DriveDataBase">
                                 <UserControl>
                                     <Grid Padding="5"
-                                          Width="250">
+                                          Width="250"
+                                          Background="Transparent">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />

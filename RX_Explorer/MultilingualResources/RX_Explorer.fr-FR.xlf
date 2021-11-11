@@ -4369,6 +4369,10 @@ Les noms non valides incluent
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
           <target state="translated">Le raccourci [Win+E] sera intercepté et redirigé vers cette application après avoir activé cette option</target>
         </trans-unit>
+        <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
+          <source>Unable to load this image</source>
+          <target state="translated">Impossible de charger cette image</target>
+        </trans-unit>
       </group>
     </body>
   </file>

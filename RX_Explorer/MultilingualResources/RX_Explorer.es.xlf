@@ -4367,6 +4367,10 @@ Las denominaciones no válidas son:
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
           <target state="translated">El acceso directo [Win+E] será interceptado y redirigido a esta aplicación después de habilitar esta opción.</target>
         </trans-unit>
+        <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
+          <source>Unable to load this image</source>
+          <target state="translated">No se puede cargar esta imagen.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

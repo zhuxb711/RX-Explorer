@@ -3290,4 +3290,7 @@ Les noms non valides incluent
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Le raccourci [Win+E] sera intercepté et redirigé vers cette application après avoir activé cette option</value>
   </data>
+  <data name="LoadPhotoFailed.Text" xml:space="preserve">
+    <value>Impossible de charger cette image</value>
+  </data>
 </root>

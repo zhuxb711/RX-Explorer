@@ -3290,4 +3290,7 @@ Inkorrekte Namen sind
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Shortcut [Win+E] wird abgefangen und zu dieser Anwendung umgeleitet, nachdem diese Option aktiviert wurde</value>
   </data>
+  <data name="LoadPhotoFailed.Text" xml:space="preserve">
+    <value>Dieses Bild kann nicht geladen werden</value>
+  </data>
 </root>

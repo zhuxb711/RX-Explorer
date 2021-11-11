@@ -89,31 +89,31 @@ namespace RX_Explorer.Class
             {
                 using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                 {
-                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(Stream);
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
 
                     switch (RotateAngle % 360)
                     {
                         case 0:
                             {
-                                return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                                return await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                             }
                         case 90:
                             {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
                                     return ComputerVisionProvider.RotateEffect(Origin, 90);
                                 }
                             }
                         case 180:
                             {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
                                     return ComputerVisionProvider.RotateEffect(Origin, 180);
                                 }
                             }
                         case 270:
                             {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap Origin = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
                                     return ComputerVisionProvider.RotateEffect(Origin, -90);
                                 }

@@ -1314,5 +1314,43 @@ namespace RX_Explorer
             e.Handled = true;
             LibraryGrid.CanReorderItems = LibraryGrid.IsDragSource();
         }
+
+        private async void LibraryGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SettingPage.IsQuicklookEnabled
+                && e.AddedItems.Count == 1
+                && e.AddedItems.First() is LibraryStorageFolder Item)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    {
+                        if (!string.IsNullOrEmpty(Item.Path))
+                        {
+                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void DriveGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SettingPage.IsQuicklookEnabled
+                && e.AddedItems.Count == 1
+                && e.AddedItems.First() is DriveDataBase Item)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    {
+                        if (!string.IsNullOrEmpty(Item.Path))
+                        {
+                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

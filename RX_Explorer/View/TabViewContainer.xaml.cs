@@ -1403,5 +1403,10 @@ namespace RX_Explorer
                 ViewModeFlyout.Hide();
             }
         }
+
+        private void ViewModeControlButton_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
+        {
+            sender.Flyout.ShowAt(sender);
+        }
     }
 }

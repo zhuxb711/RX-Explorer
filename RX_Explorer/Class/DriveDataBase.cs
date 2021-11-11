@@ -36,31 +36,13 @@ namespace RX_Explorer.Class
         /// </summary>
         public FileSystemStorageFolder DriveFolder { get; }
 
-        public string Name
-        {
-            get
-            {
-                return (DriveFolder?.Name) ?? string.Empty;
-            }
-        }
+        public string Name => (DriveFolder?.Name) ?? string.Empty;
         /// <summary>
         /// 驱动器名称
         /// </summary>
-        public virtual string DisplayName
-        {
-            get
-            {
-                return (DriveFolder?.DisplayName) ?? string.Empty;
-            }
-        }
+        public virtual string DisplayName => (DriveFolder?.DisplayName) ?? string.Empty;
 
-        public string Path
-        {
-            get
-            {
-                return (DriveFolder?.Path) ?? string.Empty;
-            }
-        }
+        public string Path => (DriveFolder?.Path) ?? string.Empty;
 
         public string FileSystem { get; } = Globalization.GetString("UnknownText");
 

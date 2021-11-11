@@ -1899,24 +1899,18 @@ namespace RX_Explorer
                 }
             }
 
-            if (SettingPage.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1)
+            if (SettingPage.IsQuicklookEnabled
+                && e.AddedItems.Count <= 1)
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                     {
-                        string ViewPathWithQuicklook = null;
+                        string ViewPathWithQuicklook = e.AddedItems.OfType<FileSystemStorageItemBase>().FirstOrDefault()?.Path;
 
-                        if (string.IsNullOrEmpty(SelectedItem?.Path))
+                        if (string.IsNullOrEmpty(ViewPathWithQuicklook))
                         {
-                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
-                            {
-                                ViewPathWithQuicklook = CurrentFolder.Path;
-                            }
-                        }
-                        else
-                        {
-                            ViewPathWithQuicklook = SelectedItem.Path;
+                            ViewPathWithQuicklook = CurrentFolder?.Path;
                         }
 
                         if (!string.IsNullOrEmpty(ViewPathWithQuicklook))

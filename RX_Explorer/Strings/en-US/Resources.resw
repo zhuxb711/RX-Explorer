@@ -3395,4 +3395,7 @@ Invalid names include
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</value>
   </data>
+  <data name="LoadPhotoFailed.Text" xml:space="preserve">
+    <value>Unable to load this image</value>
+  </data>
 </root>

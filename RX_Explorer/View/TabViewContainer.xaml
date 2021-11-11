@@ -160,6 +160,7 @@
                                           Padding="0"
                                           VerticalAlignment="Stretch"
                                           x:Uid="ViewModeControl"
+                                          Click="ViewModeControlButton_Click"
                                           IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}">
                             <Viewbox VerticalAlignment="Center"
                                      HorizontalAlignment="Center"

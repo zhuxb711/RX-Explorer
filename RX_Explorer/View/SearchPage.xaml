@@ -169,13 +169,16 @@
                   Header="{x:Bind ListViewDetailHeader}"
                   IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
+                  IsItemClickEnabled="True"
                   SelectionMode="Extended"
                   ShowsScrollingPlaceholders="False"
+                  SelectionChanged="SearchResultList_SelectionChanged"
                   PreviewKeyDown="SearchResultList_PreviewKeyDown"
                   DoubleTapped="SearchResultList_DoubleTapped"
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
-                  RightTapped="SearchResultList_RightTapped">
+                  RightTapped="SearchResultList_RightTapped"
+                  ItemClick="SearchResultList_ItemClick">
             <ListView.HeaderTemplate>
                 <DataTemplate x:DataType="Cls:ListViewHeaderController">
                     <Grid Height="35"

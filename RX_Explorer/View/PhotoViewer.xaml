@@ -84,6 +84,7 @@
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Text="无法加载此图片"
+                                   x:Uid="LoadPhotoFailed"
                                    FontSize="16" />
                     </Grid>
                 </DataTemplate>

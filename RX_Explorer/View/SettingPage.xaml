@@ -1691,6 +1691,7 @@
                                                                                           IsRightTapEnabled="True"
                                                                                           VerticalAlignment="Top"
                                                                                           SelectionMode="Single"
+                                                                                          Loaded="PictureGirdView_Loaded"
                                                                                           RightTapped="PictureGirdView_RightTapped"
                                                                                           ScrollViewer.HorizontalScrollMode="Enabled"
                                                                                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"

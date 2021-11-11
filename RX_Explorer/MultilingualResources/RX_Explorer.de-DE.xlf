@@ -4367,6 +4367,10 @@ Inkorrekte Namen sind
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
           <target state="translated">Shortcut [Win+E] wird abgefangen und zu dieser Anwendung umgeleitet, nachdem diese Option aktiviert wurde</target>
         </trans-unit>
+        <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
+          <source>Unable to load this image</source>
+          <target state="translated">Dieses Bild kann nicht geladen werden</target>
+        </trans-unit>
       </group>
     </body>
   </file>

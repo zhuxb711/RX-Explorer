@@ -3209,5 +3209,13 @@ namespace RX_Explorer
                 Element.Visibility = Visibility.Collapsed;
             }
         }
+
+        private async void PictureGirdView_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
+            {
+                await PictureGirdView.SmoothScrollIntoViewWithItemAsync(Picture, ScrollItemPlacement.Center);
+            }
+        }
     }
 }

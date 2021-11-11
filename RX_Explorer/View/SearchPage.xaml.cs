@@ -848,11 +848,11 @@ namespace RX_Explorer
                 DelaySelectionCancellation?.Cancel();
                 DelayTooltipCancellation?.Cancel();
 
-                await LaunchSelectedItem(Item);
+                await LaunchSelectedItemAsync(Item);
             }
         }
 
-        private async Task LaunchSelectedItem(FileSystemStorageItemBase Item)
+        private async Task LaunchSelectedItemAsync(FileSystemStorageItemBase Item)
         {
             try
             {
@@ -1126,7 +1126,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An error was threw in {nameof(LaunchSelectedItem)}");
+                LogTracer.Log(ex, $"An error was threw in {nameof(LaunchSelectedItemAsync)}");
 
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1149,7 +1149,7 @@ namespace RX_Explorer
                 DelaySelectionCancellation?.Cancel();
                 DelayTooltipCancellation?.Cancel();
 
-                await LaunchSelectedItem(Item);
+                await LaunchSelectedItemAsync(Item);
             }
         }
 
@@ -1293,6 +1293,37 @@ namespace RX_Explorer
                             e.Handled = true;
                             break;
                         }
+                }
+            }
+        }
+
+        private async void SearchResultList_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (!SettingPage.IsDoubleClickEnabled && e.ClickedItem is FileSystemStorageItemBase Item)
+            {
+                DelayDragCancellation?.Cancel();
+                DelaySelectionCancellation?.Cancel();
+                DelayTooltipCancellation?.Cancel();
+
+                await LaunchSelectedItemAsync(Item);
+            }
+        }
+
+        private async void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SettingPage.IsQuicklookEnabled
+                && e.AddedItems.Count == 1
+                && e.AddedItems.First() is FileSystemStorageItemBase Item)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    {
+                        if (!string.IsNullOrEmpty(Item.Path))
+                        {
+                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                        }
+                    }
                 }
             }
         }

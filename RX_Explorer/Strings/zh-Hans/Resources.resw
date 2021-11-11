@@ -3290,4 +3290,7 @@
   <data name="UseWinAndEActivateDescription.Text" xml:space="preserve">
     <value>启用此选项后将拦截[Win+E]快捷键并重定向至本应用</value>
   </data>
+  <data name="LoadPhotoFailed.Text" xml:space="preserve">
+    <value>无法加载此图片</value>
+  </data>
 </root>

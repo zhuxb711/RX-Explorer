@@ -4369,6 +4369,10 @@ Invalid names include
           <source>Shortcut [Win+E] will be intercepted and redirected to this application after enabling this option</source>
           <target state="translated">啟用該選項後，快捷鍵[Win+E]將被攔截並重定向到該應用程序</target>
         </trans-unit>
+        <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
+          <source>Unable to load this image</source>
+          <target state="translated">無法加載此圖片</target>
+        </trans-unit>
       </group>
     </body>
   </file>
