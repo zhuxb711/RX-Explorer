@@ -1700,7 +1700,7 @@
     <value>由於意外錯誤，無法定向Win + E</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>使用[Win + E]執行此程式</value>
+    <value>攔截[Win+E]快捷鍵</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>停用</value>
@@ -3258,7 +3258,7 @@
     <value>控制導航視圖的佈局</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>[Win+E]開啟此選項後會一直打開新進程，否則[Win+E]只會打開新標籤頁</value>
+    <value>啟用此選項後激活時將始終打開一個新進程，否則只會打開一個新選項卡</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>控制是否為應用中的每個組件啟用動畫效果</value>
@@ -3292,5 +3292,17 @@
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>無法加載此圖片</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>提供與此應用程序和系統組件集成相關的選項</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>與系統組件集成</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>啟用此選項後將此應用程序用作桌面文件夾的默認程序</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>攔截並用作桌面文件夾的默認程序</value>
   </data>
 </root>

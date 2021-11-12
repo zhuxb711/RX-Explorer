@@ -7,12 +7,14 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
-      xmlns:dialog="using:RX_Explorer.Dialog"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
         <Cls:InverseConverter x:Key="InverseConverter" />
+        <Cls:BackgroundBlurConverter x:Key="BlurConverter" />
+        <Cls:BackgroundLightnessConverter x:Key="LightnessConverter" />
+        <Cls:BackgroundBrushTypeConverter x:Key="BrushTypeConverter" />
 
         <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
                                             NormalButtonTemplate="{StaticResource NormalButtonTemplate}"
@@ -336,19 +338,21 @@
 
     <Grid>
         <Grid x:Name="BackgroundEffectArea"
-              Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}">
+              Visibility="{x:Bind Cls:BackgroundController.Current.IsMicaEffectEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <Border Name="CompositorAcrylicBackground"
-                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}" />
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled,Mode=OneWay}" />
 
             <Border Name="NormalAcrylicBackground"
-                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
-                    Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
+                    Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                    Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush,Mode=OneWay}" />
 
-            <Grid>
+            <Grid Visibility="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay,Converter={StaticResource BrushTypeConverter}}">
                 <Grid.Background>
                     <media:AcrylicBrush x:Name="BackgroundBlur"
-                                        x:FieldModifier="public"
-                                        TintColor="Black" />
+                                        TintColor="Black"
+                                        FallbackColor="Transparent"
+                                        BlurAmount="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=OneWay,Converter={StaticResource BlurConverter}}"
+                                        TintOpacity="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=OneWay,Converter={StaticResource LightnessConverter}}"/>
                 </Grid.Background>
             </Grid>
         </Grid>

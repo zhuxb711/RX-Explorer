@@ -1752,7 +1752,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Die Win+E Tastenkombination konnte wegen eines unerwarteten Fehlers nicht zurückgesetzt werden.</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>Win+E benutzen um diese App zu öffnen</value>
+    <value>Tastenkombination [Win+E] abfangen</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>Deaktiviert</value>
@@ -3258,7 +3258,7 @@ Inkorrekte Namen sind
     <value>Steuern Sie das Layout der Navigationsansicht</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>[Win+E] öffnet nach dem Aktivieren dieser Option immer einen neuen Prozess,+ öffnet [Win+E] nur einen neuen Tab</value>
+    <value>Ein neuer Prozess wird immer geöffnet, wenn er nach dem Aktivieren dieser Option aktiviert wird, ansonsten wird nur ein neuer Tab geöffnet</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>Steuern Sie, ob Animationseffekte für jede Komponente in der Anwendung aktiviert sind</value>
@@ -3292,5 +3292,17 @@ Inkorrekte Namen sind
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>Dieses Bild kann nicht geladen werden</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>Bieten Sie Optionen in Bezug auf die Integration dieser Anwendung und Systemkomponenten an</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>Mit Systemkomponenten integrieren</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>Verwenden Sie diese Anwendung als Standardprogramm für den Desktop-Ordner, nachdem Sie diese Option aktiviert haben</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>Abgefangen und als Standardprogramm für den Desktop-Ordner verwendet</value>
   </data>
 </root>

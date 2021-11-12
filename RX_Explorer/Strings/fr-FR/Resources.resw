@@ -1697,7 +1697,7 @@
     <value>Impossible de restaurer Win + E en raison d'une erreur inattendue</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>Utilisez [Win+E] pour activer l'application</value>
+    <value>Intercepter la touche de raccourci [Win+E]</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>Désactivé</value>
@@ -3258,7 +3258,7 @@ Les noms non valides incluent
     <value>Contrôler la disposition de la vue de navigation</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>[Win+E] ouvrira toujours un nouveau processus après avoir activé cette option, sinon [Win+E] n'ouvrira qu'un nouvel onglet</value>
+    <value>Un nouveau processus sera toujours ouvert lorsqu'il est activé après avoir activé cette option, sinon il n'ouvrira qu'un nouvel onglet</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>Contrôler si les effets d'animation sont activés pour chaque composant de l'application</value>
@@ -3292,5 +3292,17 @@ Les noms non valides incluent
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>Impossible de charger cette image</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>Fournir des options liées à l'intégration de cette application et des composants du système</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>Intégration avec les composants du système</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>Utilisez cette application comme programme par défaut pour le dossier du bureau après avoir activé cette option</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>Intercepté et utilisé comme programme par défaut pour le dossier du bureau</value>
   </data>
 </root>

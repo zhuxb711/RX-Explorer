@@ -590,46 +590,158 @@
                                                    Background="Transparent"
                                                    CornerRadius="4,4,0,0">
                                         <muxc:Expander.Header>
-                                            <RelativePanel Padding="4,10,0,10">
-                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                            RelativePanel.AlignLeftWithPanel="True"
-                                                            RelativePanel.LeftOf="UseWinAndEActivate"
-                                                            Margin="0,0,20,0">
-                                                    <TextBlock Text="使用[Win+E]激活此应用"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               x:Uid="UseWinAndEActivateLabel" />
-                                                    <TextBlock Text="启用此选项后将拦截[Win+E]快捷键并重定向至本应用"
-                                                               x:Uid="UseWinAndEActivateDescription"
-                                                               FontSize="12"
-                                                               Foreground="Gray"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               TextWrapping="WrapWholeWords" />
-                                                </StackPanel>
-                                                <ToggleSwitch Name="UseWinAndEActivate"
-                                                              OnContent="启用"
-                                                              OffContent="禁用"
-                                                              x:Uid="UseWinAndEActivate"
-                                                              Style="{StaticResource SettingToggleSwitchStyle}"
-                                                              RelativePanel.AlignRightWithPanel="True"
-                                                              RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                            </RelativePanel>
+                                            <StackPanel Margin="0,0,20,0"
+                                                        Padding="4,10,0,10">
+                                                <TextBlock Text="与系统组件集成"
+                                                           x:Uid="IntegrateSystemComponentsLabel"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="提供有关本应用与系统组件集成等选项"
+                                                           x:Uid="IntegrateSystemComponentsDescription"
+                                                           FontSize="12"
+                                                           Foreground="Gray"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
                                             <StackPanel>
+                                                <muxc:Expander MinHeight="45"
+                                                               Padding="0"
+                                                               CornerRadius="0"
+                                                               ExpandDirection="Down"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Stretch"
+                                                               VerticalContentAlignment="Top"
+                                                               Background="Transparent">
+                                                    <muxc:Expander.Header>
+                                                        <RelativePanel Padding="24,10,0,10">
+                                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                                        RelativePanel.LeftOf="UseWinAndEActivate"
+                                                                        Margin="0,0,20,0">
+                                                                <TextBlock Text="拦截[Win+E]快捷键"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           x:Uid="UseWinAndEActivateLabel" />
+                                                                <TextBlock Text="启用此选项后将拦截[Win+E]快捷键并重定向至本应用"
+                                                                           x:Uid="UseWinAndEActivateDescription"
+                                                                           FontSize="12"
+                                                                           Foreground="Gray"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           TextWrapping="WrapWholeWords" />
+                                                            </StackPanel>
+                                                            <ToggleSwitch Name="UseWinAndEActivate"
+                                                                          OnContent="启用"
+                                                                          OffContent="禁用"
+                                                                          x:Uid="UseWinAndEActivate"
+                                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                          RelativePanel.AlignRightWithPanel="True"
+                                                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                        </RelativePanel>
+                                                    </muxc:Expander.Header>
+                                                    <muxc:Expander.Content>
+                                                        <StackPanel>
+                                                            <Button Padding="68,10,20,10"
+                                                                    MinHeight="45"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Stretch"
+                                                                    CornerRadius="0"
+                                                                    Name="WinEManualGuidence"
+                                                                    Click="WinEManualGuidence_Click"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <TextBlock Text="有关手动重定向Win+E的教程"
+                                                                               x:Uid="RedirectWinEGuidence"
+                                                                               TextWrapping="WrapWholeWords"
+                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                                               RelativePanel.LeftOf="SettingPageWinEQuestionAction1" />
+                                                                    <Viewbox Name="SettingPageWinEQuestionAction1"
+                                                                             Height="20"
+                                                                             Width="20"
+                                                                             RelativePanel.AlignRightWithPanel="True"
+                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                                                  Glyph="&#xE71B;" />
+                                                                    </Viewbox>
+                                                                </RelativePanel>
+                                                            </Button>
+                                                            <Button Padding="68,10,20,10"
+                                                                    MinHeight="45"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Stretch"
+                                                                    CornerRadius="0"
+                                                                    Name="WinEExportRestoreFile"
+                                                                    Click="WinEExportRestoreFile_Click"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <TextBlock Text="导出用于自行关闭Win+E重定向的文件"
+                                                                               x:Uid="ShutdownWinEGuidence"
+                                                                               TextWrapping="WrapWholeWords"
+                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                                               RelativePanel.LeftOf="SettingPageWinEQuestionAction2" />
+                                                                    <Viewbox Name="SettingPageWinEQuestionAction2"
+                                                                             Height="20"
+                                                                             Width="20"
+                                                                             RelativePanel.AlignRightWithPanel="True"
+                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                                                  Glyph="&#xEE71;" />
+                                                                    </Viewbox>
+                                                                </RelativePanel>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </muxc:Expander.Content>
+                                                </muxc:Expander>
                                                 <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         BorderThickness="1"
+                                                        CornerRadius="0"
                                                         BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                         Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                    <CheckBox IsEnabled="{x:Bind UseWinAndEActivate.IsOn,Mode=OneWay}"
-                                                              Name="AlwaysLaunchNew"
+                                                    <RelativePanel>
+                                                        <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                    RelativePanel.AlignLeftWithPanel="True"
+                                                                    RelativePanel.LeftOf="InterceptDesktopFolderSwitch"
+                                                                    Margin="0,0,20,0">
+                                                            <TextBlock Text="拦截并作为桌面文件夹的默认打开方式"
+                                                                       x:Uid="InterceptDesktopFolderLabel"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="启用此选项后将使用本应用作为桌面文件夹的默认打开方式"
+                                                                       x:Uid="InterceptDesktopFolderDescription"
+                                                                       FontSize="12"
+                                                                       Foreground="Gray"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       TextWrapping="WrapWholeWords" />
+                                                        </StackPanel>
+                                                        <ToggleSwitch OnContent="启用"
+                                                                      OffContent="禁用"
+                                                                      Name="InterceptDesktopFolderSwitch"
+                                                                      Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                      RelativePanel.AlignRightWithPanel="True"
+                                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                    </RelativePanel>
+                                                </Border>
+                                                <Border Padding="40,10,10,10"
+                                                        MinHeight="45"
+                                                        BorderThickness="1"
+                                                        CornerRadius="0,0,4,4"
+                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                    <CheckBox Name="AlwaysLaunchNew"
                                                               Checked="AlwaysLaunchNew_Checked"
                                                               Unchecked="AlwaysLaunchNew_Unchecked">
                                                         <StackPanel>
                                                             <TextBlock Text="激活时始终启动新的进程"
                                                                        TextTrimming="CharacterEllipsis"
-                                                                       x:Uid="SettingPageAlwaysLaunchNew"/>
-                                                            <TextBlock Text="启用此选项后[Win+E]将始终打开一个新的进程，否则[Win+E]将仅打开一个新的标签页"
+                                                                       x:Uid="SettingPageAlwaysLaunchNew" />
+                                                            <TextBlock Text="启用此选项后将在激活时始终打开一个新的进程，否则将仅打开一个新的标签页"
                                                                        FontSize="12"
                                                                        Foreground="Gray"
                                                                        x:Uid="SettingPageAlwaysLaunchNewDescription"
@@ -638,62 +750,6 @@
                                                         </StackPanel>
                                                     </CheckBox>
                                                 </Border>
-                                                <Button Padding="40,10,20,10"
-                                                        MinHeight="45"
-                                                        HorizontalAlignment="Stretch"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        CornerRadius="0"
-                                                        Name="WinEManualGuidence"
-                                                        Click="WinEManualGuidence_Click"
-                                                        BorderThickness="1"
-                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                    <RelativePanel>
-                                                        <TextBlock Text="有关手动重定向Win+E的教程"
-                                                                   x:Uid="RedirectWinEGuidence"
-                                                                   TextWrapping="WrapWholeWords"
-                                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                   RelativePanel.AlignLeftWithPanel="True"
-                                                                   RelativePanel.LeftOf="SettingPageWinEQuestionAction1" />
-                                                        <Viewbox Name="SettingPageWinEQuestionAction1"
-                                                                 Height="20"
-                                                                 Width="20"
-                                                                 RelativePanel.AlignRightWithPanel="True"
-                                                                 RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                                      Glyph="&#xE71B;" />
-                                                        </Viewbox>
-                                                    </RelativePanel>
-                                                </Button>
-                                                <Button Padding="40,10,20,10"
-                                                        MinHeight="45"
-                                                        HorizontalAlignment="Stretch"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        CornerRadius="0,0,4,4"
-                                                        Name="WinEExportRestoreFile"
-                                                        Click="WinEExportRestoreFile_Click"
-                                                        BorderThickness="1"
-                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                    <RelativePanel>
-                                                        <TextBlock Text="导出用于自行关闭Win+E重定向的文件"
-                                                                   x:Uid="ShutdownWinEGuidence"
-                                                                   TextWrapping="WrapWholeWords"
-                                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                   RelativePanel.AlignLeftWithPanel="True"
-                                                                   RelativePanel.LeftOf="SettingPageWinEQuestionAction2" />
-                                                        <Viewbox Name="SettingPageWinEQuestionAction2"
-                                                                 Height="20"
-                                                                 Width="20"
-                                                                 RelativePanel.AlignRightWithPanel="True"
-                                                                 RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                      Foreground="{ThemeResource SystemAccentColor}"
-                                                                      Glyph="&#xEE71;" />
-                                                        </Viewbox>
-                                                    </RelativePanel>
-                                                </Button>
                                             </StackPanel>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
@@ -1401,7 +1457,7 @@
                                                                     <VisualState x:Name="ModeAcrylicState">
                                                                         <VisualState.StateTriggers>
                                                                             <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="Acrylic" />
+                                                                                                          To="CustomAcrylic" />
                                                                         </VisualState.StateTriggers>
                                                                         <VisualState.Setters>
                                                                             <Setter Target="PictureGirdView.IsEnabled"
@@ -1426,6 +1482,10 @@
                                                                                     Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderLabel.Foreground"
                                                                                     Value="Gray" />
+                                                                            <Setter Target="TintLuminositySliderValueText.Foreground"
+                                                                                    Value="Gray" />
+                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
+                                                                                    Value="Gray" />
                                                                             <Setter Target="AcrylicColor.IsEnabled"
                                                                                     Value="False" />
                                                                             <Setter Target="TintOpacitySlider.IsEnabled"
@@ -1448,6 +1508,10 @@
                                                                                     Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderLabel.Foreground"
                                                                                     Value="Gray" />
+                                                                            <Setter Target="TintLuminositySliderValueText.Foreground"
+                                                                                    Value="Gray" />
+                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
+                                                                                    Value="Gray" />
                                                                             <Setter Target="AcrylicColor.IsEnabled"
                                                                                     Value="False" />
                                                                             <Setter Target="TintOpacitySlider.IsEnabled"
@@ -1469,9 +1533,11 @@
                                                                                                           To="True" />
                                                                         </VisualState.StateTriggers>
                                                                         <VisualState.Setters>
-                                                                            <Setter Target="TintLuminositySliderLabel.Foreground"
+                                                                            <Setter Target="TintOpacitySliderLabel.Foreground"
                                                                                     Value="Gray" />
-                                                                            <Setter Target="TintLuminositySlider.IsEnabled"
+                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
+                                                                                    Value="Gray" />
+                                                                            <Setter Target="TintOpacitySlider.IsEnabled"
                                                                                     Value="False" />
                                                                         </VisualState.Setters>
                                                                     </VisualState>
@@ -1508,7 +1574,7 @@
                                                                            Background="Transparent"
                                                                            CornerRadius="0">
                                                                 <muxc:Expander.Header>
-                                                                    <StackPanel Padding="25,10,0,10">
+                                                                    <StackPanel Padding="24,10,0,10">
                                                                         <RadioButton Content="Acrylic背景"
                                                                                      x:Uid="CustomUISubtype1"
                                                                                      Name="AcrylicMode"
@@ -1607,10 +1673,12 @@
                                                                                             Maximum="1"
                                                                                             Minimum="0"
                                                                                             Width="180"
-                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}" />
+                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                                                                            ValueChanged="TintOpacitySlider_ValueChanged"/>
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
+                                                                                               Name="TintOpacitySliderValueText"
                                                                                                VerticalAlignment="Center" />
                                                                                 </StackPanel>
                                                                             </RelativePanel>
@@ -1648,10 +1716,12 @@
                                                                                             Maximum="1"
                                                                                             Minimum="0"
                                                                                             Width="180"
-                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}" />
+                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                                                                            ValueChanged="TintLuminositySlider_ValueChanged"/>
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
+                                                                                               Name="TintLuminositySliderValueText"
                                                                                                VerticalAlignment="Center" />
                                                                                 </StackPanel>
                                                                             </RelativePanel>
@@ -1669,7 +1739,7 @@
                                                                            Background="Transparent"
                                                                            CornerRadius="0">
                                                                 <muxc:Expander.Header>
-                                                                    <StackPanel Padding="25,10,0,10">
+                                                                    <StackPanel Padding="24,10,0,10">
                                                                         <RadioButton Content="自定义图片背景"
                                                                                      x:Uid="CustomUISubtype2"
                                                                                      Name="PictureMode"
@@ -1728,7 +1798,7 @@
                                                                 </muxc:Expander.Content>
                                                             </muxc:Expander>
 
-                                                            <Border Padding="41,10,10,10"
+                                                            <Border Padding="40,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
                                                                     BorderThickness="1"
@@ -1752,7 +1822,7 @@
                                                             </Border>
 
                                                             <StackPanel x:Name="BackgroundEffectArea">
-                                                                <Border Padding="41,10,10,10"
+                                                                <Border Padding="40,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0"
                                                                         BorderThickness="1"
@@ -1776,6 +1846,7 @@
                                                                                     Width="180"
                                                                                     StepFrequency="5"
                                                                                     Name="BackgroundBlurSlider"
+                                                                                    Value="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=TwoWay}"
                                                                                     ValueChanged="BackgroundBlurSlider_ValueChanged" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}"
                                                                                        Margin="5,0"
@@ -1784,7 +1855,7 @@
                                                                         </StackPanel>
                                                                     </RelativePanel>
                                                                 </Border>
-                                                                <Border Padding="41,10,10,10"
+                                                                <Border Padding="40,10,10,10"
                                                                         MinHeight="45"
                                                                         CornerRadius="0,0,4,4"
                                                                         BorderThickness="1"
@@ -1808,6 +1879,7 @@
                                                                                     Width="180"
                                                                                     StepFrequency="5"
                                                                                     Name="BackgroundLightSlider"
+                                                                                    Value="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=TwoWay}"
                                                                                     ValueChanged="BackgroundLightSlider_ValueChanged" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider.Value),Mode=OneWay}"
                                                                                        Margin="5,0"

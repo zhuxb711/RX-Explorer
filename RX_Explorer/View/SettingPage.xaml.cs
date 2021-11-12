@@ -339,6 +339,70 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
+        public static bool AlwaysLaunchNewProcess
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
+                {
+                    return AlwaysStartNew;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = value;
+        }
+
+        public static bool WindowAlwaysOnTop
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] is bool IsAlwayOnTop)
+                {
+                    return IsAlwayOnTop;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] = value;
+        }
+
+        public static string DefaultTerminalName
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
+                {
+                    return Terminal;
+                }
+                else
+                {
+                    return SQLite.Current.GetAllTerminalProfile().FirstOrDefault()?.Name ?? string.Empty;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = value;
+        }
+
+        public static bool PreventAcrylicFallbackEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
+                {
+                    return IsPrevent;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
+        }
+
         private string Version
         {
             get
@@ -546,18 +610,15 @@ namespace RX_Explorer
                                 }
                             case 2:
                                 {
-                                    if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
+                                    if (ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] is string Mode)
                                     {
                                         switch (Enum.Parse<BackgroundBrushType>(Mode))
                                         {
-                                            case BackgroundBrushType.Acrylic:
+                                            case BackgroundBrushType.CustomAcrylic:
                                                 {
                                                     if (AcrylicMode.IsChecked.GetValueOrDefault())
                                                     {
-                                                        if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
-                                                        {
-                                                            PreventFallBack.IsChecked = IsPrevent;
-                                                        }
+                                                        PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
                                                     }
                                                     else
                                                     {
@@ -698,6 +759,7 @@ namespace RX_Explorer
 
             DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+            InterceptDesktopFolderSwitch.Toggled -= InterceptDesktopFolder_Toggled;
             AutoBoot.Toggled -= AutoBoot_Toggled;
             HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
@@ -721,45 +783,38 @@ namespace RX_Explorer
             EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-
-            if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString)
-            {
-                FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString));
-            }
-            else
-            {
-                FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
-            }
+            FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Current);
 
             BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
             BackgroundLightSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
 
-            switch ((await StartupTask.GetAsync("RXExplorer")).State)
+            AutoBoot.IsOn = (await StartupTask.GetAsync("RXExplorer")).State switch
             {
-                case StartupTaskState.DisabledByPolicy:
-                case StartupTaskState.DisabledByUser:
-                case StartupTaskState.Disabled:
-                    {
-                        AutoBoot.IsOn = false;
-                        break;
-                    }
-                default:
-                    {
-                        AutoBoot.IsOn = true;
-                        break;
-                    }
-            }
+                StartupTaskState.DisabledByPolicy
+                or StartupTaskState.DisabledByUser
+                or StartupTaskState.Disabled => false,
+                _ => true
+            };
 
-            if (ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
+            FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
+            TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
+            EnableQuicklook.IsOn = IsQuicklookEnabled;
+            DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
+            HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
+            TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
+            SearchHistory.IsOn = IsSearchHistoryEnabled;
+            PathHistory.IsOn = IsPathHistoryEnabled;
+            NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
+            AlwaysLaunchNew.IsChecked = AlwaysLaunchNewProcess;
+            AlwaysOnTop.IsOn = WindowAlwaysOnTop;
+
+            if (DefaultTerminal.Items.Contains(DefaultTerminalName))
             {
-                if (DefaultTerminal.Items.Contains(Terminal))
-                {
-                    DefaultTerminal.SelectedItem = Terminal;
-                }
-                else
-                {
-                    DefaultTerminal.SelectedIndex = 0;
-                }
+                DefaultTerminal.SelectedItem = DefaultTerminalName;
+            }
+            else
+            {
+                DefaultTerminal.SelectedIndex = 0;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["DefaultDisplayMode"] is int DisplayModeIndex)
@@ -779,21 +834,6 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = 0;
                 UIMode.SelectedIndex = 0;
-            }
-
-            FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
-            TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
-            EnableQuicklook.IsOn = IsQuicklookEnabled;
-            DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
-            HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
-            TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
-            SearchHistory.IsOn = IsSearchHistoryEnabled;
-            PathHistory.IsOn = IsPathHistoryEnabled;
-            NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
-
-            if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
-            {
-                AlwaysLaunchNew.IsChecked = AlwaysStartNew;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
@@ -876,15 +916,6 @@ namespace RX_Explorer
                 AvoidRecycleBin.IsChecked = false;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] is bool IsAlwayOnTop)
-            {
-                AlwaysOnTop.IsOn = IsAlwayOnTop;
-            }
-            else
-            {
-                AlwaysOnTop.IsOn = false;
-            }
-
             switch (StartupModeController.Mode)
             {
                 case StartupMode.CreateNewTab:
@@ -928,6 +959,7 @@ namespace RX_Explorer
             }
 
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+            InterceptDesktopFolderSwitch.Toggled += InterceptDesktopFolder_Toggled;
             DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
             AutoBoot.Toggled += AutoBoot_Toggled;
             HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
@@ -1027,7 +1059,7 @@ namespace RX_Explorer
         {
             try
             {
-                ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] = AlwaysOnTop.IsOn;
+                WindowAlwaysOnTop = AlwaysOnTop.IsOn;
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
@@ -1099,7 +1131,7 @@ namespace RX_Explorer
 
         private void DefaultTerminal_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = Convert.ToString(DefaultTerminal.SelectedItem);
+            DefaultTerminalName = Convert.ToString(DefaultTerminal.SelectedItem);
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -1265,14 +1297,8 @@ namespace RX_Explorer
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
-                            MainPage.Current.BackgroundBlur.BlurAmount = 0;
-                            MainPage.Current.BackgroundBlur.TintOpacity = 0;
 
-                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
-                            BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
-                            BackgroundController.Current.TintOpacity = 0.6;
-                            BackgroundController.Current.TintLuminosityOpacity = -1;
-                            BackgroundController.Current.AcrylicColor = Colors.SlateGray;
+                            BackgroundController.Current.SwitchTo(BackgroundBrushType.DefaultAcrylic);
 
                             ApplicationData.Current.SignalDataChanged();
                             break;
@@ -1283,10 +1309,6 @@ namespace RX_Explorer
                             PictureMode.IsChecked = null;
                             PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
-                            MainPage.Current.BackgroundBlur.BlurAmount = 0;
-                            MainPage.Current.BackgroundBlur.TintOpacity = 0;
-
-                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
                             if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                             {
@@ -1312,11 +1334,11 @@ namespace RX_Explorer
                             SolidColor_Black.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
 
-                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
+                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] is string Mode)
                             {
                                 switch (Enum.Parse<BackgroundBrushType>(Mode))
                                 {
-                                    case BackgroundBrushType.Acrylic:
+                                    case BackgroundBrushType.CustomAcrylic:
                                         {
                                             AcrylicMode.IsChecked = true;
                                             break;
@@ -1336,30 +1358,6 @@ namespace RX_Explorer
                             else
                             {
                                 AcrylicMode.IsChecked = true;
-
-                                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
-                                {
-                                    double Value = double.Parse(Luminosity);
-                                    TintLuminositySlider.Value = Value;
-                                    BackgroundController.Current.TintLuminosityOpacity = Value;
-                                }
-                                else
-                                {
-                                    TintLuminositySlider.Value = 0.8;
-                                    BackgroundController.Current.TintLuminosityOpacity = 0.8;
-                                }
-
-                                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
-                                {
-                                    double Value = double.Parse(Opacity);
-                                    TintOpacitySlider.Value = Value;
-                                    BackgroundController.Current.TintOpacity = Value;
-                                }
-                                else
-                                {
-                                    TintOpacitySlider.Value = 0.6;
-                                    BackgroundController.Current.TintOpacity = 0.6;
-                                }
                             }
 
                             break;
@@ -1373,10 +1371,7 @@ namespace RX_Explorer
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
-                            MainPage.Current.BackgroundBlur.BlurAmount = 0;
-                            MainPage.Current.BackgroundBlur.TintOpacity = 0;
 
-                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
                             ApplicationData.Current.SignalDataChanged();
                             break;
@@ -1420,66 +1415,10 @@ namespace RX_Explorer
             {
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
 
-                MainPage.Current.BackgroundBlur.BlurAmount = 0;
-                MainPage.Current.BackgroundBlur.TintOpacity = 0;
-
-                ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
-
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
-
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
-                {
-                    if (double.TryParse(Luminosity, out double Value))
-                    {
-                        TintLuminositySlider.Value = Value;
-                        BackgroundController.Current.TintLuminosityOpacity = Value;
-                    }
-                    else
-                    {
-                        TintLuminositySlider.Value = 0.8;
-                        BackgroundController.Current.TintLuminosityOpacity = 0.8;
-                    }
-                }
-                else
-                {
-                    TintLuminositySlider.Value = 0.8;
-                    BackgroundController.Current.TintLuminosityOpacity = 0.8;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
-                {
-                    if (double.TryParse(Opacity, out double Value))
-                    {
-                        TintOpacitySlider.Value = Value;
-                        BackgroundController.Current.TintOpacity = Value;
-                    }
-                    else
-                    {
-                        TintOpacitySlider.Value = 0.6;
-                        BackgroundController.Current.TintOpacity = 0.6;
-                    }
-                }
-                else
-                {
-                    TintOpacitySlider.Value = 0.6;
-                    BackgroundController.Current.TintOpacity = 0.6;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
-                {
-                    BackgroundController.Current.AcrylicColor = AcrylicColor.ToColor();
-                }
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.CustomAcrylic);
 
                 PreventFallBack.IsChecked = null;
-
-                if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
-                {
-                    PreventFallBack.IsChecked = IsPrevent;
-                }
-                else
-                {
-                    PreventFallBack.IsChecked = false;
-                }
+                PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
             }
             catch (Exception ex)
             {
@@ -1497,17 +1436,10 @@ namespace RX_Explorer
             {
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
 
-                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
-
-                MainPage.Current.BackgroundBlur.BlurAmount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 10;
-                MainPage.Current.BackgroundBlur.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]) / 200;
-
                 if (PictureList.Count == 0)
                 {
                     PictureList.AddRange(await GetCustomPictureAsync());
                 }
-
-                ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
 
                 if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
                 {
@@ -1569,17 +1501,10 @@ namespace RX_Explorer
             {
                 GetBingPhotoState.Visibility = Visibility.Visible;
 
-                MainPage.Current.BackgroundBlur.BlurAmount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 10;
-                MainPage.Current.BackgroundBlur.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]) / 200;
-
-                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
-
                 bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate();
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
-                    ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
-
                     using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
                     {
                         BitmapImage Bitmap = new BitmapImage();
@@ -1639,7 +1564,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
             }
             catch (Exception ex)
@@ -2163,30 +2088,18 @@ namespace RX_Explorer
 
         private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            try
-            {
-                MainPage.Current.BackgroundBlur.BlurAmount = e.NewValue / 10;
-                ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Change BackgroundBlur failed");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
+            ApplicationData.Current.SignalDataChanged();
         }
 
         private void AlwaysLaunchNew_Checked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+            AlwaysLaunchNewProcess = true;
             ApplicationData.Current.SignalDataChanged();
         }
 
         private void AlwaysLaunchNew_Unchecked(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = false;
+            AlwaysLaunchNewProcess = false;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -2223,8 +2136,8 @@ namespace RX_Explorer
         {
             try
             {
+                PreventAcrylicFallbackEnabled = true;
                 BackgroundController.Current.IsCompositionAcrylicEnabled = true;
-                ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = true;
             }
             catch (Exception ex)
             {
@@ -2240,8 +2153,8 @@ namespace RX_Explorer
         {
             try
             {
+                PreventAcrylicFallbackEnabled = false;
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
-                ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = false;
             }
             catch (Exception ex)
             {
@@ -2811,19 +2724,7 @@ namespace RX_Explorer
 
         private void BackgroundLightSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            try
-            {
-                MainPage.Current.BackgroundBlur.TintOpacity = e.NewValue / 200;
-                ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = Convert.ToSingle(e.NewValue);
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Change BackgroundLight failed");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
+            ApplicationData.Current.SignalDataChanged();
         }
 
         private async void ReviewButton_Click(object sender, RoutedEventArgs e)
@@ -3216,6 +3117,21 @@ namespace RX_Explorer
             {
                 await PictureGirdView.SmoothScrollIntoViewWithItemAsync(Picture, ScrollItemPlacement.Center);
             }
+        }
+
+        private void InterceptDesktopFolder_Toggled(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TintOpacitySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void TintLuminositySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }

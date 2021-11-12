@@ -1752,7 +1752,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>No se ha podido restablecer Win+E debido a un error inesperado.</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>Usar [Win+E] para activar esta aplicación</value>
+    <value>Interceptar la tecla de método abreviado [Win + E]</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>Discapacitado</value>
@@ -3258,7 +3258,7 @@ Las denominaciones no válidas son:
     <value>Controlar el diseño de la vista de navegación</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>[Win+E] siempre abrirá un nuevo proceso después de habilitar esta opción, de lo contrario [Win+E] solo abrirá una nueva pestaña</value>
+    <value>Siempre se abrirá un nuevo proceso cuando se active después de habilitar esta opción; de lo contrario, solo abrirá una nueva pestaña</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>Controlar si los efectos de animación están habilitados para cada componente de la aplicación</value>
@@ -3292,5 +3292,17 @@ Las denominaciones no válidas son:
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>No se puede cargar esta imagen.</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>Proporcionar opciones relacionadas con la integración de esta aplicación y los componentes del sistema.</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>Integrar con los componentes del sistema</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>Use esta aplicación como el programa predeterminado para la carpeta del escritorio después de habilitar esta opción</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>Interceptado y utilizado como programa predeterminado para la carpeta del escritorio</value>
   </data>
 </root>

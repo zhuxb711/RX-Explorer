@@ -229,55 +229,8 @@ namespace RX_Explorer
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is float BlurValue)
+            if (SystemInformation.Instance.IsFirstRun)
             {
-                switch (BackgroundController.Current.CurrentType)
-                {
-                    case BackgroundBrushType.BingPicture:
-                    case BackgroundBrushType.Picture:
-                        {
-                            BackgroundBlur.BlurAmount = BlurValue / 10;
-                            break;
-                        }
-                    default:
-                        {
-                            BackgroundBlur.BlurAmount = 0;
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                BackgroundBlur.BlurAmount = 0;
-                ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = 0d;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is float LightValue)
-            {
-                switch (BackgroundController.Current.CurrentType)
-                {
-                    case BackgroundBrushType.BingPicture:
-                    case BackgroundBrushType.Picture:
-                        {
-                            BackgroundBlur.TintOpacity = LightValue / 200;
-                            break;
-                        }
-                    default:
-                        {
-                            BackgroundBlur.TintOpacity = 0;
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                BackgroundBlur.TintOpacity = 0;
-                ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = 0d;
-            }
-
-            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
-            {
-                ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                 {
                     case LaunchQuerySupportStatus.Available:
@@ -289,30 +242,22 @@ namespace RX_Explorer
                 }
             }
 
-            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
+            if (SettingPage.WindowAlwaysOnTop)
             {
-                ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] is bool IsAlwayOnTop)
-            {
-                if (IsAlwayOnTop)
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using Process CurrentProcess = Process.GetCurrentProcess();
+
+                    if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
                     {
-                        using Process CurrentProcess = Process.GetCurrentProcess();
-
-                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                            await Dialog.ShowAsync();
-                        }
+                        await Dialog.ShowAsync();
                     }
                 }
             }

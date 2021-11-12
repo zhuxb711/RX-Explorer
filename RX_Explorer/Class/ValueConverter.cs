@@ -8,6 +8,77 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class BackgroundBrushTypeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return value switch
+            {
+                BackgroundBrushType.BingPicture or BackgroundBrushType.Picture => Visibility.Visible,
+                _ => Visibility.Collapsed
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class BackgroundBlurConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double dNum)
+            {
+                return dNum / 10;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double dNum)
+            {
+                return dNum * 10;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
+    public sealed class BackgroundLightnessConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double dNum)
+            {
+                return dNum / 200;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double dNum)
+            {
+                return dNum * 200;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
     public sealed class ColorTagConverter : IValueConverter
     {
         private readonly IReadOnlyDictionary<ColorTag, string> ColorTagMap = new Dictionary<ColorTag, string>

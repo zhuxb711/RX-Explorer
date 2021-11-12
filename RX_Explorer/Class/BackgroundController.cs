@@ -3,7 +3,6 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using ShareClassLibrary;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -25,10 +24,9 @@ namespace RX_Explorer.Class
     /// </summary>
     public class BackgroundController : INotifyPropertyChanged
     {
-        /// <summary>
-        /// 亚克力背景刷
-        /// </summary>
-        private readonly AcrylicBrush AcrylicBackgroundBrush;
+        private readonly AcrylicBrush CustomAcrylicBackgroundBrush;
+
+        private readonly AcrylicBrush DefaultAcrylicBackgroundBrush;
 
         private CompositionEffectBrush CompositionAcrylicBrush;
 
@@ -36,7 +34,6 @@ namespace RX_Explorer.Class
 
         private UIElement CompositionAcrylicPresenter;
 
-        private bool isCompositionAcrylicEnabled;
         public bool IsCompositionAcrylicEnabled
         {
             get
@@ -63,7 +60,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool isMicaEffectEnabled;
         public bool IsMicaEffectEnabled
         {
             get
@@ -79,6 +75,10 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
+        private bool isMicaEffectEnabled;
+        private bool isCompositionAcrylicEnabled;
+        private BackgroundBrushType currentType;
 
         /// <summary>
         /// 图片背景刷
@@ -104,7 +104,19 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 指示当前的背景类型
         /// </summary>
-        public BackgroundBrushType CurrentType { get; private set; }
+        public BackgroundBrushType CurrentType
+        {
+            get
+            {
+                return currentType;
+            }
+            private set
+            {
+                currentType = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BackgroundBrush));
+            }
+        }
 
         /// <summary>
         /// 对外统一提供背景
@@ -115,9 +127,13 @@ namespace RX_Explorer.Class
             {
                 switch (CurrentType)
                 {
-                    case BackgroundBrushType.Acrylic:
+                    case BackgroundBrushType.DefaultAcrylic:
                         {
-                            return AcrylicBackgroundBrush;
+                            return DefaultAcrylicBackgroundBrush;
+                        }
+                    case BackgroundBrushType.CustomAcrylic:
+                        {
+                            return CustomAcrylicBackgroundBrush;
                         }
                     case BackgroundBrushType.Picture:
                         {
@@ -135,7 +151,47 @@ namespace RX_Explorer.Class
             }
         }
 
-        private volatile static BackgroundController Instance;
+        public double BackgroundBlur
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is double BlurValue)
+                {
+                    return BlurValue;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double BackgroundLightness
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is double LightValue)
+                {
+                    return LightValue;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private static BackgroundController Instance;
 
         private static readonly object Locker = new object();
 
@@ -187,33 +243,61 @@ namespace RX_Explorer.Class
                 }
             }
 
+            DefaultAcrylicBackgroundBrush = new AcrylicBrush
+            {
+                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                TintColor = Colors.SlateGray,
+                TintOpacity = 0.4,
+                FallbackColor = Colors.DimGray
+            };
+
+            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double TintOpacity)
+            {
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double TintLuminosity)
+                {
+                    CustomAcrylicBackgroundBrush = new AcrylicBrush
+                    {
+                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
+                        TintOpacity = 1 - TintOpacity,
+                        TintLuminosityOpacity = 1 - TintLuminosity,
+                        FallbackColor = Colors.DimGray
+                    };
+                }
+                else
+                {
+                    CustomAcrylicBackgroundBrush = new AcrylicBrush
+                    {
+                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
+                        TintOpacity = 1 - TintOpacity,
+                        FallbackColor = Colors.DimGray
+                    };
+                }
+            }
+            else
+            {
+                CustomAcrylicBackgroundBrush = new AcrylicBrush
+                {
+                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                    TintColor = Colors.SlateGray,
+                    TintOpacity = 0.4,
+                    FallbackColor = Colors.DimGray
+                };
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
                 switch (ModeIndex)
                 {
                     case 0:
                         {
-                            AcrylicBackgroundBrush = new AcrylicBrush
-                            {
-                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.SlateGray,
-                                TintOpacity = 0.4,
-                                FallbackColor = Colors.DimGray
-                            };
-
-                            CurrentType = BackgroundBrushType.Acrylic;
-
+                            CurrentType = BackgroundBrushType.DefaultAcrylic;
                             break;
                         }
                     case 1:
                         {
-                            AcrylicBackgroundBrush = new AcrylicBrush
-                            {
-                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.SlateGray,
-                                TintOpacity = 0.4,
-                                FallbackColor = Colors.DimGray
-                            };
+                            CurrentType = BackgroundBrushType.SolidColor;
 
                             if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
                             {
@@ -224,72 +308,30 @@ namespace RX_Explorer.Class
                                 AppThemeController.Current.Theme = ElementTheme.Dark;
                             }
 
-                            CurrentType = BackgroundBrushType.SolidColor;
-
                             break;
                         }
                     case 2:
                         {
-                            if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]), out double TintOpacity))
+                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] is string SubMode)
                             {
-                                if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
+                                CurrentType = Enum.Parse<BackgroundBrushType>(SubMode);
+
+                                if (CurrentType == BackgroundBrushType.CustomAcrylic)
                                 {
-                                    AcrylicBackgroundBrush = new AcrylicBrush
-                                    {
-                                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
-                                        TintOpacity = 1 - TintOpacity,
-                                        TintLuminosityOpacity = 1 - TintLuminosity,
-                                        FallbackColor = Colors.DimGray
-                                    };
-                                }
-                                else
-                                {
-                                    AcrylicBackgroundBrush = new AcrylicBrush
-                                    {
-                                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.ToColor() : Colors.SlateGray,
-                                        TintOpacity = 1 - TintOpacity,
-                                        FallbackColor = Colors.DimGray
-                                    };
+                                    IsCompositionAcrylicEnabled = SettingPage.PreventAcrylicFallbackEnabled;
                                 }
                             }
                             else
                             {
-                                AcrylicBackgroundBrush = new AcrylicBrush
-                                {
-                                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                    TintColor = Colors.SlateGray,
-                                    TintOpacity = 0.4,
-                                    FallbackColor = Colors.DimGray
-                                };
-                            }
-
-                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
-                            {
-                                CurrentType = Enum.Parse<BackgroundBrushType>(SubMode);
-
-                                if (CurrentType == BackgroundBrushType.Acrylic && ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
-                                {
-                                    IsCompositionAcrylicEnabled = IsPrevent;
-                                }
+                                CurrentType = BackgroundBrushType.CustomAcrylic;
                             }
 
                             break;
                         }
                     default:
                         {
-                            AcrylicBackgroundBrush = new AcrylicBrush
-                            {
-                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = Colors.SlateGray,
-                                TintOpacity = 0.4,
-                                FallbackColor = Colors.DimGray
-                            };
-
-                            CurrentType = BackgroundBrushType.Mica;
-
                             IsMicaEffectEnabled = true;
+                            CurrentType = BackgroundBrushType.Mica;
                             AppThemeController.Current.SyncAndSetSystemTheme();
                             break;
                         }
@@ -297,7 +339,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                AcrylicBackgroundBrush = new AcrylicBrush
+                CustomAcrylicBackgroundBrush = new AcrylicBrush
                 {
                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
                     TintColor = Colors.SlateGray,
@@ -305,9 +347,7 @@ namespace RX_Explorer.Class
                     FallbackColor = Colors.DimGray
                 };
 
-                CurrentType = BackgroundBrushType.Acrylic;
-
-                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = 0.6;
+                CurrentType = BackgroundBrushType.DefaultAcrylic;
             }
         }
 
@@ -315,33 +355,29 @@ namespace RX_Explorer.Class
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Luminosity)
                 {
-                    if (double.TryParse(Luminosity, out double Result))
-                    {
-                        TintLuminosityOpacity = Result;
-                    }
-                    else
-                    {
-                        TintLuminosityOpacity = 0.8;
-                    }
+                    TintLuminosityOpacity = Luminosity;
                 }
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
                 {
-                    if (double.TryParse(Opacity, out double Result))
-                    {
-                        TintOpacity = Result;
-                    }
-                    else
-                    {
-                        TintOpacity = 0.6;
-                    }
+                    TintOpacity = Opacity;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
                 {
                     this.AcrylicColor = AcrylicColor.ToColor();
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is float BlurValue)
+                {
+                    BackgroundBlur = BlurValue;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is float LightnessValue)
+                {
+                    BackgroundLightness = LightnessValue;
                 }
             });
         }
@@ -468,16 +504,7 @@ namespace RX_Explorer.Class
 
             CompositionBackdropBrush BackdropBrush = VisualCompositor.CreateHostBackdropBrush();
 
-            float AcrylicAmount;
-
-            if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
-            {
-                AcrylicAmount = Convert.ToSingle(TintLuminosity);
-            }
-            else
-            {
-                AcrylicAmount = 0.8f;
-            }
+            float AcrylicAmount = Convert.ToSingle(TintLuminosityOpacity);
 
             GaussianBlurEffect BlurEffect = new GaussianBlurEffect()
             {
@@ -492,7 +519,7 @@ namespace RX_Explorer.Class
                     Source2 = new ColorSourceEffect
                     {
                         Name = "Tint",
-                        Color = (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)
+                        Color = (Color)CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)
                     },
                     Source1Amount = AcrylicAmount,
                     Source2Amount = 1 - AcrylicAmount
@@ -538,20 +565,20 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty));
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
+                {
+                    return Opacity;
+                }
+                else
+                {
+                    return 0.4;
+                }
             }
             set
             {
-                double CurrentValue = Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty));
-
-                if (CurrentValue != 1 - value)
-                {
-                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
-                    ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = Convert.ToString(value);
-
-                    OnPropertyChanged();
-                    ApplicationData.Current.SignalDataChanged();
-                }
+                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] = value;
+                OnPropertyChanged();
             }
         }
 
@@ -582,7 +609,14 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Opacity)
+                    {
+                        return Opacity;
+                    }
+                    else
+                    {
+                        return 0.8;
+                    }
                 }
             }
             set
@@ -593,24 +627,9 @@ namespace RX_Explorer.Class
                     CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", 1 - Convert.ToSingle(value));
                 }
 
-                if (value == -1)
-                {
-                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
-                    ApplicationData.Current.LocalSettings.Values.Remove("BackgroundTintLuminosity");
-                }
-                else
-                {
-                    double CurrentValue = Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
-
-                    if (CurrentValue != 1 - value)
-                    {
-                        AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
-                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = Convert.ToString(value);
-
-                        OnPropertyChanged();
-                        ApplicationData.Current.SignalDataChanged();
-                    }
-                }
+                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] = value;
+                OnPropertyChanged();
             }
         }
 
@@ -641,7 +660,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+                    return (Color)CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
                 }
             }
             set
@@ -654,9 +673,9 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                if (AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty) is Color CurrentColor && CurrentColor.ToHex() != value.ToHex())
+                if (CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty) is Color CurrentColor && CurrentColor.ToHex() != value.ToHex())
                 {
-                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
+                    CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
                     ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = value.ToHex();
 
                     OnPropertyChanged();
@@ -674,39 +693,54 @@ namespace RX_Explorer.Class
         {
             CurrentType = Type;
 
-            OnPropertyChanged(nameof(CurrentType));
-
             switch (Type)
             {
-                case BackgroundBrushType.Acrylic:
+                case BackgroundBrushType.DefaultAcrylic:
                     {
                         IsMicaEffectEnabled = false;
+                        IsCompositionAcrylicEnabled = false;
+
                         AppThemeController.Current.Theme = ElementTheme.Dark;
-                        OnPropertyChanged(nameof(BackgroundBrush));
+
+                        break;
+                    }
+                case BackgroundBrushType.CustomAcrylic:
+                    {
+                        IsMicaEffectEnabled = false;
+                        IsCompositionAcrylicEnabled = false;
+
+                        AppThemeController.Current.Theme = ElementTheme.Dark;
+                        ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.CustomAcrylic);
+
                         break;
                     }
                 case BackgroundBrushType.Picture:
                     {
                         IsMicaEffectEnabled = false;
-                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
+                        IsCompositionAcrylicEnabled = false;
 
-                        OnPropertyChanged(nameof(BackgroundBrush));
+                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.Picture)}', parameter: '{nameof(Background)}' could not be null");
+
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = Convert.ToString(ImageUri);
+                        ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
 
                         break;
                     }
                 case BackgroundBrushType.BingPicture:
                     {
                         IsMicaEffectEnabled = false;
+                        IsCompositionAcrylicEnabled = false;
+
                         BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: '{nameof(Type)}' is '{nameof(BackgroundBrushType.BingPicture)}', parameter: '{nameof(Background)}' could not be null");
 
-                        OnPropertyChanged(nameof(BackgroundBrush));
+                        ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
                         break;
                     }
                 case BackgroundBrushType.SolidColor:
                     {
                         IsMicaEffectEnabled = false;
+                        IsCompositionAcrylicEnabled = false;
 
                         if (Color == null)
                         {
@@ -720,14 +754,15 @@ namespace RX_Explorer.Class
                             ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
                         }
 
-                        OnPropertyChanged(nameof(BackgroundBrush));
-
                         break;
                     }
                 case BackgroundBrushType.Mica:
                     {
                         IsMicaEffectEnabled = true;
+                        IsCompositionAcrylicEnabled = false;
+
                         AppThemeController.Current.SyncAndSetSystemTheme();
+
                         break;
                     }
             }

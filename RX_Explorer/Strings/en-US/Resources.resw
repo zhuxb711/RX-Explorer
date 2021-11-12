@@ -1866,7 +1866,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Unable to restore Win+E due to an unexpected error</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>Use [Win+E] to activate this app</value>
+    <value>Intercept [Win+E] shortcut key</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>Disabled</value>
@@ -3363,7 +3363,7 @@ Invalid names include
     <value>Control the layout of the navigation view</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</value>
+    <value>A new process will always be opened when activated after enabling this option, otherwise it will only open a new tab</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>Control whether animation effects are enabled for each component in the application</value>
@@ -3397,5 +3397,17 @@ Invalid names include
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>Unable to load this image</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>Provide options related to the integration of this application and system components</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>Integrate with system components</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>Use this application as the default program for the desktop folder after enabling this option</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>Intercepted and used as the default program for the desktop folder</value>
   </data>
 </root>

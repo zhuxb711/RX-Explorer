@@ -2241,8 +2241,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Impossible de restaurer Win + E en raison d'une erreur inattendue</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
-          <source>Use [Win+E] to activate this app</source>
-          <target state="translated">Utilisez [Win+E] pour activer l'application</target>
+          <source>Intercept [Win+E] shortcut key</source>
+          <target state="translated">Intercepter la touche de raccourci [Win+E]</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4326,8 +4326,8 @@ Les noms non valides incluent
           <target state="translated">Contrôler la disposition de la vue de navigation</target>
         </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNewDescription.Text" translate="yes" xml:space="preserve">
-          <source>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</source>
-          <target state="translated">[Win+E] ouvrira toujours un nouveau processus après avoir activé cette option, sinon [Win+E] n'ouvrira qu'un nouvel onglet</target>
+          <source>A new process will always be opened when activated after enabling this option, otherwise it will only open a new tab</source>
+          <target state="translated">Un nouveau processus sera toujours ouvert lorsqu'il est activé après avoir activé cette option, sinon il n'ouvrira qu'un nouvel onglet</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitchDescription.Text" translate="yes" xml:space="preserve">
           <source>Control whether animation effects are enabled for each component in the application</source>
@@ -4372,6 +4372,22 @@ Les noms non valides incluent
         <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
           <source>Unable to load this image</source>
           <target state="translated">Impossible de charger cette image</target>
+        </trans-unit>
+        <trans-unit id="IntegrateSystemComponentsDescription.Text" translate="yes" xml:space="preserve">
+          <source>Provide options related to the integration of this application and system components</source>
+          <target state="translated">Fournir des options liées à l'intégration de cette application et des composants du système</target>
+        </trans-unit>
+        <trans-unit id="IntegrateSystemComponentsLabel.Text" translate="yes" xml:space="preserve">
+          <source>Integrate with system components</source>
+          <target state="translated">Intégration avec les composants du système</target>
+        </trans-unit>
+        <trans-unit id="InterceptDesktopFolderDescription.Text" translate="yes" xml:space="preserve">
+          <source>Use this application as the default program for the desktop folder after enabling this option</source>
+          <target state="translated">Utilisez cette application comme programme par défaut pour le dossier du bureau après avoir activé cette option</target>
+        </trans-unit>
+        <trans-unit id="InterceptDesktopFolderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Intercepted and used as the default program for the desktop folder</source>
+          <target state="translated">Intercepté et utilisé comme programme par défaut pour le dossier du bureau</target>
         </trans-unit>
       </group>
     </body>

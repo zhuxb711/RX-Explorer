@@ -106,14 +106,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            bool AlwaysStartNew = true;
-
-                            if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool StartNew)
-                            {
-                                AlwaysStartNew = StartNew;
-                            }
-
-                            if (AlwaysStartNew)
+                            if (SettingPage.AlwaysLaunchNewProcess)
                             {
                                 string InstanceId = Guid.NewGuid().ToString();
                                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);

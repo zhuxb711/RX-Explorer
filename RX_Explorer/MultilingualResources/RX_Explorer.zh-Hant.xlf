@@ -2245,8 +2245,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">由於意外錯誤，無法定向Win + E</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
-          <source>Use [Win+E] to activate this app</source>
-          <target state="translated">使用[Win + E]執行此程式</target>
+          <source>Intercept [Win+E] shortcut key</source>
+          <target state="translated">攔截[Win+E]快捷鍵</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4326,8 +4326,8 @@ Invalid names include
           <target state="translated">控制導航視圖的佈局</target>
         </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNewDescription.Text" translate="yes" xml:space="preserve">
-          <source>[Win+E] will always open a new process after enabling this option, otherwise [Win+E] will only open a new tab</source>
-          <target state="translated">[Win+E]開啟此選項後會一直打開新進程，否則[Win+E]只會打開新標籤頁</target>
+          <source>A new process will always be opened when activated after enabling this option, otherwise it will only open a new tab</source>
+          <target state="translated">啟用此選項後激活時將始終打開一個新進程，否則只會打開一個新選項卡</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitchDescription.Text" translate="yes" xml:space="preserve">
           <source>Control whether animation effects are enabled for each component in the application</source>
@@ -4372,6 +4372,22 @@ Invalid names include
         <trans-unit id="LoadPhotoFailed.Text" translate="yes" xml:space="preserve">
           <source>Unable to load this image</source>
           <target state="translated">無法加載此圖片</target>
+        </trans-unit>
+        <trans-unit id="IntegrateSystemComponentsDescription.Text" translate="yes" xml:space="preserve">
+          <source>Provide options related to the integration of this application and system components</source>
+          <target state="translated">提供與此應用程序和系統組件集成相關的選項</target>
+        </trans-unit>
+        <trans-unit id="IntegrateSystemComponentsLabel.Text" translate="yes" xml:space="preserve">
+          <source>Integrate with system components</source>
+          <target state="translated">與系統組件集成</target>
+        </trans-unit>
+        <trans-unit id="InterceptDesktopFolderDescription.Text" translate="yes" xml:space="preserve">
+          <source>Use this application as the default program for the desktop folder after enabling this option</source>
+          <target state="translated">啟用此選項後將此應用程序用作桌面文件夾的默認程序</target>
+        </trans-unit>
+        <trans-unit id="InterceptDesktopFolderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Intercepted and used as the default program for the desktop folder</source>
+          <target state="translated">攔截並用作桌面文件夾的默認程序</target>
         </trans-unit>
       </group>
     </body>

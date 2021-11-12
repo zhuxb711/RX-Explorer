@@ -395,24 +395,29 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 使用亚克力背景
         /// </summary>
-        Acrylic = 0,
+        DefaultAcrylic = 0,
+
+        /// <summary>
+        /// 使用亚克力背景
+        /// </summary>
+        CustomAcrylic = 1,
 
         /// <summary>
         /// 使用图片背景
         /// </summary>
-        Picture = 1,
+        Picture = 2,
 
         /// <summary>
         /// 使用纯色背景
         /// </summary>
-        SolidColor = 2,
+        SolidColor = 4,
 
         /// <summary>
         /// 使用Bing图片作为背景
         /// </summary>
-        BingPicture = 4,
+        BingPicture = 8,
 
-        Mica = 8
+        Mica = 16
     }
 
     /// <summary>

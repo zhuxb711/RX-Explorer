@@ -1697,7 +1697,7 @@
     <value>由于出现了意外错误，无法还原Win+E键</value>
   </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
-    <value>使用[Win+E]激活此应用</value>
+    <value>拦截[Win+E]快捷键</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3258,7 +3258,7 @@
     <value>控制导航栏布局位置</value>
   </data>
   <data name="SettingPageAlwaysLaunchNewDescription.Text" xml:space="preserve">
-    <value>启用此选项后[Win+E]将始终打开一个新的进程，否则[Win+E]将仅打开一个新的标签页</value>
+    <value>启用此选项后将在激活时始终打开一个新的进程，否则将仅打开一个新的标签页</value>
   </data>
   <data name="SettingPageAnimationSwitchDescription.Text" xml:space="preserve">
     <value>控制应用内各组件是否启用动画效果</value>
@@ -3292,5 +3292,17 @@
   </data>
   <data name="LoadPhotoFailed.Text" xml:space="preserve">
     <value>无法加载此图片</value>
+  </data>
+  <data name="IntegrateSystemComponentsDescription.Text" xml:space="preserve">
+    <value>提供有关本应用与系统组件集成等选项</value>
+  </data>
+  <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
+    <value>与系统组件集成</value>
+  </data>
+  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
+    <value>启用此选项后将使用本应用作为桌面文件夹的默认打开方式</value>
+  </data>
+  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
+    <value>拦截并作为桌面文件夹的默认打开方式</value>
   </data>
 </root>
