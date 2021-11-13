@@ -1687,15 +1687,6 @@
   <data name="Font_Color_White" xml:space="preserve">
     <value>Blanc</value>
   </data>
-  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
-    <value>Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>Impossible de rediriger Win+E en raison d'une erreur inattendue</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
-    <value>Impossible de restaurer Win + E en raison d'une erreur inattendue</value>
-  </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Intercepter la touche de raccourci [Win+E]</value>
   </data>
@@ -3299,10 +3290,28 @@ Les noms non valides incluent
   <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
     <value>Intégration avec les composants du système</value>
   </data>
-  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
-    <value>Utilisez cette application comme programme par défaut pour le dossier du bureau après avoir activé cette option</value>
+  <data name="InterceptFolderDescription.Text" xml:space="preserve">
+    <value>Utilisez cette application comme programme par défaut pour le dossier après avoir activé cette option</value>
   </data>
-  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
-    <value>Intercepté et utilisé comme programme par défaut pour le dossier du bureau</value>
+  <data name="InterceptFolderLabel.Text" xml:space="preserve">
+    <value>Intercepté et utilisé comme programme par défaut pour le dossier</value>
+  </data>
+  <data name="ModifySystemFileDeclare.Text" xml:space="preserve">
+    <value>Cette fonctionnalité modifiera le fichier de registre système pour atteindre l'objectif correspondant. Veuillez prêter une attention particulière : Puisqu'il est impossible de restaurer automatiquement les fichiers système modifiés avant la désinstallation, vous devez désactiver cette fonctionnalité avant de désinstaller après avoir activé cette fonction, sinon le système fonctionnera anormalement. Après avoir cliqué sur Continuer, vous êtes réputé avoir lu attentivement la déclaration ci-dessus et autorisé à modifier les fichiers système. Cette application n'assume aucune responsabilité en cas de violation de cette déclaration.</value>
+  </data>
+  <data name="ModifySystemFileDeclareDoubleConfirm.Content" xml:space="preserve">
+    <value>J'ai lu attentivement la déclaration ci-dessus et je supporte les conséquences de la violation de la déclaration</value>
+  </data>
+  <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
+    <value>Impossible d'effectuer l'opération demandée en raison d'une erreur</value>
+  </data>
+  <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
+    <value>Exportez vous-même le fichier utilisé pour désactiver la redirection de dossier</value>
+  </data>
+  <data name="InterceptFolderSwitch.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
+    <value>Activé</value>
   </data>
 </root>

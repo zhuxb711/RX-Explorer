@@ -1742,15 +1742,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Font_Color_White" xml:space="preserve">
     <value>Weiß</value>
   </data>
-  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
-    <value>Dieser Vorgang wird versuchen, RX-Explorer in der Zukunft mit der Tastenkombination Win+E zu öffnen. Sie müssen dies ausschalten, bevor Sie den RX-Explorer deinstallieren, da sonst die Win+E-Taste nicht auf den Anfangszustand zurückgesetzt werden kann. Die Benutzerkontensteuerung wird später angezeigt, erlauben Sie ihr bitte, die erforderlichen Vorgänge auszuführen. Möchten sie fortfahren?</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>Funktion konnte wegen eines unerwarteten Fehlers nicht aktiviert werden</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
-    <value>Die Win+E Tastenkombination konnte wegen eines unerwarteten Fehlers nicht zurückgesetzt werden.</value>
-  </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Tastenkombination [Win+E] abfangen</value>
   </data>
@@ -3299,10 +3290,28 @@ Inkorrekte Namen sind
   <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
     <value>Mit Systemkomponenten integrieren</value>
   </data>
-  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
-    <value>Verwenden Sie diese Anwendung als Standardprogramm für den Desktop-Ordner, nachdem Sie diese Option aktiviert haben</value>
+  <data name="InterceptFolderDescription.Text" xml:space="preserve">
+    <value>Verwenden Sie diese Anwendung als Standardprogramm für den Ordner, nachdem Sie diese Option aktiviert haben</value>
   </data>
-  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
-    <value>Abgefangen und als Standardprogramm für den Desktop-Ordner verwendet</value>
+  <data name="InterceptFolderLabel.Text" xml:space="preserve">
+    <value>Abgefangen und als Standardprogramm für den Ordner verwendet</value>
+  </data>
+  <data name="ModifySystemFileDeclare.Text" xml:space="preserve">
+    <value>Diese Funktion ändert die Systemregistrierungsdatei, um den entsprechenden Zweck zu erfüllen. Bitte beachten Sie: Da es nicht möglich ist, die geänderten Systemdateien vor der Deinstallation automatisch wiederherzustellen, müssen Sie diese Funktion vor der Deinstallation deaktivieren, nachdem Sie diese Funktion aktiviert haben, sonst funktioniert das System nicht ordnungsgemäß. Nachdem Sie auf Weiter geklickt haben, wird davon ausgegangen, dass Sie die obige Erklärung sorgfältig gelesen haben und berechtigt sind, die Systemdateien zu ändern. Diese Anwendung übernimmt keine Verantwortung für die Verletzung dieser Erklärung.</value>
+  </data>
+  <data name="ModifySystemFileDeclareDoubleConfirm.Content" xml:space="preserve">
+    <value>Ich habe die obige Erklärung sorgfältig gelesen und trage die Folgen eines Verstoßes gegen die Erklärung</value>
+  </data>
+  <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
+    <value>Der angeforderte Vorgang kann aufgrund eines Fehlers nicht ausgeführt werden</value>
+  </data>
+  <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
+    <value>Exportieren Sie die Datei, die verwendet wird, um die Ordnerumleitung selbst zu deaktivieren</value>
+  </data>
+  <data name="InterceptFolderSwitch.OffContent" xml:space="preserve">
+    <value>Behinderte</value>
+  </data>
+  <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
+    <value>Ermöglicht</value>
   </data>
 </root>

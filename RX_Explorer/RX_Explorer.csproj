@@ -259,8 +259,8 @@
     <Compile Include="Dialog\TextEncodingDialog.xaml.cs">
       <DependentUpon>TextEncodingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\WinAndETipDialog.xaml.cs">
-      <DependentUpon>WinAndETipDialog.xaml</DependentUpon>
+    <Compile Include="Dialog\ModifySystemWarningDialog.xaml.cs">
+      <DependentUpon>ModifySystemWarningDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interface\IDriveData.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
@@ -586,6 +586,8 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="Assets\Intercept_Folder.reg" />
+    <Content Include="Assets\Restore_Folder.reg" />
     <PRIResource Include="Strings\de-DE\Resources.resw" />
     <PRIResource Include="Strings\es\Resources.resw" />
     <PRIResource Include="Strings\zh-Hant\Resources.resw" />
@@ -688,7 +690,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\WinAndETipDialog.xaml">
+    <Page Include="Dialog\ModifySystemWarningDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

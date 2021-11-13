@@ -1742,15 +1742,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Font_Color_White" xml:space="preserve">
     <value>Blanco</value>
   </data>
-  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
-    <value>Esta operación intentará redirigir Win+E para activar RX Explorer y tendrás que desactivar este cambio antes de desinstalar RX Explorer; de lo contrario, la combinación Win+E no se podrá restablecer al estado inicial. Verás un aviso UAC más a continuación; por favor, acéptalo para poder llevar a cabo las operaciones necesarias. ¿Deseas continuar?</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>No se ha podido redirigir Win+E debido a un error inesperado.</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
-    <value>No se ha podido restablecer Win+E debido a un error inesperado.</value>
-  </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Interceptar la tecla de método abreviado [Win + E]</value>
   </data>
@@ -3299,10 +3290,28 @@ Las denominaciones no válidas son:
   <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
     <value>Integrar con los componentes del sistema</value>
   </data>
-  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
-    <value>Use esta aplicación como el programa predeterminado para la carpeta del escritorio después de habilitar esta opción</value>
+  <data name="InterceptFolderDescription.Text" xml:space="preserve">
+    <value>Use esta aplicación como el programa predeterminado para la carpeta después de habilitar esta opción</value>
   </data>
-  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
-    <value>Interceptado y utilizado como programa predeterminado para la carpeta del escritorio</value>
+  <data name="InterceptFolderLabel.Text" xml:space="preserve">
+    <value>Interceptado y utilizado como programa predeterminado para la carpeta</value>
+  </data>
+  <data name="ModifySystemFileDeclare.Text" xml:space="preserve">
+    <value>Esta característica modificará el archivo de registro del sistema para lograr el propósito correspondiente. Preste especial atención: dado que es imposible restaurar automáticamente los archivos del sistema modificados antes de la desinstalación, debe desactivar esta función antes de desinstalar después de habilitar esta función; de lo contrario, el sistema funcionará de manera anormal. Después de hacer clic en Continuar, se considera que ha leído detenidamente la declaración anterior y está autorizado a modificar los archivos del sistema. Esta aplicación no asume ninguna responsabilidad por violar esta declaración.</value>
+  </data>
+  <data name="ModifySystemFileDeclareDoubleConfirm.Content" xml:space="preserve">
+    <value>He leído detenidamente la declaración anterior y asumo las consecuencias de violarla.</value>
+  </data>
+  <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
+    <value>No se puede realizar la operación solicitada debido a un error</value>
+  </data>
+  <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
+    <value>Exporte el archivo utilizado para desactivar la redirección de carpetas por su cuenta</value>
+  </data>
+  <data name="InterceptFolderSwitch.OffContent" xml:space="preserve">
+    <value>Discapacitado</value>
+  </data>
+  <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
+    <value>Activado</value>
   </data>
 </root>

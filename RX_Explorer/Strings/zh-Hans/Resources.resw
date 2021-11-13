@@ -1687,15 +1687,6 @@
   <data name="Font_Color_White" xml:space="preserve">
     <value>白色</value>
   </data>
-  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
-    <value>此操作将尝试将Win+E重定向为激活RX文件管理器，并且您需要在卸载RX文件管理器之前关闭此开关，否则Win+E键无法重置为初始状态。稍后您将看到UAC权限提示，请允许其执行必要的操作。是否继续？</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>由于出现了意外错误，无法重定向Win+E键</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
-    <value>由于出现了意外错误，无法还原Win+E键</value>
-  </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>拦截[Win+E]快捷键</value>
   </data>
@@ -3299,10 +3290,28 @@
   <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
     <value>与系统组件集成</value>
   </data>
-  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
-    <value>启用此选项后将使用本应用作为桌面文件夹的默认打开方式</value>
+  <data name="InterceptFolderDescription.Text" xml:space="preserve">
+    <value>启用此选项后将使用本应用作为文件夹的默认打开方式</value>
   </data>
-  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
-    <value>拦截并作为桌面文件夹的默认打开方式</value>
+  <data name="InterceptFolderLabel.Text" xml:space="preserve">
+    <value>拦截并作为文件夹的默认打开方式</value>
+  </data>
+  <data name="ModifySystemFileDeclare.Text" xml:space="preserve">
+    <value>此功能将修改系统注册表文件以达到对应的目的。请特别注意: 由于无法自动在卸载前还原已修改的系统文件，因此您启用该功能后必须在卸载前关闭，否则将导致系统工作异常。您点击继续后视为已认真阅读上述声明并授权修改系统文件，本应用不承担因违反本声明而导致的任何责任。</value>
+  </data>
+  <data name="ModifySystemFileDeclareDoubleConfirm.Content" xml:space="preserve">
+    <value>我已认真阅读以上声明并承担违反声明的后果</value>
+  </data>
+  <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
+    <value>由于出现错误，无法执行请求的操作</value>
+  </data>
+  <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
+    <value>导出用于自行关闭文件夹重定向的文件</value>
+  </data>
+  <data name="InterceptFolderSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
   </data>
 </root>

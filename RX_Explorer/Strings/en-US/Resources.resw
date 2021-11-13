@@ -1856,15 +1856,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Font_Color_White" xml:space="preserve">
     <value>White</value>
   </data>
-  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
-    <value>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>Unable to redirect Win+E due to an unexpected error</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
-    <value>Unable to restore Win+E due to an unexpected error</value>
-  </data>
   <data name="UseWinAndEActivateLabel.Text" xml:space="preserve">
     <value>Intercept [Win+E] shortcut key</value>
   </data>
@@ -3404,10 +3395,28 @@ Invalid names include
   <data name="IntegrateSystemComponentsLabel.Text" xml:space="preserve">
     <value>Integrate with system components</value>
   </data>
-  <data name="InterceptDesktopFolderDescription.Text" xml:space="preserve">
-    <value>Use this application as the default program for the desktop folder after enabling this option</value>
+  <data name="InterceptFolderDescription.Text" xml:space="preserve">
+    <value>Use this application as the default program for the folder after enabling this option</value>
   </data>
-  <data name="InterceptDesktopFolderLabel.Text" xml:space="preserve">
-    <value>Intercepted and used as the default program for the desktop folder</value>
+  <data name="InterceptFolderLabel.Text" xml:space="preserve">
+    <value>Intercepted and used as the default program for the folder</value>
+  </data>
+  <data name="ModifySystemFileDeclare.Text" xml:space="preserve">
+    <value>This feature will modify the system registry file to achieve the corresponding purpose. Please pay special attention: Since it is impossible to automatically restore the modified system files before uninstalling, you must turn off this feature before uninstalling after you enable this function, otherwise the system will work abnormally. After you click Continue, you are deemed to have carefully read the above statement and authorized to modify the system files. This application does not assume any responsibility for violating this statement.</value>
+  </data>
+  <data name="ModifySystemFileDeclareDoubleConfirm.Content" xml:space="preserve">
+    <value>I have read the above statement carefully and bear the consequences of violating the statement</value>
+  </data>
+  <data name="QueueDialog_ActionFailed_Content" xml:space="preserve">
+    <value>Unable to perform the requested operation due to an error</value>
+  </data>
+  <data name="ShutdownFolderGuidence.Text" xml:space="preserve">
+    <value>Export the file used to turn off the folder redirection by yourself</value>
+  </data>
+  <data name="InterceptFolderSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
   </data>
 </root>

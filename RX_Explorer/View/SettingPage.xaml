@@ -68,6 +68,9 @@
 
         <Grid HorizontalAlignment="Center"
               VerticalAlignment="Center"
+              BorderThickness="1.5"
+              BorderBrush="{ThemeResource BorderDefaultBrush}"
+              CornerRadius="{StaticResource CustomCornerRadius}"
               Width="850">
             <Grid.RowDefinitions>
                 <RowDefinition Height="550"/>
@@ -684,8 +687,8 @@
                                                                                TextWrapping="WrapWholeWords"
                                                                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                                                                RelativePanel.AlignLeftWithPanel="True"
-                                                                               RelativePanel.LeftOf="SettingPageWinEQuestionAction2" />
-                                                                    <Viewbox Name="SettingPageWinEQuestionAction2"
+                                                                               RelativePanel.LeftOf="SettingPageWinEIcon" />
+                                                                    <Viewbox Name="SettingPageWinEIcon"
                                                                              Height="20"
                                                                              Width="20"
                                                                              RelativePanel.AlignRightWithPanel="True"
@@ -699,35 +702,72 @@
                                                         </StackPanel>
                                                     </muxc:Expander.Content>
                                                 </muxc:Expander>
-                                                <Border Padding="40,10,10,10"
-                                                        MinHeight="45"
-                                                        BorderThickness="1"
-                                                        CornerRadius="0"
-                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                    <RelativePanel>
-                                                        <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                    RelativePanel.AlignLeftWithPanel="True"
-                                                                    RelativePanel.LeftOf="InterceptDesktopFolderSwitch"
-                                                                    Margin="0,0,20,0">
-                                                            <TextBlock Text="拦截并作为桌面文件夹的默认打开方式"
-                                                                       x:Uid="InterceptDesktopFolderLabel"
-                                                                       TextTrimming="CharacterEllipsis" />
-                                                            <TextBlock Text="启用此选项后将使用本应用作为桌面文件夹的默认打开方式"
-                                                                       x:Uid="InterceptDesktopFolderDescription"
-                                                                       FontSize="12"
-                                                                       Foreground="Gray"
-                                                                       TextTrimming="CharacterEllipsis"
-                                                                       TextWrapping="WrapWholeWords" />
+                                                <muxc:Expander MinHeight="45"
+                                                               Padding="0"
+                                                               CornerRadius="0"
+                                                               ExpandDirection="Down"
+                                                               HorizontalAlignment="Stretch"
+                                                               HorizontalContentAlignment="Stretch"
+                                                               VerticalContentAlignment="Top"
+                                                               Background="Transparent">
+                                                    <muxc:Expander.Header>
+                                                        <RelativePanel Padding="24,10,0,10">
+                                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                                        RelativePanel.LeftOf="InterceptFolderSwitch"
+                                                                        Margin="0,0,20,0">
+                                                                <TextBlock Text="拦截并作为文件夹的默认打开方式"
+                                                                           x:Uid="InterceptFolderLabel"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="启用此选项后将使用本应用作为文件夹的默认打开方式"
+                                                                           x:Uid="InterceptFolderDescription"
+                                                                           FontSize="12"
+                                                                           Foreground="Gray"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           TextWrapping="WrapWholeWords" />
+                                                            </StackPanel>
+                                                            <ToggleSwitch OnContent="启用"
+                                                                          OffContent="禁用"
+                                                                          Name="InterceptFolderSwitch"
+                                                                          x:Uid="InterceptFolderSwitch"
+                                                                          Style="{StaticResource SettingToggleSwitchStyle}"
+                                                                          RelativePanel.AlignRightWithPanel="True"
+                                                                          RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                        </RelativePanel>
+                                                    </muxc:Expander.Header>
+                                                    <muxc:Expander.Content>
+                                                        <StackPanel>
+                                                            <Button Padding="68,10,20,10"
+                                                                    MinHeight="45"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    HorizontalContentAlignment="Stretch"
+                                                                    CornerRadius="0"
+                                                                    Name="FolderExportRestoreFile"
+                                                                    Click="FolderExportRestoreFile_Click"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <TextBlock Text="导出用于自行关闭文件夹重定向的文件"
+                                                                               x:Uid="ShutdownFolderGuidence"
+                                                                               TextWrapping="WrapWholeWords"
+                                                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                               RelativePanel.AlignLeftWithPanel="True"
+                                                                               RelativePanel.LeftOf="SettingPageFolderIcon" />
+                                                                    <Viewbox Name="SettingPageFolderIcon"
+                                                                             Height="20"
+                                                                             Width="20"
+                                                                             RelativePanel.AlignRightWithPanel="True"
+                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                                                  Glyph="&#xEE71;" />
+                                                                    </Viewbox>
+                                                                </RelativePanel>
+                                                            </Button>
                                                         </StackPanel>
-                                                        <ToggleSwitch OnContent="启用"
-                                                                      OffContent="禁用"
-                                                                      Name="InterceptDesktopFolderSwitch"
-                                                                      Style="{StaticResource SettingToggleSwitchStyle}"
-                                                                      RelativePanel.AlignRightWithPanel="True"
-                                                                      RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                                    </RelativePanel>
-                                                </Border>
+                                                    </muxc:Expander.Content>
+                                                </muxc:Expander>
                                                 <Border Padding="40,10,10,10"
                                                         MinHeight="45"
                                                         BorderThickness="1"
@@ -1422,6 +1462,7 @@
                                                             <RadioButton Content="Windows默认"
                                                                          Name="SolidColor_FollowSystem"
                                                                          x:Uid="SolidColor_FollowSystem"
+                                                                         GroupName="SolidColorSubOptions"
                                                                          Checked="SolidColor_FollowSystem_Checked" />
                                                         </Border>
                                                         <Border Padding="40,10,10,10"
@@ -1433,7 +1474,8 @@
                                                             <RadioButton Content="白色"
                                                                          x:Uid="SolidColor_White"
                                                                          Name="SolidColor_White"
-                                                                         Checked="SolidColor_White_Checked" />
+                                                                         Checked="SolidColor_White_Checked"
+                                                                         GroupName="SolidColorSubOptions"/>
                                                         </Border>
                                                         <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
@@ -1444,6 +1486,7 @@
                                                             <RadioButton Content="黑色"
                                                                          x:Uid="SolidColor_Black"
                                                                          Name="SolidColor_Black"
+                                                                         GroupName="SolidColorSubOptions"
                                                                          Checked="SolidColor_Black_Checked" />
                                                         </Border>
                                                     </StackPanel>
@@ -1633,6 +1676,7 @@
                                                                                         <Flyout Placement="Left">
                                                                                             <muxc:ColorPicker ColorSpectrumShape="Box"
                                                                                                               IsAlphaEnabled="True"
+                                                                                                              ColorChanged="AcrylicColorPicker_ColorChanged"
                                                                                                               Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
                                                                                                               x:Name="AcrylicColorPicker" />
                                                                                         </Flyout>
@@ -1674,7 +1718,7 @@
                                                                                             Minimum="0"
                                                                                             Width="180"
                                                                                             Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="TintOpacitySlider_ValueChanged"/>
+                                                                                            ValueChanged="CommonSlider_ValueChanged"/>
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
@@ -1717,7 +1761,7 @@
                                                                                             Minimum="0"
                                                                                             Width="180"
                                                                                             Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="TintLuminositySlider_ValueChanged"/>
+                                                                                            ValueChanged="CommonSlider_ValueChanged"/>
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
@@ -1847,7 +1891,7 @@
                                                                                     StepFrequency="5"
                                                                                     Name="BackgroundBlurSlider"
                                                                                     Value="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=TwoWay}"
-                                                                                    ValueChanged="BackgroundBlurSlider_ValueChanged" />
+                                                                                    ValueChanged="CommonSlider_ValueChanged" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}"
                                                                                        Margin="5,0"
                                                                                        Width="40"
@@ -1880,7 +1924,7 @@
                                                                                     StepFrequency="5"
                                                                                     Name="BackgroundLightSlider"
                                                                                     Value="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=TwoWay}"
-                                                                                    ValueChanged="BackgroundLightSlider_ValueChanged" />
+                                                                                    ValueChanged="CommonSlider_ValueChanged" />
                                                                             <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider.Value),Mode=OneWay}"
                                                                                        Margin="5,0"
                                                                                        Width="40"

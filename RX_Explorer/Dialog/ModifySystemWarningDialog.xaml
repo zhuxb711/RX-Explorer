@@ -1,0 +1,50 @@
+﻿<Cls:QueueContentDialog xmlns:Cls="using:RX_Explorer.Class"
+                        x:Class="RX_Explorer.Dialog.ModifySystemWarningDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        mc:Ignorable="d"
+                        IsPrimaryButtonEnabled="{x:Bind ConfirmationBox.IsChecked.GetValueOrDefault(),Mode=OneWay}"
+                        Title="{x:Bind Cls:Globalization.GetString('Common_Dialog_WarningTitle')}"
+                        PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ContinueButton')}"
+                        CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" >
+
+    <Cls:QueueContentDialog.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WarningIconBrush"
+                                     Color="Yellow" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WarningIconBrush"
+                                     Color="OrangeRed" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Cls:QueueContentDialog.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock VerticalAlignment="Center"
+                   TextWrapping="WrapWholeWords"
+                   x:Uid="ModifySystemFileDeclare"
+                   Text="此功能将修改系统注册表文件以达到对应的目的。请特别注意: 由于无法自动在卸载前还原已修改的系统文件，因此您启用该功能后必须在卸载前关闭，否则将导致系统工作异常。您点击继续后视为已认真阅读上述声明并授权修改系统文件，本应用不承担因违反本声明而导致的任何责任。" />
+        <Viewbox Grid.Row="1"
+                 VerticalAlignment="Stretch">
+            <FontIcon Glyph="&#xE7BA;"
+                      Margin="5"
+                      FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                      Foreground="{ThemeResource WarningIconBrush}" />
+        </Viewbox>
+        <CheckBox Content="我已认真阅读以上注意事项并承担违反声明的后果"
+                  x:Uid="ModifySystemFileDeclareDoubleConfirm"
+                  x:Name="ConfirmationBox"
+                  Grid.Row="2" />
+    </Grid>
+</Cls:QueueContentDialog>

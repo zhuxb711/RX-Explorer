@@ -1392,9 +1392,9 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public async Task<bool> RestoreWindowsPlusEAsync()
+        public async Task<bool> InterceptDesktopFolderAsync()
         {
-            if (await SendCommandAsync(CommandType.RestoreWinE) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.InterceptFolder) is IDictionary<string, string> Response)
             {
                 if (Response.ContainsKey("Success"))
                 {
@@ -1404,7 +1404,48 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(InterceptDesktopFolderAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<bool> RestoreFolderInterceptionAsync()
+        {
+            if (await SendCommandAsync(CommandType.RestoreFolderInterception) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RestoreFolderInterceptionAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
+        public async Task<bool> RestoreWindowsPlusEInterceptionAsync()
+        {
+            if (await SendCommandAsync(CommandType.RestoreWinEInterception) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEInterceptionAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

@@ -1623,6 +1623,161 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case CommandType.InterceptFolder:
+                        {
+                            string AliasLocation = null;
+
+                            try
+                            {
+                                using (Process Pro = Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = "powershell.exe",
+                                    Arguments = "-Command \"Get-Command RX-Explorer | Format-List -Property Source\"",
+                                    CreateNoWindow = true,
+                                    RedirectStandardOutput = true,
+                                    UseShellExecute = false
+                                }))
+                                {
+                                    try
+                                    {
+                                        string OutputString = Pro.StandardOutput.ReadToEnd();
+
+                                        if (!string.IsNullOrWhiteSpace(OutputString))
+                                        {
+                                            string Path = OutputString.Replace(Environment.NewLine, string.Empty).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+                                            if (File.Exists(Path))
+                                            {
+                                                AliasLocation = Path;
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        if (!Pro.WaitForExit(1000))
+                                        {
+                                            Pro.Kill();
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Could not get alias location by Powershell");
+                            }
+
+                            if (string.IsNullOrEmpty(AliasLocation))
+                            {
+                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User)
+                                                                           .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                                                                           .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine)
+                                                                                              .Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
+                                                                           .Distinct()
+                                                                           .ToArray();
+
+                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
+                                {
+                                    AliasLocation = Location;
+                                }
+                                else
+                                {
+                                    string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                                    if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
+                                    {
+                                        string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
+
+                                        if (Directory.Exists(WindowsAppsPath))
+                                        {
+                                            string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
+
+                                            if (File.Exists(RXPath))
+                                            {
+                                                AliasLocation = RXPath;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(AliasLocation))
+                            {
+                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_Folder.reg"));
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_Desktop_Folder.reg", CreationCollisionOption.ReplaceExisting);
+
+                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
+                                using (StreamReader Reader = new StreamReader(FileStream))
+                                {
+                                    string Content = await Reader.ReadToEndAsync();
+
+                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                    {
+                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                    }
+                                }
+
+                                IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
+                                using (Process RegisterProcess = new Process())
+                                {
+                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
+                                    RegisterProcess.StartInfo.UseShellExecute = true;
+                                    RegisterProcess.Start();
+
+                                    SetWindowsZPosition(RegisterProcess, WindowsBeforeStartup);
+
+                                    RegisterProcess.WaitForExit();
+                                }
+
+                                bool IsRegistryCheckingSuccess = true;
+
+                                try
+                                {
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Directory", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                    {
+                                        if (Key != null)
+                                        {
+                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                IsRegistryCheckingSuccess = false;
+                                            }
+                                        }
+                                    }
+
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                    {
+                                        if (Key != null)
+                                        {
+                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                IsRegistryCheckingSuccess = false;
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Registry checking failed");
+                                }
+
+
+                                if (IsRegistryCheckingSuccess)
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Registry checking failed");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Alias file is not exists");
+                            }
+
+                            break;
+                        }
                     case CommandType.InterceptWinE:
                         {
                             string AliasLocation = null;
@@ -1730,30 +1885,33 @@ namespace FullTrustProcess
                                     RegisterProcess.WaitForExit();
                                 }
 
+                                bool IsRegistryCheckingSuccess = true;
+
                                 try
                                 {
                                     using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
                                     {
                                         if (Key != null)
                                         {
-                                            if (Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase) && Key.GetValue("DelegateExecute") == null)
+                                            if (!Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase) || Key.GetValue("DelegateExecute") != null)
                                             {
-                                                Value.Add("Success", string.Empty);
+                                                IsRegistryCheckingSuccess = false;
                                             }
-                                            else
-                                            {
-                                                Value.Add("Error", "Registry verification failed");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Success", string.Empty);
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Registry checking failed");
+                                }
+
+                                if (IsRegistryCheckingSuccess)
                                 {
                                     Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Registry checking failed");
                                 }
                             }
                             else
@@ -1763,7 +1921,66 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.RestoreWinE:
+                    case CommandType.RestoreFolderInterception:
+                        {
+                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_Folder.reg"));
+
+                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
+
+                            using (Process UnregisterProcess = new Process())
+                            {
+                                UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
+                                UnregisterProcess.StartInfo.UseShellExecute = true;
+                                UnregisterProcess.Start();
+
+                                SetWindowsZPosition(UnregisterProcess, WindowsBeforeStartup);
+
+                                UnregisterProcess.WaitForExit();
+                            }
+
+                            bool IsRegistryCheckingSuccess = true;
+
+                            try
+                            {
+                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("Directory", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                {
+                                    if (Key != null)
+                                    {
+                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                        {
+                                            IsRegistryCheckingSuccess = false;
+                                        }
+                                    }
+                                }
+
+                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Drive", false)?.OpenSubKey("shell", false)?.OpenSubKey("open", false)?.OpenSubKey("command", false))
+                                {
+                                    if (Key != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                        {
+                                            IsRegistryCheckingSuccess = false;
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Registry checking failed");
+                            }
+
+                            if (IsRegistryCheckingSuccess)
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Registry checking failed");
+                            }
+
+                            break;
+                        }
+                    case CommandType.RestoreWinEInterception:
                         {
                             StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
@@ -1780,37 +1997,33 @@ namespace FullTrustProcess
                                 UnregisterProcess.WaitForExit();
                             }
 
+                            bool IsRegistryCheckingSuccess = true;
+
                             try
                             {
-                                RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
-
-                                if (Key != null)
+                                using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
                                 {
-                                    try
+                                    if (Key != null)
                                     {
-                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) == "{11dbb47c-a525-400b-9e80-a54615a090c0}" && string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) != "{11dbb47c-a525-400b-9e80-a54615a090c0}" || !string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
                                         {
-                                            Value.Add("Success", string.Empty);
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error", "Registry verification failed");
+                                            IsRegistryCheckingSuccess = false;
                                         }
                                     }
-                                    finally
-                                    {
-                                        Key.Dispose();
-                                    }
-                                }
-                                else
-                                {
-                                    Value.Add("Success", string.Empty);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                LogTracer.Log(ex, "Could not check the registry");
+                                LogTracer.Log(ex, "Registry checking failed");
+                            }
+
+                            if (IsRegistryCheckingSuccess)
+                            {
                                 Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Registry checking failed");
                             }
 
                             break;

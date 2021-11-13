@@ -2228,18 +2228,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>White</source>
           <target state="translated">Blanc</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_BeforeInterceptWindowsETip_Content" translate="yes" xml:space="preserve">
-          <source>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</source>
-          <target state="translated">Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to redirect Win+E due to an unexpected error</source>
-          <target state="translated">Impossible de rediriger Win+E en raison d'une erreur inattendue</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to restore Win+E due to an unexpected error</source>
-          <target state="translated">Impossible de restaurer Win + E en raison d'une erreur inattendue</target>
-        </trans-unit>
         <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
           <source>Intercept [Win+E] shortcut key</source>
           <target state="translated">Intercepter la touche de raccourci [Win+E]</target>
@@ -4381,13 +4369,37 @@ Les noms non valides incluent
           <source>Integrate with system components</source>
           <target state="translated">Intégration avec les composants du système</target>
         </trans-unit>
-        <trans-unit id="InterceptDesktopFolderDescription.Text" translate="yes" xml:space="preserve">
-          <source>Use this application as the default program for the desktop folder after enabling this option</source>
-          <target state="translated">Utilisez cette application comme programme par défaut pour le dossier du bureau après avoir activé cette option</target>
+        <trans-unit id="InterceptFolderDescription.Text" translate="yes" xml:space="preserve">
+          <source>Use this application as the default program for the folder after enabling this option</source>
+          <target state="translated">Utilisez cette application comme programme par défaut pour le dossier après avoir activé cette option</target>
         </trans-unit>
-        <trans-unit id="InterceptDesktopFolderLabel.Text" translate="yes" xml:space="preserve">
-          <source>Intercepted and used as the default program for the desktop folder</source>
-          <target state="translated">Intercepté et utilisé comme programme par défaut pour le dossier du bureau</target>
+        <trans-unit id="InterceptFolderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Intercepted and used as the default program for the folder</source>
+          <target state="translated">Intercepté et utilisé comme programme par défaut pour le dossier</target>
+        </trans-unit>
+        <trans-unit id="ModifySystemFileDeclare.Text" translate="yes" xml:space="preserve">
+          <source>This feature will modify the system registry file to achieve the corresponding purpose. Please pay special attention: Since it is impossible to automatically restore the modified system files before uninstalling, you must turn off this feature before uninstalling after you enable this function, otherwise the system will work abnormally. After you click Continue, you are deemed to have carefully read the above statement and authorized to modify the system files. This application does not assume any responsibility for violating this statement.</source>
+          <target state="translated">Cette fonctionnalité modifiera le fichier de registre système pour atteindre l'objectif correspondant. Veuillez prêter une attention particulière : Puisqu'il est impossible de restaurer automatiquement les fichiers système modifiés avant la désinstallation, vous devez désactiver cette fonctionnalité avant de désinstaller après avoir activé cette fonction, sinon le système fonctionnera anormalement. Après avoir cliqué sur Continuer, vous êtes réputé avoir lu attentivement la déclaration ci-dessus et autorisé à modifier les fichiers système. Cette application n'assume aucune responsabilité en cas de violation de cette déclaration.</target>
+        </trans-unit>
+        <trans-unit id="ModifySystemFileDeclareDoubleConfirm.Content" translate="yes" xml:space="preserve">
+          <source>I have read the above statement carefully and bear the consequences of violating the statement</source>
+          <target state="translated">J'ai lu attentivement la déclaration ci-dessus et je supporte les conséquences de la violation de la déclaration</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ActionFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to perform the requested operation due to an error</source>
+          <target state="translated">Impossible d'effectuer l'opération demandée en raison d'une erreur</target>
+        </trans-unit>
+        <trans-unit id="ShutdownFolderGuidence.Text" translate="yes" xml:space="preserve">
+          <source>Export the file used to turn off the folder redirection by yourself</source>
+          <target state="translated">Exportez vous-même le fichier utilisé pour désactiver la redirection de dossier</target>
+        </trans-unit>
+        <trans-unit id="InterceptFolderSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Désactivé</target>
+        </trans-unit>
+        <trans-unit id="InterceptFolderSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activé</target>
         </trans-unit>
       </group>
     </body>

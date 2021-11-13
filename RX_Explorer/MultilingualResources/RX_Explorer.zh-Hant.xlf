@@ -2232,18 +2232,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>White</source>
           <target state="translated" state-qualifier="tm-suggestion">白色</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_BeforeInterceptWindowsETip_Content" translate="yes" xml:space="preserve">
-          <source>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</source>
-          <target state="translated">此操作將嘗試定向Win + E以啟動RX 檔案總管，並且您需要在刪除RX 檔案總管之前關閉此開關，否則Win + E密鑰無法重置為初始狀態。 稍後您將看到UAC權限提示，請允許其執行必要的操作。 是否繼續？</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to redirect Win+E due to an unexpected error</source>
-          <target state="translated">由於意外錯誤，無法定向Win+E</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to restore Win+E due to an unexpected error</source>
-          <target state="translated">由於意外錯誤，無法定向Win + E</target>
-        </trans-unit>
         <trans-unit id="UseWinAndEActivateLabel.Text" translate="yes" xml:space="preserve">
           <source>Intercept [Win+E] shortcut key</source>
           <target state="translated">攔截[Win+E]快捷鍵</target>
@@ -4381,13 +4369,37 @@ Invalid names include
           <source>Integrate with system components</source>
           <target state="translated">與系統組件集成</target>
         </trans-unit>
-        <trans-unit id="InterceptDesktopFolderDescription.Text" translate="yes" xml:space="preserve">
-          <source>Use this application as the default program for the desktop folder after enabling this option</source>
-          <target state="translated">啟用此選項後將此應用程序用作桌面文件夾的默認程序</target>
+        <trans-unit id="InterceptFolderDescription.Text" translate="yes" xml:space="preserve">
+          <source>Use this application as the default program for the folder after enabling this option</source>
+          <target state="translated">啟用此選項後將此應用程序用作文件夾的默認程序</target>
         </trans-unit>
-        <trans-unit id="InterceptDesktopFolderLabel.Text" translate="yes" xml:space="preserve">
-          <source>Intercepted and used as the default program for the desktop folder</source>
-          <target state="translated">攔截並用作桌面文件夾的默認程序</target>
+        <trans-unit id="InterceptFolderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Intercepted and used as the default program for the folder</source>
+          <target state="translated">攔截並用作文件夾的默認程序</target>
+        </trans-unit>
+        <trans-unit id="ModifySystemFileDeclare.Text" translate="yes" xml:space="preserve">
+          <source>This feature will modify the system registry file to achieve the corresponding purpose. Please pay special attention: Since it is impossible to automatically restore the modified system files before uninstalling, you must turn off this feature before uninstalling after you enable this function, otherwise the system will work abnormally. After you click Continue, you are deemed to have carefully read the above statement and authorized to modify the system files. This application does not assume any responsibility for violating this statement.</source>
+          <target state="translated">此功能將修改系統註冊表文件以達到相應的目的。 請特別注意：由於卸載前無法自動恢復修改後的系統文件，啟用此功能後卸載前必須關閉此功能，否則係統將無法正常工作。 點擊繼續後，即視為您已仔細閱讀以上聲明，並有權修改系統文件。 本應用不對違反本聲明的行為承擔任何責任。</target>
+        </trans-unit>
+        <trans-unit id="ModifySystemFileDeclareDoubleConfirm.Content" translate="yes" xml:space="preserve">
+          <source>I have read the above statement carefully and bear the consequences of violating the statement</source>
+          <target state="translated">我已仔細閱讀以上聲明，並承擔違反聲明的後果</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ActionFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to perform the requested operation due to an error</source>
+          <target state="translated">由於錯誤無法執行請求的操作</target>
+        </trans-unit>
+        <trans-unit id="ShutdownFolderGuidence.Text" translate="yes" xml:space="preserve">
+          <source>Export the file used to turn off the folder redirection by yourself</source>
+          <target state="translated">自己導出用來關閉文件夾重定向的文件</target>
+        </trans-unit>
+        <trans-unit id="InterceptFolderSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="InterceptFolderSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">啟用</target>
         </trans-unit>
       </group>
     </body>

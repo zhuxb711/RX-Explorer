@@ -438,11 +438,12 @@ namespace RX_Explorer
         {
             try
             {
+                Visibility = Visibility.Visible;
+
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false),
-                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 300, false),
-                                       Task.Factory.StartNew(() => Visibility = Visibility.Visible, default, default, TaskScheduler.FromCurrentSynchronizationContext()));
+                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, false),
+                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 350, false));
                 }
             }
             catch (Exception ex)
@@ -457,10 +458,11 @@ namespace RX_Explorer
             {
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true),
-                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 300, true))
-                              .ContinueWith((_) => Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
+                    await Task.WhenAll(ActivateAnimation(RootGrid, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, true),
+                                       ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 350, true));
                 }
+
+                Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -584,11 +586,17 @@ namespace RX_Explorer
 
                     await ApplyLocalSetting(false);
 
-                    if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int Index && Index == UIMode.SelectedIndex)
+                    if (UIMode.SelectedIndex == BackgroundController.Current.CurrentType switch
                     {
-                        switch (Index)
+                        BackgroundBrushType.DefaultAcrylic => 0,
+                        BackgroundBrushType.SolidColor => 1,
+                        BackgroundBrushType.Mica => 3,
+                        _ => 2
+                    })
+                    {
+                        switch (BackgroundController.Current.CurrentType)
                         {
-                            case 1:
+                            case BackgroundBrushType.SolidColor:
                                 {
                                     if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                                     {
@@ -608,74 +616,65 @@ namespace RX_Explorer
 
                                     break;
                                 }
-                            case 2:
+                            case BackgroundBrushType.CustomAcrylic:
                                 {
-                                    if (ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] is string Mode)
+                                    if (AcrylicMode.IsChecked.GetValueOrDefault())
                                     {
-                                        switch (Enum.Parse<BackgroundBrushType>(Mode))
-                                        {
-                                            case BackgroundBrushType.CustomAcrylic:
-                                                {
-                                                    if (AcrylicMode.IsChecked.GetValueOrDefault())
-                                                    {
-                                                        PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
-                                                    }
-                                                    else
-                                                    {
-                                                        AcrylicMode.IsChecked = true;
-                                                    }
-                                                    break;
-                                                }
-                                            case BackgroundBrushType.BingPicture:
-                                                {
-                                                    BingPictureMode.IsChecked = true;
-                                                    break;
-                                                }
-                                            case BackgroundBrushType.Picture:
-                                                {
-                                                    if (PictureMode.IsChecked.GetValueOrDefault())
-                                                    {
-                                                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
-                                                        {
-                                                            if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
-                                                            {
-                                                                PictureGirdView.SelectedItem = PictureItem;
-                                                            }
-                                                            else
-                                                            {
-                                                                try
-                                                                {
-                                                                    BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri(Uri));
+                                        PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
+                                    }
+                                    else
+                                    {
+                                        AcrylicMode.IsChecked = true;
+                                    }
 
-                                                                    if (!PictureList.Contains(Picture))
-                                                                    {
-                                                                        PictureList.Add(Picture);
-                                                                        PictureGirdView.UpdateLayout();
-                                                                        PictureGirdView.SelectedItem = Picture;
-                                                                    }
-                                                                }
-                                                                catch (Exception ex)
-                                                                {
-                                                                    LogTracer.Log(ex, "Sync setting failure, background picture could not be found");
-                                                                }
-                                                            }
-                                                        }
-                                                        else if (PictureList.Count > 0)
-                                                        {
-                                                            PictureGirdView.SelectedIndex = 0;
-                                                        }
-                                                        else
-                                                        {
-                                                            PictureGirdView.SelectedIndex = -1;
-                                                        }
-                                                    }
-                                                    else
+                                    break;
+                                }
+                            case BackgroundBrushType.BingPicture:
+                                {
+                                    BingPictureMode.IsChecked = true;
+                                    break;
+                                }
+                            case BackgroundBrushType.Picture:
+                                {
+                                    if (PictureMode.IsChecked.GetValueOrDefault())
+                                    {
+                                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+                                        {
+                                            if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
+                                            {
+                                                PictureGirdView.SelectedItem = PictureItem;
+                                            }
+                                            else
+                                            {
+                                                try
+                                                {
+                                                    BackgroundPicture Picture = await BackgroundPicture.CreateAsync(new Uri(Uri));
+
+                                                    if (!PictureList.Contains(Picture))
                                                     {
-                                                        PictureMode.IsChecked = true;
+                                                        PictureList.Add(Picture);
+                                                        PictureGirdView.UpdateLayout();
+                                                        PictureGirdView.SelectedItem = Picture;
                                                     }
-                                                    break;
                                                 }
+                                                catch (Exception ex)
+                                                {
+                                                    LogTracer.Log(ex, "Sync setting failure, background picture could not be found");
+                                                }
+                                            }
                                         }
+                                        else if (PictureList.Count > 0)
+                                        {
+                                            PictureGirdView.SelectedIndex = 0;
+                                        }
+                                        else
+                                        {
+                                            PictureGirdView.SelectedIndex = -1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        PictureMode.IsChecked = true;
                                     }
 
                                     break;
@@ -685,7 +684,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"Error in Current_DataChanged");
+                    LogTracer.Log(ex, $"An exception was threw in Current_DataChanged");
                 }
                 finally
                 {
@@ -759,7 +758,7 @@ namespace RX_Explorer
 
             DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-            InterceptDesktopFolderSwitch.Toggled -= InterceptDesktopFolder_Toggled;
+            InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
             AutoBoot.Toggled -= AutoBoot_Toggled;
             HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
             HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
@@ -808,6 +807,14 @@ namespace RX_Explorer
             AlwaysLaunchNew.IsChecked = AlwaysLaunchNewProcess;
             AlwaysOnTop.IsOn = WindowAlwaysOnTop;
 
+            UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
+            {
+                BackgroundBrushType.DefaultAcrylic => 0,
+                BackgroundBrushType.SolidColor => 1,
+                BackgroundBrushType.Mica => 3,
+                _ => 2
+            };
+
             if (DefaultTerminal.Items.Contains(DefaultTerminalName))
             {
                 DefaultTerminal.SelectedItem = DefaultTerminalName;
@@ -826,19 +833,14 @@ namespace RX_Explorer
                 DefaultDisplayMode.SelectedIndex = 1;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
+            if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsInterceptedWinE)
             {
-                UIMode.SelectedIndex = Math.Min(UIMode.Items.Count - 1, ModeIndex);
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = 0;
-                UIMode.SelectedIndex = 0;
+                UseWinAndEActivate.IsOn = IsInterceptedWinE;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
+            if (ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] is bool IsInterceptedDesktopFolder)
             {
-                UseWinAndEActivate.IsOn = IsIntercepted;
+                InterceptFolderSwitch.IsOn = IsInterceptedDesktopFolder;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
@@ -959,7 +961,7 @@ namespace RX_Explorer
             }
 
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-            InterceptDesktopFolderSwitch.Toggled += InterceptDesktopFolder_Toggled;
+            InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
             DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
             AutoBoot.Toggled += AutoBoot_Toggled;
             HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
@@ -1284,18 +1286,16 @@ namespace RX_Explorer
         {
             try
             {
-                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedIndex;
-
                 switch (UIMode.SelectedIndex)
                 {
                     case 0:
                         {
-                            AcrylicMode.IsChecked = null;
-                            PictureMode.IsChecked = null;
-                            BingPictureMode.IsChecked = null;
-                            SolidColor_White.IsChecked = null;
-                            SolidColor_FollowSystem.IsChecked = null;
-                            SolidColor_Black.IsChecked = null;
+                            AcrylicMode.IsChecked = false;
+                            PictureMode.IsChecked = false;
+                            BingPictureMode.IsChecked = false;
+                            SolidColor_White.IsChecked = false;
+                            SolidColor_FollowSystem.IsChecked = false;
+                            SolidColor_Black.IsChecked = false;
                             PreventFallBack.IsChecked = null;
 
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.DefaultAcrylic);
@@ -1305,10 +1305,10 @@ namespace RX_Explorer
                         }
                     case 1:
                         {
-                            AcrylicMode.IsChecked = null;
-                            PictureMode.IsChecked = null;
+                            AcrylicMode.IsChecked = false;
+                            PictureMode.IsChecked = false;
+                            BingPictureMode.IsChecked = false;
                             PreventFallBack.IsChecked = null;
-                            BingPictureMode.IsChecked = null;
 
                             if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                             {
@@ -1330,50 +1330,44 @@ namespace RX_Explorer
                         }
                     case 2:
                         {
-                            SolidColor_White.IsChecked = null;
-                            SolidColor_Black.IsChecked = null;
-                            SolidColor_FollowSystem.IsChecked = null;
+                            SolidColor_White.IsChecked = false;
+                            SolidColor_Black.IsChecked = false;
+                            SolidColor_FollowSystem.IsChecked = false;
 
-                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubModeType"] is string Mode)
+                            switch (BackgroundController.Current.CurrentType)
                             {
-                                switch (Enum.Parse<BackgroundBrushType>(Mode))
-                                {
-                                    case BackgroundBrushType.CustomAcrylic:
-                                        {
-                                            AcrylicMode.IsChecked = true;
-                                            break;
-                                        }
-                                    case BackgroundBrushType.BingPicture:
-                                        {
-                                            BingPictureMode.IsChecked = true;
-                                            break;
-                                        }
-                                    case BackgroundBrushType.Picture:
-                                        {
-                                            PictureMode.IsChecked = true;
-                                            break;
-                                        }
-                                }
-                            }
-                            else
-                            {
-                                AcrylicMode.IsChecked = true;
+                                case BackgroundBrushType.BingPicture:
+                                    {
+                                        BingPictureMode.IsChecked = true;
+                                        break;
+                                    }
+                                case BackgroundBrushType.Picture:
+                                    {
+                                        PictureMode.IsChecked = true;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        AcrylicMode.IsChecked = true;
+                                        break;
+                                    }
                             }
 
                             break;
                         }
                     case 3:
                         {
-                            AcrylicMode.IsChecked = null;
-                            PictureMode.IsChecked = null;
-                            BingPictureMode.IsChecked = null;
-                            SolidColor_White.IsChecked = null;
-                            SolidColor_FollowSystem.IsChecked = null;
-                            SolidColor_Black.IsChecked = null;
+                            AcrylicMode.IsChecked = false;
+                            PictureMode.IsChecked = false;
+                            BingPictureMode.IsChecked = false;
+                            SolidColor_White.IsChecked = false;
+                            SolidColor_FollowSystem.IsChecked = false;
+                            SolidColor_Black.IsChecked = false;
                             PreventFallBack.IsChecked = null;
 
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
                             ApplicationData.Current.SignalDataChanged();
+
                             break;
                         }
                 }
@@ -1413,12 +1407,12 @@ namespace RX_Explorer
         {
             try
             {
+                BingPictureMode.IsChecked = false;
+                PictureMode.IsChecked = false;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
+                PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
 
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.CustomAcrylic);
-
-                PreventFallBack.IsChecked = null;
-                PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
             }
             catch (Exception ex)
             {
@@ -1434,6 +1428,9 @@ namespace RX_Explorer
         {
             try
             {
+                AcrylicMode.IsChecked = false;
+                BingPictureMode.IsChecked = false;
+                PreventFallBack.IsChecked = null;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
 
                 if (PictureList.Count == 0)
@@ -1499,6 +1496,9 @@ namespace RX_Explorer
         {
             try
             {
+                AcrylicMode.IsChecked = false;
+                PictureMode.IsChecked = false;
+                PreventFallBack.IsChecked = null;
                 GetBingPhotoState.Visibility = Visibility.Visible;
 
                 bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate();
@@ -1795,6 +1795,9 @@ namespace RX_Explorer
         {
             try
             {
+                SolidColor_Black.IsChecked = false;
+                SolidColor_White.IsChecked = false;
+
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor);
             }
             catch (Exception ex)
@@ -1811,6 +1814,9 @@ namespace RX_Explorer
         {
             try
             {
+                SolidColor_Black.IsChecked = false;
+                SolidColor_FollowSystem.IsChecked = false;
+
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_WhiteTheme);
             }
             catch (Exception ex)
@@ -1827,6 +1833,9 @@ namespace RX_Explorer
         {
             try
             {
+                SolidColor_White.IsChecked = false;
+                SolidColor_FollowSystem.IsChecked = false;
+
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: BackgroundController.SolidColor_BlackTheme);
             }
             catch (Exception ex)
@@ -2015,7 +2024,7 @@ namespace RX_Explorer
 
                 if (UseWinAndEActivate.IsOn)
                 {
-                    WinAndETipDialog Dialog = new WinAndETipDialog();
+                    ModifySystemWarningDialog Dialog = new ModifySystemWarningDialog();
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
@@ -2030,11 +2039,11 @@ namespace RX_Explorer
                                 QueueContentDialog dialog = new QueueContentDialog
                                 {
                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
+                                    Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await dialog.ShowAsync();
+                                await dialog.ShowAsync();
 
                                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                                 UseWinAndEActivate.IsOn = false;
@@ -2053,7 +2062,7 @@ namespace RX_Explorer
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await Exclusive.Controller.RestoreWindowsPlusEAsync())
+                        if (await Exclusive.Controller.RestoreWindowsPlusEInterceptionAsync())
                         {
                             ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
                         }
@@ -2062,11 +2071,11 @@ namespace RX_Explorer
                             QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
+                                Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await dialog.ShowAsync();
+                            await dialog.ShowAsync();
 
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                             UseWinAndEActivate.IsOn = true;
@@ -2084,11 +2093,6 @@ namespace RX_Explorer
                 ApplicationData.Current.SignalDataChanged();
                 LoadingControl.IsLoading = false;
             }
-        }
-
-        private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            ApplicationData.Current.SignalDataChanged();
         }
 
         private void AlwaysLaunchNew_Checked(object sender, RoutedEventArgs e)
@@ -2137,7 +2141,7 @@ namespace RX_Explorer
             try
             {
                 PreventAcrylicFallbackEnabled = true;
-                BackgroundController.Current.IsCompositionAcrylicEnabled = true;
+                BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = true;
             }
             catch (Exception ex)
             {
@@ -2154,7 +2158,7 @@ namespace RX_Explorer
             try
             {
                 PreventAcrylicFallbackEnabled = false;
-                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
+                BackgroundController.Current.IsCompositionAcrylicBackgroundEnabled = false;
             }
             catch (Exception ex)
             {
@@ -2722,11 +2726,6 @@ namespace RX_Explorer
             }
         }
 
-        private void BackgroundLightSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            ApplicationData.Current.SignalDataChanged();
-        }
-
         private async void ReviewButton_Click(object sender, RoutedEventArgs e)
         {
             await SystemInformation.LaunchStoreForReviewAsync();
@@ -3119,19 +3118,118 @@ namespace RX_Explorer
             }
         }
 
-        private void InterceptDesktopFolder_Toggled(object sender, RoutedEventArgs e)
+        private async void InterceptFolder_Toggled(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                LoadingControl.IsLoading = true;
+                LoadingText.Text = Globalization.GetString("Progress_Tip_WaitingForAction");
 
+                if (InterceptFolderSwitch.IsOn)
+                {
+                    ModifySystemWarningDialog Dialog = new ModifySystemWarningDialog();
+
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            if (await Exclusive.Controller.InterceptDesktopFolderAsync())
+                            {
+                                ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] = true;
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await dialog.ShowAsync();
+
+                                InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
+                                InterceptFolderSwitch.IsOn = false;
+                                InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
+                        InterceptFolderSwitch.IsOn = false;
+                        InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
+                    }
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        if (await Exclusive.Controller.RestoreFolderInterceptionAsync())
+                        {
+                            ApplicationData.Current.LocalSettings.Values["InterceptDesktopFolder"] = false;
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ActionFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await dialog.ShowAsync();
+
+                            InterceptFolderSwitch.Toggled -= InterceptFolder_Toggled;
+                            InterceptFolderSwitch.IsOn = false;
+                            InterceptFolderSwitch.Toggled += InterceptFolder_Toggled;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Error happend when Enable/Disable Win+E");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+                LoadingControl.IsLoading = false;
+            }
         }
 
-        private void TintOpacitySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private void CommonSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private void TintLuminositySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private void AcrylicColorPicker_ColorChanged(Microsoft.UI.Xaml.Controls.ColorPicker sender, Microsoft.UI.Xaml.Controls.ColorChangedEventArgs args)
         {
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void FolderExportRestoreFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FileSavePicker Picker = new FileSavePicker
+                {
+                    SuggestedStartLocation = PickerLocationId.Desktop,
+                    SuggestedFileName = "Restore_Folder.reg"
+                };
+
+                Picker.FileTypeChoices.Add("REG", new string[] { ".reg" });
+
+                if (await Picker.PickSaveFileAsync() is StorageFile ExportFile)
+                {
+                    StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_Folder.reg"));
+                    await File.CopyAndReplaceAsync(ExportFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not export restore file");
+            }
         }
     }
 }
