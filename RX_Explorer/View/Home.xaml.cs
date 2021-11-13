@@ -35,8 +35,10 @@ namespace RX_Explorer
     public sealed partial class Home : Page
     {
         public event EventHandler<string> EnterActionRequested;
+
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayEnterCancellation;
+        private CancellationTokenSource ContextMenuCancellation;
 
         public Home()
         {
@@ -140,7 +142,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
                             switch (Selector.Content)
                             {
@@ -161,7 +163,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, DelayEnterCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayEnterCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -377,12 +379,12 @@ namespace RX_Explorer
 
                             Task.Delay(700).ContinueWith((task, input) =>
                             {
-                                if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                                if (input is CancellationToken Token && !Token.IsCancellationRequested)
                                 {
                                     LibraryGrid.SelectedItem = Item;
                                     DriveGrid.SelectedItem = null;
                                 }
-                            }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                            }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
 
                             break;
                         }
@@ -397,12 +399,12 @@ namespace RX_Explorer
 
                             Task.Delay(700).ContinueWith((task, input) =>
                             {
-                                if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                                if (input is CancellationToken Token && !Token.IsCancellationRequested)
                                 {
                                     DriveGrid.SelectedItem = Item;
                                     LibraryGrid.SelectedItem = null;
                                 }
-                            }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                            }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
 
                             break;
                         }
@@ -579,38 +581,15 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingPage.IsDoubleClickEnabled)
+                e.Handled = true;
+
+                try
                 {
-                    DelaySelectionCancellation?.Cancel();
+                    await HandleDriveContextActonRequest(e, e.GetPosition((FrameworkElement)sender));
                 }
-
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
+                catch (Exception ex)
                 {
-                    DriveGrid.SelectedItem = Context;
-
-                    CommandBarFlyout Flyout;
-
-                    if (Context is LockedDriveData)
-                    {
-                        Flyout = BitlockerDeviceFlyout;
-                    }
-                    else
-                    {
-                        Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
-                    }
-
-                    await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid, e.GetPosition((FrameworkElement)sender), DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
-                }
-                else
-                {
-                    DriveGrid.SelectedIndex = -1;
-
-                    DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
-                    {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                        ShowMode = FlyoutShowMode.Transient
-                    });
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
             }
         }
@@ -661,27 +640,94 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
+                e.Handled = true;
 
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
+                try
                 {
-                    LibraryGrid.SelectedItem = Context;
-                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
+                    await HandleLibraryContextActonRequest(e, e.GetPosition((FrameworkElement)sender));
                 }
-                else
+                catch (Exception ex)
                 {
-                    LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
-                    {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                        ShowMode = FlyoutShowMode.Transient
-                    });
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
             }
         }
+
+        private async Task HandleLibraryContextActonRequest(RoutedEventArgs Args, Point Position)
+        {
+            if (!SettingPage.IsDoubleClickEnabled)
+            {
+                DelaySelectionCancellation?.Cancel();
+            }
+
+            if ((Args.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
+            {
+                LibraryGrid.SelectedItem = Context;
+
+                ContextMenuCancellation?.Cancel();
+                ContextMenuCancellation?.Dispose();
+                ContextMenuCancellation = new CancellationTokenSource();
+
+                await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
+                                                                                  Position,
+                                                                                  ContextMenuCancellation.Token,
+                                                                                  LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
+            }
+            else
+            {
+                LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
+                {
+                    Position = Position,
+                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                    ShowMode = FlyoutShowMode.Transient
+                });
+            }
+        }
+
+        private async Task HandleDriveContextActonRequest(RoutedEventArgs Args, Point Position)
+        {
+            if (!SettingPage.IsDoubleClickEnabled)
+            {
+                DelaySelectionCancellation?.Cancel();
+            }
+
+            if ((Args.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
+            {
+                DriveGrid.SelectedItem = Context;
+
+                CommandBarFlyout Flyout;
+
+                if (Context is LockedDriveData)
+                {
+                    Flyout = BitlockerDeviceFlyout;
+                }
+                else
+                {
+                    Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
+                }
+
+                ContextMenuCancellation?.Cancel();
+                ContextMenuCancellation?.Dispose();
+                ContextMenuCancellation = new CancellationTokenSource();
+
+                await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                           Position,
+                                                                           ContextMenuCancellation.Token,
+                                                                           DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
+            }
+            else
+            {
+                DriveGrid.SelectedIndex = -1;
+
+                DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
+                {
+                    Position = Position,
+                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                    ShowMode = FlyoutShowMode.Transient
+                });
+            }
+        }
+
 
         private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
@@ -831,24 +877,15 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
+                e.Handled = true;
 
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Context)
+                try
                 {
-                    LibraryGrid.SelectedItem = Context;
-                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid, e.GetPosition((FrameworkElement)sender), LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
+                    await HandleLibraryContextActonRequest(e, e.GetPosition((FrameworkElement)sender));
                 }
-                else
+                catch (Exception ex)
                 {
-                    LibraryFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
-                    {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                        ShowMode = FlyoutShowMode.Transient
-                    });
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
             }
         }
@@ -857,38 +894,15 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if (!SettingPage.IsDoubleClickEnabled)
+                e.Handled = true;
+
+                try
                 {
-                    DelaySelectionCancellation?.Cancel();
+                    await HandleDriveContextActonRequest(e, e.GetPosition((FrameworkElement)sender));
                 }
-
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
+                catch (Exception ex)
                 {
-                    DriveGrid.SelectedItem = Context;
-
-                    CommandBarFlyout Flyout;
-
-                    if (Context is LockedDriveData)
-                    {
-                        Flyout = BitlockerDeviceFlyout;
-                    }
-                    else
-                    {
-                        Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
-                    }
-
-                    await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid, e.GetPosition((FrameworkElement)sender), DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
-                }
-                else
-                {
-                    DriveGrid.SelectedIndex = -1;
-
-                    DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
-                    {
-                        Position = e.GetPosition((FrameworkElement)sender),
-                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                        ShowMode = FlyoutShowMode.Transient
-                    });
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
             }
         }

@@ -403,6 +403,22 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
         }
 
+        public static bool ContextMenuExtentionEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsEnabled)
+                {
+                    return IsEnabled;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = value;
+        }
+
         private string Version
         {
             get
@@ -806,6 +822,7 @@ namespace RX_Explorer
             NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
             AlwaysLaunchNew.IsChecked = AlwaysLaunchNewProcess;
             AlwaysOnTop.IsOn = WindowAlwaysOnTop;
+            ContextMenuExtSwitch.IsOn = ContextMenuExtentionEnabled;
 
             UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
             {
@@ -889,15 +906,6 @@ namespace RX_Explorer
                         EverythingEngineSearchGloble.IsChecked = Options.DeepSearch;
                         break;
                     }
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt)
-            {
-                ContextMenuExtSwitch.IsOn = IsExt;
-            }
-            else
-            {
-                ContextMenuExtSwitch.IsOn = true;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool IsDeleteConfirm)
@@ -2494,7 +2502,7 @@ namespace RX_Explorer
 
         private void ContextMenuExtSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = ContextMenuExtSwitch.IsOn;
+            ContextMenuExtentionEnabled = ContextMenuExtSwitch.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 

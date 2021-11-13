@@ -40,8 +40,6 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
-        private static int ContextMenuLockResource;
-
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))
@@ -424,240 +422,250 @@ namespace RX_Explorer.Class
             return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
         }
 
-        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, params string[] PathArray)
+        public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
         {
             if (RelatedTo == null)
             {
                 throw new ArgumentNullException(nameof(RelatedTo), "Argument could not be null");
             }
 
-            if (Interlocked.Exchange(ref ContextMenuLockResource, 1) == 0)
+            if (Flyout == null)
             {
-                try
+                throw new ArgumentNullException(nameof(Flyout), "Argument could not be null");
+            }
+
+            if (PathArray.Length == 0 || PathArray.Any((Path) => string.IsNullOrWhiteSpace(Path)))
+            {
+                throw new ArgumentException("Argument could not be null", nameof(Flyout));
+            }
+
+            void CleanUpContextMenuExtentionItems()
+            {
+                foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>()
+                                                         .Where((Btn) => Btn.Name == "ExtraButton")
+                                                         .ToArray())
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt && !IsExt)
-                    {
-                        foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
-                        {
-                            Flyout.SecondaryCommands.Remove(ExtraButton);
-                        }
+                    Flyout.SecondaryCommands.Remove(ExtraButton);
+                }
 
-                        foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
-                        {
-                            Flyout.SecondaryCommands.Remove(Separator);
-                        }
+                foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>()
+                                                                              .Where((Sep) => Sep.Name == "CustomSep")
+                                                                              .ToArray())
+                {
+                    Flyout.SecondaryCommands.Remove(Separator);
+                }
+            }
+
+            void CleanUpContextMenuOpenWithFlyoutItems()
+            {
+                if (Flyout.SecondaryCommands.OfType<AppBarButton>()
+                                            .FirstOrDefault((Item) => Item.Name == "OtherOpenMethod")?.Flyout is MenuFlyout OpenFlyout)
+                {
+                    foreach (MenuFlyoutItemBase FlyoutItem in OpenFlyout.Items.SkipLast(2).ToArray())
+                    {
+                        OpenFlyout.Items.Remove(FlyoutItem);
                     }
-                    else
+                }
+            }
+
+            try
+            {
+                CleanUpContextMenuExtentionItems();
+                CleanUpContextMenuOpenWithFlyoutItems();
+
+                Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
+                {
+                    Position = ShowAt,
+                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
+                    ShowMode = FlyoutShowMode.Transient
+                });
+
+                if (SettingPage.ContextMenuExtentionEnabled)
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (PathArray.Any() && PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
+                        IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                        if (!CancelToken.IsCancellationRequested && ExtraMenuItems.Count > 0)
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            async void ClickHandler(object sender, RoutedEventArgs args)
                             {
-                                Task SideloadTask = Task.CompletedTask;
-
-                                if (PathArray.Length == 1
-                                    && Flyout.SecondaryCommands.OfType<FrameworkElement>().FirstOrDefault((Item) => Item.Name == "OtherOpenMethod") is AppBarButton OpenWith
-                                    && OpenWith.Flyout is MenuFlyout OpenWithFlyout)
+                                if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
                                 {
-                                    foreach (MenuFlyoutItemBase FlyoutItem in OpenWithFlyout.Items.SkipLast(2).ToArray())
+                                    Flyout.Hide();
+
+                                    if (!await MenuItem.InvokeAsync())
                                     {
-                                        OpenWithFlyout.Items.Remove(FlyoutItem);
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
                                     }
-
-                                    async void ClickHandler(object sender, RoutedEventArgs args)
-                                    {
-                                        if (sender is FrameworkElement Element && Element.Tag is (string Path, ProgramPickerItem Item))
-                                        {
-                                            await Item.LaunchAsync(Path);
-                                        }
-                                    }
-
-                                    async Task<MenuFlyoutItem> GenerateOpenWithItemAsync(string ExePath)
-                                    {
-                                        try
-                                        {
-                                            if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
-                                            {
-                                                ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
-
-                                                MenuFlyoutItem MenuItem = new MenuFlyoutItem
-                                                {
-                                                    Text = Item.Name,
-                                                    Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                                    Tag = (PathArray.First(), Item),
-                                                    MinWidth = 150,
-                                                    MaxWidth = 300,
-                                                    FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                                                };
-                                                MenuItem.Click += ClickHandler;
-
-                                                return MenuItem;
-                                            }
-                                            else
-                                            {
-                                                return null;
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            return null;
-                                        }
-                                    }
-
-                                    IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
-
-                                    SideloadTask = Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath))).ContinueWith((PreviousTask) =>
-                                    {
-                                        IEnumerable<MenuFlyoutItem> OpenWithItem = PreviousTask.Result.Reverse().OfType<MenuFlyoutItem>();
-
-                                        if (OpenWithItem.Any())
-                                        {
-                                            foreach (MenuFlyoutItem Item in OpenWithItem)
-                                            {
-                                                OpenWithFlyout.Items.Insert(0, Item);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
-
-                                            MenuFlyoutItem MenuItem = new MenuFlyoutItem
-                                            {
-                                                Text = Item.Name,
-                                                Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                                Tag = (PathArray.First(), Item),
-                                                MinWidth = 150,
-                                                MaxWidth = 300,
-                                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                                            };
-                                            MenuItem.Click += ClickHandler;
-
-                                            OpenWithFlyout.Items.Insert(0, MenuItem);
-                                        }
-
-                                        if (OpenWithFlyout.Items.Count > 2)
-                                        {
-                                            OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
-                                        }
-                                    }, TaskScheduler.FromCurrentSynchronizationContext());
                                 }
+                            }
 
-                                foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
+                            short ShowExtNum = 0;
+
+                            if (Flyout.SecondaryCommands.OfType<AppBarButton>().Any((Item) => Item.Name.Contains("Decompression", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                bool ShouldConsiderUnZipButton = PathArray.All((Path) => Path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                 || Path.EndsWith(".rar", StringComparison.OrdinalIgnoreCase));
+
+                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count() + (ShouldConsiderUnZipButton ? 0 : 1), 0));
+                            }
+                            else
+                            {
+                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count(), 0));
+                            }
+
+                            int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
+
+                            if (ExtraMenuItems.Count > ShowExtNum + 1)
+                            {
+                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Take(ShowExtNum).Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
+                                IEnumerable<MenuFlyoutItemBase> FlyoutItems = await ContextMenuItem.GenerateSubMenuItemsAsync(ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
+
+                                if (!CancelToken.IsCancellationRequested)
                                 {
-                                    Flyout.SecondaryCommands.Remove(ExtraButton);
-                                }
+                                    CleanUpContextMenuExtentionItems();
 
-                                foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
-                                {
-                                    Flyout.SecondaryCommands.Remove(Separator);
-                                }
+                                    Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
 
-                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
-
-                                if (ExtraMenuItems.Count > 0)
-                                {
-                                    async void ClickHandler(object sender, RoutedEventArgs args)
+                                    foreach (AppBarButton AddItem in ShowExtItem)
                                     {
-                                        if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
-                                        {
-                                            Flyout.Hide();
-
-                                            if (!await MenuItem.InvokeAsync())
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
+                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
                                     }
 
-                                    short ShowExtNum = 0;
+                                    MenuFlyout MoreFlyout = new MenuFlyout();
+                                    MoreFlyout.Items.AddRange(FlyoutItems);
 
-                                    if (Flyout.SecondaryCommands.OfType<AppBarButton>().Any((Item) => Item.Name.Contains("Decompression", StringComparison.OrdinalIgnoreCase)))
+                                    Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
                                     {
-                                        bool ShouldConsiderUnZipButton = PathArray.All((Path) => Path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                         || Path.EndsWith(".rar", StringComparison.OrdinalIgnoreCase));
+                                        Label = Globalization.GetString("CommandBarFlyout_More_Item"),
+                                        Icon = new SymbolIcon(Symbol.More),
+                                        Name = "ExtraButton",
+                                        MinWidth = 300,
+                                        Flyout = MoreFlyout
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                IEnumerable<AppBarButton> ShowExtItem = await Task.WhenAll(ExtraMenuItems.Select((Item) => Item.GenerateUIButtonAsync(ClickHandler)));
 
-                                        ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count() + (ShouldConsiderUnZipButton ? 0 : 1), 0));
+                                if (!CancelToken.IsCancellationRequested)
+                                {
+                                    CleanUpContextMenuExtentionItems();
+
+                                    foreach (AppBarButton AddItem in ShowExtItem)
+                                    {
+                                        Flyout.SecondaryCommands.Insert(Index, AddItem);
+                                    }
+
+                                    Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                }
+                            }
+                        }
+
+                        if (PathArray.Length == 1
+                            && Flyout.SecondaryCommands.OfType<AppBarButton>()
+                                                       .FirstOrDefault((Item) => Item.Name == "OtherOpenMethod")?.Flyout is MenuFlyout OpenWithFlyout)
+                        {
+                            async void ClickHandler(object sender, RoutedEventArgs args)
+                            {
+                                if (sender is FrameworkElement Element && Element.Tag is (string Path, ProgramPickerItem Item))
+                                {
+                                    await Item.LaunchAsync(Path);
+                                }
+                            }
+
+                            async Task<MenuFlyoutItem> GenerateOpenWithItemAsync(string ExePath)
+                            {
+                                try
+                                {
+                                    if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
+                                    {
+                                        ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
+
+                                        MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                        {
+                                            Text = Item.Name,
+                                            Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                            Tag = (PathArray.First(), Item),
+                                            MinWidth = 150,
+                                            MaxWidth = 300,
+                                            FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                        };
+                                        MenuItem.Click += ClickHandler;
+
+                                        return MenuItem;
                                     }
                                     else
                                     {
-                                        ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count(), 0));
-                                    }
-
-                                    int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
-
-                                    if (ExtraMenuItems.Count > ShowExtNum + 1)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
-
-                                        foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(ShowExtNum))
-                                        {
-                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler));
-                                        }
-
-                                        MenuFlyout MoreFlyout = new MenuFlyout();
-
-                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, new AppBarButton
-                                        {
-                                            Label = Globalization.GetString("CommandBarFlyout_More_Item"),
-                                            Icon = new SymbolIcon(Symbol.More),
-                                            Name = "ExtraButton",
-                                            MinWidth = 300,
-                                            Flyout = MoreFlyout
-                                        });
-
-                                        await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
-                                    }
-                                    else
-                                    {
-                                        foreach (ContextMenuItem AddItem in ExtraMenuItems)
-                                        {
-                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler));
-                                        }
-
-                                        Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                        return null;
                                     }
                                 }
+                                catch (Exception)
+                                {
+                                    return null;
+                                }
+                            }
 
-                                await Task.WhenAny(SideloadTask, Task.Delay(2000));
+                            IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
+                            IEnumerable<MenuFlyoutItem> OpenWithItemsRaw = await Task.WhenAll(SystemAssocAppList.Where((Assoc) => Assoc.IsRecommanded).Select((Package) => GenerateOpenWithItemAsync(Package.ExecutablePath)));
+                            IEnumerable<MenuFlyoutItem> OpenWithItems = OpenWithItemsRaw.Reverse().OfType<MenuFlyoutItem>();
+
+                            if (!CancelToken.IsCancellationRequested)
+                            {
+                                CleanUpContextMenuOpenWithFlyoutItems();
+
+                                if (OpenWithItems.Any())
+                                {
+                                    foreach (MenuFlyoutItem Item in OpenWithItems)
+                                    {
+                                        OpenWithFlyout.Items.Insert(0, Item);
+                                    }
+                                }
+                                else
+                                {
+                                    ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
+
+                                    MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                    {
+                                        Text = Item.Name,
+                                        Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                        Tag = (PathArray.First(), Item),
+                                        MinWidth = 150,
+                                        MaxWidth = 300,
+                                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                    };
+                                    MenuItem.Click += ClickHandler;
+
+                                    OpenWithFlyout.Items.Insert(0, MenuItem);
+                                }
+
+                                if (OpenWithFlyout.Items.Count > 2)
+                                {
+                                    OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
+                                }
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex);
-                }
-                finally
-                {
-                    try
-                    {
-                        Flyout?.ShowAt(RelatedTo, new FlyoutShowOptions
-                        {
-                            Position = ShowAt,
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when trying show flyout");
-                    }
-
-                    Interlocked.Exchange(ref ContextMenuLockResource, 0);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not load context menu items");
             }
         }
 
@@ -987,7 +995,7 @@ namespace RX_Explorer.Class
         public static T FindChildOfType<T>(this DependencyObject root) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
-            
+
             ObjectQueue.Enqueue(root);
 
             while (ObjectQueue.Count > 0)
@@ -1025,7 +1033,7 @@ namespace RX_Explorer.Class
         public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
-            
+
             ObjectQueue.Enqueue(root);
 
             while (ObjectQueue.Count > 0)

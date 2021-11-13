@@ -380,7 +380,7 @@ namespace RX_Explorer
                                     {
                                         try
                                         {
-                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                            if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                             {
                                                 await Item.StartDragAsync(Point);
                                             }
@@ -389,7 +389,7 @@ namespace RX_Explorer
                                         {
                                             LogTracer.Log(ex, "Could not start drag item");
                                         }
-                                    }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                    }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                 }
                             }
                             else
@@ -421,7 +421,7 @@ namespace RX_Explorer
                                                 {
                                                     try
                                                     {
-                                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                        if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                                         {
                                                             await Item.StartDragAsync(Point);
                                                         }
@@ -430,7 +430,7 @@ namespace RX_Explorer
                                                     {
                                                         LogTracer.Log(ex, "Could not start drag item");
                                                     }
-                                                }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                                }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                             }
 
                                             break;
@@ -644,11 +644,11 @@ namespace RX_Explorer
 
                     Task.Delay(800).ContinueWith((task, input) =>
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
                             SearchResultList.SelectedItem = Item;
                         }
-                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
                 DelayTooltipCancellation?.Cancel();
@@ -657,7 +657,7 @@ namespace RX_Explorer
 
                 Task.Delay(800).ContinueWith(async (task, input) =>
                 {
-                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
                     {
                         TooltipFlyout.Hide();
 
@@ -666,7 +666,7 @@ namespace RX_Explorer
                             TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
                             if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                && !Cancel.IsCancellationRequested)
+                                && !Token.IsCancellationRequested)
                             {
                                 PointerPoint Point = e.GetCurrentPoint(SearchResultList);
 
@@ -679,7 +679,7 @@ namespace RX_Explorer
                             }
                         }
                     }
-                }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 

@@ -66,6 +66,7 @@ namespace RX_Explorer
         private CancellationTokenSource DelayEnterCancel;
         private CancellationTokenSource DelayGoBackHoldCancel;
         private CancellationTokenSource DelayGoForwardHoldCancel;
+        private CancellationTokenSource ContextMenuCancellation;
 
         public bool BlockKeyboardShortCutInput;
 
@@ -1027,7 +1028,14 @@ namespace RX_Explorer
                                     FolderRename.IsEnabled = true;
                                 }
 
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
+                                ContextMenuCancellation?.Cancel();
+                                ContextMenuCancellation?.Dispose();
+                                ContextMenuCancellation = new CancellationTokenSource();
+
+                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                                                                                   e.GetPosition((FrameworkElement)sender),
+                                                                                                   ContextMenuCancellation.Token,
+                                                                                                   Content.Path);
                             }
                         }
                     }
@@ -2079,7 +2087,14 @@ namespace RX_Explorer
                                     FolderRename.IsEnabled = true;
                                 }
 
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree, e.GetPosition((FrameworkElement)sender), Content.Path);
+                                ContextMenuCancellation?.Cancel();
+                                ContextMenuCancellation?.Dispose();
+                                ContextMenuCancellation = new CancellationTokenSource();
+
+                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                                                                                   e.GetPosition((FrameworkElement)sender),
+                                                                                                   ContextMenuCancellation.Token,
+                                                                                                   Content.Path);
                             }
                         }
                     }
@@ -2739,18 +2754,19 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        ValueTuple<CancellationTokenSource, AddressBlock> Tuple = (ValueTuple<CancellationTokenSource, AddressBlock>)obj;
-
-                        if (!Tuple.Item1.IsCancellationRequested)
+                        if (obj is ValueTuple<CancellationToken, AddressBlock> Tuple)
                         {
-                            await CurrentPresenter.EnterSelectedItemAsync(Tuple.Item2.Path);
+                            if (!Tuple.Item1.IsCancellationRequested)
+                            {
+                                await CurrentPresenter.EnterSelectedItemAsync(Tuple.Item2.Path);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, new ValueTuple<CancellationTokenSource, AddressBlock>(DelayEnterCancel, Item), TaskScheduler.FromCurrentSynchronizationContext());
+                }, new ValueTuple<CancellationToken, AddressBlock>(DelayEnterCancel.Token, Item), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -2825,7 +2841,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
                     {
                         NavigationRecordList.Clear();
                         NavigationRecordList.AddRange(CurrentPresenter.GoAndBackRecord.Skip(CurrentPresenter.RecordIndex + 1)
@@ -2839,7 +2855,7 @@ namespace RX_Explorer
                 {
                     LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                 }
-            }, DelayGoForwardHoldCancel, TaskScheduler.FromCurrentSynchronizationContext());
+            }, DelayGoForwardHoldCancel.Token, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void GoForwardRecord_PointerReleased(object sender, PointerRoutedEventArgs e)
@@ -2858,7 +2874,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
                     {
                         NavigationRecordList.Clear();
                         NavigationRecordList.AddRange(CurrentPresenter.GoAndBackRecord.Take(CurrentPresenter.RecordIndex)
@@ -2873,7 +2889,7 @@ namespace RX_Explorer
                 {
                     LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                 }
-            }, DelayGoBackHoldCancel, TaskScheduler.FromCurrentSynchronizationContext());
+            }, DelayGoBackHoldCancel.Token, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void GoBackRecord_PointerReleased(object sender, PointerRoutedEventArgs e)
@@ -3276,10 +3292,12 @@ namespace RX_Explorer
             DelayEnterCancel?.Dispose();
             DelayGoBackHoldCancel?.Dispose();
             DelayGoForwardHoldCancel?.Dispose();
+            ContextMenuCancellation?.Dispose();
 
             DelayEnterCancel = null;
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
+            ContextMenuCancellation = null;
 
             TaskBarController.SetText(null);
         }

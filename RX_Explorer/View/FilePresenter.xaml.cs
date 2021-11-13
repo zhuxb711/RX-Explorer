@@ -171,6 +171,8 @@ namespace RX_Explorer
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayDragCancellation;
         private CancellationTokenSource DelayTooltipCancellation;
+        private CancellationTokenSource ContextMenuCancellation;
+
         private bool GroupedEnable;
 
         private bool IsGroupedEnable
@@ -1961,7 +1963,7 @@ namespace RX_Explorer
                                         {
                                             try
                                             {
-                                                if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                                 {
                                                     await Item.StartDragAsync(Point);
                                                 }
@@ -1970,7 +1972,7 @@ namespace RX_Explorer
                                             {
                                                 LogTracer.Log(ex, "Could not start drag item");
                                             }
-                                        }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                        }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                     }
                                 }
                                 else
@@ -2002,7 +2004,7 @@ namespace RX_Explorer
                                                     {
                                                         try
                                                         {
-                                                            if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                                            if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
                                                             {
                                                                 await Item.StartDragAsync(Point);
                                                             }
@@ -2011,7 +2013,7 @@ namespace RX_Explorer
                                                         {
                                                             LogTracer.Log(ex, "Could not start drag item");
                                                         }
-                                                    }, (DelayDragCancellation, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                                    }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                                                 }
 
                                                 break;
@@ -2054,124 +2056,137 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingPage.IsDoubleClickEnabled)
+                try
                 {
-                    DelaySelectionCancellation?.Cancel();
+                    await HandleContextActionRequested(e, e.GetPosition((FrameworkElement)sender));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
 
-                if (ItemPresenter is GridView)
+                Container.BlockKeyboardShortCutInput = false;
+            }
+        }
+
+        private async Task HandleContextActionRequested(RoutedEventArgs Args, Point Position)
+        {
+            ContextMenuCancellation?.Cancel();
+            ContextMenuCancellation?.Dispose();
+            ContextMenuCancellation = new CancellationTokenSource();
+
+            if (!SettingPage.IsDoubleClickEnabled)
+            {
+                DelaySelectionCancellation?.Cancel();
+            }
+
+            if (ItemPresenter is GridView)
+            {
+                if ((Args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                    if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
+                    {
+                        await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                        Position,
+                                                                                        ContextMenuCancellation.Token,
+                                                                                        ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                    }
+                    else
+                    {
+                        SelectedItem = Context;
+
+                        CommandBarFlyout ContextFlyout = Context switch
+                        {
+                            LinkStorageFile => LinkItemFlyout,
+                            FileSystemStorageFolder => FolderFlyout,
+                            FileSystemStorageFile => FileFlyout,
+                            _ => throw new NotImplementedException()
+                        };
+
+                        await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                          Position,
+                                                                                          ContextMenuCancellation.Token,
+                                                                                          ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                    }
+                }
+                else
+                {
+                    SelectedItem = null;
+                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                    Position,
+                                                                                    ContextMenuCancellation.Token,
+                                                                                    CurrentFolder.Path);
+                }
+            }
+            else
+            {
+                if (Args.OriginalSource is FrameworkElement Element)
+                {
+                    if (Element.DataContext is FileSystemStorageItemBase Context)
                     {
                         if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                         {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                            Position,
+                                                                                            ContextMenuCancellation.Token,
+                                                                                            ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                         }
                         else
                         {
-                            SelectedItem = Context;
-
-                            switch (Context)
+                            if (SelectedItem == Context)
                             {
-                                case LinkStorageFile:
+                                CommandBarFlyout ContextFlyout = Context switch
+                                {
+                                    LinkStorageFile => LinkItemFlyout,
+                                    FileSystemStorageFolder => FolderFlyout,
+                                    FileSystemStorageFile => FileFlyout,
+                                    _ => throw new NotImplementedException()
+                                };
+
+                                await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                  Position,
+                                                                                                  ContextMenuCancellation.Token,
+                                                                                                  ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                            }
+                            else
+                            {
+                                if (Args.OriginalSource is TextBlock)
+                                {
+                                    SelectedItem = Context;
+
+                                    CommandBarFlyout ContextFlyout = Context switch
                                     {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                                case FileSystemStorageFolder:
-                                    {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                                case FileSystemStorageFile:
-                                    {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
+                                        LinkStorageFile => LinkItemFlyout,
+                                        FileSystemStorageFolder => FolderFlyout,
+                                        FileSystemStorageFile => FileFlyout,
+                                        _ => throw new NotImplementedException()
+                                    };
+
+                                    await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                      Position,
+                                                                                                      ContextMenuCancellation.Token,
+                                                                                                      ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                                }
+                                else
+                                {
+                                    SelectedItem = null;
+                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    CurrentFolder.Path);
+                                }
                             }
                         }
                     }
                     else
                     {
                         SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
+                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                        Position,
+                                                                                        ContextMenuCancellation.Token,
+                                                                                        CurrentFolder.Path);
                     }
                 }
-                else
-                {
-                    if (e.OriginalSource is FrameworkElement Element)
-                    {
-                        if (Element.DataContext is FileSystemStorageItemBase Context)
-                        {
-                            if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                            {
-                                await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                            }
-                            else
-                            {
-                                if (SelectedItem == Context)
-                                {
-                                    switch (Context)
-                                    {
-                                        case LinkStorageFile:
-                                            {
-                                                await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                        case FileSystemStorageFolder:
-                                            {
-                                                await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                        case FileSystemStorageFile:
-                                            {
-                                                await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                    }
-                                }
-                                else
-                                {
-                                    if (e.OriginalSource is TextBlock)
-                                    {
-                                        SelectedItem = Context;
-
-                                        switch (Context)
-                                        {
-                                            case LinkStorageFile:
-                                                {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                            case FileSystemStorageFolder:
-                                                {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                            case FileSystemStorageFile:
-                                                {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        SelectedItem = null;
-                                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
-                        }
-                    }
-                }
-
-                Container.BlockKeyboardShortCutInput = false;
             }
         }
 
@@ -3675,7 +3690,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
                             await EnterSelectedItemAsync(Item);
                         }
@@ -3684,7 +3699,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, DelayEnterCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayEnterCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -3824,11 +3839,11 @@ namespace RX_Explorer
 
                     Task.Delay(800).ContinueWith((task, input) =>
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
                             SelectedItem = Item;
                         }
-                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
 
                 DelayTooltipCancellation?.Cancel();
@@ -3837,7 +3852,7 @@ namespace RX_Explorer
 
                 Task.Delay(800).ContinueWith(async (task, input) =>
                 {
-                    if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
                     {
                         TooltipFlyout.Hide();
 
@@ -3846,7 +3861,7 @@ namespace RX_Explorer
                             TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
                             if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                && !Cancel.IsCancellationRequested
+                                && !Token.IsCancellationRequested
                                 && !Container.BlockKeyboardShortCutInput
                                 && !FileFlyout.IsOpen
                                 && !FolderFlyout.IsOpen
@@ -3865,7 +3880,7 @@ namespace RX_Explorer
                             }
                         }
                     }
-                }, DelayTooltipCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -3936,121 +3951,13 @@ namespace RX_Explorer
                 e.Handled = true;
                 Container.BlockKeyboardShortCutInput = true;
 
-                if (!SettingPage.IsDoubleClickEnabled)
+                try
                 {
-                    DelaySelectionCancellation?.Cancel();
+                    await HandleContextActionRequested(e, e.GetPosition((FrameworkElement)sender));
                 }
-
-                if (ItemPresenter is GridView)
+                catch (Exception ex)
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
-                    {
-                        if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                        {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                        }
-                        else
-                        {
-                            SelectedItem = Context;
-
-                            switch (Context)
-                            {
-                                case LinkStorageFile:
-                                    {
-                                        await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                                case FileSystemStorageFolder:
-                                    {
-                                        await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                                case FileSystemStorageFile:
-                                    {
-                                        await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        break;
-                                    }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
-                    }
-                }
-                else
-                {
-                    if (e.OriginalSource is FrameworkElement Element)
-                    {
-                        if (Element.DataContext is FileSystemStorageItemBase Context)
-                        {
-                            if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                            {
-                                await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                            }
-                            else
-                            {
-                                if (SelectedItem == Context)
-                                {
-                                    switch (Context)
-                                    {
-                                        case LinkStorageFile:
-                                            {
-                                                await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                        case FileSystemStorageFolder:
-                                            {
-                                                await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                        case FileSystemStorageFile:
-                                            {
-                                                await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                break;
-                                            }
-                                    }
-                                }
-                                else
-                                {
-                                    if (e.OriginalSource is TextBlock)
-                                    {
-                                        SelectedItem = Context;
-
-                                        switch (Context)
-                                        {
-                                            case LinkStorageFile:
-                                                {
-                                                    await LinkItemFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                            case FileSystemStorageFolder:
-                                                {
-                                                    await FolderFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                            case FileSystemStorageFile:
-                                                {
-                                                    await FileFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        SelectedItem = null;
-                                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter, e.GetPosition((FrameworkElement)sender), CurrentFolder.Path);
-                        }
-                    }
+                    LogTracer.Log(ex, "Could not execute the context action");
                 }
 
                 Container.BlockKeyboardShortCutInput = false;
@@ -4163,7 +4070,7 @@ namespace RX_Explorer
 
                         Task.Delay(1200).ContinueWith((task, input) =>
                         {
-                            if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                            if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
                                 NameLabel.Visibility = Visibility.Collapsed;
 
@@ -4179,7 +4086,7 @@ namespace RX_Explorer
 
                                 Container.BlockKeyboardShortCutInput = true;
                             }
-                        }, DelayRenameCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, DelayRenameCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }
@@ -4902,9 +4809,9 @@ namespace RX_Explorer
         {
             if (sender is CommandBarFlyout Flyout)
             {
-                foreach (AppBarButton Btn in Flyout.SecondaryCommands.OfType<AppBarButton>())
+                foreach (FlyoutBase SubFlyout in Flyout.SecondaryCommands.OfType<AppBarButton>().Select((Btn) => Btn.Flyout).OfType<FlyoutBase>())
                 {
-                    Btn.Flyout?.Hide();
+                    SubFlyout.Hide();
                 }
             }
         }
@@ -5520,6 +5427,7 @@ namespace RX_Explorer
             DelaySelectionCancellation?.Dispose();
             DelayTooltipCancellation?.Dispose();
             DelayDragCancellation?.Dispose();
+            ContextMenuCancellation?.Dispose();
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
 
@@ -5531,6 +5439,7 @@ namespace RX_Explorer
             DelaySelectionCancellation = null;
             DelayTooltipCancellation = null;
             DelayDragCancellation = null;
+            ContextMenuCancellation = null;
             EnterLock = null;
             CollectionChangeLock = null;
 

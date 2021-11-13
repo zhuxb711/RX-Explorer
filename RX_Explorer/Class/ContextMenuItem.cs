@@ -71,8 +71,10 @@ namespace RX_Explorer.Class
             this.DataPackage = DataPackage;
         }
 
-        public static async Task GenerateSubMenuItemsAsync(IList<MenuFlyoutItemBase> Items, ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
+        public static async Task<IReadOnlyList<MenuFlyoutItemBase>> GenerateSubMenuItemsAsync(ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
         {
+            List<MenuFlyoutItemBase> MenuItems = new List<MenuFlyoutItemBase>(SubMenus.Length);
+
             foreach (ContextMenuItem SubItem in SubMenus)
             {
                 if (SubItem.SubMenus.Length > 0)
@@ -90,9 +92,9 @@ namespace RX_Explorer.Class
                         }
                     };
 
-                    await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler);
+                    Item.Items.AddRange(await GenerateSubMenuItemsAsync(SubItem.SubMenus, ClickHandler));
 
-                    Items.Add(Item);
+                    MenuItems.Add(Item);
                 }
                 else
                 {
@@ -104,6 +106,7 @@ namespace RX_Explorer.Class
                         MaxWidth = 300,
                         FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                     };
+                    FlyoutItem.Click += ClickHandler;
 
                     if (SubItem.IconData.Length != 0)
                     {
@@ -124,11 +127,11 @@ namespace RX_Explorer.Class
                         };
                     }
 
-                    FlyoutItem.Click += ClickHandler;
-
-                    Items.Add(FlyoutItem);
+                    MenuItems.Add(FlyoutItem);
                 }
             }
+
+            return MenuItems;
         }
 
         public async Task<AppBarButton> GenerateUIButtonAsync(RoutedEventHandler ClickHandler)
@@ -166,7 +169,7 @@ namespace RX_Explorer.Class
             {
                 MenuFlyout Flyout = new MenuFlyout();
 
-                await GenerateSubMenuItemsAsync(Flyout.Items, SubMenus, ClickHandler);
+                Flyout.Items.AddRange(await GenerateSubMenuItemsAsync(SubMenus, ClickHandler));
 
                 Button.Flyout = Flyout;
             }

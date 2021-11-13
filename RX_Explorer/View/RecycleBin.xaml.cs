@@ -332,11 +332,11 @@ namespace RX_Explorer.View
 
                     Task.Delay(800).ContinueWith((task, input) =>
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
                             ListViewControl.SelectedItem = Item;
                         }
-                    }, DelaySelectionCancellation, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelaySelectionCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
         }
