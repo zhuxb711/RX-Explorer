@@ -3314,4 +3314,10 @@
   <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="SettingContactAuthorDescription.Text" xml:space="preserve">
+    <value>点击以向开发者发送邮件</value>
+  </data>
+  <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
+    <value>通过邮件联系开发者</value>
+  </data>
 </root>

@@ -554,7 +554,7 @@ namespace RX_Explorer.Class
                                         Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                         Icon = new SymbolIcon(Symbol.More),
                                         Name = "ExtraButton",
-                                        MinWidth = 300,
+                                        Width = 300,
                                         Flyout = MoreFlyout
                                     });
                                 }

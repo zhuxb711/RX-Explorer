@@ -1,4 +1,47 @@
 ﻿*****
+###Was ist neu in Ver.7.2.2.0
+
+*****
+###Dies ist die letzte Version, die Win10 1903 unterstützt. Ab der nächsten Version werden die Mindestsystemanforderungen auf Win10 2004 angehoben
+*****
+
+#####Funktionsupdate
+
+>#####Option "Abfangen und als Standardprogramm für Ordner verwenden" hinzugefügt
+
+#####Leistungsverbesserung
+
+>#####Geschwindigkeit beim Öffnen des Kontextmenüs verbessert
+
+#####UI-Update
+
+>#####Viele UI-Fehler korrigiert
+
+>#####Beschreibungen für die meisten Einstellungsoptionen hinzugefügt
+
+>#####Kontrast der Einstellungsseite unter dem weißen Thema verbessert
+
+>#####Neu gestaltete Benutzeroberfläche und Bildladelogik des integrierten Bildbetrachters
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, dass die Designfarbe möglicherweise unvollständig geändert wurde, wenn die Option "Windows-Standard" im Modus "Volltonfarbe" aktiviert ist
+
+>#####Problem behoben, dass die Einstellungsseite nicht angezeigt werden kann, nachdem die Option "Animationseffekte deaktivieren" aktiviert wurde
+
+>#####Das Problem wurde behoben, dass die Farboptionen des Themes dem tatsächlichen Theme entgegengesetzt sind
+
+>#####Das Problem, dass der Einzelklickmodus auf einigen Seiten ungültig ist, wurde behoben
+
+>#####Problem behoben, dass detaillierte Informationen nicht angezeigt werden, wenn der Mauszeiger über einige Dateien bewegt wird
+
+>#####Problem behoben, dass die Position der Detailinformationen, die beim Bewegen der Maus über die Datei angezeigt werden, nicht korrekt ist
+
+>#####Problem behoben, dass der Einstellungspunkt "Listenauswahl-Animation schließen" für "Bibliotheken" und "Geräte" ungültig ist
+
+>#####Probleme im Zusammenhang mit Quicklook behoben, jetzt stimmt das Verhalten mit dem Systemdatei-Explorer überein
+
+*****
 ###Was ist neu in Ver.7.1.9.0
 
 #####Funktionsupdate

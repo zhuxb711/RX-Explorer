@@ -248,7 +248,7 @@
                 <AppBarButton Icon="NewFolder"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Name="CreateFolder"
-                              MinWidth="300"
+                              Width="300"
                               Click="CreateFolder_Click" />
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
                               x:Name="OpenFolderInNewWindow"
@@ -260,7 +260,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
                               x:Name="OpenFolderInNewTab"
-                              MinWidth="300"
+                              Width="300"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -269,7 +269,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               x:Name="OpenFolderInVerticalSplitView"
-                              MinWidth="300"
+                              Width="300"
                               Visibility="Collapsed"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
@@ -280,7 +280,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              MinWidth="300"
+                              Width="300"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -289,7 +289,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
-                              MinWidth="300"
+                              Width="300"
                               Click="FolderProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

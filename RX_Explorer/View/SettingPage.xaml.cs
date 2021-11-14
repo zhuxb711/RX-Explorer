@@ -3239,5 +3239,10 @@ namespace RX_Explorer
                 LogTracer.Log(ex, "Could not export restore file");
             }
         }
+
+        private async void ContactAuthor_Click(object sender, RoutedEventArgs e)
+        {
+            await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com"));
+        }
     }
 }

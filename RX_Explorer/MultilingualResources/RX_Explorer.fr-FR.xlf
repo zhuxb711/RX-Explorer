@@ -4401,6 +4401,14 @@ Les noms non valides incluent
           <source>Enabled</source>
           <target state="translated">Activé</target>
         </trans-unit>
+        <trans-unit id="SettingContactAuthorDescription.Text" translate="yes" xml:space="preserve">
+          <source>Click to send an email to the developer</source>
+          <target state="translated">Cliquez pour envoyer un e-mail au développeur</target>
+        </trans-unit>
+        <trans-unit id="SettingContactAuthorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Contact the developer via email</source>
+          <target state="translated">Contacter le développeur par e-mail</target>
+        </trans-unit>
       </group>
     </body>
   </file>

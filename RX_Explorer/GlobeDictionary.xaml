@@ -891,7 +891,7 @@
 
     <Style TargetType="Button"
            x:Key="ListHeaderButtonStyle"
-           BasedOn="{StaticResource DefaultButtonStyle}">
+           BasedOn="{StaticResource ButtonRevealStyle}">
         <Setter Property="Background"
                 Value="Transparent" />
         <Setter Property="Template">

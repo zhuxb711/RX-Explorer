@@ -3314,4 +3314,10 @@ Les noms non valides incluent
   <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
     <value>Activé</value>
   </data>
+  <data name="SettingContactAuthorDescription.Text" xml:space="preserve">
+    <value>Cliquez pour envoyer un e-mail au développeur</value>
+  </data>
+  <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
+    <value>Contacter le développeur par e-mail</value>
+  </data>
 </root>

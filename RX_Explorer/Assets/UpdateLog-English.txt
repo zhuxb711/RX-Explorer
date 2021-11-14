@@ -1,4 +1,47 @@
 ﻿*****
+###What's new in Ver.7.2.2.0
+
+*****
+###This is the last version that supports Win10 1903. Starting from the next version, the minimum system requirements will be elevated to Win10 2004
+*****
+
+#####Feature update
+
+>#####Added the option "Intercept and use as the default program for folders"
+
+#####Performance improvement
+
+>#####Improved the speed when opening the context menu
+
+#####UI update
+
+>#####Corrected many UI errors
+
+>#####Added descriptions for most setting options
+
+>#####Improved the contrast of the settings page under the white theme
+
+>#####Redesigned the UI and image loading logic of the built-in image viewer
+
+#####Bug fix
+
+>#####Fixed the problem that the theme color may be changed incompletely when the "Windows default" option in the "Solid color" mode is checked
+
+>#####Fixed the problem that the settings page cannot be displayed after enabling the "Turn off animation effects" option
+
+>#####Fixed the problem that the theme color options are opposite to the actual theme
+
+>#####Fixed the problem that the single click mode is invalid on some pages
+
+>#####Fixed the problem that detailed information does not pop up when hovering over some files
+
+>#####Fixed the problem that the position of the detailed information that pops up when hovering over the file is incorrect
+
+>#####Fixed the problem that the setting item "Close List Selection Animation" is invalid for "Libraries" and "Devices"
+
+>#####Fixed issues related to Quicklook, now the behavior is consistent with the system file explorer
+
+*****
 ###What's new in Ver.7.1.9.0
 
 #####Feature update

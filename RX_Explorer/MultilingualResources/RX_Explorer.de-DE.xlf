@@ -4399,6 +4399,14 @@ Inkorrekte Namen sind
           <source>Enabled</source>
           <target state="translated">Ermöglicht</target>
         </trans-unit>
+        <trans-unit id="SettingContactAuthorDescription.Text" translate="yes" xml:space="preserve">
+          <source>Click to send an email to the developer</source>
+          <target state="translated">Klicken Sie hier, um eine E-Mail an den Entwickler zu senden</target>
+        </trans-unit>
+        <trans-unit id="SettingContactAuthorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Contact the developer via email</source>
+          <target state="translated">Kontaktieren Sie den Entwickler per E-Mail</target>
+        </trans-unit>
       </group>
     </body>
   </file>

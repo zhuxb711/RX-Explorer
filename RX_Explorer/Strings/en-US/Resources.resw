@@ -3419,4 +3419,10 @@ Invalid names include
   <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
   </data>
+  <data name="SettingContactAuthorDescription.Text" xml:space="preserve">
+    <value>Click to send an email to the developer</value>
+  </data>
+  <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
+    <value>Contact the developer via email</value>
+  </data>
 </root>

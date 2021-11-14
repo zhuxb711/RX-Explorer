@@ -4399,6 +4399,14 @@ Las denominaciones no válidas son:
           <source>Enabled</source>
           <target state="translated">Activado</target>
         </trans-unit>
+        <trans-unit id="SettingContactAuthorDescription.Text" translate="yes" xml:space="preserve">
+          <source>Click to send an email to the developer</source>
+          <target state="translated">Haga clic para enviar un correo electrónico al desarrollador</target>
+        </trans-unit>
+        <trans-unit id="SettingContactAuthorLabel.Text" translate="yes" xml:space="preserve">
+          <source>Contact the developer via email</source>
+          <target state="translated">Póngase en contacto con el desarrollador por correo electrónico</target>
+        </trans-unit>
       </group>
     </body>
   </file>

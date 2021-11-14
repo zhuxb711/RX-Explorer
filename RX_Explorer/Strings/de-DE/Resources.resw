@@ -3314,4 +3314,10 @@ Inkorrekte Namen sind
   <data name="InterceptFolderSwitch.OnContent" xml:space="preserve">
     <value>Ermöglicht</value>
   </data>
+  <data name="SettingContactAuthorDescription.Text" xml:space="preserve">
+    <value>Klicken Sie hier, um eine E-Mail an den Entwickler zu senden</value>
+  </data>
+  <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
+    <value>Kontaktieren Sie den Entwickler per E-Mail</value>
+  </data>
 </root>

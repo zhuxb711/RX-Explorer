@@ -1,4 +1,47 @@
 ﻿*****
+###Quoi de neuf dans la version 7.2.2.0
+
+*****
+###Ceci est la dernière version qui prend en charge Win10 1903. À partir de la prochaine version, la configuration minimale requise sera élevée à Win10 2004
+*****
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de l'option "Intercepter et utiliser comme programme par défaut pour les dossiers"
+
+#####Amélioration des performances
+
+>#####Amélioration de la vitesse lors de l'ouverture du menu contextuel
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Corrigé de nombreuses erreurs d'interface utilisateur
+
+>#####Ajout de descriptions pour la plupart des options de réglage
+
+>#####Amélioration du contraste de la page des paramètres sous le thème blanc
+
+>#####Refonte de l'interface utilisateur et de la logique de chargement d'images de la visionneuse d'images intégrée
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la couleur du thème pouvait être modifiée de manière incomplète lorsque l'option "Windows par défaut" dans le mode "Couleur unie" était cochée
+
+>#####Correction du problème selon lequel la page des paramètres ne peut pas être affichée après avoir activé l'option "Désactiver les effets d'animation"
+
+>#####Correction du problème selon lequel les options de couleur du thème sont opposées au thème réel
+
+>#####Correction du problème selon lequel le mode simple clic n'est pas valide sur certaines pages
+
+>#####Correction du problème selon lequel les informations détaillées ne s'affichent pas lors du survol de certains fichiers
+
+>#####Correction du problème selon lequel la position des informations détaillées qui s'affichent lors du survol du fichier est incorrecte
+
+>#####Correction du problème selon lequel l'élément de paramètre "Fermer l'animation de sélection de liste" n'est pas valide pour "Bibliothèques" et "Périphériques"
+
+>#####Résolution des problèmes liés à Quicklook, maintenant le comportement est cohérent avec l'explorateur de fichiers système
+
+*****
 ###Quoi de neuf dans la version 7.1.9.0
 
 #####Mise à jour des fonctionnalités
