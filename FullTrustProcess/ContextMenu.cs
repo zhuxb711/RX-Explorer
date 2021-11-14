@@ -72,8 +72,6 @@ namespace FullTrustProcess
             return Array.Empty<ContextMenuPackage>();
         }
 
-        [SecurityCritical]
-        [HandleProcessCorruptedStateExceptions]
         private static Shell32.IContextMenu GetContextMenuObject(params string[] PathArray)
         {
             try
@@ -145,8 +143,6 @@ namespace FullTrustProcess
             }
         }
 
-        [SecurityCritical]
-        [HandleProcessCorruptedStateExceptions]
         private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu, string[] RelatedPath, bool IncludeExtensionItem)
         {
             int MenuItemNum = User32.GetMenuItemCount(Menu);
@@ -305,8 +301,6 @@ namespace FullTrustProcess
             return MenuItems.ToArray();
         }
 
-        [SecurityCritical]
-        [HandleProcessCorruptedStateExceptions]
         public static bool InvokeVerb(ContextMenuPackage Package)
         {
             try

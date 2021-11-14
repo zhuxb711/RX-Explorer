@@ -58,11 +58,20 @@ jobs:
           $store.Add($cert)
           $store.Close()
 
+    # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
+    # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default. 
+    - task: UseDotNet@2
+      displayName: 'Install .Net 6 SDK'
+      inputs:
+        packageType: sdk
+        installationPath: $(Agent.TempDirectory)
+        version: 6.x
+
     - task: VSBuild@1
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture=x64 /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
         msbuildArchitecture: 'x64'
@@ -105,12 +114,21 @@ jobs:
           $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
           $store.Add($cert)
           $store.Close()
+          
+    # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
+    # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default. 
+    - task: UseDotNet@2
+      displayName: 'Install .Net 6 SDK'
+      inputs:
+        packageType: sdk
+        installationPath: $(Agent.TempDirectory)
+        version: 6.x
 
     - task: VSBuild@1
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture=x64 /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
         msbuildArchitecture: 'x64'
