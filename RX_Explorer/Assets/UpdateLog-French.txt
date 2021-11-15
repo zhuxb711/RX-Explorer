@@ -1,5 +1,5 @@
 ﻿*****
-###Quoi de neuf dans la version 7.2.2.0
+###Quoi de neuf dans la version 7.2.3.0
 
 *****
 ###Ceci est la dernière version qui prend en charge Win10 1903. À partir de la prochaine version, la configuration minimale requise sera élevée à Win10 2004

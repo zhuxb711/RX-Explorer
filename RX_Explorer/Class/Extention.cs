@@ -442,8 +442,8 @@ namespace RX_Explorer.Class
             void CleanUpContextMenuExtentionItems()
             {
                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>()
-                                                         .Where((Btn) => Btn.Name == "ExtraButton")
-                                                         .ToArray())
+                                                                             .Where((Btn) => Btn.Name == "ExtraButton")
+                                                                             .ToArray())
                 {
                     Flyout.SecondaryCommands.Remove(ExtraButton);
                 }
@@ -565,12 +565,11 @@ namespace RX_Explorer.Class
 
                                 if (!CancelToken.IsCancellationRequested)
                                 {
-                                    CleanUpContextMenuExtentionItems();
-
                                     foreach (AppBarButton AddItem in ShowExtItem)
                                     {
                                         Flyout.SecondaryCommands.Insert(Index, AddItem);
                                     }
+
 
                                     Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
                                 }

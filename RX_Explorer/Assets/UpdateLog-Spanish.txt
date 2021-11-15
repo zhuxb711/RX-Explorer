@@ -1,5 +1,5 @@
 ﻿*****
-###Novedades de la versión 7.2.2.0
+###Novedades de la versión 7.2.3.0
 
 *****
 ### Esta es la última versión que admite Win10 1903. A partir de la próxima versión, los requisitos mínimos del sistema se elevarán a Win10 2004

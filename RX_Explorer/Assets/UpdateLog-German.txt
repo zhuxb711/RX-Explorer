@@ -1,5 +1,5 @@
 ﻿*****
-###Was ist neu in Ver.7.2.2.0
+###Was ist neu in Ver.7.2.3.0
 
 *****
 ###Dies ist die letzte Version, die Win10 1903 unterstützt. Ab der nächsten Version werden die Mindestsystemanforderungen auf Win10 2004 angehoben
