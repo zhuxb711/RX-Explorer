@@ -7,140 +7,140 @@ pr:
   autoCancel: true
   branches:
     include:
-    - master
+      - master
 
 variables:
-- group: UWP-PipeLineVariable
-- name: buildProject
-  value: 'Package'
-- name: solution
-  value: '**/*.sln'
-- name: buildPlatform
-  value: 'x64|ARM64'
-- name: buildConfiguration
-  value: 'Release'
-- name: SideLoadPackageDir
-  value: '$(build.artifactStagingDirectory)\SideLoad\\'
-- name: CIPackageDir
-  value: '$(build.artifactStagingDirectory)\CI\\'
+  - group: UWP-PipeLineVariable
+  - name: buildProject
+    value: 'Package'
+  - name: solution
+    value: '**/*.sln'
+  - name: buildPlatform
+    value: 'x64|ARM64'
+  - name: buildConfiguration
+    value: 'Release'
+  - name: SideLoadPackageDir
+    value: '$(build.artifactStagingDirectory)\SideLoad\\'
+  - name: CIPackageDir
+    value: '$(build.artifactStagingDirectory)\CI\\'
 
 jobs:
-- job: CIBuild
-  timeoutInMinutes: 0
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-    - task: DownloadSecureFile@1
-      name: secureFile
-      displayName: 'Download CA Certificate'
-      inputs:
-        secureFile: '$(signingCert.secureFileName)'
+  - job: CIBuild
+    timeoutInMinutes: 0
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - task: DownloadSecureFile@1
+        name: secureFile
+        displayName: 'Download CA Certificate'
+        inputs:
+          secureFile: '$(signingCert.secureFileName)'
 
-    - task: PowerShell@2
-      displayName: 'Adding PFX file to the certificate store'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "Start adding the PFX file to the certificate store."
+      - task: PowerShell@2
+        displayName: 'Adding PFX file to the certificate store'
+        inputs:
+          targetType: 'inline'
+          script: |
+            Write-Host "Start adding the PFX file to the certificate store."
 
-          $pfxpath = '$(secureFile.secureFilePath)'
-          $password = '$(signingCert.password)'      
-      
-          Add-Type -AssemblyName System.Security
-          $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-          $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
-          $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
-          $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-          $store.Add($cert)
-          $store.Close()
+            $pfxpath = '$(secureFile.secureFilePath)'
+            $password = '$(signingCert.password)'      
 
-    # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
-    # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default. 
-    - task: UseDotNet@2
-      displayName: 'Install .Net 6 SDK'
-      inputs:
-        packageType: sdk
-        installationPath: $(Agent.TempDirectory)
-        version: 6.x
+            Add-Type -AssemblyName System.Security
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+            $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+            $store.Add($cert)
+            $store.Close()
 
-    - task: NuGetToolInstaller@1
+      # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
+      # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.
+      - task: UseDotNet@2
+        displayName: 'Install .Net 6 SDK'
+        inputs:
+          packageType: sdk
+          installationPath: $(Agent.TempDirectory)
+          version: 6.x
 
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
+      - task: NuGetToolInstaller@1
 
-    - task: VSBuild@1
-      displayName: 'Build RX-Explorer'
-      inputs:
-        solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-        configuration: '$(buildConfiguration)'
-        clean: true
-        restoreNugetPackages: true
-        msbuildArchitecture: 'x64'
-    
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: CIBuild'
-      inputs:
-        ArtifactName: 'CIBuild_Publish'
-        PathtoPublish: '$(CIPackageDir)'
+      - task: NuGetCommand@2
+        inputs:
+          restoreSolution: '$(solution)'
 
-- job: SideLoadBuild
-  timeoutInMinutes: 0
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-    - task: DownloadSecureFile@1
-      name: secureFile
-      displayName: 'Download CA Certificate'
-      inputs:
-        secureFile: '$(signingCert.secureFileName)'
+      - task: VSBuild@1
+        displayName: 'Build RX-Explorer'
+        inputs:
+          solution: '$(solution)'
+          msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+          configuration: '$(buildConfiguration)'
+          clean: true
+          restoreNugetPackages: true
+          msbuildArchitecture: 'x64'
 
-    - task: PowerShell@2
-      displayName: 'Adding PFX file to the certificate store'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Write-Host "Start adding the PFX file to the certificate store."
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: CIBuild'
+        inputs:
+          ArtifactName: 'CIBuild_Publish'
+          PathtoPublish: '$(CIPackageDir)'
 
-          $pfxpath = '$(secureFile.secureFilePath)'
-          $password = '$(signingCert.password)'      
-      
-          Add-Type -AssemblyName System.Security
-          $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-          $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
-          $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
-          $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-          $store.Add($cert)
-          $store.Close()
-          
-    # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
-    # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default. 
-    - task: UseDotNet@2
-      displayName: 'Install .Net 6 SDK'
-      inputs:
-        packageType: sdk
-        installationPath: $(Agent.TempDirectory)
-        version: 6.x
-    
-    - task: NuGetToolInstaller@1
+  - job: SideLoadBuild
+    timeoutInMinutes: 0
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - task: DownloadSecureFile@1
+        name: secureFile
+        displayName: 'Download CA Certificate'
+        inputs:
+          secureFile: '$(signingCert.secureFileName)'
 
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
+      - task: PowerShell@2
+        displayName: 'Adding PFX file to the certificate store'
+        inputs:
+          targetType: 'inline'
+          script: |
+            Write-Host "Start adding the PFX file to the certificate store."
 
-    - task: VSBuild@1
-      displayName: 'Build RX-Explorer'
-      inputs:
-        solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
-        configuration: '$(buildConfiguration)'
-        clean: true
-        restoreNugetPackages: true
-        msbuildArchitecture: 'x64'
-    
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: SideLoadBuild'
-      inputs:
-        ArtifactName: 'SideLoadBuild_Publish'
-        PathtoPublish: '$(SideLoadPackageDir)'
+            $pfxpath = '$(secureFile.secureFilePath)'
+            $password = '$(signingCert.password)'      
+
+            Add-Type -AssemblyName System.Security
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+            $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+            $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+            $store.Add($cert)
+            $store.Close()
+
+      # UseDotNet@2 task to install .Net 6 environment because Azure Pipeline would not prepare the SDK we needed.
+      # Maybe we could remove this task once Azure Pipeline install .Net 6 SDK by default.
+      - task: UseDotNet@2
+        displayName: 'Install .Net 6 SDK'
+        inputs:
+          packageType: sdk
+          installationPath: $(Agent.TempDirectory)
+          version: 6.x
+
+      - task: NuGetToolInstaller@1
+
+      - task: NuGetCommand@2
+        inputs:
+          restoreSolution: '$(solution)'
+
+      - task: VSBuild@1
+        displayName: 'Build RX-Explorer'
+        inputs:
+          solution: '$(solution)'
+          msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+          configuration: '$(buildConfiguration)'
+          clean: true
+          restoreNugetPackages: true
+          msbuildArchitecture: 'x64'
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: SideLoadBuild'
+        inputs:
+          ArtifactName: 'SideLoadBuild_Publish'
+          PathtoPublish: '$(SideLoadPackageDir)'
