@@ -28,7 +28,7 @@ jobs:
 - job: CIBuild
   timeoutInMinutes: 0
   pool:
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2022'
   steps:
     - task: DownloadSecureFile@1
       name: secureFile
@@ -37,6 +37,7 @@ jobs:
         secureFile: '$(signingCert.secureFileName)'
 
     - task: PowerShell@2
+      displayName: 'Adding PFX file to the certificate store'
       inputs:
         targetType: 'inline'
         script: |
@@ -72,9 +73,10 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /t:Restore /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
+        restoreNugetPackages: true
         msbuildArchitecture: 'x64'
     
     - task: PublishBuildArtifacts@1
@@ -86,7 +88,7 @@ jobs:
 - job: SideLoadBuild
   timeoutInMinutes: 0
   pool:
-    vmImage: 'windows-latest'
+    vmImage: 'windows-2022'
   steps:
     - task: DownloadSecureFile@1
       name: secureFile
@@ -95,6 +97,7 @@ jobs:
         secureFile: '$(signingCert.secureFileName)'
 
     - task: PowerShell@2
+      displayName: 'Adding PFX file to the certificate store'
       inputs:
         targetType: 'inline'
         script: |
@@ -130,9 +133,10 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /t:Restore /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
+        restoreNugetPackages: true
         msbuildArchitecture: 'x64'
     
     - task: PublishBuildArtifacts@1
