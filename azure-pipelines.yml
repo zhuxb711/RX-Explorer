@@ -71,7 +71,7 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture=x64 /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /t:Restore /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
         msbuildArchitecture: 'x64'
@@ -128,7 +128,7 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture=x64 /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /t:Restore /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
         msbuildArchitecture: 'x64'
