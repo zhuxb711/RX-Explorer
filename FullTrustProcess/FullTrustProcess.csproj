@@ -3,22 +3,26 @@
     <TargetFramework>net6.0-windows10.0.19041</TargetFramework>
     <OutputType>WinExe</OutputType>
     <LangVersion>9.0</LangVersion>
-	<Platforms>x64;ARM64</Platforms>
-	<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64;win-x86-aot;win-x64-aot;win-arm64-aot</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	<UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-	<SelfContained>true</SelfContained>
-	<PublishSingleFile>true</PublishSingleFile>
-	<PublishReadyToRun>true</PublishReadyToRun>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+    <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
+    <RuntimeIdentifier>win-x64-aot</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
-	<SelfContained>true</SelfContained>
-	<PublishSingleFile>true</PublishSingleFile>
-	<PublishReadyToRun>true</PublishReadyToRun>
-	<RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+    <PublishReadyToRunEmitSymbols>true</PublishReadyToRunEmitSymbols>
+    <RuntimeIdentifier>win-arm64-aot</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
