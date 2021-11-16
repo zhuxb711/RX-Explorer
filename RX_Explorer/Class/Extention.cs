@@ -27,6 +27,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -580,11 +581,43 @@ namespace RX_Explorer.Class
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
                                                        .FirstOrDefault((Item) => Item.Name == "OtherOpenMethod")?.Flyout is MenuFlyout OpenWithFlyout)
                         {
+                            Type GetInnerViewerType(string Path)
+                            {
+                                return System.IO.Path.GetExtension(Path).ToLower() switch
+                                {
+                                    ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                                    ".mkv" or ".mp4" or ".mp3" or
+                                    ".flac" or ".wma" or ".wmv" or
+                                    ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
+                                    ".txt" => typeof(TextViewer),
+                                    ".pdf" => typeof(PdfReader),
+                                    ".zip" => typeof(CompressionViewer),
+                                    _ => null
+                                };
+                            }
+
                             async void ClickHandler(object sender, RoutedEventArgs args)
                             {
                                 if (sender is FrameworkElement Element && Element.Tag is (string Path, ProgramPickerItem Item))
                                 {
-                                    await Item.LaunchAsync(Path);
+                                    if (ProgramPickerItem.InnerViewer == Item)
+                                    {
+                                        if (GetInnerViewerType(Path) is Type InnerViewerType)
+                                        {
+                                            NavigationTransitionInfo NavigationTransition = AnimationController.Current.IsEnableAnimation
+                                                                                            ? new DrillInNavigationTransitionInfo()
+                                                                                            : new SuppressNavigationTransitionInfo();
+
+                                            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
+                                            {
+                                                TabViewContainer.CurrentNavigationControl?.Navigate(InnerViewerType, File, NavigationTransition);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        await Item.LaunchAsync(Path);
+                                    }
                                 }
                             }
 
@@ -628,14 +661,13 @@ namespace RX_Explorer.Class
                             {
                                 CleanUpContextMenuOpenWithFlyoutItems();
 
-                                if (OpenWithItems.Any())
+                                foreach (MenuFlyoutItem Item in OpenWithItems)
                                 {
-                                    foreach (MenuFlyoutItem Item in OpenWithItems)
-                                    {
-                                        OpenWithFlyout.Items.Insert(0, Item);
-                                    }
+                                    OpenWithFlyout.Items.Insert(0, Item);
                                 }
-                                else
+
+
+                                if (GetInnerViewerType(PathArray.First()) != null)
                                 {
                                     ProgramPickerItem Item = ProgramPickerItem.InnerViewer;
 

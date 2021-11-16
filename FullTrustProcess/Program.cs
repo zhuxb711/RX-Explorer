@@ -421,11 +421,15 @@ namespace FullTrustProcess
 
         private static void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            LogTracer.Log($"Connection closed, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
+            if (args.Status != AppServiceClosedStatus.Completed)
+            {
+                LogTracer.Log($"Connection closed unexpectedly, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
+            }
 
             if (!((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
                    && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                   && (PipeProgressWriterController?.IsConnected).GetValueOrDefault()))
+                   && (PipeProgressWriterController?.IsConnected).GetValueOrDefault()
+                   && (PipeCancellationReadController?.IsConnected).GetValueOrDefault()))
             {
                 ExitLocker.Set();
             }

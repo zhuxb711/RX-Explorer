@@ -28,9 +28,8 @@ namespace FullTrustProcess
 
                 return IsConnected = true;
             }
-            catch (Exception ex)
+            catch
             {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(CheckQuicklookIsAvaliable)}");
                 return IsConnected = false;
             }
         }

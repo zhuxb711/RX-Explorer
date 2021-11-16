@@ -466,7 +466,10 @@ namespace RX_Explorer.Class
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            LogTracer.Log("AppServiceConnection is closed unexpected");
+            if (args.Status != AppServiceClosedStatus.Completed)
+            {
+                LogTracer.Log($"Connection closed unexpectedly, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
+            }
 
             if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
                    && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
