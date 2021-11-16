@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
@@ -22,13 +23,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{UndoTo}";
-            }
-        }
+        public override string ToDescription => $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{UndoTo}";
 
         public Dictionary<string, string> UndoFrom { get; }
 
@@ -36,17 +31,22 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync()
+        public override async Task PrepareSizeDataAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
             foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom.Keys))
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {
-                            TotalSize += await Folder.GetFolderSizeAsync();
+                            TotalSize += await Folder.GetFolderSizeAsync(Token);
                             break;
                         }
                     case FileSystemStorageFile File:

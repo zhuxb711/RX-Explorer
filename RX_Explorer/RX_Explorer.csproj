@@ -171,6 +171,7 @@
     <Compile Include="Class\PortableImageDataPackage.cs" />
     <Compile Include="Class\PostProcessingDeferredEventArgs.cs" />
     <Compile Include="Class\ProgressCalculator.cs" />
+    <Compile Include="Class\ProgressChangedDeferredArgs.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />
     <Compile Include="Class\HiddenStorageFile.cs" />
     <Compile Include="Class\HiddenStorageFolder.cs" />

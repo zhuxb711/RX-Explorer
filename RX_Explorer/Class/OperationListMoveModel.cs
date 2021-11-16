@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -8,13 +9,7 @@ namespace RX_Explorer.Class
 {
     public class OperationListMoveModel : OperationListBaseModel
     {
-        public override string OperationKindText
-        {
-            get
-            {
-                return Globalization.GetString("TaskList_OperationKind_Move");
-            }
-        }
+        public override string OperationKindText => Globalization.GetString("TaskList_OperationKind_Move");
 
         public override string FromDescription
         {
@@ -36,13 +31,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{MoveTo}";
-            }
-        }
+        public override string ToDescription => $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{MoveTo}";
 
         public string[] MoveFrom { get; }
 
@@ -50,17 +39,22 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync()
+        public override async Task PrepareSizeDataAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
             foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(MoveFrom))
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {
-                            TotalSize += await Folder.GetFolderSizeAsync();
+                            TotalSize += await Folder.GetFolderSizeAsync(Token);
                             break;
                         }
                     case FileSystemStorageFile File:

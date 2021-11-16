@@ -728,6 +728,26 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<bool> SetTaskBarInfoAsync(int ProgressValue)
+        {
+            if (await SendCommandAsync(CommandType.SetTaskBarProgress, ("ProgressValue", Convert.ToString(ProgressValue))) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MapToUNCPathAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public async Task<IReadOnlyDictionary<string, string>> MapToUNCPathAsync(IEnumerable<string> PathList)
         {
             if (await SendCommandAsync(CommandType.MapToUNCPath, ("PathList", JsonSerializer.Serialize(PathList))) is IDictionary<string, string> Response)
@@ -956,13 +976,13 @@ namespace RX_Explorer.Class
             return new Dictionary<string, string>(0);
         }
 
-        public async Task SetFileAttribute(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
+        public async Task SetFileAttributeAsync(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
         {
             if (await SendCommandAsync(CommandType.SetFileAttribute, ("ExecutePath", Path), ("Attributes", JsonSerializer.Serialize(Attribute))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttribute)}, message: {ErrorMessage}");
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttributeAsync)}, message: {ErrorMessage}");
                 }
             }
         }

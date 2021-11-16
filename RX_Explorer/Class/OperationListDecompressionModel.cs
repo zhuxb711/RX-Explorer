@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
@@ -48,17 +49,22 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync()
+        public override async Task PrepareSizeDataAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
             foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(DecompressionFrom))
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {
-                            TotalSize += await Folder.GetFolderSizeAsync();
+                            TotalSize += await Folder.GetFolderSizeAsync(Token);
                             break;
                         }
                     case FileSystemStorageFile File:

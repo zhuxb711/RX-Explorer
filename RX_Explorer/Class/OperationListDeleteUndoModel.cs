@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     public sealed class OperationListDeleteUndoModel : OperationListUndoModel
     {
-        public override string FromDescription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public override string FromDescription => string.Empty;
 
         public override string ToDescription
         {
@@ -33,17 +28,22 @@ namespace RX_Explorer.Class
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync()
+        public override async Task PrepareSizeDataAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
             foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(UndoFrom))
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {
-                            TotalSize += await Folder.GetFolderSizeAsync();
+                            TotalSize += await Folder.GetFolderSizeAsync(Token);
                             break;
                         }
                     case FileSystemStorageFile File:

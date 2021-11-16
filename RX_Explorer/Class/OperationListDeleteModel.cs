@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
@@ -8,13 +9,7 @@ namespace RX_Explorer.Class
     {
         public bool IsPermanentDelete { get; }
 
-        public override string OperationKindText
-        {
-            get
-            {
-                return Globalization.GetString("TaskList_OperationKind_Delete");
-            }
-        }
+        public override string OperationKindText => Globalization.GetString("TaskList_OperationKind_Delete");
 
         public override string FromDescription
         {
@@ -31,29 +26,28 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string ToDescription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public override string ToDescription => string.Empty;
 
         public string[] DeleteFrom { get; }
 
         public override bool CanBeCancelled => true;
 
-        public override async Task PrepareSizeDataAsync()
+        public override async Task PrepareSizeDataAsync(CancellationToken Token)
         {
             ulong TotalSize = 0;
 
             foreach (FileSystemStorageItemBase Item in await FileSystemStorageItemBase.OpenInBatchAsync(DeleteFrom))
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 switch (Item)
                 {
                     case FileSystemStorageFolder Folder:
                         {
-                            TotalSize += await Folder.GetFolderSizeAsync();
+                            TotalSize += await Folder.GetFolderSizeAsync(Token);
                             break;
                         }
                     case FileSystemStorageFile File:

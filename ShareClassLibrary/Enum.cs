@@ -88,6 +88,7 @@
         GetTooltipText,
         GetVariablePathSuggestion,
         GetDirectoryMonitorHandle,
-        MapToUNCPath
+        MapToUNCPath,
+        SetTaskBarProgress
     }
 }

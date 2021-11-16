@@ -126,6 +126,7 @@ namespace RX_Explorer.Class
                             ProgressPause = false;
                             ProgressError = false;
 
+                            CancelButtonVisibility = CanBeCancelled ? Visibility.Visible : Visibility.Collapsed;
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
@@ -252,7 +253,7 @@ namespace RX_Explorer.Class
 
         protected ProgressCalculator Calculator;
 
-        public abstract Task PrepareSizeDataAsync();
+        public abstract Task PrepareSizeDataAsync(CancellationToken Token);
 
         public void UpdateProgress(int NewProgress)
         {

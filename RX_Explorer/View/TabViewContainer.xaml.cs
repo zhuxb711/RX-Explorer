@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+﻿using Microsoft.Toolkit.Deferred;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
@@ -37,15 +38,17 @@ namespace RX_Explorer
     {
         public static Frame CurrentNavigationControl { get; private set; }
 
-        public ObservableCollection<TabViewItem> TabCollection { get; }
-
         public static TabViewContainer Current { get; private set; }
+
+        public ObservableCollection<TabViewItem> TabCollection { get; }
 
         private CancellationTokenSource DelayPreviewCancel;
 
         private readonly DispatcherTimer PreviewTimer;
 
         public readonly LayoutModeController LayoutModeControl;
+
+        private DateTimeOffset LastTaskBarUpdatedTime = DateTimeOffset.Now;
 
         public TabViewContainer()
         {
@@ -57,6 +60,7 @@ namespace RX_Explorer
             {
                 Interval = TimeSpan.FromSeconds(3)
             };
+
 
             TabCollection = new ObservableCollection<TabViewItem>();
 
@@ -71,40 +75,23 @@ namespace RX_Explorer
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
             QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
 
-            if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
+            if (QueueTaskController.PinTaskList)
             {
-                if (ShouldPin)
-                {
-                    TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
-                    TaskListPanel.IsPaneOpen = true;
+                TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
+                TaskListPanel.IsPaneOpen = true;
 
-                    PinTaskListPanel.Content = new Viewbox
-                    {
-                        Child = new FontIcon
-                        {
-                            Glyph = "\uE77A"
-                        }
-                    };
-                }
-                else
+                PinTaskListPanel.Content = new Viewbox
                 {
-                    TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
-                    TaskListPanel.IsPaneOpen = false;
-
-                    PinTaskListPanel.Content = new Viewbox
+                    Child = new FontIcon
                     {
-                        Child = new FontIcon
-                        {
-                            Glyph = "\uE840"
-                        }
-                    };
-                }
+                        Glyph = "\uE77A"
+                    }
+                };
             }
             else
             {
                 TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
-
-                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = false;
+                TaskListPanel.IsPaneOpen = false;
 
                 PinTaskListPanel.Content = new Viewbox
                 {
@@ -194,18 +181,44 @@ namespace RX_Explorer
             }
         }
 
-        private async void QueueTaskController_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        private async void QueueTaskController_ProgressChanged(object sender, ProgressChangedDeferredArgs e)
         {
-            TaskListProgress.Value = e.ProgressPercentage;
+            EventDeferral Deferral = e.GetDeferral();
 
-            if (e.ProgressPercentage >= 100)
+            try
             {
-                await Task.Delay(800).ContinueWith((_) => TaskListProgress.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    TaskListProgress.Value = e.ProgressValue;
+
+                    if (e.ProgressValue >= 100)
+                    {
+                        _ = Task.Delay(800).ContinueWith((_) => TaskListProgress.Visibility = Visibility.Collapsed, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                    else
+                    {
+                        TaskListProgress.Visibility = Visibility.Visible;
+                        TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+                    }
+                });
+
+                if ((DateTimeOffset.Now - LastTaskBarUpdatedTime).TotalMilliseconds >= 1000 || e.ProgressValue is 100 or 0)
+                {
+                    LastTaskBarUpdatedTime = DateTimeOffset.Now;
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        await Exclusive.Controller.SetTaskBarInfoAsync(e.ProgressValue);
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TaskListProgress.Visibility = Visibility.Visible;
-                TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
+                LogTracer.Log(ex, "Could not update the progress as expected");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -1245,7 +1258,7 @@ namespace RX_Explorer
                     }
                 };
 
-                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = true;
+                QueueTaskController.PinTaskList = true;
             }
             else
             {
@@ -1259,7 +1272,7 @@ namespace RX_Explorer
                     }
                 };
 
-                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = false;
+                QueueTaskController.PinTaskList = false;
             }
         }
 

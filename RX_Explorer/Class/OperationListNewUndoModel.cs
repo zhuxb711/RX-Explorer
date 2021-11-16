@@ -1,31 +1,20 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
     public sealed class OperationListNewUndoModel : OperationListUndoModel
     {
-        public override string FromDescription
-        {
-            get
-            {
-                return $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{UndoFrom}";
-            }
-        }
+        public override string FromDescription => $"{Globalization.GetString("TaskList_From_Label")}: {Environment.NewLine}{UndoFrom}";
 
-        public override string ToDescription
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
+        public override string ToDescription => string.Empty;
 
         public string UndoFrom { get; }
 
         public override bool CanBeCancelled => false;
 
-        public override Task PrepareSizeDataAsync()
+        public override Task PrepareSizeDataAsync(CancellationToken Token)
         {
             Calculator = new ProgressCalculator(0);
             return Task.CompletedTask;

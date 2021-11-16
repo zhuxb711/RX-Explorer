@@ -262,7 +262,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.SetFileAttribute(StorageItem.Path, AttributeDic.ToArray());
+                await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
 
                 switch (StorageItem)
                 {

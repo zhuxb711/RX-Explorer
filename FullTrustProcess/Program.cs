@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -475,6 +476,43 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.SetTaskBarProgress:
+                        {
+                            ulong ProgressValue = Math.Min(100, Math.Max(0, Convert.ToUInt64(CommandValue["ProgressValue"])));
+
+                            WindowInformation Info = Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault()));
+
+                            if (Info.Handle.IsNull)
+                            {
+                                Value.Add("Error", "Could not get the handle that needed for setting taskbar");
+                            }
+                            else
+                            {
+                                switch (ProgressValue)
+                                {
+                                    case 0:
+                                        {
+                                            TaskbarList.SetProgressState(Info.Handle, TaskbarButtonProgressState.Indeterminate);
+                                            break;
+                                        }
+                                    case 100:
+                                        {
+                                            TaskbarList.SetProgressState(Info.Handle, TaskbarButtonProgressState.None);
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            TaskbarList.SetProgressState(Info.Handle, TaskbarButtonProgressState.Normal);
+                                            TaskbarList.SetProgressValue(Info.Handle, ProgressValue, 100);
+                                            break;
+                                        }
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+
+                            break;
+                        }
                     case CommandType.MapToUNCPath:
                         {
                             IReadOnlyList<string> PathList = JsonSerializer.Deserialize<IReadOnlyList<string>>(CommandValue["PathList"]);
