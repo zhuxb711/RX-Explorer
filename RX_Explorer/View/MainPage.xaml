@@ -437,16 +437,18 @@
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>
             <muxc:NavigationView.Content>
-                <Grid Name="RootGrid">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <StackPanel Name="BannerPanel"
+                                ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"/>
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"
                            x:FieldModifier="public"
-                           Grid.RowSpan="2" />
+                           Grid.Row="2" />
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

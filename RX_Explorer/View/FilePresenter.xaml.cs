@@ -618,7 +618,7 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count <= 1:
+                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count == 1:
                             {
                                 args.Handled = true;
 
@@ -626,19 +626,7 @@ namespace RX_Explorer
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        string ViewPathWithQuicklook = null;
-
-                                        if (string.IsNullOrEmpty(SelectedItem?.Path))
-                                        {
-                                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
-                                            {
-                                                ViewPathWithQuicklook = CurrentFolder.Path;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            ViewPathWithQuicklook = SelectedItem.Path;
-                                        }
+                                        string ViewPathWithQuicklook = SelectedItem?.Path;
 
                                         if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
                                         {
@@ -1902,22 +1890,16 @@ namespace RX_Explorer
             }
 
             if (SettingPage.IsQuicklookEnabled
-                && e.AddedItems.Count <= 1)
+                && e.AddedItems.Count == 1
+                && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                     {
-                        string ViewPathWithQuicklook = e.AddedItems.OfType<FileSystemStorageItemBase>().FirstOrDefault()?.Path;
-
-                        if (string.IsNullOrEmpty(ViewPathWithQuicklook))
+                        if (!string.IsNullOrEmpty(Item.Path))
                         {
-                            ViewPathWithQuicklook = CurrentFolder?.Path;
-                        }
-
-                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
-                        {
-                            await Exclusive.Controller.SwitchQuicklookAsync(ViewPathWithQuicklook);
+                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
                         }
                     }
                 }

@@ -555,7 +555,8 @@ namespace RX_Explorer.Class
                                         Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                         Icon = new SymbolIcon(Symbol.More),
                                         Name = "ExtraButton",
-                                        Width = 300,
+                                        FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                        Width = 320,
                                         Flyout = MoreFlyout
                                     });
                                 }

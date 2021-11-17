@@ -86,7 +86,7 @@ namespace RX_Explorer
             FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
             MSStoreHelper.Current.PreLoadStoreData();
-            InfoTipController.Current.SetInfoTipPanel(RootGrid);
+            InfoTipController.Current.SetInfoTipPanel(BannerPanel);
 
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 

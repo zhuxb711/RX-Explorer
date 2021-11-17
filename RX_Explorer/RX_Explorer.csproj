@@ -33,7 +33,6 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Use64BitCompiler>true</Use64BitCompiler>
-    <UseAppLocalCoreFramework>true</UseAppLocalCoreFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
     <DebugSymbols>true</DebugSymbols>

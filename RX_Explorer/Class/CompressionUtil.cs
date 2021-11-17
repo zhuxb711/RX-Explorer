@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {
@@ -761,7 +761,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {

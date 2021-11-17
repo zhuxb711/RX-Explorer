@@ -1617,8 +1617,8 @@ namespace RX_Explorer
                                 if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder ParentFolder)
                                 {
                                     IReadOnlyList<FileSystemStorageItemBase> Result = string.IsNullOrEmpty(FileName)
-                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, 20)
-                                                                                      : await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
+                                                                                      ? await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, MaxNumLimit: 20)
+                                                                                      : await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, MaxNumLimit: 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase));
 
                                     if (args.CheckCurrent())
                                     {

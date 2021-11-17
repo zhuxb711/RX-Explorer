@@ -140,7 +140,7 @@ namespace RX_Explorer.Class
             {
                 Label = Name,
                 Tag = this,
-                Width = 300,
+                Width = 320,
                 FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                 Name = "ExtraButton"
             };

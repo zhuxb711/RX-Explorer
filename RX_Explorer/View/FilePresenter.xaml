@@ -150,7 +150,7 @@
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -162,7 +162,7 @@
                 <AppBarButton Label="打开文件所在位置"
                               x:Uid="LnkOpenLocation"
                               x:Name="LnkOpenLocation"
-                              Width="300"
+                              Width="320"
                               Click="LnkOpenLocation_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -171,7 +171,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               Click="FileProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -278,7 +278,7 @@
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="FileOpen"
-                              Width="300"
+                              Width="320"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
@@ -289,7 +289,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenWith')}"
                               Name="OtherOpenMethod"
                               Icon="OpenWith"
-                              Width="300">
+                              Width="320">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
                             <MenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenAsAdministrator')}"
@@ -312,7 +312,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Edit"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Edit')}"
-                              Width="300"
+                              Width="320"
                               x:Name="FileEdit">
                     <AppBarButton.Flyout>
                         <MenuFlyout>
@@ -346,7 +346,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Share"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Share')}"
-                              Width="300"
+                              Width="320"
                               Name="FileShare">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
@@ -379,7 +379,7 @@
                 </AppBarButton>
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              Width="300"
+                              Width="320"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -387,7 +387,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton x:Name="Compression"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="Compression_Click">
                     <AppBarButton.Icon>
@@ -396,7 +396,7 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton x:Name="Decompression"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -409,7 +409,7 @@
                                             Name="DecompressOption"
                                             x:Uid="DecompressOption"
                                             MinWidth="150"
-                                            MaxWidth="300"
+                                            MaxWidth="320"
                                             Click="DecompressOption_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -420,7 +420,7 @@
                                             Click="Decompression_Click"
                                             x:Uid="DecompressHere"
                                             MinWidth="150"
-                                            MaxWidth="300">
+                                            MaxWidth="320">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
@@ -429,7 +429,7 @@
                             <MenuFlyoutItem Click="Decompression_Click"
                                             x:Name="DecompressionOption2"
                                             MinWidth="150"
-                                            MaxWidth="300">
+                                            MaxWidth="320">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
@@ -440,7 +440,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Width="300"
+                              Width="320"
                               Name="Attribute"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               Click="FileProperty_Click" />
@@ -542,13 +542,13 @@
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               Name="MixOpen"
                               Click="MixOpen_Click" />
                 <AppBarSeparator />
                 <AppBarButton x:Name="MixCompression"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="MixCompression_Click">
                     <AppBarButton.Icon>
@@ -557,7 +557,7 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton x:Name="MixDecompression"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -569,7 +569,7 @@
                                             Name="MixDecompressOption"
                                             x:Uid="DecompressOption"
                                             MinWidth="150"
-                                            MaxWidth="300"
+                                            MaxWidth="320"
                                             Click="MixDecompressOption_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -580,7 +580,7 @@
                                             Click="MixDecompression_Click"
                                             x:Uid="DecompressHere"
                                             MinWidth="150"
-                                            MaxWidth="300">
+                                            MaxWidth="320">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
@@ -590,7 +590,7 @@
                                             Click="MixDecompression_Click"
                                             x:Name="MixDecompressIndie"
                                             MinWidth="150"
-                                            MaxWidth="300">
+                                            MaxWidth="320">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
@@ -699,7 +699,7 @@
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="FolderOpen"
-                              Width="300"
+                              Width="320"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="None"
@@ -709,7 +709,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
                               x:Name="OpenFolderInNewTab"
-                              Width="300"
+                              Width="320"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -723,7 +723,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
                               x:Name="OpenFolderInNewWindow"
-                              Width="300"
+                              Width="320"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -737,7 +737,7 @@
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               Visibility="Collapsed"
-                              Width="300"
+                              Width="320"
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
@@ -752,7 +752,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton x:Name="CompressFolder"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="CompressFolder_Click">
                     <AppBarButton.Icon>
@@ -762,7 +762,7 @@
                 </AppBarButton>
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              Width="300"
+                              Width="320"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -770,7 +770,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="FolderProperty"
                               Click="FolderProperty_Click" />
@@ -803,7 +803,7 @@
             </AppBarButton>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Create')}">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="CreatNewFlyout"
@@ -812,7 +812,7 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Icon="Sort"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Sort')}">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SortMenuFlyout_Opening">
@@ -851,7 +851,7 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Grouping')}"
-                              Width="300">
+                              Width="320">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF168;" />
@@ -899,7 +899,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Refresh"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
-                              Width="300"
+                              Width="320"
                               x:Name="Refresh"
                               Click="Refresh_Click">
                 </AppBarButton>
@@ -907,7 +907,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenInTerminal')}"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenInTerminal')}"
                               Name="OpenInTerminal"
-                              Width="300"
+                              Width="320"
                               Click="OpenInTerminal_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -922,7 +922,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenInWinExplorer')}"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenInWinExplorer')}"
                               x:Name="UseSystemFileMananger"
-                              Width="300"
+                              Width="320"
                               Click="UseSystemFileMananger_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -937,7 +937,7 @@
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_ExpandToCurrentFolder')}"
                               ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_ExpandToCurrentFolder')}"
                               x:Name="ExpandToCurrentFolder"
-                              Width="300"
+                              Width="320"
                               Click="ExpandToCurrentFolder_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -948,7 +948,7 @@
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="ParentProperty"
-                              Width="300"
+                              Width="320"
                               Click="ParentProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

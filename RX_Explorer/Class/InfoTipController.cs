@@ -13,13 +13,7 @@ namespace RX_Explorer.Class
     public sealed class InfoTipController
     {
         private static InfoTipController Instance;
-        public static InfoTipController Current
-        {
-            get
-            {
-                return Instance ??= new InfoTipController();
-            }
-        }
+        public static InfoTipController Current => Instance ??= new InfoTipController();
 
         private Panel Element;
         private readonly ConcurrentDictionary<InfoTipType, int> CounterDictionary;
@@ -102,7 +96,7 @@ namespace RX_Explorer.Class
 
                             InfoTip.Title = Globalization.GetString("SystemTip_UpdateAvailableTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_UpdateAvailableContent");
-                            InfoTip.Severity = InfoBarSeverity.Informational;
+                            InfoTip.Severity = InfoBarSeverity.Success;
                             InfoTip.ActionButton = ActionButton;
 
                             break;
@@ -137,9 +131,9 @@ namespace RX_Explorer.Class
                             InfoTip.Message = Globalization.GetString("SystemTip_LoadFileDelayContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
 
-                            ShowStoryboard.Completed += (s, e) =>
+                            ShowStoryboard.Completed += async (s, e) =>
                             {
-                                Task.Delay(8000).ContinueWith((_) =>
+                                await Task.Delay(8000).ContinueWith((_) =>
                                 {
                                     Hide(InfoTipType.ThumbnailDelay);
                                 }, TaskScheduler.FromCurrentSynchronizationContext());
@@ -151,7 +145,7 @@ namespace RX_Explorer.Class
                         {
                             InfoTip.Title = Globalization.GetString("SystemTip_FullTrustBusyTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_FullTrustBusyContent");
-                            InfoTip.Severity = InfoBarSeverity.Informational;
+                            InfoTip.Severity = InfoBarSeverity.Warning;
 
                             break;
                         }

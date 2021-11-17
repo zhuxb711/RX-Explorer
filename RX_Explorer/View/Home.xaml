@@ -42,7 +42,7 @@
 
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              Width="300"
+                              Width="320"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="OpenLibrary"
                               Click="OpenLibrary_Click">
@@ -53,7 +53,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
-                              Width="300"
+                              Width="320"
                               x:Name="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
@@ -67,7 +67,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
-                              Width="300"
+                              Width="320"
                               x:Name="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
@@ -81,7 +81,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
-                              Width="300"
+                              Width="320"
                               Visibility="Collapsed"
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
@@ -98,7 +98,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="Send to"
                               x:Uid="SendTo"
-                              Width="300"
+                              Width="320"
                               Icon="Send">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SendToFlyout_Opening" />
@@ -107,7 +107,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
-                              Width="300"
+                              Width="320"
                               x:Name="LibraryProperty"
                               Click="LibraryProperties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -142,7 +142,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
-                              Width="300"
+                              Width="320"
                               x:Uid="OpenDevice"
                               Click="OpenDrive_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -153,7 +153,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
-                              Width="300"
+                              Width="320"
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
                               Click="Properties_Click" />

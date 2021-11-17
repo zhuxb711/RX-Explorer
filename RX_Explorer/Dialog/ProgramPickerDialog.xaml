@@ -139,6 +139,7 @@
                             Background="Transparent"
                             Padding="0,2,0,2"
                             Name="ShowMore"
+                            BorderThickness="0"
                             Click="ShowMore_Click">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="更多应用"

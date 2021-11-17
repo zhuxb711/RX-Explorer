@@ -34,37 +34,13 @@ namespace RX_Explorer.Class
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
-        public static bool IsAnyActionExcutingInAllControllers
-        {
-            get
-            {
-                return AllControllerList.ToArray().Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
-            }
-        }
+        public static bool IsAnyActionExcutingInAllControllers => AllControllerList.ToArray().Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
 
-        public static int InUseControllersNum
-        {
-            get
-            {
-                return CurrentRunningControllerNum - AvailableControllers.Count;
-            }
-        }
+        public static int InUseControllersNum => CurrentRunningControllerNum - AvailableControllers.Count;
 
-        public static int AllControllersNum
-        {
-            get
-            {
-                return CurrentRunningControllerNum;
-            }
-        }
+        public static int AllControllersNum => CurrentRunningControllerNum;
 
-        public static int AvailableControllersNum
-        {
-            get
-            {
-                return AvailableControllers.Count;
-            }
-        }
+        public static int AvailableControllersNum => AvailableControllers.Count;
 
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {

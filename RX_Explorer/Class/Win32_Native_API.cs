@@ -649,188 +649,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalulateSize(string Path, CancellationToken CancelToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(Path))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                    {
-                        return CalculateFolderSize(Path, CancelToken);
-                    }
-                    else
-                    {
-                        return CalculateFileSize(Path);
-                    }
-                }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
-                {
-                    LogTracer.Log($"Path not found: \"{Path}\"");
-                    return 0;
-                }
-                else
-                {
-                    throw new LocationNotAvailableException();
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        private static ulong CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    ulong TotalSize = 0;
-
-                    do
-                    {
-                        if (Data.cFileName != "." && Data.cFileName != "..")
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                            {
-                                TotalSize += CalculateFolderSize(Path.Combine(FolderPath, Data.cFileName), CancelToken);
-                            }
-                            else
-                            {
-                                TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
-
-                    return TotalSize;
-                }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
-                    return 0;
-                }
-                else
-                {
-                    throw new LocationNotAvailableException();
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        private static ulong CalculateFileSize(string FilePath)
-        {
-            if (string.IsNullOrWhiteSpace(FilePath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(FilePath));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(FilePath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                    {
-                        return ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FilePath).Equals(FilePath, StringComparison.OrdinalIgnoreCase))
-                {
-                    LogTracer.Log($"Path not found: \"{FilePath}\"");
-                    return 0;
-                }
-                else
-                {
-                    throw new LocationNotAvailableException();
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        public static (uint, uint) CalculateFolderAndFileCount(string FolderPath, CancellationToken CancelToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.CheckIfValidPtr())
-                {
-                    uint FolderCount = 0;
-                    uint FileCount = 0;
-
-                    do
-                    {
-                        if (Data.cFileName != "." && Data.cFileName != "..")
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                            {
-                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(Path.Combine(FolderPath, Data.cFileName), CancelToken);
-                                FolderCount += ++SubFolderCount;
-                                FileCount += SubFileCount;
-                            }
-                            else
-                            {
-                                FileCount++;
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
-
-                    return (FolderCount, FileCount);
-                }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
-                    return (0, 0);
-                }
-                else
-                {
-                    throw new LocationNotAvailableException();
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath,
+                                                                      string SearchWord,
+                                                                      bool IncludeHiddenItem = false,
+                                                                      bool IncludeSystemItem = false,
+                                                                      bool IsRegexExpresstion = false,
+                                                                      bool IgnoreCase = true,
+                                                                      CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -920,7 +745,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, BasicFilters Filter = BasicFilters.File | BasicFilters.Folder, Func<string, bool> AdvanceFilter = null)
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath,
+                                                                               bool IncludeHiddenItem = false,
+                                                                               bool IncludeSystemItem = false,
+                                                                               uint MaxNumLimit = uint.MaxValue,
+                                                                               BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
+                                                                               Func<string, bool> AdvanceFilter = null)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
