@@ -66,7 +66,7 @@
       <Extensions>
         <desktop:Extension Category="windows.fullTrustProcess" Executable="FullTrustProcess\FullTrustProcess.exe"/>
         <uap5:Extension Category="windows.startupTask" EntryPoint="RX_Explorer.App" Executable="RX_Explorer.exe">
-          <uap5:StartupTask DisplayName="RX_Startup_Task" Enabled="true" TaskId="RXExplorer"/>
+          <uap5:StartupTask DisplayName="ms-resource:AppDisplayName" Enabled="true" TaskId="RXExplorer"/>
         </uap5:Extension>
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
