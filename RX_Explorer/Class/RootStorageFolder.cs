@@ -50,11 +50,6 @@ namespace RX_Explorer.Class
             return Task.FromResult((ulong)0);
         }
 
-        public override Task<(uint, uint)> GetFolderAndFileNumAsync(CancellationToken CancelToken = default)
-        {
-            return Task.FromResult(((uint)0, (uint)0));
-        }
-
         public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,
                                                                                           bool IncludeSystemItems = false,
                                                                                           bool IncludeAllSubItems = false,

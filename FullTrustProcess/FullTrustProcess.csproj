@@ -25,9 +25,12 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-	  <None Include="..\.editorconfig">
+    <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
+	<Content Include="Everything64.dll">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Vanara.PInvoke.CfgMgr32">

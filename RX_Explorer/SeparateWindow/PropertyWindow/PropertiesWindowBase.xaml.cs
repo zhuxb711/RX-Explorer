@@ -1124,7 +1124,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task<string> CalculateFolderAndFileCount(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            (uint FolderCount, uint FileCount) = await Folder.GetFolderAndFileNumAsync(CancelToken).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> Result = await Folder.GetChildItemsAsync(true, true, true, CancelToken: CancelToken);
 
             if (CancelToken.IsCancellationRequested)
             {
@@ -1132,7 +1132,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
             else
             {
-                return $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
+                return $"{Result.OfType<FileSystemStorageFile>().Count()} {Globalization.GetString("FolderInfo_File_Count")} , {Result.OfType<FileSystemStorageFolder>().Count()} {Globalization.GetString("FolderInfo_Folder_Count")}";
             }
         }
 
