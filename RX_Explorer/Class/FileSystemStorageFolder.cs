@@ -383,7 +383,7 @@ namespace RX_Explorer.Class
             return GetChildItemsCoreAsync(Path);
         }
 
-        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
             if (ForceUpdate)
             {

@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
 using Windows.Services.Store;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -661,8 +660,6 @@ namespace RX_Explorer
         {
             Loaded -= TabViewContainer_Loaded;
 
-            PreviewTimer.Start();
-
             if ((MainPage.Current.ActivatePathArray?.Count).GetValueOrDefault() == 0)
             {
                 await CreateNewTabAsync();
@@ -688,7 +685,7 @@ namespace RX_Explorer
                 LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
             }
 
-            await Task.WhenAll(LoadTaskList).ConfigureAwait(false);
+            await Task.WhenAll(LoadTaskList).ContinueWith((_) => PreviewTimer.Start(), TaskScheduler.FromCurrentSynchronizationContext()).ConfigureAwait(false);
         }
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)

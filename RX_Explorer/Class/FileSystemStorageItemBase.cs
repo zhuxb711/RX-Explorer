@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
@@ -106,6 +105,7 @@ namespace RX_Explorer.Class
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
         private int IsLoaded;
+
         protected IStorageItem StorageItem { get; set; }
 
         protected static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
@@ -504,81 +504,64 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            if (Interlocked.Exchange(ref IsLoaded, 1) > 0)
+            try
             {
-                if (ThubmnalModeChanged)
+                if (Interlocked.Exchange(ref IsLoaded, 1) > 0)
                 {
-                    ThubmnalModeChanged = false;
-
-                    if (ShouldGenerateThumbnail)
+                    if (ThubmnalModeChanged)
                     {
-                        try
+                        ThubmnalModeChanged = false;
+
+                        if (ShouldGenerateThumbnail)
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                            {
-                                Thumbnail = await GetThumbnailAsync(Exclusive.Controller, ThumbnailMode);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                        }
-                        finally
-                        {
-                            OnPropertyChanged(nameof(Thumbnail));
+                            Thumbnail = await GetThumbnailAsync(ThumbnailMode);
                         }
                     }
                 }
-            }
-            else
-            {
-                async void LocalLoadFunction()
+                else
                 {
-                    try
+                    async Task LocalLoadFunction()
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        if (ShouldGenerateThumbnail)
                         {
-                            if (ShouldGenerateThumbnail)
+                            await LoadCoreAsync(false);
+
+                            if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
                             {
-                                await LoadCoreAsync(Exclusive.Controller, false);
-
-                                if (await GetThumbnailAsync(Exclusive.Controller, ThumbnailMode) is BitmapImage Thumbnail)
-                                {
-                                    this.Thumbnail = Thumbnail;
-                                }
+                                this.Thumbnail = Thumbnail;
                             }
-
-                            ThumbnailOverlay = await GetThumbnailOverlayAsync(Exclusive.Controller);
                         }
+
+                        ThumbnailOverlay = await GetThumbnailOverlayAsync();
 
                         if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
                         {
                             await GetSyncStatusAsync();
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LocalLoadFunction)}, StorageType: {GetType().FullName}, Path: {Path}");
-                    }
-                    finally
-                    {
-                        OnPropertyChanged(nameof(Name));
-                        OnPropertyChanged(nameof(SizeDescription));
-                        OnPropertyChanged(nameof(DisplayType));
-                        OnPropertyChanged(nameof(ModifiedTimeDescription));
-                        OnPropertyChanged(nameof(Thumbnail));
-                        OnPropertyChanged(nameof(ThumbnailOverlay));
-                    }
-                };
+                    };
 
-                if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
-                {
-                    LocalLoadFunction();
+                    if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                    {
+                        await LocalLoadFunction();
+                    }
+                    else
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
+                    }
                 }
-                else
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, LocalLoadFunction);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+            }
+            finally
+            {
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(SizeDescription));
+                OnPropertyChanged(nameof(DisplayType));
+                OnPropertyChanged(nameof(ModifiedTimeDescription));
+                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(ThumbnailOverlay));
             }
         }
 
@@ -710,47 +693,53 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync(FullTrustProcessController Controller)
+        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
         {
-            byte[] ThumbnailOverlayByteArray = await Controller.GetThumbnailOverlayAsync(Path);
-
-            if (ThumbnailOverlayByteArray.Length > 0)
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
+                byte[] ThumbnailOverlayByteArray = await Exclusive.Controller.GetThumbnailOverlayAsync(Path);
+
+                if (ThumbnailOverlayByteArray.Length > 0)
                 {
-                    BitmapImage Overlay = new BitmapImage();
-                    await Overlay.SetSourceAsync(Ms.AsRandomAccessStream());
-                    return Overlay;
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        protected abstract Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
-
-        public abstract Task<IStorageItem> GetStorageItemAsync();
-
-        protected virtual async Task<BitmapImage> GetThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
-        {
-            async Task<BitmapImage> GetThumbnailTask()
-            {
-                byte[] ThumbnailData = await Controller.GetThumbnailAsync(Path);
-
-                if (ThumbnailData.Length > 0)
-                {
-                    using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                    using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
                     {
-                        BitmapImage Image = new BitmapImage();
-                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                        return Image;
+                        BitmapImage Overlay = new BitmapImage();
+                        await Overlay.SetSourceAsync(Ms.AsRandomAccessStream());
+                        return Overlay;
                     }
                 }
                 else
                 {
                     return null;
+                }
+            }
+        }
+
+        protected abstract Task LoadCoreAsync(bool ForceUpdate);
+
+        public abstract Task<IStorageItem> GetStorageItemAsync();
+
+        public virtual async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
+        {
+            async Task<BitmapImage> GetThumbnailTask()
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
+
+                    if (ThumbnailData.Length > 0)
+                    {
+                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                        {
+                            BitmapImage Image = new BitmapImage();
+                            await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                            return Image;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -779,10 +768,7 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        await LoadCoreAsync(Exclusive.Controller, true);
-                    }
+                    await LoadCoreAsync(true);
 
                     OnPropertyChanged(nameof(SizeDescription));
                     OnPropertyChanged(nameof(Name));

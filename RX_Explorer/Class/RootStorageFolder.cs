@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override Task LoadCoreAsync(bool ForceUpdate)
         {
             return Task.CompletedTask;
         }

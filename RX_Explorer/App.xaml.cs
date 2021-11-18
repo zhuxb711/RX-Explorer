@@ -324,7 +324,9 @@ namespace RX_Explorer
                     }
                 case StartupMode.SpecificTab:
                     {
-                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync().Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                        string[] SpecificPathArray = await StartupModeController.GetAllPathAsync()
+                                                                                .Select((Item) => Item.SingleOrDefault())
+                                                                                .ToArrayAsync();
 
                         if (SpecificPathArray.Length > 0)
                         {

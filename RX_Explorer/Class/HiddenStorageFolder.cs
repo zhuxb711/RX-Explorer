@@ -13,12 +13,18 @@ namespace RX_Explorer.Class
     {
         protected HiddenDataPackage RawData { get; set; }
 
-        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            RawData = await GetRawDataAsync(Controller);
+            if (RawData == null || ForceUpdate)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    RawData = await GetRawDataAsync(Exclusive.Controller);
+                }
+            }
         }
 
-        protected override async Task<BitmapImage> GetThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
+        public override async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {

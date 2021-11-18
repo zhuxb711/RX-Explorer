@@ -120,24 +120,27 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            RawData = await GetRawDataAsync(Controller);
-
-            if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
+                RawData = await GetRawDataAsync(Exclusive.Controller);
+
+                if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
                 {
-                    LinkType = ShellLinkType.Normal;
-                }
-                else
-                {
-                    LinkType = ShellLinkType.UWP;
+                    if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
+                    {
+                        LinkType = ShellLinkType.Normal;
+                    }
+                    else
+                    {
+                        LinkType = ShellLinkType.UWP;
+                    }
                 }
             }
         }
 
-        protected override async Task<BitmapImage> GetThumbnailAsync(FullTrustProcessController Controller, ThumbnailMode Mode)
+        public override async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {

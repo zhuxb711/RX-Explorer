@@ -70,10 +70,6 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-                        else
-                        {
-                            yield break;
-                        }
 
                         break;
                     }
@@ -98,12 +94,11 @@ namespace RX_Explorer.Class
                                     }
                                 }
 
-                                yield return ValidPathList.ToArray();
+                                if (ValidPathList.Count > 0)
+                                {
+                                    yield return ValidPathList.ToArray();
+                                }
                             }
-                        }
-                        else
-                        {
-                            yield break;
                         }
 
                         break;

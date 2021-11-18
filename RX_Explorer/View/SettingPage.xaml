@@ -64,16 +64,41 @@
     </UserControl.Resources>
 
     <Grid x:Name="RootGrid"
+          Padding="180,100"
           Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
 
-        <Grid HorizontalAlignment="Center"
-              VerticalAlignment="Center"
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="NavNormalState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1000" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SettingNavigation.PaneDisplayMode"
+                                Value="Left" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="NavOverlayState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SettingNavigation.PaneDisplayMode"
+                                Value="LeftCompact" />
+                        <Setter Target="SettingNavigation.IsPaneToggleButtonVisible"
+                                Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
               BorderThickness="1.5"
               BorderBrush="{ThemeResource BorderDefaultBrush}"
-              CornerRadius="{StaticResource CustomCornerRadius}"
-              Width="850">
+              CornerRadius="{StaticResource CustomCornerRadius}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="550"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="60" />
             </Grid.RowDefinitions>
 
@@ -1521,17 +1546,11 @@
                                                                                     Value="False" />
                                                                             <Setter Target="AccentColorLabel.Foreground"
                                                                                     Value="Gray" />
-                                                                            <Setter Target="TintOpacitySliderLabel.Foreground"
-                                                                                    Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderLabel.Foreground"
                                                                                     Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderValueText.Foreground"
                                                                                     Value="Gray" />
-                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
-                                                                                    Value="Gray" />
                                                                             <Setter Target="AcrylicColor.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="TintOpacitySlider.IsEnabled"
                                                                                     Value="False" />
                                                                             <Setter Target="TintLuminositySlider.IsEnabled"
                                                                                     Value="False" />
@@ -1547,17 +1566,11 @@
                                                                                     Value="False" />
                                                                             <Setter Target="AccentColorLabel.Foreground"
                                                                                     Value="Gray" />
-                                                                            <Setter Target="TintOpacitySliderLabel.Foreground"
-                                                                                    Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderLabel.Foreground"
                                                                                     Value="Gray" />
                                                                             <Setter Target="TintLuminositySliderValueText.Foreground"
                                                                                     Value="Gray" />
-                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
-                                                                                    Value="Gray" />
                                                                             <Setter Target="AcrylicColor.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="TintOpacitySlider.IsEnabled"
                                                                                     Value="False" />
                                                                             <Setter Target="TintLuminositySlider.IsEnabled"
                                                                                     Value="False" />
@@ -1572,8 +1585,12 @@
                                                                     <VisualState x:Name="PreventFallbackNormalState" />
                                                                     <VisualState x:Name="PreventFallbackDisableState">
                                                                         <VisualState.StateTriggers>
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind PreventFallBack.IsChecked,Mode=OneWay}"
-                                                                                                          To="True" />
+                                                                            <Triggers:IsNotEqualStateTrigger Value="{x:Bind PreventFallBack.IsChecked,Mode=OneWay}"
+                                                                                                             To="False" />
+                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                                                                          To="Picture" />
+                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                                                                          To="BingPicture" />
                                                                         </VisualState.StateTriggers>
                                                                         <VisualState.Setters>
                                                                             <Setter Target="TintOpacitySliderLabel.Foreground"

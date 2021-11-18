@@ -722,7 +722,7 @@
                            Holding="FolderTree_Holding"
                            AllowFocusOnInteraction="False"
                            DoubleTapped="FolderTree_DoubleTapped"
-                           RightTapped="FolderTree_RightTapped">
+                           RightTapped="FolderTree_RightTapped" >
                 <muxc:TreeView.ItemContainerStyle>
                     <Style TargetType="muxc:TreeViewItem">
                         <Setter Property="UseSystemFocusVisuals"

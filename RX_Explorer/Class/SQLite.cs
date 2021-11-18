@@ -912,21 +912,27 @@ namespace RX_Explorer.Class
             if (InputData.Any())
             {
                 using SqliteTransaction Transaction = Connection.BeginTransaction();
+                using SqliteCommand Command = new SqliteCommand("Select Name From sqlite_master Where type='table'", Connection, Transaction);
 
-                StringBuilder DeleteCommandBuilder = new StringBuilder();
+                List<string> IncomingTableNames = InputData.Select((Item) => Item.TableName).ToList();
+                List<string> CurrentTableNames = new List<string>();
 
-                foreach (string TableName in InputData.Select((Item) => Item.TableName))
+                using (SqliteDataReader Reader = Command.ExecuteReader())
                 {
-                    DeleteCommandBuilder.Append($"Delete From {TableName};");
+                    while (Reader.Read())
+                    {
+                        CurrentTableNames.Add(Convert.ToString(Reader[0]));
+                    }
                 }
 
-                using SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection, Transaction);
+                IReadOnlyList<string> ValidTableName = CurrentTableNames.Intersect(IncomingTableNames).ToList();
 
+                Command.CommandText = string.Join(';', ValidTableName.Select((TableName) => $"Delete From {TableName}"));
                 Command.ExecuteNonQuery();
 
                 List<SqliteParameter> Parameters = new List<SqliteParameter>();
 
-                foreach ((string TableName, IEnumerable<object[]> Data) in InputData)
+                foreach ((string TableName, IEnumerable<object[]> Data) in InputData.Where((Input) => ValidTableName.Contains(Input.TableName)))
                 {
                     if (Data.Any())
                     {

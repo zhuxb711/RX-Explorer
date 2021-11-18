@@ -419,13 +419,7 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = value;
         }
 
-        private string Version
-        {
-            get
-            {
-                return $"{Globalization.GetString("SettingVersion/Text")}: {string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}";
-            }
-        }
+        private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
 
         private bool HasInit;
 

@@ -10,23 +10,11 @@ namespace RX_Explorer.Class
     {
         private StorageFolder InnerFolder;
         private string InnerPath;
-        private string DisplayNameOverride;
+        private readonly string DisplayNameOverride;
 
-        public string DisplayName
-        {
-            get
-            {
-                return DisplayNameOverride ?? (InnerFolder != null ? InnerFolder.DisplayName : System.IO.Path.GetFileName(Path));
-            }
-        }
+        public string DisplayName => DisplayNameOverride ?? InnerFolder?.DisplayName ?? System.IO.Path.GetFileName(Path);
 
-        public string Path
-        {
-            get
-            {
-                return InnerFolder != null ? InnerFolder.Path : InnerPath;
-            }
-        }
+        public string Path => InnerFolder?.Path ?? InnerPath;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

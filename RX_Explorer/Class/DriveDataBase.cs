@@ -233,78 +233,67 @@ namespace RX_Explorer.Class
 
         private async Task<BitmapImage> GetThumbnailAsync()
         {
-            if (await DriveFolder.GetStorageItemAsync() is IStorageItem Item)
+            BitmapImage Thumbnail = await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
+
+            switch (BitlockerStatusCode)
             {
-                switch (BitlockerStatusCode)
-                {
-                    case -1:
+                case -1:
+                    {
+                        if (Thumbnail == null)
                         {
-                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                            if (Thumbnail == null)
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Thumbnail = new BitmapImage(SystemDriveIconUri);
-                                }
-                                else if (DriveType == DriveType.Network)
-                                {
-                                    Thumbnail = new BitmapImage(NetworkDriveIconUri);
-                                }
-                                else
-                                {
-                                    Thumbnail = new BitmapImage(NormalDriveIconUri);
-                                }
+                                Thumbnail = new BitmapImage(SystemDriveIconUri);
                             }
-
-                            return Thumbnail;
-                        }
-                    case 6:
-                        {
-                            return await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri);
-                        }
-                    case 3:
-                    case 2:
-                        {
-                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                            if (Thumbnail == null)
+                            else if (DriveType == DriveType.Network)
                             {
-                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Thumbnail = new BitmapImage(SystemDriveIconUri);
-                                }
-                                else
-                                {
-                                    Thumbnail = new BitmapImage(NormalDriveIconUri);
-                                }
+                                Thumbnail = new BitmapImage(NetworkDriveIconUri);
                             }
-
-                            return Thumbnail;
-                        }
-                    default:
-                        {
-                            BitmapImage Thumbnail = await Item.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
-
-                            if (Thumbnail == null)
+                            else
                             {
-                                if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
-                                }
-                                else
-                                {
-                                    Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
-                                }
+                                Thumbnail = new BitmapImage(NormalDriveIconUri);
                             }
-
-                            return Thumbnail;
                         }
-                }
-            }
-            else
-            {
-                return new BitmapImage(NormalDriveIconUri);
+
+                        return Thumbnail;
+                    }
+                case 6:
+                    {
+                        return Thumbnail ?? new BitmapImage(NormalDriveLockedIconUri);
+                    }
+                case 3:
+                case 2:
+                    {
+                        if (Thumbnail == null)
+                        {
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Thumbnail = new BitmapImage(SystemDriveIconUri);
+                            }
+                            else
+                            {
+                                Thumbnail = new BitmapImage(NormalDriveIconUri);
+                            }
+                        }
+
+                        return Thumbnail;
+                    }
+                default:
+                    {
+                        if (Thumbnail == null)
+                        {
+                            if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
+                            }
+                            else
+                            {
+                                Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
+                            }
+                        }
+
+                        return Thumbnail;
+                    }
             }
         }
 

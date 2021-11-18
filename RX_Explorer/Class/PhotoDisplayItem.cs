@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
-using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
@@ -70,11 +69,8 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if ((await PhotoFile.GetStorageItemAsync()) is StorageFile File)
-                    {
-                        ThumbnailSource = await File.GetThumbnailBitmapAsync(ThumbnailMode.PicturesView);
-                        OnPropertyChanged(nameof(ThumbnailSource));
-                    }
+                    ThumbnailSource = await PhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView);
+                    OnPropertyChanged(nameof(ThumbnailSource));
                 }
                 catch (Exception ex)
                 {
