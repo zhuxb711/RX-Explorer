@@ -726,7 +726,7 @@ namespace RX_Explorer
                                         ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                     });
 
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.Version > SLEVersion.Version_1_0_0 ? SLEStream.Header.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.Header.FileName}", true);
                                     }
@@ -856,7 +856,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
                     }
@@ -1053,7 +1053,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
                         {

@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
 
         static FontFamilyController()
         {
-            Default = Transform(FontFamily.XamlAutoFontFamily);
+            Default = Transform(FontFamily.XamlAutoFontFamily) ?? Transform(new FontFamily("Segoe UI"));
 
             if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString)
             {

@@ -186,7 +186,7 @@ namespace RX_Explorer.View
 
             ControlLoading(true, Globalization.GetString("Progress_Tip_Loading"));
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 IReadOnlyList<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync();
                 FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending));
@@ -537,7 +537,7 @@ namespace RX_Explorer.View
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinEmptyingText"));
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (await Exclusive.Controller.EmptyRecycleBinAsync())
                     {
@@ -624,7 +624,7 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
                 {

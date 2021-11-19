@@ -953,7 +953,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         if (await Exclusive.Controller.EjectPortableDevice(Item.Path))
                         {
@@ -1211,7 +1211,7 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
                                         {
@@ -1242,7 +1242,7 @@ namespace RX_Explorer
 
                                         if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
                                                 {
@@ -1335,7 +1335,7 @@ namespace RX_Explorer
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is LibraryStorageFolder Item)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                     {
@@ -1354,7 +1354,7 @@ namespace RX_Explorer
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is DriveDataBase Item)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                     {

@@ -170,7 +170,7 @@ namespace RX_Explorer.Dialog
                                 }
                                 else
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
                                         {
@@ -279,26 +279,19 @@ namespace RX_Explorer.Dialog
                         {
                             if (Result.IsFile)
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Protocol.Text))
+                                if (await FileSystemStorageItemBase.OpenAsync(Protocol.Text) is FileSystemStorageFile File)
                                 {
                                     try
                                     {
-                                        StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Protocol.Text);
+                                        IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
 
-                                        IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
-
-                                        string ExtraAppName = string.Empty;
-
-                                        if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
-                                        {
-                                            ExtraAppName = Convert.ToString(DescriptionRaw);
-                                        }
-
-                                        DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName;
+                                        string ExtraAppName = PropertiesDic["System.FileDescription"];
+                                        
+                                        DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? File.DisplayName : ExtraAppName;
 
                                         StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                        if (await ExecuteFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
+                                        if (await File.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
                                         {
                                             BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
                                             using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
@@ -422,7 +415,7 @@ namespace RX_Explorer.Dialog
                         }
                         else
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text) is InstalledApplication Pack)
                                 {
@@ -718,22 +711,18 @@ namespace RX_Explorer.Dialog
 
                 if (await Picker.PickSingleFileAsync() is StorageFile ExecuteFile)
                 {
-                    IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+                    FileSystemStorageFile File = new FileSystemStorageFile(ExecuteFile);
 
-                    string ExtraAppName = string.Empty;
+                    IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
 
-                    if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
-                    {
-                        ExtraAppName = Convert.ToString(DescriptionRaw);
-                    }
+                    string ExtraAppName = PropertiesDic["System.FileDescription"];
 
                     DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName;
-
                     Protocol.Text = ExecuteFile.Path;
 
                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                    if (await ExecuteFile.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
+                    if (await File.GetThumbnailRawStreamAsync(ThumbnailMode.SingleItem) is IRandomAccessStream ThumbnailStream)
                     {
                         try
                         {
@@ -801,7 +790,7 @@ namespace RX_Explorer.Dialog
             UWPLoadingTip.Visibility = Visibility.Visible;
             PackageListView.Visibility = Visibility.Collapsed;
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync())
                 {

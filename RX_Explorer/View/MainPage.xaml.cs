@@ -244,7 +244,7 @@ namespace RX_Explorer
 
             if (SettingPage.WindowAlwaysOnTop)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     using Process CurrentProcess = Process.GetCurrentProcess();
 
@@ -1138,7 +1138,7 @@ namespace RX_Explorer
                             {
                                 if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         try
                                         {
@@ -1196,7 +1196,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
                                 {

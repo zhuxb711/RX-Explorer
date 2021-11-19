@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
 using System.Text;
 using System.Text.Json;
@@ -480,6 +480,49 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetProperties:
+                        {
+                            string Path = Convert.ToString(CommandValue["Path"]);
+                            IReadOnlyList<string> Properties = JsonSerializer.Deserialize<IReadOnlyList<string>>(Convert.ToString(CommandValue["Properties"]));
+
+                            if (File.Exists(Path) || Directory.Exists(Path))
+                            {
+                                Dictionary<string, string> Result = new Dictionary<string, string>(Properties.Count);
+
+                                using (ShellItem Item = new ShellItem(Path))
+                                {
+                                    foreach (string Property in Properties)
+                                    {
+                                        try
+                                        {
+                                            object PropertyObj = Item.Properties[Property];
+
+                                            string PropertyValue = PropertyObj switch
+                                            {
+                                                IEnumerable<string> Array => string.Join(", ", Array),
+                                                FILETIME FileTime => Helper.ConvertToLocalDateTimeOffset(FileTime).ToString(),
+                                                _ => Convert.ToString(PropertyObj)
+                                            };
+
+                                            Result.Add(Property, PropertyValue);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, $"Could not get the property value: \"{Property}\"");
+                                            Result.Add(Property, string.Empty);
+                                        }
+                                    }
+                                }
+
+                                Value.Add("Success", JsonSerializer.Serialize(Result));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File or directory is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.SetTaskBarProgress:
                         {
                             ulong ProgressValue = Math.Min(100, Math.Max(0, Convert.ToUInt64(CommandValue["ProgressValue"])));
@@ -654,20 +697,26 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath))
                             {
-                                string NewPath = ExecutePath;
-
-                                if (!Path.GetExtension(NewPath).Equals(".url", StringComparison.OrdinalIgnoreCase))
+                                if (Path.GetExtension(ExecutePath).Equals(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    NewPath = Path.Combine(Path.GetDirectoryName(ExecutePath), $"{Path.GetFileNameWithoutExtension(ExecutePath)}.url");
+                                    using (ShellItem Item = new ShellItem(ExecutePath))
+                                    {
+                                        Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
+                                    }
+                                }
+                                else
+                                {
+                                    string NewPath = Path.Combine(Path.GetDirectoryName(ExecutePath), $"{Path.GetFileNameWithoutExtension(ExecutePath)}.url");
+
                                     File.Move(ExecutePath, NewPath);
-                                }
 
-                                using (ShellItem Item = new ShellItem(NewPath))
-                                {
-                                    Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
-                                }
+                                    using (ShellItem Item = new ShellItem(NewPath))
+                                    {
+                                        Value.Add("Success", Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl));
+                                    }
 
-                                File.Move(NewPath, ExecutePath);
+                                    File.Move(NewPath, ExecutePath);
+                                }
                             }
                             else
                             {
@@ -739,191 +788,6 @@ namespace FullTrustProcess
                                         Value.Add("Error", "Could not launch the UWP");
                                     }
                                 }
-                            }
-
-                            break;
-                        }
-                    case CommandType.GetDocumentProperties:
-                        {
-                            string ExecutePath = CommandValue["ExecutePath"];
-
-                            if (File.Exists(ExecutePath))
-                            {
-                                Dictionary<string, string> PropertiesDic = new Dictionary<string, string>(9);
-
-                                using (ShellItem Item = new ShellItem(ExecutePath))
-                                {
-                                    if (Item.IShellItem is Shell32.IShellItem2 IShell2)
-                                    {
-                                        try
-                                        {
-                                            string LastAuthor = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.LastAuthor);
-
-                                            if (string.IsNullOrEmpty(LastAuthor))
-                                            {
-                                                PropertiesDic.Add("LastAuthor", string.Empty);
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("LastAuthor", LastAuthor);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("LastAuthor", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            string Version = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.Version);
-
-                                            if (string.IsNullOrEmpty(Version))
-                                            {
-                                                PropertiesDic.Add("Version", string.Empty);
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("Version", Version);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("Version", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            string RevisionNumber = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.RevisionNumber);
-
-                                            if (string.IsNullOrEmpty(RevisionNumber))
-                                            {
-                                                PropertiesDic.Add("RevisionNumber", string.Empty);
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("RevisionNumber", RevisionNumber);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("RevisionNumber", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            string Template = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.Template);
-
-                                            if (string.IsNullOrEmpty(Template))
-                                            {
-                                                PropertiesDic.Add("Template", string.Empty);
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("Template", Template);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("Template", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            int PageCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.PageCount);
-
-                                            if (PageCount > 0)
-                                            {
-                                                PropertiesDic.Add("PageCount", Convert.ToString(PageCount));
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("PageCount", string.Empty);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("PageCount", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            int WordCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.WordCount);
-
-                                            if (WordCount > 0)
-                                            {
-                                                PropertiesDic.Add("WordCount", Convert.ToString(WordCount));
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("WordCount", string.Empty);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("WordCount", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            int CharacterCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.CharacterCount);
-
-                                            if (CharacterCount > 0)
-                                            {
-                                                PropertiesDic.Add("CharacterCount", Convert.ToString(CharacterCount));
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("CharacterCount", string.Empty);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("CharacterCount", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            int LineCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.LineCount);
-
-                                            if (LineCount > 0)
-                                            {
-                                                PropertiesDic.Add("LineCount", Convert.ToString(LineCount));
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("LineCount", string.Empty);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("LineCount", string.Empty);
-                                        }
-
-                                        try
-                                        {
-                                            ulong TotalEditingTime = IShell2.GetUInt64(Ole32.PROPERTYKEY.System.Document.TotalEditingTime);
-
-                                            if (TotalEditingTime > 0)
-                                            {
-                                                PropertiesDic.Add("TotalEditingTime", Convert.ToString(TotalEditingTime));
-                                            }
-                                            else
-                                            {
-                                                PropertiesDic.Add("TotalEditingTime", string.Empty);
-                                            }
-                                        }
-                                        catch
-                                        {
-                                            PropertiesDic.Add("TotalEditingTime", string.Empty);
-                                        }
-                                    }
-                                }
-
-                                Value.Add("Success", JsonSerializer.Serialize(PropertiesDic));
-                            }
-                            else
-                            {
-                                Value.Add("Error", "File not found");
                             }
 
                             break;

@@ -50,7 +50,7 @@ namespace RX_Explorer.Dialog
 
                 string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(OpenFile.Type);
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (string.IsNullOrEmpty(AdminExecutablePath))
                     {
@@ -217,11 +217,14 @@ namespace RX_Explorer.Dialog
                 }
                 else
                 {
-                    ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(ExecuteFile);
+                    if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is FileSystemStorageFile File)
+                    {
+                        ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(File);
 
-                    OtherProgramCollection.Add(NewItem);
-                    OtherProgramList.SelectedItem = NewItem;
-                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(NewItem);
+                        OtherProgramCollection.Add(NewItem);
+                        OtherProgramList.SelectedItem = NewItem;
+                        await OtherProgramList.SmoothScrollIntoViewWithItemAsync(NewItem);
+                    }
                 }
 
                 SQLite.Current.AddProgramPickerRecord(new AssociationPackage(OpenFile.Type, ExecutablePath, true));

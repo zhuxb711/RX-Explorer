@@ -141,7 +141,7 @@ namespace RX_Explorer
                         }
                     case VirtualKey.Space when SettingPage.IsQuicklookEnabled && SearchResultList.SelectedItems.Count == 1:
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                 {
@@ -285,7 +285,7 @@ namespace RX_Explorer
                         }
                     case SearchCategory.EverythingEngine:
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path,
                                                                                                                                           Options.SearchText,
@@ -661,7 +661,7 @@ namespace RX_Explorer
                     {
                         TooltipFlyout.Hide();
 
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
                             TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
@@ -880,7 +880,7 @@ namespace RX_Explorer
                                 case ".bat":
                                 case ".msi":
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
                                             if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path)))
                                             {
@@ -899,7 +899,7 @@ namespace RX_Explorer
                                     }
                                 case ".msc":
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
                                             if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
                                             {
@@ -996,7 +996,7 @@ namespace RX_Explorer
                                                 {
                                                     if (!await Launcher.LaunchFileAsync(SFile))
                                                     {
-                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                         {
                                                             if (!await Exclusive.Controller.RunAsync(File.Path))
                                                             {
@@ -1014,7 +1014,7 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                     {
                                                         if (!await Exclusive.Controller.RunAsync(File.Path))
                                                         {
@@ -1035,7 +1035,7 @@ namespace RX_Explorer
                                         {
                                             if (Path.IsPathRooted(AdminExecutablePath))
                                             {
-                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                 {
                                                     if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
                                                     {
@@ -1058,7 +1058,7 @@ namespace RX_Explorer
                                                     {
                                                         if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                                         {
-                                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                             {
                                                                 if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
                                                                 {
@@ -1076,7 +1076,7 @@ namespace RX_Explorer
                                                     }
                                                     else
                                                     {
-                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                                         {
                                                             if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
                                                             {
@@ -1315,7 +1315,7 @@ namespace RX_Explorer
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                     {

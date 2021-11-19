@@ -205,7 +205,7 @@ namespace RX_Explorer
                 {
                     LastTaskBarUpdatedTime = DateTimeOffset.Now;
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         await Exclusive.Controller.SetTaskBarInfoAsync(e.ProgressValue);
                     }
@@ -335,7 +335,7 @@ namespace RX_Explorer
                                         {
                                             args.Handled = true;
 
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
                                                 if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                                 {

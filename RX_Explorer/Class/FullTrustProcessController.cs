@@ -70,8 +70,6 @@ namespace RX_Explorer.Class
 
         private static volatile int LastRequestedControllerNum;
 
-        private static event EventHandler<FullTrustProcessController> ExclusiveDisposed;
-
         public static event EventHandler<bool> CurrentBusyStatus;
 
         public static Task ResizeTask;
@@ -81,7 +79,6 @@ namespace RX_Explorer.Class
         static FullTrustProcessController()
         {
             DispatcherThread.Start();
-            ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
         }
@@ -148,11 +145,6 @@ namespace RX_Explorer.Class
             AllControllerList.ToList().ForEach((Control) => Control.Dispose());
         }
 
-        private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController Controller)
-        {
-            AvailableControllers.Enqueue(Controller);
-        }
-
         private static void DispatcherMethod()
         {
             while (true)
@@ -202,13 +194,22 @@ namespace RX_Explorer.Class
                         {
                             if (CurrentRunningControllerNum > 0)
                             {
-                                if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
+                                if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 5000))
                                 {
                                     CurrentBusyStatus?.Invoke(null, true);
 
-                                    SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty);
-
-                                    CurrentBusyStatus?.Invoke(null, false);
+                                    try
+                                    {
+                                        if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 60000))
+                                        {
+                                            CompletionSource.TrySetException(new TimeoutException("Dispather timeout"));
+                                            break;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        CurrentBusyStatus?.Invoke(null, false);
+                                    }
                                 }
                             }
                             else
@@ -280,7 +281,7 @@ namespace RX_Explorer.Class
         }
 
 
-        public static Task<ExclusiveUsage> GetAvailableController()
+        public static Task<ExclusiveUsage> GetAvailableControllerAsync()
         {
             TaskCompletionSource<ExclusiveUsage> CompletionSource = new TaskCompletionSource<ExclusiveUsage>();
 
@@ -707,6 +708,26 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(string Path, IEnumerable<string> Properties)
+        {
+            if (await SendCommandAsync(CommandType.GetProperties, ("Path", Path), ("Properties", JsonSerializer.Serialize(Properties))) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string PropertiesString))
+                {
+                    return JsonSerializer.Deserialize<IReadOnlyDictionary<string, string>>(PropertiesString);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetPropertiesAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return new Dictionary<string, string>(Properties.Select((Item) => new KeyValuePair<string, string>(Item, string.Empty)));
+        }
+
         public async Task<bool> SetTaskBarInfoAsync(int ProgressValue)
         {
             if (await SendCommandAsync(CommandType.SetTaskBarProgress, ("ProgressValue", Convert.ToString(ProgressValue))) is IDictionary<string, string> Response)
@@ -933,26 +954,6 @@ namespace RX_Explorer.Class
             }
 
             return false;
-        }
-
-        public async Task<Dictionary<string, string>> GetDocumentProperties(string Path)
-        {
-            if (await SendCommandAsync(CommandType.GetDocumentProperties, ("ExecutePath", Path)) is IDictionary<string, string> Response)
-            {
-                if (Response.TryGetValue("Success", out string Properties))
-                {
-                    return JsonSerializer.Deserialize<Dictionary<string, string>>(Convert.ToString(Properties));
-                }
-                else
-                {
-                    if (Response.TryGetValue("Error", out string ErrorMessage))
-                    {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
-                    }
-                }
-            }
-
-            return new Dictionary<string, string>(0);
         }
 
         public async Task SetFileAttributeAsync(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
@@ -2126,9 +2127,11 @@ namespace RX_Explorer.Class
 
         public sealed class ExclusiveUsage : IDisposable
         {
-            public FullTrustProcessController Controller { get; private set; }
+            public FullTrustProcessController Controller { get; }
 
             private ExtendedExecutionController ExtExecution;
+
+            private bool IsDisposed;
 
             public ExclusiveUsage(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
             {
@@ -2138,13 +2141,15 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                GC.SuppressFinalize(this);
+                if (!IsDisposed)
+                {
+                    IsDisposed = true;
 
-                ExclusiveDisposed?.Invoke(this, Controller);
-                Controller = null;
+                    GC.SuppressFinalize(this);
 
-                ExtExecution?.Dispose();
-                ExtExecution = null;
+                    ExtExecution.Dispose();
+                    AvailableControllers.Enqueue(Controller);
+                }
             }
 
             ~ExclusiveUsage()

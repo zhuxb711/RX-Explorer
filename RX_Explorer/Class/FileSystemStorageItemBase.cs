@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -49,6 +50,8 @@ namespace RX_Explorer.Class
         }
 
         private bool ThubmnalModeChanged;
+        private int IsLoaded;
+        private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
 
@@ -103,8 +106,6 @@ namespace RX_Explorer.Class
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
-
-        private int IsLoaded;
 
         protected IStorageItem StorageItem { get; set; }
 
@@ -218,7 +219,7 @@ namespace RX_Explorer.Class
                     }
                 });
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                 {
                     foreach ((string Path, Exception ex) in RetryBag)
                     {
@@ -292,7 +293,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex) when (ex is not FileNotFoundException or DirectoryNotFoundException)
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite))
                         {
                             if (Handle.IsInvalid)
@@ -359,7 +360,7 @@ namespace RX_Explorer.Class
                         {
                             LogTracer.Log(ex, $"{nameof(CreateNewAsync)} failed and could not create the storage item, path:\"{Path}\"");
 
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, Path);
 
@@ -415,7 +416,7 @@ namespace RX_Explorer.Class
                         {
                             LogTracer.Log(ex, $"{nameof(CreateNewAsync)} failed and could not create the storage item, path:\"{Path}\"");
 
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
                                 string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, Path);
 
@@ -520,33 +521,42 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    async Task LocalLoadFunction()
-                    {
-                        if (ShouldGenerateThumbnail)
-                        {
-                            await LoadCoreAsync(false);
+                    await StartProcessRefShareRegionAsync();
 
-                            if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
+                    try
+                    {
+                        async Task LocalLoadFunction()
+                        {
+                            if (ShouldGenerateThumbnail)
                             {
-                                this.Thumbnail = Thumbnail;
+                                await LoadCoreAsync(false);
+
+                                if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
+                                {
+                                    this.Thumbnail = Thumbnail;
+                                }
                             }
-                        }
 
-                        ThumbnailOverlay = await GetThumbnailOverlayAsync();
+                            ThumbnailOverlay = await GetThumbnailOverlayAsync();
 
-                        if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+                            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+                            {
+                                await GetSyncStatusAsync();
+                            }
+                        };
+
+                        if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
                         {
-                            await GetSyncStatusAsync();
+                            await LocalLoadFunction();
                         }
-                    };
-
-                    if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
-                    {
-                        await LocalLoadFunction();
+                        else
+                        {
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
+                        }
                     }
-                    else
+                    finally
                     {
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
+                        await EndProcessRefShareRegionAsync();
                     }
                 }
             }
@@ -565,114 +575,51 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task StartProcessRefShareRegionAsync()
+        {
+            RefSharedRegion<FullTrustProcessController.ExclusiveUsage> Ref = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(await FullTrustProcessController.GetAvailableControllerAsync());
+
+            if (Interlocked.Exchange(ref ControllerSharedRef, Ref) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+            {
+                PreviousRef.Dispose();
+            }
+        }
+
+        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetProcessRefShareRegion()
+        {
+            return ControllerSharedRef?.CreateNew();
+        }
+
+        public Task EndProcessRefShareRegionAsync()
+        {
+            if (Interlocked.Exchange(ref ControllerSharedRef, null) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+            {
+                PreviousRef.Dispose();
+            }
+
+            return Task.CompletedTask;
+        }
+
         private async Task GetSyncStatusAsync()
         {
-            switch (await GetStorageItemAsync())
+            IReadOnlyDictionary<string, string> Properties = await GetPropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+            if (string.IsNullOrEmpty(Properties["System.FilePlaceholderStatus"]) && string.IsNullOrEmpty(Properties["System.FileOfflineAvailabilityStatus"]))
             {
-                case StorageFile File:
-                    {
-                        IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
-
-                        if (!Properties.TryGetValue("System.FilePlaceholderStatus", out object StatusIndex))
-                        {
-                            if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
-                            {
-                                SyncStatus = SyncStatus.Unknown;
-                                break;
-                            }
-                        }
-
-                        switch (Convert.ToUInt32(StatusIndex))
-                        {
-                            case 0:
-                            case 1:
-                            case 8:
-                                {
-                                    SyncStatus = SyncStatus.AvailableOnline;
-                                    break;
-                                }
-                            case 2:
-                            case 3:
-                            case 14:
-                            case 15:
-                                {
-                                    SyncStatus = SyncStatus.AvailableOffline;
-                                    break;
-                                }
-                            case 9:
-                                {
-                                    SyncStatus = SyncStatus.Sync;
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    SyncStatus = SyncStatus.Excluded;
-                                    break;
-                                }
-                            default:
-                                {
-                                    SyncStatus = SyncStatus.Unknown;
-                                    break;
-                                }
-                        }
-
-                        break;
-                    }
-                case StorageFolder Folder:
-                    {
-                        IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
-
-
-                        if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out object StatusIndex))
-                        {
-                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
-                            {
-                                SyncStatus = SyncStatus.Unknown;
-                                break;
-                            }
-                        }
-
-                        switch (Convert.ToUInt32(StatusIndex))
-                        {
-                            case 0:
-                            case 1:
-                            case 8:
-                                {
-                                    SyncStatus = SyncStatus.AvailableOnline;
-                                    break;
-                                }
-                            case 2:
-                            case 3:
-                            case 14:
-                            case 15:
-                                {
-                                    SyncStatus = SyncStatus.AvailableOffline;
-                                    break;
-                                }
-                            case 9:
-                                {
-                                    SyncStatus = SyncStatus.Sync;
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    SyncStatus = SyncStatus.Excluded;
-                                    break;
-                                }
-                            default:
-                                {
-                                    SyncStatus = SyncStatus.Unknown;
-                                    break;
-                                }
-                        }
-
-                        break;
-                    }
-                default:
-                    {
-                        SyncStatus = SyncStatus.Unknown;
-                        break;
-                    }
+                SyncStatus = SyncStatus.Unknown;
+            }
+            else
+            {
+                int StatusIndex = string.IsNullOrEmpty(Properties["System.FilePlaceholderStatus"]) ? Convert.ToInt32(Properties["System.FileOfflineAvailabilityStatus"])
+                                                                                                   : Convert.ToInt32(Properties["System.FilePlaceholderStatus"]);
+                SyncStatus = StatusIndex switch
+                {
+                    0 or 1 or 8 => SyncStatus.AvailableOnline,
+                    2 or 3 or 14 or 15 => SyncStatus.AvailableOffline,
+                    9 => SyncStatus.Sync,
+                    4 => SyncStatus.Excluded,
+                    _ => SyncStatus.Unknown
+                };
             }
 
             OnPropertyChanged(nameof(SyncStatus));
@@ -686,16 +633,26 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
                 {
-                    return await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
+                    if (ControllerRef != null)
+                    {
+                        return await ControllerRef.Value.Controller.GetFileHandleAsync(Path, Mode);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
+                        }
+                    }
                 }
             }
         }
 
         protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {
                 byte[] ThumbnailOverlayByteArray = await Exclusive.Controller.GetThumbnailOverlayAsync(Path);
 
@@ -713,6 +670,21 @@ namespace RX_Explorer.Class
                     return null;
                 }
             }
+
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+            {
+                if (ControllerRef != null)
+                {
+                    return await GetThumbnailOverlayCoreAsync(ControllerRef.Value);
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await GetThumbnailOverlayCoreAsync(Exclusive);
+                    }
+                }
+            }
         }
 
         protected abstract Task LoadCoreAsync(bool ForceUpdate);
@@ -723,7 +695,7 @@ namespace RX_Explorer.Class
         {
             async Task<BitmapImage> GetThumbnailTask()
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                async Task<BitmapImage> GetThumbnailCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
                 {
                     byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
 
@@ -739,6 +711,21 @@ namespace RX_Explorer.Class
                     else
                     {
                         return null;
+                    }
+                }
+
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        return await GetThumbnailCoreAsync(ControllerRef.Value);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await GetThumbnailCoreAsync(Exclusive);
+                        }
                     }
                 }
             }
@@ -759,6 +746,117 @@ namespace RX_Explorer.Class
             else
             {
                 return await GetThumbnailTask();
+            }
+        }
+
+        public virtual async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        {
+            if (await GetStorageItemAsync() is IStorageItem Item)
+            {
+                return await Item.GetThumbnailRawStreamAsync(Mode);
+            }
+            else
+            {
+                async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+                {
+                    byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
+
+                    if (ThumbnailData.Length > 0)
+                    {
+                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                        {
+                            return IconStream.AsRandomAccessStream();
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        return await GetThumbnailRawStreamCoreAsync(ControllerRef.Value);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await GetThumbnailRawStreamCoreAsync(Exclusive);
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
+        {
+            async Task<IReadOnlyDictionary<string, string>> GetPropertiesTask(IEnumerable<string> Properties)
+            {
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        return await ControllerRef.Value.Controller.GetPropertiesAsync(Path, Properties);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await Exclusive.Controller.GetPropertiesAsync(Path, Properties);
+                        }
+                    }
+                }
+            }
+
+            IEnumerable<string> DistinctProperties = Properties.Distinct();
+
+            if (await GetStorageItemAsync() is IStorageItem Item)
+            {
+                try
+                {
+                    Dictionary<string, string> Result = new Dictionary<string, string>();
+
+                    BasicProperties Basic = await Item.GetBasicPropertiesAsync();
+                    IDictionary<string, object> UwpResult = await Basic.RetrievePropertiesAsync(DistinctProperties);
+
+                    List<string> MissingKeys = new List<string>(DistinctProperties.Except(UwpResult.Keys));
+
+                    foreach (KeyValuePair<string, object> Pair in UwpResult)
+                    {
+                        string Value = Pair.Value switch
+                        {
+                            IEnumerable<string> Array => string.Join(", ", Array),
+                            _ => Convert.ToString(Pair.Value)
+                        };
+
+                        if (string.IsNullOrEmpty(Value))
+                        {
+                            MissingKeys.Add(Pair.Key);
+                        }
+                        else
+                        {
+                            Result.Add(Pair.Key, Value);
+                        }
+                    }
+
+                    if (MissingKeys.Count > 0)
+                    {
+                        Result.AddRange(await GetPropertiesTask(DistinctProperties));
+                    }
+
+                    return Result;
+                }
+                catch
+                {
+                    return await GetPropertiesTask(DistinctProperties);
+                }
+            }
+            else
+            {
+                return await GetPropertiesTask(DistinctProperties);
             }
         }
 
@@ -789,7 +887,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task MoveAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 await Exclusive.Controller.MoveAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
             }
@@ -802,7 +900,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task CopyAsync(string DirectoryPath, CollisionOptions Option = CollisionOptions.None, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 await Exclusive.Controller.CopyAsync(Path, DirectoryPath, Option, true, ProgressHandler: ProgressHandler);
             }
@@ -815,7 +913,7 @@ namespace RX_Explorer.Class
 
         public async virtual Task<string> RenameAsync(string DesireName)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName);
                 Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
@@ -825,7 +923,7 @@ namespace RX_Explorer.Class
 
         public virtual async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, true, ProgressHandler: ProgressHandler);
             }

@@ -179,6 +179,7 @@
     <Compile Include="Class\QueueContentDialog.cs" />
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\RefSharedRegion.cs" />
     <Compile Include="Class\RootStorageFolder.cs" />
     <Compile Include="Class\SearchOptions.cs" />
     <Compile Include="Class\SearchSuggestionItem.cs" />
@@ -769,22 +770,22 @@
       <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Connectivity">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Animations">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Media">
-      <Version>7.1.1</Version>
+      <Version>7.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.7.1-prerelease.211026002</Version>

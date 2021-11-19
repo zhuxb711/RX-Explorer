@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -130,14 +129,6 @@ namespace RX_Explorer.Class
                             InfoTip.Title = Globalization.GetString("SystemTip_LoadFileDelayTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_LoadFileDelayContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
-
-                            ShowStoryboard.Completed += async (s, e) =>
-                            {
-                                await Task.Delay(8000).ContinueWith((_) =>
-                                {
-                                    Hide(InfoTipType.ThumbnailDelay);
-                                }, TaskScheduler.FromCurrentSynchronizationContext());
-                            };
 
                             break;
                         }

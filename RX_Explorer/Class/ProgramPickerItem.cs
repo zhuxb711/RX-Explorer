@@ -81,40 +81,24 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<ProgramPickerItem> CreateAsync(StorageFile ExecuteFile)
-        {
-            IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
-
-            string ExtraAppName = string.Empty;
-
-            if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
-            {
-                ExtraAppName = Convert.ToString(DescriptionRaw);
-            }
-
-            return new ProgramPickerItem(await ExecuteFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem),
-                                         string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName,
-                                         Globalization.GetString("Application_Admin_Name"),
-                                         ExecuteFile.Path);
-        }
-
         public static async Task<ProgramPickerItem> CreateAsync(FileSystemStorageFile File)
         {
-            if (await File.GetStorageItemAsync() is StorageFile ExecuteFile)
-            {
-                return await CreateAsync(ExecuteFile);
-            }
-            else
-            {
-                return new ProgramPickerItem(null, File.DisplayName, Globalization.GetString("Application_Admin_Name"), File.Path);
-            }
+            IReadOnlyDictionary<string, string> PropertiesDic = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
+            BitmapImage Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.SingleItem);
+
+            string ExtraAppName = PropertiesDic["System.FileDescription"];
+
+            return new ProgramPickerItem(Thumbnail,
+                                         string.IsNullOrEmpty(ExtraAppName) ? File.DisplayName : ExtraAppName,
+                                         Globalization.GetString("Application_Admin_Name"),
+                                         File.Path);
         }
 
         public async Task<bool> LaunchAsync(string FilePath)
         {
             if (System.IO.Path.IsPathRooted(Path))
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     return await Exclusive.Controller.RunAsync(Path, System.IO.Path.GetDirectoryName(Path), Parameters: FilePath);
                 }
@@ -136,7 +120,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         return await Exclusive.Controller.LaunchUWPFromPfnAsync(Path, FilePath);
                     }

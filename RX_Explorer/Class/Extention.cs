@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -41,6 +42,18 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static DateTimeOffset ConvertToLocalDateTimeOffset(this FILETIME FileTime)
+        {
+            if (Win32_Native_API.FileTimeToSystemTime(ref FileTime, out Win32_Native_API.SYSTEMTIME ModTime))
+            {
+                return new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+            else
+            {
+                return DateTimeOffset.FromFileTime(((long)FileTime.dwHighDateTime << 32) + FileTime.dwLowDateTime);
+            }
+        }
+
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))
@@ -102,7 +115,7 @@ namespace RX_Explorer.Class
 
                                     try
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
                                             string UrlTarget = await Exclusive.Controller.GetUrlTargetPathAsync(TempFile.Path);
 
@@ -483,7 +496,7 @@ namespace RX_Explorer.Class
 
                 if (SettingPage.ContextMenuExtentionEnabled)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(PathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
@@ -1185,7 +1198,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
+                    await Task.WhenAny(GetThumbnailTask, Task.Delay(5000));
 
                     if (GetThumbnailTask.IsCompleted)
                     {

@@ -486,7 +486,7 @@ namespace RX_Explorer
             {
                 await InitializeAsync();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
                 }
@@ -1065,7 +1065,7 @@ namespace RX_Explorer
             {
                 WindowAlwaysOnTop = AlwaysOnTop.IsOn;
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     using Process CurrentProcess = Process.GetCurrentProcess();
 
@@ -1200,7 +1200,7 @@ namespace RX_Explorer
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
 
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                         {
                                             await Exclusive.Controller.RenameAsync(DecryptedFile.Path, SLEStream.Header.FileName, true);
                                         }
@@ -2030,7 +2030,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
                             if (await Exclusive.Controller.InterceptWindowsPlusEAsync())
                             {
@@ -2062,7 +2062,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         if (await Exclusive.Controller.RestoreWindowsPlusEInterceptionAsync())
                         {
@@ -3133,7 +3133,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
                             if (await Exclusive.Controller.InterceptDesktopFolderAsync())
                             {
@@ -3165,7 +3165,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         if (await Exclusive.Controller.RestoreFolderInterceptionAsync())
                         {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -83,7 +84,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
@@ -104,7 +105,7 @@ namespace RX_Explorer.Class
 
         public async Task<LinkDataPackage> GetRawDataAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await GetRawDataAsync(Exclusive.Controller);
             }
@@ -122,20 +123,30 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
             {
-                RawData = await GetRawDataAsync(Exclusive.Controller);
-
-                if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
+                if (ControllerRef != null)
                 {
-                    if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
+                    RawData = await GetRawDataAsync(ControllerRef.Value.Controller);
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        LinkType = ShellLinkType.Normal;
+                        RawData = await GetRawDataAsync(Exclusive.Controller);
                     }
-                    else
-                    {
-                        LinkType = ShellLinkType.UWP;
-                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
+            {
+                if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
+                {
+                    LinkType = ShellLinkType.Normal;
+                }
+                else
+                {
+                    LinkType = ShellLinkType.UWP;
                 }
             }
         }
@@ -149,6 +160,21 @@ namespace RX_Explorer.Class
                     BitmapImage Image = new BitmapImage();
                     await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
                     return Image;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public override Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        {
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
+            {
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                {
+                    return Task.FromResult(IconStream.AsRandomAccessStream());
                 }
             }
             else

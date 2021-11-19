@@ -42,7 +42,7 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a monitor on directory in native api, fallback to fulltrust process");
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         WatcherPtr = await Exclusive.Controller.GetDirectoryMonitorHandleAsync(Path);
                     }

@@ -1230,7 +1230,7 @@ namespace RX_Explorer
             {
                 if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64)
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         SearchInEverythingEngine.IsEnabled = await Exclusive.Controller.CheckIfEverythingIsAvailableAsync();
                     }
@@ -1329,7 +1329,7 @@ namespace RX_Explorer
 
             try
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
                     if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                     {
@@ -3038,7 +3038,7 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
                                         if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
                                         {
@@ -3069,7 +3069,7 @@ namespace RX_Explorer
 
                                         if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
                                         {
-                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
                                                 if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
                                                 {

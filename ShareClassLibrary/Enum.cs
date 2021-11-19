@@ -89,6 +89,7 @@
         GetVariablePathSuggestion,
         GetDirectoryMonitorHandle,
         MapToUNCPath,
-        SetTaskBarProgress
+        SetTaskBarProgress,
+        GetProperties
     }
 }

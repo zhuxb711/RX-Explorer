@@ -9,7 +9,7 @@ namespace RX_Explorer.Class
     {
         public async Task<bool> UnlockAsync(string Password)
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{DriveFolder.Path}' -Password $BitlockerSecureString");
             }

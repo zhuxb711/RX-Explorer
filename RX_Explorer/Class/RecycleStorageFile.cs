@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
 
         public async Task<bool> DeleteAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
             }
@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
 
         public async Task<bool> RestoreAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }

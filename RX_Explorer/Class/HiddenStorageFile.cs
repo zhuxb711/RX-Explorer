@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -25,9 +26,19 @@ namespace RX_Explorer.Class
         {
             if (RawData == null || ForceUpdate)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
                 {
-                    RawData = await GetRawDataAsync(Exclusive.Controller);
+                    if (ControllerRef != null)
+                    {
+                        RawData = await GetRawDataAsync(ControllerRef.Value.Controller);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            RawData = await GetRawDataAsync(Exclusive.Controller);
+                        }
+                    }
                 }
             }
         }
@@ -49,6 +60,21 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        {
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
+            {
+                using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
+                {
+                    return Task.FromResult(IconStream.AsRandomAccessStream());
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
@@ -62,7 +88,7 @@ namespace RX_Explorer.Class
 
         public async Task<HiddenDataPackage> GetRawDataAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
                 return await GetRawDataAsync(Exclusive.Controller);
             }

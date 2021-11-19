@@ -1,10 +1,12 @@
-﻿using ShareClassLibrary;
+﻿using MimeTypes;
+using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -15,12 +17,23 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Management.Deployment;
 using Windows.Storage.Streams;
-using Winista.Mime;
 
 namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static DateTimeOffset ConvertToLocalDateTimeOffset(FILETIME FileTime)
+        {
+            if (Kernel32.FileTimeToSystemTime(FileTime, out SYSTEMTIME ModTime))
+            {
+                return new DateTime(ModTime.wYear, ModTime.wMonth, ModTime.wDay, ModTime.wHour, ModTime.wMinute, ModTime.wSecond, ModTime.wMilliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+            else
+            {
+                return DateTimeOffset.FromFileTime(((long)FileTime.dwHighDateTime << 32) + FileTime.dwLowDateTime);
+            }
+        }
+
         public static IReadOnlyList<HWND> GetCurrentWindowsHandle()
         {
             List<HWND> HandleList = new List<HWND>();
@@ -54,45 +67,13 @@ namespace FullTrustProcess
                 throw new FileNotFoundException($"\"{Path}\" not found");
             }
 
-            byte[] Buffer = new byte[256];
-
-            using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read))
+            if (MimeTypeMap.TryGetMimeType(System.IO.Path.GetExtension(Path), out string Mime))
             {
-                Stream.Read(Buffer, 0, 256);
+                return Mime;
             }
-
-            IntPtr Pointer = Marshal.AllocHGlobal(256);
-
-            try
+            else
             {
-                Marshal.Copy(Buffer, 0, Pointer, 256);
-
-                if (UrlMon.FindMimeFromData(null, null, Pointer, 256, null, UrlMon.FMFD.FMFD_DEFAULT, out string MIMEResult) == HRESULT.S_OK)
-                {
-                    return MIMEResult;
-                }
-                else
-                {
-                    MimeType MIME = new MimeTypes().GetMimeTypeFromFile(Path);
-
-                    if (MIME != null)
-                    {
-                        return MIME.Name;
-                    }
-                    else
-                    {
-                        return "unknown/unknown";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(GetMIMEFromPath)}");
                 return "unknown/unknown";
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(Pointer);
             }
         }
 
