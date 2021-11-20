@@ -834,8 +834,6 @@ namespace RX_Explorer
             {
                 if (args.IsSettingsInvoked)
                 {
-                    NavView.IsBackEnabled = true;
-
                     if (FindName(nameof(Settings)) is SettingPage Dialog)
                     {
                         await Dialog.ShowAsync();

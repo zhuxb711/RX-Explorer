@@ -18,20 +18,7 @@ namespace RX_Explorer.Class
         {
             if (RawData == null || ForceUpdate)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
-                {
-                    if (ControllerRef != null)
-                    {
-                        RawData = await GetRawDataAsync(ControllerRef.Value.Controller);
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            RawData = await GetRawDataAsync(Exclusive.Controller);
-                        }
-                    }
-                }
+                RawData = await GetRawDataAsync();
             }
         }
 
@@ -74,15 +61,20 @@ namespace RX_Explorer.Class
 
         public async Task<HiddenDataPackage> GetRawDataAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
             {
-                return await GetRawDataAsync(Exclusive.Controller);
+                if (ControllerRef != null)
+                {
+                    return await ControllerRef.Value.Controller.GetHiddenItemDataAsync(Path);
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                    }
+                }
             }
-        }
-
-        public async Task<HiddenDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
-        {
-            return await Controller.GetHiddenItemDataAsync(Path);
         }
 
         public override void SetThumbnailOpacity(ThumbnailStatus Status)

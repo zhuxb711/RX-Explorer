@@ -447,11 +447,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 IReadOnlyDictionary<string, string> BasicPropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                 {
-                "System.OfflineAvailability",
-                "System.FileOfflineAvailabilityStatus",
-                "System.FileOwner",
-                "System.ComputerName",
-                "System.FilePlaceholderStatus"
+                    "System.OfflineAvailability",
+                    "System.FileOfflineAvailabilityStatus",
+                    "System.FileOwner",
+                    "System.ComputerName",
+                    "System.FilePlaceholderStatus"
                 });
 
                 if (!string.IsNullOrEmpty(BasicPropertiesResult["System.OfflineAvailability"]))
@@ -494,24 +494,24 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                     {
-                    "System.Video.FrameWidth",
-                    "System.Video.FrameHeight",
-                    "System.Media.Duration",
-                    "System.Video.FrameRate",
-                    "System.Video.TotalBitrate",
-                    "System.Audio.EncodingBitrate",
-                    "System.Audio.SampleRate",
-                    "System.Audio.ChannelCount",
-                    "System.Title",
-                    "System.Media.SubTitle",
-                    "System.Rating",
-                    "System.Comment",
-                    "System.Media.Year",
-                    "System.Video.Director",
-                    "System.Media.Producer",
-                    "System.Media.Publisher",
-                    "System.Keywords",
-                    "System.Copyright"
+                        "System.Video.FrameWidth",
+                        "System.Video.FrameHeight",
+                        "System.Media.Duration",
+                        "System.Video.FrameRate",
+                        "System.Video.TotalBitrate",
+                        "System.Audio.EncodingBitrate",
+                        "System.Audio.SampleRate",
+                        "System.Audio.ChannelCount",
+                        "System.Title",
+                        "System.Media.SubTitle",
+                        "System.Rating",
+                        "System.Comment",
+                        "System.Media.Year",
+                        "System.Video.Director",
+                        "System.Media.Producer",
+                        "System.Media.Publisher",
+                        "System.Keywords",
+                        "System.Copyright"
                     });
 
                     Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>(5)
@@ -589,24 +589,24 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                     {
-                    "System.Media.Duration",
-                    "System.Audio.SampleRate",
-                    "System.Audio.ChannelCount",
-                    "System.Audio.EncodingBitrate",
-                    "System.Title",
-                    "System.Media.SubTitle",
-                    "System.Rating",
-                    "System.Comment",
-                    "System.Media.Year",
-                    "System.Music.Genre",
-                    "System.Music.Artist",
-                    "System.Music.AlbumArtist",
-                    "System.Media.Producer",
-                    "System.Media.Publisher",
-                    "System.Music.Conductor",
-                    "System.Music.Composer",
-                    "System.Music.TrackNumber",
-                    "System.Copyright"
+                        "System.Media.Duration",
+                        "System.Audio.SampleRate",
+                        "System.Audio.ChannelCount",
+                        "System.Audio.EncodingBitrate",
+                        "System.Title",
+                        "System.Media.SubTitle",
+                        "System.Rating",
+                        "System.Comment",
+                        "System.Media.Year",
+                        "System.Music.Genre",
+                        "System.Music.Artist",
+                        "System.Music.AlbumArtist",
+                        "System.Media.Producer",
+                        "System.Media.Publisher",
+                        "System.Music.Conductor",
+                        "System.Music.Composer",
+                        "System.Music.TrackNumber",
+                        "System.Copyright"
                     });
 
                     Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(4)
@@ -666,21 +666,21 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                     {
-                    "System.Image.Dimensions",
-                    "System.Image.HorizontalSize",
-                    "System.Image.VerticalSize",
-                    "System.Image.BitDepth",
-                    "System.Image.ColorSpace",
-                    "System.Title",
-                    "System.Photo.DateTaken",
-                    "System.Rating",
-                    "System.Photo.CameraModel",
-                    "System.Photo.CameraManufacturer",
-                    "System.Keywords",
-                    "System.Comment",
-                    "System.GPS.LatitudeDecimal",
-                    "System.GPS.LongitudeDecimal",
-                    "System.Photo.PeopleNames"
+                        "System.Image.Dimensions",
+                        "System.Image.HorizontalSize",
+                        "System.Image.VerticalSize",
+                        "System.Image.BitDepth",
+                        "System.Image.ColorSpace",
+                        "System.Title",
+                        "System.Photo.DateTaken",
+                        "System.Rating",
+                        "System.Photo.CameraModel",
+                        "System.Photo.CameraManufacturer",
+                        "System.Keywords",
+                        "System.Comment",
+                        "System.GPS.LatitudeDecimal",
+                        "System.GPS.LongitudeDecimal",
+                        "System.Photo.PeopleNames"
                     });
 
                     Dictionary<string, object> ImagePropertiesDictionary = new Dictionary<string, object>(5)
@@ -742,21 +742,21 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                     {
-                    "System.Title",
-                    "System.Comment",
-                    "System.Keywords",
-                    "System.Author",
-                    "System.Document.LastAuthor",
-                    "System.Document.Version",
-                    "System.Document.RevisionNumber",
-                    "System.Document.Template",
-                    "System.Document.PageCount",
-                    "System.Document.WordCount",
-                    "System.Document.CharacterCount",
-                    "System.Document.LineCount",
-                    "System.Document.TotalEditingTime",
-                    "System.Document.DateCreated",
-                    "System.Document.DateSaved"
+                        "System.Title",
+                        "System.Comment",
+                        "System.Keywords",
+                        "System.Author",
+                        "System.Document.LastAuthor",
+                        "System.Document.Version",
+                        "System.Document.RevisionNumber",
+                        "System.Document.Template",
+                        "System.Document.PageCount",
+                        "System.Document.WordCount",
+                        "System.Document.CharacterCount",
+                        "System.Document.LineCount",
+                        "System.Document.TotalEditingTime",
+                        "System.Document.DateCreated",
+                        "System.Document.DateSaved"
                     });
 
                     Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)

@@ -64,14 +64,14 @@
     </UserControl.Resources>
 
     <Grid x:Name="RootGrid"
-          Padding="180,100"
+          Padding="180,80"
           Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState x:Name="NavNormalState">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="1000" />
+                        <AdaptiveTrigger MinWindowWidth="1100" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SettingNavigation.PaneDisplayMode"

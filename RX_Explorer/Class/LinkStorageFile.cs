@@ -14,71 +14,23 @@ namespace RX_Explorer.Class
     {
         public ShellLinkType LinkType { get; private set; }
 
-        public string LinkTargetPath
-        {
-            get
-            {
-                return (RawData?.LinkTargetPath) ?? Globalization.GetString("UnknownText");
-            }
-        }
+        public string LinkTargetPath => (RawData?.LinkTargetPath) ?? Globalization.GetString("UnknownText");
 
-        public string[] Arguments
-        {
-            get
-            {
-                return (RawData?.Arguments) ?? Array.Empty<string>();
-            }
-        }
+        public string[] Arguments => (RawData?.Arguments) ?? Array.Empty<string>();
 
-        public bool NeedRunAsAdmin
-        {
-            get
-            {
-                return (RawData?.NeedRunAsAdmin).GetValueOrDefault();
-            }
-        }
+        public bool NeedRunAsAdmin => (RawData?.NeedRunAsAdmin).GetValueOrDefault();
 
-        public override string DisplayType
-        {
-            get
-            {
-                return Globalization.GetString("Link_Admin_DisplayType");
-            }
-        }
+        public override string DisplayType => Globalization.GetString("Link_Admin_DisplayType");
 
         protected LinkDataPackage RawData { get; set; }
 
-        public string WorkDirectory
-        {
-            get
-            {
-                return (RawData?.WorkDirectory) ?? string.Empty;
-            }
-        }
+        public string WorkDirectory => (RawData?.WorkDirectory) ?? string.Empty;
 
-        public string Comment
-        {
-            get
-            {
-                return (RawData?.Comment) ?? string.Empty;
-            }
-        }
+        public string Comment => (RawData?.Comment) ?? string.Empty;
 
-        public WindowState WindowState
-        {
-            get
-            {
-                return (RawData?.WindowState).GetValueOrDefault();
-            }
-        }
+        public WindowState WindowState => (RawData?.WindowState).GetValueOrDefault();
 
-        public int HotKey
-        {
-            get
-            {
-                return (RawData?.HotKey).GetValueOrDefault();
-            }
-        }
+        public int HotKey => (RawData?.HotKey).GetValueOrDefault();
 
         public async Task<bool> LaunchAsync()
         {
@@ -105,15 +57,20 @@ namespace RX_Explorer.Class
 
         public async Task<LinkDataPackage> GetRawDataAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
             {
-                return await GetRawDataAsync(Exclusive.Controller);
+                if (ControllerRef != null)
+                {
+                    return await ControllerRef.Value.Controller.GetLinkDataAsync(Path);
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exclusive.Controller.GetLinkDataAsync(Path);
+                    }
+                }
             }
-        }
-
-        public async Task<LinkDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
-        {
-            return await Controller.GetLinkDataAsync(Path);
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()
@@ -123,20 +80,7 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadCoreAsync(bool ForceUpdate)
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
-            {
-                if (ControllerRef != null)
-                {
-                    RawData = await GetRawDataAsync(ControllerRef.Value.Controller);
-                }
-                else
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        RawData = await GetRawDataAsync(Exclusive.Controller);
-                    }
-                }
-            }
+            RawData = await GetRawDataAsync();
 
             if (!string.IsNullOrEmpty(RawData?.LinkTargetPath))
             {

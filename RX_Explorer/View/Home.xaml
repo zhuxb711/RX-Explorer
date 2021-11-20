@@ -87,7 +87,7 @@
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE140;" />
+                                  Glyph="&#xEA61;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"

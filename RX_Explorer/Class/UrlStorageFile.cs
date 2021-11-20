@@ -13,35 +13,28 @@ namespace RX_Explorer.Class
 {
     public class UrlStorageFile : FileSystemStorageFile, IUrlStorageFile
     {
-        public string UrlTargetPath
-        {
-            get
-            {
-                return (RawData?.UrlTargetPath) ?? Globalization.GetString("UnknownText");
-            }
-        }
+        public string UrlTargetPath => (RawData?.UrlTargetPath) ?? Globalization.GetString("UnknownText");
 
         protected UrlDataPackage RawData { get; set; }
 
-        public override string DisplayType
-        {
-            get
-            {
-                return Globalization.GetString("Url_Admin_DisplayType");
-            }
-        }
+        public override string DisplayType => Globalization.GetString("Url_Admin_DisplayType");
 
         public async Task<UrlDataPackage> GetRawDataAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
             {
-                return await GetRawDataAsync(Exclusive.Controller);
+                if (ControllerRef != null)
+                {
+                    return await ControllerRef.Value.Controller.GetUrlDataAsync(Path);
+                }
+                else
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        return await Exclusive.Controller.GetUrlDataAsync(Path);
+                    }
+                }
             }
-        }
-
-        public async Task<UrlDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
-        {
-            return await Controller.GetUrlDataAsync(Path);
         }
 
         public async Task<bool> LaunchAsync()
@@ -70,20 +63,7 @@ namespace RX_Explorer.Class
         {
             if (RawData == null || ForceUpdate)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
-                {
-                    if (ControllerRef != null)
-                    {
-                        RawData = await GetRawDataAsync(ControllerRef.Value.Controller);
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        {
-                            RawData = await GetRawDataAsync(Exclusive.Controller);
-                        }
-                    }
-                }
+                RawData = await GetRawDataAsync();
             }
         }
 

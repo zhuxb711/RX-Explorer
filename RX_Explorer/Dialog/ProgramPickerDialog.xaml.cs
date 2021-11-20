@@ -153,6 +153,7 @@ namespace RX_Explorer.Dialog
                 if (DefaultProgramCollection.Count == 0)
                 {
                     OtherProgramList.SelectedIndex = 0;
+                    CurrentUseProgramList.Visibility = Visibility.Collapsed;
                 }
                 else
                 {

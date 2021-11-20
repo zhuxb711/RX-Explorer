@@ -37,8 +37,9 @@
                                FontSize="15"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{x:Bind Description}"
-                               Margin="0,2,0,0"
+                               ToolTipService.ToolTip="{x:Bind Description}"
                                FontSize="12"
+                               MaxLines="2"
                                TextWrapping="WrapWholeWords"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -109,11 +110,11 @@
                               ItemTemplate="{StaticResource CommonDataTemplate}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                         <ListView.Header>
-                            <StackPanel>
+                            <StackPanel Padding="5,0">
                                 <TextBlock FontSize="16"
                                            Text="{x:Bind Cls:Globalization.GetString('ProgramPicker_Dialog_Title_1')}" />
                                 <Border Height="2"
-                                        Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                                        Background="Gray"
                                         Margin="0,5" />
                             </StackPanel>
                         </ListView.Header>
@@ -126,11 +127,11 @@
                               ItemTemplate="{StaticResource CommonDataTemplate}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                         <ListView.Header>
-                            <StackPanel>
+                            <StackPanel Padding="5,0">
                                 <TextBlock FontSize="16"
                                            Text="{x:Bind Cls:Globalization.GetString('ProgramPicker_Dialog_Title_2')}" />
                                 <Border Height="2"
-                                        Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                                        Background="Gray"
                                         Margin="0,5" />
                             </StackPanel>
                         </ListView.Header>
