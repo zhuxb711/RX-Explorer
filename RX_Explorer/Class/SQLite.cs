@@ -379,7 +379,7 @@ namespace RX_Explorer.Class
                     string DefaultPath = GetDefaultProgramPickerRecord(Extension);
 
                     using SqliteTransaction Transaction = Connection.BeginTransaction();
-                    using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
+                    using SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType", Connection, Transaction);
 
                     Command.Parameters.AddWithValue("@FileType", Extension);
                     Command.ExecuteNonQuery();
@@ -440,10 +440,7 @@ namespace RX_Explorer.Class
                     {
                         while (Reader.Read())
                         {
-                            if (Path.IsPathRooted(Convert.ToString(Reader[1])))
-                            {
-                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
-                            }
+                            Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
                         }
                     }
                 }

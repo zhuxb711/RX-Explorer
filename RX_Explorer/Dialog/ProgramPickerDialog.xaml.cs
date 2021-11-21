@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel;
+using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -48,6 +49,8 @@ namespace RX_Explorer.Dialog
                 List<ProgramPickerItem> LocalNotRecommandList = new List<ProgramPickerItem>();
                 List<ProgramPickerItem> LocalRecommandList = new List<ProgramPickerItem>();
 
+                List<AssociationPackage> AssociationList = new List<AssociationPackage>();
+
                 string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(OpenFile.Type);
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
@@ -57,10 +60,11 @@ namespace RX_Explorer.Dialog
                         AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
                     }
 
-                    SQLite.Current.UpdateProgramPickerRecord(await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path));
+                    AssociationList.AddRange(await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path));
                 }
 
-                //We exclude uwp apps when call "GetAssociationFromPathAsync" so get it from here
+                SQLite.Current.UpdateProgramPickerRecord(AssociationList);
+
                 foreach (AppInfo App in await Launcher.FindFileHandlersAsync(OpenFile.Type.ToLower()))
                 {
                     LocalRecommandList.Add(await ProgramPickerItem.CreateAsync(App));
@@ -70,27 +74,30 @@ namespace RX_Explorer.Dialog
                 {
                     try
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(Package.ExecutablePath) is FileSystemStorageFile File)
+                        if (Path.IsPathRooted(Package.ExecutablePath))
                         {
-                            ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(File);
-
-                            if (Package.IsRecommanded)
+                            if (await FileSystemStorageItemBase.OpenAsync(Package.ExecutablePath) is FileSystemStorageFile File)
                             {
-                                LocalRecommandList.Add(Item);
+                                ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(File);
+
+                                if (Package.IsRecommanded)
+                                {
+                                    LocalRecommandList.Add(Item);
+                                }
+                                else
+                                {
+                                    LocalNotRecommandList.Add(Item);
+                                }
                             }
                             else
                             {
-                                LocalNotRecommandList.Add(Item);
+                                SQLite.Current.DeleteProgramPickerRecord(Package);
                             }
-                        }
-                        else
-                        {
-                            SQLite.Current.DeleteProgramPickerRecord(Package);
                         }
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, "An exception was threw trying add to ApplicationList");
+                        LogTracer.Log(ex, "An exception was threw when adding AssociationPackage to the list");
                     }
                 }
 
@@ -251,7 +258,7 @@ namespace RX_Explorer.Dialog
                     args.Cancel = true;
                 }
 
-                if (UserPickedItem != null && UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
+                if ((UserPickedItem != null && UseAsAdmin.IsChecked.GetValueOrDefault()) || OpenFromPropertiesWindow)
                 {
                     string ExecutablePath = UserPickedItem.Path;
 

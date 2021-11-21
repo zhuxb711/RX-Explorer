@@ -30,8 +30,15 @@ namespace RX_Explorer.Class
             Size = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
             Attributes = (FileAttributes)Data.dwFileAttributes;
 
-            ModifiedTime = Data.ftLastWriteTime.ConvertToLocalDateTimeOffset();
-            CreationTime = Data.ftCreationTime.ConvertToLocalDateTimeOffset();
+            if (Win32_Native_API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out Win32_Native_API.SYSTEMTIME ModTime))
+            {
+                ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            if (Win32_Native_API.FileTimeToSystemTime(ref Data.ftCreationTime, out Win32_Native_API.SYSTEMTIME CreTime))
+            {
+                CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
         }
 
         public Win32_File_Data(string Path, ulong Size, FileAttributes Attributes, FILETIME LWTime, FILETIME CTime)
@@ -40,8 +47,15 @@ namespace RX_Explorer.Class
             this.Size = Size;
             this.Attributes = Attributes;
 
-            ModifiedTime = LWTime.ConvertToLocalDateTimeOffset();
-            CreationTime = CTime.ConvertToLocalDateTimeOffset();
+            if (Win32_Native_API.FileTimeToSystemTime(ref LWTime, out Win32_Native_API.SYSTEMTIME ModTime))
+            {
+                ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            if (Win32_Native_API.FileTimeToSystemTime(ref CTime, out Win32_Native_API.SYSTEMTIME CreTime))
+            {
+                CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
+            }
         }
 
         public Win32_File_Data(string Path)

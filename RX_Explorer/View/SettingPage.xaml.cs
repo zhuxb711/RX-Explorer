@@ -826,11 +826,11 @@ namespace RX_Explorer
                 _ => 2
             };
 
-            if (DefaultTerminal.Items.Contains(DefaultTerminalName))
+            if (TerminalList.FirstOrDefault((Profile) => Profile.Name == DefaultTerminalName) is TerminalProfile Profile)
             {
-                DefaultTerminal.SelectedItem = DefaultTerminalName;
+                DefaultTerminal.SelectedItem = Profile;
             }
-            else
+            else if (TerminalList.Count > 0)
             {
                 DefaultTerminal.SelectedIndex = 0;
             }
@@ -1135,8 +1135,11 @@ namespace RX_Explorer
 
         private void DefaultTerminal_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DefaultTerminalName = Convert.ToString(DefaultTerminal.SelectedItem);
-            ApplicationData.Current.SignalDataChanged();
+            if (DefaultTerminal.SelectedItem is TerminalProfile Profile)
+            {
+                DefaultTerminalName = Convert.ToString(Profile.Name);
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)

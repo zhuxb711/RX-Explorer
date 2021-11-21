@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Vanara.PInvoke;
+using Windows.ApplicationModel;
 using Windows.Management.Deployment;
+using Windows.System;
 
 namespace FullTrustProcess
 {
@@ -18,6 +20,11 @@ namespace FullTrustProcess
             try
             {
                 string Extension = System.IO.Path.GetExtension(Path).ToLower();
+
+                foreach (AppInfo App in Launcher.FindFileHandlersAsync(Extension).AsTask().Result)
+                {
+                    Association.Add(new AssociationPackage(Extension, App.PackageFamilyName, true));
+                }
 
                 if (Shell32.SHAssocEnumHandlers(Extension, Shell32.ASSOC_FILTER.ASSOC_FILTER_NONE, out Shell32.IEnumAssocHandlers AssocHandlers) == HRESULT.S_OK)
                 {
@@ -38,6 +45,7 @@ namespace FullTrustProcess
                                     if (Handler.GetName(out string FullPath) == HRESULT.S_OK && Handler.GetUIName(out string DisplayName) == HRESULT.S_OK)
                                     {
                                         //For most UWP application, DisplayName == FullPath
+                                        //Filter UWP applications here
                                         if (DisplayName != FullPath && UWPInstallLocationBase.All((BasePath) => !FullPath.StartsWith(BasePath, StringComparison.OrdinalIgnoreCase)))
                                         {
                                             Association.Add(new AssociationPackage(Extension, FullPath, Handler.IsRecommended() == HRESULT.S_OK));

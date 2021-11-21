@@ -24,14 +24,19 @@ namespace FullTrustProcess
     {
         public static DateTimeOffset ConvertToLocalDateTimeOffset(FILETIME FileTime)
         {
-            if (Kernel32.FileTimeToSystemTime(FileTime, out SYSTEMTIME ModTime))
+            try
             {
-                return new DateTime(ModTime.wYear, ModTime.wMonth, ModTime.wDay, ModTime.wHour, ModTime.wMinute, ModTime.wSecond, ModTime.wMilliseconds, DateTimeKind.Utc).ToLocalTime();
+                if (Kernel32.FileTimeToSystemTime(FileTime, out SYSTEMTIME ModTime))
+                {
+                    return new DateTime(ModTime.wYear, ModTime.wMonth, ModTime.wDay, ModTime.wHour, ModTime.wMinute, ModTime.wSecond, ModTime.wMilliseconds, DateTimeKind.Utc).ToLocalTime();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return DateTimeOffset.FromFileTime(((long)FileTime.dwHighDateTime << 32) + FileTime.dwLowDateTime);
+                LogTracer.Log(ex, $"A exception was threw in {nameof(ConvertToLocalDateTimeOffset)}");
             }
+
+            return default;
         }
 
         public static IReadOnlyList<HWND> GetCurrentWindowsHandle()

@@ -254,20 +254,6 @@ namespace FullTrustProcess
 
                                         if (Info.hSubMenu != HMENU.NULL)
                                         {
-                                            switch (Context)
-                                            {
-                                                case Shell32.IContextMenu3 Menu3:
-                                                    {
-                                                        Menu3.HandleMenuMsg2((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(i), out _);
-                                                        break;
-                                                    }
-                                                case Shell32.IContextMenu2 Menu2:
-                                                    {
-                                                        Menu2.HandleMenuMsg((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(i));
-                                                        break;
-                                                    }
-                                            }
-
                                             Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
                                         }
                                         else

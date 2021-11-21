@@ -10,12 +10,16 @@ namespace RX_Explorer.Class
     public sealed class RootStorageFolder : FileSystemStorageFolder
     {
         private static RootStorageFolder instance;
+        private static readonly object Locker = new object();
 
         public static RootStorageFolder Instance
         {
             get
             {
-                return instance ??= new RootStorageFolder();
+                lock (Locker)
+                {
+                    return instance ??= new RootStorageFolder();
+                }
             }
         }
 

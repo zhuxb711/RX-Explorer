@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
@@ -42,18 +43,6 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
-        public static DateTimeOffset ConvertToLocalDateTimeOffset(this FILETIME FileTime)
-        {
-            if (Win32_Native_API.FileTimeToSystemTime(ref FileTime, out Win32_Native_API.SYSTEMTIME ModTime))
-            {
-                return new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc).ToLocalTime();
-            }
-            else
-            {
-                return DateTimeOffset.FromFileTime(((long)FileTime.dwHighDateTime << 32) + FileTime.dwLowDateTime);
-            }
-        }
-
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))
@@ -639,32 +628,57 @@ namespace RX_Explorer.Class
                             {
                                 try
                                 {
-                                    if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
+                                    string OriginPath = PathArray.First();
+
+                                    if (Path.IsPathRooted(ExePath))
                                     {
-                                        ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
-
-                                        MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                        if (await FileSystemStorageItemBase.OpenAsync(ExePath) is FileSystemStorageFile ExeFile)
                                         {
-                                            Text = Item.Name,
-                                            Icon = new ImageIcon { Source = Item.Thumbnuil },
-                                            Tag = (PathArray.First(), Item),
-                                            MinWidth = 150,
-                                            MaxWidth = 300,
-                                            FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
-                                        };
-                                        MenuItem.Click += ClickHandler;
+                                            ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(ExeFile);
 
-                                        return MenuItem;
+                                            MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                            {
+                                                Text = Item.Name,
+                                                Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                                Tag = (OriginPath, Item),
+                                                MinWidth = 150,
+                                                MaxWidth = 300,
+                                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                            };
+                                            MenuItem.Click += ClickHandler;
+
+                                            return MenuItem;
+                                        }
                                     }
                                     else
                                     {
-                                        return null;
+                                        IReadOnlyList<AppInfo> Apps = await Launcher.FindFileHandlersAsync(Path.GetExtension(OriginPath).ToLower());
+
+                                        if (Apps.FirstOrDefault((App) => App.PackageFamilyName == ExePath) is AppInfo Info)
+                                        {
+                                            ProgramPickerItem Item = await ProgramPickerItem.CreateAsync(Info);
+
+                                            MenuFlyoutItem MenuItem = new MenuFlyoutItem
+                                            {
+                                                Text = Item.Name,
+                                                Icon = new ImageIcon { Source = Item.Thumbnuil },
+                                                Tag = (OriginPath, Item),
+                                                MinWidth = 150,
+                                                MaxWidth = 300,
+                                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
+                                            };
+                                            MenuItem.Click += ClickHandler;
+
+                                            return MenuItem;
+                                        }
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
-                                    return null;
+                                    LogTracer.Log(ex, "Could not generate open with item as expected");
                                 }
+
+                                return null;
                             }
 
                             IReadOnlyList<AssociationPackage> SystemAssocAppList = await Exclusive.Controller.GetAssociationFromPathAsync(PathArray.First());
@@ -679,7 +693,6 @@ namespace RX_Explorer.Class
                                 {
                                     OpenWithFlyout.Items.Insert(0, Item);
                                 }
-
 
                                 if (GetInnerViewerType(PathArray.First()) != null)
                                 {
