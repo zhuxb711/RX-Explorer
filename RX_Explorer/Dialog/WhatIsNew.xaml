@@ -16,7 +16,17 @@
         <Cls:InverseConverter x:Key="InverseConverter" />
     </Cls:QueueContentDialog.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Height="2"
+                Background="Gray"
+                HorizontalAlignment="Stretch"
+                Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
         <ScrollViewer VerticalScrollMode="Enabled"
+                      Grid.Row="1"
+                      Width="650"
                       Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <control:MarkdownTextBlock x:Name="MarkDown"
                                        Header5FontSize="14"
@@ -27,7 +37,8 @@
         </ScrollViewer>
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    Name="LoadingTip">
+                    Name="LoadingTip"
+                    Grid.RowSpan="2">
             <TextBlock Name="ProgressInfo"
                        FontSize="16"
                        Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
