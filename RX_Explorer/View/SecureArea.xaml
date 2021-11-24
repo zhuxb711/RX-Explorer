@@ -119,7 +119,7 @@
                   Grid.Row="1"
                   AllowDrop="True"
                   ItemsSource="{x:Bind SecureCollection}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}"
                   Padding="20,10,20,10"
                   SelectionMode="Extended"
                   IsHoldingEnabled="True"

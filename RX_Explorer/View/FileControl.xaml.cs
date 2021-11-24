@@ -775,11 +775,11 @@ namespace RX_Explorer
             {
                 if ((args.Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (CommonAccessCollection.LibraryFolderList.Count > 0)
+                    if (CommonAccessCollection.LibraryList.Count > 0)
                     {
-                        for (int i = 0; i < CommonAccessCollection.LibraryFolderList.Count && args.Node.IsExpanded; i++)
+                        for (int i = 0; i < CommonAccessCollection.LibraryList.Count && args.Node.IsExpanded; i++)
                         {
-                            LibraryStorageFolder LibFolder = CommonAccessCollection.LibraryFolderList[i];
+                            LibraryStorageFolder LibFolder = CommonAccessCollection.LibraryList[i];
 
                             if (await LibFolder.GetStorageItemAsync() is StorageFolder Folder)
                             {
@@ -2937,7 +2937,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2952,7 +2952,7 @@ namespace RX_Explorer
                 {
                     if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
                     {
-                        CommonAccessCollection.LibraryFolderList.Add(LibFolder);
+                        CommonAccessCollection.LibraryList.Add(LibFolder);
                         SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
                         await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
                     }
@@ -3171,10 +3171,10 @@ namespace RX_Explorer
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (CommonAccessCollection.LibraryFolderList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryStorageFolder TargetLib)
+                if (CommonAccessCollection.LibraryList.FirstOrDefault((Lib) => Lib.Path.Equals(Content.Path, StringComparison.OrdinalIgnoreCase)) is LibraryStorageFolder TargetLib)
                 {
                     SQLite.Current.DeleteLibrary(Content.Path);
-                    CommonAccessCollection.LibraryFolderList.Remove(TargetLib);
+                    CommonAccessCollection.LibraryList.Remove(TargetLib);
                     await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, TargetLib.Path);
                 }
             }

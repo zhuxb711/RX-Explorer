@@ -411,20 +411,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool IsVisibleOnContainer(this FrameworkElement Element, FrameworkElement Container)
-        {
-            if (Element == null || Container == null)
-            {
-                return false;
-            }
-
-            Rect ElementBounds = Element.TransformToVisual(Container).TransformBounds(new Rect(0.0, 0.0, Element.ActualWidth, Element.ActualHeight));
-            Rect ContainerBounds = new Rect(0.0, 0.0, Container.ActualWidth, Container.ActualHeight);
-            Rect IntersectBounds = RectHelper.Intersect(ContainerBounds, ElementBounds);
-
-            return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
-        }
-
         public static async Task ShowCommandBarFlyoutWithExtraContextMenuItems(this CommandBarFlyout Flyout, FrameworkElement RelatedTo, Point ShowAt, CancellationToken CancelToken, params string[] PathArray)
         {
             if (RelatedTo == null)
@@ -479,8 +465,8 @@ namespace RX_Explorer.Class
                 Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
                 {
                     Position = ShowAt,
-                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                    ShowMode = FlyoutShowMode.Transient
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
                 });
 
                 if (SettingPage.ContextMenuExtentionEnabled)

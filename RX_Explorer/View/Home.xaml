@@ -17,8 +17,7 @@
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
-                               AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               AlwaysExpanded="True">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
@@ -31,7 +30,6 @@
 
         <muxc:CommandBarFlyout x:Name="LibraryFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -115,7 +113,7 @@
 
         <muxc:CommandBarFlyout x:Name="DriveEmptyFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="TopEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
@@ -138,7 +136,7 @@
 
         <muxc:CommandBarFlyout x:Name="DriveFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="TopEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
@@ -162,7 +160,7 @@
 
         <muxc:CommandBarFlyout x:Name="PortableDeviceFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="TopEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
@@ -196,7 +194,7 @@
 
         <muxc:CommandBarFlyout x:Name="BitlockerDeviceFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="TopEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"
                               MinWidth="200"
@@ -249,7 +247,7 @@
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"
                               Name="LibraryGrid"
-                              ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryFolderList}"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"

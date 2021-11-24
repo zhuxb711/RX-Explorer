@@ -64,7 +64,6 @@
 
         <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -179,7 +178,6 @@
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Opening="FileFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
@@ -449,7 +447,6 @@
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Opening="MixedFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
@@ -604,7 +601,6 @@
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Closing="CommandBarFlyout_Closing"
                                Closed="CommandBarFlyout_Closed">
             <AppBarElementContainer x:Name="FolderStandardBar">
@@ -779,7 +775,6 @@
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop"
                                Opening="EmptyFlyout_Opening"
                                Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Paste"
@@ -995,8 +990,7 @@
     </Page.Resources>
 
     <Grid>
-        <controls:SwitchPresenter Name="PageSwitcher"
-                                  ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+        <controls:SwitchPresenter Name="PageSwitcher" >
             <controls:Case Value="{x:Bind Cls:RootStorageFolder.Instance.Path}">
                 <local:Home HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
@@ -1010,8 +1004,7 @@
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
-                    <controls:SwitchPresenter Name="ViewModeSwitcher"
-                                              ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
+                    <controls:SwitchPresenter Name="ViewModeSwitcher">
                         <controls:Case Value="GridViewTilesControl">
                             <SemanticZoom>
                                 <SemanticZoom.ZoomedInView>

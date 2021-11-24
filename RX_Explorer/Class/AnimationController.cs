@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
                     {
                         new PaneThemeTransition
                         {
-                            Edge = EdgeTransitionLocation.Bottom
+                            Edge = EdgeTransitionLocation.Top
                         },
                         new AddDeleteThemeTransition()
                     };
@@ -64,46 +64,6 @@ namespace RX_Explorer.Class
                     return new TransitionCollection
                     {
                         new AddDeleteThemeTransition()
-                    };
-                }
-                else
-                {
-                    return new TransitionCollection();
-                }
-            }
-        }
-
-        public TransitionCollection BladeViewTransitions
-        {
-            get
-            {
-                if (IsEnableAnimation)
-                {
-                    return new TransitionCollection
-                    {
-                        new EntranceThemeTransition
-                        {
-                            IsStaggeringEnabled = true
-                        },
-                        new RepositionThemeTransition()
-                    };
-                }
-                else
-                {
-                    return new TransitionCollection();
-                }
-            }
-        }
-
-        public TransitionCollection EntranceTransitions
-        {
-            get
-            {
-                if (IsEnableAnimation)
-                {
-                    return new TransitionCollection
-                    {
-                        new EntranceThemeTransition()
                     };
                 }
                 else
@@ -141,27 +101,6 @@ namespace RX_Explorer.Class
                     return new TransitionCollection
                     {
                         new RepositionThemeTransition()
-                    };
-                }
-                else
-                {
-                    return new TransitionCollection();
-                }
-            }
-        }
-
-        public TransitionCollection PaneLeftTransitions
-        {
-            get
-            {
-                if (IsEnableAnimation)
-                {
-                    return new TransitionCollection
-                    {
-                        new PaneThemeTransition
-                        {
-                            Edge = EdgeTransitionLocation.Left
-                        }
                     };
                 }
                 else
@@ -210,11 +149,8 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(DeviceAndLibraryTransitions));
                     OnPropertyChanged(nameof(QuickStartTransitions));
                     OnPropertyChanged(nameof(AddDeleteTransitions));
-                    OnPropertyChanged(nameof(EntranceTransitions));
-                    OnPropertyChanged(nameof(PaneLeftTransitions));
                     OnPropertyChanged(nameof(PaneTopTransitions));
                     OnPropertyChanged(nameof(RepositionTransitions));
-                    OnPropertyChanged(nameof(BladeViewTransitions));
                     OnPropertyChanged(nameof(ContentTransitions));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;

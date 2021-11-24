@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
 using Windows.Services.Store;
@@ -26,10 +27,10 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
-using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
+using Timer = System.Timers.Timer;
 
 namespace RX_Explorer
 {
@@ -39,14 +40,16 @@ namespace RX_Explorer
 
         public static TabViewContainer Current { get; private set; }
 
-        public ObservableCollection<TabViewItem> TabCollection { get; }
+        public ObservableCollection<TabViewItem> TabCollection { get; } = new ObservableCollection<TabViewItem>();
 
+        private readonly Timer PreviewTimer = new Timer(5000)
+        {
+            AutoReset = true,
+            Enabled = true
+        };
+
+        public readonly LayoutModeController LayoutModeControl = new LayoutModeController();
         private CancellationTokenSource DelayPreviewCancel;
-
-        private readonly DispatcherTimer PreviewTimer;
-
-        public readonly LayoutModeController LayoutModeControl;
-
         private DateTimeOffset LastTaskBarUpdatedTime = DateTimeOffset.Now;
 
         public TabViewContainer()
@@ -55,18 +58,9 @@ namespace RX_Explorer
 
             Current = this;
 
-            PreviewTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(3)
-            };
-
-
-            TabCollection = new ObservableCollection<TabViewItem>();
-
-            LayoutModeControl = new LayoutModeController();
-
-            PreviewTimer.Tick += PreviewTimer_Tick;
             Loaded += TabViewContainer_Loaded;
+            PreviewTimer.Elapsed += PreviewTimer_Tick;
+
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
@@ -144,39 +138,42 @@ namespace RX_Explorer
             StartupModeController.SetLastOpenedPath(PathList);
         }
 
-        private async void PreviewTimer_Tick(object sender, object e)
+        private async void PreviewTimer_Tick(object sender, ElapsedEventArgs e)
         {
-            if (MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
-                && SettingPage.IsTabPreviewEnabled)
+            if (SettingPage.IsTabPreviewEnabled)
             {
-                try
+                PreviewTimer.Enabled = false;
+
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                 {
-                    PreviewTimer.Stop();
-
-                    if (TabViewControl.SelectedItem is TabViewItem Item && Item.Content is UIElement Element)
+                    try
                     {
-                        RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
-
-                        await PreviewBitmap.RenderAsync(Element, 750, 450);
-
-                        if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
+                        if (TabViewControl.SelectedItem is TabViewItem Item
+                            && Item.IsLoaded
+                            && Item.Content is UIElement Element)
                         {
-                            if (PreviewFlyout.Content is Image PreviewImage)
+                            RenderTargetBitmap PreviewBitmap = new RenderTargetBitmap();
+
+                            await PreviewBitmap.RenderAsync(Element, 750, 450);
+
+                            if (FlyoutBase.GetAttachedFlyout(Item) is Flyout PreviewFlyout)
                             {
-                                PreviewImage.Source = PreviewBitmap;
+                                if (PreviewFlyout.Content is Image PreviewImage)
+                                {
+                                    PreviewImage.Source = PreviewBitmap;
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not render a preview image");
-                }
-                finally
-                {
-                    PreviewTimer.Start();
-                }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not render a preview image");
+                    }
+                    finally
+                    {
+                        PreviewTimer.Enabled = true;
+                    }
+                });
             }
         }
 

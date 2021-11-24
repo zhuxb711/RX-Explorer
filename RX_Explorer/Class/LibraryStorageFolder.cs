@@ -8,13 +8,7 @@ namespace RX_Explorer.Class
     {
         public LibraryType LibType { get; }
 
-        protected override bool ShouldGenerateThumbnail
-        {
-            get
-            {
-                return true;
-            }
-        }
+        protected override bool ShouldGenerateThumbnail => true;
 
         public static async Task<LibraryStorageFolder> CreateAsync(LibraryType LibType, string Path)
         {

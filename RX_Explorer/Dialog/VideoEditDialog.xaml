@@ -29,7 +29,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Hidden"
                       VerticalScrollMode="Enabled"
                       HorizontalScrollMode="Disabled">
-            <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.EntranceTransitions,Mode=OneWay}">
+            <StackPanel>
                 <MediaPlayerElement Name="MediaPlay"
                                     MinWidth="320"
                                     MinHeight="180"

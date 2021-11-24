@@ -205,8 +205,7 @@
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
-                               AlwaysExpanded="True"
-                               Placement="RightEdgeAlignedTop">
+                               AlwaysExpanded="True">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
@@ -217,8 +216,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
-                               AlwaysExpanded="True"
+        <muxc:CommandBarFlyout AlwaysExpanded="True"
                                x:Name="RightTabFlyout"
                                Opening="RightTabFlyout_Opening">
             <muxc:CommandBarFlyout.PrimaryCommands>
@@ -705,7 +703,7 @@
                                 SizeChanged="BladeViewer_SizeChanged"
                                 BladeClosed="BladeViewer_BladeClosed"
                                 Loaded="BladeViewer_Loaded"
-                                ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.BladeViewTransitions, Mode=OneWay}" />
+                                ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"
