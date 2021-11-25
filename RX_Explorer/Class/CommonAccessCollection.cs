@@ -161,29 +161,38 @@ namespace RX_Explorer.Class
 
                     ConcurrentBag<string> ErrorList = new ConcurrentBag<string>();
 
-                    List<Task> LoadTaskList = new List<Task>();
+                    List<Task> LongRunningTaskList = new List<Task>();
 
                     foreach ((LibraryType Type, string Path) in SQLite.Current.GetLibraryPath())
                     {
-                        LoadTaskList.Add(LibraryStorageFolder.CreateAsync(Type, Path).ContinueWith((PreviousTask) =>
+                        Task LoadTask = LibraryStorageFolder.CreateAsync(Type, Path).ContinueWith((PreviousTask) =>
                         {
                             if (PreviousTask.Exception is Exception Ex)
                             {
                                 ErrorList.Add(Path);
-                                SQLite.Current.DeleteLibrary(Path);
                             }
                             else if (!LibraryList.Contains(PreviousTask.Result))
                             {
                                 LibraryList.Add(PreviousTask.Result);
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext()));
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        {
+                            LongRunningTaskList.Add(LoadTask);
+                        }
                     }
 
-                    await Task.WhenAll(LoadTaskList);
+                    await Task.WhenAll(LongRunningTaskList);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryList.Where((Library) => Library.LibType == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
 
                     if (!ErrorList.IsEmpty)
                     {
+                        foreach (string ErrorPath in ErrorList)
+                        {
+                            SQLite.Current.DeleteLibrary(ErrorPath);
+                        }
+
                         LibraryNotFound?.Invoke(null, ErrorList);
                     }
                 }
@@ -205,11 +214,11 @@ namespace RX_Explorer.Class
                         DriveList.Clear();
                     });
 
-                    List<Task> LoadTaskList = new List<Task>();
+                    List<Task> LongRunningTaskList = new List<Task>();
 
                     foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType is DriveType.Fixed or DriveType.Network or DriveType.CDRom))
                     {
-                        LoadTaskList.Add(DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
+                        Task LoadTask = DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
                         {
                             if (PreviousTask.Exception is Exception Ex)
                             {
@@ -219,12 +228,17 @@ namespace RX_Explorer.Class
                             {
                                 DriveList.Add(PreviousTask.Result);
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext()));
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        {
+                            LongRunningTaskList.Add(LoadTask);
+                        }
                     }
 
                     foreach (DeviceInformation Drive in await DeviceInformation.FindAllAsync(DeviceInformation.GetAqsFilterFromDeviceClass(DeviceClass.PortableStorageDevice)))
                     {
-                        LoadTaskList.Add(DriveDataBase.CreateAsync(DriveType.Removable, Drive.Id).ContinueWith((PreviousTask) =>
+                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Removable, Drive.Id).ContinueWith((PreviousTask) =>
                         {
                             if (PreviousTask.Exception is Exception Ex)
                             {
@@ -234,12 +248,17 @@ namespace RX_Explorer.Class
                             {
                                 DriveList.Add(PreviousTask.Result);
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext()));
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        {
+                            LongRunningTaskList.Add(LoadTask);
+                        }
                     }
 
                     foreach (StorageFolder WslFolder in await GetWslDriveAsync())
                     {
-                        LoadTaskList.Add(DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
+                        Task LoadTask = DriveDataBase.CreateAsync(DriveType.Network, WslFolder).ContinueWith((PreviousTask) =>
                         {
                             if (PreviousTask.Exception is Exception Ex)
                             {
@@ -249,10 +268,15 @@ namespace RX_Explorer.Class
                             {
                                 DriveList.Add(PreviousTask.Result);
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext()));
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        if (await Task.WhenAny(LoadTask, Task.Delay(2000)) != LoadTask)
+                        {
+                            LongRunningTaskList.Add(LoadTask);
+                        }
                     }
 
-                    await Task.WhenAll(LoadTaskList);
+                    await Task.WhenAll(LongRunningTaskList);
 
                     if (!IsRefresh)
                     {
@@ -400,27 +424,25 @@ namespace RX_Explorer.Class
                 }
             });
 
-            List<Task> LoadTaskList = new List<Task>();
-
             foreach (DriveInfo Drive in AddList)
             {
-                LoadTaskList.Add(DriveDataBase.CreateAsync(Drive).ContinueWith((PreviousTask) =>
+                try
                 {
-                    if (PreviousTask.Exception is Exception Ex)
-                    {
-                        LogTracer.Log(Ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
-                    }
-                    else
-                    {
-                        CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                        {
-                            DriveList.Add(PreviousTask.Result);
-                        }).AsTask().Wait();
-                    }
-                }));
-            }
+                    DriveDataBase NetworkDrive = await DriveDataBase.CreateAsync(Drive);
 
-            await Task.WhenAll(LoadTaskList);
+                    await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    {
+                        if (!DriveList.Contains(NetworkDrive))
+                        {
+                            DriveList.Add(NetworkDrive);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Ignore the drive \"{Drive.Name}\" because we could not get details from this drive");
+                }
+            }
 
             NetworkDriveCheckTimer.Enabled = true;
         }

@@ -1626,9 +1626,11 @@ namespace FullTrustProcess
 
                                     using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                                     {
-                                        FileName = "powershell.exe",
+                                        FileName = "regedit.exe",
+                                        Verb = "runas",
                                         CreateNoWindow = true,
-                                        Arguments = $"-Command \"regedit /s \"{TempFilePath}\" | Out-Null\"",
+                                        UseShellExecute = true,
+                                        Arguments = $"/s \"{TempFilePath}\"",
                                     }))
                                     {
                                         RegisterProcess.WaitForExit();
@@ -1787,9 +1789,11 @@ namespace FullTrustProcess
 
                                     using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                                     {
-                                        FileName = "powershell.exe",
+                                        FileName = "regedit.exe",
+                                        Verb = "runas",
                                         CreateNoWindow = true,
-                                        Arguments = $"-Command \"regedit /s \"{TempFilePath}\" | Out-Null\"",
+                                        UseShellExecute = true,
+                                        Arguments = $"/s \"{TempFilePath}\"",
                                     }))
                                     {
                                         RegisterProcess.WaitForExit();
@@ -1843,9 +1847,11 @@ namespace FullTrustProcess
                         {
                             using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = "powershell.exe",
+                                FileName = "regedit.exe",
+                                Verb = "runas",
                                 CreateNoWindow = true,
-                                Arguments = $"-Command \"regedit /s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_Folder.reg")}\" | Out-Null\"",
+                                UseShellExecute = true,
+                                Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_Folder.reg")}\"",
                             }))
                             {
                                 RegisterProcess.WaitForExit();
@@ -1897,9 +1903,11 @@ namespace FullTrustProcess
                         {
                             using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                             {
-                                FileName = "powershell.exe",
+                                FileName = "regedit.exe",
+                                Verb = "runas",
                                 CreateNoWindow = true,
-                                Arguments = $"-Command \"regedit /s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_WIN_E.reg")}\" | Out-Null\"",
+                                UseShellExecute = true,
+                                Arguments = $"/s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_WIN_E.reg")}\"",
                             }))
                             {
                                 RegisterProcess.WaitForExit();
