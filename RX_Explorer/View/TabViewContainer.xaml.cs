@@ -1200,12 +1200,11 @@ namespace RX_Explorer
             {
                 TabViewControl.SelectedItem = Item;
 
-
                 TabCommandFlyout?.ShowAt(Item, new FlyoutShowOptions
                 {
                     Position = e.GetPosition(Item),
-                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                    ShowMode = FlyoutShowMode.Transient
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
                 });
             }
         }

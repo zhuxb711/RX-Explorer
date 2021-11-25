@@ -2225,33 +2225,36 @@ namespace RX_Explorer
 
             DelayRenameCancellation?.Cancel();
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+                if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Item)
+                {
+                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
 
-                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
-                {
-                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
-                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                    {
+                        PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
+                        await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    }
+                    else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
+                    {
+                        await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
+                    }
+                    else if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
+                    {
+                        await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                    }
                 }
-                else if (CWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) && Item is FileSystemStorageFolder)
+                else if (Element is Grid)
                 {
-                    await TabViewContainer.Current.CreateNewTabAsync(Item.Path);
-                }
-                else if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
-                {
-                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
-                }
-            }
-            else if (e.OriginalSource is Grid)
-            {
-                if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
-                {
-                    await DisplayItemsInFolder(RootStorageFolder.Instance);
-                }
-                else if (Container.GoParentFolder.IsEnabled)
-                {
-                    Container.GoParentFolder_Click(null, null);
+                    if (Path.GetPathRoot(CurrentFolder?.Path).Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await DisplayItemsInFolder(RootStorageFolder.Instance);
+                    }
+                    else if (Container.GoParentFolder.IsEnabled)
+                    {
+                        Container.GoParentFolder_Click(null, null);
+                    }
                 }
             }
         }

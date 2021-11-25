@@ -518,8 +518,8 @@ namespace RX_Explorer
                         MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
                         {
                             Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
                         });
                     }
                     else
@@ -529,8 +529,8 @@ namespace RX_Explorer
                         SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
                         {
                             Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
                         });
                     }
                 }
@@ -842,13 +842,16 @@ namespace RX_Explorer
 
         private async void SearchResultList_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                DelayDragCancellation?.Cancel();
-                DelaySelectionCancellation?.Cancel();
-                DelayTooltipCancellation?.Cancel();
+                if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Item)
+                {
+                    DelayDragCancellation?.Cancel();
+                    DelaySelectionCancellation?.Cancel();
+                    DelayTooltipCancellation?.Cancel();
 
-                await LaunchSelectedItemAsync(Item);
+                    await LaunchSelectedItemAsync(Item);
+                }
             }
         }
 

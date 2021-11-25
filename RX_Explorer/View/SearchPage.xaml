@@ -39,6 +39,7 @@
         </Flyout>
 
         <muxc:CommandBarFlyout x:Name="SingleCommandFlyout"
+                               ShouldConstrainToRootBounds="False"
                                AlwaysExpanded="True">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -100,6 +101,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixCommandFlyout"
+                               ShouldConstrainToRootBounds="False"
                                AlwaysExpanded="True">
             <AppBarButton ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MultiSelect_Click">

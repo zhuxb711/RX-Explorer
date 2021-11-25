@@ -1431,8 +1431,8 @@ namespace RX_Explorer
                         NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions
                         {
                             Position = e.GetPosition(NavView),
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
                         });
 
                         break;
@@ -1482,8 +1482,8 @@ namespace RX_Explorer
                             NavigationViewFlyout.ShowAt((FrameworkElement)sender, new FlyoutShowOptions
                             {
                                 Position = e.GetPosition(NavView),
-                                Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                ShowMode = FlyoutShowMode.Transient
+                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                ShowMode = FlyoutShowMode.Standard
                             });
 
                             break;

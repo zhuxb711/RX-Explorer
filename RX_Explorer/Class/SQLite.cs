@@ -532,20 +532,20 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<(string, LibraryType)> GetLibraryPath()
+        public IReadOnlyList<(LibraryType, string)> GetLibraryPath()
         {
-            List<(string, LibraryType)> list = new List<(string, LibraryType)>();
+            List<(LibraryType, string)> Result = new List<(LibraryType, string)>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
             using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 while (Query.Read())
                 {
-                    list.Add((Query[0].ToString(), Enum.Parse<LibraryType>(Query[1].ToString())));
+                    Result.Add((Enum.Parse<LibraryType>(Convert.ToString(Query[1])), Convert.ToString(Query[0])));
                 }
             }
 
-            return list;
+            return Result;
         }
 
         /// <summary>
@@ -646,16 +646,16 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        public void UpdateLibraryPath(IEnumerable<(LibraryType, string)> InputArray)
+        public void UpdateLibraryPath(IDictionary<LibraryType, string> Mapper)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
             using SqliteCommand Command = new SqliteCommand("Update Or Ignore Library Set Path = @Path Where Type = @Type", Connection, Transaction);
 
-            foreach ((LibraryType Type, string Path) in InputArray)
+            foreach (KeyValuePair<LibraryType, string> Pair in Mapper.Where((Pair) => !string.IsNullOrEmpty(Pair.Value)))
             {
                 Command.Parameters.Clear();
-                Command.Parameters.AddWithValue("@Path", Path);
-                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+                Command.Parameters.AddWithValue("@Path", Pair.Value);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Pair.Key));
                 Command.ExecuteNonQuery();
             }
 

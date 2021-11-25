@@ -1608,32 +1608,38 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(AliasLocation))
                             {
-                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_Folder.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_Desktop_Folder.reg", CreationCollisionOption.ReplaceExisting);
+                                string TempFilePath = Path.Combine(Path.GetTempPath(), @$"{Guid.NewGuid()}.reg");
 
-                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
-                                using (StreamReader Reader = new StreamReader(FileStream))
+                                try
                                 {
-                                    string Content = await Reader.ReadToEndAsync();
-
-                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                    using (FileStream TempFileStream = File.Open(TempFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+                                    using (FileStream RegStream = File.Open(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Intercept_Folder.reg"), FileMode.Open, FileAccess.Read, FileShare.Read))
+                                    using (StreamReader Reader = new StreamReader(RegStream))
                                     {
-                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                        string Content = Reader.ReadToEnd();
+
+                                        using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
+                                        {
+                                            Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                        }
+                                    }
+
+                                    using (Process RegisterProcess = Process.Start(new ProcessStartInfo
+                                    {
+                                        FileName = "powershell.exe",
+                                        CreateNoWindow = true,
+                                        Arguments = $"-Command \"regedit /s \"{TempFilePath}\" | Out-Null\"",
+                                    }))
+                                    {
+                                        RegisterProcess.WaitForExit();
                                     }
                                 }
-
-                                IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
-
-                                using (Process RegisterProcess = new Process())
+                                finally
                                 {
-                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
-                                    RegisterProcess.StartInfo.UseShellExecute = true;
-                                    RegisterProcess.Start();
-
-                                    SetWindowsZPosition(RegisterProcess, WindowsBeforeStartup);
-
-                                    RegisterProcess.WaitForExit();
+                                    if (File.Exists(TempFilePath))
+                                    {
+                                        File.Delete(TempFilePath);
+                                    }
                                 }
 
                                 bool IsRegistryCheckingSuccess = true;
@@ -1763,32 +1769,38 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(AliasLocation))
                             {
-                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+                                string TempFilePath = Path.Combine(Path.GetTempPath(), @$"{Guid.NewGuid()}.reg");
 
-                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
-                                using (StreamReader Reader = new StreamReader(FileStream))
+                                try
                                 {
-                                    string Content = await Reader.ReadToEndAsync();
-
-                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                    using (FileStream TempFileStream = File.Open(TempFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read))
+                                    using (FileStream RegStream = File.Open(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Intercept_WIN_E.reg"), FileMode.Open, FileAccess.Read, FileShare.Read))
+                                    using (StreamReader Reader = new StreamReader(RegStream))
                                     {
-                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                        string Content = Reader.ReadToEnd();
+
+                                        using (StreamWriter Writer = new StreamWriter(TempFileStream, Encoding.Unicode))
+                                        {
+                                            Writer.Write(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                        }
+                                    }
+
+                                    using (Process RegisterProcess = Process.Start(new ProcessStartInfo
+                                    {
+                                        FileName = "powershell.exe",
+                                        CreateNoWindow = true,
+                                        Arguments = $"-Command \"regedit /s \"{TempFilePath}\" | Out-Null\"",
+                                    }))
+                                    {
+                                        RegisterProcess.WaitForExit();
                                     }
                                 }
-
-                                IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
-
-                                using (Process RegisterProcess = new Process())
+                                finally
                                 {
-                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
-                                    RegisterProcess.StartInfo.UseShellExecute = true;
-                                    RegisterProcess.Start();
-
-                                    SetWindowsZPosition(RegisterProcess, WindowsBeforeStartup);
-
-                                    RegisterProcess.WaitForExit();
+                                    if (File.Exists(TempFilePath))
+                                    {
+                                        File.Delete(TempFilePath);
+                                    }
                                 }
 
                                 bool IsRegistryCheckingSuccess = true;
@@ -1829,19 +1841,14 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreFolderInterception:
                         {
-                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_Folder.reg"));
-
-                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
-
-                            using (Process UnregisterProcess = new Process())
+                            using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                             {
-                                UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
-                                UnregisterProcess.StartInfo.UseShellExecute = true;
-                                UnregisterProcess.Start();
-
-                                SetWindowsZPosition(UnregisterProcess, WindowsBeforeStartup);
-
-                                UnregisterProcess.WaitForExit();
+                                FileName = "powershell.exe",
+                                CreateNoWindow = true,
+                                Arguments = $"-Command \"regedit /s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_Folder.reg")}\" | Out-Null\"",
+                            }))
+                            {
+                                RegisterProcess.WaitForExit();
                             }
 
                             bool IsRegistryCheckingSuccess = true;
@@ -1888,19 +1895,14 @@ namespace FullTrustProcess
                         }
                     case CommandType.RestoreWinEInterception:
                         {
-                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
-
-                            IReadOnlyList<HWND> WindowsBeforeStartup = Helper.GetCurrentWindowsHandle();
-
-                            using (Process UnregisterProcess = new Process())
+                            using (Process RegisterProcess = Process.Start(new ProcessStartInfo
                             {
-                                UnregisterProcess.StartInfo.FileName = RestoreFile.Path;
-                                UnregisterProcess.StartInfo.UseShellExecute = true;
-                                UnregisterProcess.Start();
-
-                                SetWindowsZPosition(UnregisterProcess, WindowsBeforeStartup);
-
-                                UnregisterProcess.WaitForExit();
+                                FileName = "powershell.exe",
+                                CreateNoWindow = true,
+                                Arguments = $"-Command \"regedit /s \"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"RegFiles\Restore_WIN_E.reg")}\" | Out-Null\"",
+                            }))
+                            {
+                                RegisterProcess.WaitForExit();
                             }
 
                             bool IsRegistryCheckingSuccess = true;

@@ -489,7 +489,6 @@
     <Content Include="QuickStartImage\Setting.png" />
     <Content Include="QuickStartImage\Weather.png" />
     <Content Include="Assets\Restore_WIN_E.reg" />
-    <Content Include="Assets\Intercept_WIN_E.reg" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
@@ -543,7 +542,6 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="Assets\Intercept_Folder.reg" />
     <Content Include="Assets\Restore_Folder.reg" />
     <PRIResource Include="Strings\de-DE\Resources.resw" />
     <PRIResource Include="Strings\es\Resources.resw" />

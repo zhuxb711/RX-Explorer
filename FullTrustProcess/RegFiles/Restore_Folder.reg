@@ -1,0 +1,13 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Drive\shell]
+@="none"
+
+[HKEY_CLASSES_ROOT\Drive\shell\open\command]
+@=""
+
+[HKEY_CLASSES_ROOT\Directory\shell]
+@="none"
+
+[HKEY_CLASSES_ROOT\Directory\shell\command]
+@=""

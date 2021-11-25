@@ -518,17 +518,20 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Drive)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+                if (Element.FindParentOfType<SelectorItem>()?.Content is DriveDataBase Drive)
+                {
+                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
 
-                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
-                {
-                    await new DriveInfoDialog(Drive).ShowAsync();
-                }
-                else
-                {
-                    await OpenTargetDriveAsync(Drive);
+                    if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                    {
+                        await new DriveInfoDialog(Drive).ShowAsync();
+                    }
+                    else
+                    {
+                        await OpenTargetDriveAsync(Drive);
+                    }
                 }
             }
         }
@@ -537,42 +540,45 @@ namespace RX_Explorer
         {
             DriveGrid.SelectedIndex = -1;
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryStorageFolder Library)
+            if (e.OriginalSource is FrameworkElement Element)
             {
-                CoreWindow CWindow = CoreWindow.GetForCurrentThread();
-
-                if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                if (Element.FindParentOfType<SelectorItem>()?.Content is LibraryStorageFolder Library)
                 {
-                    if (Library.Path.Equals(Path.GetPathRoot(Library.Path), StringComparison.OrdinalIgnoreCase))
+                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+
+                    if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                     {
-                        if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Library.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                        if (Library.Path.Equals(Path.GetPathRoot(Library.Path), StringComparison.OrdinalIgnoreCase))
                         {
-                            await new DriveInfoDialog(Drive).ShowAsync();
-                            return;
-                        }
-                        else if (Library.Path.StartsWith(@"\\"))
-                        {
-                            IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
-
-                            if (NetworkDriveList.Count > 0)
+                            if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Library.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                             {
-                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+                                await new DriveInfoDialog(Drive).ShowAsync();
+                                return;
+                            }
+                            else if (Library.Path.StartsWith(@"\\"))
+                            {
+                                IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
 
-                                if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                                if (NetworkDriveList.Count > 0)
                                 {
-                                    await new DriveInfoDialog(NetworkDrive).ShowAsync();
-                                    return;
+                                    string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Library.Path);
+
+                                    if (NetworkDriveList.FirstOrDefault((Drive) => Drive.Path.Equals(RemappedPath, StringComparison.OrdinalIgnoreCase)) is DriveDataBase NetworkDrive)
+                                    {
+                                        await new DriveInfoDialog(NetworkDrive).ShowAsync();
+                                        return;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
-                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                }
-                else
-                {
-                    await OpenTargetFolder(Library.Path);
+                        PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Library);
+                        await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    }
+                    else
+                    {
+                        await OpenTargetFolder(Library.Path);
+                    }
                 }
             }
         }
@@ -678,8 +684,8 @@ namespace RX_Explorer
                 LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
                 {
                     Position = Position,
-                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                    ShowMode = FlyoutShowMode.Transient
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
                 });
             }
         }
@@ -722,8 +728,8 @@ namespace RX_Explorer
                 DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
                 {
                     Position = Position,
-                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                    ShowMode = FlyoutShowMode.Transient
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
                 });
             }
         }

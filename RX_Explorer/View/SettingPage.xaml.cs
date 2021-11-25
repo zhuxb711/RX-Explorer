@@ -792,7 +792,10 @@ namespace RX_Explorer
             EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-            FontFamilyComboBox.SelectedIndex = Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Current);
+
+            FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString
+                                                  ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString))
+                                                  : Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
 
             BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
             BackgroundLightSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);

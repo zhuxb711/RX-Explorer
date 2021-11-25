@@ -25,10 +25,28 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="RegFiles\Intercept_Folder.reg" />
+    <None Remove="RegFiles\Intercept_WIN_E.reg" />
+    <None Remove="RegFiles\Restore_Folder.reg" />
+    <None Remove="RegFiles\Restore_WIN_E.reg" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
 	<Content Include="Everything64.dll">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="RegFiles\Intercept_Folder.reg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="RegFiles\Intercept_WIN_E.reg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="RegFiles\Restore_Folder.reg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="RegFiles\Restore_WIN_E.reg">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>

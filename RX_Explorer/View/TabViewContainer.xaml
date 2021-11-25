@@ -27,7 +27,7 @@
         </DataTemplate>
 
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
-                               Placement="RightEdgeAlignedTop">
+                               ShouldConstrainToRootBounds="False" >
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"

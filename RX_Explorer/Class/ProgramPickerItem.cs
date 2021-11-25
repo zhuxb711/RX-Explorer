@@ -74,9 +74,8 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
                 return new ProgramPickerItem(null, App.DisplayInfo.DisplayName, App.DisplayInfo.Description, App.PackageFamilyName);
             }
         }

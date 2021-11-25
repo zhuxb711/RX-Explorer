@@ -64,6 +64,7 @@
 
         <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Closing="CommandBarFlyout_Closing">
             <AppBarElementContainer x:Name="LinkStandardBar">
                 <StackPanel Orientation="Horizontal">
@@ -178,6 +179,7 @@
 
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Opening="FileFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
@@ -447,6 +449,7 @@
 
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Opening="MixedFlyout_Opening"
                                Closed="CommandBarFlyout_Closed"
                                Closing="CommandBarFlyout_Closing">
@@ -601,6 +604,7 @@
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Closing="CommandBarFlyout_Closing"
                                Closed="CommandBarFlyout_Closed">
             <AppBarElementContainer x:Name="FolderStandardBar">
@@ -775,6 +779,7 @@
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Opening="EmptyFlyout_Opening"
                                Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Paste"

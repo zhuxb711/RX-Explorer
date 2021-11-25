@@ -60,7 +60,7 @@
         </DataTemplate>
 
         <muxc:CommandBarFlyout x:Name="NavigationViewFlyout"
-                               AlwaysExpanded="True">
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="{x:Bind Cls:Globalization.GetString('CustomText')}"
                               MinWidth="200"
@@ -198,6 +198,7 @@
                           Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}">
             <muxc:TeachingTip.Resources>
                 <muxc:CommandBarFlyout x:Name="AppFlyout"
+                                       ShouldConstrainToRootBounds="False"
                                        Placement="RightEdgeAlignedTop">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
@@ -216,6 +217,7 @@
                 </muxc:CommandBarFlyout>
 
                 <muxc:CommandBarFlyout x:Name="WebFlyout"
+                                       ShouldConstrainToRootBounds="False"
                                        Placement="RightEdgeAlignedTop">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
@@ -234,6 +236,7 @@
                 </muxc:CommandBarFlyout>
 
                 <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
+                                       ShouldConstrainToRootBounds="False"
                                        Placement="RightEdgeAlignedTop">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"
@@ -246,6 +249,7 @@
                 </muxc:CommandBarFlyout>
 
                 <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
+                                       ShouldConstrainToRootBounds="False"
                                        Placement="RightEdgeAlignedTop">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"

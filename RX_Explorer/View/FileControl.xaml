@@ -205,7 +205,7 @@
         <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
-                               AlwaysExpanded="True">
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"

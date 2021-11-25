@@ -5,6 +5,7 @@ using System.Linq;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer.Class
@@ -43,6 +44,7 @@ namespace RX_Explorer.Class
                     Name = Enum.GetName(typeof(InfoTipType), Type),
                     VerticalAlignment = VerticalAlignment.Stretch,
                     HorizontalAlignment = HorizontalAlignment.Stretch,
+                    FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily,
                     Opacity = 0,
                     IsOpen = true,
                     IsClosable = true
@@ -68,7 +70,8 @@ namespace RX_Explorer.Class
                         {
                             Button ActionButton = new Button
                             {
-                                Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                                Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
                             };
                             ActionButton.Click += async (s, e) =>
                             {
@@ -86,7 +89,8 @@ namespace RX_Explorer.Class
                         {
                             Button ActionButton = new Button
                             {
-                                Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                                Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
                             };
                             ActionButton.Click += async (s, e) =>
                             {

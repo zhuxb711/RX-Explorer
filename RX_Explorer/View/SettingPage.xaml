@@ -51,6 +51,7 @@
             <Cls:InverseConverter x:Key="InverseConverter" />
 
             <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
+                                   ShouldConstrainToRootBounds="False"
                                    x:Name="PictureFlyout">
                 <muxc:CommandBarFlyout.SecondaryCommands>
                     <AppBarButton Icon="Delete"

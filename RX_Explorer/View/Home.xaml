@@ -17,7 +17,7 @@
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
-                               AlwaysExpanded="True">
+                               ShouldConstrainToRootBounds="False" >
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
@@ -28,8 +28,31 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
+        <muxc:CommandBarFlyout x:Name="DriveEmptyFlyout"
+                               ShouldConstrainToRootBounds="False" >
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Refresh"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
+                              x:Name="Refresh"
+                              MinWidth="200"
+                              Click="Refresh_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Icon="Add"
+                              Label="添加驱动器"
+                              MinWidth="200"
+                              x:Uid="AddDevice"
+                              x:Name="AddDrive"
+                              Click="AddDrive_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
         <muxc:CommandBarFlyout x:Name="LibraryFlyout"
                                AlwaysExpanded="True"
+                               ShouldConstrainToRootBounds="False"
                                Closing="CommandBarFlyout_Closing">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
@@ -111,32 +134,8 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="DriveEmptyFlyout"
-                               AlwaysExpanded="True"
-                               Placement="TopEdgeAlignedLeft">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Refresh"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
-                              x:Name="Refresh"
-                              MinWidth="200"
-                              Click="Refresh_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="F5"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarButton Icon="Add"
-                              Label="添加驱动器"
-                              MinWidth="200"
-                              x:Uid="AddDevice"
-                              x:Name="AddDrive"
-                              Click="AddDrive_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
         <muxc:CommandBarFlyout x:Name="DriveFlyout"
-                               AlwaysExpanded="True"
-                               Placement="TopEdgeAlignedLeft">
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
@@ -159,8 +158,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="PortableDeviceFlyout"
-                               AlwaysExpanded="True"
-                               Placement="TopEdgeAlignedLeft">
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
@@ -193,8 +191,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="BitlockerDeviceFlyout"
-                               AlwaysExpanded="True"
-                               Placement="TopEdgeAlignedLeft">
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"
                               MinWidth="200"

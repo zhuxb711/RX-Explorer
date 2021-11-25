@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="FileFlyout"
+                               ShouldConstrainToRootBounds="False"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
@@ -44,6 +45,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               ShouldConstrainToRootBounds="False"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
@@ -59,6 +61,7 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               ShouldConstrainToRootBounds="False"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"

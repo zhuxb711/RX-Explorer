@@ -823,8 +823,8 @@ namespace RX_Explorer
                             ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                             {
                                 Position = e.GetPosition((FrameworkElement)sender),
-                                Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                ShowMode = FlyoutShowMode.Transient
+                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                ShowMode = FlyoutShowMode.Standard
                             });
                         }
                         else
@@ -834,8 +834,8 @@ namespace RX_Explorer
                                 ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                 {
                                     Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                    ShowMode = FlyoutShowMode.Transient
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                    ShowMode = FlyoutShowMode.Standard
                                 });
                             }
                             else
@@ -847,8 +847,8 @@ namespace RX_Explorer
                                     ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.Transient
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
                                 else
@@ -858,8 +858,8 @@ namespace RX_Explorer
                                     EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.Transient
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
                             }
@@ -872,8 +872,8 @@ namespace RX_Explorer
                         EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                         {
                             Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
                         });
                     }
                 }
@@ -895,8 +895,8 @@ namespace RX_Explorer
                             ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                             {
                                 Position = e.GetPosition((FrameworkElement)sender),
-                                Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                ShowMode = FlyoutShowMode.Transient
+                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                ShowMode = FlyoutShowMode.Standard
                             });
                         }
                         else
@@ -906,8 +906,8 @@ namespace RX_Explorer
                                 ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                 {
                                     Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                    ShowMode = FlyoutShowMode.Transient
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                    ShowMode = FlyoutShowMode.Standard
                                 });
                             }
                             else
@@ -919,8 +919,8 @@ namespace RX_Explorer
                                     ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.Transient
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
                                 else
@@ -930,8 +930,8 @@ namespace RX_Explorer
                                     EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                                        ShowMode = FlyoutShowMode.Transient
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
                             }
@@ -944,8 +944,8 @@ namespace RX_Explorer
                         EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                         {
                             Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.TopEdgeAlignedLeft,
-                            ShowMode = FlyoutShowMode.Transient
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
                         });
                     }
                 }

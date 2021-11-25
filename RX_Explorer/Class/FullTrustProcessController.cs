@@ -2129,7 +2129,7 @@ namespace RX_Explorer.Class
         {
             public FullTrustProcessController Controller { get; }
 
-            private ExtendedExecutionController ExtExecution;
+            private readonly ExtendedExecutionController ExtExecution;
 
             private bool IsDisposed;
 
@@ -2147,7 +2147,7 @@ namespace RX_Explorer.Class
 
                     GC.SuppressFinalize(this);
 
-                    ExtExecution.Dispose();
+                    ExtExecution?.Dispose();
                     AvailableControllers.Enqueue(Controller);
                 }
             }

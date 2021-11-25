@@ -507,7 +507,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Interlocked.Exchange(ref IsLoaded, 1) > 0)
+                if (Interlocked.CompareExchange(ref IsLoaded, 1, 0) > 0)
                 {
                     if (ThubmnalModeChanged)
                     {
