@@ -1,4 +1,33 @@
-﻿###Novedades de la versión 7.2.7.0
+﻿###Novedades de la versión 7.2.9.0
+
+#####Actualización de funciones
+
+>#####Se mejoró el mecanismo de comunicación con procesos auxiliares y se evitaron problemas potenciales
+
+#####actualización de la interfaz de usuario
+
+>#####Optimización de la interfaz de usuario de "Integración con componentes del sistema"
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema que podía causar que el proceso auxiliar estuviera ocupado
+
+>#####Se solucionó el problema que podía causar que la unidad se cargara lentamente
+
+>#####Se solucionó el problema de que la familia de fuentes no se podía cambiar
+
+>#####Se solucionó el problema de que la fuente en el banner no sigue la configuración de "Familia de fuentes"
+
+>#####Se solucionó el problema de que al hacer doble clic en algunas áreas del objeto de carpeta en la lista, es posible que no responda
+
+>#####Se solucionó el problema de que al hacer doble clic en algunas áreas del objeto en la lista, se volviera a la carpeta principal
+
+>#####Se solucionó un problema que podía hacer que el contenido parpadeara al escalar la ventana de la aplicación.
+
+>#####Se solucionó el problema de que la aplicación se seguiría llamando en algún software después de deshabilitar "Interceptar y usar como programa predeterminado para carpetas"
+
+***
+###Novedades de la versión 7.2.7.0
 
 #####Actualización de funciones
 

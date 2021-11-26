@@ -1,4 +1,33 @@
-﻿###Quoi de neuf dans la version 7.2.7.0
+﻿###Quoi de neuf dans la version 7.2.9.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Amélioration du mécanisme de communication avec les processus auxiliaires et évite les problèmes potentiels
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Optimisation de l'interface utilisateur de "Intégration avec les composants système"
+
+#####Correction d'un bug
+
+>#####Correction du problème pouvant entraîner l'occupation du processus auxiliaire
+
+>#####Correction du problème qui pouvait ralentir le chargement du lecteur
+
+>#####Correction du problème selon lequel la famille de polices ne pouvait pas être modifiée
+
+>#####Correction du problème selon lequel la police de la bannière ne respecte pas les paramètres de la "Famille de polices"
+
+>#####Correction du problème selon lequel le double-clic sur certaines zones de l'objet dossier dans la liste pouvait ne pas répondre
+
+>#####Correction du problème selon lequel le fait de double-cliquer sur certaines zones de l'objet dans la liste peut entraîner le retour au dossier parent
+
+>#####Correction d'un problème pouvant provoquer le scintillement du contenu lors de la mise à l'échelle de la fenêtre de l'application
+
+>#####Correction du problème selon lequel l'application sera toujours appelée dans certains logiciels après la désactivation de "Intercepter et utiliser comme programme par défaut pour les dossiers"
+
+***
+###Quoi de neuf dans la version 7.2.7.0
 
 #####Mise à jour des fonctionnalités
 

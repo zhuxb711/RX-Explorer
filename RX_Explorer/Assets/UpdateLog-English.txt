@@ -1,4 +1,33 @@
-﻿###What's new in Ver.7.2.7.0
+﻿###What's new in Ver.7.2.9.0
+
+#####Feature update
+
+>#####Improved the communication mechanism with auxiliary processes and avoid potential problems
+
+#####UI update
+
+>#####Optimized the UI of "Integration with System Components"
+
+#####Bug fix
+
+>#####Fixed the problem that may cause the auxiliary process to be busy
+
+>#####Fixed the problem that may cause the drive to load slowly
+
+>#####Fixed the problem that the font family could not be changed
+
+>#####Fixed the problem that the font in the banner does not follow the "Font Family" settings
+
+>#####Fixed the problem that double-clicking some areas of the folder object in the list may not respond
+
+>#####Fixed the problem that double-clicking some areas of the object in the list may cause returning to the parent folder
+
+>#####Fixed an issue that may cause content to flicker when scaling the application window
+
+>#####Fixed the problem that the application will still be called in some software after disabling "Intercept and use as the default program for folders"
+
+***
+###What's new in Ver.7.2.7.0
 
 #####Feature update
 

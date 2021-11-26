@@ -34,12 +34,6 @@ namespace RX_Explorer.Class
         Directory
     }
 
-    public enum NamedPipeMode
-    {
-        Read,
-        Write
-    }
-
     public enum SLEVersion
     {
         Version_1_0_0 = 100,

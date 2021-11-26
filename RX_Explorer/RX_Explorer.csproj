@@ -151,6 +151,7 @@
     <Compile Include="Class\InstalledFonts.cs" />
     <Compile Include="Class\LibraryChangedDeferredEventArgs.cs" />
     <Compile Include="Class\LockedDriveData.cs" />
+    <Compile Include="Class\NamedPipeCommunicationBaseController.cs" />
     <Compile Include="Class\NamedPipeReadController.cs" />
     <Compile Include="Class\NamedPipeWriteController.cs" />
     <Compile Include="Class\NormalDriveData.cs" />
@@ -817,10 +818,6 @@
     <ProjectReference Include="..\AnimationEffectProvider\AnimationEffectProvider.csproj">
       <Project>{3b40a94d-6173-4b62-971e-27abdbece9d6}</Project>
       <Name>AnimationEffectProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CommunicateService\CommunicateService.csproj">
-      <Project>{7d62af29-e32f-4402-88e5-d8feeb062728}</Project>
-      <Name>CommunicateService</Name>
     </ProjectReference>
     <ProjectReference Include="..\ComputerVision\ComputerVision.csproj">
       <Project>{5bc5b5aa-53f4-4437-95b3-261f790ae373}</Project>

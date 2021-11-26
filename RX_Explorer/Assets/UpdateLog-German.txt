@@ -1,4 +1,33 @@
-﻿###Was ist neu in Ver.7.2.7.0
+﻿###Was ist neu in Ver.7.2.9.0
+
+#####Funktionsupdate
+
+>#####Kommunikationsmechanismus mit Hilfsprozessen verbessert und potenzielle Probleme vermieden
+
+#####UI-Update
+
+>#####Die Benutzeroberfläche von "Integration mit Systemkomponenten" wurde optimiert
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass der Hilfsprozess beschäftigt ist
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass das Laufwerk langsam geladen wird
+
+>#####Problem behoben, dass die Schriftfamilie nicht geändert werden konnte
+
+>#####Problem behoben, dass die Schriftart im Banner nicht den Einstellungen für die "Schriftfamilie" entspricht
+
+>#####Das Problem wurde behoben, dass das Doppelklicken auf einige Bereiche des Ordnerobjekts in der Liste möglicherweise nicht reagiert.
+
+>#####Das Problem wurde behoben, dass ein Doppelklick auf einige Bereiche des Objekts in der Liste dazu führen kann, zum übergeordneten Ordner zurückzukehren
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass der Inhalt beim Skalieren des Anwendungsfensters flimmert
+
+>#####Das Problem wurde behoben, dass die Anwendung in einigen Programmen nach dem Deaktivieren von "Abfangen und als Standardprogramm für Ordner verwenden" immer noch aufgerufen wird.
+
+***
+###Was ist neu in Ver.7.2.7.0
 
 #####Funktionsupdate
 

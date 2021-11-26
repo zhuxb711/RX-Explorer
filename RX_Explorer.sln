@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29020.237
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RX_Explorer", "RX_Explorer\RX_Explorer.csproj", "{02D26683-3BD6-4B30-8457-62CD714B0ADF}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCheckBackgroundTask", "UpdateCheckBackgroundTask\UpdateCheckBackgroundTask.csproj", "{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FullTrustProcess", "FullTrustProcess\FullTrustProcess.csproj", "{04F23FCE-9DCC-4B3E-B088-F1016F628C65}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicateService", "CommunicateService\CommunicateService.csproj", "{7D62AF29-E32F-4402-88E5-D8FEEB062728}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Package", "Package\Package.wapproj", "{168437FF-BB72-4770-9F57-252AC94D4FCE}"
 EndProject
@@ -73,14 +71,6 @@ Global
 		{04F23FCE-9DCC-4B3E-B088-F1016F628C65}.Release|ARM64.Build.0 = Release|arm64
 		{04F23FCE-9DCC-4B3E-B088-F1016F628C65}.Release|x64.ActiveCfg = Release|x64
 		{04F23FCE-9DCC-4B3E-B088-F1016F628C65}.Release|x64.Build.0 = Release|x64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Debug|ARM64.Build.0 = Debug|ARM64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Debug|x64.ActiveCfg = Debug|x64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Debug|x64.Build.0 = Debug|x64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Release|ARM64.ActiveCfg = Release|ARM64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Release|ARM64.Build.0 = Release|ARM64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Release|x64.ActiveCfg = Release|x64
-		{7D62AF29-E32F-4402-88E5-D8FEEB062728}.Release|x64.Build.0 = Release|x64
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Debug|ARM64.Build.0 = Debug|ARM64
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Debug|ARM64.Deploy.0 = Debug|ARM64

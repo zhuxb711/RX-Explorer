@@ -12,8 +12,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.AppService;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
@@ -27,8 +25,6 @@ namespace RX_Explorer.Class
         public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
-
-        private bool IsConnected;
 
         private bool IsDisposed;
 
@@ -48,17 +44,15 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.Normal
         };
 
-        private readonly NamedPipeReadController PipeProgressReadController;
+        private NamedPipeReadController PipeProgressReadController;
 
-        private readonly NamedPipeReadController PipeCommandReadController;
+        private NamedPipeReadController PipeCommandReadController;
 
-        private readonly NamedPipeWriteController PipeCommandWriteController;
+        private NamedPipeWriteController PipeCommandWriteController;
 
-        private readonly NamedPipeWriteController PipeCancellationWriteController;
+        private NamedPipeWriteController PipeCancellationWriteController;
 
-        private readonly AppServiceConnection Connection;
-
-        private readonly TaskCompletionSource<bool> IdentityTaskCompletionSource;
+        private readonly NamedPipeCommunicationBaseController PipeCommunicationBaseController;
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
 
@@ -94,44 +88,15 @@ namespace RX_Explorer.Class
 
             AllControllerList.Add(this);
 
-            if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
+            if (NamedPipeControllerBase.TryCreateNamedPipe(out NamedPipeCommunicationBaseController CommunicationController))
             {
-                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController CommandReadController))
-                {
-                    PipeCommandReadController = CommandReadController;
-                }
-
-                if (NamedPipeReadController.TryCreateNamedPipe(out NamedPipeReadController ProgressReadController))
-                {
-                    PipeProgressReadController = ProgressReadController;
-                }
-
-                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController CommandWriteController))
-                {
-                    PipeCommandWriteController = CommandWriteController;
-                }
-
-                if (NamedPipeWriteController.TryCreateNamedPipe(out NamedPipeWriteController CancellationWriteController))
-                {
-                    PipeCancellationWriteController = CancellationWriteController;
-                }
+                PipeCommunicationBaseController = CommunicationController;
             }
-
-            Connection = new AppServiceConnection
-            {
-                AppServiceName = "CommunicateService",
-                PackageFamilyName = Package.Current.Id.FamilyName
-            };
-
-            Connection.RequestReceived += Connection_RequestReceived;
-            Connection.ServiceClosed += Connection_ServiceClosed;
-
-            IdentityTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
         private static void Current_Resuming(object sender, object e)
         {
-            LogTracer.Log("RX-Explorer is resuming, recover all instance");
+            LogTracer.Log("RX-Explorer is resuming, recover all FullTrustProcess instance");
 
             AllControllerList.Clear();
             AvailableControllers.Clear();
@@ -141,8 +106,15 @@ namespace RX_Explorer.Class
 
         private static void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            LogTracer.Log("RX-Explorer is suspending, dispose this instance");
-            AllControllerList.ToList().ForEach((Control) => Control.Dispose());
+            LogTracer.Log("RX-Explorer is suspending, exiting all FullTrustProcess instance");
+
+            foreach (FullTrustProcessController Controller in AllControllerList.ToArray())
+            {
+                Controller.Dispose();
+            }
+
+            AllControllerList.Clear();
+            AvailableControllers.Clear();
         }
 
         private static void DispatcherMethod()
@@ -311,46 +283,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
-        {
-            AppServiceDeferral Deferral = args.GetDeferral();
-
-            try
-            {
-                switch (Enum.Parse<CommandType>(Convert.ToString(args.Request.Message["CommandType"])))
-                {
-                    case CommandType.Identity:
-                        {
-                            await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
-                            IdentityTaskCompletionSource.TrySetResult(true);
-                            break;
-                        }
-                    case CommandType.AppServiceCancelled:
-                        {
-                            LogTracer.Log($"AppService is cancelled. It might be due to System Policy or FullTrustProcess exit unexpectedly. Reason: {args.Request.Message["Reason"]}");
-
-                            if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                                   && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
-                                   && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
-                            {
-                                Dispose();
-                            }
-
-                            break;
-                        }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-            }
-            finally
-            {
-                Deferral.Complete();
-            }
-        }
-
         private async Task<bool> ConnectRemoteAsync()
         {
             try
@@ -360,101 +292,78 @@ namespace RX_Explorer.Class
                     return false;
                 }
 
-                if (!IsConnected)
+                if ((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                     && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                     && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                     && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault())
                 {
-                    AppServiceConnectionStatus Status = await Connection.OpenAsync();
-
-                    if (Status == AppServiceConnectionStatus.Success)
-                    {
-                        if (await Task.WhenAny(IdentityTaskCompletionSource.Task, Task.Delay(5000)) != IdentityTaskCompletionSource.Task)
-                        {
-                            Dispose();
-                            LogTracer.Log($"Identity task failed because AppSerive not response and time out. Dispose this instance");
-                            IdentityTaskCompletionSource.TrySetResult(false);
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        Dispose();
-                        LogTracer.Log($"Connect to AppService failed, Response status: \"{Enum.GetName(typeof(AppServiceResponseStatus), Status)}\". Dispose this instance");
-                        return false;
-                    }
+                    return true;
                 }
 
-                for (int Count = 0; Count < 3; Count++)
+                if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommunicationBaseController?.IsConnected).GetValueOrDefault(), 5000)))
                 {
-                    ValueSet Value = new ValueSet
+                    for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {
-                        { "CommandType", Enum.GetName(typeof(CommandType), CommandType.Test_Connection) },
-                        { "ProcessId", CurrentProcessId },
-                    };
+                        PipeCommandWriteController?.Dispose();
+                        PipeCommandReadController?.Dispose();
+                        PipeProgressReadController?.Dispose();
+                        PipeCancellationWriteController?.Dispose();
 
-                    if (PipeCommandWriteController != null)
-                    {
-                        Value.Add("PipeCommandWriteId", PipeCommandWriteController.PipeUniqueId);
-                    }
-
-                    if (PipeCommandReadController != null)
-                    {
-                        Value.Add("PipeCommandReadId", PipeCommandReadController.PipeUniqueId);
-                    }
-
-                    if (PipeProgressReadController != null)
-                    {
-                        Value.Add("PipeProgressReadId", PipeProgressReadController.PipeUniqueId);
-                    }
-
-                    if (PipeCancellationWriteController != null)
-                    {
-                        Value.Add("PipeCancellationWriteId", PipeCancellationWriteController.PipeUniqueId);
-                    }
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey(Enum.GetName(typeof(CommandType), CommandType.Test_Connection)))
+                        Dictionary<string, string> Command = new Dictionary<string, string>
                         {
-                            return IsConnected = true;
+                            { "ProcessId", Convert.ToString(CurrentProcessId) }
+                        };
+
+                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCommandReadController))
+                        {
+                            Command.Add("PipeCommandReadId", PipeCommandReadController.PipeId);
+                        }
+
+                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeProgressReadController))
+                        {
+                            Command.Add("PipeProgressReadId", PipeProgressReadController.PipeId);
+                        }
+
+                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCommandWriteController))
+                        {
+                            Command.Add("PipeCommandWriteId", PipeCommandWriteController.PipeId);
+                        }
+
+                        if (NamedPipeControllerBase.TryCreateNamedPipe(out PipeCancellationWriteController))
+                        {
+                            Command.Add("PipeCancellationWriteId", PipeCancellationWriteController.PipeId);
+                        }
+
+                        PipeCommunicationBaseController.SendData(JsonSerializer.Serialize(Command));
+
+                        if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                                                                           && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                                                                           && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
+                                                                           && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault(), 3000)))
+                        {
+                            return true;
                         }
                         else
                         {
-                            if (Response.Message.TryGetValue("Error", out object Error))
-                            {
-                                LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count + 1} times");
-                            }
-
-                            await Task.Delay(1000);
+                            LogTracer.Log($"Try connect to FullTrustProcess in {RetryCount} times");
                         }
                     }
-                }
 
-                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
+                    LogTracer.Log("Retry 3 times and still could not connect to FullTrustProcess, disposing this instance");
+                }
+                else
+                {
+                    LogTracer.Log("CommunicationBaseController is not connected, disposing this instance");
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectRemoteAsync)}");
+                LogTracer.Log(ex, $"An unexpected exception was threw in {nameof(ConnectRemoteAsync)}");
             }
 
             Dispose();
+
             return false;
-        }
-
-        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            if (args.Status != AppServiceClosedStatus.Completed)
-            {
-                LogTracer.Log($"Connection closed unexpectedly, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
-            }
-
-            if (!((PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                   && (PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                   && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
-                   && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault()))
-            {
-                Dispose();
-            }
         }
 
         private async Task<IDictionary<string, string>> SendCommandAsync(CommandType Type, params (string, string)[] Arguments)
@@ -463,7 +372,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if ((PipeCommandReadController?.IsConnected).GetValueOrDefault() && (PipeCommandWriteController?.IsConnected).GetValueOrDefault())
+                if (await ConnectRemoteAsync())
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
                     {
@@ -509,53 +418,17 @@ namespace RX_Explorer.Class
                         PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
                     }
                 }
-                else
-                {
-                    if (await ConnectRemoteAsync())
-                    {
-                        ValueSet Command = new ValueSet
-                        {
-                            { "CommandType", Enum.GetName(typeof(CommandType), Type) }
-                        };
-
-                        foreach ((string, string) Argument in Arguments)
-                        {
-                            Command.Add(Argument.Item1, Argument.Item2);
-                        }
-
-                        AppServiceResponse Response = await Connection.SendMessageAsync(Command);
-
-                        if (Response.Status == AppServiceResponseStatus.Success)
-                        {
-                            Dictionary<string, string> Result = new Dictionary<string, string>(Response.Message.Count);
-
-                            foreach (KeyValuePair<string, object> Pair in Response.Message)
-                            {
-                                Result.Add(Pair.Key, Convert.ToString(Pair.Value));
-                            }
-
-                            return Result;
-                        }
-                        else
-                        {
-                            throw new Exception($"AppServiceResponse return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Failed to connect the AppService");
-                    }
-                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(SendCommandAsync)} throw an error");
-                return null;
             }
             finally
             {
                 IsAnyActionExcutingInCurrentController = false;
             }
+
+            return null;
         }
 
         private async Task<IDictionary<string, string>> SendCommandAndReportProgressAsync(CommandType Type, ProgressChangedEventHandler ProgressHandler, params (string, string)[] Arguments)
@@ -572,7 +445,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                if ((PipeCommandReadController?.IsConnected).GetValueOrDefault() && (PipeCommandWriteController?.IsConnected).GetValueOrDefault())
+                if (await ConnectRemoteAsync())
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
                     {
@@ -605,10 +478,7 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
-                    {
-                        PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
-                    }
+                    PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
 
                     try
                     {
@@ -621,70 +491,20 @@ namespace RX_Explorer.Class
                     finally
                     {
                         PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
-
-                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
-                        {
-                            PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
-                        }
-                    }
-                }
-                else
-                {
-                    if (await ConnectRemoteAsync())
-                    {
-                        ValueSet Command = new ValueSet
-                        {
-                            { "CommandType", Enum.GetName(typeof(CommandType), Type) }
-                        };
-
-                        foreach ((string, string) Argument in Arguments)
-                        {
-                            Command.Add(Argument.Item1, Argument.Item2);
-                        }
-
-                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
-                        {
-                            PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
-                        }
-
-                        AppServiceResponse Response = await Connection.SendMessageAsync(Command);
-
-                        if ((PipeProgressReadController?.IsConnected).GetValueOrDefault())
-                        {
-                            PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
-                        }
-
-                        if (Response.Status == AppServiceResponseStatus.Success)
-                        {
-                            Dictionary<string, string> Result = new Dictionary<string, string>(Response.Message.Count);
-
-                            foreach (KeyValuePair<string, object> Pair in Response.Message)
-                            {
-                                Result.Add(Pair.Key, Convert.ToString(Pair.Value));
-                            }
-
-                            return Result;
-                        }
-                        else
-                        {
-                            throw new Exception($"AppServiceResponse return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Failed to connect the AppService");
+                        PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(SendCommandAndReportProgressAsync)} throw an error");
-                return null;
             }
             finally
             {
                 IsAnyActionExcutingInCurrentController = false;
             }
+
+            return null;
         }
 
         private bool TryCancelCurrentOperation()
@@ -2090,22 +1910,17 @@ namespace RX_Explorer.Class
         {
             if (!IsDisposed)
             {
+                IsDisposed = true;
+
+                GC.SuppressFinalize(this);
+
                 try
                 {
-                    IsDisposed = true;
-                    IsConnected = false;
-
-                    if (Connection != null)
-                    {
-                        Connection.RequestReceived -= Connection_RequestReceived;
-                        Connection.ServiceClosed -= Connection_ServiceClosed;
-                        Connection.Dispose();
-                    }
-
                     PipeCommandReadController?.Dispose();
                     PipeCommandWriteController?.Dispose();
                     PipeProgressReadController?.Dispose();
                     PipeCancellationWriteController?.Dispose();
+                    PipeCommunicationBaseController?.Dispose();
                 }
                 catch (Exception ex)
                 {
@@ -2114,7 +1929,6 @@ namespace RX_Explorer.Class
                 finally
                 {
                     AllControllerList.Remove(this);
-                    GC.SuppressFinalize(this);
                     Interlocked.Decrement(ref CurrentRunningControllerNum);
                 }
             }

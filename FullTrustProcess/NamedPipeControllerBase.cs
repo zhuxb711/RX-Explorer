@@ -1,59 +1,35 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Vanara.PInvoke;
 using Windows.ApplicationModel;
 
 namespace FullTrustProcess
 {
-    public class NamedPipeControllerBase : IDisposable
+    public abstract class NamedPipeControllerBase : IDisposable
     {
         protected NamedPipeClientStream PipeStream { get; private set; }
 
-        public bool IsConnected
-        {
-            get
-            {
-                return (PipeStream?.IsConnected).GetValueOrDefault();
-            }
-        }
+        public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault();
+
+        public abstract PipeDirection PipeMode { get; }
 
         protected bool IsDisposed { get; private set; }
 
-        private string GetActualNamedPipeStringFromUWP(uint ProcessId, string PipeName)
+        private string GetActualNamedPipeStringFromUWP(string PipeId)
         {
-            using (Kernel32.SafeHPROCESS PHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, ProcessId))
+            using (Process CurrentProcess = Process.GetCurrentProcess())
             {
-                if (!PHandle.IsInvalid && !PHandle.IsNull)
+                if (UserEnv.DeriveAppContainerSidFromAppContainerName(Package.Current.Id.Name, out AdvApi32.SafeAllocatedSID Sid).Succeeded)
                 {
-                    using (AdvApi32.SafeHTOKEN Token = AdvApi32.SafeHTOKEN.FromProcess(PHandle, AdvApi32.TokenAccess.TOKEN_QUERY))
+                    try
                     {
-                        if (!Token.IsInvalid && !Token.IsNull)
-                        {
-                            uint SessionId = Token.GetInfo<uint>(AdvApi32.TOKEN_INFORMATION_CLASS.TokenSessionId);
-
-                            if (UserEnv.DeriveAppContainerSidFromAppContainerName(Package.Current.Id.Name, out AdvApi32.SafeAllocatedSID Sid).Succeeded)
-                            {
-                                try
-                                {
-                                    return $@"Sessions\{SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeName}";
-                                }
-                                finally
-                                {
-                                    Sid.Dispose();
-                                }
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-                        else
-                        {
-                            return null;
-                        }
+                        return $@"Sessions\{CurrentProcess.SessionId}\AppContainerNamedObjects\{string.Join("-", ((PSID)Sid).ToString("D").Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).Take(11))}\{PipeId}";
+                    }
+                    finally
+                    {
+                        Sid.Dispose();
                     }
                 }
                 else
@@ -63,35 +39,9 @@ namespace FullTrustProcess
             }
         }
 
-        protected NamedPipeControllerBase(uint ProcessId, string PipeName)
+        protected NamedPipeControllerBase(string PipeId)
         {
-            string ActualPipePath = GetActualNamedPipeStringFromUWP(ProcessId, PipeName);
-
-            if (!string.IsNullOrEmpty(ActualPipePath))
-            {
-                switch (this)
-                {
-                    case NamedPipeReadController:
-                        {
-                            PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.In, PipeOptions.WriteThrough);
-                            break;
-                        }
-                    case NamedPipeWriteController:
-                        {
-                            PipeStream = new NamedPipeClientStream(".", ActualPipePath, PipeDirection.Out, PipeOptions.WriteThrough);
-                            break;
-                        }
-                    default:
-                        {
-                            throw new NotSupportedException();
-                        }
-                }
-
-            }
-            else
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
+            PipeStream = new NamedPipeClientStream(".", GetActualNamedPipeStringFromUWP(PipeId), PipeMode, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
         }
 
         public virtual void Dispose()

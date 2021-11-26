@@ -66,7 +66,6 @@
         UpdateLink,
         UpdateUrl,
         PasteRemoteFile,
-        Test_Connection,
         GetContextMenuItems,
         InvokeContextMenuItem,
         CheckIfEverythingAvailable,

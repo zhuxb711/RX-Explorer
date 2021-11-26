@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
@@ -11,6 +12,8 @@ namespace FullTrustProcess
         private readonly Thread ProcessThread;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
         private readonly AutoResetEvent Locker = new AutoResetEvent(false);
+
+        public override PipeDirection PipeMode => PipeDirection.Out;
 
         public void SendData(string Data)
         {
@@ -72,7 +75,7 @@ namespace FullTrustProcess
             base.Dispose();
         }
 
-        public NamedPipeWriteController(uint ProcessId, string PipeName) : base(ProcessId, PipeName)
+        public NamedPipeWriteController(string PipeId) : base(PipeId)
         {
             ProcessThread = new Thread(WriteProcess)
             {

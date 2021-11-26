@@ -1,32 +1,24 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public sealed class NamedPipeWriteController : NamedPipeControllerBase
+    public class NamedPipeWriteController : NamedPipeControllerBase
     {
         private readonly Thread ProcessThread;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
         private readonly AutoResetEvent Locker = new AutoResetEvent(false);
+        private readonly string PipeUniqueId = $"Explorer_NamedPipe_Write_{Guid.NewGuid():D}";
 
-        public static bool TryCreateNamedPipe(out NamedPipeWriteController Controller)
-        {
-            try
-            {
-                Controller = new NamedPipeWriteController();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Controller = null;
-                LogTracer.Log(ex, "Could not create named pipe");
-                return false;
-            }
-        }
+        public override string PipeId => PipeUniqueId;
+
+        public override PipeDirection PipeMode => PipeDirection.Out;
+
+        protected override int MaxAllowedConnection => 1;
 
         private void WriteProcess()
         {
@@ -88,7 +80,7 @@ namespace RX_Explorer.Class
             base.Dispose();
         }
 
-        private NamedPipeWriteController()
+        public NamedPipeWriteController()
         {
             ProcessThread = new Thread(WriteProcess)
             {

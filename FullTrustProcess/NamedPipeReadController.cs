@@ -2,15 +2,18 @@
 using ShareClassLibrary;
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
 namespace FullTrustProcess
 {
-    public sealed class NamedPipeReadController : NamedPipeControllerBase
+    public class NamedPipeReadController : NamedPipeControllerBase
     {
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
+
+        public override PipeDirection PipeMode => PipeDirection.In;
 
         private void ReadProcess()
         {
@@ -44,7 +47,7 @@ namespace FullTrustProcess
             }
         }
 
-        public NamedPipeReadController(uint ProcessId, string PipeName) : base(ProcessId, PipeName)
+        public NamedPipeReadController(string PipeId) : base(PipeId)
         {
             ProcessThread = new Thread(ReadProcess)
             {

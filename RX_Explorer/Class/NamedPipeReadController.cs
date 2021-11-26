@@ -2,30 +2,23 @@
 using ShareClassLibrary;
 using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
 namespace RX_Explorer.Class
 {
-    public sealed class NamedPipeReadController : NamedPipeControllerBase
+    public class NamedPipeReadController : NamedPipeControllerBase
     {
         public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
+        private readonly string PipeUniqueId = $"Explorer_NamedPipe_Read_{Guid.NewGuid():D}";
 
-        public static bool TryCreateNamedPipe(out NamedPipeReadController Controller)
-        {
-            try
-            {
-                Controller = new NamedPipeReadController();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Controller = null;
-                LogTracer.Log(ex, "Could not create named pipe");
-                return false;
-            }
-        }
+        public override string PipeId => PipeUniqueId;
+
+        public override PipeDirection PipeMode => PipeDirection.In;
+
+        protected override int MaxAllowedConnection => 1;
 
         private void ReadProcess()
         {
@@ -59,7 +52,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private NamedPipeReadController()
+        public NamedPipeReadController()
         {
             ProcessThread = new Thread(ReadProcess)
             {

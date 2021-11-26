@@ -22,21 +22,18 @@ using System.Windows.Forms;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.AppService;
-using Windows.Foundation.Collections;
-using Windows.Storage;
 using Size = System.Drawing.Size;
-using Timer = System.Threading.Timer;
+using Timer = System.Timers.Timer;
 
 namespace FullTrustProcess
 {
     class Program
     {
-        private static AppServiceConnection Connection;
-
         private static ManualResetEvent ExitLocker;
 
         private static Timer AliveCheckTimer;
+
+        private static DateTimeOffset StartTime;
 
         private static Process ExplorerProcess;
 
@@ -48,6 +45,8 @@ namespace FullTrustProcess
 
         private static NamedPipeReadController PipeCancellationReadController;
 
+        private static NamedPipeReadController PipeCommunicationBaseController;
+
         private static CancellationTokenSource CurrentTaskCancellation;
 
         [STAThread]
@@ -55,50 +54,19 @@ namespace FullTrustProcess
         {
             try
             {
+                StartTime = DateTimeOffset.Now;
                 ExitLocker = new ManualResetEvent(false);
+
+                AliveCheckTimer = new Timer(5000)
+                {
+                    AutoReset = true,
+                    Enabled = true
+                };
+                AliveCheckTimer.Elapsed += AliveCheckTimer_Elapsed;
 
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-                if (args.FirstOrDefault() != "/ExecuteAdminOperation")
-                {
-                    Connection = new AppServiceConnection
-                    {
-                        AppServiceName = "CommunicateService",
-                        PackageFamilyName = Package.Current.Id.FamilyName
-                    };
-                    Connection.RequestReceived += Connection_RequestReceived;
-                    Connection.ServiceClosed += Connection_ServiceClosed;
-
-                    AppServiceConnectionStatus Status = Connection.OpenAsync().AsTask().Result;
-
-                    if (Status == AppServiceConnectionStatus.Success)
-                    {
-                        AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
-
-                        try
-                        {
-                            //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                            string TempFolderPath = Path.GetTempPath();
-
-                            if (Directory.Exists(TempFolderPath))
-                            {
-                                ContextMenu.GetContextMenuItems(TempFolderPath);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"Could not connect to the appservice. Reason: {Enum.GetName(typeof(AppServiceConnectionStatus), Status)}. Exiting...");
-                        ExitLocker.Set();
-                    }
-
-                    ExitLocker.WaitOne();
-                }
-                else
+                if (args.FirstOrDefault() == "/ExecuteAdminOperation")
                 {
                     string Input = args.LastOrDefault();
 
@@ -355,14 +323,45 @@ namespace FullTrustProcess
                         throw new InvalidDataException("Startup parameter is not correct");
                     }
                 }
+                else
+                {
+                    PipeCommunicationBaseController = new NamedPipeReadController("Explorer_NamedPipe_CommunicationBase");
+                    PipeCommunicationBaseController.OnDataReceived += PipeCommunicationBaseController_OnDataReceived;
+
+                    if (SpinWait.SpinUntil(() => PipeCommunicationBaseController.IsConnected, 5000))
+                    {
+                        AliveCheckTimer.Start();
+
+                        try
+                        {
+                            //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
+                            string TempFolderPath = Path.GetTempPath();
+
+                            if (Directory.Exists(TempFolderPath))
+                            {
+                                ContextMenu.GetContextMenuItems(TempFolderPath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Could not connect to the explorer. CommunicationBaseController connect timeout. Exiting...");
+                        ExitLocker.Set();
+                    }
+
+                    ExitLocker.WaitOne();
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"FullTrustProcess threw an exception, message: {ex.Message}");
+                LogTracer.Log(ex, $"An unexpected exception was threw in starting FullTrustProcess");
             }
             finally
             {
-                Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
 
@@ -370,8 +369,112 @@ namespace FullTrustProcess
                 PipeCommandReadController?.Dispose();
                 PipeProgressWriterController?.Dispose();
                 PipeCancellationReadController?.Dispose();
+                PipeCommunicationBaseController?.Dispose();
 
                 LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
+
+        private static void AliveCheckTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                if ((ExplorerProcess?.HasExited).GetValueOrDefault())
+                {
+                    ExitLocker.Set();
+                }
+                else if (e.SignalTime - StartTime >= TimeSpan.FromSeconds(10))
+                {
+                    if (!((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
+                          && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
+                          && (PipeProgressWriterController?.IsConnected).GetValueOrDefault()
+                          && (PipeCancellationReadController?.IsConnected).GetValueOrDefault()
+                          && (PipeCommunicationBaseController?.IsConnected).GetValueOrDefault()))
+                    {
+                        ExitLocker.Set();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(AliveCheckTimer_Elapsed)} threw an exception, message: {ex.Message}");
+            }
+        }
+
+        private static void PipeCommunicationBaseController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            if (e.ExtraException is Exception Ex)
+            {
+                LogTracer.Log(Ex, "Could not receive pipe data");
+            }
+            else
+            {
+                EventDeferral Deferral = e.GetDeferral();
+
+                try
+                {
+                    IDictionary<string, string> Package = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
+
+                    if (Package.TryGetValue("ProcessId", out string ProcessId))
+                    {
+                        if ((ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
+                        {
+                            ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
+                        }
+                    }
+
+                    if (Package.TryGetValue("PipeCommandWriteId", out string PipeCommandWriteId))
+                    {
+                        if (PipeCommandReadController != null)
+                        {
+                            PipeCommandReadController.Dispose();
+                            PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                        }
+
+                        PipeCommandReadController = new NamedPipeReadController(PipeCommandWriteId);
+                        PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
+                    }
+
+                    if (Package.TryGetValue("PipeCommandReadId", out string PipeCommandReadId))
+                    {
+                        if (PipeCommandWriteController != null)
+                        {
+                            PipeCommandWriteController.Dispose();
+                        }
+
+                        PipeCommandWriteController = new NamedPipeWriteController(PipeCommandReadId);
+                    }
+
+                    if (Package.TryGetValue("PipeProgressReadId", out string PipeProgressReadId))
+                    {
+                        if (PipeProgressWriterController != null)
+                        {
+                            PipeProgressWriterController.Dispose();
+                        }
+
+                        PipeProgressWriterController = new NamedPipeWriteController(PipeProgressReadId);
+                    }
+
+                    if (Package.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
+                    {
+                        if (PipeCancellationReadController != null)
+                        {
+                            PipeCancellationReadController.Dispose();
+                            PipeCancellationReadController.OnDataReceived -= PipeReadController_OnDataReceived;
+                        }
+
+                        PipeCancellationReadController = new NamedPipeReadController(PipeCancellationReadId);
+                        PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in get data in {nameof(PipeCommunicationBaseController_OnDataReceived)}");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
         }
 
@@ -387,7 +490,7 @@ namespace FullTrustProcess
         {
             if (e.ExtraException is Exception Ex)
             {
-                LogTracer.Log(Ex, "Could not receive pipeline data");
+                LogTracer.Log(Ex, "Could not receive pipe data");
             }
             else
             {
@@ -416,56 +519,6 @@ namespace FullTrustProcess
             {
                 LogTracer.Log(Ex, "UnhandledException");
                 LogTracer.MakeSureLogIsFlushed(2000);
-            }
-        }
-
-        private static void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            if (args.Status != AppServiceClosedStatus.Completed)
-            {
-                LogTracer.Log($"Connection closed unexpectedly, Status: {Enum.GetName(typeof(AppServiceClosedStatus), args.Status)}");
-            }
-
-            if (!((PipeCommandWriteController?.IsConnected).GetValueOrDefault()
-                   && (PipeCommandReadController?.IsConnected).GetValueOrDefault()
-                   && (PipeProgressWriterController?.IsConnected).GetValueOrDefault()
-                   && (PipeCancellationReadController?.IsConnected).GetValueOrDefault()))
-            {
-                ExitLocker.Set();
-            }
-        }
-
-        private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
-        {
-            AppServiceDeferral Deferral = args.GetDeferral();
-
-            try
-            {
-                Dictionary<string, string> Command = new Dictionary<string, string>();
-
-                foreach (KeyValuePair<string, object> Pair in args.Request.Message)
-                {
-                    Command.Add(Pair.Key, Convert.ToString(Pair.Value));
-                }
-
-                IDictionary<string, string> Response = await HandleCommand(Command);
-
-                ValueSet Value = new ValueSet();
-
-                foreach (KeyValuePair<string, string> Pair in Response)
-                {
-                    Value.Add(Pair.Key, Pair.Value);
-                }
-
-                await args.Request.SendResponseAsync(Value);
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(Connection_RequestReceived)}");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -2668,50 +2721,6 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Test_Connection:
-                        {
-                            try
-                            {
-                                if (CommandValue.TryGetValue("ProcessId", out string ProcessId))
-                                {
-                                    if ((ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
-                                    {
-                                        ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
-                                    }
-                                }
-
-                                if (PipeCommandReadController == null && CommandValue.TryGetValue("PipeCommandWriteId", out string PipeCommandWriteId))
-                                {
-                                    PipeCommandReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeCommandWriteId}");
-                                    PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
-                                }
-
-                                if (PipeCommandWriteController == null && CommandValue.TryGetValue("PipeCommandReadId", out string PipeCommandReadId))
-                                {
-                                    PipeCommandWriteController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeCommandReadId}");
-                                }
-
-                                if (PipeProgressWriterController == null && CommandValue.TryGetValue("PipeProgressReadId", out string PipeProgressReadId))
-                                {
-                                    PipeProgressWriterController = new NamedPipeWriteController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeProgressReadId}");
-                                }
-
-                                if (PipeCancellationReadController == null && CommandValue.TryGetValue("PipeCancellationWriteId", out string PipeCancellationReadId))
-                                {
-                                    PipeCancellationReadController = new NamedPipeReadController(Convert.ToUInt32(ExplorerProcess.Id), $"Explorer_NamedPipe_{PipeCancellationReadId}");
-                                    PipeCancellationReadController.OnDataReceived += PipeCancellationController_OnDataReceived;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex);
-                            }
-
-
-                            Value.Add(Enum.GetName(typeof(CommandType), CommandType.Test_Connection), string.Empty);
-
-                            break;
-                        }
                     case CommandType.PasteRemoteFile:
                         {
                             string Path = CommandValue["Path"];
@@ -2911,21 +2920,6 @@ namespace FullTrustProcess
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Error: {nameof(SetWindowsZPosition)} threw an exception, message: {ex.Message}");
-            }
-        }
-
-        private static void AliveCheck(object state)
-        {
-            try
-            {
-                if ((ExplorerProcess?.HasExited).GetValueOrDefault())
-                {
-                    ExitLocker.Set();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(AliveCheck)} threw an exception, message: {ex.Message}");
             }
         }
 
