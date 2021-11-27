@@ -7,13 +7,13 @@ using Windows.ApplicationModel;
 
 namespace FullTrustProcess
 {
-    public abstract class NamedPipeControllerBase : IDisposable
+    public class NamedPipeControllerBase : IDisposable
     {
-        protected NamedPipeClientStream PipeStream { get; private set; }
+        protected NamedPipeClientStream PipeStream { get; }
 
         public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault();
 
-        public abstract PipeDirection PipeMode { get; }
+        public string PipeId { get; }
 
         protected bool IsDisposed { get; private set; }
 
@@ -39,9 +39,10 @@ namespace FullTrustProcess
             }
         }
 
-        protected NamedPipeControllerBase(string PipeId)
+        protected NamedPipeControllerBase(string Id)
         {
-            PipeStream = new NamedPipeClientStream(".", GetActualNamedPipeStringFromUWP(PipeId), PipeMode, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            PipeId = Id;
+            PipeStream = new NamedPipeClientStream(".", GetActualNamedPipeStringFromUWP(PipeId), PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
         }
 
         public virtual void Dispose()
@@ -50,7 +51,6 @@ namespace FullTrustProcess
             {
                 IsDisposed = true;
                 PipeStream?.Dispose();
-                PipeStream = null;
                 GC.SuppressFinalize(this);
             }
         }

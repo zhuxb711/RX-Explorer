@@ -10,7 +10,7 @@ namespace FullTrustProcess
     {
         private readonly Thread STAThread;
         private readonly ConcurrentQueue<(TaskCompletionSource<bool>, Action)> TaskQueue;
-        private readonly AutoResetEvent Locker;
+        private readonly AutoResetEvent ProcessSleepLocker;
 
 
         private static STAThreadController Instance;
@@ -25,13 +25,9 @@ namespace FullTrustProcess
         public async Task<bool> RunAsync(Action Act)
         {
             TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-            
-            TaskQueue.Enqueue((CompletionSource, Act));
 
-            if (STAThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                Locker.Set();
-            }
+            TaskQueue.Enqueue((CompletionSource, Act));
+            ProcessSleepLocker.Set();
 
             return await CompletionSource.Task;
         }
@@ -42,7 +38,7 @@ namespace FullTrustProcess
             {
                 if (TaskQueue.IsEmpty)
                 {
-                    Locker.WaitOne();
+                    ProcessSleepLocker.WaitOne();
                 }
 
                 while (TaskQueue.TryDequeue(out (TaskCompletionSource<bool>, Action) Group))
@@ -64,7 +60,7 @@ namespace FullTrustProcess
         {
             Ole32.OleInitialize();
 
-            Locker = new AutoResetEvent(false);
+            ProcessSleepLocker = new AutoResetEvent(false);
             TaskQueue = new ConcurrentQueue<(TaskCompletionSource<bool>, Action)>();
 
             STAThread = new Thread(ThreadProcess)

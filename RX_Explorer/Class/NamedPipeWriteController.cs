@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
-using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
@@ -11,12 +9,7 @@ namespace RX_Explorer.Class
     {
         private readonly Thread ProcessThread;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
-        private readonly AutoResetEvent Locker = new AutoResetEvent(false);
-        private readonly string PipeUniqueId = $"Explorer_NamedPipe_Write_{Guid.NewGuid():D}";
-
-        public override string PipeId => PipeUniqueId;
-
-        public override PipeDirection PipeMode => PipeDirection.Out;
+        private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
         protected override int MaxAllowedConnection => 1;
 
@@ -29,22 +22,18 @@ namespace RX_Explorer.Class
                     PipeStream.WaitForConnection();
                 }
 
-                using (StreamWriter Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 512, true))
+                while (IsConnected)
                 {
-                    while (IsConnected)
+                    if (MessageQueue.IsEmpty)
                     {
-                        if (MessageQueue.IsEmpty)
-                        {
-                            Locker.WaitOne();
-                        }
+                        ProcessSleepLocker.WaitOne();
+                    }
 
-                        while (MessageQueue.TryDequeue(out string Message))
-                        {
-                            Writer.WriteLine(Message);
-                        }
+                    while (MessageQueue.TryDequeue(out string Message))
+                    {
+                        byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
 
-                        Writer.Flush();
-
+                        PipeStream.Write(ByteArray, 0, ByteArray.Length);
                         PipeStream.WaitForPipeDrain();
                     }
                 }
@@ -62,25 +51,26 @@ namespace RX_Explorer.Class
         public void SendData(string Data)
         {
             MessageQueue.Enqueue(Data);
-
-            if (ProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                Locker.Set();
-            }
+            ProcessSleepLocker.Set();
         }
 
         public override void Dispose()
         {
             if (!IsDisposed)
             {
-                Locker.Dispose();
+                ProcessSleepLocker.Dispose();
                 MessageQueue.Clear();
             }
 
             base.Dispose();
         }
 
-        public NamedPipeWriteController()
+        public NamedPipeWriteController() : this($"Explorer_NamedPipe_Write_{Guid.NewGuid():D}")
+        {
+
+        }
+
+        protected NamedPipeWriteController(string Id) : base(Id)
         {
             ProcessThread = new Thread(WriteProcess)
             {

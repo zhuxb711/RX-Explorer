@@ -3,13 +3,11 @@ using System.IO.Pipes;
 
 namespace RX_Explorer.Class
 {
-    public abstract class NamedPipeControllerBase : IDisposable
+    public class NamedPipeControllerBase : IDisposable
     {
         protected NamedPipeServerStream PipeStream { get; }
 
-        public abstract string PipeId { get; }
-
-        public abstract PipeDirection PipeMode { get; }
+        public string PipeId { get; }
 
         protected virtual int MaxAllowedConnection { get; } = -1;
 
@@ -33,9 +31,10 @@ namespace RX_Explorer.Class
         }
 
 
-        protected NamedPipeControllerBase()
+        protected NamedPipeControllerBase(string Id)
         {
-            PipeStream = new NamedPipeServerStream(@$"LOCAL\{PipeId}", PipeMode, MaxAllowedConnection, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            PipeId = Id;
+            PipeStream = new NamedPipeServerStream(@$"LOCAL\{PipeId}", PipeDirection.InOut, MaxAllowedConnection, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
         }
 
         public virtual void Dispose()

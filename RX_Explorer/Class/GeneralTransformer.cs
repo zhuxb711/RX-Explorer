@@ -43,7 +43,7 @@ namespace RX_Explorer.Class
                 {
                     IsAnyTransformTaskRunning = true;
 
-                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
                     {
                         AVTranscodeCancellation = new CancellationTokenSource();
 
@@ -120,7 +120,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference> Para)
                 {
-                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
                     {
                         IsAnyTransformTaskRunning = true;
 
@@ -200,7 +200,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyTransformTaskRunning = true;
 
-                using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecution())
+                using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecutionAsync())
                 using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                 {
                     try
@@ -275,7 +275,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is ValueTuple<StorageFile, StorageFile, string, string, bool> Para)
                 {
-                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
                     {
                         IsAnyTransformTaskRunning = true;
 

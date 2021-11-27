@@ -22,7 +22,7 @@ namespace FullTrustProcess
             Priority = ThreadPriority.BelowNormal
         };
 
-        private static readonly AutoResetEvent Locker = new AutoResetEvent(false);
+        private static readonly AutoResetEvent ProcessLock = new AutoResetEvent(false);
 
         static LogTracer()
         {
@@ -164,11 +164,7 @@ namespace FullTrustProcess
         private static void LogInternal(string Message)
         {
             LogQueue.Enqueue(Message + Environment.NewLine);
-
-            if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
-            {
-                Locker.Set();
-            }
+            ProcessLock.Set();
         }
 
         private static void LogProcessThread()
@@ -179,7 +175,7 @@ namespace FullTrustProcess
                 {
                     if (LogQueue.IsEmpty)
                     {
-                        Locker.WaitOne();
+                        ProcessLock.WaitOne();
                     }
 
                     using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))

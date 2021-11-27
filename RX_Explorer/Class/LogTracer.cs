@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32.SafeHandles;
-using ShareClassLibrary;
+﻿using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -32,7 +31,7 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.BelowNormal
         };
 
-        private static readonly AutoResetEvent Locker = new AutoResetEvent(false);
+        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
         static LogTracer()
         {
@@ -255,39 +254,36 @@ namespace RX_Explorer.Class
         private static void LogInternal(string Message)
         {
             LogQueue.Enqueue(Message + Environment.NewLine);
-
-            if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
-            {
-                Locker.Set();
-            }
+            ProcessSleepLocker.Set();
         }
 
         private static void LogProcessThread()
         {
             while (true)
             {
+                ProcessSleepLocker.WaitOne();
+
                 try
                 {
-                    if (LogQueue.IsEmpty)
+                    if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).Result is FileSystemStorageFile LogFile)
                     {
-                        Locker.WaitOne();
-                    }
-
-                    StorageFile LogFile = ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.OpenIfExists).AsTask().Result;
-
-                    using (SafeFileHandle Handle = LogFile.GetSafeFileHandle(AccessMode.Exclusive))
-                    using (FileStream LogStream = new FileStream(Handle, FileAccess.Write))
-                    using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
-                    {
-                        LogStream.Seek(0, SeekOrigin.End);
-
-                        while (LogQueue.TryDequeue(out string LogItem))
+                        using (FileStream LogStream = LogFile.GetStreamFromFileAsync(AccessMode.Exclusive).Result)
+                        using (StreamWriter Writer = new StreamWriter(LogStream, Encoding.Unicode, 1024, true))
                         {
-                            Writer.WriteLine(LogItem);
-                            Debug.WriteLine(LogItem);
-                        }
+                            LogStream.Seek(0, SeekOrigin.End);
 
-                        Writer.Flush();
+                            while (LogQueue.TryDequeue(out string LogItem))
+                            {
+                                Writer.WriteLine(LogItem);
+                                Debug.WriteLine(LogItem);
+                            }
+
+                            Writer.Flush();
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Error in writing log file: Could not create the log file");
                     }
                 }
                 catch (Exception ex)

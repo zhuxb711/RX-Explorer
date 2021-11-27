@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
         private static volatile int CurrentExtendedExecutionNum;
         private static readonly SemaphoreSlim SlimLocker = new SemaphoreSlim(1, 1);
 
-        public static async Task<ExtendedExecutionController> TryCreateExtendedExecution()
+        public static async Task<ExtendedExecutionController> TryCreateExtendedExecutionAsync()
         {
             await SlimLocker.WaitAsync();
 

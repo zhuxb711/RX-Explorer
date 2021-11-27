@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
     {
         private static readonly ConcurrentQueue<OperationListBaseModel> OpeartionQueue = new ConcurrentQueue<OperationListBaseModel>();
         private static readonly ConcurrentDictionary<string, EventHandler<PostProcessingDeferredEventArgs>> PostProcessingMap = new ConcurrentDictionary<string, EventHandler<PostProcessingDeferredEventArgs>>();
-        private static readonly AutoResetEvent QueueProcessSleepLocker = new AutoResetEvent(false);
+        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
         private static readonly Thread QueueProcessThread = new Thread(QueueProcessHandler)
         {
             IsBackground = true,
@@ -105,10 +105,7 @@ namespace RX_Explorer.Class
                 TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
             }
 
-            if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                QueueProcessSleepLocker.Set();
-            }
+            ProcessSleepLocker.Set();
         }
 
         public static void EnqueueCopyOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
@@ -225,10 +222,7 @@ namespace RX_Explorer.Class
                 TabViewContainer.Current.TaskListPanel.IsPaneOpen = true;
             }
 
-            if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                QueueProcessSleepLocker.Set();
-            }
+            ProcessSleepLocker.Set();
         }
 
         private static void QueueProcessHandler()
@@ -237,7 +231,7 @@ namespace RX_Explorer.Class
             {
                 if (OpeartionQueue.IsEmpty)
                 {
-                    QueueProcessSleepLocker.WaitOne();
+                    ProcessSleepLocker.WaitOne();
                 }
 
                 try
@@ -969,7 +963,7 @@ namespace RX_Explorer.Class
                                         {
                                             CompressionUtil.SetEncoding(Encoding.Default);
 
-                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
                                             {
                                                 switch (CModel.Type)
                                                 {
@@ -1087,7 +1081,7 @@ namespace RX_Explorer.Class
                                         {
                                             CompressionUtil.SetEncoding(DModel.Encoding);
 
-                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
                                             {
                                                 CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, Cancellation.Token, (s, e) =>
                                                 {

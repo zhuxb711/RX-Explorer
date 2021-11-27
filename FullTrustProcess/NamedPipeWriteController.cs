@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -11,18 +10,12 @@ namespace FullTrustProcess
     {
         private readonly Thread ProcessThread;
         private readonly ConcurrentQueue<string> MessageQueue = new ConcurrentQueue<string>();
-        private readonly AutoResetEvent Locker = new AutoResetEvent(false);
-
-        public override PipeDirection PipeMode => PipeDirection.Out;
+        private readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
         public void SendData(string Data)
         {
             MessageQueue.Enqueue(Data);
-
-            if (ProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                Locker.Set();
-            }
+            ProcessSleepLocker.Set();
         }
 
         private void WriteProcess()
@@ -32,24 +25,21 @@ namespace FullTrustProcess
                 if (!IsConnected)
                 {
                     PipeStream.Connect(2000);
+                    PipeStream.ReadMode = PipeTransmissionMode.Message;
                 }
 
-                using (StreamWriter Writer = new StreamWriter(PipeStream, new UTF8Encoding(false), 512, true))
+                while (IsConnected)
                 {
-                    while (IsConnected)
+                    if (MessageQueue.IsEmpty)
                     {
-                        if (MessageQueue.IsEmpty)
-                        {
-                            Locker.WaitOne();
-                        }
+                        ProcessSleepLocker.WaitOne();
+                    }
 
-                        while (MessageQueue.TryDequeue(out string Message))
-                        {
-                            Writer.WriteLine(Message);
-                        }
+                    while (MessageQueue.TryDequeue(out string Message))
+                    {
+                        byte[] ByteArray = Encoding.Unicode.GetBytes(Message);
 
-                        Writer.Flush();
-
+                        PipeStream.Write(ByteArray, 0, ByteArray.Length);
                         PipeStream.WaitForPipeDrain();
                     }
                 }
@@ -68,7 +58,7 @@ namespace FullTrustProcess
         {
             if (!IsDisposed)
             {
-                Locker.Dispose();
+                ProcessSleepLocker.Dispose();
                 MessageQueue.Clear();
             }
 

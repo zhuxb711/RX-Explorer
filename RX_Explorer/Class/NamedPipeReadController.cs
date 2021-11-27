@@ -2,7 +2,6 @@
 using ShareClassLibrary;
 using System;
 using System.IO;
-using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 
@@ -10,13 +9,8 @@ namespace RX_Explorer.Class
 {
     public class NamedPipeReadController : NamedPipeControllerBase
     {
-        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-        private readonly string PipeUniqueId = $"Explorer_NamedPipe_Read_{Guid.NewGuid():D}";
-
-        public override string PipeId => PipeUniqueId;
-
-        public override PipeDirection PipeMode => PipeDirection.In;
+        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
 
         protected override int MaxAllowedConnection => 1;
 
@@ -29,11 +23,23 @@ namespace RX_Explorer.Class
                     PipeStream.WaitForConnection();
                 }
 
-                using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 512, true))
+                while (IsConnected)
                 {
-                    while (IsConnected)
+                    using (MemoryStream MStream = new MemoryStream())
                     {
-                        string ReadText = Reader.ReadLine();
+                        byte[] ReadBuffer = new byte[1024];
+
+                        do
+                        {
+                            int BytesRead = PipeStream.Read(ReadBuffer, 0, ReadBuffer.Length);
+
+                            if (BytesRead > 0)
+                            {
+                                MStream.Write(ReadBuffer, 0, BytesRead);
+                            }
+                        } while (!PipeStream.IsMessageComplete);
+
+                        string ReadText = Encoding.Unicode.GetString(MStream.ToArray());
 
                         if (!string.IsNullOrEmpty(ReadText))
                         {
@@ -52,7 +58,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public NamedPipeReadController()
+        public NamedPipeReadController() : this($"Explorer_NamedPipe_Read_{Guid.NewGuid():D}")
+        {
+
+        }
+
+        protected NamedPipeReadController(string Id) : base(Id)
         {
             ProcessThread = new Thread(ReadProcess)
             {

@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
 {
@@ -32,9 +31,9 @@ namespace RX_Explorer.Class
 
         public static bool IsAnyActionExcutingInAllControllers => AllControllerList.ToArray().Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
 
-        public static int InUseControllersNum => CurrentRunningControllerNum - AvailableControllers.Count;
+        public static int InUseControllersNum => AllControllerList.Count - AvailableControllers.Count;
 
-        public static int AllControllersNum => CurrentRunningControllerNum;
+        public static int AllControllersNum => AllControllerList.Count;
 
         public static int AvailableControllersNum => AvailableControllers.Count;
 
@@ -60,8 +59,6 @@ namespace RX_Explorer.Class
 
         private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
 
-        private static volatile int CurrentRunningControllerNum;
-
         private static volatile int LastRequestedControllerNum;
 
         public static event EventHandler<bool> CurrentBusyStatus;
@@ -73,14 +70,10 @@ namespace RX_Explorer.Class
         static FullTrustProcessController()
         {
             DispatcherThread.Start();
-            Application.Current.Suspending += Current_Suspending;
-            Application.Current.Resuming += Current_Resuming;
         }
 
         private FullTrustProcessController()
         {
-            Interlocked.Increment(ref CurrentRunningControllerNum);
-
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 CurrentProcessId = CurrentProcess.Id;
@@ -92,29 +85,6 @@ namespace RX_Explorer.Class
             {
                 PipeCommunicationBaseController = CommunicationController;
             }
-        }
-
-        private static void Current_Resuming(object sender, object e)
-        {
-            LogTracer.Log("RX-Explorer is resuming, recover all FullTrustProcess instance");
-
-            AllControllerList.Clear();
-            AvailableControllers.Clear();
-
-            RequestResizeController(LastRequestedControllerNum);
-        }
-
-        private static void Current_Suspending(object sender, SuspendingEventArgs e)
-        {
-            LogTracer.Log("RX-Explorer is suspending, exiting all FullTrustProcess instance");
-
-            foreach (FullTrustProcessController Controller in AllControllerList.ToArray())
-            {
-                Controller.Dispose();
-            }
-
-            AllControllerList.Clear();
-            AvailableControllers.Clear();
         }
 
         private static void DispatcherMethod()
@@ -132,39 +102,34 @@ namespace RX_Explorer.Class
                     {
                         if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
-                            if (Controller.IsDisposed)
+                            if (Controller == null || Controller.IsDisposed)
                             {
-                                FullTrustProcessController NewController = null;
-
-                                for (int i = 0; i < 3; i++)
+                                for (int Retry = 1; Retry <= 3; Retry++)
                                 {
-                                    NewController = CreateAsync().Result;
-
-                                    if (NewController == null)
+                                    if (CreateAsync().Result is FullTrustProcessController NewController)
                                     {
-                                        LogTracer.Log($"Dispatcher fould a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {i + 1} times");
+                                        AvailableControllers.Enqueue(NewController);
+                                        break;
                                     }
                                     else
                                     {
-                                        break;
+                                        LogTracer.Log($"Dispatcher fould a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
                                     }
-                                }
-
-                                if (NewController != null)
-                                {
-                                    CompletionSource.SetResult(new ExclusiveUsage(NewController, ExtendedExecutionController.TryCreateExtendedExecution().Result));
-                                    break;
                                 }
                             }
                             else
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.TryCreateExtendedExecution().Result));
+                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result));
                                 break;
                             }
                         }
                         else
                         {
-                            if (CurrentRunningControllerNum > 0)
+                            if (AllControllerList.Count == 0)
+                            {
+                                RequestResizeController(1);
+                            }
+                            else
                             {
                                 if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 5000))
                                 {
@@ -184,10 +149,6 @@ namespace RX_Explorer.Class
                                     }
                                 }
                             }
-                            else
-                            {
-                                ResizeController(1);
-                            }
                         }
                     }
                 }
@@ -196,27 +157,25 @@ namespace RX_Explorer.Class
 
         public static void RequestResizeController(int RequestedTarget)
         {
-            if (ResizeTask == null || ResizeTask.IsCompleted)
+            Task LocalResizeTask = ResizeControllerAsync(RequestedTarget);
+
+            if (Interlocked.CompareExchange(ref ResizeTask, LocalResizeTask, null) is Task PreviousTask)
             {
-                ResizeTask = Task.Run(() => ResizeController(RequestedTarget));
-            }
-            else
-            {
-                ResizeTask = ResizeTask.ContinueWith((_) => ResizeController(RequestedTarget), TaskContinuationOptions.PreferFairness);
+                PreviousTask.ContinueWith((_) => LocalResizeTask.Wait(), TaskContinuationOptions.PreferFairness);
             }
         }
 
-        private static void ResizeController(int RequestedTarget)
+        private static async Task ResizeControllerAsync(int RequestedTarget)
         {
             try
             {
-                using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecutionAsync())
                 {
                     LastRequestedControllerNum = RequestedTarget;
 
                     RequestedTarget += DynamicBackupProcessNum;
 
-                    while (CurrentRunningControllerNum > RequestedTarget && AvailableControllers.Count > DynamicBackupProcessNum)
+                    for (int Retry = 0; AllControllerList.Count > RequestedTarget && Retry < 6; Retry++)
                     {
                         if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
@@ -224,24 +183,19 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (!SpinWait.SpinUntil(() => !AvailableControllers.IsEmpty, 3000))
-                            {
-                                break;
-                            }
+                            await Task.Delay(500);
                         }
                     }
 
-                    while (CurrentRunningControllerNum < RequestedTarget)
+                    for (int Retry = 0; AllControllerList.Count < RequestedTarget && Retry < 3; Retry++)
                     {
-                        FullTrustProcessController NewController = CreateAsync().Result;
-
-                        if (NewController != null)
+                        if (await CreateAsync() is FullTrustProcessController NewController)
                         {
                             AvailableControllers.Enqueue(NewController);
                         }
                         else
                         {
-                            throw new InvalidOperationException("Could not create a new controller");
+                            await Task.Delay(500);
                         }
                     }
                 }
@@ -259,19 +213,17 @@ namespace RX_Explorer.Class
 
             WaitingTaskQueue.Enqueue(CompletionSource);
 
-            if (DispatcherThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
-            {
-                DispatcherSleepLocker.Set();
-            }
+            DispatcherSleepLocker.Set();
 
             return CompletionSource.Task;
         }
 
         private static async Task<FullTrustProcessController> CreateAsync()
         {
+            FullTrustProcessController Controller = new FullTrustProcessController();
+
             try
             {
-                FullTrustProcessController Controller = new FullTrustProcessController();
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 await Controller.ConnectRemoteAsync();
                 return Controller;
@@ -279,6 +231,7 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not create FullTrustProcess properly");
+                Controller?.Dispose();
                 return null;
             }
         }
@@ -1415,25 +1368,33 @@ namespace RX_Explorer.Class
             {
                 if (Response.TryGetValue("RecycleBinItems_Json_Result", out string Result))
                 {
-                    List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Result);
+                    IReadOnlyList<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<IReadOnlyList<Dictionary<string, string>>>(Result);
+
                     ConcurrentBag<IRecycleStorageItem> ResultBag = new ConcurrentBag<IRecycleStorageItem>();
 
                     Parallel.ForEach(JsonList, (PropertyDic) =>
                     {
-                        Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
-
-                        if (Data.IsDataValid)
+                        try
                         {
-                            ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                    ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                    : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                            Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
 
+                            if (Data.IsDataValid)
+                            {
+                                ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                        ? new RecycleStorageFolder(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                        : new RecycleStorageFile(Data, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+
+                            }
+                            else
+                            {
+                                ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                        ? new RecycleStorageFolder(StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
+                                                        : new RecycleStorageFile(StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            ResultBag.Add(Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
-                                                    ? new RecycleStorageFolder(StorageFolder.GetFolderFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])))
-                                                    : new RecycleStorageFile(StorageFile.GetFileFromPathAsync(PropertyDic["ActualPath"]).AsTask().Result, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                            LogTracer.Log(ex, $"Could not load the recycle item, path: {PropertyDic["ActualPath"]}");
                         }
                     });
 
@@ -1929,7 +1890,6 @@ namespace RX_Explorer.Class
                 finally
                 {
                     AllControllerList.Remove(this);
-                    Interlocked.Decrement(ref CurrentRunningControllerNum);
                 }
             }
         }

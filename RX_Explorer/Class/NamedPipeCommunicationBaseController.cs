@@ -6,6 +6,9 @@ namespace RX_Explorer.Class
     {
         protected override int MaxAllowedConnection => -1;
 
-        public override string PipeId => "Explorer_NamedPipe_CommunicationBase";
+        public NamedPipeCommunicationBaseController() : base("Explorer_NamedPipe_CommunicationBase")
+        {
+
+        }
     }
 }

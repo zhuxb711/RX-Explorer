@@ -10,10 +10,8 @@ namespace FullTrustProcess
 {
     public class NamedPipeReadController : NamedPipeControllerBase
     {
-        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
         private readonly Thread ProcessThread;
-
-        public override PipeDirection PipeMode => PipeDirection.In;
+        public event EventHandler<NamedPipeDataReceivedArgs> OnDataReceived;
 
         private void ReadProcess()
         {
@@ -22,13 +20,26 @@ namespace FullTrustProcess
                 if (!IsConnected)
                 {
                     PipeStream.Connect(2000);
+                    PipeStream.ReadMode = PipeTransmissionMode.Message;
                 }
 
-                using (StreamReader Reader = new StreamReader(PipeStream, new UTF8Encoding(false), false, 512, true))
+                while (IsConnected)
                 {
-                    while (IsConnected)
+                    using (MemoryStream MStream = new MemoryStream())
                     {
-                        string ReadText = Reader.ReadLine();
+                        byte[] ReadBuffer = new byte[1024];
+
+                        do
+                        {
+                            int BytesRead = PipeStream.Read(ReadBuffer, 0, ReadBuffer.Length);
+
+                            if (BytesRead > 0)
+                            {
+                                MStream.Write(ReadBuffer, 0, BytesRead);
+                            }
+                        } while (!PipeStream.IsMessageComplete);
+
+                        string ReadText = Encoding.Unicode.GetString(MStream.ToArray());
 
                         if (!string.IsNullOrEmpty(ReadText))
                         {

@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
 {
     public sealed class RecycleStorageFile : FileSystemStorageFile, IRecycleStorageItem
     {
-        public string OriginPath { get; private set; }
+        public string OriginPath { get; }
 
         public override string Name => System.IO.Path.GetFileName(OriginPath);
 

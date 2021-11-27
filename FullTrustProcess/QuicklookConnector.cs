@@ -16,22 +16,28 @@ namespace FullTrustProcess
         {
             try
             {
-                NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.WriteThrough);
-
-                Client.Connect(500);
-
-                using (StreamWriter Writer = new StreamWriter(Client))
+                if (File.Exists($@"\\.\pipe\{PipeName}"))
                 {
-                    Writer.WriteLine($"{SwitchCommand}|");
-                    Writer.Flush();
-                }
+                    using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out, PipeOptions.WriteThrough))
+                    {
+                        Client.Connect(500);
 
-                return IsConnected = true;
+                        using (StreamWriter Writer = new StreamWriter(Client, leaveOpen: true))
+                        {
+                            Writer.WriteLine($"{SwitchCommand}|");
+                            Writer.Flush();
+                        }
+                    }
+
+                    return IsConnected = true;
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return IsConnected = false;
+                LogTracer.Log(ex, "Could not connect to the Quicklook");
             }
+
+            return IsConnected = false;
         }
 
         public static void ToggleQuicklook(string Path)

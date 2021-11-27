@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
 {
     public class RecycleStorageFolder : FileSystemStorageFolder, IRecycleStorageItem
     {
-        public string OriginPath { get; private set; }
+        public string OriginPath { get; }
 
         public override string Name
         {
