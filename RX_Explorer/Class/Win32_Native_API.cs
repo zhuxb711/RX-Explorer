@@ -942,7 +942,7 @@ namespace RX_Explorer.Class
             {
                 int StructSize = Marshal.SizeOf<FILE_BASIC_INFO>();
 
-                IntPtr StructPtr = Marshal.AllocHGlobal(StructSize);
+                IntPtr StructPtr = Marshal.AllocCoTaskMem(StructSize);
 
                 try
                 {
@@ -974,7 +974,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    Marshal.FreeHGlobal(StructPtr);
+                    Marshal.FreeCoTaskMem(StructPtr);
                 }
             }
             else
@@ -989,7 +989,7 @@ namespace RX_Explorer.Class
             {
                 int StructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
 
-                IntPtr StructPtr = Marshal.AllocHGlobal(StructSize);
+                IntPtr StructPtr = Marshal.AllocCoTaskMem(StructSize);
 
                 try
                 {
@@ -1006,7 +1006,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    Marshal.FreeHGlobal(StructPtr);
+                    Marshal.FreeCoTaskMem(StructPtr);
                 }
             }
             else

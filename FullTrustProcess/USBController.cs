@@ -17,15 +17,15 @@ namespace FullTrustProcess
 
         private static int GetDeviceNumber(HFILE DeviceHandle)
         {
-            IntPtr buffer = Marshal.AllocHGlobal(1024);
+            IntPtr Buffer = Marshal.AllocCoTaskMem(1024);
 
             try
             {
-                if (Kernel32.DeviceIoControl(DeviceHandle, Kernel32.IOControlCode.IOCTL_STORAGE_GET_DEVICE_NUMBER, IntPtr.Zero, 0, buffer, 1024, out uint bytesReturned))
+                if (Kernel32.DeviceIoControl(DeviceHandle, Kernel32.IOControlCode.IOCTL_STORAGE_GET_DEVICE_NUMBER, IntPtr.Zero, 0, Buffer, 1024, out uint bytesReturned))
                 {
                     if (bytesReturned > 0)
                     {
-                        return Convert.ToInt32(Marshal.PtrToStructure<Kernel32.STORAGE_DEVICE_NUMBER>(buffer).DeviceNumber);
+                        return Convert.ToInt32(Marshal.PtrToStructure<Kernel32.STORAGE_DEVICE_NUMBER>(Buffer).DeviceNumber);
                     }
                     else
                     {
@@ -43,7 +43,7 @@ namespace FullTrustProcess
             }
             finally
             {
-                Marshal.FreeHGlobal(buffer);
+                Marshal.FreeCoTaskMem(Buffer);
             }
         }
 
@@ -111,7 +111,7 @@ namespace FullTrustProcess
                         }
                     }
 
-                    IntPtr Buffer = Marshal.AllocHGlobal(Convert.ToInt32(Size));
+                    IntPtr Buffer = Marshal.AllocCoTaskMem(Convert.ToInt32(Size));
 
                     try
                     {
@@ -139,7 +139,7 @@ namespace FullTrustProcess
                     }
                     finally
                     {
-                        Marshal.FreeHGlobal(Buffer);
+                        Marshal.FreeCoTaskMem(Buffer);
                     }
                 }
             }

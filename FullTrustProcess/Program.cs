@@ -2616,9 +2616,9 @@ namespace FullTrustProcess
 
                                             if (Shell32.ShellExecuteEx(ref ExecuteInfo))
                                             {
-                                                if (ExecuteInfo.hProcess != HPROCESS.NULL)
+                                                if (!ExecuteInfo.hProcess.IsNull)
                                                 {
-                                                    IntPtr Buffer = Marshal.AllocHGlobal(Marshal.SizeOf<NtDll.PROCESS_BASIC_INFORMATION>());
+                                                    IntPtr Buffer = Marshal.AllocCoTaskMem(Marshal.SizeOf<NtDll.PROCESS_BASIC_INFORMATION>());
 
                                                     try
                                                     {
@@ -2638,9 +2638,13 @@ namespace FullTrustProcess
                                                             }
                                                         }
                                                     }
+                                                    catch (Exception ex)
+                                                    {
+                                                        LogTracer.Log(ex, "Could not set the windows Z position");
+                                                    }
                                                     finally
                                                     {
-                                                        Marshal.FreeHGlobal(Buffer);
+                                                        Marshal.FreeCoTaskMem(Buffer);
                                                         Kernel32.CloseHandle(ExecuteInfo.hProcess);
                                                     }
                                                 }
@@ -2678,14 +2682,18 @@ namespace FullTrustProcess
                                                             SetWindowsZPosition(OpenedProcess, WindowsBeforeStartup);
                                                         }
                                                     }
+                                                    catch (Exception ex)
+                                                    {
+                                                        LogTracer.Log(ex, "Could not set the windows Z position");
+                                                    }
                                                     finally
                                                     {
-                                                        if (!PInfo.hProcess.IsInvalid && !PInfo.hProcess.IsNull)
+                                                        if (!PInfo.hProcess.IsInvalid)
                                                         {
                                                             PInfo.hProcess.Dispose();
                                                         }
 
-                                                        if (!PInfo.hThread.IsInvalid && !PInfo.hThread.IsNull)
+                                                        if (!PInfo.hThread.IsInvalid)
                                                         {
                                                             PInfo.hThread.Dispose();
                                                         }
@@ -2835,91 +2843,80 @@ namespace FullTrustProcess
 
         private static void SetWindowsZPosition(Process OtherProcess, IEnumerable<HWND> WindowsBeforeStartup)
         {
-            try
+            void SetWindowsPosFallback(IEnumerable<HWND> WindowsBeforeStartup)
             {
-                void SetWindowsPosFallback(IEnumerable<HWND> WindowsBeforeStartup)
+                foreach (HWND Handle in Helper.GetCurrentWindowsHandle().Except(WindowsBeforeStartup))
                 {
-                    foreach (HWND Handle in Helper.GetCurrentWindowsHandle().Except(WindowsBeforeStartup))
-                    {
-                        User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                    }
+                    User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                    User32.SetWindowPos(Handle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
                 }
+            }
 
-                if (OtherProcess.WaitForInputIdle(5000))
+            if (OtherProcess.WaitForInputIdle(5000))
+            {
+                IntPtr MainWindowHandle = IntPtr.Zero;
+
+                for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
                 {
-                    IntPtr MainWindowHandle = IntPtr.Zero;
+                    OtherProcess.Refresh();
 
-                    for (int i = 0; i < 10 && !OtherProcess.HasExited; i++)
+                    if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
                     {
-                        OtherProcess.Refresh();
-
-                        if (OtherProcess.MainWindowHandle.CheckIfValidPtr())
-                        {
-                            MainWindowHandle = OtherProcess.MainWindowHandle;
-                            break;
-                        }
-                        else
-                        {
-                            Thread.Sleep(500);
-                        }
-                    }
-
-                    if (MainWindowHandle.CheckIfValidPtr())
-                    {
-                        bool IsSuccess = true;
-
-                        uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
-                        uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
-                        uint CurrentThreadId = Kernel32.GetCurrentThreadId();
-
-                        if (ForegroundThreadId != ExecuteThreadId)
-                        {
-                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
-                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
-                        }
-
-                        IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
-                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
-                        IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
-
-                        if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
-                        {
-                            IsSuccess &= User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
-                        }
-
-                        if (ForegroundThreadId != ExecuteThreadId)
-                        {
-                            User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
-                            User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
-                        }
-
-                        if (!IsSuccess)
-                        {
-                            LogTracer.Log("Could not switch to window because noraml method failed, use fallback function");
-                            SetWindowsPosFallback(WindowsBeforeStartup);
-                        }
+                        MainWindowHandle = OtherProcess.MainWindowHandle;
+                        break;
                     }
                     else
                     {
-                        LogTracer.Log("Could not switch to window because MainWindowHandle is invalid, use fallback function");
+                        Thread.Sleep(500);
+                    }
+                }
+
+                if (MainWindowHandle.CheckIfValidPtr())
+                {
+                    bool IsSuccess = true;
+
+                    uint ExecuteThreadId = User32.GetWindowThreadProcessId(MainWindowHandle, out _);
+                    uint ForegroundThreadId = User32.GetWindowThreadProcessId(User32.GetForegroundWindow(), out _);
+                    uint CurrentThreadId = Kernel32.GetCurrentThreadId();
+
+                    if (ForegroundThreadId != ExecuteThreadId)
+                    {
+                        User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, true);
+                        User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, true);
+                    }
+
+                    IsSuccess &= User32.ShowWindow(MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
+                    IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                    IsSuccess &= User32.SetWindowPos(MainWindowHandle, User32.SpecialWindowHandles.HWND_NOTOPMOST, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                    IsSuccess &= User32.SetForegroundWindow(MainWindowHandle);
+
+                    if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint)(ExplorerProcess?.Id).GetValueOrDefault()) is WindowInformation UwpWindow && !UwpWindow.Handle.IsNull)
+                    {
+                        IsSuccess &= User32.SetWindowPos(UwpWindow.Handle, MainWindowHandle, 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                    }
+
+                    if (ForegroundThreadId != ExecuteThreadId)
+                    {
+                        User32.AttachThreadInput(ForegroundThreadId, CurrentThreadId, false);
+                        User32.AttachThreadInput(ForegroundThreadId, ExecuteThreadId, false);
+                    }
+
+                    if (!IsSuccess)
+                    {
+                        LogTracer.Log("Could not switch to window because noraml method failed, use fallback function");
                         SetWindowsPosFallback(WindowsBeforeStartup);
                     }
                 }
                 else
                 {
-                    LogTracer.Log("Could not switch to window because WaitForInputIdle is timeout after 5000ms, use fallback function");
+                    LogTracer.Log("Could not switch to window because MainWindowHandle is invalid, use fallback function");
                     SetWindowsPosFallback(WindowsBeforeStartup);
                 }
             }
-            catch (InvalidOperationException ex)
+            else
             {
-                LogTracer.Log(ex, "Error: WaitForInputIdle threw an exception.");
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Error: {nameof(SetWindowsZPosition)} threw an exception, message: {ex.Message}");
+                LogTracer.Log("Could not switch to window because WaitForInputIdle is timeout after 5000ms, use fallback function");
+                SetWindowsPosFallback(WindowsBeforeStartup);
             }
         }
 

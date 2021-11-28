@@ -113,7 +113,7 @@ namespace FullTrustProcess
 
                                 if (User32.GetWindowRect(hWnd, out RECT CurrentRect))
                                 {
-                                    IntPtr RectWorkAreaPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RECT>());
+                                    IntPtr RectWorkAreaPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf<RECT>());
 
                                     try
                                     {
@@ -130,7 +130,7 @@ namespace FullTrustProcess
                                     }
                                     finally
                                     {
-                                        Marshal.FreeHGlobal(RectWorkAreaPtr);
+                                        Marshal.FreeCoTaskMem(RectWorkAreaPtr);
                                     }
                                 }
 

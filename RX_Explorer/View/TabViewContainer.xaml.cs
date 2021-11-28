@@ -328,7 +328,7 @@ namespace RX_Explorer
 
                                 switch (args.VirtualKey)
                                 {
-                                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled:
+                                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened:
                                         {
                                             args.Handled = true;
 

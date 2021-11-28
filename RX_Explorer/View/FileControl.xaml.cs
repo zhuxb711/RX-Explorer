@@ -68,8 +68,6 @@ namespace RX_Explorer
         private CancellationTokenSource DelayGoForwardHoldCancel;
         private CancellationTokenSource ContextMenuCancellation;
 
-        public bool BlockKeyboardShortCutInput;
-
         private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
         {
@@ -150,6 +148,8 @@ namespace RX_Explorer
             }
         }
 
+        public bool ShouldNotAcceptShortcutKeyInput { get; set; }
+
         public FileControl()
         {
             InitializeComponent();
@@ -204,12 +204,12 @@ namespace RX_Explorer
                 ProBar.Value = 0;
                 ProgressInfo.Text = Info + "...";
 
-                BlockKeyboardShortCutInput = true;
+                ShouldNotAcceptShortcutKeyInput = true;
             }
             else
             {
                 await Task.Delay(500);
-                BlockKeyboardShortCutInput = false;
+                ShouldNotAcceptShortcutKeyInput = false;
             }
 
             LoadingControl.IsLoading = IsLoading;
@@ -1299,7 +1299,7 @@ namespace RX_Explorer
 
         private void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
-            BlockKeyboardShortCutInput = true;
+            ShouldNotAcceptShortcutKeyInput = true;
 
             GlobeSearch.FindChildOfType<TextBox>()?.SelectAll();
 
@@ -1313,7 +1313,7 @@ namespace RX_Explorer
 
         private void GlobeSearch_LostFocus(object sender, RoutedEventArgs e)
         {
-            BlockKeyboardShortCutInput = false;
+            ShouldNotAcceptShortcutKeyInput = false;
         }
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -1329,71 +1329,131 @@ namespace RX_Explorer
 
             try
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                string StartupLocation = CurrentPresenter.CurrentFolder switch
                 {
-                    if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
-                    {
-                        string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+                    RootStorageFolder => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    FileSystemStorageFolder Folder => Folder.Path,
+                    _ => null
+                };
 
-                        if (!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path))
+                if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        if (string.IsNullOrEmpty(StartupLocation))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: " - NoExit"))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
-                        }
-
-                        return;
-                    }
-
-                    if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
-                    {
-                        string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-
-                        if (!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
-                        }
-
-                        return;
-                    }
-
-                    if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
-                    {
-                        switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-                        {
-                            case LaunchQuerySupportStatus.Available:
-                            case LaunchQuerySupportStatus.NotSupported:
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    if (!await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                                        await Dialog.ShowAsync();
-                                    }
-
-                                    break;
-                                }
+                                await Dialog.ShowAsync();
+                            }
                         }
+                        else
+                        {
+                            if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { "-NoExit", "-Command", "Set-Location", StartupLocation }))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                        return;
+                                await Dialog.ShowAsync();
+                            }
+                        }
                     }
+
+                    return;
+                }
+
+                if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        if (string.IsNullOrEmpty(StartupLocation))
+                        {
+                            if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog.ShowAsync();
+                            }
+                        }
+                        else
+                        {
+                            if (!await Exclusive.Controller.RunAsync("cmd.exe", RunAsAdmin: true, Parameters: new string[] { "/k", "cd", "/d", StartupLocation }))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog.ShowAsync();
+                            }
+                        }
+                    }
+
+                    return;
+                }
+
+                if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+                    {
+                        case LaunchQuerySupportStatus.Available:
+                        case LaunchQuerySupportStatus.NotSupported:
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                {
+                                    if (string.IsNullOrEmpty(StartupLocation))
+                                    {
+                                        if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!await Exclusive.Controller.RunAsync("wt.exe", RunAsAdmin: true, Parameters: new string[] { "/d", StartupLocation }))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                    }
+
+                    return;
                 }
 
                 string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
@@ -1792,7 +1852,7 @@ namespace RX_Explorer
 
         private void AddressBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            BlockKeyboardShortCutInput = true;
+            ShouldNotAcceptShortcutKeyInput = true;
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
@@ -1838,7 +1898,7 @@ namespace RX_Explorer
 
             AddressBox.Text = string.Empty;
             AddressButtonContainer.Visibility = Visibility.Visible;
-            BlockKeyboardShortCutInput = false;
+            ShouldNotAcceptShortcutKeyInput = false;
         }
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
@@ -2279,13 +2339,13 @@ namespace RX_Explorer
 
         private void SearchEngineFlyout_Opened(object sender, object e)
         {
-            BlockKeyboardShortCutInput = true;
+            ShouldNotAcceptShortcutKeyInput = true;
             SearchEngineConfirm.Focus(FocusState.Programmatic);
         }
 
         private void SearchEngineFlyout_Closed(object sender, object e)
         {
-            BlockKeyboardShortCutInput = false;
+            ShouldNotAcceptShortcutKeyInput = false;
         }
 
         private void SeachEngineOptionSave_Checked(object sender, RoutedEventArgs e)

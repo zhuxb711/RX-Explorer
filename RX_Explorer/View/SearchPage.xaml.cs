@@ -139,7 +139,9 @@ namespace RX_Explorer
                             Delete_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled && SearchResultList.SelectedItems.Count == 1:
+                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled 
+                                               && !SettingPage.IsOpened 
+                                               && SearchResultList.SelectedItems.Count == 1:
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
@@ -1315,6 +1317,7 @@ namespace RX_Explorer
         private async void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SettingPage.IsQuicklookEnabled
+                && !SettingPage.IsOpened
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {

@@ -93,7 +93,7 @@ namespace RX_Explorer.Class
             {
                 while (DirPtr.CheckIfValidPtr())
                 {
-                    IntPtr BufferPtr = Marshal.AllocHGlobal(4096);
+                    IntPtr BufferPtr = Marshal.AllocCoTaskMem(4096);
 
                     try
                     {
@@ -184,7 +184,7 @@ namespace RX_Explorer.Class
                     {
                         if (BufferPtr.CheckIfValidPtr())
                         {
-                            Marshal.FreeHGlobal(BufferPtr);
+                            Marshal.FreeCoTaskMem(BufferPtr);
                         }
                     }
                 }

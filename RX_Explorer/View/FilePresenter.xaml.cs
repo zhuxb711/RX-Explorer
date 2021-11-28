@@ -608,7 +608,7 @@ namespace RX_Explorer
                 bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                 bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
-                if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
+                if (!QueueContentDialog.IsRunningOrWaiting && !Container.ShouldNotAcceptShortcutKeyInput)
                 {
                     if (!CtrlDown && !ShiftDown)
                     {
@@ -618,7 +618,9 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled && ItemPresenter.SelectedItems.Count == 1:
+                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
+                                                   && !SettingPage.IsOpened
+                                                   && ItemPresenter.SelectedItems.Count == 1:
                             {
                                 args.Handled = true;
 
@@ -1890,6 +1892,7 @@ namespace RX_Explorer
             }
 
             if (SettingPage.IsQuicklookEnabled
+                && !SettingPage.IsOpened
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {
@@ -2036,7 +2039,7 @@ namespace RX_Explorer
             if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
                 e.Handled = true;
-                Container.BlockKeyboardShortCutInput = true;
+                Container.ShouldNotAcceptShortcutKeyInput = true;
 
                 try
                 {
@@ -2047,7 +2050,7 @@ namespace RX_Explorer
                     LogTracer.Log(ex, "Could not execute the context action");
                 }
 
-                Container.BlockKeyboardShortCutInput = false;
+                Container.ShouldNotAcceptShortcutKeyInput = false;
             }
         }
 
@@ -2620,7 +2623,7 @@ namespace RX_Explorer
                                     EditBox.SelectAll();
                                 }
 
-                                Container.BlockKeyboardShortCutInput = true;
+                                Container.ShouldNotAcceptShortcutKeyInput = true;
                             }
 
                             break;
@@ -3403,7 +3406,7 @@ namespace RX_Explorer
                                         EditBox.SelectAll();
                                     }
 
-                                    Container.BlockKeyboardShortCutInput = true;
+                                    Container.ShouldNotAcceptShortcutKeyInput = true;
                                 }
 
                                 break;
@@ -3813,7 +3816,7 @@ namespace RX_Explorer
             {
                 if (!SettingPage.IsDoubleClickEnabled
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
-                    && !Container.BlockKeyboardShortCutInput
+                    && !Container.ShouldNotAcceptShortcutKeyInput
                     && !ItemPresenter.SelectedItems.Contains(Item)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
@@ -3847,7 +3850,7 @@ namespace RX_Explorer
 
                             if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
                                 && !Token.IsCancellationRequested
-                                && !Container.BlockKeyboardShortCutInput
+                                && !Container.ShouldNotAcceptShortcutKeyInput
                                 && !FileFlyout.IsOpen
                                 && !FolderFlyout.IsOpen
                                 && !EmptyFlyout.IsOpen
@@ -3934,7 +3937,7 @@ namespace RX_Explorer
             if (e.HoldingState == HoldingState.Started)
             {
                 e.Handled = true;
-                Container.BlockKeyboardShortCutInput = true;
+                Container.ShouldNotAcceptShortcutKeyInput = true;
 
                 try
                 {
@@ -3945,7 +3948,7 @@ namespace RX_Explorer
                     LogTracer.Log(ex, "Could not execute the context action");
                 }
 
-                Container.BlockKeyboardShortCutInput = false;
+                Container.ShouldNotAcceptShortcutKeyInput = false;
             }
         }
 
@@ -4069,7 +4072,7 @@ namespace RX_Explorer
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
 
-                                Container.BlockKeyboardShortCutInput = true;
+                                Container.ShouldNotAcceptShortcutKeyInput = true;
                             }
                         }, DelayRenameCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
                     }
@@ -4207,7 +4210,7 @@ namespace RX_Explorer
                     NameEditBox.Visibility = Visibility.Collapsed;
                     NameLabel.Visibility = Visibility.Visible;
 
-                    Container.BlockKeyboardShortCutInput = false;
+                    Container.ShouldNotAcceptShortcutKeyInput = false;
                 }
             }
         }
@@ -4589,7 +4592,7 @@ namespace RX_Explorer
 
         private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
-            Container.BlockKeyboardShortCutInput = false;
+            Container.ShouldNotAcceptShortcutKeyInput = false;
 
             if (sender.Target is FrameworkElement Element)
             {
@@ -4599,7 +4602,7 @@ namespace RX_Explorer
 
         private void FilterFlyout_Opened(object sender, object e)
         {
-            Container.BlockKeyboardShortCutInput = true;
+            Container.ShouldNotAcceptShortcutKeyInput = true;
         }
 
         private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs args)
@@ -4991,16 +4994,19 @@ namespace RX_Explorer
 
         private async void RootFolderControl_EnterActionRequested(object sender, string Path)
         {
-            if (!await DisplayItemsInFolder(Path))
+            if (!Container.ShouldNotAcceptShortcutKeyInput)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (!await DisplayItemsInFolder(Path))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Path}\"",
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                };
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{Path}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
 
-                await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
+                }
             }
         }
 

@@ -419,6 +419,8 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = value;
         }
 
+        public static bool IsOpened { get; private set; }
+
         private string Version => $"{Globalization.GetString("SettingVersion/Text")}: {Package.Current.Id.Version.Major}.{Package.Current.Id.Version.Minor}.{Package.Current.Id.Version.Build}.{Package.Current.Id.Version.Revision}";
 
         private bool HasInit;
@@ -448,6 +450,7 @@ namespace RX_Explorer
         {
             try
             {
+                IsOpened = true;
                 Visibility = Visibility.Visible;
 
                 if (AnimationController.Current.IsEnableAnimation)
@@ -472,6 +475,7 @@ namespace RX_Explorer
                                        ActivateAnimation(SettingNavigation, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 350, true));
                 }
 
+                IsOpened = false;
                 Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)

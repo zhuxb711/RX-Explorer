@@ -1338,6 +1338,7 @@ namespace RX_Explorer
         private async void LibraryGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SettingPage.IsQuicklookEnabled
+                && !SettingPage.IsOpened
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is LibraryStorageFolder Item)
             {
@@ -1357,6 +1358,7 @@ namespace RX_Explorer
         private async void DriveGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SettingPage.IsQuicklookEnabled
+                && !SettingPage.IsOpened
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is DriveDataBase Item)
             {

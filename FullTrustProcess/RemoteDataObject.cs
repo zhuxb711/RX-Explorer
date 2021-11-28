@@ -73,7 +73,7 @@ namespace FullTrustProcess
                     {
                         byte[] FileGroupDescriptorBytes = FileGroupDescriptorStream.ToArray();
 
-                        IntPtr FileGroupDescriptorAPointer = Marshal.AllocHGlobal(FileGroupDescriptorBytes.Length);
+                        IntPtr FileGroupDescriptorAPointer = Marshal.AllocCoTaskMem(FileGroupDescriptorBytes.Length);
 
                         try
                         {
@@ -101,7 +101,7 @@ namespace FullTrustProcess
                         }
                         finally
                         {
-                            Marshal.FreeHGlobal(FileGroupDescriptorAPointer);
+                            Marshal.FreeCoTaskMem(FileGroupDescriptorAPointer);
                         }
                     }
                     finally
@@ -171,7 +171,7 @@ namespace FullTrustProcess
 
                                     int CbSize = Convert.ToInt32(LockBytesStat.cbSize);
 
-                                    IntPtr LockBytesContentPtr = Marshal.AllocHGlobal(CbSize);
+                                    IntPtr LockBytesContentPtr = Marshal.AllocCoTaskMem(CbSize);
 
                                     try
                                     {
@@ -185,7 +185,7 @@ namespace FullTrustProcess
                                     }
                                     finally
                                     {
-                                        Marshal.FreeHGlobal(LockBytesContentPtr);
+                                        Marshal.FreeCoTaskMem(LockBytesContentPtr);
                                     }
                                 }
                                 finally
