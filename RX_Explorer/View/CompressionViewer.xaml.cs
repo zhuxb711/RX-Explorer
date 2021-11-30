@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Input;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -242,6 +243,19 @@ namespace RX_Explorer
             {
                 await Task.Delay(500);
                 LoadingControl.IsLoading = false;
+            }
+        }
+
+        private void CloseAllFlyout()
+        {
+            try
+            {
+                ItemFlyout.Hide();
+                EmptyFlyout.Hide();
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not close the flyout for unknown reason");
             }
         }
 
@@ -808,150 +822,6 @@ namespace RX_Explorer
             }
         }
 
-        private void ListViewControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                e.Handled = true;
-
-                if (e.OriginalSource is FrameworkElement Element)
-                {
-                    if (Element.DataContext is CompressionItemBase Context)
-                    {
-                        if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
-                        {
-                            ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                            {
-                                Position = e.GetPosition((FrameworkElement)sender),
-                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                ShowMode = FlyoutShowMode.Standard
-                            });
-                        }
-                        else
-                        {
-                            if (ListViewControl.SelectedItem == Context && SettingPage.IsDoubleClickEnabled)
-                            {
-                                ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                    ShowMode = FlyoutShowMode.Standard
-                                });
-                            }
-                            else
-                            {
-                                if (e.OriginalSource is TextBlock)
-                                {
-                                    ListViewControl.SelectedItem = Context;
-
-                                    ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                    {
-                                        Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                        ShowMode = FlyoutShowMode.Standard
-                                    });
-                                }
-                                else
-                                {
-                                    ListViewControl.SelectedItem = null;
-
-                                    EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                    {
-                                        Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                        ShowMode = FlyoutShowMode.Standard
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ListViewControl.SelectedItem = null;
-
-                        EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                        {
-                            Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
-                    }
-                }
-            }
-        }
-
-        private void ListViewControl_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                e.Handled = true;
-
-                if (e.OriginalSource is FrameworkElement Element)
-                {
-                    if (Element.DataContext is CompressionItemBase Context)
-                    {
-                        if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
-                        {
-                            ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                            {
-                                Position = e.GetPosition((FrameworkElement)sender),
-                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                ShowMode = FlyoutShowMode.Standard
-                            });
-                        }
-                        else
-                        {
-                            if (ListViewControl.SelectedItem == Context && SettingPage.IsDoubleClickEnabled)
-                            {
-                                ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                    ShowMode = FlyoutShowMode.Standard
-                                });
-                            }
-                            else
-                            {
-                                if (e.OriginalSource is TextBlock)
-                                {
-                                    ListViewControl.SelectedItem = Context;
-
-                                    ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                    {
-                                        Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                        ShowMode = FlyoutShowMode.Standard
-                                    });
-                                }
-                                else
-                                {
-                                    ListViewControl.SelectedItem = null;
-
-                                    EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                                    {
-                                        Position = e.GetPosition((FrameworkElement)sender),
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                        ShowMode = FlyoutShowMode.Standard
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ListViewControl.SelectedItem = null;
-
-                        EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
-                        {
-                            Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
-                    }
-                }
-            }
-        }
-
         private async void CreateNewFile_Click(object sender, RoutedEventArgs e)
         {
             NewCompressionItemPickerDialog Dialog = new NewCompressionItemPickerDialog(NewCompressionItemType.File);
@@ -1313,6 +1183,83 @@ namespace RX_Explorer
                     Deferral.Complete();
                 }
             }
+        }
+
+        private void ListViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if(args.TryGetPosition(sender, out Point Position))
+            {
+                args.Handled = true;
+
+                if (args.OriginalSource is FrameworkElement Element)
+                {
+                    if (Element.DataContext is CompressionItemBase Context)
+                    {
+                        if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
+                        {
+                            ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                            {
+                                Position = Position,
+                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                ShowMode = FlyoutShowMode.Standard
+                            });
+                        }
+                        else
+                        {
+                            if (ListViewControl.SelectedItem == Context && SettingPage.IsDoubleClickEnabled)
+                            {
+                                ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                                {
+                                    Position = Position,
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                    ShowMode = FlyoutShowMode.Standard
+                                });
+                            }
+                            else
+                            {
+                                if (args.OriginalSource is TextBlock)
+                                {
+                                    ListViewControl.SelectedItem = Context;
+
+                                    ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                                    {
+                                        Position = Position,
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
+                                    });
+                                }
+                                else
+                                {
+                                    ListViewControl.SelectedItem = null;
+
+                                    EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                                    {
+                                        Position = Position,
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        ShowMode = FlyoutShowMode.Standard
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ListViewControl.SelectedItem = null;
+
+                        EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
+                        {
+                            Position = Position,
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
+                        });
+                    }
+                }
+            }
+        }
+
+        private void ListViewControl_ContextCanceled(UIElement sender, RoutedEventArgs args)
+        {
+            CloseAllFlyout();
         }
     }
 }

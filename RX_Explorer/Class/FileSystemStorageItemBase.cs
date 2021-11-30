@@ -219,31 +219,38 @@ namespace RX_Explorer.Class
                     }
                 });
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
+                try
                 {
-                    foreach ((string Path, Exception ex) in RetryBag)
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableControllerAsync().Result)
                     {
-                        using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite).Result)
+                        foreach ((string Path, Exception ex) in RetryBag)
                         {
-                            if (Handle.IsInvalid)
+                            using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite).Result)
                             {
-                                LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
-                            }
-                            else
-                            {
-                                LogTracer.Log($"Try get storage item from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
-
-                                if (Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle()) is FileSystemStorageItemBase Item)
+                                if (Handle.IsInvalid)
                                 {
-                                    Result.Add(Item);
+                                    LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
                                 }
                                 else
                                 {
-                                    LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                                    LogTracer.Log($"Try get storage item from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
+
+                                    if (Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle()) is FileSystemStorageItemBase Item)
+                                    {
+                                        Result.Add(Item);
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log(ex, $"{nameof(OpenInBatchAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(OpenInBatchAsync)}");
                 }
 
                 return Result.ToList();
@@ -505,73 +512,82 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            try
+            if (Interlocked.CompareExchange(ref IsLoaded, 1, 0) > 0)
             {
-                if (Interlocked.CompareExchange(ref IsLoaded, 1, 0) > 0)
+                if (ThubmnalModeChanged)
                 {
-                    if (ThubmnalModeChanged)
-                    {
-                        ThubmnalModeChanged = false;
+                    ThubmnalModeChanged = false;
 
-                        if (ShouldGenerateThumbnail)
+                    if (ShouldGenerateThumbnail)
+                    {
+                        try
                         {
                             Thumbnail = await GetThumbnailAsync(ThumbnailMode);
                         }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                        }
+                        finally
+                        {
+                            OnPropertyChanged(nameof(Thumbnail));
+                        }
                     }
                 }
-                else
+            }
+            else
+            {
+                async Task LocalLoadFunction()
                 {
-                    await StartProcessRefShareRegionAsync();
-
                     try
                     {
-                        async Task LocalLoadFunction()
-                        {
-                            if (ShouldGenerateThumbnail)
-                            {
-                                await LoadCoreAsync(false);
+                        await StartProcessRefShareRegionAsync();
 
-                                if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
-                                {
-                                    this.Thumbnail = Thumbnail;
-                                }
+                        await LoadCoreAsync(false);
+
+                        if (ShouldGenerateThumbnail)
+                        {
+                            if (await GetThumbnailOverlayAsync() is BitmapImage ThumbnailOverlay)
+                            {
+                                this.ThumbnailOverlay = ThumbnailOverlay;
                             }
 
-                            ThumbnailOverlay = await GetThumbnailOverlayAsync();
-
-                            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+                            if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
                             {
-                                await GetSyncStatusAsync();
+                                this.Thumbnail = Thumbnail;
                             }
-                        };
+                        }
 
-                        if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                        if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
                         {
-                            await LocalLoadFunction();
+                            await GetSyncStatusAsync();
                         }
-                        else
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
                     }
                     finally
                     {
+                        OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(SizeDescription));
+                        OnPropertyChanged(nameof(DisplayType));
+                        OnPropertyChanged(nameof(ModifiedTimeDescription));
+                        OnPropertyChanged(nameof(Thumbnail));
+                        OnPropertyChanged(nameof(ThumbnailOverlay));
+
                         await EndProcessRefShareRegionAsync();
                     }
+                };
+
+                if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                {
+                    await LocalLoadFunction();
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(LoadAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-            }
-            finally
-            {
-                OnPropertyChanged(nameof(Name));
-                OnPropertyChanged(nameof(SizeDescription));
-                OnPropertyChanged(nameof(DisplayType));
-                OnPropertyChanged(nameof(ModifiedTimeDescription));
-                OnPropertyChanged(nameof(Thumbnail));
-                OnPropertyChanged(nameof(ThumbnailOverlay));
+                else
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
+                }
             }
         }
 

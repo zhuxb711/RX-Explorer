@@ -101,62 +101,69 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!BlockKeyboardShortCutInput)
+            try
             {
-                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-                CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
-
-                if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                if (!BlockKeyboardShortCutInput)
                 {
-                    NavigateToStorageItem(args.VirtualKey);
-                }
+                    CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+                    CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
-                switch (args.VirtualKey)
-                {
-                    case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Location_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            SearchResultList.SelectAll();
-                            break;
-                        }
-                    case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Copy_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Cut_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Delete:
-                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Delete_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Space when SettingPage.IsQuicklookEnabled 
-                                               && !SettingPage.IsOpened 
-                                               && SearchResultList.SelectedItems.Count == 1:
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                    {
+                        NavigateToStorageItem(args.VirtualKey);
+                    }
+
+                    switch (args.VirtualKey)
+                    {
+                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                                Location_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                SearchResultList.SelectAll();
+                                break;
+                            }
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Copy_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Cut_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Delete:
+                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Delete_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
+                                                   && !SettingPage.IsOpened
+                                                   && SearchResultList.SelectedItems.Count == 1:
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
+                                        if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+                                        {
+                                            await Exclusive.Controller.ToggleQuicklookAsync(Item.Path);
+                                        }
                                     }
                                 }
-                            }
 
-                            break;
-                        }
+                                break;
+                            }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SearchPage_KeyDown)}");
             }
         }
 
@@ -502,43 +509,6 @@ namespace RX_Explorer
             }
         }
 
-        private void SearchResultList_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                e.Handled = true;
-
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
-
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
-                {
-                    if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
-                    {
-                        MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
-                        {
-                            Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
-                    }
-                    else
-                    {
-                        SearchResultList.SelectedItem = Context;
-
-                        SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
-                        {
-                            Position = e.GetPosition((FrameworkElement)sender),
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                            ShowMode = FlyoutShowMode.Standard
-                        });
-                    }
-                }
-            }
-        }
-
         private async void CopyPath_Click(object sender, RoutedEventArgs e)
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase SelectItem)
@@ -559,36 +529,6 @@ namespace RX_Explorer
                     };
 
                     await Dialog.ShowAsync();
-                }
-            }
-        }
-
-        private void SearchResultList_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                e.Handled = true;
-
-                if (!SettingPage.IsDoubleClickEnabled)
-                {
-                    DelaySelectionCancellation?.Cancel();
-                }
-
-                if (SearchResultList.SelectedItems.Count > 1)
-                {
-                    SearchResultList.ContextFlyout = MixCommandFlyout;
-                }
-                else
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
-                    {
-                        SearchResultList.ContextFlyout = SingleCommandFlyout;
-                        SearchResultList.SelectedItem = Context;
-                    }
-                    else
-                    {
-                        SearchResultList.ContextFlyout = null;
-                    }
                 }
             }
         }
@@ -659,27 +599,34 @@ namespace RX_Explorer
 
                 Task.Delay(800).ContinueWith(async (task, input) =>
                 {
-                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                    try
                     {
-                        TooltipFlyout.Hide();
-
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
-                            TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                            TooltipFlyout.Hide();
 
-                            if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                && !Token.IsCancellationRequested)
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
-                                PointerPoint Point = e.GetCurrentPoint(SearchResultList);
+                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                                TooltipFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                    && !Token.IsCancellationRequested)
                                 {
-                                    Position = new Point(Point.Position.X, Point.Position.Y + 20),
-                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                                });
+                                    PointerPoint Point = e.GetCurrentPoint(SearchResultList);
+
+                                    TooltipFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                                    {
+                                        Position = new Point(Point.Position.X, Point.Position.Y + 20),
+                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                    });
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
                     }
                 }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
@@ -974,7 +921,7 @@ namespace RX_Explorer
                                     {
                                         if (File is UrlStorageFile UrlItem)
                                         {
-                                            if(!await UrlItem.LaunchAsync())
+                                            if (!await UrlItem.LaunchAsync())
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -1321,17 +1268,66 @@ namespace RX_Explorer
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                try
                 {
-                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        if (!string.IsNullOrEmpty(Item.Path))
+                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                         {
-                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                            if (!string.IsNullOrEmpty(Item.Path))
+                            {
+                                await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(SearchResultList_SelectionChanged)}");
+                }
             }
+        }
+
+        private void SearchResultList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if (args.TryGetPosition(sender, out Point Position))
+            {
+                args.Handled = true;
+
+                if (!SettingPage.IsDoubleClickEnabled)
+                {
+                    DelaySelectionCancellation?.Cancel();
+                }
+
+                if ((args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                {
+                    if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
+                    {
+                        MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                        {
+                            Position = Position,
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
+                        });
+                    }
+                    else
+                    {
+                        SearchResultList.SelectedItem = Context;
+
+                        SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
+                        {
+                            Position = Position,
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            ShowMode = FlyoutShowMode.Standard
+                        });
+                    }
+                }
+            }
+        }
+
+        private void SearchResultList_ContextCanceled(UIElement sender, RoutedEventArgs args)
+        {
+            CloseAllFlyout();
         }
     }
 }

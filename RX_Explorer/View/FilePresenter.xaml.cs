@@ -598,221 +598,228 @@ namespace RX_Explorer
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this
+            try
+            {
+                if (Container.CurrentPresenter == this
                 && CurrentFolder is not RootStorageFolder
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && Container.Frame == TabViewContainer.CurrentNavigationControl
                 && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
-            {
-                bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
-                bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
-
-                if (!QueueContentDialog.IsRunningOrWaiting && !Container.ShouldNotAcceptShortcutKeyInput)
                 {
-                    if (!CtrlDown && !ShiftDown)
-                    {
-                        args.Handled = true;
-                        NavigateToStorageItem(args.VirtualKey);
-                    }
+                    bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
+                    bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
-                    switch (args.VirtualKey)
+                    if (!QueueContentDialog.IsRunningOrWaiting && !Container.ShouldNotAcceptShortcutKeyInput)
                     {
-                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
-                                                   && !SettingPage.IsOpened
-                                                   && ItemPresenter.SelectedItems.Count == 1:
-                            {
-                                args.Handled = true;
+                        if (!CtrlDown && !ShiftDown)
+                        {
+                            args.Handled = true;
+                            NavigateToStorageItem(args.VirtualKey);
+                        }
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        switch (args.VirtualKey)
+                        {
+                            case VirtualKey.Space when SettingPage.IsQuicklookEnabled
+                                                       && !SettingPage.IsOpened
+                                                       && ItemPresenter.SelectedItems.Count == 1:
                                 {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
-                                    {
-                                        string ViewPathWithQuicklook = SelectedItem?.Path;
+                                    args.Handled = true;
 
-                                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    {
+                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                         {
-                                            await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
+                                            string ViewPathWithQuicklook = SelectedItem?.Path;
+
+                                            if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                            {
+                                                await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
+                                            }
                                         }
                                     }
+
+                                    break;
                                 }
-
-                                break;
-                            }
-                        case VirtualKey.F2:
-                            {
-                                args.Handled = true;
-
-                                Rename_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.F5:
-                            {
-                                args.Handled = true;
-
-                                Refresh_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
-                            {
-                                args.Handled = true;
-
-                                await EnterSelectedItemAsync(Item).ConfigureAwait(false);
-                                break;
-                            }
-                        case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
-                            {
-                                args.Handled = true;
-
-                                Container.GoBackRecord_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.L when CtrlDown:
-                            {
-                                args.Handled = true;
-
-                                Container.AddressBox.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.V when CtrlDown:
-                            {
-                                args.Handled = true;
-
-                                Paste_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.A when CtrlDown:
-                            {
-                                args.Handled = true;
-
-                                ItemPresenter.SelectAll();
-                                break;
-                            }
-                        case VirtualKey.C when CtrlDown && ShiftDown:
-                            {
-                                args.Handled = true;
-
-                                Clipboard.Clear();
-
-                                DataPackage Package = new DataPackage
+                            case VirtualKey.F2:
                                 {
-                                    RequestedOperation = DataPackageOperation.Copy
-                                };
+                                    args.Handled = true;
 
-                                Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
-
-                                Clipboard.SetContent(Package);
-                                break;
-                            }
-                        case VirtualKey.C when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                            {
-                                args.Handled = true;
-
-                                Copy_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.X when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                            {
-                                args.Handled = true;
-
-                                Cut_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Delete when ItemPresenter.SelectedItems.Count > 0:
-                        case VirtualKey.D when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                            {
-                                args.Handled = true;
-
-                                Delete_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.F when CtrlDown:
-                            {
-                                args.Handled = true;
-
-                                Container.GlobeSearch.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.N when CtrlDown && ShiftDown:
-                            {
-                                args.Handled = true;
-
-                                CreateFolder_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
-                            {
-                                args.Handled = true;
-
-                                await ExecuteUndoAsync();
-                                break;
-                            }
-                        case VirtualKey.E when ShiftDown && CurrentFolder != null:
-                            {
-                                args.Handled = true;
-
-                                await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                break;
-                            }
-                        case VirtualKey.T when ShiftDown:
-                            {
-                                args.Handled = true;
-
-                                OpenInTerminal_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.T when CtrlDown && ItemPresenter.SelectedItems.Count <= 1:
-                            {
-                                args.Handled = true;
-
-                                CloseAllFlyout();
-
-                                if (SelectedItem is FileSystemStorageFolder)
-                                {
-                                    await TabViewContainer.Current.CreateNewTabAsync(SelectedItem.Path);
+                                    Rename_Click(null, null);
+                                    break;
                                 }
-                                else
+                            case VirtualKey.F5:
                                 {
-                                    await TabViewContainer.Current.CreateNewTabAsync();
+                                    args.Handled = true;
+
+                                    Refresh_Click(null, null);
+                                    break;
                                 }
-
-                                break;
-                            }
-                        case VirtualKey.Q when CtrlDown && ItemPresenter.SelectedItems.Count == 1:
-                            {
-                                args.Handled = true;
-
-                                OpenFolderInNewWindow_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Up when SelectedItem == null:
-                        case VirtualKey.Down when SelectedItem == null:
-                            {
-                                args.Handled = true;
-
-                                SelectedItem = FileCollection.FirstOrDefault();
-                                break;
-                            }
-                        case VirtualKey.B when CtrlDown:
-                            {
-                                args.Handled = true;
-
-                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                            case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
                                 {
-                                    if (ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                    args.Handled = true;
+
+                                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                                    break;
+                                }
+                            case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
+                                {
+                                    args.Handled = true;
+
+                                    Container.GoBackRecord_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.L when CtrlDown:
+                                {
+                                    args.Handled = true;
+
+                                    Container.AddressBox.Focus(FocusState.Programmatic);
+                                    break;
+                                }
+                            case VirtualKey.V when CtrlDown:
+                                {
+                                    args.Handled = true;
+
+                                    Paste_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.A when CtrlDown:
+                                {
+                                    args.Handled = true;
+
+                                    ItemPresenter.SelectAll();
+                                    break;
+                                }
+                            case VirtualKey.C when CtrlDown && ShiftDown:
+                                {
+                                    args.Handled = true;
+
+                                    Clipboard.Clear();
+
+                                    DataPackage Package = new DataPackage
                                     {
-                                        await Container.CreateNewBladeAsync(Folder.Path);
+                                        RequestedOperation = DataPackageOperation.Copy
+                                    };
+
+                                    Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
+
+                                    Clipboard.SetContent(Package);
+                                    break;
+                                }
+                            case VirtualKey.C when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
+                                {
+                                    args.Handled = true;
+
+                                    Copy_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.X when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
+                                {
+                                    args.Handled = true;
+
+                                    Cut_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Delete when ItemPresenter.SelectedItems.Count > 0:
+                            case VirtualKey.D when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
+                                {
+                                    args.Handled = true;
+
+                                    Delete_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.F when CtrlDown:
+                                {
+                                    args.Handled = true;
+
+                                    Container.GlobeSearch.Focus(FocusState.Programmatic);
+                                    break;
+                                }
+                            case VirtualKey.N when CtrlDown && ShiftDown:
+                                {
+                                    args.Handled = true;
+
+                                    CreateFolder_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
+                                {
+                                    args.Handled = true;
+
+                                    await ExecuteUndoAsync();
+                                    break;
+                                }
+                            case VirtualKey.E when ShiftDown && CurrentFolder != null:
+                                {
+                                    args.Handled = true;
+
+                                    await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                    break;
+                                }
+                            case VirtualKey.T when ShiftDown:
+                                {
+                                    args.Handled = true;
+
+                                    OpenInTerminal_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.T when CtrlDown && ItemPresenter.SelectedItems.Count <= 1:
+                                {
+                                    args.Handled = true;
+
+                                    CloseAllFlyout();
+
+                                    if (SelectedItem is FileSystemStorageFolder)
+                                    {
+                                        await TabViewContainer.Current.CreateNewTabAsync(SelectedItem.Path);
                                     }
                                     else
                                     {
-                                        await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                        await TabViewContainer.Current.CreateNewTabAsync();
                                     }
-                                }
 
-                                break;
-                            }
+                                    break;
+                                }
+                            case VirtualKey.Q when CtrlDown && ItemPresenter.SelectedItems.Count == 1:
+                                {
+                                    args.Handled = true;
+
+                                    OpenFolderInNewWindow_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Up when SelectedItem == null:
+                            case VirtualKey.Down when SelectedItem == null:
+                                {
+                                    args.Handled = true;
+
+                                    SelectedItem = FileCollection.FirstOrDefault();
+                                    break;
+                                }
+                            case VirtualKey.B when CtrlDown:
+                                {
+                                    args.Handled = true;
+
+                                    if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                                    {
+                                        if (ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
+                                        {
+                                            await Container.CreateNewBladeAsync(Folder.Path);
+                                        }
+                                        else
+                                        {
+                                            await Container.CreateNewBladeAsync(CurrentFolder.Path);
+                                        }
+                                    }
+
+                                    break;
+                                }
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(FilePresenter_KeyDown)}");
             }
         }
 
@@ -1896,15 +1903,22 @@ namespace RX_Explorer
                 && e.AddedItems.Count == 1
                 && e.AddedItems.First() is FileSystemStorageItemBase Item)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                try
                 {
-                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        if (!string.IsNullOrEmpty(Item.Path))
+                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                         {
-                            await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                            if (!string.IsNullOrEmpty(Item.Path))
+                            {
+                                await Exclusive.Controller.SwitchQuicklookAsync(Item.Path);
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_SelectionChanged)}");
                 }
             }
         }
@@ -2031,147 +2045,6 @@ namespace RX_Explorer
             {
                 SelectedItem = null;
                 SelectionExtention.Enable();
-            }
-        }
-
-        private async void ViewControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == PointerDeviceType.Mouse)
-            {
-                e.Handled = true;
-                Container.ShouldNotAcceptShortcutKeyInput = true;
-
-                try
-                {
-                    await HandleContextActionRequested(e, e.GetPosition((FrameworkElement)sender));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not execute the context action");
-                }
-
-                Container.ShouldNotAcceptShortcutKeyInput = false;
-            }
-        }
-
-        private async Task HandleContextActionRequested(RoutedEventArgs Args, Point Position)
-        {
-            ContextMenuCancellation?.Cancel();
-            ContextMenuCancellation?.Dispose();
-            ContextMenuCancellation = new CancellationTokenSource();
-
-            if (!SettingPage.IsDoubleClickEnabled)
-            {
-                DelaySelectionCancellation?.Cancel();
-            }
-
-            if (ItemPresenter is GridView)
-            {
-                if ((Args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
-                {
-                    if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                    {
-                        await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                        Position,
-                                                                                        ContextMenuCancellation.Token,
-                                                                                        ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                    }
-                    else
-                    {
-                        SelectedItem = Context;
-
-                        CommandBarFlyout ContextFlyout = Context switch
-                        {
-                            LinkStorageFile => LinkItemFlyout,
-                            FileSystemStorageFolder => FolderFlyout,
-                            FileSystemStorageFile => FileFlyout,
-                            _ => throw new NotImplementedException()
-                        };
-
-                        await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                          Position,
-                                                                                          ContextMenuCancellation.Token,
-                                                                                          ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                    }
-                }
-                else
-                {
-                    SelectedItem = null;
-                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                    Position,
-                                                                                    ContextMenuCancellation.Token,
-                                                                                    CurrentFolder.Path);
-                }
-            }
-            else
-            {
-                if (Args.OriginalSource is FrameworkElement Element)
-                {
-                    if (Element.DataContext is FileSystemStorageItemBase Context)
-                    {
-                        if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                        {
-                            await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                            Position,
-                                                                                            ContextMenuCancellation.Token,
-                                                                                            ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                        }
-                        else
-                        {
-                            if (SelectedItem == Context)
-                            {
-                                CommandBarFlyout ContextFlyout = Context switch
-                                {
-                                    LinkStorageFile => LinkItemFlyout,
-                                    FileSystemStorageFolder => FolderFlyout,
-                                    FileSystemStorageFile => FileFlyout,
-                                    _ => throw new NotImplementedException()
-                                };
-
-                                await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                  Position,
-                                                                                                  ContextMenuCancellation.Token,
-                                                                                                  ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                            }
-                            else
-                            {
-                                if (Args.OriginalSource is TextBlock)
-                                {
-                                    SelectedItem = Context;
-
-                                    CommandBarFlyout ContextFlyout = Context switch
-                                    {
-                                        LinkStorageFile => LinkItemFlyout,
-                                        FileSystemStorageFolder => FolderFlyout,
-                                        FileSystemStorageFile => FileFlyout,
-                                        _ => throw new NotImplementedException()
-                                    };
-
-                                    await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                      Position,
-                                                                                                      ContextMenuCancellation.Token,
-                                                                                                      ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                }
-                                else
-                                {
-                                    SelectedItem = null;
-                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    CurrentFolder.Path);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SelectedItem = null;
-                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                        Position,
-                                                                                        ContextMenuCancellation.Token,
-                                                                                        CurrentFolder.Path);
-                    }
-                }
             }
         }
 
@@ -3840,33 +3713,40 @@ namespace RX_Explorer
 
                 Task.Delay(800).ContinueWith(async (task, input) =>
                 {
-                    if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                    try
                     {
-                        TooltipFlyout.Hide();
-
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
                         {
-                            TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
+                            TooltipFlyout.Hide();
 
-                            if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
-                                && !Token.IsCancellationRequested
-                                && !Container.ShouldNotAcceptShortcutKeyInput
-                                && !FileFlyout.IsOpen
-                                && !FolderFlyout.IsOpen
-                                && !EmptyFlyout.IsOpen
-                                && !MixedFlyout.IsOpen
-                                && !LinkItemFlyout.IsOpen)
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                             {
-                                PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+                                TooltipFlyoutText.Text = await Exclusive.Controller.GetTooltipTextAsync(Item.Path);
 
-                                TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                if (!string.IsNullOrWhiteSpace(TooltipFlyoutText.Text)
+                                    && !Token.IsCancellationRequested
+                                    && !Container.ShouldNotAcceptShortcutKeyInput
+                                    && !FileFlyout.IsOpen
+                                    && !FolderFlyout.IsOpen
+                                    && !EmptyFlyout.IsOpen
+                                    && !MixedFlyout.IsOpen
+                                    && !LinkItemFlyout.IsOpen)
                                 {
-                                    Position = new Point(Point.Position.X, Point.Position.Y + 20),
-                                    ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                                });
+                                    PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
+
+                                    TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
+                                    {
+                                        Position = new Point(Point.Position.X, Point.Position.Y + 20),
+                                        ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
+                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                    });
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when generate the tooltip flyout");
                     }
                 }, DelayTooltipCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
             }
@@ -3932,26 +3812,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                e.Handled = true;
-                Container.ShouldNotAcceptShortcutKeyInput = true;
-
-                try
-                {
-                    await HandleContextActionRequested(e, e.GetPosition((FrameworkElement)sender));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not execute the context action");
-                }
-
-                Container.ShouldNotAcceptShortcutKeyInput = false;
-            }
-        }
-
         private async void MixDecompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
@@ -4013,22 +3873,29 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SQLite.Current.GetTerminalProfileByName(SettingPage.DefaultTerminalName) is TerminalProfile Profile)
+            try
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                if (SQLite.Current.GetTerminalProfileByName(SettingPage.DefaultTerminalName) is TerminalProfile Profile)
                 {
-                    if (!await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()))
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        if (!await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        await Dialog.ShowAsync();
+                            await Dialog.ShowAsync();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OpenInTerminal_Click)}");
             }
         }
 
@@ -5076,124 +4943,131 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (sender is FrameworkElement Item && SelectedItem is FileSystemStorageItemBase SItem)
+            try
             {
-                switch (Item.Name)
+                if (sender is FrameworkElement Item && SelectedItem is FileSystemStorageItemBase SItem)
                 {
-                    case "SendLinkItem":
-                        {
-                            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-
-                            if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                    switch (Item.Name)
+                    {
+                        case "SendLinkItem":
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
                                 {
-                                    if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
-                                        LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                        LinkTargetPath = SItem.Path
-                                    }))
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        await Dialog.ShowAsync();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                             ? UserDataPaths.GetForUser(CurrentUser)
-                                                             : UserDataPaths.GetDefault();
-
-                                    if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
-                                    {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            LinkPath = Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                            LinkTargetPath = SItem.Path
+                                        }))
                                         {
-                                            if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                            QueueContentDialog Dialog = new QueueContentDialog
                                             {
-                                                LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                                LinkTargetPath = SItem.Path
-                                            }))
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
 
-                                                await Dialog.ShowAsync();
-                                            }
+                                            await Dialog.ShowAsync();
                                         }
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    try
                                     {
-                                        LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                            {
+                                                if (!await Exclusive.Controller.CreateLinkAsync(new LinkDataPackage
+                                                {
+                                                    LinkPath = Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                    LinkTargetPath = SItem.Path
+                                                }))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
                                     }
                                 }
-                                catch (Exception ex)
+
+                                break;
+                            }
+                        case "SendDocumentItem":
+                            {
+                                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
                                 {
-                                    LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
+                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
                                 }
-                            }
-
-                            break;
-                        }
-                    case "SendDocumentItem":
-                        {
-                            string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-                            if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
-                            {
-                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
-                            }
-                            else
-                            {
-                                try
+                                else
                                 {
-                                    IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                                             ? UserDataPaths.GetForUser(CurrentUser)
-                                                             : UserDataPaths.GetDefault();
-
-                                    if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                    try
                                     {
-                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                                 : UserDataPaths.GetDefault();
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                        {
+                                            QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                        }
+                                        else
+                                        {
+                                            LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
+                                        }
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
+                                        LogTracer.Log(ex, "Could not get document path from UserDataPaths");
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    LogTracer.Log(ex, "Could not get document path from UserDataPaths");
-                                }
-                            }
 
-                            break;
-                        }
-                    case "SendRemovableItem":
-                        {
-                            if (Item.Tag is string RemovablePath)
+                                break;
+                            }
+                        case "SendRemovableItem":
                             {
-                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
-                            }
+                                if (Item.Tag is string RemovablePath)
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(SendToItem_Click)}");
             }
         }
 
@@ -5401,6 +5275,149 @@ namespace RX_Explorer
             {
                 MixDecompression.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private async void ViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if (args.TryGetPosition(sender, out Point Position))
+            {
+                args.Handled = true;
+                Container.ShouldNotAcceptShortcutKeyInput = true;
+
+                try
+                {
+                    ContextMenuCancellation?.Cancel();
+                    ContextMenuCancellation?.Dispose();
+                    ContextMenuCancellation = new CancellationTokenSource();
+
+                    if (!SettingPage.IsDoubleClickEnabled)
+                    {
+                        DelaySelectionCancellation?.Cancel();
+                    }
+
+                    if (ItemPresenter is GridView)
+                    {
+                        if ((args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                        {
+                            if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
+                            {
+                                await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                Position,
+                                                                                                ContextMenuCancellation.Token,
+                                                                                                ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                            }
+                            else
+                            {
+                                SelectedItem = Context;
+
+                                CommandBarFlyout ContextFlyout = Context switch
+                                {
+                                    LinkStorageFile => LinkItemFlyout,
+                                    FileSystemStorageFolder => FolderFlyout,
+                                    FileSystemStorageFile => FileFlyout,
+                                    _ => throw new NotImplementedException()
+                                };
+
+                                await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                  Position,
+                                                                                                  ContextMenuCancellation.Token,
+                                                                                                  ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                            }
+                        }
+                        else
+                        {
+                            SelectedItem = null;
+                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                            Position,
+                                                                                            ContextMenuCancellation.Token,
+                                                                                            CurrentFolder.Path);
+                        }
+                    }
+                    else
+                    {
+                        if (args.OriginalSource is FrameworkElement Element)
+                        {
+                            if (Element.DataContext is FileSystemStorageItemBase Context)
+                            {
+                                if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
+                                {
+                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                                }
+                                else
+                                {
+                                    if (SelectedItem == Context)
+                                    {
+                                        CommandBarFlyout ContextFlyout = Context switch
+                                        {
+                                            LinkStorageFile => LinkItemFlyout,
+                                            FileSystemStorageFolder => FolderFlyout,
+                                            FileSystemStorageFile => FileFlyout,
+                                            _ => throw new NotImplementedException()
+                                        };
+
+                                        await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                          Position,
+                                                                                                          ContextMenuCancellation.Token,
+                                                                                                          ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                                    }
+                                    else
+                                    {
+                                        if (args.OriginalSource is TextBlock)
+                                        {
+                                            SelectedItem = Context;
+
+                                            CommandBarFlyout ContextFlyout = Context switch
+                                            {
+                                                LinkStorageFile => LinkItemFlyout,
+                                                FileSystemStorageFolder => FolderFlyout,
+                                                FileSystemStorageFile => FileFlyout,
+                                                _ => throw new NotImplementedException()
+                                            };
+
+                                            await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                              Position,
+                                                                                                              ContextMenuCancellation.Token,
+                                                                                                              ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                                        }
+                                        else
+                                        {
+                                            SelectedItem = null;
+                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                            Position,
+                                                                                                            ContextMenuCancellation.Token,
+                                                                                                            CurrentFolder.Path);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                SelectedItem = null;
+                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                Position,
+                                                                                                ContextMenuCancellation.Token,
+                                                                                                CurrentFolder.Path);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not execute the context action");
+                }
+                finally
+                {
+                    Container.ShouldNotAcceptShortcutKeyInput = false;
+                }
+            }
+        }
+
+        private void ViewControl_ContextCanceled(UIElement sender, RoutedEventArgs args)
+        {
+            CloseAllFlyout();
         }
 
         public void Dispose()

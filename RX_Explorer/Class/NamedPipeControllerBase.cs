@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
 
         protected virtual int MaxAllowedConnection { get; } = -1;
 
-        public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault();
+        public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault() && !IsDisposed;
 
         protected bool IsDisposed { get; private set; }
 

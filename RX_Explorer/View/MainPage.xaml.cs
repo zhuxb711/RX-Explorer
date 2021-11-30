@@ -244,21 +244,28 @@ namespace RX_Explorer
 
             if (SettingPage.WindowAlwaysOnTop)
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                try
                 {
-                    using Process CurrentProcess = Process.GetCurrentProcess();
-
-                    if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                        using Process CurrentProcess = Process.GetCurrentProcess();
 
-                        await Dialog.ShowAsync();
+                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw when setting this application as the TopMost window");
                 }
             }
         }
@@ -1120,52 +1127,55 @@ namespace RX_Explorer
         {
             if (e.ClickedItem is QuickStartItem Item)
             {
-                QuickStartTip.IsOpen = false;
-
-                if ((sender as GridView).Name == nameof(QuickStartGridView))
+                try
                 {
-                    if (Item.Type == QuickStartType.AddButton)
+                    QuickStartTip.IsOpen = false;
+
+                    if ((sender as GridView).Name == nameof(QuickStartGridView))
                     {
-                        await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
-                    }
-                    else
-                    {
-                        if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
+                        if (Item.Type == QuickStartType.AddButton)
                         {
-                            if (Ur.IsFile)
+                            await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
+                        }
+                        else
+                        {
+                            if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
+                                if (Ur.IsFile)
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
                                     {
                                         try
                                         {
-                                            if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
+                                                if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
                                                     {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
+                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
 
-                                                    await Dialog.ShowAsync();
+                                                        await Dialog.ShowAsync();
+                                                    }
                                                 }
-                                            }
-                                            else
-                                            {
-                                                if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
+                                                else
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
                                                     {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
+                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
 
-                                                    await Dialog.ShowAsync();
+                                                        await Dialog.ShowAsync();
+                                                    }
                                                 }
                                             }
                                         }
@@ -1174,53 +1184,57 @@ namespace RX_Explorer
                                             LogTracer.Log(ex, "Could not execute program in quick start");
                                         }
                                     }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
                                 }
                                 else
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog.ShowAsync();
+                                    await Launcher.LaunchUriAsync(Ur);
                                 }
                             }
                             else
                             {
-                                await Launcher.LaunchUriAsync(Ur);
-                            }
-                        }
-                        else
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                            {
-                                if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
 
-                                    await Dialog.ShowAsync();
+                                        await Dialog.ShowAsync();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
-                    if (Item.Type == QuickStartType.AddButton)
-                    {
-                        await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
-                    }
                     else
                     {
-                        await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
+                        if (Item.Type == QuickStartType.AddButton)
+                        {
+                            await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
+                        }
+                        else
+                        {
+                            await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(QuickStart_ItemClick)}");
                 }
             }
         }

@@ -131,14 +131,12 @@
                   CanDrag="False"
                   CanReorderItems="False"
                   AllowDrop="True"
-                  IsHoldingEnabled="True"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
-                  IsRightTapEnabled="True"
+                  ContextRequested="ListViewControl_ContextRequested"
+                  ContextCanceled="ListViewControl_ContextCanceled"
                   ShowsScrollingPlaceholders="False"
                   DoubleTapped="ListViewControl_DoubleTapped"
-                  RightTapped="ListViewControl_RightTapped"
-                  Holding="ListViewControl_Holding"
                   DragOver="ListViewControl_DragOver"
                   Drop="ListViewControl_Drop"
                   Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
@@ -226,9 +224,9 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             x:Name="ListHeaderName"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -246,9 +244,9 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Grid.Column="1"
                             Click="ListHeader_Click"
                             Name="ListHeaderModifiedTime"
@@ -267,9 +265,9 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Grid.Column="2"
                             Click="ListHeader_Click"
                             Name="ListHeaderType"
@@ -288,11 +286,11 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Grid.Column="3"
                             Click="ListHeader_Click"
-                            VerticalAlignment="Stretch"
                             Name="ListHeaderCompressedSize"
                             Style="{StaticResource ListHeaderButtonStyle}">
                         <RelativePanel>
@@ -309,10 +307,10 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Grid.Column="4"
-                            VerticalAlignment="Stretch"
                             Name="ListHeaderSize"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -330,10 +328,10 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
                             HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Grid.Column="5"
-                            VerticalAlignment="Stretch"
                             Name="ListHeaderCompressionRate"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">

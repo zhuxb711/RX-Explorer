@@ -830,37 +830,44 @@ namespace RX_Explorer
 
         private async void RenameFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageFile RenameItem)
+            try
             {
-                RenameDialog dialog = new RenameDialog(RenameItem);
-
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if (SecureGridView.SelectedItem is FileSystemStorageFile RenameItem)
                 {
-                    string OriginName = RenameItem.Name;
-                    string NewName = dialog.DesireNameMap[OriginName];
+                    RenameDialog dialog = new RenameDialog(RenameItem);
 
-                    if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                        && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, NewName)))
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
+                        string OriginName = RenameItem.Name;
+                        string NewName = dialog.DesireNameMap[OriginName];
 
-                        if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                        if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
+                            && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, NewName)))
                         {
-                            return;
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                            {
+                                return;
+                            }
+                        }
+
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
                         }
                     }
-
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        await Exclusive.Controller.RenameAsync(RenameItem.Path, NewName, true);
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(RenameFile_Click)}");
             }
         }
 

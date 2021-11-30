@@ -1930,6 +1930,8 @@
     <Style TargetType="ListViewItem"
            x:Key="CustomListViewItemWithoutAnimationStyle"
            BasedOn="{StaticResource DefaultListViewItemStyle}">
+        <Setter Property="Padding"
+                Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
@@ -2451,6 +2453,8 @@
     <Style TargetType="ListViewItem"
            x:Key="CustomListViewItemWithAnimationStyle"
            BasedOn="{StaticResource DefaultListViewItemStyle}">
+        <Setter Property="Padding"
+                Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">
@@ -3190,7 +3194,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style x:Key="SplitButtonStyleInOption"
            TargetType="SplitButton">
         <Setter Property="Background"

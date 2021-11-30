@@ -165,22 +165,21 @@
         <ListView Grid.Row="1"
                   Name="SearchResultList"
                   x:FieldModifier="public"
-                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                  ItemsSource="{x:Bind SearchResult}"
-                  Style="{StaticResource ListViewStyleWithFixedHeader}"
-                  Header="{x:Bind ListViewDetailHeader}"
-                  IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
                   IsItemClickEnabled="True"
                   SelectionMode="Extended"
                   ShowsScrollingPlaceholders="False"
+                  ContextRequested="SearchResultList_ContextRequested"
+                  ContextCanceled="SearchResultList_ContextCanceled"
                   SelectionChanged="SearchResultList_SelectionChanged"
                   PreviewKeyDown="SearchResultList_PreviewKeyDown"
                   DoubleTapped="SearchResultList_DoubleTapped"
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
-                  Holding="SearchResultList_Holding"
-                  RightTapped="SearchResultList_RightTapped"
-                  ItemClick="SearchResultList_ItemClick">
+                  ItemClick="SearchResultList_ItemClick"
+                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                  ItemsSource="{x:Bind SearchResult}"
+                  Style="{StaticResource ListViewStyleWithFixedHeader}"
+                  Header="{x:Bind ListViewDetailHeader}">
             <ListView.HeaderTemplate>
                 <DataTemplate x:DataType="Cls:ListViewHeaderController">
                     <Grid Height="35"
@@ -199,13 +198,13 @@
                                        HorizontalAlignment="Stretch"
                                        PointerEntered="ListHeaderRelativePanel_PointerEntered"
                                        PointerExited="ListHeaderRelativePanel_PointerExited">
-                            <Button HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
+                            <Button Height="35"
+                                    HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
                                     x:Name="ListHeaderName"
                                     Click="ListHeader_Click"
+                                    DoubleTapped="ListHeader_DoubleTapped"
                                     RelativePanel.LeftOf="NameFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Style="{StaticResource ListHeaderButtonStyle}">
@@ -225,11 +224,11 @@
                                              Visibility="{x:Bind Indicator.NameIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button x:Name="NameFilterHeader"
-                                    Visibility="Collapsed"
-                                    Height="35"
+                            <Button Height="35"
                                     Width="25"
                                     Padding="2"
+                                    x:Name="NameFilterHeader"
+                                    Visibility="Collapsed"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     RelativePanel.AlignVerticalCenterWithPanel="True">
@@ -367,13 +366,13 @@
                                 </Button.Flyout>
                             </Button>
                         </RelativePanel>
-                        <Button HorizontalContentAlignment="Stretch"
+                        <Button Height="35"
                                 HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
                                 IsDoubleTapEnabled="True"
-                                DoubleTapped="ListHeader_DoubleTapped"
                                 x:Name="ListHeaderPath"
                                 Click="ListHeader_Click"
+                                DoubleTapped="ListHeader_DoubleTapped"
                                 Grid.Column="1"
                                 RelativePanel.LeftOf="NameFilterHeader"
                                 RelativePanel.AlignLeftWithPanel="True"
@@ -399,13 +398,13 @@
                                        HorizontalAlignment="Stretch"
                                        PointerEntered="ListHeaderRelativePanel_PointerEntered"
                                        PointerExited="ListHeaderRelativePanel_PointerExited">
-                            <Button HorizontalContentAlignment="Stretch"
+                            <Button Height="35"
                                     HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
                                     IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
                                     Name="ListHeaderModifiedTime"
                                     Click="ListHeader_Click"
+                                    DoubleTapped="ListHeader_DoubleTapped"
                                     RelativePanel.LeftOf="ModTimeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Style="{StaticResource ListHeaderButtonStyle}">
@@ -425,11 +424,11 @@
                                              Visibility="{x:Bind Indicator.ModifiedTimeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button x:Name="ModTimeFilterHeader"
-                                    Visibility="Collapsed"
-                                    Height="35"
+                            <Button Height="35"
                                     Width="25"
                                     Padding="2"
+                                    x:Name="ModTimeFilterHeader"
+                                    Visibility="Collapsed"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     RelativePanel.AlignVerticalCenterWithPanel="True">
@@ -518,13 +517,13 @@
                                        HorizontalAlignment="Stretch"
                                        PointerEntered="ListHeaderRelativePanel_PointerEntered"
                                        PointerExited="ListHeaderRelativePanel_PointerExited">
-                            <Button HorizontalContentAlignment="Stretch"
-                                    IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
+                            <Button Height="35"
                                     HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    IsDoubleTapEnabled="True"
                                     Name="ListHeaderType"
                                     Click="ListHeader_Click"
+                                    DoubleTapped="ListHeader_DoubleTapped"
                                     RelativePanel.LeftOf="TypeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Style="{StaticResource ListHeaderButtonStyle}">
@@ -544,11 +543,11 @@
                                              Visibility="{x:Bind Indicator.TypeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button x:Name="TypeFilterHeader"
-                                    Visibility="Collapsed"
-                                    Height="35"
+                            <Button Height="35"
                                     Width="25"
                                     Padding="2"
+                                    x:Name="TypeFilterHeader"
+                                    Visibility="Collapsed"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     RelativePanel.AlignVerticalCenterWithPanel="True">
@@ -585,15 +584,15 @@
                                        HorizontalAlignment="Stretch"
                                        PointerEntered="ListHeaderRelativePanel_PointerEntered"
                                        PointerExited="ListHeaderRelativePanel_PointerExited">
-                            <Button HorizontalContentAlignment="Stretch"
+                            <Button Height="35"
                                     HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
                                     IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
-                                    VerticalAlignment="Stretch"
                                     Name="ListHeaderSize"
                                     RelativePanel.LeftOf="SizeFilterHeader"
                                     RelativePanel.AlignLeftWithPanel="True"
                                     Click="ListHeader_Click"
+                                    DoubleTapped="ListHeader_DoubleTapped"
                                     Style="{StaticResource ListHeaderButtonStyle}">
                                 <RelativePanel>
                                     <TextBlock Text="大小"
@@ -611,11 +610,11 @@
                                              Visibility="{x:Bind Indicator.SizeIndicatorVisibility,Mode=OneWay}" />
                                 </RelativePanel>
                             </Button>
-                            <Button x:Name="SizeFilterHeader"
-                                    Visibility="Collapsed"
-                                    Height="35"
+                            <Button Height="35"
                                     Width="25"
                                     Padding="2"
+                                    x:Name="SizeFilterHeader"
+                                    Visibility="Collapsed"
                                     Style="{StaticResource ListHeaderButtonStyle}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     RelativePanel.AlignVerticalCenterWithPanel="True">

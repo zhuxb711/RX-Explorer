@@ -11,7 +11,7 @@ namespace FullTrustProcess
     {
         protected NamedPipeClientStream PipeStream { get; }
 
-        public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault();
+        public bool IsConnected => (PipeStream?.IsConnected).GetValueOrDefault() && !IsDisposed;
 
         public string PipeId { get; }
 

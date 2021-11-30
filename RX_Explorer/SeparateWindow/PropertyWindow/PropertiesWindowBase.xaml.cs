@@ -427,10 +427,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task LoadDataForDetailPage()
         {
-            await StorageItem.StartProcessRefShareRegionAsync();
-
             try
             {
+                await StorageItem.StartProcessRefShareRegionAsync();
+
                 Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
                 {
                     { Globalization.GetString("Properties_Details_Name"), StorageItem.Name },

@@ -14,8 +14,15 @@ namespace FullTrustProcess
 
         public void SendData(string Data)
         {
-            MessageQueue.Enqueue(Data);
-            ProcessSleepLocker.Set();
+            if (IsConnected)
+            {
+                MessageQueue.Enqueue(Data);
+                ProcessSleepLocker.Set();
+            }
+            else
+            {
+                throw new InvalidOperationException("Named pipe is disconnected and could not send data anymore");
+            }
         }
 
         private void WriteProcess()

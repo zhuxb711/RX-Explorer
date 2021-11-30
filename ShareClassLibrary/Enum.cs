@@ -36,8 +36,7 @@
 
     public enum CommandType
     {
-        Identity,
-        AppServiceCancelled,
+        Test,
         RunExecutable,
         ToggleQuicklook,
         SwitchQuicklook,

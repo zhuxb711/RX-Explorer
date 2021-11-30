@@ -120,11 +120,10 @@
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1.5*" />
                     </Grid.ColumnDefinitions>
-                    <Button HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                    <Button Height="35"
+                            HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
-                            Grid.Column="0"
                             x:Name="ListHeaderName"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -142,8 +141,8 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                    <Button Height="35"
+                            HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="1"
@@ -164,8 +163,8 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                    <Button Height="35"
+                            HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
                             Grid.Column="2"
@@ -186,11 +185,11 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button Grid.Column="3"
-                            HorizontalContentAlignment="Stretch"
+                    <Button Height="35"
+                            Grid.Column="3"
                             AllowFocusOnInteraction="False"
                             HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
                             Name="ListHeaderType"
                             Click="ListHeader_Click"
                             Style="{StaticResource ListHeaderButtonStyle}">
@@ -208,10 +207,10 @@
                                      Width="12" />
                         </RelativePanel>
                     </Button>
-                    <Button HorizontalAlignment="Stretch"
+                    <Button Height="35"
+                            HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AllowFocusOnInteraction="False"
-                            VerticalAlignment="Stretch"
                             Name="ListHeaderSize"
                             Grid.Column="4"
                             Click="ListHeader_Click"

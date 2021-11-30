@@ -488,28 +488,28 @@ namespace FullTrustProcess
 
         private static async void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
         {
-            if (e.ExtraException is Exception Ex)
-            {
-                LogTracer.Log(Ex, "Could not receive pipe data");
-            }
-            else
-            {
-                EventDeferral Deferral = e.GetDeferral();
+            EventDeferral Deferral = e.GetDeferral();
 
-                try
+            try
+            {
+                if (e.ExtraException is Exception Ex)
+                {
+                    LogTracer.Log(Ex, "Could not receive pipe data");
+                }
+                else
                 {
                     IDictionary<string, string> Request = JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data);
                     IDictionary<string, string> Response = await HandleCommand(Request);
                     PipeCommandWriteController?.SendData(JsonSerializer.Serialize(Response));
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw in responding pipe message");
-                }
-                finally
-                {
-                    Deferral.Complete();
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in responding pipe message");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -519,6 +519,15 @@ namespace FullTrustProcess
             {
                 LogTracer.Log(Ex, "UnhandledException");
                 LogTracer.MakeSureLogIsFlushed(2000);
+
+                ExitLocker?.Dispose();
+                AliveCheckTimer?.Dispose();
+
+                PipeCommandWriteController?.Dispose();
+                PipeCommandReadController?.Dispose();
+                PipeProgressWriterController?.Dispose();
+                PipeCancellationReadController?.Dispose();
+                PipeCommunicationBaseController?.Dispose();
             }
         }
 
@@ -533,6 +542,11 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.Test:
+                        {
+                            Value.Add("Success", string.Empty);
+                            break;
+                        }
                     case CommandType.GetProperties:
                         {
                             string Path = Convert.ToString(CommandValue["Path"]);
@@ -1997,12 +2011,6 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.Identity:
-                        {
-                            Value.Add("Identity", "FullTrustProcess");
-
-                            break;
-                        }
                     case CommandType.ToggleQuicklook:
                         {
                             string ExecutePath = CommandValue["ExecutePath"];
@@ -2823,11 +2831,6 @@ namespace FullTrustProcess
                                 Value.Add("Error", "Could not found the window handle");
                             }
 
-                            break;
-                        }
-                    case CommandType.AppServiceCancelled:
-                        {
-                            ExitLocker.Set();
                             break;
                         }
                 }

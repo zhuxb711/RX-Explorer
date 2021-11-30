@@ -102,8 +102,15 @@ namespace RX_Explorer.Class
                     {
                         if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
-                            if (Controller == null || Controller.IsDisposed)
+                            if (Controller == null || Controller.IsDisposed || Controller.SendCommandAsync(CommandType.Test).Result == null)
                             {
+                                LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
+
+                                if (!Controller.IsDisposed)
+                                {
+                                    Controller.Dispose();
+                                }
+
                                 for (int Retry = 1; Retry <= 3; Retry++)
                                 {
                                     if (CreateAsync().Result is FullTrustProcessController NewController)
@@ -113,7 +120,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        LogTracer.Log($"Dispatcher fould a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
+                                        LogTracer.Log($"Dispatcher found a controller was disposed, but could not recreate a new controller. Retrying execute {nameof(CreateAsync)} in {Retry} times");
                                     }
                                 }
                             }
@@ -253,7 +260,7 @@ namespace RX_Explorer.Class
                     return true;
                 }
 
-                if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommunicationBaseController?.IsConnected).GetValueOrDefault(), 5000)))
+                if (await Task.Run(() => SpinWait.SpinUntil(() => (PipeCommunicationBaseController?.IsConnected).GetValueOrDefault(), 10000)))
                 {
                     for (int RetryCount = 1; RetryCount <= 3; RetryCount++)
                     {

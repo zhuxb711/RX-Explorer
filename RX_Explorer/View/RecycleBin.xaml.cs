@@ -1,5 +1,4 @@
 ﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
@@ -186,23 +185,32 @@ namespace RX_Explorer.View
 
             ControlLoading(true, Globalization.GetString("Progress_Tip_Loading"));
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            try
             {
-                FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
-            }
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending));
+                }
 
-            if (FileCollection.Count == 0)
-            {
-                HasFile.Visibility = Visibility.Visible;
-                ClearRecycleBin.IsEnabled = false;
+                if (FileCollection.Count == 0)
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
+                }
+                else
+                {
+                    HasFile.Visibility = Visibility.Collapsed;
+                    ClearRecycleBin.IsEnabled = true;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                HasFile.Visibility = Visibility.Collapsed;
-                ClearRecycleBin.IsEnabled = true;
+                LogTracer.Log(ex, $"An exception was threw in {nameof(OnNavigatedTo)}");
             }
-
-            ControlLoading(false);
+            finally
+            {
+                ControlLoading(false);
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -536,30 +544,36 @@ namespace RX_Explorer.View
             {
                 ControlLoading(true, Globalization.GetString("RecycleBinEmptyingText"));
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                try
                 {
-                    if (await Exclusive.Controller.EmptyRecycleBinAsync())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        ControlLoading(false);
-
-                        FileCollection.Clear();
-
-                        HasFile.Visibility = Visibility.Visible;
-                        ClearRecycleBin.IsEnabled = false;
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        if (await Exclusive.Controller.EmptyRecycleBinAsync())
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            FileCollection.Clear();
+                            HasFile.Visibility = Visibility.Visible;
+                            ClearRecycleBin.IsEnabled = false;
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        await dialog.ShowAsync();
-
-                        ControlLoading(false);
+                            await dialog.ShowAsync();
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(ClearRecycleBin_Click)}");
+                }
+                finally
+                {
+                    ControlLoading(false);
                 }
             }
         }
@@ -623,23 +637,30 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            try
             {
-                foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    FileCollection.Add(Item);
+                    foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
+                    {
+                        FileCollection.Add(Item);
+                    }
+                }
+
+                if (FileCollection.Count == 0)
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
+                }
+                else
+                {
+                    HasFile.Visibility = Visibility.Collapsed;
+                    ClearRecycleBin.IsEnabled = true;
                 }
             }
-
-            if (FileCollection.Count == 0)
+            catch (Exception ex)
             {
-                HasFile.Visibility = Visibility.Visible;
-                ClearRecycleBin.IsEnabled = false;
-            }
-            else
-            {
-                HasFile.Visibility = Visibility.Collapsed;
-                ClearRecycleBin.IsEnabled = true;
+                LogTracer.Log(ex, $"An exception was threw in {nameof(Refresh_Click)}");
             }
         }
 
