@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -43,6 +42,22 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static IEnumerable<string> Split(this string OriginString, int ChunkSize)
+        {
+            if (string.IsNullOrEmpty(OriginString))
+            {
+                throw new ArgumentException("String could not be empty", nameof(OriginString));
+            }
+
+            if (ChunkSize <= 0)
+            {
+                throw new ArgumentException("ChunkSize could not be less or equal to zero", nameof(ChunkSize));
+            }
+
+            return Enumerable.Range(0, OriginString.Length / ChunkSize)
+                             .Select((ChunkIndex) => OriginString.Substring(ChunkIndex * ChunkSize, ChunkSize));
+        }
+
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))
@@ -713,7 +728,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string GetFileSizeDescription(this ulong SizeRaw)
+        public static string GetSizeDescription(this ulong SizeRaw)
         {
             if (SizeRaw > 0)
             {
@@ -838,7 +853,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Node), "Argument could not be null");
             }
 
-            if (RootNodes == null || RootNodes.Length == 0)
+            if ((RootNodes?.Length).GetValueOrDefault() == 0)
             {
                 return false;
             }

@@ -102,7 +102,7 @@ namespace RX_Explorer.Class
                     {
                         if (AvailableControllers.TryDequeue(out FullTrustProcessController Controller))
                         {
-                            if (Controller == null || Controller.IsDisposed || Controller.SendCommandAsync(CommandType.Test).Result == null)
+                            if ((Controller?.IsDisposed).GetValueOrDefault(true) || Controller.SendCommandAsync(CommandType.Test).Result == null)
                             {
                                 LogTracer.Log($"Dispatcher found a controller was disposed or disconnected, trying create a new one for dispatching");
 

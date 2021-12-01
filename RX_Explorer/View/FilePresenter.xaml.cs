@@ -895,7 +895,7 @@ namespace RX_Explorer
                     throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
                 }
 
-                if (ForceRefresh || Folder.Path != (CurrentFolder?.Path))
+                if (ForceRefresh || !Folder.Path.Equals((CurrentFolder?.Path), StringComparison.OrdinalIgnoreCase))
                 {
                     if (!SkipNavigationRecord && !ForceRefresh)
                     {
@@ -931,6 +931,11 @@ namespace RX_Explorer
                     DelayRenameCancellation?.Cancel();
                     DelaySelectionCancellation?.Cancel();
                     DelayTooltipCancellation?.Cancel();
+
+                    if ((ItemPresenter?.SelectionMode).GetValueOrDefault(ListViewSelectionMode.Extended) == ListViewSelectionMode.Multiple)
+                    {
+                        ItemPresenter.SelectionMode = ListViewSelectionMode.Extended;
+                    }
 
                     if (Folder is RootStorageFolder)
                     {
@@ -1141,7 +1146,7 @@ namespace RX_Explorer
 
                         IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
 
-                        if (Group.Any() && (SelectedItem == null || !Group.Contains(SelectedItem)))
+                        if (Group.Any() && !Group.Contains(SelectedItem))
                         {
                             SelectedItem = Group.FirstOrDefault();
                             ItemPresenter.ScrollIntoView(SelectedItem);
@@ -1878,7 +1883,7 @@ namespace RX_Explorer
                         TotalSize += Size;
                     }
 
-                    SizeInfo = $"  |  {TotalSize.GetFileSizeDescription()}";
+                    SizeInfo = $"  |  {TotalSize.GetSizeDescription()}";
                 }
 
                 if (StatusTipsSplit.Length > 0)

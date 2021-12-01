@@ -13,7 +13,7 @@ namespace SystemInformationProvider
 		class InstructionSet_Internal;
 
 	public:
-#if ((!defined _M_ARM) && (!defined _M_ARM64))
+#if (!defined _M_ARM64)
 		static std::string Vendor(void) { return CPU_Rep.vendor_; }
 		static std::string Brand(void) { return CPU_Rep.brand_; }
 
@@ -83,7 +83,7 @@ namespace SystemInformationProvider
 		class InstructionSet_Internal
 		{
 		public:
-#if ((!defined _M_ARM) && (!defined _M_ARM64))
+#if (!defined _M_ARM64)
 			InstructionSet_Internal()
 				: nIds_{ 0 },
 				nExIds_{ 0 },

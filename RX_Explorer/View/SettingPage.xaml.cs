@@ -1397,20 +1397,20 @@ namespace RX_Explorer
 
         private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86)
+            if (Package.Current.Id.Architecture is ProcessorArchitecture.X64 or ProcessorArchitecture.X86 or ProcessorArchitecture.X86OnArm64)
             {
-                SystemInfoDialog dialog = new SystemInfoDialog();
-                _ = await dialog.ShowAsync();
+                await new SystemInfoDialog().ShowAsync();
             }
             else
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_NotSupportARM_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await dialog.ShowAsync();
+                
+                await Dialog.ShowAsync();
             }
 
         }

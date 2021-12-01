@@ -189,8 +189,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 OpenWithPanel.Visibility = Visibility.Visible;
 
-                Unlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
-
                 if (StorageItem is IUnsupportedStorageItem)
                 {
                     PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
@@ -876,7 +874,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     else
                     {
                         ulong Size = Win32_Native_API.GetFileSpaceSize(Handle.DangerousGetHandle());
-                        SizeOnDiskContent.Text = $"{Size.GetFileSizeDescription()} ({Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                        SizeOnDiskContent.Text = $"{Size.GetSizeDescription()} ({Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
                     }
                 }
 
@@ -1127,7 +1125,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
             else
             {
-                return $"{TotalSize.GetFileSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                return $"{TotalSize.GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
             }
         }
 

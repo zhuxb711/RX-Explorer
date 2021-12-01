@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
     {
         public override string DisplayName => ((StorageItem as StorageFile)?.DisplayName) ?? Name;
 
-        public override string SizeDescription => Size.GetFileSizeDescription();
+        public override string SizeDescription => Size.GetSizeDescription();
 
         public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
 

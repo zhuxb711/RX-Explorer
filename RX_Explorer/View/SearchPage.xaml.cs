@@ -181,7 +181,7 @@ namespace RX_Explorer
 
                         IEnumerable<FileSystemStorageItemBase> Group = SearchResult.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
 
-                        if (Group.Any() && (SearchResultList.SelectedItem == null || !Group.Contains(SearchResultList.SelectedItem)))
+                        if (Group.Any() && !Group.Contains(SearchResultList.SelectedItem))
                         {
                             SearchResultList.SelectedItem = Group.FirstOrDefault();
                             SearchResultList.ScrollIntoView(SearchResultList.SelectedItem);

@@ -73,7 +73,7 @@ namespace RX_Explorer.Class
             {
                 if (TotalByte > 0)
                 {
-                    return TotalByte.GetFileSizeDescription();
+                    return TotalByte.GetSizeDescription();
                 }
                 else
                 {
@@ -91,7 +91,7 @@ namespace RX_Explorer.Class
             {
                 if (FreeByte > 0)
                 {
-                    return FreeByte.GetFileSizeDescription();
+                    return FreeByte.GetSizeDescription();
                 }
                 else
                 {

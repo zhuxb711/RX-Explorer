@@ -24,7 +24,7 @@ namespace RX_Explorer.Dialog
 
             FreeSpace.Text = Drive.FreeSpace;
             TotalSpace.Text = Drive.Capacity;
-            UsedSpace.Text = (Drive.TotalByte - Drive.FreeByte).GetFileSizeDescription();
+            UsedSpace.Text = (Drive.TotalByte - Drive.FreeByte).GetSizeDescription();
 
             FileSystem.Text = Drive.FileSystem;
 

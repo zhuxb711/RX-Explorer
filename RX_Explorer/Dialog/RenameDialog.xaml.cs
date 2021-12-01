@@ -26,7 +26,7 @@ namespace RX_Explorer.Dialog
 
         public RenameDialog(IEnumerable<FileSystemStorageItemBase> RenameItems)
         {
-            if (RenameItems == null || !RenameItems.Any())
+            if (!(RenameItems?.Any()).GetValueOrDefault())
             {
                 throw new ArgumentException("Argument could not be empty", nameof(RenameItems));
             }
