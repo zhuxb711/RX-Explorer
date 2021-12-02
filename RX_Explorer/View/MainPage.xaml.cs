@@ -841,7 +841,7 @@ namespace RX_Explorer
             {
                 if (args.IsSettingsInvoked)
                 {
-                    if (FindName(nameof(Settings)) is SettingPage Dialog)
+                    if (!SettingPage.IsOpened && FindName(nameof(Settings)) is SettingPage Dialog)
                     {
                         await Dialog.ShowAsync();
                     }

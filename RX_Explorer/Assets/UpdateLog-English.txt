@@ -1,4 +1,21 @@
-﻿###What's new in Ver.7.2.9.0
+﻿###What's new in Ver.7.3.1.0
+
+#####Bug fixed
+
+>#####Fixed many UI problems in the "Details" mode in the Win10 system
+
+>#####Fixed some problems related to auxiliary process communication and scheduling
+
+>#####Fixed the problem that may cause the third-party application to not start correctly
+
+>#####Fixed the problem that the terminal application could not be started correctly in the address bar of the homepage (such as Powershell, etc.)
+
+>#####Fixed the problem that Quicklook would still be activated when pressing the space on the settings page
+
+>#####Fixed an issue that may cause the pop-up animation to reload when pressing the space on the settings page
+
+***
+###What's new in Ver.7.2.9.0
 
 #####Feature update
 

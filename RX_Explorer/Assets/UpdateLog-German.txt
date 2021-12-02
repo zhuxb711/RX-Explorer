@@ -1,4 +1,21 @@
-﻿###Was ist neu in Ver.7.2.9.0
+﻿###Was ist neu in Ver.7.3.1.0
+
+#####Fehler behoben
+
+>#####Viele UI-Probleme im "Details"-Modus im Win10-System behoben
+
+>#####Einige Probleme im Zusammenhang mit der Kommunikation und Planung von Hilfsprozessen behoben
+
+>#####Das Problem wurde behoben, das dazu führen kann, dass die Drittanbieteranwendung nicht richtig gestartet wird
+
+>#####Problem behoben, dass die Terminalanwendung in der Adressleiste der Homepage (wie Powershell, etc.) nicht korrekt gestartet werden konnte
+
+>#####Problem behoben, dass Quicklook beim Drücken der Leertaste auf der Einstellungsseite immer noch aktiviert wurde
+
+>#####Es wurde ein Problem behoben, das dazu führen kann, dass die Popup-Animation neu geladen wird, wenn die Leertaste auf der Einstellungsseite gedrückt wird
+
+***
+###Was ist neu in Ver.7.2.9.0
 
 #####Funktionsupdate
 

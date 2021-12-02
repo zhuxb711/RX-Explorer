@@ -1,4 +1,21 @@
-﻿###Novedades de la versión 7.2.9.0
+﻿###Novedades de la versión 7.3.1.0
+
+#####Error corregido
+
+>#####Se corrigieron muchos problemas de la interfaz de usuario en el modo "Detalles" en el sistema Win10
+
+>#####Se corrigieron algunos problemas relacionados con la comunicación y la programación del proceso auxiliar
+
+>#####Se solucionó el problema que podía causar que la aplicación de terceros no se iniciara correctamente
+
+>#####Se solucionó el problema de que la aplicación de terminal no se podía iniciar correctamente en la barra de direcciones de la página de inicio (como Powershell, etc.)
+
+>#####Se solucionó el problema de que Quicklook aún se activaba al presionar el espacio en la página de configuración
+
+>#####Se solucionó un problema que podía hacer que la animación emergente se recargara al presionar el espacio en la página de configuración
+
+***
+###Novedades de la versión 7.2.9.0
 
 #####Actualización de funciones
 
