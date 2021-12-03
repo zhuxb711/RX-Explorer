@@ -125,7 +125,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        return await Task.Run(() => Win32_Native_API.CheckExist(Path));
+                        return Win32_Native_API.CheckExist(Path);
                     }
                     catch (LocationNotAvailableException)
                     {
@@ -263,7 +263,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    return await Task.Run(() => Win32_Native_API.GetStorageItem(Path));
+                    return Win32_Native_API.GetStorageItem(Path);
                 }
                 catch (LocationNotAvailableException)
                 {

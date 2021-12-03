@@ -4923,12 +4923,16 @@ namespace RX_Explorer
 
                 Flyout.Items.Add(SendLinkItem);
 
-                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray())
+                DriveDataBase[] RemovableDriveList = CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType is DriveType.Removable or DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)).ToArray();
+
+                for (int i = 0; i < RemovableDriveList.Length; i++)
                 {
+                    DriveDataBase RemovableDrive = RemovableDriveList[i];
+
                     MenuFlyoutItem SendRemovableDriveItem = new MenuFlyoutItem
                     {
-                        Name = "SendRemovableItem",
-                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
+                        Name = $"SendRemovableItem{i}",
+                        Text = string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName,
                         Icon = new ImageIcon
                         {
                             Source = RemovableDrive.Thumbnail
@@ -5058,7 +5062,7 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case "SendRemovableItem":
+                        default:
                             {
                                 if (Item.Tag is string RemovablePath)
                                 {

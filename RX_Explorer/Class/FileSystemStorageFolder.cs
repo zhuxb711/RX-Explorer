@@ -335,25 +335,20 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    IReadOnlyList<FileSystemStorageItemBase> SubItems = await Task.Run(() => Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit, Filter, AdvanceFilter))
-                                                                                  .ContinueWith((PreviousTask) =>
-                                                                                  {
-                                                                                      if (PreviousTask.IsFaulted)
-                                                                                      {
-                                                                                          if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is LocationNotAvailableException))
-                                                                                          {
-                                                                                              return GetChildItemsInUwpApiAsync(Path).Result;
-                                                                                          }
-                                                                                          else
-                                                                                          {
-                                                                                              return new List<FileSystemStorageItemBase>(0);
-                                                                                          }
-                                                                                      }
-                                                                                      else
-                                                                                      {
-                                                                                          return PreviousTask.Result;
-                                                                                      }
-                                                                                  });
+                    IReadOnlyList<FileSystemStorageItemBase> SubItems;
+
+                    try
+                    {
+                        SubItems = Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit, Filter, AdvanceFilter);
+                    }
+                    catch (LocationNotAvailableException)
+                    {
+                        SubItems = await GetChildItemsInUwpApiAsync(Path);
+                    }
+                    catch (Exception)
+                    {
+                        SubItems = new List<FileSystemStorageItemBase>(0);
+                    }
 
                     Result.AddRange(SubItems);
 
@@ -389,7 +384,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Win32_File_Data Data = await Task.Run(() => Win32_Native_API.GetStorageItemRawData(Path));
+                    Win32_File_Data Data = Win32_Native_API.GetStorageItemRawData(Path);
 
                     if (Data.IsDataValid)
                     {
