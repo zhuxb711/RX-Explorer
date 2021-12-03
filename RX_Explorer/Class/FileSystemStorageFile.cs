@@ -64,7 +64,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Win32_Native_API.CreateFileStreamFromExistingPath(Path, Mode) is FileStream Stream)
+                if (Win32_Native_API.CreateStreamFromFile(Path, Mode) is FileStream Stream)
                 {
                     return Stream;
                 }

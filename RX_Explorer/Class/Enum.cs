@@ -2,6 +2,34 @@
 
 namespace RX_Explorer.Class
 {
+    public enum UWP_HANDLE_ACCESS_OPTIONS : uint
+    {
+        NONE = 0,
+        READ = 0x120089,
+        WRITE = 0x120116,
+        DELETE = 0x10000
+    }
+
+    public enum UWP_HANDLE_OPTIONS : uint
+    {
+        NONE = 0,
+        OPEN_REQUIRING_OPLOCK = 0x40000,
+        DELETE_ON_CLOSE = 0x4000000,
+        SEQUENTIAL_SCAN = 0x8000000,
+        RANDOM_ACCESS = 0x10000000,
+        NO_BUFFERING = 0x20000000,
+        OVERLAPPED = 0x40000000,
+        WRITE_THROUGH = 0x80000000
+    }
+
+    public enum UWP_HANDLE_SHARING_OPTIONS : uint
+    {
+        SHARE_NONE = 0,
+        SHARE_READ = 0x1,
+        SHARE_WRITE = 0x2,
+        SHARE_DELETE = 0x4
+    }
+
     public enum InfoTipType
     {
         UpdateAvailable,

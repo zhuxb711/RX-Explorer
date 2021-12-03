@@ -388,27 +388,19 @@ namespace RX_Explorer.Class
 
         public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode)
         {
-            const uint ACCESS_READ_FLAG = 0x120089;
-            const uint ACCESS_WRITE_FLAG = 0x120116;
-            //const uint ACCESS_DELETE_FLAG = 0x10000;
-            const uint SHARE_NONE_FLAG = 0;
-            const uint SHARE_READ_FLAG = 0x1;
-            const uint SHARE_WRITE_FLAG = 0x2;
-            //const uint SHARE_DELETE_FLAG = 0x4;
-
-            uint Access = Mode switch
+            UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
             {
-                AccessMode.Read => ACCESS_READ_FLAG,
-                AccessMode.ReadWrite or AccessMode.Exclusive => ACCESS_READ_FLAG | ACCESS_WRITE_FLAG,
-                AccessMode.Write => ACCESS_WRITE_FLAG,
+                AccessMode.Read => UWP_HANDLE_ACCESS_OPTIONS.READ,
+                AccessMode.ReadWrite or AccessMode.Exclusive => UWP_HANDLE_ACCESS_OPTIONS.READ | UWP_HANDLE_ACCESS_OPTIONS.WRITE,
+                AccessMode.Write => UWP_HANDLE_ACCESS_OPTIONS.WRITE,
                 _ => throw new NotSupportedException()
             };
 
-            uint Share = Mode switch
+            UWP_HANDLE_SHARING_OPTIONS Share = Mode switch
             {
-                AccessMode.Read => SHARE_READ_FLAG | SHARE_WRITE_FLAG,
-                AccessMode.ReadWrite or AccessMode.Write => SHARE_READ_FLAG,
-                AccessMode.Exclusive => SHARE_NONE_FLAG,
+                AccessMode.Read => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ | UWP_HANDLE_SHARING_OPTIONS.SHARE_WRITE,
+                AccessMode.ReadWrite or AccessMode.Write => UWP_HANDLE_SHARING_OPTIONS.SHARE_READ,
+                AccessMode.Exclusive => UWP_HANDLE_SHARING_OPTIONS.SHARE_NONE,
                 _ => throw new NotSupportedException()
             };
 
@@ -416,8 +408,8 @@ namespace RX_Explorer.Class
             {
                 IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
                 IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
-                StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr handle);
-                return new SafeFileHandle(handle, true);
+                StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr Handle);
+                return new SafeFileHandle(Handle, true);
             }
             catch (Exception ex)
             {

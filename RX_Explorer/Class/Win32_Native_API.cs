@@ -113,7 +113,7 @@ namespace RX_Explorer.Class
             FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY = 4
         }
 
-        [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode)]
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
 
         [DllImport("api-ms-win-core-file-l1-1-0.dll")]
@@ -123,7 +123,7 @@ namespace RX_Explorer.Class
         public static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern IntPtr CreateFileFromApp(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr SecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+        private static extern SafeFileHandle CreateFileFromApp(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr SecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
 
         [DllImport("api-ms-win-core-handle-l1-1-0.dll")]
         private static extern bool CloseHandle(IntPtr hObject);
@@ -187,6 +187,8 @@ namespace RX_Explorer.Class
         const uint TRUNCATE_EXISTING = 5;
         const uint FILE_FLAG_BACKUP_SEMANTICS = 0x2000000;
         const uint FILE_ATTRIBUTE_NORMAL = 0x80;
+        const uint FILE_FLAG_OVERLAPPED = 0x40000000;
+        const uint FILE_FLAG_RANDOM_ACCESS = 0x10000000;
 
         public enum FILE_NOTIFY_CHANGE
         {
@@ -279,20 +281,18 @@ namespace RX_Explorer.Class
         }
 
 
-        public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
+        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode)
         {
-            IntPtr Handle = AccessMode switch
+            SafeFileHandle Handle = AccessMode switch
             {
-                AccessMode.Read => CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
-                AccessMode.ReadWrite => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
-                AccessMode.Write => CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
-                AccessMode.Exclusive => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero),
+                AccessMode.Read => CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
+                AccessMode.ReadWrite => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
+                AccessMode.Write => CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
+                AccessMode.Exclusive => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
                 _ => throw new NotSupportedException()
             };
 
-            SafeFileHandle SHandle = new SafeFileHandle(Handle, true);
-
-            if (SHandle.IsInvalid)
+            if (Handle.IsInvalid)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
@@ -305,7 +305,7 @@ namespace RX_Explorer.Class
                 _ => throw new NotSupportedException()
             };
 
-            return new FileStream(SHandle, Access);
+            return new FileStream(Handle, Access, 4096, true);
         }
 
         public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
@@ -400,72 +400,54 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
 
-                                IntPtr Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                                if (Handle.CheckIfValidPtr())
+                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
                                 {
-                                    CloseHandle(Handle);
-                                    NewPath = UniquePath;
-                                    return true;
-                                }
-                                else
-                                {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
-                                    NewPath = string.Empty;
-                                    return false;
+                                    if (!Handle.IsInvalid)
+                                    {
+                                        NewPath = UniquePath;
+                                        return true;
+                                    }
                                 }
                             }
                             else
                             {
-                                IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                                if (Handle.CheckIfValidPtr())
+                                using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
                                 {
-                                    CloseHandle(Handle);
-                                    NewPath = Path;
-                                    return true;
-                                }
-                                else
-                                {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
-                                    NewPath = string.Empty;
-                                    return false;
+                                    if (!Handle.IsInvalid)
+                                    {
+                                        NewPath = Path;
+                                        return true;
+                                    }
                                 }
                             }
+
+                            throw new InvalidOperationException();
                         }
                     case CreateOption.OpenIfExist:
                         {
-                            IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                            {
+                                if (!Handle.IsInvalid)
+                                {
+                                    NewPath = Path;
+                                    return true;
+                                }
+                            }
 
-                            if (Handle.CheckIfValidPtr())
-                            {
-                                CloseHandle(Handle);
-                                NewPath = Path;
-                                return true;
-                            }
-                            else
-                            {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
-                                NewPath = string.Empty;
-                                return false;
-                            }
+                            throw new InvalidOperationException();
                         }
                     case CreateOption.ReplaceExisting:
                         {
-                            IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                            {
+                                if (!Handle.IsInvalid)
+                                {
+                                    NewPath = Path;
+                                    return true;
+                                }
+                            }
 
-                            if (Handle.CheckIfValidPtr())
-                            {
-                                CloseHandle(Handle);
-                                NewPath = Path;
-                                return true;
-                            }
-                            else
-                            {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"Could not create a new file, Path: \"{Path}\"");
-                                NewPath = string.Empty;
-                                return false;
-                            }
+                            throw new InvalidOperationException();
                         }
                     default:
                         {
@@ -544,17 +526,14 @@ namespace RX_Explorer.Class
 
         public static IntPtr CreateDirectoryMonitorHandle(string FolderPath)
         {
-            IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
+            SafeFileHandle hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-            if (hDir.CheckIfValidPtr())
-            {
-                return hDir;
-            }
-            else
+            if (hDir.IsInvalid)
             {
                 LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw in {nameof(CreateDirectoryMonitorHandle)}. Path: \"{FolderPath}\"");
-                return IntPtr.Zero;
             }
+
+            return hDir.DangerousGetHandle();
         }
 
         public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)

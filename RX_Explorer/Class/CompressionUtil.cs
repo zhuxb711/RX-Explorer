@@ -72,7 +72,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("GZip is not allowed in this function", nameof(Algorithm));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                TotalSize += await Folder.GetFolderSizeAsync();
                                 break;
                             }
                     }
@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
                 {
                     ZipStrings.CodePage = EncodingSetting.CodePage;
 
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
                         OutputStream.SetLevel((int)Level);
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                         {
                                             ZipEntry NewEntry = new ZipEntry(File.Name)
                                             {
@@ -129,7 +129,7 @@ namespace RX_Explorer.Class
                                             await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
-                                            }).ConfigureAwait(false);
+                                            });
                                         }
 
                                         OutputStream.CloseEntry();
@@ -147,7 +147,7 @@ namespace RX_Explorer.Class
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
+                                        });
 
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputStream.FlushAsync().ConfigureAwait(false);
+                        await OutputStream.FlushAsync();
                     }
                 }
             }
@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
 
             if (ItemList.Count == 0)
             {
@@ -207,7 +207,7 @@ namespace RX_Explorer.Class
                                 {
                                     InnerFolderSize = ByteRead;
                                     ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
-                                }).ConfigureAwait(false);
+                                });
 
                                 ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
@@ -215,7 +215,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFile InnerFile:
                             {
-                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                                     {
@@ -229,7 +229,7 @@ namespace RX_Explorer.Class
                                     await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                     {
                                         ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
-                                    }).ConfigureAwait(false);
+                                    });
                                 }
 
                                 OutputStream.CloseEntry();
@@ -270,7 +270,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read))
                 using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
@@ -280,7 +280,7 @@ namespace RX_Explorer.Class
                     GZipStream.IsStreamOwner = false;
                     GZipStream.FileName = Source.Name;
 
-                    await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await SourceFileStream.CopyToAsync(GZipStream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
                 }
             }
             else
@@ -333,11 +333,11 @@ namespace RX_Explorer.Class
                 {
                     GZipStream.IsStreamOwner = false;
 
-                    if (await FileSystemStorageItemBase.CreateNewAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+                    if (await FileSystemStorageItemBase.CreateNewAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                     {
                         using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                         {
-                            await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                            await GZipStream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
                         }
                     }
                     else
@@ -368,14 +368,14 @@ namespace RX_Explorer.Class
                                                   CancellationToken CancelToken = default,
                                                   ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Read))
                 using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                 using (BZip2OutputStream BZip2Stream = new BZip2OutputStream(NewFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
-                    await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await SourceFileStream.CopyToAsync(BZip2Stream, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
                 }
             }
             else
@@ -406,14 +406,14 @@ namespace RX_Explorer.Class
         {
             if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Name)),
                                                                StorageItemTypes.File,
-                                                               CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+                                                               CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
-                using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                using (FileStream SourceFileStream = await Source.GetStreamFromFileAsync(AccessMode.Exclusive))
                 using (FileStream NewFileStrem = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                 using (BZip2InputStream BZip2Stream = new BZip2InputStream(SourceFileStream))
                 {
                     BZip2Stream.IsStreamOwner = false;
-                    await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                    await BZip2Stream.CopyToAsync(NewFileStrem, CancelToken: CancelToken, ProgressHandler: ProgressHandler);
                 }
             }
             else
@@ -470,7 +470,7 @@ namespace RX_Explorer.Class
                                                       CancellationToken CancelToken = default,
                                                       ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -488,7 +488,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                TotalSize += await Folder.GetFolderSizeAsync();
                                 break;
                             }
                     }
@@ -496,7 +496,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                     using (BZip2OutputStream OutputBZip2Stream = new BZip2OutputStream(NewFileStream))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(OutputBZip2Stream, EncodingSetting))
                     {
@@ -511,7 +511,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -522,7 +522,7 @@ namespace RX_Explorer.Class
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
-                                            }).ConfigureAwait(false);
+                                            });
                                         }
 
                                         OutputTarStream.CloseEntry();
@@ -540,7 +540,7 @@ namespace RX_Explorer.Class
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
+                                        });
 
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -550,7 +550,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                        await OutputTarStream.FlushAsync();
                     }
                 }
             }
@@ -571,7 +571,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -589,7 +589,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                TotalSize += await Folder.GetFolderSizeAsync();
                                 break;
                             }
                     }
@@ -597,7 +597,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                     using (GZipOutputStream OutputGzipStream = new GZipOutputStream(NewFileStream))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(OutputGzipStream, EncodingSetting))
                     {
@@ -613,7 +613,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -624,7 +624,7 @@ namespace RX_Explorer.Class
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
-                                            }).ConfigureAwait(false);
+                                            });
                                         }
 
                                         OutputTarStream.CloseEntry();
@@ -642,7 +642,7 @@ namespace RX_Explorer.Class
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
+                                        });
 
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -652,7 +652,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                        await OutputTarStream.FlushAsync();
                     }
                 }
             }
@@ -667,7 +667,7 @@ namespace RX_Explorer.Class
                                                  CancellationToken CancelToken = default,
                                                  ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateNewAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
@@ -685,7 +685,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                TotalSize += await Folder.GetFolderSizeAsync();
                                 break;
                             }
                     }
@@ -693,7 +693,7 @@ namespace RX_Explorer.Class
 
                 if (TotalSize > 0)
                 {
-                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (FileStream NewFileStream = await NewFile.GetStreamFromFileAsync(AccessMode.Exclusive))
                     using (TarOutputStream OutputTarStream = new TarOutputStream(NewFileStream, EncodingSetting))
                     {
                         OutputTarStream.IsStreamOwner = false;
@@ -706,7 +706,7 @@ namespace RX_Explorer.Class
                             {
                                 case FileSystemStorageFile File:
                                     {
-                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                        using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read))
                                         {
                                             TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
                                             NewEntry.ModTime = DateTime.Now;
@@ -717,7 +717,7 @@ namespace RX_Explorer.Class
                                             await FileStream.CopyToAsync(OutputTarStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                             {
                                                 ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.Size)) * 100d / TotalSize), null));
-                                            }).ConfigureAwait(false);
+                                            });
                                         }
 
                                         OutputTarStream.CloseEntry();
@@ -735,7 +735,7 @@ namespace RX_Explorer.Class
                                         {
                                             InnerFolderSize = ByteRead;
                                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
+                                        });
 
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
@@ -745,7 +745,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                        await OutputTarStream.FlushAsync();
                     }
                 }
             }
@@ -761,7 +761,7 @@ namespace RX_Explorer.Class
                                                 CancellationToken CancelToken = default,
                                                 ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
 
             if (ItemList.Count == 0)
             {
@@ -790,7 +790,7 @@ namespace RX_Explorer.Class
                                 {
                                     InnerFolderSize = ByteRead;
                                     ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
-                                }).ConfigureAwait(false);
+                                });
 
                                 ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
@@ -798,7 +798,7 @@ namespace RX_Explorer.Class
                             }
                         case FileSystemStorageFile InnerFile:
                             {
-                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                using (FileStream FileStream = await InnerFile.GetStreamFromFileAsync(AccessMode.Read))
                                 {
                                     TarEntry NewEntry = TarEntry.CreateTarEntry($"{BaseFolderName}/{InnerFile.Name}");
                                     NewEntry.ModTime = DateTime.Now;
@@ -809,7 +809,7 @@ namespace RX_Explorer.Class
                                     await FileStream.CopyToAsync(OutputStream, CancelToken: CancelToken, ProgressHandler: (s, e) =>
                                     {
                                         ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.Size));
-                                    }).ConfigureAwait(false);
+                                    });
                                 }
 
                                 OutputStream.CloseEntry();
@@ -836,7 +836,7 @@ namespace RX_Explorer.Class
 
             foreach (string FileItem in SourceItemGroup)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(FileItem).ConfigureAwait(false) is FileSystemStorageFile File)
+                if (await FileSystemStorageItemBase.OpenAsync(FileItem) is FileSystemStorageFile File)
                 {
                     TransformList.Add(File);
                     TotalSize += File.Size;
@@ -943,7 +943,7 @@ namespace RX_Explorer.Class
 
                                 string DestFileName = Path.Combine(LastFolder, PathList.LastOrDefault() ?? Path.GetFileNameWithoutExtension(File.Name));
 
-                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+                                if (await FileSystemStorageItemBase.CreateNewAsync(DestFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile NewFile)
                                 {
                                     using (FileStream OutputStream = await NewFile.GetStreamFromFileAsync(AccessMode.Write))
                                     using (EntryStream EntryStream = Reader.OpenEntryStream())

@@ -643,11 +643,7 @@ namespace RX_Explorer.Class
 
         public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode)
         {
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                return Item.GetSafeFileHandle(Mode);
-            }
-            else
+            async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
                 using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
                 {
@@ -663,6 +659,25 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+            }
+
+            if (await GetStorageItemAsync() is IStorageItem Item)
+            {
+                SafeFileHandle Handle = Item.GetSafeFileHandle(Mode);
+
+                if (Handle.IsInvalid)
+                {
+                    return await GetNativeHandleCoreAsync();
+                }
+                else
+                {
+                    return Handle;
+                }
+
+            }
+            else
+            {
+                return await GetNativeHandleCoreAsync();
             }
         }
 

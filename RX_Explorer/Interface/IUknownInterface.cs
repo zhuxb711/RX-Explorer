@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.Class;
+using System;
 using System.Runtime.InteropServices;
 
 namespace RX_Explorer.Interface
@@ -8,6 +9,6 @@ namespace RX_Explorer.Interface
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     public interface IStorageItemHandleAccess
     {
-        uint Create(uint access, uint sharing, uint option, IntPtr opLockHandler, out IntPtr handle);
+        uint Create(UWP_HANDLE_ACCESS_OPTIONS Access, UWP_HANDLE_SHARING_OPTIONS Sharing, UWP_HANDLE_OPTIONS Option, IntPtr OpLockHandler, out IntPtr Handle);
     };
 }
