@@ -303,25 +303,25 @@ namespace RX_Explorer
         {
             LoadingControl.IsLoading = true;
 
-            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(AccessMode.ReadWrite))
+            using (FileStream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_RandomAccess))
             {
                 switch (OriginFile.Type.ToLower())
                 {
                     case ".png":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
                         break;
                     case ".jpg":
                     case ".jpeg":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg);
                         break;
                     case ".bmp":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp);
                         break;
                     case ".tiff":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff);
                         break;
                     default:
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png);
                         break;
                 }
             }

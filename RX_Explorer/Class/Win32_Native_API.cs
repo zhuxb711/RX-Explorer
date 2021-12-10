@@ -15,20 +15,230 @@ namespace RX_Explorer.Class
 {
     public static class Win32_Native_API
     {
-        private enum FINDEX_INFO_LEVELS
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern IntPtr FindFirstFileExFromApp(string lpFileName,
+                                                            FINDEX_INFO_LEVELS fInfoLevelId,
+                                                            out WIN32_FIND_DATA lpFindFileData,
+                                                            FINDEX_SEARCH_OPS fSearchOp,
+                                                            IntPtr lpSearchFilter,
+                                                            FINDEX_ADDITIONAL_FLAGS dwAdditionalFlags);
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
+
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true)]
+        private static extern bool FindClose(IntPtr hFindFile);
+
+        [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]
+        public static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
+
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern SafeFileHandle CreateFileFromApp(string lpFileName, FILE_ACCESS dwDesiredAccess, FILE_SHARE dwShareMode, SECURITY_ATTRIBUTES SecurityAttributes, CREATE_OPTION dwCreationDisposition, FILE_ATTRIBUTE_FLAG dwFlagsAndAttributes, IntPtr hTemplateFile);
+
+        [DllImport("api-ms-win-core-handle-l1-1-0.dll", SetLastError = true)]
+        private static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport("api-ms-win-core-io-l1-1-1.dll", SetLastError = true)]
+        private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
+
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool CreateDirectoryFromAppW(string lpPathName, IntPtr lpSecurityAttributes);
+
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool DeleteFileFromApp(string lpPathName);
+
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool RemoveDirectoryFromApp(string lpPathName);
+
+        [DllImport("api-ms-win-core-file-l2-1-0.dll", EntryPoint = "ReadDirectoryChangesW", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern bool ReadDirectoryChanges(IntPtr hDirectory, IntPtr lpBuffer, uint nBufferLength, bool bWatchSubtree, FILE_NOTIFY_CHANGE dwNotifyFilter, out uint lpBytesReturned, IntPtr lpOverlapped, IntPtr lpCompletionRoutine);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class SECURITY_ATTRIBUTES
+        {
+            public int nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>();
+
+            public IntPtr pSecurityDescriptor;
+
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool bInheritHandle;
+        }
+
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetFileSizeEx(IntPtr hFile, out long lpFileSize);
+
+        [DllImport("api-ms-win-core-file-l2-1-0.dlll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetFileInformationByHandleEx(IntPtr hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass, IntPtr lpFileInformation, uint dwBufferSize);
+
+        [Flags]
+        private enum ACCESS_MASK : uint
+        {
+            Delete = 0x00010000,
+            Read_Control = 0x00020000,
+            Write_DAC = 0x00040000,
+            Write_Owner = 0x00080000,
+            Synchronize = 0x00100000,
+            Standard_Rights_Required = 0x000F0000,
+            Standard_Rights_Read = 0x00020000,
+            Standard_Rights_Write = 0x00020000,
+            Standard_Rights_Execute = 0x00020000,
+            Standard_Rights_All = 0x001F0000,
+            Specific_Rights_All = 0x0000FFFF,
+            Access_System_Security = 0x01000000,
+            Maximum_Allowed = 0x02000000,
+            Generic_Read = 0x80000000,
+            Generic_Write = 0x40000000,
+            Generic_Execute = 0x20000000,
+            Generic_All = 0x10000000
+        }
+
+        [Flags]
+        private enum FILE_ACCESS : uint
+        {
+            Generic_Read = ACCESS_MASK.Generic_Read,
+            Generic_Write = ACCESS_MASK.Generic_Write,
+            Generic_Execute = ACCESS_MASK.Generic_Execute,
+            Generic_All = ACCESS_MASK.Generic_All,
+            File_Read_Data = 0x0001,
+            File_List_Directory = 0x0001,
+            File_Write_DATA = 0x0002,
+            File_Add_File = 0x0002,
+            File_Append_Data = 0x0004,
+            File_Add_SubDirectory = 0x0004,
+            File_Create_Pipe_Instance = 0x0004,
+            File_Read_EA = 0x0008,
+            File_Write_EA = 0x0010,
+            File_Execute = 0x0020,
+            File_Traverse = 0x0020,
+            File_Delete_Child = 0x0040,
+            File_Read_Attributes = 0x0080,
+            File_Write_Attributes = 0x0100,
+            Specific_Rights_All = 0x00FFFF,
+            File_All_Access = ACCESS_MASK.Standard_Rights_Required | ACCESS_MASK.Synchronize | 0x1FF,
+            File_Generic_Read = ACCESS_MASK.Standard_Rights_Read | File_Read_Data | File_Read_Attributes | File_Read_EA | ACCESS_MASK.Synchronize,
+            File_Generic_Write = ACCESS_MASK.Standard_Rights_Write | File_Write_DATA | File_Write_Attributes | File_Write_EA | File_Append_Data | ACCESS_MASK.Synchronize,
+            File_Generic_Execute = ACCESS_MASK.Standard_Rights_Execute | File_Read_Attributes | File_Execute | ACCESS_MASK.Synchronize,
+        }
+
+        [Flags]
+        private enum FILE_SHARE : uint
+        {
+            None = 0,
+            Read = 0x00000001,
+            Write = 0x00000002,
+            Delete = 0x00000004
+        }
+
+        [Flags]
+        private enum FILE_ATTRIBUTE_FLAG : uint
+        {
+            File_Attribute_Archive = 0x20,
+            File_Attribute_Encrypted = 0x4000,
+            File_Attribute_HIDDEN = 0x2,
+            File_Attribute_Normal = 0x80,
+            File_Attribute_Offline = 0x1000,
+            File_Attribute_ReadOnly = 0x1,
+            File_Attribute_System = 0x4,
+            File_Attribute_Temporary = 0x100,
+            File_Flag_Backup_Semantics = 0x02000000,
+            File_Flag_Delete_On_Close = 0x04000000,
+            File_Flag_No_Buffering = 0x20000000,
+            File_Flag_Open_No_Recall = 0x00100000,
+            File_Flag_Open_Reparse_Point = 0x00200000,
+            File_Flag_Overlapped = 0x40000000,
+            File_Flag_Posix_Semantics = 0x01000000,
+            File_Flag_Random_Access = 0x10000000,
+            File_Flag_Session_Aware = 0x00800000,
+            File_Flag_Sequential_Scan = 0x08000000,
+            File_Flag_Write_Through = 0x80000000
+        }
+
+        private enum CREATE_OPTION : uint
+        {
+            Create_New = 1,
+            Create_Always = 2,
+            Open_Existing = 3,
+            Open_Always = 4,
+            Truncate_Existing = 5
+        }
+
+        private enum FINDEX_ADDITIONAL_FLAGS : uint
+        {
+            None = 0,
+            Find_First_Ex_Case_Sensitive = 1,
+            Find_First_Ex_Large_Fetch = 2,
+            Find_First_Ex_On_Disk_Entries_Only = 4
+        }
+
+        private enum FINDEX_INFO_LEVELS : uint
         {
             FindExInfoStandard = 0,
             FindExInfoBasic = 1
         }
 
-        private enum FINDEX_SEARCH_OPS
+        private enum FINDEX_SEARCH_OPS : uint
         {
             FindExSearchNameMatch = 0,
             FindExSearchLimitToDirectories = 1,
             FindExSearchLimitToDevices = 2
         }
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [Flags]
+        public enum FILE_NOTIFY_CHANGE : uint
+        {
+            File_Notify_Change_File_Name = 1,
+            File_Notify_Change_Dir_Name = 2,
+            File_Notify_Change_Attribute = 4,
+            File_Notify_Change_Size = 8,
+            File_Notify_Change_Last_Write = 16
+        }
+
+        public enum FILE_INFO_BY_HANDLE_CLASS : uint
+        {
+            FileBasicInfo,
+            FileStandardInfo,
+            FileNameInfo,
+            FileRenameInfo,
+            FileDispositionInfo,
+            FileAllocationInfo,
+            FileEndOfFileInfo,
+            FileStreamInfo,
+            FileCompressionInfo,
+            FileAttributeTagInfo,
+            FileIdBothDirectoryInfo,
+            FileIdBothDirectoryRestartInfo,
+            FileIoPriorityHintInfo,
+            FileRemoteProtocolInfo,
+            FileFullDirectoryInfo,
+            FileFullDirectoryRestartInfo,
+            FileStorageInfo,
+            FileAlignmentInfo,
+            FileIdInfo,
+            FileIdExtdDirectoryInfo,
+            FileIdExtdDirectoryRestartInfo,
+            MaximumFileInfoByHandlesClass,
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 40)]
+        private struct FILE_BASIC_INFO
+        {
+            public FILETIME CreationTime;
+            public FILETIME LastAccessTime;
+            public FILETIME LastWriteTime;
+            public FILETIME ChangeTime;
+            public FileAttributes FileAttributes;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct FILE_STANDARD_INFO
+        {
+            public long AllocationSize;
+            public long EndOfFile;
+            public uint NumberOfLinks;
+            [MarshalAs(UnmanagedType.U1)] public bool DeletePending;
+            [MarshalAs(UnmanagedType.U1)] public bool Directory;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct WIN32_FIND_DATA : IEquatable<WIN32_FIND_DATA>
         {
             public uint dwFileAttributes;
@@ -98,197 +308,22 @@ namespace RX_Explorer.Class
             }
         }
 
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern IntPtr FindFirstFileExFromApp(string lpFileName,
-                                                            FINDEX_INFO_LEVELS fInfoLevelId,
-                                                            out WIN32_FIND_DATA lpFindFileData,
-                                                            FINDEX_SEARCH_OPS fSearchOp,
-                                                            IntPtr lpSearchFilter,
-                                                            FINDEX_ADDITIONAL_FLAGS dwAdditionalFlags);
-        private enum FINDEX_ADDITIONAL_FLAGS
+        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode, OptimizeOption Option)
         {
-            NONE = 0,
-            FIND_FIRST_EX_CASE_SENSITIVE = 1,
-            FIND_FIRST_EX_LARGE_FETCH = 2,
-            FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY = 4
-        }
+            FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
+            {
+                OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
+                OptimizeOption.Optimize_Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                OptimizeOption.Optimize_RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                _ => throw new NotSupportedException()
+            };
 
-        [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
-
-        [DllImport("api-ms-win-core-file-l1-1-0.dll")]
-        private static extern bool FindClose(IntPtr hFindFile);
-
-        [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]
-        public static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
-
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern SafeFileHandle CreateFileFromApp(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr SecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
-
-        [DllImport("api-ms-win-core-handle-l1-1-0.dll")]
-        private static extern bool CloseHandle(IntPtr hObject);
-
-        [DllImport("api-ms-win-core-io-l1-1-1.dll")]
-        private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
-
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool CreateDirectoryFromAppW(string lpPathName, IntPtr lpSecurityAttributes);
-
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool DeleteFileFromApp(string lpPathName);
-
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool RemoveDirectoryFromApp(string lpPathName);
-
-        [DllImport("api-ms-win-core-namedpipe-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern SafePipeHandle CreateNamedPipe(string lpName,
-                                                             PIPE_ACCESS dwOpenMode,
-                                                             PIPE_TYPE dwPipeMode,
-                                                             uint nMaxInstances,
-                                                             uint nOutBufferSize,
-                                                             uint nInBufferSize,
-                                                             uint nDefaultTimeOut,
-                                                             SECURITY_ATTRIBUTES securityAttributes);
-        [DllImport("api-ms-win-security-sddl-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool ConvertStringSecurityDescriptorToSecurityDescriptor(string StringSecurityDescriptor, SDDL_REVISION StringSDRevision, out IntPtr SecurityDescriptor, out uint SecurityDescriptorSize);
-
-        [DllImport("api-ms-win-core-file-l2-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool ReadDirectoryChangesW(IntPtr hDirectory, IntPtr lpBuffer, uint nBufferLength, bool bWatchSubtree, FILE_NOTIFY_CHANGE dwNotifyFilter, out uint lpBytesReturned, IntPtr lpOverlapped, IntPtr lpCompletionRoutine);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public class SECURITY_ATTRIBUTES
-        {
-            public int nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>();
-
-            public IntPtr pSecurityDescriptor;
-
-            [MarshalAs(UnmanagedType.Bool)]
-            public bool bInheritHandle;
-        }
-
-        [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern bool GetFileSizeEx(IntPtr hFile, out long lpFileSize);
-
-        [DllImport("api-ms-win-core-file-l2-1-0.dlll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern bool GetFileInformationByHandleEx(IntPtr hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass, IntPtr lpFileInformation, uint dwBufferSize);
-
-        const uint GENERIC_READ = 0x80000000;
-        const uint GENERIC_WRITE = 0x40000000;
-        const uint FILE_LIST_DIRECTORY = 0x1;
-        const uint FILE_NO_SHARE = 0x0;
-        const uint FILE_SHARE_READ = 0x1;
-        const uint FILE_SHARE_WRITE = 0x2;
-        const uint FILE_SHARE_DELETE = 0x4;
-        const uint CREATE_NEW = 1;
-        const uint CREATE_ALWAYS = 2;
-        const uint OPEN_EXISTING = 3;
-        const uint OPEN_ALWAYS = 4;
-        const uint TRUNCATE_EXISTING = 5;
-        const uint FILE_FLAG_BACKUP_SEMANTICS = 0x2000000;
-        const uint FILE_ATTRIBUTE_NORMAL = 0x80;
-        const uint FILE_FLAG_OVERLAPPED = 0x40000000;
-        const uint FILE_FLAG_RANDOM_ACCESS = 0x10000000;
-
-        public enum FILE_NOTIFY_CHANGE
-        {
-            FILE_NOTIFY_CHANGE_FILE_NAME = 1,
-            FILE_NOTIFY_CHANGE_DIR_NAME = 2,
-            FILE_NOTIFY_CHANGE_ATTRIBUTES = 4,
-            FILE_NOTIFY_CHANGE_SIZE = 8,
-            FILE_NOTIFY_CHANGE_LAST_WRITE = 16
-        }
-
-        private enum SDDL_REVISION
-        {
-            /// <summary>SDDL revision 1.</summary>
-            SDDL_REVISION_1 = 1
-        }
-
-        [Flags]
-        public enum PIPE_TYPE : uint
-        {
-            PIPE_WAIT = 0x00000000,
-            PIPE_NOWAIT = 0x00000001,
-            PIPE_READMODE_BYTE = 0x00000000,
-            PIPE_READMODE_MESSAGE = 0x00000002,
-            PIPE_TYPE_BYTE = 0x00000000,
-            PIPE_TYPE_MESSAGE = 0x00000004,
-            PIPE_ACCEPT_REMOTE_CLIENTS = 0x00000000,
-            PIPE_REJECT_REMOTE_CLIENTS = 0x00000008,
-            PIPE_CLIENT_END = 0x00000000,
-            PIPE_SERVER_END = 0x00000001,
-        }
-
-        [Flags]
-        public enum PIPE_ACCESS : uint
-        {
-            PIPE_ACCESS_DUPLEX = 0x00000003,
-            PIPE_ACCESS_INBOUND = 0x00000001,
-            PIPE_ACCESS_OUTBOUND = 0x00000002,
-            FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000,
-            FILE_FLAG_WRITE_THROUGH = 0x80000000,
-            FILE_FLAG_OVERLAPPED = 0x40000000,
-            WRITE_DAC = 0x00040000,
-            WRITE_OWNER = 0x00080000,
-            ACCESS_SYSTEM_SECURITY = 0x01000000
-        }
-
-        public enum FILE_INFO_BY_HANDLE_CLASS
-        {
-            FileBasicInfo,
-            FileStandardInfo,
-            FileNameInfo,
-            FileRenameInfo,
-            FileDispositionInfo,
-            FileAllocationInfo,
-            FileEndOfFileInfo,
-            FileStreamInfo,
-            FileCompressionInfo,
-            FileAttributeTagInfo,
-            FileIdBothDirectoryInfo,
-            FileIdBothDirectoryRestartInfo,
-            FileIoPriorityHintInfo,
-            FileRemoteProtocolInfo,
-            FileFullDirectoryInfo,
-            FileFullDirectoryRestartInfo,
-            FileStorageInfo,
-            FileAlignmentInfo,
-            FileIdInfo,
-            FileIdExtdDirectoryInfo,
-            FileIdExtdDirectoryRestartInfo,
-            MaximumFileInfoByHandlesClass,
-        }
-
-        [StructLayout(LayoutKind.Sequential, Size = 40)]
-        private struct FILE_BASIC_INFO
-        {
-            public FILETIME CreationTime;
-            public FILETIME LastAccessTime;
-            public FILETIME LastWriteTime;
-            public FILETIME ChangeTime;
-            public FileAttributes FileAttributes;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct FILE_STANDARD_INFO
-        {
-            public long AllocationSize;
-            public long EndOfFile;
-            public uint NumberOfLinks;
-            [MarshalAs(UnmanagedType.U1)] public bool DeletePending;
-            [MarshalAs(UnmanagedType.U1)] public bool Directory;
-        }
-
-
-        public static FileStream CreateStreamFromFile(string Path, AccessMode AccessMode)
-        {
             SafeFileHandle Handle = AccessMode switch
             {
-                AccessMode.Read => CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
-                AccessMode.ReadWrite => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
-                AccessMode.Write => CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
-                AccessMode.Exclusive => CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero),
+                AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
                 _ => throw new NotSupportedException()
             };
 
@@ -400,7 +435,7 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
 
-                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                                 {
                                     if (!Handle.IsInvalid)
                                     {
@@ -411,7 +446,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                                using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                                 {
                                     if (!Handle.IsInvalid)
                                     {
@@ -425,7 +460,7 @@ namespace RX_Explorer.Class
                         }
                     case CreateOption.OpenIfExist:
                         {
-                            using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
@@ -438,7 +473,7 @@ namespace RX_Explorer.Class
                         }
                     case CreateOption.ReplaceExisting:
                         {
-                            using (SafeFileHandle Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero))
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
@@ -511,29 +546,17 @@ namespace RX_Explorer.Class
         {
             if (hDir.CheckIfValidPtr())
             {
-                bool Success = true;
-
-                Success &= CancelIoEx(hDir, IntPtr.Zero);
-                Success &= CloseHandle(hDir);
-
-                return Success;
+                return CancelIoEx(hDir, IntPtr.Zero);
             }
             else
             {
-                return false;
+                return true;
             }
         }
 
-        public static IntPtr CreateDirectoryMonitorHandle(string FolderPath)
+        public static SafeFileHandle CreateDirectoryMonitorHandle(string FolderPath)
         {
-            SafeFileHandle hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
-
-            if (hDir.IsInvalid)
-            {
-                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw in {nameof(CreateDirectoryMonitorHandle)}. Path: \"{FolderPath}\"");
-            }
-
-            return hDir.DangerousGetHandle();
+            return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
         }
 
         public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
@@ -543,7 +566,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
 
             try
             {
@@ -603,7 +626,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
 
             try
             {
@@ -646,7 +669,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(SearchWord));
             }
 
-            IntPtr SearchPtr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr SearchPtr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.Find_First_Ex_Large_Fetch);
 
             try
             {
@@ -736,7 +759,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.Find_First_Ex_Large_Fetch);
 
             try
             {
@@ -828,7 +851,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
 
             try
             {
@@ -896,7 +919,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
 
             try
             {

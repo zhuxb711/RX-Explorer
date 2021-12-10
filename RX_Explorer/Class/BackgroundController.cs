@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using ShareClassLibrary;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -446,9 +447,9 @@ namespace RX_Explorer.Class
 
                                 BingPictureBursh.ImageSource = Bitmap;
 
-                                using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+                                using (FileStream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                                 {
-                                    await Bitmap.SetSourceAsync(Stream);
+                                    await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
                                 }
 
                                 OnPropertyChanged(nameof(BackgroundBrush));

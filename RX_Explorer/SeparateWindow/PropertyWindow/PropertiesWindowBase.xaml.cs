@@ -865,7 +865,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
                 SizeContent.Text = $"{StorageItem.SizeDescription} ({StorageItem.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
 
-                using (SafeFileHandle Handle = await File.GetNativeHandleAsync(AccessMode.Read))
+                using (SafeFileHandle Handle = await File.GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
                 {
                     if (Handle.IsInvalid)
                     {
@@ -1223,7 +1223,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     try
                     {
-                        using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+                        using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
                         using (MD5 MD5Alg = MD5.Create())
                         {
                             await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1259,7 +1259,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
                     using (SHA1 SHA1Alg = SHA1.Create())
                     {
                         await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1294,7 +1294,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
                     using (SHA256 SHA256Alg = SHA256.Create())
                     {
                         await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token).ContinueWith((beforeTask) =>

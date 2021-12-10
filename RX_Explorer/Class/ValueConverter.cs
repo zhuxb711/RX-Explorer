@@ -1,8 +1,10 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
+using Windows.Foundation;
 using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
@@ -236,33 +238,6 @@ namespace RX_Explorer.Class
             else
             {
                 throw new NotSupportedException();
-            }
-        }
-    }
-
-    public sealed class EmptyTextFiliterConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is string v)
-            {
-                return string.IsNullOrEmpty(v) ? null : v;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            if (value is string v)
-            {
-                return string.IsNullOrEmpty(v) ? null : v;
-            }
-            else
-            {
-                return null;
             }
         }
     }

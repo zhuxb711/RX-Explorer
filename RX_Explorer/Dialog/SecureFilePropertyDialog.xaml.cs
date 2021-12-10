@@ -38,7 +38,7 @@ namespace RX_Explorer.Dialog
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
 
-            using (FileStream FStream = await StorageItem.GetStreamFromFileAsync(AccessMode.Read))
+            using (FileStream FStream = await StorageItem.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
             {
                 SLEHeader Header = SLEHeader.GetHeader(FStream);
 

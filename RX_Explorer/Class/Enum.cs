@@ -2,6 +2,16 @@
 
 namespace RX_Explorer.Class
 {
+    public enum StateChangeType
+    {
+        Unknown_Action = 0,
+        Added_Action = 1,
+        Removed_Action = 2,
+        Modified_Action = 3,
+        Rename_Action_OldName = 4,
+        Rename_Action_NewName = 5
+    }
+
     public enum UWP_HANDLE_ACCESS_OPTIONS : uint
     {
         NONE = 0,

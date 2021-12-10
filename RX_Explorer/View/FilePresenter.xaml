@@ -55,7 +55,6 @@
             </StackPanel>
         </Flyout>
 
-        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:SyncStatusIconConverter x:Key="SyncStatusIconConverter" />
         <Cls:SyncStatusColorConverter x:Key="SyncStatusColorConverter" />
@@ -1088,12 +1087,16 @@
                                                                 VerticalAlignment="Top"
                                                                 Margin="5,0,0,0">
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Stretch"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    x:Name="NameLabel"
-                                                                   PointerPressed="NameLabel_PointerPressed" />
+                                                                   PointerPressed="NameLabel_PointerPressed">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBox HorizontalAlignment="Stretch"
                                                                  VerticalAlignment="Center"
                                                                  x:Name="NameEditBox"
@@ -1103,10 +1106,16 @@
                                                         <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                                                    FontSize="12"
                                                                    x:Phase="1"
+                                                                   Name="DisplayTypeLabel"
                                                                    HorizontalTextAlignment="Left"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    HorizontalAlignment="Left"
-                                                                   MaxWidth="145" />
+                                                                   MaxWidth="145">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind DisplayType,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=DisplayTypeLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBlock Text="{x:Bind SizeDescription,Mode=OneWay}"
                                                                    FontSize="12"
                                                                    HorizontalTextAlignment="Left"
@@ -1235,11 +1244,15 @@
                                                     <TextBlock VerticalAlignment="Center"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind Name,Mode=OneWay}"
-                                                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="2"
                                                                PointerPressed="NameLabel_PointerPressed"
-                                                               x:Name="NameLabel" />
+                                                               x:Name="NameLabel">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                     Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
                                                     <TextBox VerticalAlignment="Center"
                                                              HorizontalAlignment="Stretch"
                                                              x:Name="NameEditBox"
@@ -1368,11 +1381,15 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis" />
+                                                                   TextTrimming="CharacterEllipsis">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
@@ -1502,11 +1519,15 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis" />
+                                                                   TextTrimming="CharacterEllipsis">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
@@ -1636,11 +1657,15 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis" />
+                                                                   TextTrimming="CharacterEllipsis">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
@@ -1773,11 +1798,15 @@
                                                         <TextBlock VerticalAlignment="Center"
                                                                    HorizontalAlignment="Left"
                                                                    Grid.Column="1"
-                                                                   Text="{x:Bind Name, Mode=OneWay}"
-                                                                   ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                                                   Text="{x:Bind Name,Mode=OneWay}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    PointerPressed="NameLabel_PointerPressed"
-                                                                   x:Name="NameLabel" />
+                                                                   x:Name="NameLabel">
+                                                            <ToolTipService.ToolTip>
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                                            </ToolTipService.ToolTip>
+                                                        </TextBlock>
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
@@ -1808,27 +1837,42 @@
                                                                Padding="10,0,0,0"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind ModifiedTimeDescription, Mode=OneWay}"
-                                                               ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                                                Grid.Column="1"
+                                                               Name="ModifiedTimeLabel"
                                                                TextTrimming="CharacterEllipsis"
-                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                               PointerPressed="GetFocus_PointerPressed">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Content="{x:Bind ModifiedTimeDescription,Mode=OneWay}"
+                                                                     Visibility="{Binding ElementName=ModifiedTimeLabel,Path=IsTextTrimmed}" />
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
                                                     <TextBlock VerticalAlignment="Center"
                                                                Padding="10,0,0,0"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind DisplayType,Mode=OneWay}"
-                                                               ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
                                                                Grid.Column="2"
                                                                x:Phase="1"
+                                                               Name="DisplayTypeLabel"
                                                                TextTrimming="CharacterEllipsis"
-                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                               PointerPressed="GetFocus_PointerPressed">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Content="{x:Bind DisplayType,Mode=OneWay}"
+                                                                     Visibility="{Binding ElementName=DisplayTypeLabel,Path=IsTextTrimmed}" />
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
                                                     <TextBlock VerticalAlignment="Center"
                                                                Padding="10,0,0,0"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind SizeDescription,Mode=OneWay}"
-                                                               ToolTipService.ToolTip="{x:Bind SizeDescription, Mode=OneWay, Converter={StaticResource EmptyTextFiliter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="3"
-                                                               PointerPressed="GetFocus_PointerPressed" />
+                                                               Name="SizeLabel"
+                                                               PointerPressed="GetFocus_PointerPressed">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Content="{x:Bind SizeDescription,Mode=OneWay}"
+                                                                     Visibility="{Binding ElementName=SizeLabel,Path=IsTextTrimmed}" />
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>

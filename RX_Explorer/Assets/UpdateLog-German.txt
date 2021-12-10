@@ -1,4 +1,21 @@
-﻿###Was ist neu in Ver.7.3.1.0
+﻿###Was ist neu in Ver.7.3.2.0
+
+#####UI-Update
+
+>#####Jedes Element in der Dateiliste wird nur dann angezeigt, wenn der Name zu lang ist, um vollständig angezeigt zu werden
+
+#####Leistungsverbesserung
+
+>#####Die Dateisystemarchitektur wurde optimiert und die Leistung beim Lesen/Schreiben von Dateien verbessert
+
+>#####Implementierung von Komponenten zur Dateisystemüberwachung optimiert
+
+#####Bug-Fix
+
+>#####Einige Probleme behoben und Stabilität verbessert
+
+***
+###Was ist neu in Ver.7.3.1.0
 
 #####Fehler behoben
 

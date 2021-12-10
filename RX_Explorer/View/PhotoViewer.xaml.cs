@@ -56,7 +56,7 @@ namespace RX_Explorer
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                     {
                         SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -294,21 +294,20 @@ namespace RX_Explorer
         {
             FileSystemStorageFile Item = PhotoCollection[PhotoFlip.SelectedIndex].PhotoFile;
 
-            TranscodeImageDialog Dialog = null;
-            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+            using (FileStream OriginStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
             {
-                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-            }
+                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
 
-            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-            {
-                TranscodeLoadingControl.IsLoading = true;
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    TranscodeLoadingControl.IsLoading = true;
 
-                await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
-                await Task.Delay(500);
+                    await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
+                    await Task.Delay(500);
 
-                TranscodeLoadingControl.IsLoading = false;
+                    TranscodeLoadingControl.IsLoading = false;
+                }
             }
         }
 

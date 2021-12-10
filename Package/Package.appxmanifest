@@ -17,7 +17,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="7.3.1.0" />
+    Version="7.3.2.0" />
 
   <Properties>
     <DisplayName>ms-resource:App_Display_Name</DisplayName>

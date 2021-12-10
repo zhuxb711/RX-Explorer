@@ -1,4 +1,21 @@
-﻿###Novedades de la versión 7.3.1.0
+﻿###Novedades de la versión 7.3.2.0
+
+#####Actualización de la interfaz de usuario
+
+>#####Cada elemento de la lista de archivos solo aparecerá y mostrará su nombre completo cuando el nombre sea demasiado largo para mostrarse por completo
+
+#####Mejora del rendimiento
+
+>#####Optimicé la arquitectura del sistema de archivos y mejoró el rendimiento de lectura / escritura de archivos
+
+>#####Optimización de la implementación de componentes de monitoreo del sistema de archivos
+
+#####Arreglo del fallo
+
+>#####Se corrigieron algunos problemas y se mejoró la estabilidad
+
+***
+###Novedades de la versión 7.3.1.0
 
 #####Error corregido
 

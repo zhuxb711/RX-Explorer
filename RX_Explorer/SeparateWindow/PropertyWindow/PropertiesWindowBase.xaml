@@ -11,7 +11,7 @@
       mc:Ignorable="d"
       d:DesignHeight="600"
       d:DesignWidth="400"
-      RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme, Mode=OneWay}"
+      RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
     <Page.Resources>
@@ -28,9 +28,14 @@
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1"
+                           Name="ValueLabel"
                            Text="{Binding Value, Mode=OneTime}"
-                           TextWrapping="Wrap"
-                           ToolTipService.ToolTip="{Binding Value, Mode=OneTime, Converter={StaticResource EmptyTextConverter}}" />
+                           TextWrapping="Wrap">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{Binding Value,Mode=OneTime}"
+                                 Visibility="{Binding ElementName=ValueLabel,Path=IsTextTrimmed}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
             </Grid>
         </DataTemplate>
 
@@ -48,11 +53,9 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     Margin="0,8,0,0"
-                                    Value="{Binding Value, Mode=OneTime, Converter={StaticResource RatingConverter}}" />
+                                    Value="{Binding Value,Mode=OneTime,Converter={StaticResource RatingConverter}}" />
             </Grid>
         </DataTemplate>
-
-        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextConverter" />
 
         <Cls:RatingValueConverter x:Key="RatingConverter" />
 

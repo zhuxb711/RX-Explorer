@@ -13,7 +13,6 @@
       mc:Ignorable="d">
 
     <Page.Resources>
-        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
@@ -169,45 +168,74 @@
                                        HorizontalAlignment="Left"
                                        Grid.Column="1"
                                        Text="{x:Bind Name}"
-                                       ToolTipService.ToolTip="{x:Bind Name,Converter={StaticResource EmptyTextFiliter}}"
                                        TextTrimming="CharacterEllipsis"
-                                       x:Name="NameLabel" />
+                                       x:Name="NameLabel">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Name}"
+                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
+                                   Name="ModifiedTimeLabel"
                                    Text="{x:Bind ModifiedTimeDescription}"
-                                   ToolTipService.ToolTip="{x:Bind ModifiedTimeDescription,Converter={StaticResource EmptyTextFiliter}}"
                                    Grid.Column="1"
-                                   TextTrimming="CharacterEllipsis" />
+                                   TextTrimming="CharacterEllipsis">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{x:Bind ModifiedTimeDescription}"
+                                         Visibility="{Binding ElementName=ModifiedTimeLabel,Path=IsTextTrimmed}" />
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind Type}"
-                                   ToolTipService.ToolTip="{x:Bind Type,Converter={StaticResource EmptyTextFiliter}}"
                                    Grid.Column="2"
-                                   TextTrimming="CharacterEllipsis" />
+                                   Name="TypeLabel"
+                                   TextTrimming="CharacterEllipsis">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{x:Bind Type}"
+                                         Visibility="{Binding ElementName=TypeLabel,Path=IsTextTrimmed}" />
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind CompressedSizeDescription}"
-                                   ToolTipService.ToolTip="{x:Bind SizeDescription,Converter={StaticResource EmptyTextFiliter}}"
+                                   Name="CompressedSizeLabel"
                                    TextTrimming="CharacterEllipsis"
-                                   Grid.Column="3" />
+                                   Grid.Column="3">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{x:Bind CompressedSizeDescription}"
+                                         Visibility="{Binding ElementName=CompressedSizeLabel,Path=IsTextTrimmed}" />
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind SizeDescription}"
-                                   ToolTipService.ToolTip="{x:Bind SizeDescription,Converter={StaticResource EmptyTextFiliter}}"
                                    TextTrimming="CharacterEllipsis"
-                                   Grid.Column="4"/>
+                                   Name="SizeLabel"
+                                   Grid.Column="4">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{x:Bind SizeDescription}"
+                                         Visibility="{Binding ElementName=SizeLabel,Path=IsTextTrimmed}" />
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
                                    Text="{x:Bind CompressionRateDescription}"
-                                   ToolTipService.ToolTip="{x:Bind CompressionRateDescription,Converter={StaticResource EmptyTextFiliter}}"
                                    TextTrimming="CharacterEllipsis"
-                                   Grid.Column="5"/>
+                                   Name="CompressionRateLabel"
+                                   Grid.Column="5">
+                            <ToolTipService.ToolTip>
+                                <ToolTip Content="{x:Bind CompressionRateDescription}"
+                                         Visibility="{Binding ElementName=CompressionRateLabel,Path=IsTextTrimmed}" />
+                            </ToolTipService.ToolTip>
+                        </TextBlock>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

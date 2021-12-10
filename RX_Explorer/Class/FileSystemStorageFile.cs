@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
 
         public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
 
-        public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read), false)
+        public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
             StorageItem = Item;
         }
@@ -60,59 +60,33 @@ namespace RX_Explorer.Class
 
         }
 
-        public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode)
+        public async virtual Task<FileStream> GetStreamFromFileAsync(AccessMode Mode, OptimizeOption Option)
         {
-            try
+            if (Win32_Native_API.CreateStreamFromFile(Path, Mode, Option) is FileStream Stream)
             {
-                if (Win32_Native_API.CreateStreamFromFile(Path, Mode) is FileStream Stream)
-                {
-                    return Stream;
-                }
-                else
-                {
-                    FileAccess Access = Mode switch
-                    {
-                        AccessMode.Read => FileAccess.Read,
-                        AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
-                        AccessMode.Write => FileAccess.Write,
-                        _ => throw new NotSupportedException()
-                    };
-
-                    SafeFileHandle Handle = await GetNativeHandleAsync(Mode);
-
-                    if (Handle.IsInvalid)
-                    {
-                        throw new UnauthorizedAccessException();
-                    }
-                    else
-                    {
-                        return new FileStream(Handle, Access);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not create a new file stream, Path: \"{Path}\"");
-                throw;
-            }
-        }
-
-        public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(AccessMode Mode)
-        {
-            if (StorageItem is StorageFile File)
-            {
-                FileAccessMode Access = Mode switch
-                {
-                    AccessMode.Read => FileAccessMode.Read,
-                    AccessMode.ReadWrite or AccessMode.Exclusive or AccessMode.Write => FileAccessMode.ReadWrite,
-                    _ => throw new NotSupportedException()
-                };
-
-                return await File.OpenAsync(Access);
+                return Stream;
             }
             else
             {
-                return (await GetStreamFromFileAsync(Mode)).AsRandomAccessStream();
+                FileAccess Access = Mode switch
+                {
+                    AccessMode.Read => FileAccess.Read,
+                    AccessMode.ReadWrite or AccessMode.Exclusive => FileAccess.ReadWrite,
+                    AccessMode.Write => FileAccess.Write,
+                    _ => throw new NotSupportedException()
+                };
+
+                SafeFileHandle Handle = await GetNativeHandleAsync(Mode, Option);
+
+                if (Handle.IsInvalid)
+                {
+                    LogTracer.Log($"Could not create a new file stream, Path: \"{Path}\"");
+                    throw new UnauthorizedAccessException();
+                }
+                else
+                {
+                    return new FileStream(Handle, Access);
+                }
             }
         }
 

@@ -225,7 +225,7 @@ namespace RX_Explorer.Class
                     {
                         foreach ((string Path, Exception ex) in RetryBag)
                         {
-                            using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite).Result)
+                            using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
                             {
                                 if (Handle.IsInvalid)
                                 {
@@ -301,7 +301,7 @@ namespace RX_Explorer.Class
                     catch (Exception ex) when (ex is not FileNotFoundException or DirectoryNotFoundException)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite))
+                        using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
                         {
                             if (Handle.IsInvalid)
                             {
@@ -641,7 +641,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(SyncStatus));
         }
 
-        public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode)
+        public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
             async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
@@ -649,13 +649,13 @@ namespace RX_Explorer.Class
                 {
                     if (ControllerRef != null)
                     {
-                        return await ControllerRef.Value.Controller.GetFileHandleAsync(Path, Mode);
+                        return await ControllerRef.Value.Controller.GetFileHandleAsync(Path, Mode, Option);
                     }
                     else
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            return await Exclusive.Controller.GetFileHandleAsync(Path, Mode);
+                            return await Exclusive.Controller.GetFileHandleAsync(Path, Mode, Option);
                         }
                     }
                 }
@@ -663,7 +663,7 @@ namespace RX_Explorer.Class
 
             if (await GetStorageItemAsync() is IStorageItem Item)
             {
-                SafeFileHandle Handle = Item.GetSafeFileHandle(Mode);
+                SafeFileHandle Handle = Item.GetSafeFileHandle(Mode, Option);
 
                 if (Handle.IsInvalid)
                 {

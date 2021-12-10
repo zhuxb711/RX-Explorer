@@ -27,7 +27,6 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -1102,7 +1101,7 @@ namespace RX_Explorer
 
         private async void Current_Resuming(object sender, object e)
         {
-            await AreaWatcher.StartMonitorAsync(AreaWatcher.CurrentLocation);
+            await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
         }
 
         private async void Current_Suspending(object sender, SuspendingEventArgs e)
@@ -1112,6 +1111,10 @@ namespace RX_Explorer
             try
             {
                 await AreaWatcher.StopMonitorAsync();
+            }
+            catch(Exception ex)
+            {
+                LogTracer.Log(ex);
             }
             finally
             {
@@ -1937,7 +1940,7 @@ namespace RX_Explorer
         {
             if (e.OriginalSource is FrameworkElement Element)
             {
-                if (Element.DataContext is FileSystemStorageItemBase Item)
+                if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Item)
                 {
                     if (Element.FindParentOfType<TextBox>() is null)
                     {
@@ -2247,9 +2250,9 @@ namespace RX_Explorer
                         {
                             TranscodeImageDialog Dialog = null;
 
-                            using (IRandomAccessStream OriginStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+                            using (FileStream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                             {
-                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
                             }
 
@@ -5304,9 +5307,9 @@ namespace RX_Explorer
                         DelaySelectionCancellation?.Cancel();
                     }
 
-                    if (ItemPresenter is GridView)
+                    if (args.OriginalSource is FrameworkElement Element)
                     {
-                        if ((args.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                        if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Context)
                         {
                             if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                             {
@@ -5317,43 +5320,22 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                SelectedItem = Context;
-
-                                CommandBarFlyout ContextFlyout = Context switch
+                                if (ItemPresenter is GridView)
                                 {
-                                    LinkStorageFile => LinkItemFlyout,
-                                    FileSystemStorageFolder => FolderFlyout,
-                                    FileSystemStorageFile => FileFlyout,
-                                    _ => throw new NotImplementedException()
-                                };
+                                    SelectedItem = Context;
 
-                                await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                  Position,
-                                                                                                  ContextMenuCancellation.Token,
-                                                                                                  ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                            }
-                        }
-                        else
-                        {
-                            SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                            Position,
-                                                                                            ContextMenuCancellation.Token,
-                                                                                            CurrentFolder.Path);
-                        }
-                    }
-                    else
-                    {
-                        if (args.OriginalSource is FrameworkElement Element)
-                        {
-                            if (Element.DataContext is FileSystemStorageItemBase Context)
-                            {
-                                if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
-                                {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                                    CommandBarFlyout ContextFlyout = Context switch
+                                    {
+                                        LinkStorageFile => LinkItemFlyout,
+                                        FileSystemStorageFolder => FolderFlyout,
+                                        FileSystemStorageFile => FileFlyout,
+                                        _ => throw new NotImplementedException()
+                                    };
+
+                                    await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                      Position,
+                                                                                                      ContextMenuCancellation.Token,
+                                                                                                      ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
                                 }
                                 else
                                 {
@@ -5402,14 +5384,14 @@ namespace RX_Explorer
                                     }
                                 }
                             }
-                            else
-                            {
-                                SelectedItem = null;
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                Position,
-                                                                                                ContextMenuCancellation.Token,
-                                                                                                CurrentFolder.Path);
-                            }
+                        }
+                        else
+                        {
+                            SelectedItem = null;
+                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                            Position,
+                                                                                            ContextMenuCancellation.Token,
+                                                                                            CurrentFolder.Path);
                         }
                     }
                 }

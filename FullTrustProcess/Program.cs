@@ -331,21 +331,6 @@ namespace FullTrustProcess
                     if (SpinWait.SpinUntil(() => PipeCommunicationBaseController.IsConnected, 5000))
                     {
                         AliveCheckTimer.Start();
-
-                        try
-                        {
-                            //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                            string TempFolderPath = Path.GetTempPath();
-
-                            if (Directory.Exists(TempFolderPath))
-                            {
-                                ContextMenu.GetContextMenuItems(TempFolderPath);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Load menu in advance threw an exception, message: {ex.Message}");
-                        }
                     }
                     else
                     {
@@ -715,6 +700,7 @@ namespace FullTrustProcess
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
                                 AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
+                                OptimizeOption Option = (OptimizeOption)Enum.Parse(typeof(OptimizeOption), CommandValue["OptimizeOption"]);
 
                                 Kernel32.FileAccess Access = Mode switch
                                 {
@@ -732,9 +718,17 @@ namespace FullTrustProcess
                                     _ => throw new NotSupportedException()
                                 };
 
-                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                                FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | Option switch
                                 {
-                                    if (Handle.IsInvalid || Handle.IsNull)
+                                    OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
+                                    OptimizeOption.Optimize_Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                    OptimizeOption.Optimize_RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                    _ => throw new NotSupportedException()
+                                };
+
+                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, Flags))
+                                {
+                                    if (Handle.IsInvalid)
                                     {
                                         Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
                                     }

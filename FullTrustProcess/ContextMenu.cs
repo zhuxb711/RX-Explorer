@@ -155,7 +155,7 @@ namespace FullTrustProcess
                 {
                     User32.MENUITEMINFO Info = new User32.MENUITEMINFO
                     {
-                        cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO))),
+                        cbSize = Convert.ToUInt32(Marshal.SizeOf<User32.MENUITEMINFO>()),
                         fMask = User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_SUBMENU | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_STATE | User32.MenuItemInfoMask.MIIM_BITMAP,
                         dwTypeData = DataHandle,
                         cch = CchMax
@@ -165,48 +165,40 @@ namespace FullTrustProcess
                     {
                         if (Info.fType.IsFlagSet(User32.MenuItemType.MFT_STRING) && !Info.fState.IsFlagSet(User32.MenuItemState.MFS_DISABLED))
                         {
-                            IntPtr VerbWHandle = IntPtr.Zero;
-                            IntPtr VerbAHandle = IntPtr.Zero;
+                            string Verb = string.Empty;
 
-                            string Verb = null;
+                            IntPtr VerbAHandle = Marshal.AllocCoTaskMem(BufferSize);
 
                             try
                             {
-                                VerbWHandle = Marshal.AllocCoTaskMem(BufferSize);
-
-                                if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
+                                if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VALIDATEA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded
+                                    && Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded)
                                 {
-                                    Verb = Marshal.PtrToStringUni(VerbWHandle);
+                                    Verb = Marshal.PtrToStringAnsi(VerbAHandle);
                                 }
 
                                 if (string.IsNullOrEmpty(Verb))
                                 {
-                                    VerbAHandle = Marshal.AllocCoTaskMem(BufferSize);
+                                    IntPtr VerbWHandle = Marshal.AllocCoTaskMem(BufferSize);
 
-                                    if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded)
+                                    try
                                     {
-                                        Verb = Marshal.PtrToStringAnsi(VerbAHandle);
+                                        if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VALIDATEW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded
+                                            && Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
+                                        {
+                                            Verb = Marshal.PtrToStringUni(VerbWHandle);
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Marshal.FreeCoTaskMem(VerbWHandle);
                                     }
                                 }
                             }
-                            catch (AccessViolationException)
-                            {
-                                Verb = null;
-                            }
                             finally
                             {
-                                if (VerbAHandle.CheckIfValidPtr())
-                                {
-                                    Marshal.FreeCoTaskMem(VerbAHandle);
-                                }
-
-                                if (VerbWHandle.CheckIfValidPtr())
-                                {
-                                    Marshal.FreeCoTaskMem(VerbWHandle);
-                                }
+                                Marshal.FreeCoTaskMem(VerbAHandle);
                             }
-
-                            Verb ??= string.Empty;
 
                             if (!VerbFilterHashSet.Contains(Verb.ToLower()))
                             {

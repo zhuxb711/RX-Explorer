@@ -45,23 +45,23 @@ namespace RX_Explorer
             {
                 string TypeString = string.Empty;
 
-                IRandomAccessStream RandomStream = null;
+                Stream MediaStream = null;
 
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
                     if (Header.Version >= SLEVersion.Version_1_5_0)
                     {
-                        RandomStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream();
+                        MediaStream = new SLEInputStream(Stream, SecureArea.AESKey);
                         TypeString = Path.GetExtension(Header.FileName).ToLower();
                     }
                 }
                 else
                 {
-                    RandomStream = await MediaFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read);
+                    MediaStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
                     TypeString = MediaFile.Type.ToLower();
                 }
 
@@ -74,7 +74,7 @@ namespace RX_Explorer
                         {
                             MusicCover.Visibility = Visibility.Visible;
 
-                            MediaPlaybackItem Item = new MediaPlaybackItem(Source = MediaSource.CreateFromStream(RandomStream, MIMEDictionary[TypeString]));
+                            MediaPlaybackItem Item = new MediaPlaybackItem(Source = MediaSource.CreateFromStream(MediaStream.AsRandomAccessStream(), MIMEDictionary[TypeString]));
 
                             MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                             Props.Type = Windows.Media.MediaPlaybackType.Music;
@@ -105,7 +105,7 @@ namespace RX_Explorer
                         {
                             MusicCover.Visibility = Visibility.Collapsed;
 
-                            MediaPlaybackItem Item = new MediaPlaybackItem(Source = MediaSource.CreateFromStream(RandomStream, MIMEDictionary[TypeString]));
+                            MediaPlaybackItem Item = new MediaPlaybackItem(Source = MediaSource.CreateFromStream(MediaStream.AsRandomAccessStream(), MIMEDictionary[TypeString]));
 
                             MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                             Props.Type = Windows.Media.MediaPlaybackType.Video;
@@ -151,7 +151,7 @@ namespace RX_Explorer
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -162,7 +162,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
                 }
 
                 if (FStream != null)
@@ -223,7 +223,7 @@ namespace RX_Explorer
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -234,7 +234,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
                 }
 
                 if (FStream != null)

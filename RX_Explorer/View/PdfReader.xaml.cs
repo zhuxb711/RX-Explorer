@@ -29,7 +29,7 @@ namespace RX_Explorer
         private SynchronizedCollection<int> LoadTable;
 
         private PdfDocument Pdf;
-        private IRandomAccessStream PdfStream;
+        private Stream PdfStream;
         private int LastPageIndex;
         private CancellationTokenSource Cancellation;
         private double OriginHorizonOffset;
@@ -94,13 +94,13 @@ namespace RX_Explorer
 
                 if (PdfFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read);
+                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
                     if (Header.Version >= SLEVersion.Version_1_5_0 && Path.GetExtension(Header.FileName).Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                     {
-                        PdfStream = new SLEInputStream(Stream, SecureArea.AESKey).AsRandomAccessStream();
+                        PdfStream = new SLEInputStream(Stream, SecureArea.AESKey);
                     }
                     else
                     {
@@ -109,7 +109,7 @@ namespace RX_Explorer
                 }
                 else if (PdfFile.Type.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read);
+                    PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
                 }
                 else
                 {
@@ -123,7 +123,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream);
+                    Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream());
                 }
                 catch (Exception)
                 {
@@ -131,7 +131,7 @@ namespace RX_Explorer
 
                     if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);
+                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream.AsRandomAccessStream(), Dialog.Password);
                     }
                     else
                     {

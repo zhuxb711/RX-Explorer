@@ -372,7 +372,7 @@ namespace RX_Explorer
 
                 if (File.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read);
+                    FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -389,7 +389,7 @@ namespace RX_Explorer
                 else if (File.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase))
                 {
                     IsReadonlyMode = false;
-                    CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite);
+                    CompressedStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_RandomAccess);
                 }
                 else
                 {
@@ -797,7 +797,7 @@ namespace RX_Explorer
                     {
                         if (await FileSystemStorageItemBase.CreateNewAsync(TargetPath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TargetFile)
                         {
-                            using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write))
+                            using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                             {
                                 await ZipStream.CopyToAsync(Stream, Entry.Size, ProgressHandler: (s, e) =>
@@ -1144,7 +1144,7 @@ namespace RX_Explorer
 
                                 foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
                                 {
-                                    using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read).Result)
+                                    using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential).Result)
                                     {
                                         ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath.TrimEnd('/')}/{Item.Name}");
                                     }

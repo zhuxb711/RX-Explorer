@@ -98,7 +98,7 @@ namespace RX_Explorer.Dialog
 
             try
             {
-                using (FileStream DetectStream = await TextFile.GetStreamFromFileAsync(AccessMode.Read))
+                using (FileStream DetectStream = await TextFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
                 {
                     return await Task.Run(() =>
                     {

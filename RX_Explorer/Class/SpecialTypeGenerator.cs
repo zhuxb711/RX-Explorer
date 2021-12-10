@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_Sequential))
                     using (ZipFile Zip = ZipFile.Create(Stream))
                     {
                         Zip.BeginUpdate();
@@ -104,7 +104,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite))
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_Sequential))
                     {
                         RichEditBox REB = new RichEditBox();
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
@@ -152,7 +152,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite))
+                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_Sequential))
                     using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
                     {
                         CreateExcelParts(Document);

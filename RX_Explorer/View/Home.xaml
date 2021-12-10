@@ -13,7 +13,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
@@ -291,10 +290,15 @@
                                                 VerticalAlignment="Top"
                                                 Margin="5,0,0,0">
                                         <TextBlock Text="{x:Bind Name}"
-                                                   ToolTipService.ToolTip="{x:Bind Name,Converter={StaticResource EmptyTextFiliter}}"
+                                                   Name="NameLabel"
                                                    HorizontalTextAlignment="Left"
                                                    HorizontalAlignment="Stretch"
-                                                   TextTrimming="CharacterEllipsis"/>
+                                                   TextTrimming="CharacterEllipsis">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                         Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
                                         <TextBlock Text="{x:Bind DisplayType}"
                                                    FontSize="12"
                                                    x:Phase="1"

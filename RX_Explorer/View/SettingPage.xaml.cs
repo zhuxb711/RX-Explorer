@@ -1202,10 +1202,10 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read))
+                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                                     using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
                                     {
-                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write))
+                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
@@ -1517,17 +1517,17 @@ namespace RX_Explorer
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
-                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 
-                        await Bitmap.SetSourceAsync(FileStream);
+                        await Bitmap.SetSourceAsync(FileStream.AsRandomAccessStream());
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
 
                         if (DetectBrightnessNeeded)
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream);
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream.AsRandomAccessStream());
 
                             using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                             {

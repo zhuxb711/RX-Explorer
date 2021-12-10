@@ -1,4 +1,21 @@
-﻿###What's new in Ver.7.3.1.0
+﻿###What's new in Ver.7.3.2.0
+
+#####UI update
+
+>#####Each item in the file list will only pop up and display its full name when the name is too long to be displayed completely
+
+#####Performance improvement
+
+>#####Optimized the file system architecture and improved the performance of reading/writing files
+
+>#####Optimized the implementation of file system monitoring components
+
+#####Bug fix
+
+>#####Fixed some problems and enhanced stability
+
+***
+###What's new in Ver.7.3.1.0
 
 #####Bug fixed
 

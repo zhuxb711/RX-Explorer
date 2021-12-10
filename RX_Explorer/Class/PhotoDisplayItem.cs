@@ -2,6 +2,7 @@
 using ShareClassLibrary;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -45,9 +46,9 @@ namespace RX_Explorer.Class
                 {
                     BitmapImage TempImage = new BitmapImage();
 
-                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+                    using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                     {
-                        await TempImage.SetSourceAsync(Stream);
+                        await TempImage.SetSourceAsync(Stream.AsRandomAccessStream());
                     }
 
                     ActualSource = TempImage;
@@ -83,9 +84,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read))
+                using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                 {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream.AsRandomAccessStream());
 
                     switch (RotateAngle % 360)
                     {

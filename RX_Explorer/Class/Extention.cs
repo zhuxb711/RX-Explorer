@@ -386,7 +386,7 @@ namespace RX_Explorer.Class
             });
         }
 
-        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode)
+        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item, AccessMode Mode, OptimizeOption Option)
         {
             UWP_HANDLE_ACCESS_OPTIONS Access = Mode switch
             {
@@ -404,11 +404,19 @@ namespace RX_Explorer.Class
                 _ => throw new NotSupportedException()
             };
 
+            UWP_HANDLE_OPTIONS Optimize = Option switch
+            {
+                OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
+                OptimizeOption.Optimize_Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
+                OptimizeOption.Optimize_RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
+                _ => throw new NotSupportedException()
+            };
+
             try
             {
                 IntPtr ComInterface = Marshal.GetComInterfaceForObject<IStorageItem, IStorageItemHandleAccess>(Item);
                 IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
-                StorageHandleAccess.Create(Access, Share, 0, IntPtr.Zero, out IntPtr Handle);
+                StorageHandleAccess.Create(Access, Share, Optimize, IntPtr.Zero, out IntPtr Handle);
                 return new SafeFileHandle(Handle, true);
             }
             catch (Exception ex)

@@ -149,17 +149,17 @@ namespace FullTrustProcess
                                         {
                                             if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
                                             {
-                                                uint Size = 260;
-                                                StringBuilder PackageFamilyNameBuilder = new StringBuilder((int)Size);
+                                                uint FamilyNameSize = 260;
+                                                StringBuilder PackageFamilyNameBuilder = new StringBuilder((int)FamilyNameSize);
 
-                                                if (Kernel32.GetPackageFamilyName(ProcessHandle, ref Size, PackageFamilyNameBuilder).Succeeded)
+                                                if (Kernel32.GetPackageFamilyName(ProcessHandle, ref FamilyNameSize, PackageFamilyNameBuilder).Succeeded)
                                                 {
                                                     if (PackageFamilyNameBuilder.ToString() == PackageFamilyName && User32.IsWindowVisible(hWnd))
                                                     {
-                                                        Size = 260;
-                                                        StringBuilder ProcessImageName = new StringBuilder((int)Size);
+                                                        uint ProcessNameSize = 260;
+                                                        StringBuilder ProcessImageName = new StringBuilder((int)ProcessNameSize);
 
-                                                        if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size))
+                                                        if (Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref ProcessNameSize))
                                                         {
                                                             Info = new WindowInformation(ProcessImageName.ToString(), PID, State, hWnd);
                                                         }

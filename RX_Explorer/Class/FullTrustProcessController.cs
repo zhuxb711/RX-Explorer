@@ -548,9 +548,9 @@ namespace RX_Explorer.Class
             return new Dictionary<string, string>(0);
         }
 
-        public async Task<SafeFileHandle> GetFileHandleAsync(string Path, AccessMode Access)
+        public async Task<SafeFileHandle> GetFileHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
         {
-            if (await SendCommandAsync(CommandType.GetFileHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetFileHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string HandleString))
                 {
@@ -568,13 +568,13 @@ namespace RX_Explorer.Class
             return new SafeFileHandle(IntPtr.Zero, true);
         }
 
-        public async Task<IntPtr> GetDirectoryMonitorHandleAsync(string Path)
+        public async Task<SafeFileHandle> GetDirectoryMonitorHandleAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetDirectoryMonitorHandle, ("ExecutePath", Path)) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string HandleString))
                 {
-                    return new IntPtr(Convert.ToInt64(HandleString));
+                    return new SafeFileHandle(new IntPtr(Convert.ToInt64(HandleString)), true);
                 }
                 else
                 {
@@ -585,7 +585,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return IntPtr.Zero;
+            return new SafeFileHandle(IntPtr.Zero, true);
         }
 
         public async Task<string> GetMIMEContentTypeAsync(string Path)

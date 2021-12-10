@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using RX_Explorer.Dialog;
 using ShareClassLibrary;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -10,7 +10,6 @@ using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 
@@ -201,24 +200,24 @@ namespace RX_Explorer.Class
                 IsAnyTransformTaskRunning = true;
 
                 using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecutionAsync())
-                using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                using (FileStream OriginStream = await SourceFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
                 {
                     try
                     {
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
 
                         using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                        using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(false))
+                        using (FileStream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_RandomAccess))
                         {
-                            BitmapEncoder Encoder = DestinationFile.Type.ToLower() switch
+                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(DestinationFile.Type.ToLower() switch
                             {
-                                ".png" => await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream),
-                                ".jpg" => await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream),
-                                ".bmp" => await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream),
-                                ".heic" => await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream),
-                                ".tiff" => await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream),
+                                ".png" => BitmapEncoder.PngEncoderId,
+                                ".jpg" => BitmapEncoder.JpegEncoderId,
+                                ".bmp" => BitmapEncoder.BmpEncoderId,
+                                ".heic" => BitmapEncoder.HeifEncoderId,
+                                ".tiff" => BitmapEncoder.TiffEncoderId,
                                 _ => throw new InvalidOperationException("Unsupport image format"),
-                            };
+                            }, TargetStream.AsRandomAccessStream());
 
                             if (IsEnableScale)
                             {
@@ -289,68 +288,37 @@ namespace RX_Explorer.Class
 
                         try
                         {
-                            MediaEncodingProfile Profile = null;
-                            VideoEncodingQuality VideoQuality = default;
-                            AudioEncodingQuality AudioQuality = default;
-
-                            switch (Para.Item4)
+                            VideoEncodingQuality VideoQuality = Para.Item4 switch
                             {
-                                case "UHD2160p":
-                                    VideoQuality = VideoEncodingQuality.Uhd2160p;
-                                    break;
-                                case "QVGA":
-                                    VideoQuality = VideoEncodingQuality.Qvga;
-                                    break;
-                                case "HD1080p":
-                                    VideoQuality = VideoEncodingQuality.HD1080p;
-                                    break;
-                                case "HD720p":
-                                    VideoQuality = VideoEncodingQuality.HD720p;
-                                    break;
-                                case "WVGA":
-                                    VideoQuality = VideoEncodingQuality.Wvga;
-                                    break;
-                                case "VGA":
-                                    VideoQuality = VideoEncodingQuality.Vga;
-                                    break;
-                                case "High":
-                                    AudioQuality = AudioEncodingQuality.High;
-                                    break;
-                                case "Medium":
-                                    AudioQuality = AudioEncodingQuality.Medium;
-                                    break;
-                                case "Low":
-                                    AudioQuality = AudioEncodingQuality.Low;
-                                    break;
-                            }
+                                "UHD2160p" => VideoEncodingQuality.Uhd2160p,
+                                "QVGA" => VideoEncodingQuality.Qvga,
+                                "HD1080p" => VideoEncodingQuality.HD1080p,
+                                "HD720p" => VideoEncodingQuality.HD720p,
+                                "WVGA" => VideoEncodingQuality.Wvga,
+                                "VGA" => VideoEncodingQuality.Vga,
+                                _ => default
+                            };
 
-                            switch (Para.Item3)
+                            AudioEncodingQuality AudioQuality = Para.Item4 switch
                             {
-                                case "MKV":
-                                    Profile = MediaEncodingProfile.CreateHevc(VideoQuality);
-                                    break;
-                                case "MP4":
-                                    Profile = MediaEncodingProfile.CreateMp4(VideoQuality);
-                                    break;
-                                case "WMV":
-                                    Profile = MediaEncodingProfile.CreateWmv(VideoQuality);
-                                    break;
-                                case "AVI":
-                                    Profile = MediaEncodingProfile.CreateAvi(VideoQuality);
-                                    break;
-                                case "MP3":
-                                    Profile = MediaEncodingProfile.CreateMp3(AudioQuality);
-                                    break;
-                                case "ALAC":
-                                    Profile = MediaEncodingProfile.CreateAlac(AudioQuality);
-                                    break;
-                                case "WMA":
-                                    Profile = MediaEncodingProfile.CreateWma(AudioQuality);
-                                    break;
-                                case "M4A":
-                                    Profile = MediaEncodingProfile.CreateM4a(AudioQuality);
-                                    break;
-                            }
+                                "High" => AudioEncodingQuality.High,
+                                "Medium" => AudioEncodingQuality.Medium,
+                                "Low" => AudioEncodingQuality.Low,
+                                _ => default
+                            };
+
+                            MediaEncodingProfile Profile = Para.Item3 switch
+                            {
+                                "MKV" => MediaEncodingProfile.CreateHevc(VideoQuality),
+                                "MP4" => MediaEncodingProfile.CreateMp4(VideoQuality),
+                                "WMV" => MediaEncodingProfile.CreateWmv(VideoQuality),
+                                "AVI" => MediaEncodingProfile.CreateAvi(VideoQuality),
+                                "MP3" => MediaEncodingProfile.CreateMp3(AudioQuality),
+                                "ALAC" => MediaEncodingProfile.CreateAlac(AudioQuality),
+                                "WMA" => MediaEncodingProfile.CreateWma(AudioQuality),
+                                "M4A" => MediaEncodingProfile.CreateM4a(AudioQuality),
+                                _ => throw new NotSupportedException()
+                            };
 
                             PrepareTranscodeResult Result = Transcoder.PrepareFileTranscodeAsync(Para.Item1, Para.Item2, Profile).AsTask().Result;
 
@@ -391,6 +359,11 @@ namespace RX_Explorer.Class
                         }
                         catch (AggregateException)
                         {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ShowTranscodeCancelNotification();
+                            }).AsTask().Wait();
+
                             Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                         }
                         catch (Exception ex)
@@ -547,20 +520,20 @@ namespace RX_Explorer.Class
                         BindingGeneric = new ToastBindingGeneric()
                         {
                             Children =
-                        {
-                            new AdaptiveText()
                             {
-                                Text = $"{Globalization.GetString("Transcode_Toast_Title")} {SourceFile.Name}"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = $"{Globalization.GetString("Transcode_Toast_Title")} {SourceFile.Name}"
+                                },
 
-                            new AdaptiveProgressBar()
-                            {
-                                Title = SourceFile.FileType.Substring(1).ToUpper()+" ⋙⋙⋙⋙ "+DestinationFile.FileType.Substring(1).ToUpper(),
-                                Value = new BindableProgressBarValue("ProgressValue"),
-                                ValueStringOverride = new BindableString("ProgressValueString"),
-                                Status = new BindableString("ProgressStatus")
+                                new AdaptiveProgressBar()
+                                {
+                                    Title = SourceFile.FileType.Substring(1).ToUpper()+" ⋙⋙⋙⋙ "+DestinationFile.FileType.Substring(1).ToUpper(),
+                                    Value = new BindableProgressBarValue("ProgressValue"),
+                                    ValueStringOverride = new BindableString("ProgressValueString"),
+                                    Status = new BindableString("ProgressStatus")
+                                }
                             }
-                        }
                         }
                     }
                 };
@@ -610,18 +583,17 @@ namespace RX_Explorer.Class
                         BindingGeneric = new ToastBindingGeneric()
                         {
                             Children =
-                        {
-                            new AdaptiveText()
                             {
-                                Text = Globalization.GetString("Crop_Toast_Complete_Text")
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = Globalization.GetString("Crop_Toast_Complete_Text")
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text = Globalization.GetString("Toast_ClickToClear_Text")
+                                new AdaptiveText()
+                                {
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
+                                }
                             }
-                        }
-
                         }
                     },
                 };

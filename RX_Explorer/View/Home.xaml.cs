@@ -19,7 +19,6 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -1319,9 +1318,13 @@ namespace RX_Explorer
                     {
                         Flyout = BitlockerDeviceFlyout;
                     }
+                    else if (Context.DriveType == DriveType.Removable)
+                    {
+                        Flyout = PortableDeviceFlyout;
+                    }
                     else
                     {
-                        Flyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DriveFlyout;
+                        Flyout = DriveFlyout;
                     }
 
                     ContextMenuCancellation?.Cancel();
