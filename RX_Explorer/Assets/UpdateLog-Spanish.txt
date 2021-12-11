@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 7.3.2.0
+﻿###Novedades de la versión 7.3.3.0
 
 #####Actualización de la interfaz de usuario
 

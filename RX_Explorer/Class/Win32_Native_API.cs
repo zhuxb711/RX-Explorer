@@ -22,6 +22,7 @@ namespace RX_Explorer.Class
                                                             FINDEX_SEARCH_OPS fSearchOp,
                                                             IntPtr lpSearchFilter,
                                                             FINDEX_ADDITIONAL_FLAGS dwAdditionalFlags);
+
         [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
 
@@ -32,7 +33,13 @@ namespace RX_Explorer.Class
         public static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern SafeFileHandle CreateFileFromApp(string lpFileName, FILE_ACCESS dwDesiredAccess, FILE_SHARE dwShareMode, SECURITY_ATTRIBUTES SecurityAttributes, CREATE_OPTION dwCreationDisposition, FILE_ATTRIBUTE_FLAG dwFlagsAndAttributes, IntPtr hTemplateFile);
+        private static extern SafeFileHandle CreateFileFromApp(string lpFileName,
+                                                               FILE_ACCESS dwDesiredAccess,
+                                                               FILE_SHARE dwShareMode,
+                                                               IntPtr SecurityAttributes,
+                                                               CREATE_OPTION dwCreationDisposition,
+                                                               FILE_ATTRIBUTE_FLAG dwFlagsAndAttributes,
+                                                               IntPtr hTemplateFile);
 
         [DllImport("api-ms-win-core-handle-l1-1-0.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hObject);
@@ -40,8 +47,8 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-io-l1-1-1.dll", SetLastError = true)]
         private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
 
-        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool CreateDirectoryFromAppW(string lpPathName, IntPtr lpSecurityAttributes);
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", EntryPoint = "CreateDirectoryFromAppW", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool CreateDirectoryFromApp(string lpPathName, IntPtr lpSecurityAttributes);
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool DeleteFileFromApp(string lpPathName);
@@ -50,24 +57,23 @@ namespace RX_Explorer.Class
         private static extern bool RemoveDirectoryFromApp(string lpPathName);
 
         [DllImport("api-ms-win-core-file-l2-1-0.dll", EntryPoint = "ReadDirectoryChangesW", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool ReadDirectoryChanges(IntPtr hDirectory, IntPtr lpBuffer, uint nBufferLength, bool bWatchSubtree, FILE_NOTIFY_CHANGE dwNotifyFilter, out uint lpBytesReturned, IntPtr lpOverlapped, IntPtr lpCompletionRoutine);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public class SECURITY_ATTRIBUTES
-        {
-            public int nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>();
-
-            public IntPtr pSecurityDescriptor;
-
-            [MarshalAs(UnmanagedType.Bool)]
-            public bool bInheritHandle;
-        }
+        public static extern bool ReadDirectoryChanges(IntPtr hDirectory,
+                                                       IntPtr lpBuffer,
+                                                       uint nBufferLength,
+                                                       bool bWatchSubtree,
+                                                       FILE_NOTIFY_CHANGE dwNotifyFilter,
+                                                       out uint lpBytesReturned,
+                                                       IntPtr lpOverlapped,
+                                                       IntPtr lpCompletionRoutine);
 
         [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool GetFileSizeEx(IntPtr hFile, out long lpFileSize);
 
         [DllImport("api-ms-win-core-file-l2-1-0.dlll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern bool GetFileInformationByHandleEx(IntPtr hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass, IntPtr lpFileInformation, uint dwBufferSize);
+        private static extern bool GetFileInformationByHandleEx(IntPtr hFile,
+                                                                FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+                                                                IntPtr lpFileInformation,
+                                                                uint dwBufferSize);
 
         [Flags]
         private enum ACCESS_MASK : uint
@@ -320,10 +326,10 @@ namespace RX_Explorer.Class
 
             SafeFileHandle Handle = AccessMode switch
             {
-                AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
-                AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, null, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Read => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.ReadWrite => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Write => CreateFileFromApp(Path, FILE_ACCESS.Generic_Write, FILE_SHARE.Read, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
+                AccessMode.Exclusive => CreateFileFromApp(Path, FILE_ACCESS.Generic_Read | FILE_ACCESS.Generic_Write, FILE_SHARE.None, IntPtr.Zero, CREATE_OPTION.Open_Existing, Flags, IntPtr.Zero),
                 _ => throw new NotSupportedException()
             };
 
@@ -357,7 +363,7 @@ namespace RX_Explorer.Class
                     {
                         if (!CheckExist(NextPath))
                         {
-                            if (!CreateDirectoryFromAppW(NextPath, IntPtr.Zero))
+                            if (!CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                             {
                                 NewFolderPath = string.Empty;
                                 LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
@@ -373,7 +379,7 @@ namespace RX_Explorer.Class
                                 {
                                     string UniquePath = GenerateUniquePath(NextPath, StorageItemTypes.Folder);
 
-                                    if (CreateDirectoryFromAppW(UniquePath, IntPtr.Zero))
+                                    if (CreateDirectoryFromApp(UniquePath, IntPtr.Zero))
                                     {
                                         NewFolderPath = UniquePath;
                                         return true;
@@ -394,7 +400,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        if (CreateDirectoryFromAppW(NextPath, IntPtr.Zero))
+                                        if (CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                                         {
                                             NewFolderPath = NextPath;
                                             return true;
@@ -435,7 +441,7 @@ namespace RX_Explorer.Class
                             {
                                 string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
 
-                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                                using (SafeFileHandle Handle = CreateFileFromApp(UniquePath, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                                 {
                                     if (!Handle.IsInvalid)
                                     {
@@ -446,7 +452,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                                using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_New, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                                 {
                                     if (!Handle.IsInvalid)
                                     {
@@ -460,7 +466,7 @@ namespace RX_Explorer.Class
                         }
                     case CreateOption.OpenIfExist:
                         {
-                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
@@ -473,7 +479,7 @@ namespace RX_Explorer.Class
                         }
                     case CreateOption.ReplaceExisting:
                         {
-                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
+                            using (SafeFileHandle Handle = CreateFileFromApp(Path, FILE_ACCESS.Generic_Read, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Create_Always, FILE_ATTRIBUTE_FLAG.File_Attribute_Normal, IntPtr.Zero))
                             {
                                 if (!Handle.IsInvalid)
                                 {
@@ -556,7 +562,7 @@ namespace RX_Explorer.Class
 
         public static SafeFileHandle CreateDirectoryMonitorHandle(string FolderPath)
         {
-            return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, null, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
+            return CreateFileFromApp(FolderPath, FILE_ACCESS.File_List_Directory, FILE_SHARE.Read | FILE_SHARE.Write | FILE_SHARE.Delete, IntPtr.Zero, CREATE_OPTION.Open_Existing, FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics, IntPtr.Zero);
         }
 
         public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, BasicFilters Filter)
