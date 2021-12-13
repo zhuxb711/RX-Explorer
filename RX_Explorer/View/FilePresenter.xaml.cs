@@ -1101,7 +1101,10 @@ namespace RX_Explorer
 
         private async void Current_Resuming(object sender, object e)
         {
-            await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
+            if (CurrentFolder is not RootStorageFolder)
+            {
+                await AreaWatcher.StartMonitorAsync(CurrentFolder?.Path);
+            }
         }
 
         private async void Current_Suspending(object sender, SuspendingEventArgs e)

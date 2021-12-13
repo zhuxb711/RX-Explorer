@@ -1,5 +1,4 @@
 ﻿using System;
-using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
@@ -28,7 +27,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is InstalledFonts Item)
                 {
-                    return Item.FontIndex == FontIndex && Item.FamilyIndex == FamilyIndex;
+                    return Item.Name == Name;
                 }
                 else
                 {
@@ -39,7 +38,7 @@ namespace RX_Explorer.Class
 
         public override int GetHashCode()
         {
-            return FontIndex.GetHashCode() + FamilyIndex.GetHashCode();
+            return Name.GetHashCode();
         }
 
         public override string ToString()
@@ -61,7 +60,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return other.FontIndex == FontIndex && other.FamilyIndex == FamilyIndex;
+                    return other.Name == Name;
                 }
             }
         }
@@ -80,7 +79,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.FontIndex == right.FontIndex && left.FamilyIndex == right.FamilyIndex;
+                    return left.Name == right.Name;
                 }
             }
         }
@@ -99,7 +98,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.FontIndex != right.FontIndex || left.FamilyIndex != right.FamilyIndex;
+                    return left.Name != right.Name;
                 }
             }
         }

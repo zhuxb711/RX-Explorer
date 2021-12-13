@@ -163,6 +163,11 @@ namespace FullTrustProcess
 
                     if (User32.GetMenuItemInfo(Menu, i, true, ref Info))
                     {
+                        if (Info.wID >= 5000)
+                        {
+                            continue;
+                        }
+
                         if (Info.fType.IsFlagSet(User32.MenuItemType.MFT_STRING) && !Info.fState.IsFlagSet(User32.MenuItemState.MFS_DISABLED))
                         {
                             string Verb = string.Empty;

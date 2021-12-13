@@ -643,7 +643,6 @@ namespace RX_Explorer.Class
                 else if (Marshal.GetLastWin32Error() is 2 or 3
                          && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log($"Path not found: \"{Path}\"");
                     return false;
                 }
                 else

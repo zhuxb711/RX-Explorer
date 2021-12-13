@@ -96,6 +96,10 @@ namespace FullTrustProcess
                                                         {
                                                             Writer.WriteLine("Success");
                                                         }
+                                                        else if (Directory.Exists(NewData.Path) || File.Exists(NewData.Path))
+                                                        {
+                                                            Writer.WriteLine("Success");
+                                                        }
                                                         else
                                                         {
                                                             Writer.WriteLine("Error_Failure");
@@ -130,6 +134,12 @@ namespace FullTrustProcess
                                                                     }
                                                                 }
                                                             }))
+                                                            {
+                                                                Writer.WriteLine("Success");
+                                                                Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
+                                                            }
+                                                            else if (CopyData.SourcePath.Select((Item) => Path.Combine(CopyData.DestinationPath, Path.GetFileName(Item)))
+                                                                                        .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
                                                             {
                                                                 Writer.WriteLine("Success");
                                                                 Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
@@ -191,6 +201,13 @@ namespace FullTrustProcess
                                                                         Writer.WriteLine("Error_Capture");
                                                                     }
                                                                 }
+                                                                else if (MoveData.SourcePath.Keys.All((Item) => !Directory.Exists(Item) && !File.Exists(Item))
+                                                                         && MoveData.SourcePath.Select((Item) => Path.Combine(MoveData.DestinationPath, string.IsNullOrEmpty(Item.Value) ? Path.GetFileName(Item.Key) : Item.Value))
+                                                                                               .All((Path) => Directory.Exists(Path) || File.Exists(Path)))
+                                                                {
+                                                                    Writer.WriteLine("Success");
+                                                                    Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
+                                                                }
                                                                 else
                                                                 {
                                                                     Writer.WriteLine("Error_Failure");
@@ -240,6 +257,11 @@ namespace FullTrustProcess
                                                                     {
                                                                         Writer.WriteLine("Error_Capture");
                                                                     }
+                                                                }
+                                                                else if (DeleteData.DeletePath.All((Item) => !Directory.Exists(Item) && !File.Exists(Item)))
+                                                                {
+                                                                    Writer.WriteLine("Success");
+                                                                    Writer.WriteLine(JsonSerializer.Serialize(OperationRecordList));
                                                                 }
                                                                 else
                                                                 {
@@ -901,9 +923,16 @@ namespace FullTrustProcess
 
                             if (File.Exists(Path) || Directory.Exists(Path))
                             {
-                                using (ShellItem Item = new ShellItem(Path))
+                                try
                                 {
-                                    Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                    using (ShellFolder Item = new ShellFolder(System.IO.Path.GetDirectoryName(Path)))
+                                    {
+                                        Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    Value.Add("Error", "Could not get the tooltip");
                                 }
                             }
                             else
@@ -1200,7 +1229,7 @@ namespace FullTrustProcess
                                                             }
                                                         case "Error_Failure":
                                                             {
-                                                                Value.Add("Error_Failure", "Error happened when rename");
+                                                                Value.Add("Error_Failure", "Error happened when renaming files");
                                                                 break;
                                                             }
                                                     }
@@ -2258,7 +2287,7 @@ namespace FullTrustProcess
                                                         }
                                                     case "Error_Failure":
                                                         {
-                                                            Value.Add("Error_Failure", "Error happened when rename");
+                                                            Value.Add("Error_Failure", "Error happened when copying files");
                                                             break;
                                                         }
                                                 }
@@ -2277,7 +2306,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "One of path in \"Source\" is not a file or directory");
+                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
                             }
 
                             break;
@@ -2418,7 +2447,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "One of path in \"Source\" is not a file or directory");
+                                Value.Add("Error_NotFound", $"One of path in \"{nameof(SourcePathList)}\" is not a file or directory");
                             }
 
                             break;
@@ -2523,7 +2552,7 @@ namespace FullTrustProcess
                                                             }
                                                         case "Error_Failure":
                                                             {
-                                                                Value.Add("Error_Failure", "Error happened when rename");
+                                                                Value.Add("Error_Failure", "Error happened when deleting files");
                                                                 break;
                                                             }
                                                     }
@@ -2543,7 +2572,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Value.Add("Error_NotFound", "ExecutePath is not a file or directory");
+                                Value.Add("Error_NotFound", $"One of path in \"{nameof(ExecutePathList)}\" is not a file or directory");
                             }
 
                             break;

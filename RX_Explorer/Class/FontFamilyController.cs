@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
             List<InstalledFonts> FontList = new List<InstalledFonts>();
 
             using (Factory FontFactory = new Factory())
-            using (FontCollection Collection = FontFactory.GetSystemFontCollection(false))
+            using (FontCollection Collection = FontFactory.GetSystemFontCollection(true))
             {
                 string CurrentLocaleName = Globalization.CurrentLanguage switch
                 {
@@ -121,6 +121,8 @@ namespace RX_Explorer.Class
                     }
                 }
             }
+
+            FontList.Sort((One, Two) => One.Name.CompareTo(Two.Name));
 
             return FontList;
         }
