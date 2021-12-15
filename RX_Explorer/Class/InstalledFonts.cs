@@ -4,17 +4,14 @@ namespace RX_Explorer.Class
 {
     public sealed class InstalledFonts : IEquatable<InstalledFonts>
     {
-        public int FontIndex { get; }
-
-        public int FamilyIndex { get; }
-
         public string Name { get; }
 
-        public InstalledFonts(int FontIndex, int FamilyIndex, string Name)
+        public string Path { get; }
+
+        public InstalledFonts(string Name, string Path)
         {
-            this.FontIndex = FontIndex;
-            this.FamilyIndex = FamilyIndex;
             this.Name = Name;
+            this.Path = Path;
         }
 
         public override bool Equals(object obj)
@@ -27,7 +24,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is InstalledFonts Item)
                 {
-                    return Item.Name == Name;
+                    return string.IsNullOrEmpty(Path) ? Item.Name == Name : Item.Path == Path;
                 }
                 else
                 {
@@ -38,7 +35,7 @@ namespace RX_Explorer.Class
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return Name.GetHashCode() + Path.GetHashCode();
         }
 
         public override string ToString()
@@ -46,21 +43,21 @@ namespace RX_Explorer.Class
             return Name;
         }
 
-        public bool Equals(InstalledFonts other)
+        public bool Equals(InstalledFonts Item)
         {
-            if (ReferenceEquals(this, other))
+            if (ReferenceEquals(this, Item))
             {
                 return true;
             }
             else
             {
-                if (other == null)
+                if (Item == null)
                 {
                     return false;
                 }
                 else
                 {
-                    return other.Name == Name;
+                    return Item.Name == Name && Item.Path == Path;
                 }
             }
         }
@@ -79,7 +76,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name == right.Name;
+                    return left.Name == right.Name && left.Path == right.Path;
                 }
             }
         }
@@ -98,7 +95,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name != right.Name;
+                    return left.Name != right.Name || left.Path != right.Path;
                 }
             }
         }

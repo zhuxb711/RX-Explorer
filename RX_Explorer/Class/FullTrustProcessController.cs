@@ -168,15 +168,15 @@ namespace RX_Explorer.Class
 
             if (Interlocked.CompareExchange(ref ResizeTask, LocalResizeTask, null) is Task PreviousTask)
             {
-                PreviousTask.ContinueWith((_) => LocalResizeTask.Wait(), TaskContinuationOptions.PreferFairness);
+                PreviousTask.ContinueWith((_) => LocalResizeTask.Wait());
             }
         }
 
-        private static async Task ResizeControllerAsync(int RequestedTarget)
+        private static Task ResizeControllerAsync(int RequestedTarget)
         {
-            try
+            return Task.Run(() =>
             {
-                using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecutionAsync())
+                try
                 {
                     LastRequestedControllerNum = RequestedTarget;
 
@@ -190,27 +190,27 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            Thread.Sleep(500);
                         }
                     }
 
                     for (int Retry = 0; AllControllerList.Count < RequestedTarget && Retry < 3; Retry++)
                     {
-                        if (await CreateAsync() is FullTrustProcessController NewController)
+                        if (CreateAsync().Result is FullTrustProcessController NewController)
                         {
                             AvailableControllers.Enqueue(NewController);
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            Thread.Sleep(500);
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
-            }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
+                }
+            });
         }
 
 
