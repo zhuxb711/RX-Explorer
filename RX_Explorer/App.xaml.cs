@@ -53,6 +53,11 @@ namespace RX_Explorer
             SendActivateToast();
         }
 
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        {
+            FullTrustProcessController.RequestResizeController(1);
+        }
+
         private void SendActivateToast()
         {
             if (IsInBackgroundMode

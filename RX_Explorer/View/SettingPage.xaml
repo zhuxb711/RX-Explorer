@@ -46,7 +46,7 @@
 
             <Thickness x:Key="NavigationViewPaneContentGridMargin">5,10</Thickness>
             <Thickness x:Key="ExpanderContentDownBorderThickness">0</Thickness>
-            
+
             <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
             <Cls:InverseConverter x:Key="InverseConverter" />
 
@@ -99,7 +99,7 @@
               BorderBrush="{ThemeResource BorderDefaultBrush}"
               CornerRadius="{StaticResource CustomCornerRadius}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" />
                 <RowDefinition Height="60" />
             </Grid.RowDefinitions>
 
@@ -193,8 +193,7 @@
                                              ContentTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
                         <control:Case Value="0"
                                       IsDefault="True">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="基本"
                                                x:Uid="SettingBasicText"
@@ -320,7 +319,7 @@
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="Gray"
                                                                Text="启用此选项后将显示隐藏文件"
-                                                               x:Uid="SettingDisplayHiddenItemDescription"/>
+                                                               x:Uid="SettingDisplayHiddenItemDescription" />
                                                 </StackPanel>
                                                 <ToggleSwitch OnContent="启用"
                                                               OffContent="禁用"
@@ -473,8 +472,7 @@
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="1">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="高级"
                                                x:Uid="SettingAdvance"
@@ -499,7 +497,7 @@
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
                                                            x:Uid="AutoBootOnStartupDescription"
-                                                           Text="启用此选项后本应用将随Windows的启动而自动启动"/>
+                                                           Text="启用此选项后本应用将随Windows的启动而自动启动" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
@@ -564,7 +562,7 @@
                                                            Foreground="Gray"
                                                            x:Uid="AlwaysOnTopDescription"
                                                            TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords"/>
+                                                           TextWrapping="WrapWholeWords" />
                                             </StackPanel>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
@@ -885,7 +883,7 @@
                                                                        Foreground="Gray"
                                                                        Text="启用此选项后将直接永久删除文件，请特别注意数据丢失的风险" />
                                                         </StackPanel>
-                                                        
+
                                                     </StackPanel>
                                                 </CheckBox>
                                             </Border>
@@ -1368,8 +1366,7 @@
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="2">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="个性化"
                                                x:Uid="SettingPersonalize"
@@ -1501,7 +1498,7 @@
                                                                          x:Uid="SolidColor_White"
                                                                          Name="SolidColor_White"
                                                                          Checked="SolidColor_White_Checked"
-                                                                         GroupName="SolidColorSubOptions"/>
+                                                                         GroupName="SolidColorSubOptions" />
                                                         </Border>
                                                         <Border Padding="40,10,10,10"
                                                                 MinHeight="45"
@@ -1731,12 +1728,12 @@
                                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
                                                                                     <Slider IsThumbToolTipEnabled="False"
                                                                                             x:Name="TintOpacitySlider"
-                                                                                            StepFrequency="0.1"
+                                                                                            StepFrequency="0.05"
                                                                                             Maximum="1"
                                                                                             Minimum="0"
                                                                                             Width="180"
                                                                                             Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="CommonSlider_ValueChanged"/>
+                                                                                            ValueChanged="CommonSlider_ValueChanged" />
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
@@ -1774,12 +1771,12 @@
                                                                                             RelativePanel.AlignVerticalCenterWithPanel="True">
                                                                                     <Slider IsThumbToolTipEnabled="False"
                                                                                             x:Name="TintLuminositySlider"
-                                                                                            StepFrequency="0.1"
+                                                                                            StepFrequency="0.05"
                                                                                             Maximum="1"
                                                                                             Minimum="0"
                                                                                             Width="180"
                                                                                             Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="CommonSlider_ValueChanged"/>
+                                                                                            ValueChanged="CommonSlider_ValueChanged" />
                                                                                     <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
                                                                                                Margin="5,0"
                                                                                                Width="40"
@@ -1990,7 +1987,7 @@
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="Gray"
                                                            Text="控制启动时的行为"
-                                                           x:Uid="SettingStartupDescription"/>
+                                                           x:Uid="SettingStartupDescription" />
                                             </StackPanel>
                                         </muxc:Expander.Header>
                                         <muxc:Expander.Content>
@@ -2105,8 +2102,7 @@
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="3">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="隐私"
                                                x:Uid="SettingPrivacy"
@@ -2218,8 +2214,7 @@
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="4">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="版本"
                                                x:Uid="SettingVersion"
@@ -2464,8 +2459,7 @@
                             </ScrollViewer>
                         </control:Case>
                         <control:Case Value="5">
-                            <ScrollViewer Padding="20"
-                                          VerticalScrollBarVisibility="Hidden">
+                            <ScrollViewer Padding="20">
                                 <StackPanel ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                                     <TextBlock Text="关于"
                                                x:Uid="SettingAbout"

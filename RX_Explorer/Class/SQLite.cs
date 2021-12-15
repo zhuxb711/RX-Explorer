@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
         private bool IsDisposed;
         private static readonly object Locker = new object();
         private static volatile SQLite SQL;
-        private SqliteConnection Connection;
+        private readonly SqliteConnection Connection;
 
         /// <summary>
         /// 初始化SQLite的实例
@@ -25,10 +25,15 @@ namespace RX_Explorer.Class
         private SQLite()
         {
             SQLitePCL.Batteries_V2.Init();
-            SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
-            SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-            Connection = new SqliteConnection("Filename=RX_Sqlite.db;");
+            SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
+            {
+                DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Default
+            };
+
+            Connection = new SqliteConnection(Builder.ToString());
             Connection.Open();
 
             InitializeDatabase();
@@ -979,7 +984,6 @@ namespace RX_Explorer.Class
                 IsDisposed = true;
 
                 Connection.Dispose();
-                Connection = null;
                 SQL = null;
 
                 GC.SuppressFinalize(this);

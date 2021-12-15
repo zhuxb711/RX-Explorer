@@ -887,7 +887,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                if (CommonAccessCollection.LibraryList.Any((Library) => Folder.Path.Equals(Library?.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {

@@ -328,7 +328,9 @@ namespace RX_Explorer
 
             try
             {
-                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllControllers || QueueTaskController.IsAnyTaskRunningInController)
+                if (GeneralTransformer.IsAnyTransformTaskRunning 
+                    || FullTrustProcessController.IsAnyActionExcutingInAllControllers 
+                    || QueueTaskController.IsAnyTaskRunningInController)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
