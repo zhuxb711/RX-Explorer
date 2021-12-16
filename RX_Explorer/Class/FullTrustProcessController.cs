@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -488,6 +489,48 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<IReadOnlyList<Encoding>> GetAllEncodingsAsync()
+        {
+            if (await SendCommandAsync(CommandType.GetAllEncodings) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string EncodingsString))
+                {
+                    return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select((CodePage) => Encoding.GetEncoding(CodePage))
+                                                                                        .OrderByLikeFileSystem((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
+                                                                                        .ToList();
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetAllEncodingsAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return new List<Encoding>(0);
+        }
+
+        public async Task<Encoding> DetectEncodingAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.DetectEncoding, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string EncodingString))
+                {
+                    return Encoding.GetEncoding(Convert.ToInt32(EncodingString));
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DetectEncodingAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(string Path, IEnumerable<string> Properties)
         {
             if (await SendCommandAsync(CommandType.GetProperties, ("Path", Path), ("Properties", JsonSerializer.Serialize(Properties))) is IDictionary<string, string> Response)
@@ -520,7 +563,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(MapToUNCPathAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetTaskBarInfoAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

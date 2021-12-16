@@ -32,6 +32,8 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             Suspending += App_Suspending;
             UnhandledException += App_UnhandledException;
             EnteredBackground += App_EnteredBackground;

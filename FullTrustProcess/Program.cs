@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel;
@@ -56,6 +57,8 @@ namespace FullTrustProcess
             {
                 StartTime = DateTimeOffset.Now;
                 ExitLocker = new ManualResetEvent(false);
+
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
                 AliveCheckTimer = new Timer(5000)
                 {
@@ -549,6 +552,29 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.DetectEncoding:
+                        {
+                            string Path = Convert.ToString(CommandValue["Path"]);
+
+                            DetectionResult Detection = CharsetDetector.DetectFromFile(Path);
+                            DetectionDetail Details = Detection.Detected;
+
+                            if ((Details?.Confidence).GetValueOrDefault() >= 0.8f)
+                            {
+                                Value.Add("Success", Convert.ToString(Details.Encoding.CodePage));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Detect encoding failed");
+                            }
+
+                            break;
+                        }
+                    case CommandType.GetAllEncodings:
+                        {
+                            Value.Add("Success", JsonSerializer.Serialize(Encoding.GetEncodings().Select((Encoding) => Encoding.CodePage)));
+                            break;
+                        }
                     case CommandType.Test:
                         {
                             Value.Add("Success", string.Empty);
@@ -557,6 +583,7 @@ namespace FullTrustProcess
                     case CommandType.GetProperties:
                         {
                             string Path = Convert.ToString(CommandValue["Path"]);
+
                             IReadOnlyList<string> Properties = JsonSerializer.Deserialize<IReadOnlyList<string>>(Convert.ToString(CommandValue["Properties"]));
 
                             if (File.Exists(Path) || Directory.Exists(Path))
@@ -601,13 +628,7 @@ namespace FullTrustProcess
                         {
                             ulong ProgressValue = Math.Min(100, Math.Max(0, Convert.ToUInt64(CommandValue["ProgressValue"])));
 
-                            WindowInformation Info = Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault()));
-
-                            if (Info.Handle.IsNull)
-                            {
-                                Value.Add("Error", "Could not get the handle that needed for setting taskbar");
-                            }
-                            else
+                            if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, Convert.ToUInt32((ExplorerProcess?.Id).GetValueOrDefault())) is WindowInformation Info && !Info.Handle.IsNull)
                             {
                                 switch (ProgressValue)
                                 {
@@ -628,9 +649,9 @@ namespace FullTrustProcess
                                             break;
                                         }
                                 }
-
-                                Value.Add("Success", string.Empty);
                             }
+
+                            Value.Add("Success", string.Empty);
 
                             break;
                         }
@@ -925,7 +946,7 @@ namespace FullTrustProcess
                             {
                                 try
                                 {
-                                    using (ShellFolder Item = new ShellFolder(System.IO.Path.GetDirectoryName(Path)))
+                                    using (ShellItem Item = new ShellItem(Path))
                                     {
                                         Value.Add("Success", Item.GetToolTip(ShellItemToolTipOptions.AllowDelay));
                                     }

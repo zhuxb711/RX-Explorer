@@ -4,31 +4,17 @@
                         xmlns:Cls="using:RX_Explorer.Class"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                        xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                         mc:Ignorable="d"
                         x:Uid="TextEncodingDialog"
                         Title="选择编码格式"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
-
-    <Cls:QueueContentDialog.Resources>
-        <muxc:TeachingTip Target="{x:Bind EncodingCombo}"
-                          x:Name="InvalidTip"
-                          PreferredPlacement="Bottom"
-                          IsLightDismissEnabled="True"
-                          x:Uid="TextViewer_EncodingErrorTip"
-                          Title="编码格式错误"
-                          Subtitle="编码格式不正确，请重新设置编码格式" />
-    </Cls:QueueContentDialog.Resources>
-
     <Grid>
         <ComboBox Name="EncodingCombo"
-                  IsEditable="True"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Stretch"
-                  TextSubmitted="EncodingCombo_TextSubmitted"
                   SelectionChanged="EncodingCombo_SelectionChanged"
                   DisplayMemberPath="EncodingName"
-                  ItemsSource="{x:Bind Encodings}" />
+                  ItemsSource="{x:Bind AvailableEncodings}" />
     </Grid>
 </Cls:QueueContentDialog>

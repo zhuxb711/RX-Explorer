@@ -2071,12 +2071,6 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
     <value>No se puede leer o escribir el archivo.</value>
   </data>
-  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
-    <value>Error de codificación</value>
-  </data>
-  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
-    <value>La codificación es incorrecta; vuelve a introducirla.</value>
-  </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>Menú contextual extendido</value>
   </data>
@@ -2547,9 +2541,6 @@ Las denominaciones no válidas son:
   </data>
   <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
     <value>Especificar codificación</value>
-  </data>
-  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
-    <value>Ingrese el nombre de codificación o la página de código</value>
   </data>
   <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
     <value>Seleccionar ubicación</value>

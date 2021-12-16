@@ -2074,12 +2074,6 @@ Inkorrekte Namen sind
   <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
     <value>Datei kann icht geschrieben oder gelesen werden</value>
   </data>
-  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
-    <value>Kodierungsfehler</value>
-  </data>
-  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
-    <value>Die Kodierung ist inkorrekt. Bitte geben sie die Kodierung erneut ein.</value>
-  </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>Erweitertes Kontextmenü</value>
   </data>
@@ -2547,9 +2541,6 @@ Inkorrekte Namen sind
   </data>
   <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
     <value>Codierung angeben</value>
-  </data>
-  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
-    <value>Bitte geben Sie den Codierungsnamen oder die CodeSeite ein.</value>
   </data>
   <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
     <value>Ort auswählen</value>

@@ -9,12 +9,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
-using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
@@ -32,8 +30,6 @@ namespace RX_Explorer
     {
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
         private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
-
-        private readonly List<Encoding> AvailableEncodings = new List<Encoding>();
 
         private ListViewBaseSelectionExtention SelectionExtention;
         private readonly PointerEventHandler PointerPressedEventHandler;
@@ -208,27 +204,7 @@ namespace RX_Explorer
         public CompressionViewer()
         {
             InitializeComponent();
-
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
-
-            try
-            {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
-                {
-                    AvailableEncodings.Add(Encoding.GetEncoding("GBK"));
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not load GBK encoding");
-            }
-
-            foreach (Encoding Coding in Encoding.GetEncodings().Select((Info) => Info.GetEncoding()))
-            {
-                AvailableEncodings.Add(Coding);
-            }
         }
 
         private async void ControlLoading(bool IsLoading, bool IsIndeterminate = false, string Message = null)
@@ -332,7 +308,7 @@ namespace RX_Explorer
                 CurrentSortTarget = CompressionSortTarget.Name;
                 CurrentSortDirection = SortDirection.Ascending;
 
-                TextEncodingDialog Dialog = new TextEncodingDialog(AvailableEncodings);
+                TextEncodingDialog Dialog = new TextEncodingDialog();
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -778,11 +754,11 @@ namespace RX_Explorer
                         Interlocked.Add(ref TotalSize, Entry.Size);
                     }
                 }
-            }));
+            })).ConfigureAwait(false);
 
             foreach (ZipEntry Entry in ExtractEntryList)
             {
-                string TargetPath = Path.Combine(ExtractLocation, Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty).Trim('/').Replace("/", @"\"));
+                string TargetPath = Path.Combine(ExtractLocation, (CurrentPath == "/" ? Entry.Name : Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty)).Trim('/').Replace("/", @"\"));
 
                 if (Entry.IsDirectory)
                 {
@@ -1187,7 +1163,7 @@ namespace RX_Explorer
 
         private void ListViewControl_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
-            if(args.TryGetPosition(sender, out Point Position))
+            if (args.TryGetPosition(sender, out Point Position))
             {
                 args.Handled = true;
 

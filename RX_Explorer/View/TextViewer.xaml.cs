@@ -18,8 +18,6 @@ namespace RX_Explorer
 {
     public sealed partial class TextViewer : Page
     {
-        private readonly ObservableCollection<Encoding> Encodings = new ObservableCollection<Encoding>();
-
         private string TextFilePath;
 
         private Encoding SaveEncoding;
@@ -27,25 +25,6 @@ namespace RX_Explorer
         public TextViewer()
         {
             InitializeComponent();
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            try
-            {
-                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
-                {
-                    Encodings.Add(Encoding.GetEncoding("GBK"));
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not load GBK encoding");
-            }
-
-            foreach (Encoding Coding in Encoding.GetEncodings().Select((Info) => Info.GetEncoding()))
-            {
-                Encodings.Add(Coding);
-            }
         }
 
         private async Task Initialize(FileSystemStorageFile TextFile)
@@ -53,7 +32,7 @@ namespace RX_Explorer
             Title.Text = TextFile.Name;
             TextFilePath = TextFile.Path;
 
-            TextEncodingDialog EncodingDialog = new TextEncodingDialog(TextFile, Encodings);
+            TextEncodingDialog EncodingDialog = new TextEncodingDialog(TextFile);
 
             if (await EncodingDialog.ShowAsync() == ContentDialogResult.Primary)
             {
@@ -79,7 +58,7 @@ namespace RX_Explorer
             EditText.Text = string.Empty;
         }
 
-        private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding Enco)
+        private async Task LoadTextFromFileWithEncoding(FileSystemStorageFile File, Encoding TextEncoding)
         {
             LoadingControl.IsLoading = true;
 
@@ -112,7 +91,7 @@ namespace RX_Explorer
                     throw new NotSupportedException();
                 }
 
-                using (StreamReader Reader = new StreamReader(TextStream, Enco, false))
+                using (StreamReader Reader = new StreamReader(TextStream, TextEncoding, false))
                 {
                     EditText.Text = await Reader.ReadToEndAsync();
                 }

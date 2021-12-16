@@ -2040,12 +2040,6 @@
   <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
     <value>無法讀取或寫入文件</value>
   </data>
-  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
-    <value>編碼不正確，請重新輸入編碼</value>
-  </data>
-  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
-    <value>編碼錯誤</value>
-  </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>擴展上下文菜單</value>
   </data>
@@ -2547,9 +2541,6 @@
   </data>
   <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
     <value>指定編碼</value>
-  </data>
-  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
-    <value>請輸入編碼名稱或代碼頁</value>
   </data>
   <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
     <value>選擇位置</value>

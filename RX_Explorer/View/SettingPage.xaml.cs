@@ -797,7 +797,7 @@ namespace RX_Explorer
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
-            FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString
+            FontFamilyComboBox.SelectedIndex = ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString
                                                   ? Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), JsonSerializer.Deserialize<InstalledFonts>(OverrideString))
                                                   : Array.IndexOf(FontFamilyController.GetInstalledFontFamily().ToArray(), FontFamilyController.Default);
 

@@ -2747,14 +2747,6 @@ Inkorrekte Namen sind
           <source>Cannot read or write file</source>
           <target state="translated">Datei kann icht geschrieben oder gelesen werden</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
-          <source>Encoding error</source>
-          <target state="translated">Kodierungsfehler</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The encoding is incorrect, please re-enter the encoding</source>
-          <target state="translated">Die Kodierung ist inkorrekt. Bitte geben sie die Kodierung erneut ein.</target>
-        </trans-unit>
         <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
           <target state="translated">Erweitertes Kontextmenü</target>
@@ -3378,10 +3370,6 @@ Inkorrekte Namen sind
         <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
           <source>Specify encoding</source>
           <target state="translated">Codierung angeben</target>
-        </trans-unit>
-        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter the Encoding Name or CodePage</source>
-          <target state="translated">Bitte geben Sie den Codierungsnamen oder die CodeSeite ein.</target>
         </trans-unit>
         <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
           <source>Select location</source>

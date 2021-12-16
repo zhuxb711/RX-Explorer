@@ -2040,12 +2040,6 @@ Les noms non valides incluent
   <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
     <value>Impossible de lire ou d'écrire le fichier</value>
   </data>
-  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
-    <value>L'encodage est incorrect, veuillez saisir à nouveau l'encodage</value>
-  </data>
-  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
-    <value>Erreur d'encodage</value>
-  </data>
   <data name="SettingPageContextMenuExtLabel.Text" xml:space="preserve">
     <value>Menu contextuel étendu</value>
   </data>
@@ -2547,9 +2541,6 @@ Les noms non valides incluent
   </data>
   <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
     <value>Spécifier l'encodage</value>
-  </data>
-  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
-    <value>Veuillez entrer le nom de codage ou la page de code</value>
   </data>
   <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
     <value>Sélectionnez l'emplacement</value>

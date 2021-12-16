@@ -2704,14 +2704,6 @@ Invalid names include
           <source>Cannot read or write file</source>
           <target state="translated">無法讀取或寫入文件</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The encoding is incorrect, please re-enter the encoding</source>
-          <target state="translated">編碼不正確，請重新輸入編碼</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
-          <source>Encoding error</source>
-          <target state="translated">編碼錯誤</target>
-        </trans-unit>
         <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
           <target state="translated">擴展上下文菜單</target>
@@ -3380,10 +3372,6 @@ Invalid names include
         <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
           <source>Specify encoding</source>
           <target state="translated">指定編碼</target>
-        </trans-unit>
-        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter the Encoding Name or CodePage</source>
-          <target state="translated">請輸入編碼名稱或代碼頁</target>
         </trans-unit>
         <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
           <source>Select location</source>

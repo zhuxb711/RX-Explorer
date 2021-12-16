@@ -342,7 +342,7 @@ namespace RX_Explorer
                             {
                                 if (CurrentFolder.Path == Path.GetDirectoryName(ModifiedArgs.Path))
                                 {
-                                    if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageItemBase ModifiedItem)
+                                    if (await FileSystemStorageItemBase.OpenAsync(ModifiedArgs.Path) is FileSystemStorageFile ModifiedItem)
                                     {
                                         PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 

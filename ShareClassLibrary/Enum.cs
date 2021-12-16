@@ -44,6 +44,8 @@
     public enum CommandType
     {
         Test,
+        DetectEncoding,
+        GetAllEncodings,
         RunExecutable,
         ToggleQuicklook,
         SwitchQuicklook,

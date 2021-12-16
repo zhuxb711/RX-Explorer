@@ -2704,14 +2704,6 @@ Les noms non valides incluent
           <source>Cannot read or write file</source>
           <target state="translated">Impossible de lire ou d'écrire le fichier</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>The encoding is incorrect, please re-enter the encoding</source>
-          <target state="translated">L'encodage est incorrect, veuillez saisir à nouveau l'encodage</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
-          <source>Encoding error</source>
-          <target state="translated">Erreur d'encodage</target>
-        </trans-unit>
         <trans-unit id="SettingPageContextMenuExtLabel.Text" translate="yes" xml:space="preserve">
           <source>Extended context menu</source>
           <target state="translated">Menu contextuel étendu</target>
@@ -3380,10 +3372,6 @@ Les noms non valides incluent
         <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
           <source>Specify encoding</source>
           <target state="translated">Spécifier l'encodage</target>
-        </trans-unit>
-        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Please enter the Encoding Name or CodePage</source>
-          <target state="translated">Veuillez entrer le nom de codage ou la page de code</target>
         </trans-unit>
         <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
           <source>Select location</source>

@@ -1,6 +1,7 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -80,15 +81,14 @@ namespace RX_Explorer.Class
                             return (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Any();
                         }
                     }
-
-                    return false;
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed and could not get the storage item, path:\"{Path}\"");
-                return false;
             }
+
+            return false;
         }
 
         public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
@@ -212,10 +212,12 @@ namespace RX_Explorer.Class
                                                                                          {
                                                                                              return SearchInUwpApiAsync(Path, false).Result;
                                                                                          }
-                                                                                         else
+                                                                                         else if(PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
                                                                                          {
-                                                                                             return new List<FileSystemStorageItemBase>(0);
+                                                                                             LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
                                                                                          }
+
+                                                                                         return new List<FileSystemStorageItemBase>(0);
                                                                                      }
                                                                                      else
                                                                                      {
@@ -344,6 +346,10 @@ namespace RX_Explorer.Class
                     catch (LocationNotAvailableException)
                     {
                         SubItems = await GetChildItemsInUwpApiAsync(Path);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        throw;
                     }
                     catch (Exception)
                     {

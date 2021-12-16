@@ -3,7 +3,6 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -105,7 +104,7 @@ namespace FullTrustProcess
 
                             ((PropSys.IPropertyStore)PropertyStore).GetValue(Ole32.PROPERTYKEY.System.AppUserModel.ID, Prop);
 
-                            string AUMID = Prop.pwszVal;
+                            string AUMID = Prop.IsNullOrEmpty ? string.Empty : Prop.pwszVal;
 
                             if (!string.IsNullOrEmpty(AUMID) && AUMID.Contains(PackageFamilyName))
                             {

@@ -24,11 +24,11 @@ namespace RX_Explorer.Class
         {
             if (NewFont == Default)
             {
-                ApplicationData.Current.LocalSettings.Values.Remove("FontFamilyOverride");
+                ApplicationData.Current.LocalSettings.Values.Remove("DefaultFontFamilyOverride");
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] = JsonSerializer.Serialize(NewFont);
+                ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] = JsonSerializer.Serialize(NewFont);
             }
 
             return Current != NewFont;
@@ -54,7 +54,7 @@ namespace RX_Explorer.Class
             ConcurrentBag<InstalledFonts> FontList = new ConcurrentBag<InstalledFonts>();
 
             using (Factory FontFactory = new Factory())
-            using (FontCollection Collection = FontFactory.GetSystemFontCollection(true))
+            using (FontCollection Collection = FontFactory.GetSystemFontCollection(false))
             {
                 string CurrentLocaleName = Globalization.CurrentLanguage switch
                 {
@@ -257,21 +257,21 @@ namespace RX_Explorer.Class
                 });
             }
 
-            return FontList.Distinct().OrderBy((Fonts) => Fonts.Name);
+            return FontList.Distinct().OrderByLikeFileSystem((Fonts) => Fonts.Name, SortDirection.Ascending);
         }
 
         static FontFamilyController()
         {
             Default = Transform(FontFamily.XamlAutoFontFamily) ?? Transform(new FontFamily("Segoe UI"));
 
-            if (ApplicationData.Current.LocalSettings.Values["FontFamilyOverride"] is string OverrideString)
+            if (ApplicationData.Current.LocalSettings.Values["DefaultFontFamilyOverride"] is string OverrideString)
             {
                 Current = JsonSerializer.Deserialize<InstalledFonts>(OverrideString);
 
                 if (!GetInstalledFontFamily().Contains(Current))
                 {
                     Current = Default;
-                    ApplicationData.Current.LocalSettings.Values.Remove("FontFamilyOverride");
+                    ApplicationData.Current.LocalSettings.Values.Remove("DefaultFontFamilyOverride");
                 }
             }
             else

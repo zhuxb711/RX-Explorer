@@ -12,13 +12,11 @@ using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Dialog
 {
-    public sealed partial class DecompressDialog : QueueContentDialog, INotifyPropertyChanged
+    public sealed partial class DecompressDialog : QueueContentDialog
     {
-        public Encoding CurrentEncoding { get; private set; } = Encoding.Default;
+        public Encoding CurrentEncoding { get; private set; }
 
-        private readonly ObservableCollection<Encoding> AvailableEncoding = new ObservableCollection<Encoding>();
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        private readonly ObservableCollection<Encoding> AvailableEncodings = new ObservableCollection<Encoding>();
 
         public string ExtractLocation { get; private set; }
 
@@ -26,7 +24,7 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
 
-            ExtractLocation = CurrentFolderPath;
+            LocationText.Text = CurrentFolderPath;
 
             if (ShowEncodingOption)
             {
@@ -38,46 +36,33 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void DecompressDialog_Loading(FrameworkElement sender, object args)
+        private async void DecompressDialog_Loading(FrameworkElement sender, object args)
         {
             try
             {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-                foreach (EncodingInfo Enco in Encoding.GetEncodings())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    if (Enco.CodePage == Encoding.Default.CodePage)
-                    {
-                        AvailableEncoding.Insert(0, Enco.GetEncoding());
-                    }
-                    else
-                    {
-                        AvailableEncoding.Add(Enco.GetEncoding());
-                    }
+                    AvailableEncodings.AddRange(await Exclusive.Controller.GetAllEncodingsAsync());
                 }
-
-                AvailableEncoding.Add(Encoding.GetEncoding(936));
-
-                EncodingOption.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "Could not get all encodings, fallback to base encodings");
+                AvailableEncodings.AddRange(Encoding.GetEncodings().Select((Info) => Info.GetEncoding()));
             }
+
+            EncodingOption.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
         }
 
         private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
             try
             {
-                if (CurrentEncoding == null)
-                {
-                    args.Cancel = true;
-                    InvalidTip.IsOpen = true;
-                }
-                else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
+                ExtractLocation = LocationText.Text;
+
+                if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
                 {
                     if (await FileSystemStorageItemBase.CheckExistAsync(ExtractLocation) == false)
                     {
@@ -99,41 +84,11 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void EncodingOption_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
-        {
-            try
-            {
-                if (AvailableEncoding.FirstOrDefault((Enco) => Enco.EncodingName == args.Text) is Encoding ExistCoding)
-                {
-                    CurrentEncoding = ExistCoding;
-                }
-                else
-                {
-                    if (int.TryParse(args.Text, out int CodePage))
-                    {
-                        CurrentEncoding = Encoding.GetEncoding(CodePage);
-                    }
-                    else
-                    {
-                        CurrentEncoding = Encoding.GetEncoding(args.Text);
-                    }
-                }
-
-                args.Handled = false;
-            }
-            catch
-            {
-                CurrentEncoding = null;
-                InvalidTip.IsOpen = true;
-                args.Handled = true;
-            }
-        }
-
         private void EncodingOption_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (EncodingOption.SelectedIndex > 0 && EncodingOption.SelectedIndex < AvailableEncoding.Count)
+            if (EncodingOption.SelectedItem is Encoding Encoding)
             {
-                CurrentEncoding = EncodingOption.SelectedItem as Encoding;
+                CurrentEncoding = Encoding;
             }
         }
 
@@ -149,14 +104,8 @@ namespace RX_Explorer.Dialog
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                ExtractLocation = Folder.Path;
-                OnPropertyChanged(nameof(ExtractLocation));
+                LocationText.Text = Folder.Path;
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
     }
 }

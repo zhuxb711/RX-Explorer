@@ -1,9 +1,7 @@
 ﻿using RX_Explorer.Class;
-using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,23 +12,17 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class TextEncodingDialog : QueueContentDialog
     {
-        private readonly ObservableCollection<Encoding> Encodings;
+        private readonly ObservableCollection<Encoding> AvailableEncodings = new ObservableCollection<Encoding>();
         private readonly FileSystemStorageFile TextFile;
 
         public Encoding UserSelectedEncoding { get; private set; }
 
-        public TextEncodingDialog(FileSystemStorageFile TextFile, IEnumerable<Encoding> Encodings) : this()
+        public TextEncodingDialog(FileSystemStorageFile TextFile) : this()
         {
             this.TextFile = TextFile;
-            this.Encodings = new ObservableCollection<Encoding>(Encodings);
         }
 
-        public TextEncodingDialog(IEnumerable<Encoding> Encodings) : this(null, Encodings)
-        {
-
-        }
-
-        private TextEncodingDialog()
+        public TextEncodingDialog()
         {
             InitializeComponent();
             Loading += TextEncodingDialog_Loading;
@@ -38,91 +30,69 @@ namespace RX_Explorer.Dialog
 
         private async void TextEncodingDialog_Loading(FrameworkElement sender, object args)
         {
+            AvailableEncodings.AddRange(await GetAllEncodingsAsync());
+
             Encoding DetectedEncoding = await DetectEncodingFromFileAsync();
 
             if (DetectedEncoding != null)
             {
-                if (Encodings.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is Encoding Coding)
+                if (AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is Encoding Coding)
                 {
                     EncodingCombo.SelectedItem = Coding;
                 }
                 else
                 {
-                    EncodingCombo.SelectedItem = Encodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                    AvailableEncodings.Add(DetectedEncoding);
+                    EncodingCombo.SelectedItem = DetectedEncoding;
                 }
             }
             else
             {
-                EncodingCombo.SelectedItem = Encodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                EncodingCombo.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
             }
         }
 
-        private void EncodingCombo_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
+        private async Task<IReadOnlyList<Encoding>> GetAllEncodingsAsync()
         {
             try
             {
-                if (Encodings.FirstOrDefault((Enco) => Enco.EncodingName == args.Text) is Encoding ExistCoding)
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    if (UserSelectedEncoding.CodePage != ExistCoding.CodePage)
-                    {
-                        UserSelectedEncoding = ExistCoding;
-                    }
+                    return await Exclusive.Controller.GetAllEncodingsAsync();
                 }
-                else
-                {
-                    if (int.TryParse(args.Text, out int CodePage))
-                    {
-                        UserSelectedEncoding = Encoding.GetEncoding(CodePage);
-                    }
-                    else
-                    {
-                        UserSelectedEncoding = Encoding.GetEncoding(args.Text);
-                    }
-                }
-
-                args.Handled = false;
             }
-            catch
+            catch (Exception ex)
             {
-                args.Handled = true;
-                InvalidTip.IsOpen = true;
+                LogTracer.Log(ex, "Could not get all encodings, fallback to base encodings");
+                return Encoding.GetEncodings().Select((Info) => Info.GetEncoding()).ToList();
             }
         }
 
         private async Task<Encoding> DetectEncodingFromFileAsync()
         {
-            if (TextFile == null)
+            if (TextFile != null)
             {
-                return null;
-            }
-
-            try
-            {
-                using (FileStream DetectStream = await TextFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
+                try
                 {
-                    return await Task.Run(() =>
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        using (StreamReader Reader = new StreamReader(DetectStream, Encoding.Default, true))
-                        {
-                            Reader.Read();
-
-                            return Reader.CurrentEncoding;
-                        }
-                    });
+                        return await Exclusive.Controller.DetectEncodingAsync(TextFile.Path);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not detect the encoding of file");
                 }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not detect the encoding of file");
-                return null;
-            }
+
+            return null;
         }
 
         private void EncodingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (EncodingCombo.SelectedItem is Encoding Enco)
+            if (EncodingCombo.SelectedItem is Encoding Encoding)
             {
-                UserSelectedEncoding = Enco;
+                UserSelectedEncoding = Encoding;
             }
         }
     }

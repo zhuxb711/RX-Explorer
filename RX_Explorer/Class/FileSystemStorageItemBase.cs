@@ -466,6 +466,10 @@ namespace RX_Explorer.Class
                 ModifiedTime = Data.ModifiedTime;
                 CreationTime = Data.CreationTime;
             }
+            else
+            {
+                LogTracer.Log($"Could not get file information from native api, path: \"{Data.Path}\"");
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string PropertyName = null)

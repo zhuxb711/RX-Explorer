@@ -611,8 +611,7 @@ namespace RX_Explorer.Class
                 else if (Marshal.GetLastWin32Error() is 2 or 3
                          && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
-                    return false;
+                    throw new DirectoryNotFoundException(FolderPath);
                 }
                 else
                 {
@@ -738,8 +737,7 @@ namespace RX_Explorer.Class
                 else if (Marshal.GetLastWin32Error() is 2 or 3
                          && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
-                    return new List<FileSystemStorageItemBase>(0);
+                    throw new DirectoryNotFoundException(FolderPath);
                 }
                 else
                 {
@@ -835,8 +833,7 @@ namespace RX_Explorer.Class
                 else if (Marshal.GetLastWin32Error() is 2 or 3
                          && !Path.GetPathRoot(FolderPath).Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log($"Path not found: \"{FolderPath}\"");
-                    return new List<FileSystemStorageItemBase>(0);
+                    throw new DirectoryNotFoundException(FolderPath);
                 }
                 else
                 {
@@ -903,7 +900,6 @@ namespace RX_Explorer.Class
                 else if (Marshal.GetLastWin32Error() is 2 or 3
                          && !Path.GetPathRoot(ItemPath).Equals(ItemPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    LogTracer.Log($"Path not found: \"{ItemPath}\"");
                     return null;
                 }
                 else
@@ -975,7 +971,6 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"Could not get file information from native api, path: \"{Path}\"");
                         return new Win32_File_Data(Path);
                     }
                 }
