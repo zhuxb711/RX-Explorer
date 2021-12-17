@@ -1,104 +1,21 @@
-﻿###Was ist neu in Ver.7.3.3.0
+﻿###Was ist neu in Ver.7.3.6.0
 
-#####UI-Update
+#####Benutzeroberfläche aktualisiert
 
->#####Jedes Element in der Dateiliste wird nur dann angezeigt, wenn der Name zu lang ist, um vollständig angezeigt zu werden
+>#####Bietet jetzt mehr Optionen für die Textkodierung
 
-#####Leistungsverbesserung
+>#####Erkennungsmechanismus der Textkodierung verbessert
 
->#####Die Dateisystemarchitektur wurde optimiert und die Leistung beim Lesen/Schreiben von Dateien verbessert
-
->#####Implementierung von Komponenten zur Dateisystemüberwachung optimiert
-
-#####Bug-Fix
-
->#####Einige Probleme behoben und Stabilität verbessert
-
-***
-###Was ist neu in Ver.7.3.1.0
+>#####Stellen Sie die minimale Schrittlänge des Acryleffekt-Schiebereglers auf 5% ein
 
 #####Fehler behoben
 
->#####Viele UI-Probleme im "Details"-Modus im Win10-System behoben
+>#####Problem behoben, dass der eingebaute Viewer im Stammverzeichnis der komprimierten Datei nicht "Alles dekomprimieren" kann
 
->#####Einige Probleme im Zusammenhang mit der Kommunikation und Planung von Hilfsprozessen behoben
+>#####Das Problem wurde behoben, das dazu führen kann, dass die Schriftarteinstellungen in der App nach dem Aktualisieren der Systemschriftbibliothek verschoben werden
 
->#####Das Problem wurde behoben, das dazu führen kann, dass die Drittanbieteranwendung nicht richtig gestartet wird
+>#####Das Problem wurde behoben, das dazu führen kann, dass der Hilfsprozess verzögert startet und die Reaktion verliert
 
->#####Problem behoben, dass die Terminalanwendung in der Adressleiste der Homepage (wie Powershell, etc.) nicht korrekt gestartet werden konnte
+>#####Das Problem, dass einige Menüpunkte zum Absturz des Hilfsprozesses führen können, wurde behoben
 
->#####Problem behoben, dass Quicklook beim Drücken der Leertaste auf der Einstellungsseite immer noch aktiviert wurde
-
->#####Es wurde ein Problem behoben, das dazu führen kann, dass die Popup-Animation neu geladen wird, wenn die Leertaste auf der Einstellungsseite gedrückt wird
-
-***
-###Was ist neu in Ver.7.2.9.0
-
-#####Funktionsupdate
-
->#####Kommunikationsmechanismus mit Hilfsprozessen verbessert und potenzielle Probleme vermieden
-
-#####UI-Update
-
->#####Die Benutzeroberfläche von "Integration mit Systemkomponenten" wurde optimiert
-
-#####Fehlerbehebung
-
->#####Das Problem wurde behoben, das dazu führen kann, dass der Hilfsprozess beschäftigt ist
-
->#####Das Problem wurde behoben, das dazu führen kann, dass das Laufwerk langsam geladen wird
-
->#####Problem behoben, dass die Schriftfamilie nicht geändert werden konnte
-
->#####Problem behoben, dass die Schriftart im Banner nicht den Einstellungen für die "Schriftfamilie" entspricht
-
->#####Das Problem wurde behoben, dass das Doppelklicken auf einige Bereiche des Ordnerobjekts in der Liste möglicherweise nicht reagiert.
-
->#####Das Problem wurde behoben, dass ein Doppelklick auf einige Bereiche des Objekts in der Liste dazu führen kann, zum übergeordneten Ordner zurückzukehren
-
->#####Es wurde ein Problem behoben, das dazu führen kann, dass der Inhalt beim Skalieren des Anwendungsfensters flimmert
-
->#####Das Problem wurde behoben, dass die Anwendung in einigen Programmen nach dem Deaktivieren von "Abfangen und als Standardprogramm für Ordner verwenden" immer noch aufgerufen wird.
-
-***
-###Was ist neu in Ver.7.2.7.0
-
-#####Funktionsupdate
-
->#####Unterstützung für ARM64 hinzugefügt
-
->#####Unterstützung für Win11 SDK hinzugefügt
-
->#####Unterstützung für die Anzeige des Fortschritts in der Taskleiste hinzugefügt
-
->#####Unterstützung für das Abbrechen von Aufgaben im Status "Vorbereitung" hinzugefügt
-
-#####UI-Update
-
->#####Verhalten von Quicklook geändert, wenn keine Dateien ausgewählt sind
-
-#####Leistungsverbesserung
-
->#####Die Leistung der integrierten Suchmaschine wurde in einigen Fällen verbessert
-
-#####Framework-Update
-
->#####Der Hilfsprozess wurde auf das .Net 6-Framework aktualisiert
-
-#####Fehlerbehebung
-
->#####Problem behoben, das in einigen Fällen zu einem Absturz in der Win11-Systemumgebung führen kann
-
->#####Es wurde ein Problem behoben, das den Import von Konfigurationsdateien blockieren kann
-
->#####Das Problem wurde behoben, dass, wenn der beim Start geöffnete Pfad nicht existiert, die Animation beim Start versehentlich übersprungen wird
-
->#####Probleme mit der Benutzeroberfläche in "Einstellungen" und "Andere Programme auswählen" behoben
-
->#####Das Problem, dass das Banner eine transparente Hintergrundfarbe anzeigen kann, wurde behoben
-
->#####Problem behoben, dass der eingebaute Viewer im "Öffnen mit" angezeigt werden kann, auch wenn der Dateityp nicht unterstützt wird
-
->#####Das Problem wurde behoben, dass UWP-Apps möglicherweise nicht als Standardprogramm festgelegt wurden
-
->#####Es wurde ein Problem behoben, bei dem das Standardterminal nicht geändert werden konnte
+>#####Andere Probleme behoben

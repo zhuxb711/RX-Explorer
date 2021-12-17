@@ -1,104 +1,21 @@
-﻿###What's new in Ver.7.3.3.0
+﻿###What's new in Ver.7.3.6.0
 
-#####UI update
+#####UI updated
 
->#####Each item in the file list will only pop up and display its full name when the name is too long to be displayed completely
+>#####Now provides more options for text encoding
 
-#####Performance improvement
+>#####Improved the detection mechanism of text encoding
 
->#####Optimized the file system architecture and improved the performance of reading/writing files
-
->#####Optimized the implementation of file system monitoring components
-
-#####Bug fix
-
->#####Fixed some problems and enhanced stability
-
-***
-###What's new in Ver.7.3.1.0
+>#####Adjust the minimum step length of the Acrylic effect slider to 5%
 
 #####Bug fixed
 
->#####Fixed many UI problems in the "Details" mode in the Win10 system
+>#####Fixed the problem that the built-in viewer cannot "Decompress All" in the root directory of the compressed file
 
->#####Fixed some problems related to auxiliary process communication and scheduling
+>#####Fixed the problem that may cause the font settings in the app to drift after the system font library is updated
 
->#####Fixed the problem that may cause the third-party application to not start correctly
+>#####Fixed the problem that may cause the auxiliary process to start delayed and cause it to lose response
 
->#####Fixed the problem that the terminal application could not be started correctly in the address bar of the homepage (such as Powershell, etc.)
+>#####Fixed the problem that some menu items may cause the auxiliary process to crash
 
->#####Fixed the problem that Quicklook would still be activated when pressing the space on the settings page
-
->#####Fixed an issue that may cause the pop-up animation to reload when pressing the space on the settings page
-
-***
-###What's new in Ver.7.2.9.0
-
-#####Feature update
-
->#####Improved the communication mechanism with auxiliary processes and avoid potential problems
-
-#####UI update
-
->#####Optimized the UI of "Integration with System Components"
-
-#####Bug fix
-
->#####Fixed the problem that may cause the auxiliary process to be busy
-
->#####Fixed the problem that may cause the drive to load slowly
-
->#####Fixed the problem that the font family could not be changed
-
->#####Fixed the problem that the font in the banner does not follow the "Font Family" settings
-
->#####Fixed the problem that double-clicking some areas of the folder object in the list may not respond
-
->#####Fixed the problem that double-clicking some areas of the object in the list may cause returning to the parent folder
-
->#####Fixed an issue that may cause content to flicker when scaling the application window
-
->#####Fixed the problem that the application will still be called in some software after disabling "Intercept and use as the default program for folders"
-
-***
-###What's new in Ver.7.2.7.0
-
-#####Feature update
-
->#####Added support for ARM64
-
->#####Added support for Win11 SDK
-
->#####Added support for showing progress in task bar 
-
->#####Added support for canceling tasks in the "Preparing" state
-
-#####UI update
-
->#####Changed the behavior of Quicklook when no files are selected
-
-#####Performance improvement
-
->#####Improved the performance of the built-in search engine in some cases
-
-#####Framework Update
-
->#####The auxiliary process has been upgraded to the .Net 6 framework
-
-#####Bug fix
-
->#####Fixed the problem that may cause a crash in the Win11 system environment in some cases
-
->#####Fixed an issue that may block from importing configuration files
-
->#####Fixed the problem that if the path opened at startup does not exist, the animation at startup will be skipped accidentally
-
->#####Fixed the UI-related issues in "Settings" and "Choose other programs"
-
->#####Fixed the problem that the banner may display a transparent background color
-
->#####Fixed the problem that the built-in viewer may be displayed in the "Opening with" even the type of file is not supported
-
->#####Fixed the problem that UWP apps may not be set as the default program
-
->#####Fixed an issue that the default terminal could not be changed
+>#####Fixed some other problems

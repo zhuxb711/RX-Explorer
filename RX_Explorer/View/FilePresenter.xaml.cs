@@ -3747,7 +3747,7 @@ namespace RX_Explorer
 
                                     TooltipFlyout.ShowAt(ItemPresenter, new FlyoutShowOptions
                                     {
-                                        Position = new Point(Point.Position.X, Point.Position.Y + 20),
+                                        Position = new Point(Point.Position.X, Point.Position.Y + 25),
                                         ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
                                         Placement = FlyoutPlacementMode.RightEdgeAlignedTop
                                     });

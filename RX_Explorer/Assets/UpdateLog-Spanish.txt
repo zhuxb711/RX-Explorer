@@ -1,104 +1,21 @@
-﻿###Novedades de la versión 7.3.3.0
+﻿###Novedades de la versión 7.3.6.0
 
-#####Actualización de la interfaz de usuario
+#####UI actualizada
 
->#####Cada elemento de la lista de archivos solo aparecerá y mostrará su nombre completo cuando el nombre sea demasiado largo para mostrarse por completo
+>#####Ahora proporciona más opciones para la codificación de texto
 
-#####Mejora del rendimiento
+>#####Se mejoró el mecanismo de detección de la codificación de texto
 
->#####Optimicé la arquitectura del sistema de archivos y mejoró el rendimiento de lectura / escritura de archivos
+>#####Ajusta la longitud mínima del paso del control deslizante de efecto acrílico al 5%
 
->#####Optimización de la implementación de componentes de monitoreo del sistema de archivos
+#####Error arreglado
 
-#####Arreglo del fallo
+>#####Se solucionó el problema de que el visor integrado no puede "Descomprimir todo" en el directorio raíz del archivo comprimido
 
->#####Se corrigieron algunos problemas y se mejoró la estabilidad
+>#####Se corrigió el problema que puede causar que la configuración de fuentes en la aplicación se desvíe después de que se actualice la biblioteca de fuentes del sistema
 
-***
-###Novedades de la versión 7.3.1.0
+>#####Se solucionó el problema que podía causar que el proceso auxiliar se iniciara retrasado y que perdiera la respuesta
 
-#####Error corregido
+>#####Se solucionó el problema de que algunos elementos del menú pueden hacer que el proceso auxiliar se bloquee
 
->#####Se corrigieron muchos problemas de la interfaz de usuario en el modo "Detalles" en el sistema Win10
-
->#####Se corrigieron algunos problemas relacionados con la comunicación y la programación del proceso auxiliar
-
->#####Se solucionó el problema que podía causar que la aplicación de terceros no se iniciara correctamente
-
->#####Se solucionó el problema de que la aplicación de terminal no se podía iniciar correctamente en la barra de direcciones de la página de inicio (como Powershell, etc.)
-
->#####Se solucionó el problema de que Quicklook aún se activaba al presionar el espacio en la página de configuración
-
->#####Se solucionó un problema que podía hacer que la animación emergente se recargara al presionar el espacio en la página de configuración
-
-***
-###Novedades de la versión 7.2.9.0
-
-#####Actualización de funciones
-
->#####Se mejoró el mecanismo de comunicación con procesos auxiliares y se evitaron problemas potenciales
-
-#####actualización de la interfaz de usuario
-
->#####Optimización de la interfaz de usuario de "Integración con componentes del sistema"
-
-#####Arreglo del fallo
-
->#####Se solucionó el problema que podía causar que el proceso auxiliar estuviera ocupado
-
->#####Se solucionó el problema que podía causar que la unidad se cargara lentamente
-
->#####Se solucionó el problema de que la familia de fuentes no se podía cambiar
-
->#####Se solucionó el problema de que la fuente en el banner no sigue la configuración de "Familia de fuentes"
-
->#####Se solucionó el problema de que al hacer doble clic en algunas áreas del objeto de carpeta en la lista, es posible que no responda
-
->#####Se solucionó el problema de que al hacer doble clic en algunas áreas del objeto en la lista, se volviera a la carpeta principal
-
->#####Se solucionó un problema que podía hacer que el contenido parpadeara al escalar la ventana de la aplicación.
-
->#####Se solucionó el problema de que la aplicación se seguiría llamando en algún software después de deshabilitar "Interceptar y usar como programa predeterminado para carpetas"
-
-***
-###Novedades de la versión 7.2.7.0
-
-#####Actualización de funciones
-
->#####Soporte agregado para ARM64
-
->#####Soporte agregado para Win11 SDK
-
->#####Soporte agregado para mostrar el progreso en la barra de tareas
-
->#####Se agregó soporte para cancelar tareas en el estado "Preparando"
-
-#####Actualización de la interfaz de usuario
-
->#####Cambió el comportamiento de Quicklook cuando no se seleccionan archivos
-
-#####Mejora del rendimiento
-
->#####Mejoró el rendimiento del motor de búsqueda integrado en algunos casos
-
-#####Actualización del marco
-
->#####El proceso auxiliar se ha actualizado al marco .Net 6
-
-#####Arreglo del fallo
-
->#####Se solucionó el problema que podía causar un bloqueo en el entorno del sistema Win11 en algunos casos
-
->#####Se solucionó un problema que podía bloquear la importación de archivos de configuración
-
->#####Se solucionó el problema de que si la ruta abierta al inicio no existe, la animación al inicio se omitirá accidentalmente
-
->#####Se corrigieron los problemas relacionados con la interfaz de usuario en "Configuración" y "Elegir otros programas"
-
->#####Se solucionó el problema de que el banner puede mostrar un color de fondo transparente
-
->#####Se solucionó el problema de que el visor integrado puede mostrarse en la "Apertura con" incluso el tipo de archivo no es compatible
-
->#####Se solucionó el problema de que las aplicaciones para UWP podrían no estar configuradas como el programa predeterminado
-
->#####Se solucionó un problema por el cual la terminal predeterminada no se podía cambiar
+>#####Se corrigieron algunos otros problemas

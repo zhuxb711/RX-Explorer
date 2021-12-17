@@ -1,104 +1,21 @@
-﻿###Quoi de neuf dans la version 7.3.3.0
+﻿###Quoi de neuf dans la version 7.3.6.0
 
-#####Mise à jour de l'interface utilisateur
+#####UI mis à jour
 
->#####Chaque élément de la liste de fichiers ne s'affichera et n'affichera son nom complet que lorsque le nom est trop long pour être affiché complètement
+>#####Fournit maintenant plus d'options pour l'encodage de texte
 
-#####Amélioration des performances
+>#####Amélioration du mécanisme de détection de l'encodage de texte
 
->#####Optimisation de l'architecture du système de fichiers et amélioration des performances de lecture/écriture de fichiers
-
->#####Optimisation de la mise en œuvre des composants de surveillance du système de fichiers
-
-#####Correction d'un bug
-
->#####Correction de certains problèmes et amélioration de la stabilité
-
-***
-###Quoi de neuf dans la version 7.3.1.0
+>#####Ajustez la longueur de pas minimale du curseur d'effet acrylique à 5%
 
 #####Bug réparé
 
->#####Correction de nombreux problèmes d'interface utilisateur dans le mode "Détails" du système Win10
+>#####Correction du problème selon lequel la visionneuse intégrée ne peut pas « décompresser tout » dans le répertoire racine du fichier compressé
 
->#####Correction de certains problèmes liés à la communication et à la planification des processus auxiliaires
+>#####Correction du problème pouvant entraîner la dérive des paramètres de police dans l'application après la mise à jour de la bibliothèque de polices système
 
->#####Correction du problème qui pouvait empêcher l'application tierce de démarrer correctement
+>#####Correction du problème qui pouvait retarder le démarrage du processus auxiliaire et lui faire perdre la réponse
 
->#####Correction du problème selon lequel l'application du terminal ne pouvait pas être démarrée correctement dans la barre d'adresse de la page d'accueil (comme Powershell, etc.)
+>#####Correction du problème selon lequel certains éléments de menu pouvaient provoquer le blocage du processus auxiliaire
 
->#####Correction du problème selon lequel Quicklook était toujours activé en appuyant sur l'espace sur la page des paramètres
-
->#####Correction d'un problème pouvant entraîner le rechargement de l'animation contextuelle lorsque vous appuyez sur l'espace sur la page des paramètres
-
-***
-###Quoi de neuf dans la version 7.2.9.0
-
-#####Mise à jour des fonctionnalités
-
->#####Amélioration du mécanisme de communication avec les processus auxiliaires et évite les problèmes potentiels
-
-#####Mise à jour de l'interface utilisateur
-
->#####Optimisation de l'interface utilisateur de "Intégration avec les composants système"
-
-#####Correction d'un bug
-
->#####Correction du problème pouvant entraîner l'occupation du processus auxiliaire
-
->#####Correction du problème qui pouvait ralentir le chargement du lecteur
-
->#####Correction du problème selon lequel la famille de polices ne pouvait pas être modifiée
-
->#####Correction du problème selon lequel la police de la bannière ne respecte pas les paramètres de la "Famille de polices"
-
->#####Correction du problème selon lequel le double-clic sur certaines zones de l'objet dossier dans la liste pouvait ne pas répondre
-
->#####Correction du problème selon lequel le fait de double-cliquer sur certaines zones de l'objet dans la liste peut entraîner le retour au dossier parent
-
->#####Correction d'un problème pouvant provoquer le scintillement du contenu lors de la mise à l'échelle de la fenêtre de l'application
-
->#####Correction du problème selon lequel l'application sera toujours appelée dans certains logiciels après la désactivation de "Intercepter et utiliser comme programme par défaut pour les dossiers"
-
-***
-###Quoi de neuf dans la version 7.2.7.0
-
-#####Mise à jour des fonctionnalités
-
->#####Ajout du support pour ARM64
-
->#####Ajout de la prise en charge du SDK Win11
-
->#####Ajout de la prise en charge de l'affichage de la progression dans la barre des tâches
-
->#####Ajout de la prise en charge de l'annulation des tâches dans l'état « Préparation »
-
-#####Mise à jour de l'interface utilisateur
-
->#####Modification du comportement de Quicklook lorsqu'aucun fichier n'est sélectionné
-
-#####Amélioration des performances
-
->#####Amélioration des performances du moteur de recherche intégré dans certains cas
-
-#####Mise à jour du cadre
-
->#####Le processus auxiliaire a été mis à niveau vers le framework .Net 6
-
-#####Correction d'un bug
-
->#####Correction du problème pouvant provoquer un plantage dans l'environnement système Win11 dans certains cas
-
->#####Correction d'un problème qui pouvait bloquer l'importation des fichiers de configuration
-
->#####Correction du problème selon lequel si le chemin ouvert au démarrage n'existe pas, l'animation au démarrage sera ignorée accidentellement
-
->#####Correction des problèmes liés à l'interface utilisateur dans "Paramètres" et "Choisir d'autres programmes"
-
->#####Correction du problème selon lequel la bannière pouvait afficher une couleur d'arrière-plan transparente
-
->#####Correction du problème selon lequel la visionneuse intégrée pouvait s'afficher dans « Ouvrir avec », même le type de fichier n'est pas pris en charge
-
->#####Correction du problème selon lequel les applications UWP peuvent ne pas être définies comme programme par défaut
-
->#####Correction d'un problème selon lequel le terminal par défaut ne pouvait pas être modifié
+>#####Correction d'autres problèmes

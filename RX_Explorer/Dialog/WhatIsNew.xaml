@@ -27,7 +27,6 @@
         <ScrollViewer VerticalScrollMode="Enabled"
                       Grid.Row="1"
                       MinWidth="650"
-                      MinHeight="500"
                       Visibility="{x:Bind LoadingTip.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}">
             <control:MarkdownTextBlock x:Name="MarkDown"
                                        Header5FontSize="14"
