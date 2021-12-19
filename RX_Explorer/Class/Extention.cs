@@ -472,19 +472,19 @@ namespace RX_Explorer.Class
                 }
             }
 
-            try
+            CleanUpContextMenuExtentionItems();
+            CleanUpContextMenuOpenWithFlyoutItems();
+
+            Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
             {
-                CleanUpContextMenuExtentionItems();
-                CleanUpContextMenuOpenWithFlyoutItems();
+                Position = ShowAt,
+                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                ShowMode = FlyoutShowMode.Standard
+            });
 
-                Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
-                {
-                    Position = ShowAt,
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                    ShowMode = FlyoutShowMode.Standard
-                });
-
-                if (SettingPage.ContextMenuExtentionEnabled)
+            if (SettingPage.ContextMenuExtentionEnabled)
+            {
+                try
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
@@ -514,22 +514,13 @@ namespace RX_Explorer.Class
 
                             short ShowExtNum = 0;
 
-                            if (Flyout.SecondaryCommands.OfType<AppBarButton>().Any((Item) => Item.Name.Contains("Decompression", StringComparison.OrdinalIgnoreCase)))
+                            if (Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Any((Item) => Item.Name == "Decompression"))
                             {
-                                bool ShouldConsiderUnZipButton = PathArray.All((Path) => Path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                 || Path.EndsWith(".rar", StringComparison.OrdinalIgnoreCase));
-
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count() + (ShouldConsiderUnZipButton ? 0 : 1), 0));
+                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count(), 0));
                             }
                             else
                             {
-                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Count(), 0));
+                                ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Item) => Item.Visibility == Visibility.Visible).Count() + 1, 0));
                             }
 
                             int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
@@ -721,10 +712,10 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not load context menu items");
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not load context menu items");
+                }
             }
         }
 
