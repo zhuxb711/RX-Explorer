@@ -175,6 +175,9 @@ namespace RX_Explorer
         private CancellationTokenSource DelayTooltipCancellation;
         private CancellationTokenSource ContextMenuCancellation;
         private CommandBarFlyout FileFlyout;
+        private CommandBarFlyout FolderFlyout;
+        private CommandBarFlyout LinkFlyout;
+        private CommandBarFlyout MixedFlyout;
 
         private bool GroupedEnable;
 
@@ -239,6 +242,9 @@ namespace RX_Explorer
             CollectionChangeLock = new SemaphoreSlim(1, 1);
 
             FileFlyout = CreateNewFileContextMenu();
+            FolderFlyout = CreateNewFolderContextMenu();
+            LinkFlyout = CreateNewLinkFileContextMenu();
+            MixedFlyout = CreateNewMixedContextMenu();
 
             CoreWindow Window = CoreWindow.GetForCurrentThread();
             Window.KeyDown += FilePresenter_KeyDown;
@@ -533,7 +539,6 @@ namespace RX_Explorer
                 Text = Globalization.GetString("Operate_Text_Transcode"),
                 Name = "TranscodeButton",
                 MinWidth = 160,
-                IsEnabled = false,
                 Icon = new FontIcon
                 {
                     FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
@@ -612,7 +617,7 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(ShareButton);
             #endregion
 
-            #region SecondaryCommand -> SendTo
+            #region SecondaryCommand -> SendToButton
             AppBarButton SendToButton = new AppBarButton
             {
                 Icon = new SymbolIcon { Symbol = Symbol.Send },
@@ -628,7 +633,7 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(SendToButton);
             #endregion
 
-            #region SecondaryCommand -> Compression
+            #region SecondaryCommand -> CompressionButton
             AppBarButton CompressionButton = new AppBarButton
             {
                 Icon = new FontIcon
@@ -644,7 +649,7 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(CompressionButton);
             #endregion
 
-            #region SecondaryCommand -> Decompression
+            #region SecondaryCommand -> DecompressionButton
             AppBarButton DecompressionButton = new AppBarButton
             {
                 Width = 320,
@@ -710,16 +715,828 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(DecompressionButton);
             #endregion
 
-            #region SecondaryCommand -> Property
+            #region SecondaryCommand -> PropertyButton
             AppBarButton PropertyButton = new AppBarButton
             {
                 Icon = new SymbolIcon { Symbol = Symbol.Tag },
                 Width = 320,
                 Label = Globalization.GetString("Operate_Text_Property")
             };
-            PropertyButton.Click += FileProperty_Click;
+            PropertyButton.Click += ItemProperty_Click;
 
             Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private CommandBarFlyout CreateNewFolderContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Closed += CommandBarFlyout_Closed;
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton CopyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Copy }
+            };
+            ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
+            CopyButton.Click += Copy_Click;
+
+            AppBarButton CutButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Cut }
+            };
+            ToolTipService.SetToolTip(CutButton, Globalization.GetString("Operate_Text_Cut"));
+            CutButton.Click += Cut_Click;
+
+            AppBarButton DeleteButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Delete }
+            };
+            ToolTipService.SetToolTip(DeleteButton, Globalization.GetString("Operate_Text_Delete"));
+            DeleteButton.Click += Delete_Click;
+
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename }
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += Rename_Click;
+
+            Border ColorTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        Glyph = "\uEB52"
+                    }
+                }
+            };
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ColorTag.Tapped += ColorTag_Tapped;
+
+            StackPanel StandardBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            StandardBarPanel.Children.Add(CopyButton);
+            StandardBarPanel.Children.Add(CutButton);
+            StandardBarPanel.Children.Add(DeleteButton);
+            StandardBarPanel.Children.Add(RenameButton);
+            StandardBarPanel.Children.Add(ColorTag);
+
+            AppBarElementContainer StandardBar = new AppBarElementContainer
+            {
+                Content = StandardBarPanel
+            };
+
+            Flyout.PrimaryCommands.Add(StandardBar);
+            #endregion
+
+            #region PrimaryCommand -> TagBarContainer
+            AppBarButton UnTagButton = new AppBarButton
+            {
+                Tag = "Transparent",
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEA92"
+                }
+            };
+            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
+            UnTagButton.Click += UnTag_Click;
+
+            AppBarButton OrangeTagButton = new AppBarButton
+            {
+                Tag = "Orange",
+                Foreground = new SolidColorBrush(Colors.Orange),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
+            OrangeTagButton.Click += Color_Click;
+
+            AppBarButton GreenTagButton = new AppBarButton
+            {
+                Tag = "Green",
+                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
+            GreenTagButton.Click += Color_Click;
+
+            AppBarButton PurpleTagButton = new AppBarButton
+            {
+                Tag = "Purple",
+                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
+            PurpleTagButton.Click += Color_Click;
+
+            AppBarButton BlueTagButton = new AppBarButton
+            {
+                Tag = "Blue",
+                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
+            BlueTagButton.Click += Color_Click;
+
+            Border ColorBackTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new SymbolIcon { Symbol = Symbol.Back }
+                }
+            };
+            ColorBackTag.Tapped += ColorBarBack_Tapped;
+
+            StackPanel TagBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            TagBarPanel.Children.Add(UnTagButton);
+            TagBarPanel.Children.Add(OrangeTagButton);
+            TagBarPanel.Children.Add(GreenTagButton);
+            TagBarPanel.Children.Add(PurpleTagButton);
+            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(ColorBackTag);
+
+            AppBarElementContainer TagBar = new AppBarElementContainer
+            {
+                Content = TagBarPanel
+            };
+            TagBar.SetBinding(VisibilityProperty, new Binding
+            {
+                Source = StandardBar,
+                Path = new PropertyPath("Visibility"),
+                Mode = BindingMode.TwoWay,
+                Converter = new InverseConverter()
+            });
+
+            Flyout.PrimaryCommands.Add(TagBar);
+            #endregion
+
+            #region SecondaryCommand -> OpenButton
+            AppBarButton OpenButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                Label = Globalization.GetString("Operate_Text_Open"),
+                Width = 320
+            };
+            OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.G,
+                IsEnabled = false
+            });
+            OpenButton.Click += ItemOpen_Click;
+
+            Flyout.SecondaryCommands.Add(OpenButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewTabButton
+            AppBarButton OpenFolderInNewTabButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewTab"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF7ED"
+                }
+            };
+            OpenFolderInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.T,
+                IsEnabled = false
+            });
+            OpenFolderInNewTabButton.Click += OpenFolderInNewTab_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewTabButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewWindowButton
+            AppBarButton OpenFolderInNewWindowButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewWindow"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uE727"
+                }
+            };
+            OpenFolderInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.Q,
+                IsEnabled = false
+            });
+            OpenFolderInNewWindowButton.Click += OpenFolderInNewWindow_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewWindowButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInVerticalSplitViewButton
+            AppBarButton OpenFolderInVerticalSplitViewButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_SplitView"),
+                Width = 320,
+                Name = "OpenFolderInVerticalSplitView",
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEA61"
+                }
+            };
+            OpenFolderInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.B,
+                IsEnabled = false
+            });
+            OpenFolderInVerticalSplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInVerticalSplitViewButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> CompressFolderButton
+            AppBarButton CompressFolderButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Compression"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uE7B8"
+                }
+            };
+            CompressFolderButton.Click += CompressFolder_Click;
+
+            Flyout.SecondaryCommands.Add(CompressFolderButton);
+            #endregion
+
+            #region SecondaryCommand -> SendToButton
+            AppBarButton SendToButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Send },
+                Label = Globalization.GetString("SendTo/Label"),
+                Width = 320
+            };
+
+            MenuFlyout SendToFlyout = new MenuFlyout();
+            SendToFlyout.Opening += SendToFlyout_Opening;
+
+            SendToButton.Flyout = SendToFlyout;
+
+            Flyout.SecondaryCommands.Add(SendToButton);
+            #endregion
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += ItemProperty_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private CommandBarFlyout CreateNewLinkFileContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Closed += CommandBarFlyout_Closed;
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton CopyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Copy }
+            };
+            ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
+            CopyButton.Click += Copy_Click;
+
+            AppBarButton CutButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Cut }
+            };
+            ToolTipService.SetToolTip(CutButton, Globalization.GetString("Operate_Text_Cut"));
+            CutButton.Click += Cut_Click;
+
+            AppBarButton DeleteButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Delete }
+            };
+            ToolTipService.SetToolTip(DeleteButton, Globalization.GetString("Operate_Text_Delete"));
+            DeleteButton.Click += Delete_Click;
+
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename }
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += Rename_Click;
+
+            Border ColorTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        Glyph = "\uEB52"
+                    }
+                }
+            };
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ColorTag.Tapped += ColorTag_Tapped;
+
+            StackPanel StandardBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            StandardBarPanel.Children.Add(CopyButton);
+            StandardBarPanel.Children.Add(CutButton);
+            StandardBarPanel.Children.Add(DeleteButton);
+            StandardBarPanel.Children.Add(RenameButton);
+            StandardBarPanel.Children.Add(ColorTag);
+
+            AppBarElementContainer StandardBar = new AppBarElementContainer
+            {
+                Content = StandardBarPanel
+            };
+
+            Flyout.PrimaryCommands.Add(StandardBar);
+            #endregion
+
+            #region PrimaryCommand -> TagBarContainer
+            AppBarButton UnTagButton = new AppBarButton
+            {
+                Tag = "Transparent",
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEA92"
+                }
+            };
+            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
+            UnTagButton.Click += UnTag_Click;
+
+            AppBarButton OrangeTagButton = new AppBarButton
+            {
+                Tag = "Orange",
+                Foreground = new SolidColorBrush(Colors.Orange),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
+            OrangeTagButton.Click += Color_Click;
+
+            AppBarButton GreenTagButton = new AppBarButton
+            {
+                Tag = "Green",
+                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
+            GreenTagButton.Click += Color_Click;
+
+            AppBarButton PurpleTagButton = new AppBarButton
+            {
+                Tag = "Purple",
+                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
+            PurpleTagButton.Click += Color_Click;
+
+            AppBarButton BlueTagButton = new AppBarButton
+            {
+                Tag = "Blue",
+                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
+            BlueTagButton.Click += Color_Click;
+
+            Border ColorBackTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new SymbolIcon { Symbol = Symbol.Back }
+                }
+            };
+            ColorBackTag.Tapped += ColorBarBack_Tapped;
+
+            StackPanel TagBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            TagBarPanel.Children.Add(UnTagButton);
+            TagBarPanel.Children.Add(OrangeTagButton);
+            TagBarPanel.Children.Add(GreenTagButton);
+            TagBarPanel.Children.Add(PurpleTagButton);
+            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(ColorBackTag);
+
+            AppBarElementContainer TagBar = new AppBarElementContainer
+            {
+                Content = TagBarPanel
+            };
+            TagBar.SetBinding(VisibilityProperty, new Binding
+            {
+                Source = StandardBar,
+                Path = new PropertyPath("Visibility"),
+                Mode = BindingMode.TwoWay,
+                Converter = new InverseConverter()
+            });
+
+            Flyout.PrimaryCommands.Add(TagBar);
+            #endregion
+
+            #region SecondaryCommand -> OpenButton
+            AppBarButton OpenButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                Label = Globalization.GetString("Operate_Text_Open"),
+                Width = 320
+            };
+            OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.G,
+                IsEnabled = false
+            });
+            OpenButton.Click += ItemOpen_Click;
+
+            Flyout.SecondaryCommands.Add(OpenButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenLocationButton
+            AppBarButton OpenLocationButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_OpenLocation"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF133"
+                }
+            };
+            OpenLocationButton.Click += LnkOpenLocation_Click;
+
+            Flyout.SecondaryCommands.Add(OpenLocationButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += ItemProperty_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private CommandBarFlyout CreateNewMixedContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Opening += MixedFlyout_Opening;
+            Flyout.Closed += CommandBarFlyout_Closed;
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton CopyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Copy }
+            };
+            ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
+            CopyButton.Click += Copy_Click;
+
+            AppBarButton CutButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Cut }
+            };
+            ToolTipService.SetToolTip(CutButton, Globalization.GetString("Operate_Text_Cut"));
+            CutButton.Click += Cut_Click;
+
+            AppBarButton DeleteButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Delete }
+            };
+            ToolTipService.SetToolTip(DeleteButton, Globalization.GetString("Operate_Text_Delete"));
+            DeleteButton.Click += Delete_Click;
+
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename }
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += Rename_Click;
+
+            Border ColorTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        Glyph = "\uEB52"
+                    }
+                }
+            };
+            ToolTipService.SetToolTip(ColorTag, Globalization.GetString("TagEntry/ToolTipService/ToolTip"));
+            ColorTag.Tapped += ColorTag_Tapped;
+
+            StackPanel StandardBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            StandardBarPanel.Children.Add(CopyButton);
+            StandardBarPanel.Children.Add(CutButton);
+            StandardBarPanel.Children.Add(DeleteButton);
+            StandardBarPanel.Children.Add(RenameButton);
+            StandardBarPanel.Children.Add(ColorTag);
+
+            AppBarElementContainer StandardBar = new AppBarElementContainer
+            {
+                Content = StandardBarPanel
+            };
+
+            Flyout.PrimaryCommands.Add(StandardBar);
+            #endregion
+
+            #region PrimaryCommand -> TagBarContainer
+            AppBarButton UnTagButton = new AppBarButton
+            {
+                Tag = "Transparent",
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEA92"
+                }
+            };
+            ToolTipService.SetToolTip(UnTagButton, Globalization.GetString("UnTag/ToolTipService/ToolTip"));
+            UnTagButton.Click += UnTag_Click;
+
+            AppBarButton OrangeTagButton = new AppBarButton
+            {
+                Tag = "Orange",
+                Foreground = new SolidColorBrush(Colors.Orange),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(OrangeTagButton, Globalization.GetString("OrangeTag/ToolTipService/ToolTip"));
+            OrangeTagButton.Click += Color_Click;
+
+            AppBarButton GreenTagButton = new AppBarButton
+            {
+                Tag = "Green",
+                Foreground = new SolidColorBrush("#22B324".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(GreenTagButton, Globalization.GetString("GreenTag/ToolTipService/ToolTip"));
+            GreenTagButton.Click += Color_Click;
+
+            AppBarButton PurpleTagButton = new AppBarButton
+            {
+                Tag = "Purple",
+                Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(PurpleTagButton, Globalization.GetString("PurpleTag/ToolTipService/ToolTip"));
+            PurpleTagButton.Click += Color_Click;
+
+            AppBarButton BlueTagButton = new AppBarButton
+            {
+                Tag = "Blue",
+                Foreground = new SolidColorBrush("#42C5FF".ToColor()),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB51"
+                }
+            };
+            ToolTipService.SetToolTip(BlueTagButton, Globalization.GetString("BlueTag/ToolTipService/ToolTip"));
+            BlueTagButton.Click += Color_Click;
+
+            Border ColorBackTag = new Border
+            {
+                Padding = new Thickness(12),
+                IsTapEnabled = true,
+                Child = new Viewbox
+                {
+                    Child = new SymbolIcon { Symbol = Symbol.Back }
+                }
+            };
+            ColorBackTag.Tapped += ColorBarBack_Tapped;
+
+            StackPanel TagBarPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            TagBarPanel.Children.Add(UnTagButton);
+            TagBarPanel.Children.Add(OrangeTagButton);
+            TagBarPanel.Children.Add(GreenTagButton);
+            TagBarPanel.Children.Add(PurpleTagButton);
+            TagBarPanel.Children.Add(BlueTagButton);
+            TagBarPanel.Children.Add(ColorBackTag);
+
+            AppBarElementContainer TagBar = new AppBarElementContainer
+            {
+                Content = TagBarPanel
+            };
+            TagBar.SetBinding(VisibilityProperty, new Binding
+            {
+                Source = StandardBar,
+                Path = new PropertyPath("Visibility"),
+                Mode = BindingMode.TwoWay,
+                Converter = new InverseConverter()
+            });
+
+            Flyout.PrimaryCommands.Add(TagBar);
+            #endregion
+
+            #region SecondaryCommand -> OpenButton
+            AppBarButton OpenButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                Label = Globalization.GetString("Operate_Text_Open"),
+                Width = 320
+            };
+            OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.G,
+                IsEnabled = false
+            });
+            OpenButton.Click += MixOpen_Click;
+
+            Flyout.SecondaryCommands.Add(OpenButton);
+            #endregion
+
+            #region SecondaryCommand -> MixedCompressionButton
+            AppBarButton MixedCompressionButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Compression"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uE7B8"
+                }
+            };
+            MixedCompressionButton.Click += MixCompression_Click;
+
+            Flyout.SecondaryCommands.Add(MixedCompressionButton);
+            #endregion
+
+            #region SecondaryCommand -> MixedDecompressionButton
+            AppBarButton MixedDecompressionButton = new AppBarButton
+            {
+                Width = 320,
+                Name = "MixedDecompression",
+                Label = Globalization.GetString("Operate_Text_Decompression"),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF133"
+                }
+            };
+
+            MenuFlyoutItem MixedDecompressOptionButton = new MenuFlyoutItem
+            {
+                Text = Globalization.GetString("DecompressOption/Text"),
+                MinWidth = 150,
+                MaxWidth = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF0B2"
+                }
+            };
+            MixedDecompressOptionButton.Click += MixedDecompressOption_Click;
+
+            MenuFlyoutItem MixedDecompressHereButton = new MenuFlyoutItem
+            {
+                Text = Globalization.GetString("DecompressHere/Text"),
+                MinWidth = 150,
+                MaxWidth = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF0B2"
+                }
+            };
+            MixedDecompressHereButton.Click += MixedDecompression_Click;
+
+            MenuFlyoutItem MixedDecompressOption2Button = new MenuFlyoutItem
+            {
+                MinWidth = 150,
+                MaxWidth = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF0B2"
+                }
+            };
+            MixedDecompressOption2Button.Click += MixedDecompression_Click;
+
+            MenuFlyout MixedDecompressionFlyout = new MenuFlyout
+            {
+                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+            };
+            MixedDecompressionFlyout.Items.Add(MixedDecompressOptionButton);
+            MixedDecompressionFlyout.Items.Add(MixedDecompressHereButton);
+            MixedDecompressionFlyout.Items.Add(MixedDecompressOption2Button);
+
+            MixedDecompressionButton.Flyout = MixedDecompressionFlyout;
+
+            Flyout.SecondaryCommands.Add(MixedDecompressionButton);
             #endregion
 
             return Flyout;
@@ -1611,7 +2428,7 @@ namespace RX_Explorer
 
             if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
             {
-                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
+                FolderFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
             }
         }
 
@@ -1803,7 +2620,7 @@ namespace RX_Explorer
                 FolderFlyout.Hide();
                 EmptyFlyout.Hide();
                 MixedFlyout.Hide();
-                LinkItemFlyout.Hide();
+                LinkFlyout.Hide();
             }
             catch (Exception ex)
             {
@@ -2543,17 +3360,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void FileProperty_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (SelectedItem is FileSystemStorageFile File)
-            {
-                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(File);
-                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-            }
-        }
-
         private async void Compression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
@@ -2758,13 +3564,13 @@ namespace RX_Explorer
             }
         }
 
-        private async void FolderProperty_Click(object sender, RoutedEventArgs e)
+        private async void ItemProperty_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            if (SelectedItem is FileSystemStorageFolder Folder)
+            if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Folder);
+                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
                 await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             }
         }
@@ -4225,7 +5031,7 @@ namespace RX_Explorer
                                     && !FolderFlyout.IsOpen
                                     && !EmptyFlyout.IsOpen
                                     && !MixedFlyout.IsOpen
-                                    && !LinkItemFlyout.IsOpen)
+                                    && !LinkFlyout.IsOpen)
                                 {
                                     PointerPoint Point = e.GetCurrentPoint(ItemPresenter);
 
@@ -4307,7 +5113,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void MixDecompression_Click(object sender, RoutedEventArgs e)
+        private async void MixedDecompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -5015,7 +5821,7 @@ namespace RX_Explorer
 
                 if (sender is MenuFlyout Flyout)
                 {
-                    MenuFlyoutItem DecompressionOption2 = Flyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "");
+                    MenuFlyoutItem DecompressionOption2 = Flyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "DecompressionOption2");
 
                     DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{DecompressionFolderName}\\\"";
 
@@ -5084,7 +5890,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void MixDecompressOption_Click(object sender, RoutedEventArgs e)
+        private async void MixedDecompressOption_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -5745,42 +6551,43 @@ namespace RX_Explorer
 
         private void FileFlyout_Opening(object sender, object e)
         {
-            if (FileFlyout.SecondaryCommands.OfType<AppBarButton>().FirstOrDefault((Btn) => Btn.Name == "Decompression") is AppBarButton Decompression)
+            AppBarButton Decompression = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "Decompression");
+
+            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
-                {
-                    Decompression.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    Decompression.Visibility = Visibility.Collapsed;
-                }
+                Decompression.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Decompression.Visibility = Visibility.Collapsed;
             }
         }
 
         private void MixedFlyout_Opening(object sender, object e)
         {
+            AppBarButton MixedDecompression = MixedFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "MixedDecompression");
+
             if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                                                                                        || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                MixDecompression.Visibility = Visibility.Visible;
+                MixedDecompression.Visibility = Visibility.Visible;
             }
             else
             {
-                MixDecompression.Visibility = Visibility.Collapsed;
+                MixedDecompression.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -5808,20 +6615,31 @@ namespace RX_Explorer
                         {
                             if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                             {
-                                await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                Position,
-                                                                                                ContextMenuCancellation.Token,
-                                                                                                ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
+                            Retry:
+                                try
+                                {
+                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
+                                                                                                                               .Select((Item) => Item.Path)
+                                                                                                                               .ToArray());
+                                }
+                                catch (Exception)
+                                {
+                                    MixedFlyout = CreateNewMixedContextMenu();
+                                    goto Retry;
+                                }
                             }
                             else
                             {
-                                if (ItemPresenter is GridView)
+                                if (ItemPresenter is GridView || SelectedItem == Context || args.OriginalSource is TextBlock)
                                 {
                                     SelectedItem = Context;
 
                                     CommandBarFlyout ContextFlyout = Context switch
                                     {
-                                        LinkStorageFile => LinkItemFlyout,
+                                        LinkStorageFile => LinkFlyout,
                                         FileSystemStorageFolder => FolderFlyout,
                                         FileSystemStorageFile => FileFlyout,
                                         _ => throw new NotImplementedException()
@@ -5841,8 +6659,8 @@ namespace RX_Explorer
                                     {
                                         ContextFlyout = Context switch
                                         {
-                                            LinkStorageFile => LinkItemFlyout,
-                                            FileSystemStorageFolder => FolderFlyout,
+                                            LinkStorageFile => LinkFlyout = CreateNewLinkFileContextMenu(),
+                                            FileSystemStorageFolder => FolderFlyout = CreateNewFolderContextMenu(),
                                             FileSystemStorageFile => FileFlyout = CreateNewFileContextMenu(),
                                             _ => throw new NotImplementedException()
                                         };
@@ -5852,49 +6670,11 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (SelectedItem == Context)
-                                    {
-                                        CommandBarFlyout ContextFlyout = Context switch
-                                        {
-                                            LinkStorageFile => LinkItemFlyout,
-                                            FileSystemStorageFolder => FolderFlyout,
-                                            FileSystemStorageFile => FileFlyout,
-                                            _ => throw new NotImplementedException()
-                                        };
-
-                                        await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                          Position,
-                                                                                                          ContextMenuCancellation.Token,
-                                                                                                          ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                    }
-                                    else
-                                    {
-                                        if (args.OriginalSource is TextBlock)
-                                        {
-                                            SelectedItem = Context;
-
-                                            CommandBarFlyout ContextFlyout = Context switch
-                                            {
-                                                LinkStorageFile => LinkItemFlyout,
-                                                FileSystemStorageFolder => FolderFlyout,
-                                                FileSystemStorageFile => FileFlyout,
-                                                _ => throw new NotImplementedException()
-                                            };
-
-                                            await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                              Position,
-                                                                                                              ContextMenuCancellation.Token,
-                                                                                                              ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray());
-                                        }
-                                        else
-                                        {
-                                            SelectedItem = null;
-                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                            Position,
-                                                                                                            ContextMenuCancellation.Token,
-                                                                                                            CurrentFolder.Path);
-                                        }
-                                    }
+                                    SelectedItem = null;
+                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    CurrentFolder.Path);
                                 }
                             }
                         }

@@ -560,10 +560,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No Result</source>
           <target state="translated">Aucun résultat</target>
         </trans-unit>
-        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
-          <source>Open location</source>
-          <target state="translated">Ouvrir dossier</target>
-        </trans-unit>
         <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
           <source>Date modified</source>
           <target state="translated">Modifié le</target>
@@ -2476,7 +2472,7 @@ Les noms non valides incluent
           <source>Turn off the initial animation to speed up the startup</source>
           <target state="translated">Désactivez l'animation initiale pour accélérer le démarrage</target>
         </trans-unit>
-        <trans-unit id="LnkOpenLocation.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_OpenLocation" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">Ouvrir dossier</target>
         </trans-unit>

@@ -442,9 +442,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>Sin resultado</value>
   </data>
-  <data name="SearchLocation.Label" xml:space="preserve">
-    <value>Abrir ubicación</value>
-  </data>
   <data name="SearchModified.Text" xml:space="preserve">
     <value>Fecha modificada</value>
   </data>
@@ -1915,7 +1912,7 @@ Las denominaciones no válidas son:
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
     <value>Desactivar animación inicial para acelerar el inicio</value>
   </data>
-  <data name="LnkOpenLocation.Label" xml:space="preserve">
+  <data name="Operate_Text_OpenLocation" xml:space="preserve">
     <value>Abrir ubicación</value>
   </data>
   <data name="MulSelect.Label" xml:space="preserve">

@@ -572,10 +572,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No Result</source>
           <target state="translated" state-qualifier="tm-suggestion">沒有結果</target>
         </trans-unit>
-        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
-          <source>Open location</source>
-          <target state="translated">開啟檔案位置</target>
-        </trans-unit>
         <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
           <source>Date modified</source>
           <target state="translated" state-qualifier="tm-suggestion">修改日期</target>
@@ -2476,7 +2472,7 @@ Invalid names include
           <source>Turn off the initial animation to speed up the startup</source>
           <target state="translated">關閉初始動畫以加快啟動速度</target>
         </trans-unit>
-        <trans-unit id="LnkOpenLocation.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_OpenLocation" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">開啟檔案位置</target>
         </trans-unit>

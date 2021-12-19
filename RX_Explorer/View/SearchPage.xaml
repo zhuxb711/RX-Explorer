@@ -67,9 +67,8 @@
                               MinWidth="200"
                               x:Name="Open"
                               Click="Open_Click" />
-                <AppBarButton x:Uid="SearchLocation"
-                              x:Name="Location"
-                              Label="打开所在位置"
+                <AppBarButton x:Name="Location"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_OpenLocation')}"
                               MinWidth="250"
                               Click="Location_Click">
                     <AppBarButton.KeyboardAccelerators>

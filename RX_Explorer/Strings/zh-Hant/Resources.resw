@@ -436,9 +436,6 @@
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>沒有結果</value>
   </data>
-  <data name="SearchLocation.Label" xml:space="preserve">
-    <value>開啟檔案位置</value>
-  </data>
   <data name="SearchModified.Text" xml:space="preserve">
     <value>修改日期</value>
   </data>
@@ -1869,7 +1866,7 @@
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
     <value>關閉初始動畫以加快啟動速度</value>
   </data>
-  <data name="LnkOpenLocation.Label" xml:space="preserve">
+  <data name="Operate_Text_OpenLocation" xml:space="preserve">
     <value>開啟檔案位置</value>
   </data>
   <data name="MulSelect.Label" xml:space="preserve">

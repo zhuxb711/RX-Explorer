@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
         {
             List<MenuFlyoutItemBase> MenuItems = new List<MenuFlyoutItemBase>(SubMenus.Length);
 
-            foreach (ContextMenuItem SubItem in SubMenus)
+            foreach (ContextMenuItem SubItem in SubMenus.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending))
             {
                 if (SubItem.SubMenus.Length > 0)
                 {

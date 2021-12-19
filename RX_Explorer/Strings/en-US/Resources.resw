@@ -556,9 +556,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>No Result</value>
   </data>
-  <data name="SearchLocation.Label" xml:space="preserve">
-    <value>Open location</value>
-  </data>
   <data name="SearchModified.Text" xml:space="preserve">
     <value>Date modified</value>
   </data>
@@ -2032,7 +2029,7 @@ Invalid names include
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
     <value>Turn off the initial animation to speed up the startup</value>
   </data>
-  <data name="LnkOpenLocation.Label" xml:space="preserve">
+  <data name="Operate_Text_OpenLocation" xml:space="preserve">
     <value>Open location</value>
   </data>
   <data name="MulSelect.Label" xml:space="preserve">

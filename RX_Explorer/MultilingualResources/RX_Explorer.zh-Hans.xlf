@@ -560,10 +560,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>No Result</source>
           <target state="translated">无法搜索到任何文件</target>
         </trans-unit>
-        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
-          <source>Open location</source>
-          <target state="translated">打开所在位置</target>
-        </trans-unit>
         <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
           <source>Date modified</source>
           <target state="translated">修改时间</target>
@@ -2476,7 +2472,7 @@ Invalid names include
           <source>Turn off the initial animation to speed up the startup</source>
           <target state="translated">关闭初始动画以加快启动速度</target>
         </trans-unit>
-        <trans-unit id="LnkOpenLocation.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_OpenLocation" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">打开文件所在位置</target>
         </trans-unit>

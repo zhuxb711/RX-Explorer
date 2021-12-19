@@ -580,10 +580,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>No Result</source>
           <target state="translated">Kein Ergebnis</target>
         </trans-unit>
-        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
-          <source>Open location</source>
-          <target state="translated">Ort öffnen</target>
-        </trans-unit>
         <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
           <source>Date modified</source>
           <target state="translated">Änderungsdatum</target>
@@ -2539,7 +2535,7 @@ Inkorrekte Namen sind
           <source>Turn off the initial animation to speed up the startup</source>
           <target state="translated">Öffnungsanimation zum schnelleren starten deaktivieren</target>
         </trans-unit>
-        <trans-unit id="LnkOpenLocation.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_OpenLocation" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">Ort öffnen</target>
         </trans-unit>

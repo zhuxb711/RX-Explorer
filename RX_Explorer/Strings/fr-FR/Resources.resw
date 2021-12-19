@@ -427,9 +427,6 @@
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>Aucun résultat</value>
   </data>
-  <data name="SearchLocation.Label" xml:space="preserve">
-    <value>Ouvrir dossier</value>
-  </data>
   <data name="SearchModified.Text" xml:space="preserve">
     <value>Modifié le</value>
   </data>
@@ -1869,7 +1866,7 @@ Les noms non valides incluent
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
     <value>Désactivez l'animation initiale pour accélérer le démarrage</value>
   </data>
-  <data name="LnkOpenLocation.Label" xml:space="preserve">
+  <data name="Operate_Text_OpenLocation" xml:space="preserve">
     <value>Ouvrir dossier</value>
   </data>
   <data name="MulSelect.Label" xml:space="preserve">

@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -995,7 +994,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Success", out string Result))
                     {
-                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).Select((Item) => new ContextMenuItem(Item)).ToList();
+                        return JsonSerializer.Deserialize<ContextMenuPackage[]>(Result).OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending).Select((Item) => new ContextMenuItem(Item)).ToList();
                     }
                     else
                     {
