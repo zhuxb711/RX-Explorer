@@ -23,6 +23,8 @@ using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
@@ -38,18 +40,173 @@ namespace RX_Explorer
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayEnterCancellation;
         private CancellationTokenSource ContextMenuCancellation;
+        private CommandBarFlyout LibraryFlyout;
 
         public Home()
         {
             InitializeComponent();
-            Loaded += Home_Loaded;
+            LibraryFlyout = CreateNewFolderContextMenu();
         }
 
-        private async void Home_Loaded(object sender, RoutedEventArgs e)
+        private CommandBarFlyout CreateNewFolderContextMenu()
         {
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+            CommandBarFlyout Flyout = new CommandBarFlyout
             {
-                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Opening += CommandBarFlyout_Opening;
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
+
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton CopyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Copy }
+            };
+            ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
+            CopyButton.Click += Copy_Click;
+
+            AppBarButton RemovePinButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.UnPin },
+                Name = "RemovePinButton"
+            };
+            ToolTipService.SetToolTip(RemovePinButton, Globalization.GetString("Operate_Text_Unpin"));
+            RemovePinButton.Click += RemovePin_Click;
+
+            Flyout.PrimaryCommands.Add(CopyButton);
+            Flyout.PrimaryCommands.Add(RemovePinButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenButton
+            AppBarButton OpenButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                Label = Globalization.GetString("Operate_Text_Open"),
+                Width = 320
+            };
+            OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.G,
+                IsEnabled = false
+            });
+            OpenButton.Click += OpenLibrary_Click;
+
+            Flyout.SecondaryCommands.Add(OpenButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewTabButton
+            AppBarButton OpenFolderInNewTabButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewTab"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uF7ED"
+                }
+            };
+            OpenFolderInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.T,
+                IsEnabled = false
+            });
+            OpenFolderInNewTabButton.Click += OpenFolderInNewTab_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewTabButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewWindowButton
+            AppBarButton OpenFolderInNewWindowButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewWindow"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uE727"
+                }
+            };
+            OpenFolderInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.Q,
+                IsEnabled = false
+            });
+            OpenFolderInNewWindowButton.Click += OpenFolderInNewWindow_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewWindowButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInVerticalSplitViewButton
+            AppBarButton OpenFolderInVerticalSplitViewButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_SplitView"),
+                Width = 320,
+                Name = "OpenFolderInVerticalSplitView",
+                Visibility = Visibility.Collapsed,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uEA61"
+                }
+            };
+            OpenFolderInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.B,
+                IsEnabled = false
+            });
+            OpenFolderInVerticalSplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInVerticalSplitViewButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> SendToButton
+            AppBarButton SendToButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Send },
+                Label = Globalization.GetString("SendTo/Label"),
+                Width = 320
+            };
+
+            MenuFlyout SendToFlyout = new MenuFlyout();
+            SendToFlyout.Opening += SendToFlyout_Opening;
+
+            SendToButton.Flyout = SendToFlyout;
+
+            Flyout.SecondaryCommands.Add(SendToButton);
+            #endregion
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += LibraryProperties_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private async void CommandBarFlyout_Opening(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -1258,7 +1415,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void LibraryGrid_ContextRequested(UIElement sender, Windows.UI.Xaml.Input.ContextRequestedEventArgs args)
+        private async void LibraryGrid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
             if (args.TryGetPosition(sender, out Point Position))
             {
@@ -1277,10 +1434,21 @@ namespace RX_Explorer
                     ContextMenuCancellation?.Dispose();
                     ContextMenuCancellation = new CancellationTokenSource();
 
-                    await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
-                                                                                      Position,
-                                                                                      ContextMenuCancellation.Token,
-                                                                                      LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().Select((Lib) => Lib.Path).ToArray());
+                Retry:
+                    try
+                    {
+                        await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
+                                                                                          Position,
+                                                                                          ContextMenuCancellation.Token,
+                                                                                          LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>()
+                                                                                                                   .Select((Lib) => Lib.Path)
+                                                                                                                   .ToArray());
+                    }
+                    catch (Exception)
+                    {
+                        LibraryFlyout = CreateNewFolderContextMenu();
+                        goto Retry;
+                    }
                 }
                 else
                 {

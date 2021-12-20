@@ -32,6 +32,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
@@ -121,6 +122,8 @@ namespace RX_Explorer
         private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
         private readonly ObservableCollection<AddressNavigationRecord> NavigationRecordList = new ObservableCollection<AddressNavigationRecord>();
 
+        private CommandBarFlyout RightTapFlyout;
+
         private WeakReference<TabViewItem> WeakToTabViewItem;
         public TabViewItem CurrentTabItem
         {
@@ -161,10 +164,185 @@ namespace RX_Explorer
             GoForwardButtonPressedHandler = new PointerEventHandler(GoForwardRecord_PointerPressed);
             GoForwardButtonReleasedHandler = new PointerEventHandler(GoForwardRecord_PointerReleased);
 
+            RightTapFlyout = CreateNewFolderContextMenu();
+
             Loaded += FileControl_Loaded;
         }
 
-        private async void FileControl_Loaded(object sender, RoutedEventArgs e)
+        private CommandBarFlyout CreateNewFolderContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Opening += RightTabFlyout_Opening;
+            Flyout.Closing += RightTabFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
+
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton CopyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Copy },
+                Name = "FolderCopyButton"
+            };
+            ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
+            CopyButton.Click += FolderCopy_Click;
+
+            AppBarButton CutButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Cut },
+                Name = "FolderCutButton"
+            };
+            ToolTipService.SetToolTip(CutButton, Globalization.GetString("Operate_Text_Cut"));
+            CutButton.Click += FolderCut_Click;
+
+            AppBarButton DeleteButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Delete },
+                Name = "FolderDeleteButton"
+            };
+            ToolTipService.SetToolTip(DeleteButton, Globalization.GetString("Operate_Text_Delete"));
+            DeleteButton.Click += FolderDelete_Click;
+
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename },
+                Name = "FolderRenameButton"
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += FolderRename_Click;
+
+            AppBarButton RemovePinButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.UnPin },
+                Visibility = Visibility.Collapsed,
+                Name = "RemovePinButton"
+            };
+            ToolTipService.SetToolTip(RemovePinButton, Globalization.GetString("Operate_Text_Unpin"));
+            RemovePinButton.Click += RemovePin_Click;
+
+            Flyout.PrimaryCommands.Add(CopyButton);
+            Flyout.PrimaryCommands.Add(CutButton);
+            Flyout.PrimaryCommands.Add(DeleteButton);
+            Flyout.PrimaryCommands.Add(RenameButton);
+            Flyout.PrimaryCommands.Add(RemovePinButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewTabButton
+            AppBarButton OpenFolderInNewTabButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewTab"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uF7ED"
+                }
+            };
+            OpenFolderInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.T,
+                IsEnabled = false
+            });
+            OpenFolderInNewTabButton.Click += OpenFolderInNewTab_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewTabButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInNewWindowButton
+            AppBarButton OpenFolderInNewWindowButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_NewWindow"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uE727"
+                }
+            };
+            OpenFolderInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.Q,
+                IsEnabled = false
+            });
+            OpenFolderInNewWindowButton.Click += OpenFolderInNewWindow_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInNewWindowButton);
+            #endregion
+
+            #region SecondaryCommand -> OpenFolderInVerticalSplitViewButton
+            AppBarButton OpenFolderInVerticalSplitViewButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_SplitView"),
+                Width = 320,
+                Name = "OpenFolderInVerticalSplitView",
+                Visibility = Visibility.Collapsed,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uEA61"
+                }
+            };
+            OpenFolderInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Control,
+                Key = VirtualKey.B,
+                IsEnabled = false
+            });
+            OpenFolderInVerticalSplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
+
+            Flyout.SecondaryCommands.Add(OpenFolderInVerticalSplitViewButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> SendToButton
+            AppBarButton SendToButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Send },
+                Label = Globalization.GetString("SendTo/Label"),
+                Width = 320
+            };
+
+            MenuFlyout SendToFlyout = new MenuFlyout();
+            SendToFlyout.Opening += SendToFlyout_Opening;
+
+            SendToButton.Flyout = SendToFlyout;
+
+            Flyout.SecondaryCommands.Add(SendToButton);
+            #endregion
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += FolderProperty_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
+        private void RightTabFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                foreach (FlyoutBase SubFlyout in Flyout.SecondaryCommands.OfType<AppBarButton>().Select((Btn) => Btn.Flyout).OfType<FlyoutBase>())
+                {
+                    SubFlyout.Hide();
+                }
+            }
+        }
+
+        private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
             {
@@ -173,11 +351,6 @@ namespace RX_Explorer
             else
             {
                 TreeViewGridCol.Width = SettingPage.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
-            }
-
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                OpenFolderInVerticalSplitView.Visibility = Visibility.Visible;
             }
         }
 
@@ -851,7 +1024,7 @@ namespace RX_Explorer
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
@@ -990,75 +1163,9 @@ namespace RX_Explorer
             args.Node.Children.Clear();
         }
 
-        private async void FolderTree_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
-            {
-                try
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
-                    {
-                        FolderTree.SelectedNode = Node;
-
-                        if (Node.Content is TreeViewNodeContent Content)
-                        {
-                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                            {
-                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                    ShowMode = FlyoutShowMode.Standard
-                                });
-                            }
-                            else
-                            {
-                                if (FolderTree.RootNodes.Contains(Node))
-                                {
-                                    FolderCopy.IsEnabled = false;
-                                    FolderCut.IsEnabled = false;
-                                    FolderDelete.IsEnabled = false;
-                                    FolderRename.IsEnabled = false;
-                                }
-                                else
-                                {
-                                    FolderCopy.IsEnabled = true;
-                                    FolderCut.IsEnabled = true;
-                                    FolderDelete.IsEnabled = true;
-                                    FolderRename.IsEnabled = true;
-                                }
-
-                                ContextMenuCancellation?.Cancel();
-                                ContextMenuCancellation?.Dispose();
-                                ContextMenuCancellation = new CancellationTokenSource();
-
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
-                                                                                                   e.GetPosition((FrameworkElement)sender),
-                                                                                                   ContextMenuCancellation.Token,
-                                                                                                   Content.Path);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
-
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
-                }
-            }
-        }
-
         private async void FolderRename_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content)
             {
@@ -2109,75 +2216,9 @@ namespace RX_Explorer
             }
         }
 
-        private async void FolderTree_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
-            {
-                try
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
-                    {
-                        FolderTree.SelectedNode = Node;
-
-                        if (Node.Content is TreeViewNodeContent Content)
-                        {
-                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
-                            {
-                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
-                                {
-                                    Position = e.GetPosition((FrameworkElement)sender),
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                                    ShowMode = FlyoutShowMode.Standard
-                                });
-                            }
-                            else
-                            {
-                                if (FolderTree.RootNodes.Contains(Node))
-                                {
-                                    FolderCopy.IsEnabled = false;
-                                    FolderCut.IsEnabled = false;
-                                    FolderDelete.IsEnabled = false;
-                                    FolderRename.IsEnabled = false;
-                                }
-                                else
-                                {
-                                    FolderCopy.IsEnabled = true;
-                                    FolderCut.IsEnabled = true;
-                                    FolderDelete.IsEnabled = true;
-                                    FolderRename.IsEnabled = true;
-                                }
-
-                                ContextMenuCancellation?.Cancel();
-                                ContextMenuCancellation?.Dispose();
-                                ContextMenuCancellation = new CancellationTokenSource();
-
-                                await RightTabFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
-                                                                                                   e.GetPosition((FrameworkElement)sender),
-                                                                                                   ContextMenuCancellation.Token,
-                                                                                                   Content.Path);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
-
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await dialog.ShowAsync();
-                }
-            }
-        }
-
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
@@ -2198,7 +2239,8 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -2216,7 +2258,7 @@ namespace RX_Explorer
 
         private async void FolderCopy_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
@@ -2237,7 +2279,8 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -3084,7 +3127,7 @@ namespace RX_Explorer
 
         private async void SendToItem_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             if (sender is FrameworkElement Item)
             {
@@ -3210,24 +3253,34 @@ namespace RX_Explorer
             }
         }
 
-        private void RightTabFlyout_Opening(object sender, object e)
+        private async void RightTabFlyout_Opening(object sender, object e)
         {
-            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+            if (sender is CommandBarFlyout Flyout)
             {
-                if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
                 {
-                    RemovePin.Visibility = Visibility.Visible;
+                    AppBarButton RemovePinButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RemovePinButton");
+
+                    if (FolderTree.SelectedNode is TreeViewNode Node && Node.CanTraceToRootNode(QuickAccessNode))
+                    {
+                        RemovePinButton.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        RemovePinButton.Visibility = Visibility.Collapsed;
+                    }
                 }
-                else
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
-                    RemovePin.Visibility = Visibility.Collapsed;
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
                 }
             }
         }
 
         private async void RemovePin_Click(object sender, RoutedEventArgs e)
         {
-            RightTabFlyout.Hide();
+            RightTapFlyout.Hide();
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
@@ -3319,6 +3372,88 @@ namespace RX_Explorer
         private void EverythingQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             EverythingTip.IsOpen = true;
+        }
+
+        private async void FolderTree_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if (args.TryGetPosition(sender, out Point Position))
+            {
+                args.Handled = true;
+
+                try
+                {
+                    if ((args.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
+                    {
+                        FolderTree.SelectedNode = Node;
+
+                        if (Node.Content is TreeViewNodeContent Content)
+                        {
+                            if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                            {
+                                QuickAccessFlyout.ShowAt(FolderTree, new FlyoutShowOptions
+                                {
+                                    Position = Position,
+                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                    ShowMode = FlyoutShowMode.Standard
+                                });
+                            }
+                            else
+                            {
+                                AppBarButton FolderCopyButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCopyButton");
+                                AppBarButton FolderCutButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderCutButton");
+                                AppBarButton FolderDeleteButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderDeleteButton");
+                                AppBarButton FolderRenameButton = RightTapFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "FolderRenameButton");
+
+                                if (FolderTree.RootNodes.Contains(Node))
+                                {
+                                    FolderCopyButton.IsEnabled = false;
+                                    FolderCutButton.IsEnabled = false;
+                                    FolderDeleteButton.IsEnabled = false;
+                                    FolderRenameButton.IsEnabled = false;
+                                }
+                                else
+                                {
+                                    FolderCopyButton.IsEnabled = true;
+                                    FolderCutButton.IsEnabled = true;
+                                    FolderDeleteButton.IsEnabled = true;
+                                    FolderRenameButton.IsEnabled = true;
+                                }
+
+                                ContextMenuCancellation?.Cancel();
+                                ContextMenuCancellation?.Dispose();
+                                ContextMenuCancellation = new CancellationTokenSource();
+
+                            Retry:
+                                try
+                                {
+                                    await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                                                                                       Position,
+                                                                                                       ContextMenuCancellation.Token,
+                                                                                                       Content.Path);
+                                }
+                                catch (Exception)
+                                {
+                                    RightTapFlyout = CreateNewFolderContextMenu();
+                                    goto Retry;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not locate the folder in TreeView");
+
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
+                }
+            }
         }
 
         public void Dispose()

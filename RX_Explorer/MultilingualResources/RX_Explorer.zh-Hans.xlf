@@ -3957,8 +3957,8 @@ Invalid names include
           <target state="translated">主题颜色</target>
         </trans-unit>
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder in directory tree</source>
-          <target state="translated">在目录树中定位此文件夹</target>
+          <source>Locate this folder on the left</source>
+          <target state="translated">在左侧定位此文件夹</target>
         </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
@@ -4392,6 +4392,10 @@ Invalid names include
         <trans-unit id="SettingContactAuthorLabel.Text" translate="yes" xml:space="preserve">
           <source>Contact the developer via email</source>
           <target state="translated">通过邮件联系开发者</target>
+        </trans-unit>
+        <trans-unit id="DecompressToSeparateFolder" translate="yes" xml:space="preserve">
+          <source>Unzip to respective folder</source>
+          <target state="translated">解压至相应的文件夹</target>
         </trans-unit>
       </group>
     </body>

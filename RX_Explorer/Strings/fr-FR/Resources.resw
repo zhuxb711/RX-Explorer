@@ -2981,7 +2981,7 @@ Les noms non valides incluent
     <value>Couleur du thème</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Localisez ce dossier dans l'arborescence des répertoires</value>
+    <value>Localisez ce dossier sur la gauche</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Effacer toutes les tâches terminées</value>
@@ -3307,5 +3307,8 @@ Les noms non valides incluent
   </data>
   <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
     <value>Contacter le développeur par e-mail</value>
+  </data>
+  <data name="DecompressToSeparateFolder" xml:space="preserve">
+    <value>Décompressez dans le dossier respectif</value>
   </data>
 </root>

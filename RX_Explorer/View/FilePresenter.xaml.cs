@@ -273,6 +273,8 @@ namespace RX_Explorer
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
 
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
+
             #region PrimaryCommand -> StandBarContainer
             AppBarButton CopyButton = new AppBarButton
             {
@@ -310,7 +312,7 @@ namespace RX_Explorer
                 {
                     Child = new FontIcon
                     {
-                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        FontFamily = FontIconFamily,
                         Glyph = "\uEB52"
                     }
                 }
@@ -342,7 +344,7 @@ namespace RX_Explorer
                 Tag = "Transparent",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
@@ -355,7 +357,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush(Colors.Orange),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -368,7 +370,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#22B324".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -381,7 +383,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -394,7 +396,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#42C5FF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -472,7 +474,7 @@ namespace RX_Explorer
                 Name = "RunAsAdminButton",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA0D"
                 }
             };
@@ -517,7 +519,7 @@ namespace RX_Explorer
                 Name = "VideoEditButton",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE177"
                 }
             };
@@ -530,7 +532,7 @@ namespace RX_Explorer
                 Name = "VideoMergeButton",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE11E"
                 }
             };
@@ -543,7 +545,7 @@ namespace RX_Explorer
                 MinWidth = 160,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE1CA"
                 }
             };
@@ -576,7 +578,7 @@ namespace RX_Explorer
                 MinWidth = 160,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE701"
                 }
             };
@@ -588,7 +590,7 @@ namespace RX_Explorer
                 MinWidth = 160,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE702"
                 }
             };
@@ -600,7 +602,7 @@ namespace RX_Explorer
                 MinWidth = 160,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF3E2"
                 }
             };
@@ -640,7 +642,7 @@ namespace RX_Explorer
             {
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE7B8"
                 },
                 Label = Globalization.GetString("Operate_Text_Compression"),
@@ -659,7 +661,7 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_Decompression"),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF133"
                 }
             };
@@ -671,7 +673,7 @@ namespace RX_Explorer
                 MaxWidth = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -684,7 +686,7 @@ namespace RX_Explorer
                 MaxWidth = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -697,7 +699,7 @@ namespace RX_Explorer
                 Name = "DecompressionOption2",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -739,8 +741,11 @@ namespace RX_Explorer
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
+            Flyout.Opening += CommandBarFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
 
             #region PrimaryCommand -> StandBarContainer
             AppBarButton CopyButton = new AppBarButton
@@ -779,7 +784,7 @@ namespace RX_Explorer
                 {
                     Child = new FontIcon
                     {
-                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        FontFamily = FontIconFamily,
                         Glyph = "\uEB52"
                     }
                 }
@@ -811,7 +816,7 @@ namespace RX_Explorer
                 Tag = "Transparent",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
@@ -824,7 +829,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush(Colors.Orange),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -837,7 +842,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#22B324".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -850,7 +855,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -863,7 +868,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#42C5FF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -932,7 +937,7 @@ namespace RX_Explorer
                 Width = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF7ED"
                 }
             };
@@ -954,7 +959,7 @@ namespace RX_Explorer
                 Width = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE727"
                 }
             };
@@ -975,9 +980,10 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_SplitView"),
                 Width = 320,
                 Name = "OpenFolderInVerticalSplitView",
+                Visibility = Visibility.Collapsed,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA61"
                 }
             };
@@ -1001,7 +1007,7 @@ namespace RX_Explorer
                 Width = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE7B8"
                 }
             };
@@ -1041,6 +1047,17 @@ namespace RX_Explorer
             return Flyout;
         }
 
+        private async void CommandBarFlyout_Opening(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
         private CommandBarFlyout CreateNewLinkFileContextMenu()
         {
             CommandBarFlyout Flyout = new CommandBarFlyout
@@ -1050,6 +1067,8 @@ namespace RX_Explorer
             };
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
 
             #region PrimaryCommand -> StandBarContainer
             AppBarButton CopyButton = new AppBarButton
@@ -1088,7 +1107,7 @@ namespace RX_Explorer
                 {
                     Child = new FontIcon
                     {
-                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        FontFamily = FontIconFamily,
                         Glyph = "\uEB52"
                     }
                 }
@@ -1120,7 +1139,7 @@ namespace RX_Explorer
                 Tag = "Transparent",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
@@ -1133,7 +1152,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush(Colors.Orange),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1146,7 +1165,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#22B324".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1159,7 +1178,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1172,7 +1191,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#42C5FF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1241,7 +1260,7 @@ namespace RX_Explorer
                 Width = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF133"
                 }
             };
@@ -1277,6 +1296,8 @@ namespace RX_Explorer
             Flyout.Opening += MixedFlyout_Opening;
             Flyout.Closed += CommandBarFlyout_Closed;
             Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
 
             #region PrimaryCommand -> StandBarContainer
             AppBarButton CopyButton = new AppBarButton
@@ -1315,7 +1336,7 @@ namespace RX_Explorer
                 {
                     Child = new FontIcon
                     {
-                        FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                        FontFamily = FontIconFamily,
                         Glyph = "\uEB52"
                     }
                 }
@@ -1347,7 +1368,7 @@ namespace RX_Explorer
                 Tag = "Transparent",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEA92"
                 }
             };
@@ -1360,7 +1381,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush(Colors.Orange),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1373,7 +1394,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#22B324".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1386,7 +1407,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#CC6EFF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1399,7 +1420,7 @@ namespace RX_Explorer
                 Foreground = new SolidColorBrush("#42C5FF".ToColor()),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB51"
                 }
             };
@@ -1468,7 +1489,7 @@ namespace RX_Explorer
                 Width = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE7B8"
                 }
             };
@@ -1485,7 +1506,7 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_Decompression"),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF133"
                 }
             };
@@ -1497,7 +1518,7 @@ namespace RX_Explorer
                 MaxWidth = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -1510,7 +1531,7 @@ namespace RX_Explorer
                 MaxWidth = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -1518,11 +1539,12 @@ namespace RX_Explorer
 
             MenuFlyoutItem MixedDecompressOption2Button = new MenuFlyoutItem
             {
+                Text = Globalization.GetString("DecompressToSeparateFolder"),
                 MinWidth = 150,
                 MaxWidth = 320,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF0B2"
                 }
             };
@@ -1553,6 +1575,8 @@ namespace RX_Explorer
             };
             Flyout.Opening += EmptyFlyout_Opening;
             Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
 
             #region PrimaryCommand -> PasteButton
             AppBarButton PasteButton = new AppBarButton
@@ -1586,7 +1610,7 @@ namespace RX_Explorer
                 IsEnabled = false,
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE762"
                 }
             };
@@ -1696,7 +1720,7 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_Grouping"),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uF168"
                 },
                 Width = 320
@@ -1801,7 +1825,7 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_OpenInTerminal"),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uE756"
                 },
                 Width = 320
@@ -1824,7 +1848,7 @@ namespace RX_Explorer
                 Label = Globalization.GetString("Operate_Text_OpenInWinExplorer"),
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEC50"
                 },
                 Width = 320
@@ -1848,7 +1872,7 @@ namespace RX_Explorer
                 Name = "ExpandToCurrentFolderButton",
                 Icon = new FontIcon
                 {
-                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    FontFamily = FontIconFamily,
                     Glyph = "\uEB91"
                 },
                 Width = 320
@@ -2768,11 +2792,6 @@ namespace RX_Explorer
             if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
             {
                 Parent.Header = CurrentFolder?.DisplayName;
-            }
-
-            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-            {
-                FolderFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
             }
         }
 
@@ -4005,7 +4024,10 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                await Exclusive.Controller.RunAsync("explorer.exe", Parameters: CurrentFolder.Path);
+            }
         }
 
         private async void ParentProperty_Click(object sender, RoutedEventArgs e)

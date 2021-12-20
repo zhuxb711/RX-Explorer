@@ -3955,8 +3955,8 @@ Las denominaciones no válidas son:
           <target state="translated">Color del tema</target>
         </trans-unit>
         <trans-unit id="Operate_Text_ExpandToCurrentFolder" translate="yes" xml:space="preserve">
-          <source>Locate this folder in directory tree</source>
-          <target state="translated">Ubique esta carpeta en el árbol de directorios</target>
+          <source>Locate this folder on the left</source>
+          <target state="translated">Ubique esta carpeta a la izquierda</target>
         </trans-unit>
         <trans-unit id="ClearTaskListPanel.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Clear all completed tasks</source>
@@ -4390,6 +4390,10 @@ Las denominaciones no válidas son:
         <trans-unit id="SettingContactAuthorLabel.Text" translate="yes" xml:space="preserve">
           <source>Contact the developer via email</source>
           <target state="translated">Póngase en contacto con el desarrollador por correo electrónico</target>
+        </trans-unit>
+        <trans-unit id="DecompressToSeparateFolder" translate="yes" xml:space="preserve">
+          <source>Unzip to respective folder</source>
+          <target state="translated">Descomprimir en la carpeta respectiva</target>
         </trans-unit>
       </group>
     </body>

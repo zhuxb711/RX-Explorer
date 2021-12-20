@@ -2981,7 +2981,7 @@ Inkorrekte Namen sind
     <value>Themenfarbe</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Suchen Sie diesen Ordner im Verzeichnisbaum</value>
+    <value>Suchen Sie diesen Ordner links</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Alle erledigten Aufgaben löschen</value>
@@ -3307,5 +3307,8 @@ Inkorrekte Namen sind
   </data>
   <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
     <value>Kontaktieren Sie den Entwickler per E-Mail</value>
+  </data>
+  <data name="DecompressToSeparateFolder" xml:space="preserve">
+    <value>In entsprechenden Ordner entpacken</value>
   </data>
 </root>

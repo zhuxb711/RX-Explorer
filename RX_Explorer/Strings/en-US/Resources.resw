@@ -3092,7 +3092,7 @@ Invalid names include
     <value>Override files</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Locate this folder in directory tree</value>
+    <value>Locate this folder on the left</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Clear all completed tasks</value>
@@ -3412,5 +3412,8 @@ Invalid names include
   </data>
   <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
     <value>Contact the developer via email</value>
+  </data>
+  <data name="DecompressToSeparateFolder" xml:space="preserve">
+    <value>Unzip to respective folder</value>
   </data>
 </root>

@@ -2981,7 +2981,7 @@ Las denominaciones no válidas son:
     <value>Color del tema</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>Ubique esta carpeta en el árbol de directorios</value>
+    <value>Ubique esta carpeta a la izquierda</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>Borrar todas las tareas completadas</value>
@@ -3307,5 +3307,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
     <value>Póngase en contacto con el desarrollador por correo electrónico</value>
+  </data>
+  <data name="DecompressToSeparateFolder" xml:space="preserve">
+    <value>Descomprimir en la carpeta respectiva</value>
   </data>
 </root>

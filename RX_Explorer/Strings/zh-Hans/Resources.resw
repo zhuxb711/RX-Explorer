@@ -2981,7 +2981,7 @@
     <value>主题颜色</value>
   </data>
   <data name="Operate_Text_ExpandToCurrentFolder" xml:space="preserve">
-    <value>在目录树中定位此文件夹</value>
+    <value>在左侧定位此文件夹</value>
   </data>
   <data name="ClearTaskListPanel.ToolTipService.ToolTip" xml:space="preserve">
     <value>清除所有已完成的任务</value>
@@ -3307,5 +3307,8 @@
   </data>
   <data name="SettingContactAuthorLabel.Text" xml:space="preserve">
     <value>通过邮件联系开发者</value>
+  </data>
+  <data name="DecompressToSeparateFolder" xml:space="preserve">
+    <value>解压至相应的文件夹</value>
   </data>
 </root>
