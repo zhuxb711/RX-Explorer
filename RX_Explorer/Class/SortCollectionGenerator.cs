@@ -9,19 +9,22 @@ namespace RX_Explorer.Class
     {
         public static event EventHandler<SortStateChangedEventArgs> SortConfigChanged;
 
-        public static void SaveSortConfigOnPath(string Path, SortTarget Target, SortDirection Direction)
+        public static void SaveSortConfigOnPath(string Path, SortTarget? Target = null, SortDirection? Direction = null)
         {
             if (Target == SortTarget.OriginPath || Target == SortTarget.Path)
             {
                 throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allowed in this method");
             }
 
-            PathConfiguration CurrentConfiguration = SQLite.Current.GetPathConfiguration(Path);
+            PathConfiguration CurrentConfig = SQLite.Current.GetPathConfiguration(Path);
 
-            if (CurrentConfiguration.SortTarget != Target || CurrentConfiguration.SortDirection != Direction)
+            SortTarget LocalTarget = Target ?? CurrentConfig.SortTarget.GetValueOrDefault();
+            SortDirection LocalDirection = Direction ?? CurrentConfig.SortDirection.GetValueOrDefault();
+
+            if (CurrentConfig.SortTarget != LocalTarget || CurrentConfig.SortDirection != LocalDirection)
             {
-                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, Target, Direction));
-                SortConfigChanged?.Invoke(null, new SortStateChangedEventArgs(Path, Target, Direction));
+                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, LocalTarget, LocalDirection));
+                SortConfigChanged?.Invoke(null, new SortStateChangedEventArgs(Path, LocalTarget, LocalDirection));
             }
         }
 

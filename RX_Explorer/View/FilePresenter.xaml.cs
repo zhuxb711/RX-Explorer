@@ -178,6 +178,7 @@ namespace RX_Explorer
         private CommandBarFlyout FolderFlyout;
         private CommandBarFlyout LinkFlyout;
         private CommandBarFlyout MixedFlyout;
+        private CommandBarFlyout EmptyFlyout;
 
         private bool GroupedEnable;
 
@@ -245,6 +246,7 @@ namespace RX_Explorer
             FolderFlyout = CreateNewFolderContextMenu();
             LinkFlyout = CreateNewLinkFileContextMenu();
             MixedFlyout = CreateNewMixedContextMenu();
+            EmptyFlyout = CreateNewEmptyContextMenu();
 
             CoreWindow Window = CoreWindow.GetForCurrentThread();
             Window.KeyDown += FilePresenter_KeyDown;
@@ -1542,6 +1544,344 @@ namespace RX_Explorer
             return Flyout;
         }
 
+        private CommandBarFlyout CreateNewEmptyContextMenu()
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Opening += EmptyFlyout_Opening;
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            #region PrimaryCommand -> PasteButton
+            AppBarButton PasteButton = new AppBarButton
+            {
+                IsEnabled = false,
+                Name = "PasteButton",
+                Icon = new SymbolIcon { Symbol = Symbol.Paste }
+            };
+            ToolTipService.SetToolTip(PasteButton, Globalization.GetString("Operate_Text_Paste"));
+            PasteButton.Click += Paste_Click;
+
+            Flyout.PrimaryCommands.Add(PasteButton);
+            #endregion
+
+            #region PrimaryCommand -> UndoButton
+            AppBarButton UndoButton = new AppBarButton
+            {
+                IsEnabled = false,
+                Name = "UndoButton",
+                Icon = new SymbolIcon { Symbol = Symbol.Undo }
+            };
+            ToolTipService.SetToolTip(UndoButton, Globalization.GetString("Operate_Text_Undo"));
+            UndoButton.Click += Undo_Click;
+
+            Flyout.PrimaryCommands.Add(UndoButton);
+            #endregion
+
+            #region PrimaryCommand -> MultiSelectionButton
+            AppBarButton MultiSelectionButton = new AppBarButton
+            {
+                IsEnabled = false,
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uE762"
+                }
+            };
+            ToolTipService.SetToolTip(MultiSelectionButton, Globalization.GetString("Operate_Text_MultiSelect"));
+            MultiSelectionButton.Click += MultiSelect_Click;
+
+            Flyout.PrimaryCommands.Add(MultiSelectionButton);
+            #endregion
+
+            #region SecondaryCommand -> CreateNewButton
+            AppBarButton CreateNewButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Create"),
+                Icon = new SymbolIcon { Symbol = Symbol.Add },
+                Width = 320
+            };
+
+            MenuFlyout CreateNewFlyout = new MenuFlyout();
+            CreateNewFlyout.Opening += CreatNewFlyout_Opening;
+            CreateNewFlyout.Closed += CreatNewFlyout_Closed;
+
+            CreateNewButton.Flyout = CreateNewFlyout;
+
+            Flyout.SecondaryCommands.Add(CreateNewButton);
+            #endregion
+
+            #region SecondaryCommand -> SortButton
+            AppBarButton SortButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Sort"),
+                Icon = new SymbolIcon { Symbol = Symbol.Sort },
+                Width = 320
+            };
+
+            RadioMenuFlyoutItem SortTypeRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                MinWidth = 160,
+                Name = "SortByNameButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton1.Click += OrderByName_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                MinWidth = 160,
+                Name = "SortByTimeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton2.Click += OrderByTime_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton3 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                MinWidth = 160,
+                Name = "SortByTypeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton3.Click += OrderByType_Click;
+
+            RadioMenuFlyoutItem SortTypeRadioButton4 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                MinWidth = 160,
+                Name = "SortBySizeButton",
+                GroupName = "SortOrder"
+            };
+            SortTypeRadioButton4.Click += OrderBySize_Click;
+
+            RadioMenuFlyoutItem SortDirectionRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                MinWidth = 160,
+                Name = "SortAscButton",
+                GroupName = "SortDirection"
+            };
+            SortDirectionRadioButton1.Click += SortAsc_Click;
+
+            RadioMenuFlyoutItem SortDirectionRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                MinWidth = 160,
+                Name = "SortDescButton",
+                GroupName = "SortDirection"
+            };
+            SortDirectionRadioButton2.Click += SortDesc_Click;
+
+            MenuFlyout SortFlyout = new MenuFlyout();
+            SortFlyout.Opening += SortMenuFlyout_Opening;
+            SortFlyout.Items.Add(SortTypeRadioButton1);
+            SortFlyout.Items.Add(SortTypeRadioButton2);
+            SortFlyout.Items.Add(SortTypeRadioButton3);
+            SortFlyout.Items.Add(SortTypeRadioButton4);
+            SortFlyout.Items.Add(new MenuFlyoutSeparator());
+            SortFlyout.Items.Add(SortDirectionRadioButton1);
+            SortFlyout.Items.Add(SortDirectionRadioButton2);
+
+            SortButton.Flyout = SortFlyout;
+
+            Flyout.SecondaryCommands.Add(SortButton);
+            #endregion
+
+            #region SecondaryCommand -> GroupButton
+            AppBarButton GroupButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Grouping"),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uF168"
+                },
+                Width = 320
+            };
+
+            RadioMenuFlyoutItem GroupTypeRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                Name = "GroupByNameButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton1.Click += GroupByName_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                Name = "GroupByTimeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton2.Click += GroupByTime_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton3 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                Name = "GroupByTypeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton3.Click += GroupByType_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton4 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                Name = "GroupBySizeButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton4.Click += GroupBySize_Click;
+
+            RadioMenuFlyoutItem GroupTypeRadioButton5 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_GroupNone"),
+                Name = "GroupByNoneButton",
+                MinWidth = 160,
+                GroupName = "GroupOrder"
+            };
+            GroupTypeRadioButton5.Click += GroupNone_Click;
+
+            RadioMenuFlyoutItem GroupDirectionRadioButton1 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                MinWidth = 160,
+                Name = "GroupAscButton",
+                GroupName = "GroupDirection"
+            };
+            GroupDirectionRadioButton1.Click += GroupAsc_Click;
+
+            RadioMenuFlyoutItem GroupDirectionRadioButton2 = new RadioMenuFlyoutItem
+            {
+                Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                MinWidth = 160,
+                Name = "GroupDescButton",
+                GroupName = "GroupDirection"
+            };
+            GroupDirectionRadioButton2.Click += GroupDesc_Click;
+
+            MenuFlyout GroupFlyout = new MenuFlyout();
+            GroupFlyout.Opening += GroupMenuFlyout_Opening;
+            GroupFlyout.Items.Add(GroupTypeRadioButton1);
+            GroupFlyout.Items.Add(GroupTypeRadioButton2);
+            GroupFlyout.Items.Add(GroupTypeRadioButton3);
+            GroupFlyout.Items.Add(GroupTypeRadioButton4);
+            GroupFlyout.Items.Add(GroupTypeRadioButton5);
+            GroupFlyout.Items.Add(new MenuFlyoutSeparator());
+            GroupFlyout.Items.Add(GroupDirectionRadioButton1);
+            GroupFlyout.Items.Add(GroupDirectionRadioButton2);
+
+            GroupButton.Flyout = GroupFlyout;
+
+            Flyout.SecondaryCommands.Add(GroupButton);
+            #endregion
+
+            #region SecondaryCommand -> RefreshButton
+            AppBarButton RefreshButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Refresh"),
+                Icon = new SymbolIcon { Symbol = Symbol.Refresh },
+                Width = 320
+            };
+            RefreshButton.Click += Refresh_Click;
+
+            Flyout.SecondaryCommands.Add(RefreshButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> OpenInTerminalButton
+            AppBarButton OpenInTerminalButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_OpenInTerminal"),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uE756"
+                },
+                Width = 320
+            };
+            OpenInTerminalButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Shift,
+                Key = VirtualKey.T,
+                IsEnabled = false
+            });
+            OpenInTerminalButton.Click += OpenInTerminal_Click;
+            ToolTipService.SetToolTip(OpenInTerminalButton, Globalization.GetString("Operate_Text_OpenInTerminal"));
+
+            Flyout.SecondaryCommands.Add(OpenInTerminalButton);
+            #endregion
+
+            #region SecondaryCommand -> UseSystemFileManagerButton
+            AppBarButton UseSystemFileManagerButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_OpenInWinExplorer"),
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEC50"
+                },
+                Width = 320
+            };
+            UseSystemFileManagerButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Shift,
+                Key = VirtualKey.E,
+                IsEnabled = false
+            });
+            UseSystemFileManagerButton.Click += UseSystemFileMananger_Click;
+            ToolTipService.SetToolTip(UseSystemFileManagerButton, Globalization.GetString("Operate_Text_OpenInWinExplorer"));
+
+            Flyout.SecondaryCommands.Add(UseSystemFileManagerButton);
+            #endregion
+
+            #region SecondaryCommand -> ExpandToCurrentFolder
+            AppBarButton ExpandToCurrentFolderButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_ExpandToCurrentFolder"),
+                Name = "ExpandToCurrentFolderButton",
+                Icon = new FontIcon
+                {
+                    FontFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily,
+                    Glyph = "\uEB91"
+                },
+                Width = 320
+            };
+            ExpandToCurrentFolderButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            {
+                Modifiers = VirtualKeyModifiers.Shift,
+                Key = VirtualKey.E,
+                IsEnabled = false
+            });
+            ExpandToCurrentFolderButton.Click += ExpandToCurrentFolder_Click;
+            ToolTipService.SetToolTip(ExpandToCurrentFolderButton, Globalization.GetString("Operate_Text_ExpandToCurrentFolder"));
+
+            Flyout.SecondaryCommands.Add(ExpandToCurrentFolderButton);
+            #endregion
+
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += ParentProperty_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
+            return Flyout;
+        }
+
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
@@ -1809,14 +2149,18 @@ namespace RX_Explorer
             });
         }
 
-        private void GroupCollectionGenerator_GroupStateChanged(object sender, GroupCollectionGenerator.GroupStateChangedEventArgs args)
+        private void GroupCollectionGenerator_GroupStateChanged(object sender, GroupStateChangedEventArgs args)
         {
             if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
+                AppBarButton GroupButton = EmptyFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "GroupButton");
+                RadioMenuFlyoutItem GroupAscButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupAscButton");
+                RadioMenuFlyoutItem GroupDescButton = (GroupButton.Flyout as MenuFlyout).Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupDescButton");
+
                 if (args.Target == GroupTarget.None)
                 {
-                    GroupAsc.IsEnabled = false;
-                    GroupDesc.IsEnabled = false;
+                    GroupAscButton.IsEnabled = false;
+                    GroupDescButton.IsEnabled = false;
 
                     IsGroupedEnable = false;
 
@@ -1824,8 +2168,8 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    GroupAsc.IsEnabled = true;
-                    GroupDesc.IsEnabled = true;
+                    GroupAscButton.IsEnabled = true;
+                    GroupDescButton.IsEnabled = true;
 
                     GroupCollection.Clear();
 
@@ -3832,40 +4176,47 @@ namespace RX_Explorer
 
         private async void EmptyFlyout_Opening(object sender, object e)
         {
-            if (SettingPage.IsDetachTreeViewAndPresenter)
+            if (sender is CommandBarFlyout EmptyFlyout)
             {
-                ExpandToCurrentFolder.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                ExpandToCurrentFolder.Visibility = Visibility.Visible;
-            }
+                AppBarButton ExpandToCurrentFolderButton = EmptyFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "ExpandToCurrentFolderButton");
+                AppBarButton PasteButton = EmptyFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "PasteButton");
+                AppBarButton UndoButton = EmptyFlyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "UndoButton");
 
-            try
-            {
-                DataPackageView Package = Clipboard.GetContent();
-
-                if (await Package.CheckIfContainsAvailableDataAsync())
+                if (SettingPage.IsDetachTreeViewAndPresenter)
                 {
-                    Paste.IsEnabled = true;
+                    ExpandToCurrentFolderButton.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    Paste.IsEnabled = false;
+                    ExpandToCurrentFolderButton.Visibility = Visibility.Visible;
                 }
-            }
-            catch
-            {
-                Paste.IsEnabled = false;
-            }
 
-            if (OperationRecorder.Current.IsNotEmpty)
-            {
-                Undo.IsEnabled = true;
-            }
-            else
-            {
-                Undo.IsEnabled = false;
+                try
+                {
+                    DataPackageView Package = Clipboard.GetContent();
+
+                    if (await Package.CheckIfContainsAvailableDataAsync())
+                    {
+                        PasteButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        PasteButton.IsEnabled = false;
+                    }
+                }
+                catch
+                {
+                    PasteButton.IsEnabled = false;
+                }
+
+                if (OperationRecorder.Current.IsNotEmpty)
+                {
+                    UndoButton.IsEnabled = true;
+                }
+                else
+                {
+                    UndoButton.IsEnabled = false;
+                }
             }
         }
 
@@ -5416,33 +5767,31 @@ namespace RX_Explorer
         private void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Name);
         }
 
         private void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.ModifiedTime);
         }
 
         private void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Type);
         }
 
         private void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, SortTarget.Size);
         }
 
         private void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Descending);
         }
 
         private void SortAsc_Click(object sender, RoutedEventArgs e)
@@ -5450,58 +5799,68 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
+            SortCollectionGenerator.SaveSortConfigOnPath(CurrentFolder.Path, Direction: SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
         {
-            PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            if (sender is MenuFlyout SortFlyout)
+            {
+                RadioMenuFlyoutItem SortAscButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortAscButton");
+                RadioMenuFlyoutItem SortDescButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortDescButton");
+                RadioMenuFlyoutItem SortByTypeButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortByTypeButton");
+                RadioMenuFlyoutItem SortByTimeButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortByTimeButton");
+                RadioMenuFlyoutItem SortBySizeButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortBySizeButton");
+                RadioMenuFlyoutItem SortByNameButton = SortFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "SortByNameButton");
 
-            if (Configuration.SortDirection == SortDirection.Ascending)
-            {
-                SortDesc.IsChecked = false;
-                SortAsc.IsChecked = true;
-            }
-            else
-            {
-                SortAsc.IsChecked = false;
-                SortDesc.IsChecked = true;
-            }
+                PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-            switch (Configuration.SortTarget)
-            {
-                case SortTarget.Name:
-                    {
-                        OrderByType.IsChecked = false;
-                        OrderByTime.IsChecked = false;
-                        OrderBySize.IsChecked = false;
-                        OrderByName.IsChecked = true;
-                        break;
-                    }
-                case SortTarget.Type:
-                    {
-                        OrderByTime.IsChecked = false;
-                        OrderBySize.IsChecked = false;
-                        OrderByName.IsChecked = false;
-                        OrderByType.IsChecked = true;
-                        break;
-                    }
-                case SortTarget.ModifiedTime:
-                    {
-                        OrderBySize.IsChecked = false;
-                        OrderByName.IsChecked = false;
-                        OrderByType.IsChecked = false;
-                        OrderByTime.IsChecked = true;
-                        break;
-                    }
-                case SortTarget.Size:
-                    {
-                        OrderByName.IsChecked = false;
-                        OrderByType.IsChecked = false;
-                        OrderByTime.IsChecked = false;
-                        OrderBySize.IsChecked = true;
-                        break;
-                    }
+                if (Configuration.SortDirection == SortDirection.Ascending)
+                {
+                    SortAscButton.IsChecked = true;
+                    SortDescButton.IsChecked = false;
+                }
+                else
+                {
+                    SortAscButton.IsChecked = false;
+                    SortDescButton.IsChecked = true;
+                }
+
+                switch (Configuration.SortTarget)
+                {
+                    case SortTarget.Name:
+                        {
+                            SortByTypeButton.IsChecked = false;
+                            SortByTimeButton.IsChecked = false;
+                            SortBySizeButton.IsChecked = false;
+                            SortByNameButton.IsChecked = true;
+                            break;
+                        }
+                    case SortTarget.Type:
+                        {
+                            SortByTimeButton.IsChecked = false;
+                            SortBySizeButton.IsChecked = false;
+                            SortByNameButton.IsChecked = false;
+                            SortByTypeButton.IsChecked = true;
+                            break;
+                        }
+                    case SortTarget.ModifiedTime:
+                        {
+                            SortBySizeButton.IsChecked = false;
+                            SortByNameButton.IsChecked = false;
+                            SortByTypeButton.IsChecked = false;
+                            SortByTimeButton.IsChecked = true;
+                            break;
+                        }
+                    case SortTarget.Size:
+                        {
+                            SortByNameButton.IsChecked = false;
+                            SortByTypeButton.IsChecked = false;
+                            SortByTimeButton.IsChecked = false;
+                            SortBySizeButton.IsChecked = true;
+                            break;
+                        }
+                }
             }
         }
 
@@ -6048,115 +6407,124 @@ namespace RX_Explorer
 
         private void GroupMenuFlyout_Opening(object sender, object e)
         {
-            PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            if (sender is MenuFlyout GroupFlyout)
+            {
+                RadioMenuFlyoutItem GroupAscButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupAscButton");
+                RadioMenuFlyoutItem GroupDescButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupDescButton");
+                RadioMenuFlyoutItem GroupByTypeButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupByTypeButton");
+                RadioMenuFlyoutItem GroupByTimeButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupByTimeButton");
+                RadioMenuFlyoutItem GroupBySizeButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupBySizeButton");
+                RadioMenuFlyoutItem GroupByNameButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupByNameButton");
+                RadioMenuFlyoutItem GroupByNoneButton = GroupFlyout.Items.OfType<RadioMenuFlyoutItem>().First((Btn) => Btn.Name == "GroupByNoneButton");
 
-            if (Configuration.GroupDirection == GroupDirection.Ascending)
-            {
-                GroupDesc.IsChecked = false;
-                GroupAsc.IsChecked = true;
-            }
-            else
-            {
-                GroupAsc.IsChecked = false;
-                GroupDesc.IsChecked = true;
-            }
+                PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
-            switch (Configuration.GroupTarget)
-            {
-                case GroupTarget.None:
-                    {
-                        GroupAsc.IsEnabled = false;
-                        GroupDesc.IsEnabled = false;
-                        GroupByType.IsChecked = false;
-                        GroupByTime.IsChecked = false;
-                        GroupBySize.IsChecked = false;
-                        GroupByName.IsChecked = false;
-                        GroupByNone.IsChecked = true;
-                        break;
-                    }
-                case GroupTarget.Name:
-                    {
-                        GroupAsc.IsEnabled = true;
-                        GroupDesc.IsEnabled = true;
-                        GroupByType.IsChecked = false;
-                        GroupByTime.IsChecked = false;
-                        GroupBySize.IsChecked = false;
-                        GroupByName.IsChecked = true;
-                        GroupByNone.IsChecked = false;
-                        break;
-                    }
-                case GroupTarget.Type:
-                    {
-                        GroupAsc.IsEnabled = true;
-                        GroupDesc.IsEnabled = true;
-                        GroupByTime.IsChecked = false;
-                        GroupBySize.IsChecked = false;
-                        GroupByName.IsChecked = false;
-                        GroupByType.IsChecked = true;
-                        GroupByNone.IsChecked = false;
-                        break;
-                    }
-                case GroupTarget.ModifiedTime:
-                    {
-                        GroupAsc.IsEnabled = true;
-                        GroupDesc.IsEnabled = true;
-                        GroupBySize.IsChecked = false;
-                        GroupByName.IsChecked = false;
-                        GroupByType.IsChecked = false;
-                        GroupByTime.IsChecked = true;
-                        GroupByNone.IsChecked = false;
-                        break;
-                    }
-                case GroupTarget.Size:
-                    {
-                        GroupAsc.IsEnabled = true;
-                        GroupDesc.IsEnabled = true;
-                        GroupByName.IsChecked = false;
-                        GroupByType.IsChecked = false;
-                        GroupByTime.IsChecked = false;
-                        GroupBySize.IsChecked = true;
-                        GroupByNone.IsChecked = false;
-                        break;
-                    }
+                if (Configuration.GroupDirection == GroupDirection.Ascending)
+                {
+                    GroupAscButton.IsChecked = true;
+                    GroupDescButton.IsChecked = false;
+                }
+                else
+                {
+                    GroupAscButton.IsChecked = false;
+                    GroupDescButton.IsChecked = true;
+                }
+
+                switch (Configuration.GroupTarget)
+                {
+                    case GroupTarget.None:
+                        {
+                            GroupAscButton.IsEnabled = false;
+                            GroupDescButton.IsEnabled = false;
+                            GroupByTypeButton.IsChecked = false;
+                            GroupByTimeButton.IsChecked = false;
+                            GroupBySizeButton.IsChecked = false;
+                            GroupByNameButton.IsChecked = false;
+                            GroupByNoneButton.IsChecked = true;
+                            break;
+                        }
+                    case GroupTarget.Name:
+                        {
+                            GroupAscButton.IsEnabled = true;
+                            GroupDescButton.IsEnabled = true;
+                            GroupByTypeButton.IsChecked = false;
+                            GroupByTimeButton.IsChecked = false;
+                            GroupBySizeButton.IsChecked = false;
+                            GroupByNameButton.IsChecked = true;
+                            GroupByNoneButton.IsChecked = false;
+                            break;
+                        }
+                    case GroupTarget.Type:
+                        {
+                            GroupAscButton.IsEnabled = true;
+                            GroupDescButton.IsEnabled = true;
+                            GroupByTimeButton.IsChecked = false;
+                            GroupBySizeButton.IsChecked = false;
+                            GroupByNameButton.IsChecked = false;
+                            GroupByTypeButton.IsChecked = true;
+                            GroupByNoneButton.IsChecked = false;
+                            break;
+                        }
+                    case GroupTarget.ModifiedTime:
+                        {
+                            GroupAscButton.IsEnabled = true;
+                            GroupDescButton.IsEnabled = true;
+                            GroupBySizeButton.IsChecked = false;
+                            GroupByNameButton.IsChecked = false;
+                            GroupByTypeButton.IsChecked = false;
+                            GroupByTimeButton.IsChecked = true;
+                            GroupByNoneButton.IsChecked = false;
+                            break;
+                        }
+                    case GroupTarget.Size:
+                        {
+                            GroupAscButton.IsEnabled = true;
+                            GroupDescButton.IsEnabled = true;
+                            GroupByNameButton.IsChecked = false;
+                            GroupByTypeButton.IsChecked = false;
+                            GroupByTimeButton.IsChecked = false;
+                            GroupBySizeButton.IsChecked = true;
+                            GroupByNoneButton.IsChecked = false;
+                            break;
+                        }
+                }
             }
         }
 
         private void GroupByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Name);
         }
 
         private void GroupByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.ModifiedTime);
         }
 
         private void GroupByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Type);
         }
 
         private void GroupBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Size);
         }
 
         private void GroupAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Direction: GroupDirection.Ascending);
         }
 
         private void GroupDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
-            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Direction: GroupDirection.Descending);
         }
 
         private void GroupNone_Click(object sender, RoutedEventArgs e)
@@ -6408,145 +6776,151 @@ namespace RX_Explorer
 
         private void CreatNewFlyout_Opening(object sender, object e)
         {
-            CreatNewFlyout.Items.Clear();
-
-            MenuFlyoutItem FolderItem = new MenuFlyoutItem
+            if (sender is MenuFlyout CreatNewFlyout)
             {
-                Name = "FolderItem",
-                Icon = new ImageIcon
-                {
-                    Source = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11)
-                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"))
-                },
-                Text = Globalization.GetString("Operate_Text_CreateFolder"),
-                MinWidth = 160
-            };
-            FolderItem.Click += CreateFolder_Click;
-            CreatNewFlyout.Items.Add(FolderItem);
+                CreatNewFlyout.Items.Clear();
 
-            MenuFlyoutItem LinkItem = new MenuFlyoutItem
-            {
-                Name = "LinkItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem FolderItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png"))
-                },
-                Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
-                MinWidth = 160
-            };
-            LinkItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(LinkItem);
+                    Name = "FolderItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11)
+                                                    ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                    : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"))
+                    },
+                    Text = Globalization.GetString("Operate_Text_CreateFolder"),
+                    MinWidth = 160
+                };
+                FolderItem.Click += CreateFolder_Click;
+                CreatNewFlyout.Items.Add(FolderItem);
 
-            CreatNewFlyout.Items.Add(new MenuFlyoutSeparator());
-
-            MenuFlyoutItem DocItem = new MenuFlyoutItem
-            {
-                Name = "DocItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem LinkItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png"))
-                },
-                Text = "Microsoft Word (.docx)",
-                MinWidth = 160
-            };
-            DocItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(DocItem);
+                    Name = "LinkItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/lnkFileIcon.png"))
+                    },
+                    Text = $"{Globalization.GetString("Link_Admin_DisplayType")} (.lnk)",
+                    MinWidth = 160
+                };
+                LinkItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(LinkItem);
 
-            MenuFlyoutItem PPTItem = new MenuFlyoutItem
-            {
-                Name = "PPTItem",
-                Icon = new ImageIcon
-                {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png"))
-                },
-                Text = "Microsoft PowerPoint (.pptx)",
-                MinWidth = 160
-            };
-            PPTItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(PPTItem);
+                CreatNewFlyout.Items.Add(new MenuFlyoutSeparator());
 
-            MenuFlyoutItem XLSItem = new MenuFlyoutItem
-            {
-                Name = "XLSItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem DocItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png"))
-                },
-                Text = "Microsoft Excel (.xlsx)",
-                MinWidth = 160
-            };
-            XLSItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(XLSItem);
+                    Name = "DocItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/WordFileIcon.png"))
+                    },
+                    Text = "Microsoft Word (.docx)",
+                    MinWidth = 160
+                };
+                DocItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(DocItem);
 
-            MenuFlyoutItem RtfItem = new MenuFlyoutItem
-            {
-                Name = "RtfItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem PPTItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png"))
-                },
-                Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
-                MinWidth = 160
-            };
-            RtfItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(RtfItem);
+                    Name = "PPTItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/PowerPointFileIcon.png"))
+                    },
+                    Text = "Microsoft PowerPoint (.pptx)",
+                    MinWidth = 160
+                };
+                PPTItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(PPTItem);
 
-            MenuFlyoutItem BmpItem = new MenuFlyoutItem
-            {
-                Name = "BmpItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem XLSItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png"))
-                },
-                Text = $"{Globalization.GetString("File_Type_Bmp_Description")} (.bmp)",
-                MinWidth = 160
-            };
-            BmpItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(BmpItem);
+                    Name = "XLSItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/ExcelFileIcon.png"))
+                    },
+                    Text = "Microsoft Excel (.xlsx)",
+                    MinWidth = 160
+                };
+                XLSItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(XLSItem);
 
-            MenuFlyoutItem TxtItem = new MenuFlyoutItem
-            {
-                Name = "TxtItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem RtfItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png"))
-                },
-                Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
-                MinWidth = 160
-            };
-            TxtItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(TxtItem);
+                    Name = "RtfItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/RtfFileIcon.png"))
+                    },
+                    Text = $"{Globalization.GetString("File_Type_RTF_Description")} (.rtf)",
+                    MinWidth = 160
+                };
+                RtfItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(RtfItem);
 
-            MenuFlyoutItem CompressItem = new MenuFlyoutItem
-            {
-                Name = "CompressItem",
-                Icon = new ImageIcon
+                MenuFlyoutItem BmpItem = new MenuFlyoutItem
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png"))
-                },
-                Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
-                MinWidth = 160
-            };
-            CompressItem.Click += CreateFile_Click;
-            CreatNewFlyout.Items.Add(CompressItem);
+                    Name = "BmpItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/BmpFileIcon.png"))
+                    },
+                    Text = $"{Globalization.GetString("File_Type_Bmp_Description")} (.bmp)",
+                    MinWidth = 160
+                };
+                BmpItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(BmpItem);
+
+                MenuFlyoutItem TxtItem = new MenuFlyoutItem
+                {
+                    Name = "TxtItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/TxtFileIcon.png"))
+                    },
+                    Text = $"{Globalization.GetString("File_Type_TXT_Description")} (.txt)",
+                    MinWidth = 160
+                };
+                TxtItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(TxtItem);
+
+                MenuFlyoutItem CompressItem = new MenuFlyoutItem
+                {
+                    Name = "CompressItem",
+                    Icon = new ImageIcon
+                    {
+                        Source = new BitmapImage(new Uri("ms-appx:///Assets/ZipFileIcon.png"))
+                    },
+                    Text = $"{Globalization.GetString("File_Type_Compress_Description")} (.zip)",
+                    MinWidth = 160
+                };
+                CompressItem.Click += CreateFile_Click;
+                CreatNewFlyout.Items.Add(CompressItem);
+            }
         }
 
         private void CreatNewFlyout_Closed(object sender, object e)
         {
-            foreach (MenuFlyoutItem Item in CreatNewFlyout.Items.OfType<MenuFlyoutItem>())
+            if (sender is MenuFlyout CreatNewFlyout)
             {
-                if (Item.Name == "FolderItem")
+                foreach (MenuFlyoutItem Item in CreatNewFlyout.Items.OfType<MenuFlyoutItem>())
                 {
-                    Item.Click -= CreateFolder_Click;
+                    if (Item.Name == "FolderItem")
+                    {
+                        Item.Click -= CreateFolder_Click;
+                    }
+                    else
+                    {
+                        Item.Click -= CreateFile_Click;
+                    }
                 }
-                else
-                {
-                    Item.Click -= CreateFile_Click;
-                }
-            }
 
-            CreatNewFlyout.Items.Clear();
+                CreatNewFlyout.Items.Clear();
+            }
         }
 
         private void FileFlyout_Opening(object sender, object e)
@@ -6671,20 +7045,40 @@ namespace RX_Explorer
                                 else
                                 {
                                     SelectedItem = null;
-                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    CurrentFolder.Path);
+
+                                Retry:
+                                    try
+                                    {
+                                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                        Position,
+                                                                                                        ContextMenuCancellation.Token,
+                                                                                                        CurrentFolder.Path);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        EmptyFlyout = CreateNewEmptyContextMenu();
+                                        goto Retry;
+                                    }
                                 }
                             }
                         }
                         else
                         {
                             SelectedItem = null;
-                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                            Position,
-                                                                                            ContextMenuCancellation.Token,
-                                                                                            CurrentFolder.Path);
+
+                        Retry:
+                            try
+                            {
+                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                Position,
+                                                                                                ContextMenuCancellation.Token,
+                                                                                                CurrentFolder.Path);
+                            }
+                            catch (Exception)
+                            {
+                                EmptyFlyout = CreateNewEmptyContextMenu();
+                                goto Retry;
+                            }
                         }
                     }
                 }

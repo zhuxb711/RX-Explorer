@@ -293,8 +293,7 @@ namespace RX_Explorer.Class
 
                             if (ReadOnlyItemList.Count > 0)
                             {
-                                foreach (IStorageItem Item in ReadOnlyItemList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(BasicFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(BasicFilters.File)))
-                                                                              .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)) ?? true))
+                                foreach (IStorageItem Item in ReadOnlyItemList)
                                 {
                                     if (Result.Count >= MaxNumLimit)
                                     {
@@ -341,7 +340,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        SubItems = Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit, Filter, AdvanceFilter);
+                        SubItems = Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit);
                     }
                     catch (LocationNotAvailableException)
                     {
@@ -356,7 +355,8 @@ namespace RX_Explorer.Class
                         SubItems = new List<FileSystemStorageItemBase>(0);
                     }
 
-                    Result.AddRange(SubItems);
+                    Result.AddRange(SubItems.Where((Item) => (Item is FileSystemStorageFolder && Filter.HasFlag(BasicFilters.Folder)) || (Item is FileSystemStorageFile && Filter.HasFlag(BasicFilters.File)))
+                                            .Where((Item) => (AdvanceFilter?.Invoke(Item.Name)).GetValueOrDefault(true)));
 
                     if (IncludeAllSubItems)
                     {

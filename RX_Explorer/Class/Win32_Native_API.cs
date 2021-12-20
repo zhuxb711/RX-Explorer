@@ -753,9 +753,7 @@ namespace RX_Explorer.Class
         public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath,
                                                                                bool IncludeHiddenItem = false,
                                                                                bool IncludeSystemItem = false,
-                                                                               uint MaxNumLimit = uint.MaxValue,
-                                                                               BasicFilters Filter = BasicFilters.File | BasicFilters.Folder,
-                                                                               Func<string, bool> AdvanceFilter = null)
+                                                                               uint MaxNumLimit = uint.MaxValue)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -774,53 +772,42 @@ namespace RX_Explorer.Class
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (AdvanceFilter != null && !AdvanceFilter(Data.cFileName))
-                            {
-                                continue;
-                            }
-
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
                             if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-                                    if (Filter.HasFlag(BasicFilters.Folder))
-                                    {
-                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            Result.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    {
+                                        Result.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
                                     }
                                 }
                                 else
                                 {
-                                    if (Filter.HasFlag(BasicFilters.File))
-                                    {
-                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            Result.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
-                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            Result.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
-                                        else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            Result.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
-                                        }
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    {
+                                        Result.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                    }
+                                    else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Result.Add(new UrlStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                    }
+                                    else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Result.Add(new LinkStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
                                     }
                                 }
                             }

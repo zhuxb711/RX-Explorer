@@ -9,14 +9,17 @@ namespace RX_Explorer.Class
     {
         public static event EventHandler<GroupStateChangedEventArgs> GroupStateChanged;
 
-        public static void SavePathGroupState(string Path, GroupTarget Target, GroupDirection Direction)
+        public static void SavePathGroupState(string Path, GroupTarget? Target = null, GroupDirection? Direction = null)
         {
-            PathConfiguration CurrentConfiguration = SQLite.Current.GetPathConfiguration(Path);
+            PathConfiguration CurrentConfig = SQLite.Current.GetPathConfiguration(Path);
 
-            if (CurrentConfiguration.GroupTarget != Target || CurrentConfiguration.GroupDirection != Direction)
+            GroupTarget LocalTarget = Target ?? CurrentConfig.GroupTarget.GetValueOrDefault();
+            GroupDirection LocalDirection = Direction ?? CurrentConfig.GroupDirection.GetValueOrDefault();
+
+            if (CurrentConfig.GroupTarget != LocalTarget || CurrentConfig.GroupDirection != LocalDirection)
             {
-                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, Target, Direction));
-                GroupStateChanged?.Invoke(null, new GroupStateChangedEventArgs(Path, Target, Direction));
+                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, LocalTarget, LocalDirection));
+                GroupStateChanged?.Invoke(null, new GroupStateChangedEventArgs(Path, LocalTarget, LocalDirection));
             }
         }
 
@@ -233,22 +236,6 @@ namespace RX_Explorer.Class
             }
 
             return Result;
-        }
-
-        public sealed class GroupStateChangedEventArgs
-        {
-            public GroupTarget Target { get; }
-
-            public GroupDirection Direction { get; }
-
-            public string Path { get; }
-
-            public GroupStateChangedEventArgs(string Path, GroupTarget Target, GroupDirection Direction)
-            {
-                this.Path = Path;
-                this.Target = Target;
-                this.Direction = Direction;
-            }
         }
     }
 }
