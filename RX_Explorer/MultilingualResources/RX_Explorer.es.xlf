@@ -4160,8 +4160,8 @@ Las denominaciones no válidas son:
           <target state="translated">Tratando de cancelar</target>
         </trans-unit>
         <trans-unit id="Properties_General_SizeOnDisk.Text" translate="yes" xml:space="preserve">
-          <source>Size on disk</source>
-          <target state="translated">Tamaño en disco</target>
+          <source>Size on disk:</source>
+          <target state="translated">Tamaño en disco:</target>
         </trans-unit>
         <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
           <source>Turn off the list selection animation</source>
@@ -4394,6 +4394,22 @@ Las denominaciones no válidas son:
         <trans-unit id="DecompressToSeparateFolder" translate="yes" xml:space="preserve">
           <source>Unzip to respective folder</source>
           <target state="translated">Descomprimir en la carpeta respectiva</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Location_Text" translate="yes" xml:space="preserve">
+          <source>All in:</source>
+          <target state="translated">Todo dentro:</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_TypeDescription_Text" translate="yes" xml:space="preserve">
+          <source>Multiple Types</source>
+          <target state="translated">Varios tipos</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Type_Text" translate="yes" xml:space="preserve">
+          <source>All of type: </source>
+          <target state="translated">Todo tipo: </target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
+          <source>Description:</source>
+          <target state="translated">Descripción:</target>
         </trans-unit>
       </group>
     </body>

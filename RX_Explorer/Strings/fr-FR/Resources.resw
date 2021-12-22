@@ -3135,7 +3135,7 @@ Les noms non valides incluent
     <value>Essayer d'annuler</value>
   </data>
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
-    <value>Taille sur le disque</value>
+    <value>Taille sur le disque:</value>
   </data>
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>Désactiver l'animation de sélection de liste</value>
@@ -3310,5 +3310,17 @@ Les noms non valides incluent
   </data>
   <data name="DecompressToSeparateFolder" xml:space="preserve">
     <value>Décompressez dans le dossier respectif</value>
+  </data>
+  <data name="MultiProperty_Location_Text" xml:space="preserve">
+    <value>Tout en:</value>
+  </data>
+  <data name="MultiProperty_TypeDescription_Text" xml:space="preserve">
+    <value>Plusieurs types</value>
+  </data>
+  <data name="MultiProperty_Type_Text" xml:space="preserve">
+    <value>Tous de type:</value>
+  </data>
+  <data name="Properties_General_Description" xml:space="preserve">
+    <value>La description:</value>
   </data>
 </root>

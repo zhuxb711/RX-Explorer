@@ -737,55 +737,72 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case CommandType.GetFileHandle:
+                    case CommandType.GetNativeHandle:
                         {
                             if ((ExplorerProcess?.Handle.CheckIfValidPtr()).GetValueOrDefault())
                             {
                                 string ExecutePath = CommandValue["ExecutePath"];
-                                AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
-                                OptimizeOption Option = (OptimizeOption)Enum.Parse(typeof(OptimizeOption), CommandValue["OptimizeOption"]);
 
-                                Kernel32.FileAccess Access = Mode switch
+                                if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                                 {
-                                    AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
-                                    AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
-                                    AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
-                                    _ => throw new NotSupportedException()
-                                };
+                                    AccessMode Mode = (AccessMode)Enum.Parse(typeof(AccessMode), CommandValue["AccessMode"]);
+                                    OptimizeOption Option = (OptimizeOption)Enum.Parse(typeof(OptimizeOption), CommandValue["OptimizeOption"]);
 
-                                FileShare Share = Mode switch
-                                {
-                                    AccessMode.Read => FileShare.ReadWrite,
-                                    AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
-                                    AccessMode.Exclusive => FileShare.None,
-                                    _ => throw new NotSupportedException()
-                                };
-
-                                FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | Option switch
-                                {
-                                    OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
-                                    OptimizeOption.Optimize_Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
-                                    OptimizeOption.Optimize_RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
-                                    _ => throw new NotSupportedException()
-                                };
-
-                                using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, Flags))
-                                {
-                                    if (Handle.IsInvalid)
+                                    Kernel32.FileAccess Access = Mode switch
                                     {
-                                        Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                        AccessMode.Read => Kernel32.FileAccess.FILE_GENERIC_READ,
+                                        AccessMode.ReadWrite or AccessMode.Exclusive => Kernel32.FileAccess.FILE_GENERIC_READ | Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        AccessMode.Write => Kernel32.FileAccess.FILE_GENERIC_WRITE,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileShare Share = Mode switch
+                                    {
+                                        AccessMode.Read => FileShare.ReadWrite,
+                                        AccessMode.ReadWrite or AccessMode.Write => FileShare.Read,
+                                        AccessMode.Exclusive => FileShare.None,
+                                        _ => throw new NotSupportedException()
+                                    };
+
+                                    FileFlagsAndAttributes Flags = FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL;
+
+                                    if (Directory.Exists(ExecutePath))
+                                    {
+                                        Flags = FileFlagsAndAttributes.FILE_FLAG_BACKUP_SEMANTICS;
                                     }
                                     else
                                     {
-                                        if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                        Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | Option switch
                                         {
-                                            Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                            OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
+                                            OptimizeOption.Optimize_Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                            OptimizeOption.Optimize_RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                            _ => throw new NotSupportedException()
+                                        };
+                                    }
+
+                                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(ExecutePath, Access, Share, null, FileMode.Open, Flags))
+                                    {
+                                        if (Handle.IsInvalid)
+                                        {
+                                            Value.Add("Error", $"Could not access to the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
                                         }
                                         else
                                         {
-                                            Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                            if (Kernel32.DuplicateHandle(Kernel32.GetCurrentProcess(), Handle.DangerousGetHandle(), ExplorerProcess.Handle, out IntPtr TargetHandle, default, default, Kernel32.DUPLICATE_HANDLE_OPTIONS.DUPLICATE_SAME_ACCESS))
+                                            {
+                                                Value.Add("Success", Convert.ToString(TargetHandle.ToInt64()));
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error", $"Could not duplicate the handle, reason: {new Win32Exception(Marshal.GetLastWin32Error()).Message}");
+                                            }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    Value.Add("Error", "Path is not found");
                                 }
                             }
                             else

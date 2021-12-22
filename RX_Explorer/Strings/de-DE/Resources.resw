@@ -3135,7 +3135,7 @@ Inkorrekte Namen sind
     <value>Versuch abzubrechen</value>
   </data>
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
-    <value>Größe auf Datenträger</value>
+    <value>Größe auf Datenträger:</value>
   </data>
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>Deaktivieren Sie die Listenauswahlanimation</value>
@@ -3310,5 +3310,17 @@ Inkorrekte Namen sind
   </data>
   <data name="DecompressToSeparateFolder" xml:space="preserve">
     <value>In entsprechenden Ordner entpacken</value>
+  </data>
+  <data name="MultiProperty_Location_Text" xml:space="preserve">
+    <value>Alles drin:</value>
+  </data>
+  <data name="MultiProperty_TypeDescription_Text" xml:space="preserve">
+    <value>Mehrere Typen</value>
+  </data>
+  <data name="MultiProperty_Type_Text" xml:space="preserve">
+    <value>Alle Typen: </value>
+  </data>
+  <data name="Properties_General_Description" xml:space="preserve">
+    <value>Beschreibung:</value>
   </data>
 </root>

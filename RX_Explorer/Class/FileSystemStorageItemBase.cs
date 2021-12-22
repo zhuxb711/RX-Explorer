@@ -225,7 +225,7 @@ namespace RX_Explorer.Class
                     {
                         foreach ((string Path, Exception ex) in RetryBag)
                         {
-                            using (SafeFileHandle Handle = Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
+                            using (SafeFileHandle Handle = Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None).Result)
                             {
                                 if (Handle.IsInvalid)
                                 {
@@ -259,68 +259,72 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            try
+            if (!string.IsNullOrEmpty(Path))
             {
                 try
                 {
-                    return Win32_Native_API.GetStorageItem(Path);
-                }
-                catch (LocationNotAvailableException)
-                {
                     try
                     {
-                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                        if (string.IsNullOrEmpty(DirectoryPath))
-                        {
-                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                            return new FileSystemStorageFolder(Folder);
-                        }
-                        else
-                        {
-                            StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
-
-                            switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
-                            {
-                                case StorageFolder Folder:
-                                    {
-                                        return new FileSystemStorageFolder(Folder);
-                                    }
-                                case StorageFile File:
-                                    {
-                                        return new FileSystemStorageFile(File);
-                                    }
-                                default:
-                                    {
-                                        LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
-                                        return null;
-                                    }
-                            }
-                        }
+                        return Win32_Native_API.GetStorageItem(Path);
                     }
-                    catch (Exception ex) when (ex is not FileNotFoundException or DirectoryNotFoundException)
+                    catch (LocationNotAvailableException)
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                        using (SafeFileHandle Handle = await Exclusive.Controller.GetFileHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
+                        try
                         {
-                            if (Handle.IsInvalid)
+                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                            if (string.IsNullOrEmpty(DirectoryPath))
                             {
-                                throw;
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                                return new FileSystemStorageFolder(Folder);
                             }
                             else
                             {
-                                LogTracer.Log($"Try get storageitem from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
-                                return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                                switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                                {
+                                    case StorageFolder Folder:
+                                        {
+                                            return new FileSystemStorageFolder(Folder);
+                                        }
+                                    case StorageFile File:
+                                        {
+                                            return new FileSystemStorageFile(File);
+                                        }
+                                    default:
+                                        {
+                                            LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
+                                            return null;
+                                        }
+                                }
+                            }
+                        }
+                        catch (Exception ex) when (ex is not FileNotFoundException or DirectoryNotFoundException)
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            using (SafeFileHandle Handle = await Exclusive.Controller.GetNativeHandleAsync(Path, AccessMode.ReadWrite, OptimizeOption.None))
+                            {
+                                if (Handle.IsInvalid)
+                                {
+                                    throw;
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Try get storageitem from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
+                                    return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(OpenAsync)} failed and could not get the storage item, path:\"{Path}\"");
+                }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(OpenAsync)} failed and could not get the storage item, path:\"{Path}\"");
-                return null;
-            }
+
+            return null;
         }
 
         public static async Task<FileSystemStorageItemBase> CreateNewAsync(string Path, StorageItemTypes ItemTypes, CreateOption Option)
@@ -653,13 +657,13 @@ namespace RX_Explorer.Class
                 {
                     if (ControllerRef != null)
                     {
-                        return await ControllerRef.Value.Controller.GetFileHandleAsync(Path, Mode, Option);
+                        return await ControllerRef.Value.Controller.GetNativeHandleAsync(Path, Mode, Option);
                     }
                     else
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            return await Exclusive.Controller.GetFileHandleAsync(Path, Mode, Option);
+                            return await Exclusive.Controller.GetNativeHandleAsync(Path, Mode, Option);
                         }
                     }
                 }

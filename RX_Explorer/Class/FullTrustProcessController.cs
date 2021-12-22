@@ -591,9 +591,9 @@ namespace RX_Explorer.Class
             return new Dictionary<string, string>(0);
         }
 
-        public async Task<SafeFileHandle> GetFileHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
+        public async Task<SafeFileHandle> GetNativeHandleAsync(string Path, AccessMode Access, OptimizeOption Option)
         {
-            if (await SendCommandAsync(CommandType.GetFileHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetNativeHandle, ("ExecutePath", Path), ("AccessMode", Enum.GetName(typeof(AccessMode), Access)), ("OptimizeOption", Enum.GetName(typeof(OptimizeOption), Option))) is IDictionary<string, string> Response)
             {
                 if (Response.TryGetValue("Success", out string HandleString))
                 {
@@ -603,7 +603,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetNativeHandleAsync)}, message: {ErrorMessage}");
                     }
                 }
             }
@@ -623,7 +623,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(GetFileHandleAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetNativeHandleAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

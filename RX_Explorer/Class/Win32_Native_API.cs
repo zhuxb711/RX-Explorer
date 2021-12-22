@@ -69,11 +69,18 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool GetFileSizeEx(IntPtr hFile, out long lpFileSize);
 
-        [DllImport("api-ms-win-core-file-l2-1-0.dlll", SetLastError = true, CharSet = CharSet.Unicode)]
+        [DllImport("api-ms-win-core-file-l2-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool GetFileInformationByHandleEx(IntPtr hFile,
                                                                 FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
                                                                 IntPtr lpFileInformation,
                                                                 uint dwBufferSize);
+
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetDiskFreeSpace(string lpRootPathName,
+                                                    out uint lpSectorsPerCluster,
+                                                    out uint lpBytesPerSector,
+                                                    out uint lpNumberOfFreeClusters,
+                                                    out uint lpTotalNumberOfClusters);
 
         [Flags]
         private enum ACCESS_MASK : uint
@@ -235,13 +242,24 @@ namespace RX_Explorer.Class
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct FILE_STANDARD_INFO
+        private struct FILE_STANDARD_INFO
         {
             public long AllocationSize;
             public long EndOfFile;
             public uint NumberOfLinks;
             [MarshalAs(UnmanagedType.U1)] public bool DeletePending;
             [MarshalAs(UnmanagedType.U1)] public bool Directory;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct FILE_COMPRESSION_INFO
+        {
+            public long CompressedFileSize;
+            public ushort CompressionFormat;
+            public byte CompressionUnitShift;
+            public byte ChunkShift;
+            public byte ClusterShift;
+            public byte Reserved;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -972,36 +990,88 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong GetFileSpaceSize(IntPtr FileHandle)
+        public static ulong GetSizeOnDisk(string Path, IntPtr Handle)
         {
-            if (FileHandle.CheckIfValidPtr())
+            static ulong GetAllocationSize(IntPtr Handle)
             {
-                int StructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
+                int CompressionInfoStructSize = Marshal.SizeOf<FILE_COMPRESSION_INFO>();
 
-                IntPtr StructPtr = Marshal.AllocCoTaskMem(StructSize);
+                IntPtr CompressionInfoStructPtr = Marshal.AllocCoTaskMem(CompressionInfoStructSize);
 
                 try
                 {
-                    if (GetFileInformationByHandleEx(FileHandle, FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo, StructPtr, Convert.ToUInt32(StructSize)))
+                    if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileCompressionInfo, CompressionInfoStructPtr, Convert.ToUInt32(CompressionInfoStructSize)))
                     {
-                        FILE_STANDARD_INFO Info = Marshal.PtrToStructure<FILE_STANDARD_INFO>(StructPtr);
-                        return Info.AllocationSize > 0 ? Convert.ToUInt64(Info.AllocationSize) : 0;
+                        FILE_COMPRESSION_INFO CompressionInfo = Marshal.PtrToStructure<FILE_COMPRESSION_INFO>(CompressionInfoStructPtr);
+
+                        if (CompressionInfo.CompressedFileSize > 0)
+                        {
+                            return Convert.ToUInt64(CompressionInfo.CompressedFileSize);
+                        }
+                        else
+                        {
+                            int StandardStructSize = Marshal.SizeOf<FILE_STANDARD_INFO>();
+
+                            IntPtr StandardInfoStructPtr = Marshal.AllocCoTaskMem(StandardStructSize);
+
+                            try
+                            {
+                                if (GetFileInformationByHandleEx(Handle, FILE_INFO_BY_HANDLE_CLASS.FileStandardInfo, StandardInfoStructPtr, Convert.ToUInt32(StandardStructSize)))
+                                {
+                                    FILE_STANDARD_INFO StandardInfo = Marshal.PtrToStructure<FILE_STANDARD_INFO>(StandardInfoStructPtr);
+                                    return Convert.ToUInt64(Math.Max(StandardInfo.AllocationSize, 0));
+                                }
+                            }
+                            finally
+                            {
+                                Marshal.FreeCoTaskMem(StandardInfoStructPtr);
+                            }
+                        }
                     }
                     else
                     {
-                        LogTracer.Log($"Could not get file space from native api");
-                        return 0;
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not size from GetFileInformationByHandleEx so we could not calculate the size on disk");
                     }
                 }
                 finally
                 {
-                    Marshal.FreeCoTaskMem(StructPtr);
+                    Marshal.FreeCoTaskMem(CompressionInfoStructPtr);
                 }
-            }
-            else
-            {
+
                 return 0;
             }
+
+            if (Handle.CheckIfValidPtr())
+            {
+                string PathRoot = System.IO.Path.GetPathRoot(Path);
+
+                if (!string.IsNullOrEmpty(PathRoot))
+                {
+                    if (GetDiskFreeSpace(PathRoot.TrimEnd('\\'), out uint SectorsPerCluster, out uint BytesPerSector, out _, out _))
+                    {
+                        ulong ClusterSize = Convert.ToUInt64(SectorsPerCluster) * Convert.ToUInt64(BytesPerSector);
+                        ulong CompressedSize = GetAllocationSize(Handle);
+
+                        if (ClusterSize > 0)
+                        {
+                            if (CompressedSize % ClusterSize > 0)
+                            {
+                                return CompressedSize + ClusterSize - CompressedSize % ClusterSize;
+                            }
+                            else
+                            {
+                                return CompressedSize;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not get disk freespace so we could not calculate the size on disk");
+                    }
+                }
+            }
+
+            return 0;
         }
 
         public static FileSystemStorageItemBase GetStorageItemFromHandle(string Path, IntPtr FileHandle)

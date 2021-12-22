@@ -4162,8 +4162,8 @@ Invalid names include
           <target state="translated">正在尝试取消</target>
         </trans-unit>
         <trans-unit id="Properties_General_SizeOnDisk.Text" translate="yes" xml:space="preserve">
-          <source>Size on disk</source>
-          <target state="translated">占用空间</target>
+          <source>Size on disk:</source>
+          <target state="translated">占用空间:</target>
         </trans-unit>
         <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
           <source>Turn off the list selection animation</source>
@@ -4396,6 +4396,22 @@ Invalid names include
         <trans-unit id="DecompressToSeparateFolder" translate="yes" xml:space="preserve">
           <source>Unzip to respective folder</source>
           <target state="translated">解压至相应的文件夹</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Location_Text" translate="yes" xml:space="preserve">
+          <source>All in:</source>
+          <target state="translated">全部位于:</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_TypeDescription_Text" translate="yes" xml:space="preserve">
+          <source>Multiple Types</source>
+          <target state="translated">多种类型</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Type_Text" translate="yes" xml:space="preserve">
+          <source>All of type: </source>
+          <target state="translated">全部为类型: </target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
+          <source>Description:</source>
+          <target state="translated">文件描述:</target>
         </trans-unit>
       </group>
     </body>

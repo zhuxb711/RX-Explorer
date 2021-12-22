@@ -212,7 +212,7 @@ namespace RX_Explorer.Class
                                                                                          {
                                                                                              return SearchInUwpApiAsync(Path, false).Result;
                                                                                          }
-                                                                                         else if(PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
+                                                                                         else if (PreviousTask.Exception.InnerExceptions.Any((Ex) => Ex is DirectoryNotFoundException))
                                                                                          {
                                                                                              LogTracer.Log(PreviousTask.Exception.InnerExceptions.FirstOrDefault() ?? new Exception(), $"Path not found");
                                                                                          }
@@ -340,7 +340,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        SubItems = Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit);
+                        SubItems = await Task.Run(() => Win32_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItems, MaxNumLimit));
                     }
                     catch (LocationNotAvailableException)
                     {

@@ -3135,7 +3135,7 @@
     <value>正在尝试取消</value>
   </data>
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
-    <value>占用空间</value>
+    <value>占用空间:</value>
   </data>
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>关闭列表选择动画</value>
@@ -3310,5 +3310,17 @@
   </data>
   <data name="DecompressToSeparateFolder" xml:space="preserve">
     <value>解压至相应的文件夹</value>
+  </data>
+  <data name="MultiProperty_Location_Text" xml:space="preserve">
+    <value>全部位于:</value>
+  </data>
+  <data name="MultiProperty_TypeDescription_Text" xml:space="preserve">
+    <value>多种类型</value>
+  </data>
+  <data name="MultiProperty_Type_Text" xml:space="preserve">
+    <value>全部为类型: </value>
+  </data>
+  <data name="Properties_General_Description" xml:space="preserve">
+    <value>文件描述:</value>
   </data>
 </root>

@@ -4160,8 +4160,8 @@ Inkorrekte Namen sind
           <target state="translated">Versuch abzubrechen</target>
         </trans-unit>
         <trans-unit id="Properties_General_SizeOnDisk.Text" translate="yes" xml:space="preserve">
-          <source>Size on disk</source>
-          <target state="translated">Größe auf Datenträger</target>
+          <source>Size on disk:</source>
+          <target state="translated">Größe auf Datenträger:</target>
         </trans-unit>
         <trans-unit id="SettingPagDisableSelectionAnimation.Content" translate="yes" xml:space="preserve">
           <source>Turn off the list selection animation</source>
@@ -4394,6 +4394,22 @@ Inkorrekte Namen sind
         <trans-unit id="DecompressToSeparateFolder" translate="yes" xml:space="preserve">
           <source>Unzip to respective folder</source>
           <target state="translated">In entsprechenden Ordner entpacken</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Location_Text" translate="yes" xml:space="preserve">
+          <source>All in:</source>
+          <target state="translated">Alles drin:</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_TypeDescription_Text" translate="yes" xml:space="preserve">
+          <source>Multiple Types</source>
+          <target state="translated">Mehrere Typen</target>
+        </trans-unit>
+        <trans-unit id="MultiProperty_Type_Text" translate="yes" xml:space="preserve">
+          <source>All of type: </source>
+          <target state="translated">Alle Typen: </target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
+          <source>Description:</source>
+          <target state="translated">Beschreibung:</target>
         </trans-unit>
       </group>
     </body>

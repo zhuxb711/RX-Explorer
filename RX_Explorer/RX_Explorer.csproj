@@ -390,7 +390,7 @@
     <Compile Include="Class\WindowsVersionChecker.cs" />
     <Compile Include="Class\WiFiShareProvider.cs" />
     <Compile Include="Class\WindowsHelloAuthenticator.cs" />
-    <Compile Include="SeparateWindow\PropertyWindow\PropertiesWindowBase.xaml.cs">
+    <Compile Include="SeparateWindow\PropertiesWindowBase.xaml.cs">
       <DependentUpon>PropertiesWindowBase.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -429,6 +429,8 @@
     <Content Include="Assets\KeyboardShortcut_es.txt" />
     <Content Include="Assets\KeyboardShortcut_fr.txt" />
     <Content Include="Assets\lnkFileIcon.png" />
+    <Content Include="Assets\MultiItems_Black.png" />
+    <Content Include="Assets\MultiItems_White.png" />
     <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon_Win10.png" />
     <Content Include="Assets\IntroFile-Chinese_S.txt" />
@@ -751,7 +753,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SeparateWindow\PropertyWindow\PropertiesWindowBase.xaml">
+    <Page Include="SeparateWindow\PropertiesWindowBase.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

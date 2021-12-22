@@ -1563,6 +1563,20 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(MixedDecompressionButton);
             #endregion
 
+            Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+            #region SecondaryCommand -> PropertyButton
+            AppBarButton PropertyButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                Width = 320,
+                Label = Globalization.GetString("Operate_Text_Property")
+            };
+            PropertyButton.Click += MixedProperty_Click;
+
+            Flyout.SecondaryCommands.Add(PropertyButton);
+            #endregion
+
             return Flyout;
         }
 
@@ -1718,6 +1732,7 @@ namespace RX_Explorer
             AppBarButton GroupButton = new AppBarButton
             {
                 Label = Globalization.GetString("Operate_Text_Grouping"),
+                Name = "GroupButton",
                 Icon = new FontIcon
                 {
                     FontFamily = FontIconFamily,
@@ -1904,6 +1919,24 @@ namespace RX_Explorer
             #endregion
 
             return Flyout;
+        }
+
+        private async void MixedProperty_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            FileSystemStorageItemBase[] SelectedItems = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray();
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            {
+                if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
+                {
+                    return;
+                }
+            }
+
+            PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SelectedItems);
+            await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
         }
 
         private async void DirectoryWatcher_FileChanged(object sender, FileChangedDeferredEventArgs args)
@@ -2787,7 +2820,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void FilePresenter_Loaded(object sender, RoutedEventArgs e)
+        private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
             if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
             {

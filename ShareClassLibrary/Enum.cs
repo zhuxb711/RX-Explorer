@@ -91,7 +91,7 @@
         GetThumbnailOverlay,
         SetAsTopMostWindow,
         RemoveTopMostWindow,
-        GetFileHandle,
+        GetNativeHandle,
         GetTooltipText,
         GetVariablePathSuggestion,
         GetDirectoryMonitorHandle,

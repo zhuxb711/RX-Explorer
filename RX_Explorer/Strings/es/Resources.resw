@@ -3135,7 +3135,7 @@ Las denominaciones no válidas son:
     <value>Tratando de cancelar</value>
   </data>
   <data name="Properties_General_SizeOnDisk.Text" xml:space="preserve">
-    <value>Tamaño en disco</value>
+    <value>Tamaño en disco:</value>
   </data>
   <data name="SettingPagDisableSelectionAnimation.Content" xml:space="preserve">
     <value>Desactivar la animación de selección de lista</value>
@@ -3310,5 +3310,17 @@ Las denominaciones no válidas son:
   </data>
   <data name="DecompressToSeparateFolder" xml:space="preserve">
     <value>Descomprimir en la carpeta respectiva</value>
+  </data>
+  <data name="MultiProperty_Location_Text" xml:space="preserve">
+    <value>Todo dentro:</value>
+  </data>
+  <data name="MultiProperty_TypeDescription_Text" xml:space="preserve">
+    <value>Varios tipos</value>
+  </data>
+  <data name="MultiProperty_Type_Text" xml:space="preserve">
+    <value>Todo tipo: </value>
+  </data>
+  <data name="Properties_General_Description" xml:space="preserve">
+    <value>Descripción:</value>
   </data>
 </root>

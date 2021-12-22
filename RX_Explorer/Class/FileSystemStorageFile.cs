@@ -90,6 +90,19 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<ulong> GetSizeOnDiskAsync()
+        {
+            using (SafeFileHandle Handle = await GetNativeHandleAsync(AccessMode.Read, OptimizeOption.None))
+            {
+                if (!Handle.IsInvalid)
+                {
+                    return Win32_Native_API.GetSizeOnDisk(Path, Handle.DangerousGetHandle());
+                }
+            }
+
+            return 0;
+        }
+
         public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
         {
             if (StorageItem is StorageFile File)
