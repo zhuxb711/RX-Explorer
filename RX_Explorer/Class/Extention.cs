@@ -463,7 +463,7 @@ namespace RX_Explorer.Class
             void CleanUpContextMenuOpenWithFlyoutItems()
             {
                 if (Flyout.SecondaryCommands.OfType<AppBarButton>()
-                                            .FirstOrDefault((Item) => Item.Name == "OtherOpenMethod")?.Flyout is MenuFlyout OpenFlyout)
+                                            .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenFlyout)
                 {
                     foreach (MenuFlyoutItemBase FlyoutItem in OpenFlyout.Items.SkipLast(2).ToArray())
                     {
@@ -574,7 +574,7 @@ namespace RX_Explorer.Class
 
                         if (PathArray.Length == 1
                             && Flyout.SecondaryCommands.OfType<AppBarButton>()
-                                                       .FirstOrDefault((Item) => Item.Name == "OtherOpenMethod")?.Flyout is MenuFlyout OpenWithFlyout)
+                                                       .FirstOrDefault((Item) => Item.Name == "OpenWithButton")?.Flyout is MenuFlyout OpenWithFlyout)
                         {
                             Type GetInnerViewerType(string Path)
                             {
