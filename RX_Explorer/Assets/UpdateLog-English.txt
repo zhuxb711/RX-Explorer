@@ -1,21 +1,19 @@
-﻿###What's new in Ver.7.3.6.0
+﻿###What's new in Ver.7.3.8.0
 
-#####UI updated
+#####Feature update
 
->#####Now provides more options for text encoding
-
->#####Improved the detection mechanism of text encoding
-
->#####Adjust the minimum step length of the Acrylic effect slider to 5%
+>#####Support viewing properties when multiple files are selected
 
 #####Bug fixed
 
->#####Fixed the problem that the built-in viewer cannot "Decompress All" in the root directory of the compressed file
+>#####Fixed the problem that may cause the context menu to fail to pop up
 
->#####Fixed the problem that may cause the font settings in the app to drift after the system font library is updated
+>#####Fixed an issue that may cause a stuck when viewing the properties of a large folder
 
->#####Fixed the problem that may cause the auxiliary process to start delayed and cause it to lose response
+>#####Fixed the problem that the "Size on disk" in the properties may be incorrect
 
->#####Fixed the problem that some menu items may cause the auxiliary process to crash
+>#####Fixed the problem that after setting this application as the default manager, clicking "Open with system explorer" in the context menu will still open this application
 
->#####Fixed some other problems
+>#####Fixed the problem that the objects in the folder cannot be enumerated correctly, which may cause the incorrect calculation of the number of subfolders and subfiles in the property window
+
+>#####Fixed some problems caused by SDK

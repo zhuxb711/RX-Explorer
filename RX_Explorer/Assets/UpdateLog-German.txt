@@ -1,21 +1,19 @@
-﻿###Was ist neu in Ver.7.3.6.0
+﻿###Was ist neu in Ver.7.3.8.0
 
-#####Benutzeroberfläche aktualisiert
+#####Funktionsupdate
 
->#####Bietet jetzt mehr Optionen für die Textkodierung
-
->#####Erkennungsmechanismus der Textkodierung verbessert
-
->#####Stellen Sie die minimale Schrittlänge des Acryleffekt-Schiebereglers auf 5% ein
+>#####Anzeigeeigenschaften unterstützen, wenn mehrere Dateien ausgewählt sind
 
 #####Fehler behoben
 
->#####Problem behoben, dass der eingebaute Viewer im Stammverzeichnis der komprimierten Datei nicht "Alles dekomprimieren" kann
+>#####Das Problem wurde behoben, das dazu führen kann, dass das Kontextmenü nicht angezeigt wird
 
->#####Das Problem wurde behoben, das dazu führen kann, dass die Schriftarteinstellungen in der App nach dem Aktualisieren der Systemschriftbibliothek verschoben werden
+>#####Es wurde ein Problem behoben, das beim Anzeigen der Eigenschaften eines großen Ordners zu einem Hängenbleiben führen kann
 
->#####Das Problem wurde behoben, das dazu führen kann, dass der Hilfsprozess verzögert startet und die Reaktion verliert
+>#####Problem behoben, dass das "" in den Eigenschaften möglicherweise falsch ist
 
->#####Das Problem, dass einige Menüpunkte zum Absturz des Hilfsprozesses führen können, wurde behoben
+>#####Das Problem wurde behoben, dass nach dem Festlegen dieser Anwendung als Standardmanager das Klicken auf "Mit System-Explorer öffnen" im Kontextmenü diese Anwendung immer noch öffnet
 
->#####Andere Probleme behoben
+>#####Problem behoben, dass die Objekte im Ordner nicht korrekt aufgezählt werden können, was zu einer falschen Berechnung der Anzahl der Unterordner und Unterdateien im Eigenschaftsfenster führen kann
+
+>#####Einige Probleme durch SDK behoben

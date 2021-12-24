@@ -1,21 +1,19 @@
-﻿###Quoi de neuf dans la version 7.3.6.0
+﻿###Quoi de neuf dans la version 7.3.8.0
 
-#####UI mis à jour
+#####Mise à jour des fonctionnalités
 
->#####Fournit maintenant plus d'options pour l'encodage de texte
-
->#####Amélioration du mécanisme de détection de l'encodage de texte
-
->#####Ajustez la longueur de pas minimale du curseur d'effet acrylique à 5%
+>#####Prise en charge de l'affichage des propriétés lorsque plusieurs fichiers sont sélectionnés
 
 #####Bug réparé
 
->#####Correction du problème selon lequel la visionneuse intégrée ne peut pas « décompresser tout » dans le répertoire racine du fichier compressé
+>#####Correction du problème qui pouvait empêcher l'affichage du menu contextuel
 
->#####Correction du problème pouvant entraîner la dérive des paramètres de police dans l'application après la mise à jour de la bibliothèque de polices système
+>#####Correction d'un problème pouvant provoquer un blocage lors de l'affichage des propriétés d'un dossier volumineux
 
->#####Correction du problème qui pouvait retarder le démarrage du processus auxiliaire et lui faire perdre la réponse
+>#####Correction du problème selon lequel le "" dans les propriétés peut être incorrect
 
->#####Correction du problème selon lequel certains éléments de menu pouvaient provoquer le blocage du processus auxiliaire
+>####Résolution du problème selon lequel après avoir défini cette application comme gestionnaire par défaut, cliquer sur "Ouvrir avec l'explorateur système" dans le menu contextuel ouvrira toujours cette application
 
->#####Correction d'autres problèmes
+>#####Correction du problème selon lequel les objets du dossier ne peuvent pas être énumérés correctement, ce qui peut entraîner un calcul incorrect du nombre de sous-dossiers et de sous-fichiers dans la fenêtre de propriétés
+
+>#####Correction de certains problèmes causés par le SDK
