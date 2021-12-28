@@ -821,13 +821,23 @@ namespace RX_Explorer.Dialog
             PackageListViewSource.Clear();
         }
 
+        private async void PackageListView_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            await UWPApplicationSelectedHandler();
+        }
+
         private async void UWPPickerTip_ActionButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
+        {
+            await UWPApplicationSelectedHandler();
+        }
+
+        private async Task UWPApplicationSelectedHandler()
         {
             try
             {
                 if (PackageListView.SelectedItem is InstalledApplication Package)
                 {
-                    sender.IsOpen = false;
+                    UWPPickerTip.IsOpen = false;
                     PickAppFlyout.Hide();
 
                     DisplayName.Text = Package.AppName;

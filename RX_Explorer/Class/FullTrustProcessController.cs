@@ -496,6 +496,7 @@ namespace RX_Explorer.Class
                 if (Response.TryGetValue("Success", out string EncodingsString))
                 {
                     return JsonSerializer.Deserialize<IEnumerable<int>>(EncodingsString).Select((CodePage) => Encoding.GetEncoding(CodePage))
+                                                                                        .Where((Encoding) => !string.IsNullOrWhiteSpace(Encoding.EncodingName))
                                                                                         .OrderByLikeFileSystem((Encoding) => Encoding.EncodingName, SortDirection.Ascending)
                                                                                         .ToList();
                 }

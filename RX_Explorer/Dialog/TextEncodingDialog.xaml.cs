@@ -42,8 +42,7 @@ namespace RX_Explorer.Dialog
                 }
                 else
                 {
-                    AvailableEncodings.Add(DetectedEncoding);
-                    EncodingCombo.SelectedItem = DetectedEncoding;
+                    EncodingCombo.SelectedItem = AvailableEncodings.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
                 }
             }
             else

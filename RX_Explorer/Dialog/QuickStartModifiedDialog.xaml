@@ -67,10 +67,12 @@
             <Grid Margin="0,10,0,0">
                 <ListView x:Name="PackageListView"
                           Visibility="Collapsed"
-                          ItemsSource="{x:Bind PackageListViewSource}"
-                          Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                           MaxHeight="350"
-                          Width="320">
+                          Width="320"
+                          ItemsSource="{x:Bind PackageListViewSource}"
+                          IsDoubleTapEnabled="True"
+                          DoubleTapped="PackageListView_DoubleTapped"
+                          Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}" >
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="Cls:InstalledApplication">
                             <Grid Padding="0,5">

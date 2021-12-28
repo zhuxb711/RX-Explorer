@@ -79,34 +79,51 @@ namespace FullTrustProcess
 
         public static string GetDefaultProgramPathRelated(string Path)
         {
-            for (uint BufferSize = 512; ; BufferSize += 512)
+            string GetAssocString(ShlwApi.ASSOCSTR AssocString)
             {
-                StringBuilder Builder = new StringBuilder(Convert.ToInt32(BufferSize));
+                uint BufferSize = 0;
 
-                HRESULT Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE | ShlwApi.ASSOCSTR.ASSOCSTR_APPID, System.IO.Path.GetExtension(Path).ToLower(), null, Builder, ref BufferSize);
+                HRESULT Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
+                                                          | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
+                                                          | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
+                                                          | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
+                                                          AssocString,
+                                                          System.IO.Path.GetExtension(Path).ToLower(),
+                                                          null,
+                                                          null,
+                                                          ref BufferSize);
 
-                if (Result == HRESULT.S_OK)
+                if (Result == HRESULT.S_FALSE && BufferSize > 0)
                 {
-                    string ExePath = Builder.ToString();
+                    StringBuilder Builder = new StringBuilder(Convert.ToInt32(BufferSize));
 
-                    if (System.IO.Path.IsPathRooted(ExePath))
+                    Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
+                                                      | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
+                                                      | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
+                                                      | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
+                                                      AssocString,
+                                                      System.IO.Path.GetExtension(Path).ToLower(),
+                                                      null,
+                                                      Builder,
+                                                      ref BufferSize);
+
+                    if (Result == HRESULT.S_OK)
                     {
-                        return ExePath;
-                    }
-                    else
-                    {
-                        return ExePath.Replace("@", string.Empty).Replace("{", string.Empty).Replace("}", string.Empty).Split('?').FirstOrDefault();
+                        return Builder.ToString();
                     }
                 }
-                else if (Result == HRESULT.E_POINTER)
-                {
-                    continue;
-                }
-                else
-                {
-                    return string.Empty;
-                }
+
+                return string.Empty;
             }
+
+            string AssocString = GetAssocString(ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE);
+
+            if (string.IsNullOrEmpty(AssocString))
+            {
+                AssocString = GetAssocString(ShlwApi.ASSOCSTR.ASSOCSTR_APPID).Split('!', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            }
+
+            return AssocString;
         }
     }
 }

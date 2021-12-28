@@ -913,10 +913,6 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));
                 }
-                else
-                {
-                    LogTracer.Log($"File/Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
-                }
             }
             catch (Exception ex)
             {
