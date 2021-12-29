@@ -1658,7 +1658,7 @@
     <value>Supprimer les attributs masqués</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>Afficher les fichiers/dossiers</value>
+    <value>Afficher les fichiers cachés</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>Désactivé</value>
@@ -3322,5 +3322,17 @@ Les noms non valides incluent
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>La description:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>Les extensions de fichiers seront affichées après avoir activé cette option</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>Afficher les extensions de fichier</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>Activé</value>
   </data>
 </root>

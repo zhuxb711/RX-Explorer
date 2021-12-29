@@ -1658,7 +1658,7 @@
     <value>尝试移除隐藏属性</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>显示隐藏文件/文件夹</value>
+    <value>显示隐藏文件</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -3322,5 +3322,17 @@
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>文件描述:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>启用此选项后将显示文件扩展名称</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>显示文件扩展名称</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
   </data>
 </root>

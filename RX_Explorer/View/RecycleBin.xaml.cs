@@ -127,7 +127,7 @@ namespace RX_Explorer.View
 
         private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
 
-        private ListViewBaseSelectionExtention SelectionExtention;
+        private ListViewBaseSelectionExtension SelectionExtension;
 
         private readonly PointerEventHandler PointerPressedHandler;
 
@@ -179,7 +179,7 @@ namespace RX_Explorer.View
         {
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
             CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
-            SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
+            SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
             CurrentSortTarget = SortTarget.Name;
             CurrentSortDirection = SortDirection.Ascending;
 
@@ -215,7 +215,7 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            SelectionExtention?.Dispose();
+            SelectionExtension?.Dispose();
 
             DelaySelectionCancellation?.Cancel();
             DelaySelectionCancellation?.Dispose();
@@ -243,7 +243,7 @@ namespace RX_Explorer.View
                             {
                                 if (ListViewControl.SelectedItems.Contains(Item))
                                 {
-                                    SelectionExtention.Disable();
+                                    SelectionExtension.Disable();
                                 }
                                 else
                                 {
@@ -254,39 +254,39 @@ namespace RX_Explorer.View
 
                                     if (e.OriginalSource is ListViewItemPresenter)
                                     {
-                                        SelectionExtention.Enable();
+                                        SelectionExtension.Enable();
                                     }
                                     else
                                     {
-                                        SelectionExtention.Disable();
+                                        SelectionExtension.Disable();
                                     }
                                 }
                             }
                             else
                             {
-                                SelectionExtention.Disable();
+                                SelectionExtension.Disable();
                             }
                         }
                         else
                         {
-                            SelectionExtention.Disable();
+                            SelectionExtension.Disable();
                         }
                     }
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
-                    SelectionExtention.Disable();
+                    SelectionExtension.Disable();
                 }
                 else
                 {
                     ListViewControl.SelectedItem = null;
-                    SelectionExtention.Enable();
+                    SelectionExtension.Enable();
                 }
             }
             else
             {
                 ListViewControl.SelectedItem = null;
-                SelectionExtention.Enable();
+                SelectionExtension.Enable();
             }
         }
 

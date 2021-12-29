@@ -1713,7 +1713,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Ausgeblendete Eigenschaften entfernen</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>Ausgeblendete Dateien/Ordner anzeigen</value>
+    <value>Zeige versteckte Dateien</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>Deaktiviert</value>
@@ -3322,5 +3322,17 @@ Inkorrekte Namen sind
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>Beschreibung:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>Dateierweiterungen werden angezeigt, nachdem diese Option aktiviert wurde</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>Dateierweiterungen anzeigen</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
   </data>
 </root>

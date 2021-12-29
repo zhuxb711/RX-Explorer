@@ -86,7 +86,7 @@ namespace RX_Explorer
 
                     if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(File.Path)) is FileSystemStorageFolder Item)
                     {
-                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
+                        IReadOnlyList<FileSystemStorageItemBase> SearchResult = await Item.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.File, AdvanceFilter: (Name) =>
                         {
                             string Extension = Path.GetExtension(Name);
                             return Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase);
@@ -338,13 +338,18 @@ namespace RX_Explorer
         {
             try
             {
-                if (AnimationController.Current.IsEnableAnimation)
+                if (PhotoCollection.Count > 0)
                 {
-                    Frame.Navigate(typeof(CropperPage), PhotoFlip.SelectedItem, new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Frame.Navigate(typeof(CropperPage), PhotoFlip.SelectedItem, new SuppressNavigationTransitionInfo());
+                    PhotoDisplayItem Item = PhotoCollection[Math.Min(Math.Max(0, PhotoFlip.SelectedIndex), PhotoCollection.Count - 1)];
+
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Frame.Navigate(typeof(CropperPage), Item, new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Frame.Navigate(typeof(CropperPage), Item, new SuppressNavigationTransitionInfo());
+                    }
                 }
             }
             catch (Exception ex)

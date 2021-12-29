@@ -12,7 +12,7 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
-        <Cls:InverseConverter x:Key="InverseConverter"/>
+        <Cls:InverseConverter x:Key="InverseConverter" />
         <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
@@ -27,7 +27,7 @@
         </DataTemplate>
 
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout"
-                               ShouldConstrainToRootBounds="False" >
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"
@@ -40,7 +40,7 @@
                               x:Uid="CloseTabOnRight"
                               MinWidth="200"
                               x:Name="CloseTabOnRight"
-                              Click="CloseTabOnRight_Click"/>
+                              Click="CloseTabOnRight_Click" />
                 <AppBarButton Icon="ClosePane"
                               x:Uid="CloseButThis"
                               Label="关闭除此之外的标签页"
@@ -182,32 +182,87 @@
                                                     Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                         </Style>
                                     </Flyout.FlyoutPresenterStyle>
-                                    <ListView x:Name="ViewModeList"
-                                              SelectionMode="Single"
-                                              MinWidth="200"
-                                              Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
-                                              ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
-                                              SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
-                                              SelectionChanged="ViewModeList_SelectionChanged">
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate x:DataType="Cls:LayoutModeModel">
-                                                <Grid Padding="10,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="20" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Viewbox HorizontalAlignment="Stretch"
-                                                             VerticalAlignment="Center">
-                                                        <FontIcon Glyph="{x:Bind IconGlyph}" />
-                                                    </Viewbox>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{x:Bind DisplayName}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="10,0,0,0" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
+                                    <Grid Padding="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition Width="200" />
+                                        </Grid.ColumnDefinitions>
+                                        <ListView x:Name="ViewModeList"
+                                                  SelectionMode="Single"
+                                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                                  ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
+                                                  SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
+                                                  SelectionChanged="ViewModeList_SelectionChanged">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="Cls:LayoutModeModel">
+                                                    <Grid Padding="0,11">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="20" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Viewbox HorizontalAlignment="Stretch"
+                                                                 VerticalAlignment="Center">
+                                                            <FontIcon Glyph="{x:Bind IconGlyph}" />
+                                                        </Viewbox>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{x:Bind DisplayName}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="10,0,0,0" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                        <Border Background="Gray"
+                                                Grid.Column="1"
+                                                Width="3"
+                                                Margin="0,5"
+                                                CornerRadius="2"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Stretch"/>
+                                        <StackPanel Grid.Column="2">
+                                            <ToggleSwitch OnContent="启用"
+                                                          OffContent="禁用"
+                                                          x:Uid="SettingTabPreview"
+                                                          Name="TabPreviewSwitch">
+                                                <ToggleSwitch.Header>
+                                                    <TextBlock Text="标签页预览"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingTabPreviewLabel" />
+                                                </ToggleSwitch.Header>
+                                            </ToggleSwitch>
+                                            <ToggleSwitch OnContent="启用"
+                                                          OffContent="禁用"
+                                                          x:Uid="SettingDisplayHiddenItem"
+                                                          Name="DisplayHiddenItem">
+                                                <ToggleSwitch.Header>
+                                                    <TextBlock Text="显示隐藏文件"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingDisplayHiddenItemLabel" />
+                                                </ToggleSwitch.Header>
+                                            </ToggleSwitch>
+                                            <ToggleSwitch OnContent="启用"
+                                                          OffContent="禁用"
+                                                          x:Uid="FileExtensionSwitch"
+                                                          Name="DisplayFileExtension">
+                                                <ToggleSwitch.Header>
+                                                    <TextBlock Text="显示文件扩展名称"
+                                                               x:Uid="SettingDisplayExtensionsLabel"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </ToggleSwitch.Header>
+                                            </ToggleSwitch>
+                                            <ToggleSwitch OnContent="启用"
+                                                          OffContent="隐藏"
+                                                          x:Uid="SettingTreeViewDetach"
+                                                          x:Name="TreeViewDetach">
+                                                <ToggleSwitch.Header>
+                                                    <TextBlock Text="文件夹目录"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingTreeViewDetachLabel" />
+                                                </ToggleSwitch.Header>
+                                            </ToggleSwitch>
+                                        </StackPanel>
+                                    </Grid>
                                 </Flyout>
                             </muxc:SplitButton.Flyout>
                         </muxc:SplitButton>
@@ -365,18 +420,18 @@
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Content="{x:Bind ActionButton1Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton1}"
-                                            Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}"/>
+                                            Visibility="{x:Bind ActionButton1Visibility,Mode=OneWay}" />
                                     <Button Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Content="{x:Bind ActionButton2Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton2}"
                                             Visibility="{x:Bind ActionButton2Visibility,Mode=OneWay}"
-                                            Margin="5,0"/>
+                                            Margin="5,0" />
                                     <Button Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Content="{x:Bind ActionButton3Content,Mode=OneWay}"
                                             Click="{x:Bind ActionButton3}"
-                                            Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}"/>
+                                            Visibility="{x:Bind ActionButton3Visibility,Mode=OneWay}" />
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>

@@ -130,9 +130,9 @@
             </RelativePanel>
         </DataTemplate>
 
-        <Flyout x:Name="AddressExtentionFlyout"
+        <Flyout x:Name="AddressExtensionFlyout"
                 Placement="BottomEdgeAlignedLeft"
-                Closing="AddressExtentionFlyout_Closing">
+                Closing="AddressExtensionFlyout_Closing">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="Background"
@@ -149,7 +149,7 @@
                       IsItemClickEnabled="True"
                       Name="AddressExtensionSubFolderList"
                       ItemClick="AddressExtensionSubFolderList_ItemClick"
-                      ItemsSource="{x:Bind AddressExtentionList}"
+                      ItemsSource="{x:Bind AddressExtensionList}"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
@@ -363,7 +363,7 @@
                                             <VisualState.Setters>
                                                 <Setter Target="AddressButton.Foreground"
                                                         Value="{ThemeResource SystemBaseHighColor}" />
-                                                <Setter Target="AddressExtention.Foreground"
+                                                <Setter Target="AddressExtension.Foreground"
                                                         Value="{ThemeResource SystemBaseHighColor}" />
                                             </VisualState.Setters>
                                         </VisualState>
@@ -375,7 +375,7 @@
                                             <VisualState.Setters>
                                                 <Setter Target="AddressButton.Foreground"
                                                         Value="DarkGray" />
-                                                <Setter Target="AddressExtention.Foreground"
+                                                <Setter Target="AddressExtension.Foreground"
                                                         Value="DarkGray" />
                                             </VisualState.Setters>
                                         </VisualState>
@@ -405,8 +405,8 @@
                                         HorizontalContentAlignment="Center"
                                         Padding="0"
                                         BorderThickness="0"
-                                        Name="AddressExtention"
-                                        Click="AddressExtention_Click">
+                                        Name="AddressExtension"
+                                        Click="AddressExtension_Click">
                                     <Button.Content>
                                         <Viewbox Width="12">
                                             <FontIcon FontFamily="Segoe UI Emoji"

@@ -230,7 +230,7 @@
     <Compile Include="Interface\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\StartupModeController.cs" />
-    <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
+    <Compile Include="Class\ListViewBaseSelectionExtension.cs" />
     <Compile Include="Class\ListViewHeaderController.cs" />
     <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
@@ -294,7 +294,7 @@
     <Compile Include="Class\FullTrustProcessController.cs" />
     <Compile Include="Class\LogTracer.cs" />
     <Compile Include="Class\ProgramPickerItem.cs" />
-    <Compile Include="Class\Extention.cs" />
+    <Compile Include="Class\Extension.cs" />
     <Compile Include="Class\FileSystemStorageItemBase.cs" />
     <Compile Include="Class\FilterItem.cs" />
     <Compile Include="Class\GeneralTransformer.cs" />
@@ -814,7 +814,7 @@
       <Version>1.3.1</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
-      <Version>0.16.6</Version>
+      <Version>0.16.7</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

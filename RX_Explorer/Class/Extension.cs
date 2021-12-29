@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供扩展方法的静态类
     /// </summary>
-    public static class Extention
+    public static class Extension
     {
         public static IEnumerable<string> Split(this string OriginString, int ChunkSize)
         {
@@ -443,7 +443,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be null", nameof(Flyout));
             }
 
-            void CleanUpContextMenuExtentionItems()
+            void CleanUpContextMenuExtensionItems()
             {
                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>()
                                                                              .Where((Btn) => Btn.Name == "ExtraButton")
@@ -472,7 +472,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            CleanUpContextMenuExtentionItems();
+            CleanUpContextMenuExtensionItems();
             CleanUpContextMenuOpenWithFlyoutItems();
 
             Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
@@ -482,7 +482,7 @@ namespace RX_Explorer.Class
                 ShowMode = FlyoutShowMode.Standard
             });
 
-            if (SettingPage.ContextMenuExtentionEnabled)
+            if (SettingPage.ContextMenuExtensionEnabled)
             {
                 try
                 {
@@ -532,7 +532,7 @@ namespace RX_Explorer.Class
 
                                 if (!CancelToken.IsCancellationRequested)
                                 {
-                                    CleanUpContextMenuExtentionItems();
+                                    CleanUpContextMenuExtensionItems();
 
                                     Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
 
@@ -877,7 +877,7 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder)).Select((Item) => Item.Path).ToList();
                     List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                     List<string> AddList = FolderList.Except(PathList).ToList();
                     List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -891,7 +891,7 @@ namespace RX_Explorer.Class
                                 Node.Children.Add(new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder),
                                     IsExpanded = false
                                 });
                             }
@@ -913,7 +913,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
                 }
             }
         }

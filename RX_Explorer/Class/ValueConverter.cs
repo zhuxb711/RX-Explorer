@@ -1,15 +1,41 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
-using Windows.Foundation;
+using System.IO;
 using Windows.UI;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
+    public sealed class NameExtensionsConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is string Name)
+            {
+                if (SettingPage.IsShowFileExtensionsEnabled)
+                {
+                    return Name;
+                }
+                else
+                {
+                    return Path.GetFileNameWithoutExtension(Name);
+                }
+            }
+            else
+            {
+                return value;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed class BackgroundBrushTypeConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

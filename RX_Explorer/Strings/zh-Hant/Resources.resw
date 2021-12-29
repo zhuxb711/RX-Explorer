@@ -1661,7 +1661,7 @@
     <value>刪除隱藏的屬性</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>顯示隱藏的檔案/資料夾</value>
+    <value>顯示隱藏的檔案</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>停用</value>
@@ -3322,5 +3322,17 @@
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>描述:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>啟用此選項後，將顯示文件擴展名</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>顯示文件擴展名</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>已禁用</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>已啟用</value>
   </data>
 </root>

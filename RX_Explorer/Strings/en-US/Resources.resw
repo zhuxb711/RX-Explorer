@@ -1827,7 +1827,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Remove hidden attributes</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>Show hidden files/folders</value>
+    <value>Show hidden files</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>Disabled</value>
@@ -3427,5 +3427,17 @@ Invalid names include
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>Description:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>File extensions will be shown after enabling this option</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>Show file extensions</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>Enabled</value>
   </data>
 </root>

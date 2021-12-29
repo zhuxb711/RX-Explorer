@@ -2262,8 +2262,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Eliminar atributos ocultos</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
-          <source>Show hidden files/folders</source>
-          <target state="translated">Mostrar archivos/carpetas ocultos</target>
+          <source>Show hidden files</source>
+          <target state="translated">Mostrar archivos ocultos</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4410,6 +4410,22 @@ Las denominaciones no válidas son:
         <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
           <source>Description:</source>
           <target state="translated">Descripción:</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsDescription.Text" translate="yes" xml:space="preserve">
+          <source>File extensions will be shown after enabling this option</source>
+          <target state="translated">Las extensiones de archivo se mostrarán después de habilitar esta opción</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsLabel.Text" translate="yes" xml:space="preserve">
+          <source>Show file extensions</source>
+          <target state="translated">Mostrar extensiones de archivo</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
       </group>
     </body>

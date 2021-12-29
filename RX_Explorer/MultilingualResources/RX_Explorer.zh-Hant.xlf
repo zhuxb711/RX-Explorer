@@ -2193,8 +2193,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">刪除隱藏的屬性</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
-          <source>Show hidden files/folders</source>
-          <target state="translated">顯示隱藏的檔案/資料夾</target>
+          <source>Show hidden files</source>
+          <target state="translated">顯示隱藏的檔案</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4412,6 +4412,22 @@ Invalid names include
         <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
           <source>Description:</source>
           <target state="translated">描述:</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsDescription.Text" translate="yes" xml:space="preserve">
+          <source>File extensions will be shown after enabling this option</source>
+          <target state="translated">啟用此選項後，將顯示文件擴展名</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsLabel.Text" translate="yes" xml:space="preserve">
+          <source>Show file extensions</source>
+          <target state="translated">顯示文件擴展名</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">已禁用</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">已啟用</target>
         </trans-unit>
       </group>
     </body>

@@ -2189,8 +2189,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Supprimer les attributs masqués</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItemLabel.Text" translate="yes" xml:space="preserve">
-          <source>Show hidden files/folders</source>
-          <target state="translated">Afficher les fichiers/dossiers</target>
+          <source>Show hidden files</source>
+          <target state="translated">Afficher les fichiers cachés</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
           <source>Disabled</source>
@@ -4412,6 +4412,22 @@ Les noms non valides incluent
         <trans-unit id="Properties_General_Description" translate="yes" xml:space="preserve">
           <source>Description:</source>
           <target state="translated">La description:</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsDescription.Text" translate="yes" xml:space="preserve">
+          <source>File extensions will be shown after enabling this option</source>
+          <target state="translated">Les extensions de fichiers seront affichées après avoir activé cette option</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayExtensionsLabel.Text" translate="yes" xml:space="preserve">
+          <source>Show file extensions</source>
+          <target state="translated">Afficher les extensions de fichier</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Désactivé</target>
+        </trans-unit>
+        <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activé</target>
         </trans-unit>
       </group>
     </body>

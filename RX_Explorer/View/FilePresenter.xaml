@@ -17,6 +17,8 @@
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
+        <Cls:NameExtensionsConverter x:Key="NameExtensionsConverter" />
+        
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />
 
@@ -195,14 +197,14 @@
                                                                 Grid.Column="2"
                                                                 VerticalAlignment="Top"
                                                                 Margin="5,0,0,0">
-                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Stretch"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    x:Name="NameLabel"
                                                                    PointerPressed="NameLabel_PointerPressed">
                                                             <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
@@ -352,13 +354,13 @@
                                                            Stretch="Uniform" />
                                                     <TextBlock VerticalAlignment="Center"
                                                                HorizontalAlignment="Left"
-                                                               Text="{x:Bind Name,Mode=OneWay}"
+                                                               Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="2"
                                                                PointerPressed="NameLabel_PointerPressed"
                                                                x:Name="NameLabel">
                                                         <ToolTipService.ToolTip>
-                                                            <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                            <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                      Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                         </ToolTipService.ToolTip>
                                                     </TextBlock>
@@ -489,13 +491,13 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis">
                                                             <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
@@ -627,13 +629,13 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis">
                                                             <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
@@ -765,13 +767,13 @@
                                                                           Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}" />
                                                             </Viewbox>
                                                         </Border>
-                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                                                        <TextBlock Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
                                                                    TextTrimming="CharacterEllipsis">
                                                             <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
@@ -907,12 +909,12 @@
                                                         <TextBlock VerticalAlignment="Center"
                                                                    HorizontalAlignment="Left"
                                                                    Grid.Column="1"
-                                                                   Text="{x:Bind Name,Mode=OneWay}"
+                                                                   Text="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    PointerPressed="NameLabel_PointerPressed"
                                                                    x:Name="NameLabel">
                                                             <ToolTipService.ToolTip>
-                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                                <ToolTip Content="{x:Bind Name,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
                                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>

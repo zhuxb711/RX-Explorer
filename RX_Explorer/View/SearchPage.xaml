@@ -14,6 +14,7 @@
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
+        <Cls:NameExtensionsConverter x:Key="NameExtensionsConverter" />
 
         <Flyout x:Name="TooltipFlyout"
                 ShouldConstrainToRootBounds="False">
@@ -723,9 +724,14 @@
                             <TextBlock VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Grid.Column="1"
-                                       Text="{x:Bind Name}"
-                                       ToolTipService.ToolTip="{x:Bind Name}"
-                                       TextTrimming="CharacterEllipsis" />
+                                       Name="NameLabel"
+                                       Text="{x:Bind Name,Converter={StaticResource NameExtensionsConverter}}"
+                                       TextTrimming="CharacterEllipsis">
+                                 <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind Name,Converter={StaticResource NameExtensionsConverter}}"
+                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                 </ToolTipService.ToolTip>
+                            </TextBlock>
                             <Border Grid.Column="2"
                                     CornerRadius="2"
                                     Margin="0,5"

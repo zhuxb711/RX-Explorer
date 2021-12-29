@@ -37,24 +37,12 @@ namespace RX_Explorer
 
         private readonly string DefaultSecureAreaFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
-        internal static string AESKey
-        {
-            get
-            {
-                return KeyGenerator.GetMD5WithLength(UnlockPassword, 16);
-            }
-        }
+        internal static string AESKey => KeyGenerator.GetMD5WithLength(UnlockPassword, 16);
 
         internal static string UnlockPassword
         {
-            get
-            {
-                return CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
-            }
-            private set
-            {
-                CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", value);
-            }
+            get => CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
+            private set => CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", value);
         }
 
         private int AESKeySize;
@@ -65,7 +53,7 @@ namespace RX_Explorer
 
         private CancellationTokenSource Cancellation;
 
-        private ListViewBaseSelectionExtention SelectionExtention;
+        private ListViewBaseSelectionExtension SelectionExtension;
 
         public SecureArea()
         {
@@ -89,7 +77,7 @@ namespace RX_Explorer
             if (!IsNavigatedFromInnerViewer)
             {
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
-                SelectionExtention?.Dispose();
+                SelectionExtension?.Dispose();
                 EmptyTips.Visibility = Visibility.Collapsed;
                 SecureCollection.Clear();
             }
@@ -294,7 +282,7 @@ namespace RX_Explorer
 
                 WholeArea.Visibility = Visibility.Visible;
 
-                SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
+                SelectionExtension = new ListViewBaseSelectionExtension(SecureGridView, DrawRectangle);
 
                 await LoadSecureFile();
             }
@@ -579,7 +567,7 @@ namespace RX_Explorer
                             {
                                 if (SecureGridView.SelectedItems.Contains(Item))
                                 {
-                                    SelectionExtention.Disable();
+                                    SelectionExtension.Disable();
                                 }
                                 else
                                 {
@@ -590,39 +578,39 @@ namespace RX_Explorer
 
                                     if (e.OriginalSource is ListViewItemPresenter)
                                     {
-                                        SelectionExtention.Enable();
+                                        SelectionExtension.Enable();
                                     }
                                     else
                                     {
-                                        SelectionExtention.Disable();
+                                        SelectionExtension.Disable();
                                     }
                                 }
                             }
                             else
                             {
-                                SelectionExtention.Disable();
+                                SelectionExtension.Disable();
                             }
                         }
                         else
                         {
-                            SelectionExtention.Disable();
+                            SelectionExtension.Disable();
                         }
                     }
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
-                    SelectionExtention.Disable();
+                    SelectionExtension.Disable();
                 }
                 else
                 {
                     SecureGridView.SelectedItem = null;
-                    SelectionExtention.Enable();
+                    SelectionExtension.Enable();
                 }
             }
             else
             {
                 SecureGridView.SelectedItem = null;
-                SelectionExtention.Enable();
+                SelectionExtension.Enable();
             }
         }
 

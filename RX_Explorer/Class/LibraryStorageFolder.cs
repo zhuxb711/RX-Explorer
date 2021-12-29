@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Could not create the library folder");
+                LogTracer.Log(ex, $"Could not create the library folder, lib type: {Enum.GetName(typeof(LibraryType), LibType)}, path: {Path}");
                 return null;
             }
         }

@@ -102,7 +102,7 @@ namespace RX_Explorer
                     return false;
                 }
             }
-            private set
+            set
             {
                 ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = value;
             }
@@ -128,7 +128,7 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsDisplayHiddenItem
+        public static bool IsShowHiddenFilesEnabled
         {
             get
             {
@@ -142,7 +142,7 @@ namespace RX_Explorer
                     return false;
                 }
             }
-            private set
+            set
             {
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = value;
             }
@@ -162,9 +162,29 @@ namespace RX_Explorer
                     return true;
                 }
             }
-            private set
+            set
             {
                 ApplicationData.Current.LocalSettings.Values["EnableTabPreview"] = value;
+            }
+        }
+
+        public static bool IsShowFileExtensionsEnabled
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnableFileExtensions"] is bool Enabled)
+                {
+                    return Enabled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnableFileExtensions"] = true;
+                    return true;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableFileExtensions"] = value;
             }
         }
 
@@ -403,7 +423,7 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = value;
         }
 
-        public static bool ContextMenuExtentionEnabled
+        public static bool ContextMenuExtensionEnabled
         {
             get
             {
@@ -763,6 +783,7 @@ namespace RX_Explorer
             if (IsCallFromInit)
             {
                 DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
+                FileExtensionSwitch.Toggled -= FileExtensionSwitch_Toggled;
                 TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
                 FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
                 LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
@@ -815,7 +836,7 @@ namespace RX_Explorer
             FolderOpenMethod.SelectedIndex = IsDoubleClickEnabled ? 1 : 0;
             TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
             EnableQuicklook.IsOn = IsQuicklookEnabled;
-            DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
+            DisplayHiddenItem.IsOn = IsShowHiddenFilesEnabled;
             HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
             TabPreviewSwitch.IsOn = IsTabPreviewEnabled;
             SearchHistory.IsOn = IsSearchHistoryEnabled;
@@ -823,7 +844,8 @@ namespace RX_Explorer
             NavigationViewLayout.IsOn = LayoutMode == NavigationViewPaneDisplayMode.LeftCompact;
             AlwaysLaunchNew.IsChecked = AlwaysLaunchNewProcess;
             AlwaysOnTop.IsOn = WindowAlwaysOnTop;
-            ContextMenuExtSwitch.IsOn = ContextMenuExtentionEnabled;
+            ContextMenuExtSwitch.IsOn = ContextMenuExtensionEnabled;
+            FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
 
             UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
             {
@@ -962,6 +984,7 @@ namespace RX_Explorer
             if (IsCallFromInit)
             {
                 DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
+                FileExtensionSwitch.Toggled += FileExtensionSwitch_Toggled;
                 TreeViewDetach.Toggled += TreeViewDetach_Toggled;
                 FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
                 LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
@@ -1885,7 +1908,7 @@ namespace RX_Explorer
 
                             foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                             {
-                                bool HasAnyFolder = await DriveFolder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                bool HasAnyFolder = await DriveFolder.CheckContainsAnyItemAsync(IsShowHiddenFilesEnabled, IsDisplayProtectedSystemItems, BasicFilters.Folder);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
@@ -1975,7 +1998,7 @@ namespace RX_Explorer
         {
             try
             {
-                IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
+                IsShowHiddenFilesEnabled = DisplayHiddenItem.IsOn;
 
                 foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
@@ -2506,7 +2529,7 @@ namespace RX_Explorer
 
         private void ContextMenuExtSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            ContextMenuExtentionEnabled = ContextMenuExtSwitch.IsOn;
+            ContextMenuExtensionEnabled = ContextMenuExtSwitch.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -3247,6 +3270,35 @@ namespace RX_Explorer
         private async void ContactAuthor_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com"));
+        }
+
+        private async void FileExtensionSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsShowFileExtensionsEnabled = FileExtensionSwitch.IsOn;
+
+                foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                {
+                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                                 .Select((Blade) => Blade.Content)
+                                                                                 .OfType<FilePresenter>())
+                    {
+                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
+                        {
+                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Error in {nameof(FileExtensionSwitch_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
     }
 }

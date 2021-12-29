@@ -1713,7 +1713,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Eliminar atributos ocultos</value>
   </data>
   <data name="SettingDisplayHiddenItemLabel.Text" xml:space="preserve">
-    <value>Mostrar archivos/carpetas ocultos</value>
+    <value>Mostrar archivos ocultos</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
     <value>Discapacitado</value>
@@ -3322,5 +3322,17 @@ Las denominaciones no válidas son:
   </data>
   <data name="Properties_General_Description" xml:space="preserve">
     <value>Descripción:</value>
+  </data>
+  <data name="SettingDisplayExtensionsDescription.Text" xml:space="preserve">
+    <value>Las extensiones de archivo se mostrarán después de habilitar esta opción</value>
+  </data>
+  <data name="SettingDisplayExtensionsLabel.Text" xml:space="preserve">
+    <value>Mostrar extensiones de archivo</value>
+  </data>
+  <data name="FileExtensionSwitch.OffContent" xml:space="preserve">
+    <value>Discapacitado</value>
+  </data>
+  <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
+    <value>Activado</value>
   </data>
 </root>

@@ -167,7 +167,7 @@ namespace RX_Explorer.Class
                     {
                         Task LoadTask = LibraryStorageFolder.CreateAsync(Type, Path).ContinueWith((PreviousTask) =>
                         {
-                            if (PreviousTask.Exception is Exception Ex)
+                            if (PreviousTask.Result == null)
                             {
                                 ErrorList.Add(Path);
                             }

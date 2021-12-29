@@ -33,7 +33,7 @@ namespace RX_Explorer
         private CancellationTokenSource DelaySelectionCancellation;
         private CancellationTokenSource DelayTooltipCancellation;
 
-        private ListViewBaseSelectionExtention SelectionExtention;
+        private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
         private readonly PointerEventHandler PointerReleasedEventHandler;
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
@@ -75,7 +75,7 @@ namespace RX_Explorer
                 SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
                 SearchResultList.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
-                SelectionExtention = new ListViewBaseSelectionExtention(SearchResultList, DrawRectangle);
+                SelectionExtension = new ListViewBaseSelectionExtension(SearchResultList, DrawRectangle);
 
                 if (e.NavigationMode == NavigationMode.New)
                 {
@@ -262,7 +262,7 @@ namespace RX_Explorer
                         {
                             IReadOnlyList<FileSystemStorageItemBase> Result = await Options.SearchFolder.SearchAsync(Options.SearchText,
                                                                                                                      Options.DeepSearch,
-                                                                                                                     SettingPage.IsDisplayHiddenItem,
+                                                                                                                     SettingPage.IsShowHiddenFilesEnabled,
                                                                                                                      SettingPage.IsDisplayProtectedSystemItems,
                                                                                                                      Options.UseRegexExpression,
                                                                                                                      Options.UseAQSExpression,
@@ -342,8 +342,8 @@ namespace RX_Explorer
             SearchResultList.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
 
             SearchCancellation?.Cancel();
-            SelectionExtention.Dispose();
-            SelectionExtention = null;
+            SelectionExtension.Dispose();
+            SelectionExtension = null;
 
             DelayDragCancellation?.Cancel();
             DelayDragCancellation?.Dispose();
@@ -377,7 +377,7 @@ namespace RX_Explorer
                         {
                             if (SearchResultList.SelectedItems.Contains(Item))
                             {
-                                SelectionExtention.Disable();
+                                SelectionExtension.Disable();
 
                                 if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                 {
@@ -413,12 +413,12 @@ namespace RX_Explorer
                                     case Grid:
                                     case ListViewItemPresenter:
                                         {
-                                            SelectionExtention.Enable();
+                                            SelectionExtension.Enable();
                                             break;
                                         }
                                     default:
                                         {
-                                            SelectionExtention.Disable();
+                                            SelectionExtension.Disable();
 
                                             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                             {
@@ -449,24 +449,24 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            SelectionExtention.Disable();
+                            SelectionExtension.Disable();
                         }
                     }
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
-                    SelectionExtention.Disable();
+                    SelectionExtension.Disable();
                 }
                 else
                 {
                     SearchResultList.SelectedItem = null;
-                    SelectionExtention.Enable();
+                    SelectionExtension.Enable();
                 }
             }
             else
             {
                 SearchResultList.SelectedItem = null;
-                SelectionExtention.Enable();
+                SelectionExtension.Enable();
             }
         }
 

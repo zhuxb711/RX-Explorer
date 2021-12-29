@@ -31,7 +31,7 @@ namespace RX_Explorer
         private readonly ObservableCollection<CompressionItemBase> EntryList = new ObservableCollection<CompressionItemBase>();
         private readonly ObservableCollection<string> AutoSuggestList = new ObservableCollection<string>();
 
-        private ListViewBaseSelectionExtention SelectionExtention;
+        private ListViewBaseSelectionExtension SelectionExtension;
         private readonly PointerEventHandler PointerPressedEventHandler;
 
         private ZipFile ZipObj;
@@ -249,7 +249,7 @@ namespace RX_Explorer
                         {
                             if (ListViewControl.SelectedItems.Contains(Item))
                             {
-                                SelectionExtention.Disable();
+                                SelectionExtension.Disable();
                             }
                             else
                             {
@@ -263,12 +263,12 @@ namespace RX_Explorer
                                     case Grid:
                                     case ListViewItemPresenter:
                                         {
-                                            SelectionExtention.Enable();
+                                            SelectionExtension.Enable();
                                             break;
                                         }
                                     default:
                                         {
-                                            SelectionExtention.Disable();
+                                            SelectionExtension.Disable();
                                             break;
                                         }
                                 }
@@ -276,24 +276,24 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            SelectionExtention.Disable();
+                            SelectionExtension.Disable();
                         }
                     }
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
-                    SelectionExtention.Disable();
+                    SelectionExtension.Disable();
                 }
                 else
                 {
                     ListViewControl.SelectedItem = null;
-                    SelectionExtention.Enable();
+                    SelectionExtension.Enable();
                 }
             }
             else
             {
                 ListViewControl.SelectedItem = null;
-                SelectionExtention.Enable();
+                SelectionExtension.Enable();
             }
         }
 
@@ -303,7 +303,7 @@ namespace RX_Explorer
             if (e.Parameter is FileSystemStorageFile File)
             {
                 ListViewControl.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
-                SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
+                SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
 
                 CurrentSortTarget = CompressionSortTarget.Name;
                 CurrentSortDirection = SortDirection.Ascending;
@@ -326,8 +326,8 @@ namespace RX_Explorer
         {
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
 
-            SelectionExtention.Dispose();
-            SelectionExtention = null;
+            SelectionExtension.Dispose();
+            SelectionExtension = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;

@@ -111,8 +111,8 @@ namespace RX_Explorer
                     itemPresenter.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
                     itemPresenter.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
-                    SelectionExtention?.Dispose();
-                    SelectionExtention = new ListViewBaseSelectionExtention(value, DrawRectangle);
+                    SelectionExtension?.Dispose();
+                    SelectionExtension = new ListViewBaseSelectionExtension(value, DrawRectangle);
 
                     CollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
 
@@ -164,7 +164,7 @@ namespace RX_Explorer
         }
 
         private WiFiShareProvider WiFiProvider;
-        private ListViewBaseSelectionExtention SelectionExtention;
+        private ListViewBaseSelectionExtension SelectionExtension;
         private FileSystemStorageItemBase TabTarget;
         private DateTimeOffset LastPressTime;
         private string LastPressString;
@@ -1959,7 +1959,7 @@ namespace RX_Explorer
                                         {
                                             if (SettingPage.IsDisplayProtectedSystemItems || !NewItem.IsSystemItem)
                                             {
-                                                if ((NewItem is IHiddenStorageItem && SettingPage.IsDisplayHiddenItem) || NewItem is not IHiddenStorageItem)
+                                                if ((NewItem is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || NewItem is not IHiddenStorageItem)
                                                 {
                                                     if (FileCollection.Any())
                                                     {
@@ -2090,7 +2090,7 @@ namespace RX_Explorer
 
                                                 if (SettingPage.IsDisplayProtectedSystemItems || !ModifiedItem.IsSystemItem)
                                                 {
-                                                    if ((ModifiedItem is IHiddenStorageItem && SettingPage.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
+                                                    if ((ModifiedItem is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || ModifiedItem is not IHiddenStorageItem)
                                                     {
                                                         if (FileCollection.Any())
                                                         {
@@ -2148,7 +2148,7 @@ namespace RX_Explorer
                                     {
                                         if (SettingPage.IsDisplayProtectedSystemItems || !Item.IsSystemItem)
                                         {
-                                            if ((Item is IHiddenStorageItem && SettingPage.IsDisplayHiddenItem) || Item is not IHiddenStorageItem)
+                                            if ((Item is IHiddenStorageItem && SettingPage.IsShowHiddenFilesEnabled) || Item is not IHiddenStorageItem)
                                             {
                                                 foreach (FileSystemStorageItemBase ExistItem in FileCollection.Where((Item) => Item.Path.Equals(RenamedArgs.Path, StringComparison.OrdinalIgnoreCase)
                                                                                                                                || Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)).ToArray())
@@ -2676,7 +2676,7 @@ namespace RX_Explorer
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
-                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingPage.IsDisplayHiddenItem, SettingPage.IsDisplayProtectedSystemItems);
+                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
 
                         if (ChildItems.Count > 0)
                         {
@@ -3651,7 +3651,7 @@ namespace RX_Explorer
 
                         if (PointerInfo.Properties.IsMiddleButtonPressed && Item is FileSystemStorageFolder)
                         {
-                            SelectionExtention.Disable();
+                            SelectionExtension.Disable();
                             SelectedItem = Item;
                             _ = TabViewContainer.Current.CreateNewTabAsync(Item.Path);
                         }
@@ -3661,7 +3661,7 @@ namespace RX_Explorer
                             {
                                 if (ItemPresenter.SelectedItems.Contains(Item))
                                 {
-                                    SelectionExtention.Disable();
+                                    SelectionExtension.Disable();
 
                                     if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                     {
@@ -3697,12 +3697,12 @@ namespace RX_Explorer
                                         case Grid:
                                         case ListViewItemPresenter:
                                             {
-                                                SelectionExtention.Enable();
+                                                SelectionExtension.Enable();
                                                 break;
                                             }
                                         default:
                                             {
-                                                SelectionExtention.Disable();
+                                                SelectionExtension.Disable();
 
                                                 if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
                                                 {
@@ -3733,29 +3733,29 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                SelectionExtention.Disable();
+                                SelectionExtension.Disable();
                             }
                         }
                     }
                     else
                     {
-                        SelectionExtention.Disable();
+                        SelectionExtension.Disable();
                     }
                 }
                 else if (Element.FindParentOfType<ScrollBar>() is ScrollBar)
                 {
-                    SelectionExtention.Disable();
+                    SelectionExtension.Disable();
                 }
                 else
                 {
                     SelectedItem = null;
-                    SelectionExtention.Enable();
+                    SelectionExtension.Enable();
                 }
             }
             else
             {
                 SelectedItem = null;
-                SelectionExtention.Enable();
+                SelectionExtension.Enable();
             }
         }
 
@@ -7165,7 +7165,7 @@ namespace RX_Explorer
             AreaWatcher.Dispose();
 
             WiFiProvider?.Dispose();
-            SelectionExtention?.Dispose();
+            SelectionExtension?.Dispose();
             DelayRenameCancellation?.Dispose();
             DelayEnterCancellation?.Dispose();
             DelaySelectionCancellation?.Dispose();
@@ -7177,7 +7177,7 @@ namespace RX_Explorer
 
             AreaWatcher = null;
             WiFiProvider = null;
-            SelectionExtention = null;
+            SelectionExtension = null;
             DelayRenameCancellation = null;
             DelayEnterCancellation = null;
             DelaySelectionCancellation = null;

@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Shapes;
 
 namespace RX_Explorer.Class
 {
-    public sealed class ListViewBaseSelectionExtention : IDisposable
+    public sealed class ListViewBaseSelectionExtension : IDisposable
     {
         public double VerticalBottomScrollThreshold => View.ActualHeight - ThresholdBorderThickness;
 
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
 
         private readonly PointerEventHandler PointerMovedHandler;
 
-        public ListViewBaseSelectionExtention(ListViewBase View, Rectangle RectangleInCanvas)
+        public ListViewBaseSelectionExtension(ListViewBase View, Rectangle RectangleInCanvas)
         {
             this.View = View ?? throw new ArgumentNullException(nameof(View), "Argument could not be null");
             this.RectangleInCanvas = RectangleInCanvas ?? throw new ArgumentNullException(nameof(RectangleInCanvas), "Argument could not be null");
@@ -370,7 +370,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        ~ListViewBaseSelectionExtention()
+        ~ListViewBaseSelectionExtension()
         {
             Dispose();
         }
