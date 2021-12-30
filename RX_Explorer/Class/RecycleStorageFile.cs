@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
 
         public override string DisplayName => Name;
 
-        public override string Type => ((StorageItem as StorageFile)?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
+        public override string Type => (StorageItem?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
 
         public override string ModifiedTimeDescription
         {

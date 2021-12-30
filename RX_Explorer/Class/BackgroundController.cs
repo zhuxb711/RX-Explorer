@@ -33,6 +33,43 @@ namespace RX_Explorer.Class
 
         private UIElement CompositionAcrylicPresenter;
 
+        private static BackgroundController Instance;
+
+        private static readonly object Locker = new object();
+
+        public static Color SolidColor_WhiteTheme { get; } = Colors.White;
+
+        public static Color SolidColor_BlackTheme { get; } = "#1E1E1E".ToColor();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private readonly UISettings UIS;
+
+        private bool isMicaEffectEnabled;
+
+        private bool isCompositionAcrylicEnabled;
+
+        /// <summary>
+        /// 图片背景刷
+        /// </summary>
+        private readonly ImageBrush PictureBackgroundBrush = new ImageBrush
+        {
+            Stretch = Stretch.UniformToFill
+        };
+
+        /// <summary>
+        /// 纯色背景刷
+        /// </summary>
+        private readonly SolidColorBrush SolidColorBackgroundBrush;
+
+        /// <summary>
+        /// 必应背景刷
+        /// </summary>
+        private readonly ImageBrush BingPictureBursh = new ImageBrush
+        {
+            Stretch = Stretch.UniformToFill
+        };
+
         public bool IsCompositionAcrylicBackgroundEnabled
         {
             get
@@ -71,6 +108,128 @@ namespace RX_Explorer.Class
             }
         }
 
+        /// <summary>
+        /// 提供颜色透明度的值
+        /// </summary>
+        public double TintOpacity
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
+                {
+                    return Opacity;
+                }
+                else
+                {
+                    return 0.4;
+                }
+            }
+            set
+            {
+                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 提供背景光透过率的值
+        /// </summary>
+        public double TintLuminosityOpacity
+        {
+            get
+            {
+                if (IsCompositionAcrylicBackgroundEnabled)
+                {
+                    if (CompositionAcrylicBrush != null)
+                    {
+                        if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Value) == CompositionGetValueStatus.Succeeded)
+                        {
+                            return Value;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Opacity)
+                    {
+                        return Opacity;
+                    }
+                    else
+                    {
+                        return 0.8;
+                    }
+                }
+            }
+            set
+            {
+                if (IsCompositionAcrylicBackgroundEnabled && CompositionAcrylicBrush != null)
+                {
+                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source1Amount", Convert.ToSingle(value));
+                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", 1 - Convert.ToSingle(value));
+                }
+
+                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 提供主题色的值
+        /// </summary>
+        public Color AcrylicColor
+        {
+            get
+            {
+                if (IsCompositionAcrylicBackgroundEnabled)
+                {
+                    if (CompositionAcrylicBrush != null)
+                    {
+                        if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded)
+                        {
+                            return Value;
+                        }
+                        else
+                        {
+                            return Colors.SlateGray;
+                        }
+                    }
+                    else
+                    {
+                        return Colors.SlateGray;
+                    }
+                }
+                else
+                {
+                    return (Color)CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+                }
+            }
+            set
+            {
+                if (AcrylicColor != value)
+                {
+                    if (IsCompositionAcrylicBackgroundEnabled && CompositionAcrylicBrush != null)
+                    {
+                        CompositionAcrylicBrush.Properties.InsertColor("Tint.Color", value);
+                    }
+
+                    CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
+                    ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = value.ToHex();
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool IsMicaEffectEnabled
         {
             get
@@ -86,30 +245,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        private bool isMicaEffectEnabled;
-        private bool isCompositionAcrylicEnabled;
-
-        /// <summary>
-        /// 图片背景刷
-        /// </summary>
-        private readonly ImageBrush PictureBackgroundBrush = new ImageBrush
-        {
-            Stretch = Stretch.UniformToFill
-        };
-
-        /// <summary>
-        /// 纯色背景刷
-        /// </summary>
-        private readonly SolidColorBrush SolidColorBackgroundBrush;
-
-        /// <summary>
-        /// 必应背景刷
-        /// </summary>
-        private readonly ImageBrush BingPictureBursh = new ImageBrush
-        {
-            Stretch = Stretch.UniformToFill
-        };
 
         /// <summary>
         /// 指示当前的背景类型
@@ -207,18 +342,6 @@ namespace RX_Explorer.Class
                 OnPropertyChanged();
             }
         }
-
-        private static BackgroundController Instance;
-
-        private static readonly object Locker = new object();
-
-        public static Color SolidColor_WhiteTheme { get; } = Colors.White;
-
-        public static Color SolidColor_BlackTheme { get; } = "#1E1E1E".ToColor();
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private readonly UISettings UIS;
 
         /// <summary>
         /// 获取背景控制器的实例
@@ -524,128 +647,6 @@ namespace RX_Explorer.Class
             if (IsCompositionAcrylicBackgroundEnabled)
             {
                 GenerateAndSetCompositionAcrylicBrush(Element);
-            }
-        }
-
-        /// <summary>
-        /// 提供颜色透明度的值
-        /// </summary>
-        public double TintOpacity
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] is double Opacity)
-                {
-                    return Opacity;
-                }
-                else
-                {
-                    return 0.4;
-                }
-            }
-            set
-            {
-                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
-                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacityValue"] = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// 提供背景光透过率的值
-        /// </summary>
-        public double TintLuminosityOpacity
-        {
-            get
-            {
-                if (IsCompositionAcrylicBackgroundEnabled)
-                {
-                    if (CompositionAcrylicBrush != null)
-                    {
-                        if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Value) == CompositionGetValueStatus.Succeeded)
-                        {
-                            return Value;
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
-                else
-                {
-                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] is double Opacity)
-                    {
-                        return Opacity;
-                    }
-                    else
-                    {
-                        return 0.8;
-                    }
-                }
-            }
-            set
-            {
-                if (IsCompositionAcrylicBackgroundEnabled && CompositionAcrylicBrush != null)
-                {
-                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source1Amount", Convert.ToSingle(value));
-                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", 1 - Convert.ToSingle(value));
-                }
-
-                CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
-                ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosityValue"] = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// 提供主题色的值
-        /// </summary>
-        public Color AcrylicColor
-        {
-            get
-            {
-                if (IsCompositionAcrylicBackgroundEnabled)
-                {
-                    if (CompositionAcrylicBrush != null)
-                    {
-                        if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded)
-                        {
-                            return Value;
-                        }
-                        else
-                        {
-                            return Colors.SlateGray;
-                        }
-                    }
-                    else
-                    {
-                        return Colors.SlateGray;
-                    }
-                }
-                else
-                {
-                    return (Color)CustomAcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
-                }
-            }
-            set
-            {
-                if (AcrylicColor != value)
-                {
-                    if (IsCompositionAcrylicBackgroundEnabled && CompositionAcrylicBrush != null)
-                    {
-                        CompositionAcrylicBrush.Properties.InsertColor("Tint.Color", value);
-                    }
-
-                    CustomAcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
-                    ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = value.ToHex();
-
-                    OnPropertyChanged();
-                }
             }
         }
 

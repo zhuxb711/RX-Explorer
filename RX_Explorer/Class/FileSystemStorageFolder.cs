@@ -13,11 +13,11 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase
+    public class FileSystemStorageFolder : FileSystemStorageItemBase<StorageFolder>
     {
         public override string Name => System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
 
-        public override string DisplayName => ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
+        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
 
         public override string SizeDescription => string.Empty;
 

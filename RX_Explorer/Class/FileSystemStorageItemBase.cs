@@ -107,8 +107,6 @@ namespace RX_Explorer.Class
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
 
-        protected IStorageItem StorageItem { get; set; }
-
         protected static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
                                                                  ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                  : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
@@ -1048,16 +1046,6 @@ namespace RX_Explorer.Class
                     return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
                 }
             }
-        }
-
-        public static explicit operator StorageFile(FileSystemStorageItemBase File)
-        {
-            return File.StorageItem as StorageFile;
-        }
-
-        public static explicit operator StorageFolder(FileSystemStorageItemBase File)
-        {
-            return File.StorageItem as StorageFolder;
         }
 
         public static class SpecialPath

@@ -10,13 +10,13 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase
+    public class FileSystemStorageFile : FileSystemStorageItemBase<StorageFile>
     {
-        public override string DisplayName => ((StorageItem as StorageFile)?.DisplayName) ?? Name;
+        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
 
         public override string SizeDescription => Size.GetSizeDescription();
 
-        public override string DisplayType => ((StorageItem as StorageFile)?.DisplayType) ?? Type;
+        public override string DisplayType => (StorageItem?.DisplayType) ?? Type;
 
         public override bool IsReadOnly
         {

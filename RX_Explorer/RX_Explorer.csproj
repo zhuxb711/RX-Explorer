@@ -143,6 +143,7 @@
     <Compile Include="Class\FileSystemStorageFile.cs" />
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FileSystemStorageGroupItem.cs" />
+    <Compile Include="Class\FileSystemStorageItemBaseGeneric.cs" />
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\FontFamilyController.cs" />
     <Compile Include="Class\GroupCollectionGenerator.cs" />
