@@ -196,7 +196,7 @@
                                                   SelectionChanged="ViewModeList_SelectionChanged">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="Cls:LayoutModeModel">
-                                                    <Grid Padding="10,11">
+                                                    <Grid Padding="10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="20" />
                                                             <ColumnDefinition Width="*" />
@@ -221,16 +221,6 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Stretch"/>
                                         <StackPanel Grid.Column="2">
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="禁用"
-                                                          x:Uid="SettingTabPreview"
-                                                          Name="TabPreviewSwitch">
-                                                <ToggleSwitch.Header>
-                                                    <TextBlock Text="标签页预览"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               x:Uid="SettingTabPreviewLabel" />
-                                                </ToggleSwitch.Header>
-                                            </ToggleSwitch>
                                             <ToggleSwitch OnContent="启用"
                                                           OffContent="禁用"
                                                           x:Uid="SettingDisplayHiddenItem"

@@ -1,19 +1,17 @@
-﻿###Quoi de neuf dans la version 7.3.8.0
+﻿###Quoi de neuf dans la version 7.3.9.0
 
 #####Mise à jour des fonctionnalités
 
->#####Prise en charge de l'affichage des propriétés lorsque plusieurs fichiers sont sélectionnés
+>#####Amélioration de l'interface utilisateur du contrôle flottant attaché au bouton "Layout" et ajout de plusieurs commutateurs de raccourci
 
-#####Bug réparé
+>#####Ajout d'un nouveau paramètre pour permettre le contrôle de l'affichage ou non des extensions de fichiers
 
->#####Correction du problème qui pouvait empêcher l'affichage du menu contextuel
+#####Correction d'un bug
 
->#####Correction d'un problème pouvant provoquer un blocage lors de l'affichage des propriétés d'un dossier volumineux
+>#####Correction d'un problème selon lequel lorsque l'application par défaut d'un certain type de fichier est une application UWP, elle peut ne pas être correctement identifiée dans la boîte de dialogue « Ouvrir avec »
 
->#####Correction du problème selon lequel le "" dans les propriétés peut être incorrect
+>#####Correction du problème selon lequel la visionneuse de texte intégrée pouvait afficher un format de codage vierge
 
->####Résolution du problème selon lequel après avoir défini cette application comme gestionnaire par défaut, cliquer sur "Ouvrir avec l'explorateur système" dans le menu contextuel ouvrira toujours cette application
+>#####Correction d'un problème pouvant entraîner le blocage de l'application lors du chargement de "Bibliothèques"
 
->#####Correction du problème selon lequel les objets du dossier ne peuvent pas être énumérés correctement, ce qui peut entraîner un calcul incorrect du nombre de sous-dossiers et de sous-fichiers dans la fenêtre de propriétés
-
->#####Correction de certains problèmes causés par le SDK
+>#####Correction du problème pouvant entraîner l'impossibilité d'accéder à l'éditeur d'images intégré

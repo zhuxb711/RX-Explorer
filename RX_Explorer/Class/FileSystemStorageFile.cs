@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using RX_Explorer.Interface;
 using ShareClassLibrary;
 using System;
 using System.IO;
@@ -10,7 +11,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase<StorageFile>
+    public class FileSystemStorageFile : FileSystemStorageItemBase, ICoreStorageItem<StorageFile>
     {
         public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
 
@@ -49,6 +50,8 @@ namespace RX_Explorer.Class
         }
 
         public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
+
+        public StorageFile StorageItem { get; protected set; }
 
         public FileSystemStorageFile(StorageFile Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)
         {
@@ -152,6 +155,11 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFile, Path: {Path}");
                 return null;
             }
+        }
+
+        public static explicit operator StorageFile(FileSystemStorageFile File)
+        {
+            return File.StorageItem;
         }
     }
 }

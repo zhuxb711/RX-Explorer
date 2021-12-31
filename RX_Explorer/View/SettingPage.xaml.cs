@@ -162,7 +162,7 @@ namespace RX_Explorer
                     return true;
                 }
             }
-            set
+            private set
             {
                 ApplicationData.Current.LocalSettings.Values["EnableTabPreview"] = value;
             }

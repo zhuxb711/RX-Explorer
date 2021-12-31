@@ -143,7 +143,6 @@
     <Compile Include="Class\FileSystemStorageFile.cs" />
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FileSystemStorageGroupItem.cs" />
-    <Compile Include="Class\FileSystemStorageItemBaseGeneric.cs" />
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\FontFamilyController.cs" />
     <Compile Include="Class\GroupCollectionGenerator.cs" />
@@ -213,6 +212,8 @@
     <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
       <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Interface\ICoreStorageItem.cs" />
+    <Compile Include="Interface\IUnsupportedStorageItemGeneric.cs" />
     <Compile Include="View\SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>

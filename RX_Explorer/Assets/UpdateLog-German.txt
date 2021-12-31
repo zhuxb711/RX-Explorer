@@ -2,18 +2,16 @@
 
 #####Funktionsupdate
 
->#####Anzeigeeigenschaften unterstützen, wenn mehrere Dateien ausgewählt sind
+>#####Die Benutzeroberfläche des schwebenden Steuerelements, das mit der Schaltfläche "Layout" verbunden ist, wurde verbessert und mehrere Verknüpfungsschalter hinzugefügt
 
-#####Fehler behoben
+>#####Neue Einstellung hinzugefügt, um zu steuern, ob Dateierweiterungen angezeigt werden sollen
 
->#####Das Problem wurde behoben, das dazu führen kann, dass das Kontextmenü nicht angezeigt wird
+#####Bug-Fix
 
->#####Es wurde ein Problem behoben, das beim Anzeigen der Eigenschaften eines großen Ordners zu einem Hängenbleiben führen kann
+>######Es wurde ein Problem behoben, bei dem die Standardanwendung eines bestimmten Dateityps eine UWP-Anwendung ist, die im Dialogfeld "Öffnen mit" möglicherweise nicht richtig identifiziert wird.
 
->#####Problem behoben, dass das "" in den Eigenschaften möglicherweise falsch ist
+>#####Das Problem wurde behoben, dass der integrierte Textbetrachter möglicherweise ein leeres Kodierungsformat anzeigt
 
->#####Das Problem wurde behoben, dass nach dem Festlegen dieser Anwendung als Standardmanager das Klicken auf "Mit System-Explorer öffnen" im Kontextmenü diese Anwendung immer noch öffnet
+>#####Es wurde ein Problem behoben, das zum Absturz der App beim Laden von "Bibliotheken" führen kann
 
->#####Problem behoben, dass die Objekte im Ordner nicht korrekt aufgezählt werden können, was zu einer falschen Berechnung der Anzahl der Unterordner und Unterdateien im Eigenschaftsfenster führen kann
-
->#####Einige Probleme durch SDK behoben
+>#####Das Problem wurde behoben, das dazu führen kann, dass der integrierte Bildeditor nicht aufgerufen werden kann

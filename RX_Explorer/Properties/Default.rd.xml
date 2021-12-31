@@ -25,8 +25,5 @@
 
 
 		<!-- 在此处添加应用程序特定的运行时指令。-->
-		<Namespace Name ="RX_Explorer.Class" >
-			<Type Name="FileSystemStorageItemBase`1" MarshalDelegate="Required All" />
-		</Namespace>
 	</Application>
 </Directives>

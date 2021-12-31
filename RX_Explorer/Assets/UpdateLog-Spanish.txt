@@ -1,19 +1,17 @@
-﻿###Novedades de la versión 7.3.8.0
+﻿###Novedades de la versión 7.3.9.0
 
 #####Actualización de funciones
 
->#####Admite propiedades de visualización cuando se seleccionan varios archivos
+>#####Se mejoró la interfaz de usuario del control flotante adjunto al botón "Diseño" y se agregaron varios interruptores de acceso directo
 
-#####Error arreglado
+>#####Se agregó una nueva configuración para permitir el control de si se muestran las extensiones de archivo
 
->#####Se solucionó el problema que podía causar que el menú contextual no apareciera
+#####Arreglo del fallo
 
->#####Se solucionó un problema que podía causar un bloqueo al ver las propiedades de una carpeta grande
+>#####Se solucionó el problema de que cuando la aplicación predeterminada de un determinado tipo de archivo es una aplicación para UWP, es posible que no se identifique correctamente en el cuadro de diálogo "Abrir con"
 
->#####Se solucionó el problema de que "" en las propiedades puede ser incorrecto
+>#####Se solucionó el problema de que el visor de texto incorporado puede mostrar un formato de codificación en blanco
 
->#####Se solucionó el problema de que después de configurar esta aplicación como el administrador predeterminado, al hacer clic en "Abrir con el explorador del sistema" en el menú contextual aún se abre esta aplicación
+>#####Se solucionó un problema que podía hacer que la aplicación se bloqueara al cargar "Bibliotecas"
 
->#####Se solucionó el problema de que los objetos en la carpeta no se pueden enumerar correctamente, lo que puede causar el cálculo incorrecto del número de subcarpetas y subarchivos en la ventana de propiedades
-
->#####Se corrigieron algunos problemas causados por SDK
+>#####Se solucionó el problema que podía causar la imposibilidad de ingresar al editor de imágenes incorporado

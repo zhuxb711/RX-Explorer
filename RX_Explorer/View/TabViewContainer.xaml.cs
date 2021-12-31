@@ -683,11 +683,9 @@ namespace RX_Explorer
 
             DisplayHiddenItem.IsOn = SettingPage.IsShowHiddenFilesEnabled;
             DisplayFileExtension.IsOn = SettingPage.IsShowFileExtensionsEnabled;
-            TabPreviewSwitch.IsOn = SettingPage.IsTabPreviewEnabled;
             TreeViewDetach.IsOn = !SettingPage.IsDetachTreeViewAndPresenter;
 
             DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
-            TabPreviewSwitch.Toggled += TabPreviewSwitch_Toggled;
             DisplayFileExtension.Toggled += DisplayFileExtension_Toggled;
             TreeViewDetach.Toggled += TreeViewDetach_Toggled;
 
@@ -710,17 +708,14 @@ namespace RX_Explorer
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
-                TabPreviewSwitch.Toggled -= TabPreviewSwitch_Toggled;
                 DisplayFileExtension.Toggled -= DisplayFileExtension_Toggled;
                 TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
 
                 DisplayHiddenItem.IsOn = SettingPage.IsShowHiddenFilesEnabled;
                 DisplayFileExtension.IsOn = SettingPage.IsShowFileExtensionsEnabled;
-                TabPreviewSwitch.IsOn = SettingPage.IsTabPreviewEnabled;
                 TreeViewDetach.IsOn = !SettingPage.IsDetachTreeViewAndPresenter;
 
                 DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
-                TabPreviewSwitch.Toggled += TabPreviewSwitch_Toggled;
                 DisplayFileExtension.Toggled += DisplayFileExtension_Toggled;
                 TreeViewDetach.Toggled += TreeViewDetach_Toggled;
             });
@@ -1491,12 +1486,6 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.SignalDataChanged();
             }
-        }
-
-        private void TabPreviewSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            SettingPage.IsTabPreviewEnabled = TabPreviewSwitch.IsOn;
-            ApplicationData.Current.SignalDataChanged();
         }
 
         private async void DisplayFileExtension_Toggled(object sender, RoutedEventArgs e)

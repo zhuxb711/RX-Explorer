@@ -1,4 +1,5 @@
-﻿using ShareClassLibrary;
+﻿using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase<StorageFolder>
+    public class FileSystemStorageFolder : FileSystemStorageItemBase, ICoreStorageItem<StorageFolder>
     {
         public override string Name => System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
 
@@ -41,6 +42,8 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
+        public StorageFolder StorageItem { get; protected set; }
 
         public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
 
@@ -419,6 +422,11 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
                 return null;
             }
+        }
+
+        public static explicit operator StorageFolder(FileSystemStorageFolder File)
+        {
+            return File.StorageItem;
         }
     }
 }

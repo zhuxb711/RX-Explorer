@@ -1,19 +1,17 @@
-﻿###What's new in Ver.7.3.8.0
+﻿###What's new in Ver.7.3.9.0
 
 #####Feature update
 
->#####Support viewing properties when multiple files are selected
+>#####Improved the UI of the floating control attached to the "Layout" button and added several shortcut switches
 
-#####Bug fixed
+>#####Added a new setting to allow control of whether to display file extensions
 
->#####Fixed the problem that may cause the context menu to fail to pop up
+#####Bug fix
 
->#####Fixed an issue that may cause a stuck when viewing the properties of a large folder
+>#####Fixed a problem that when the default application of a certain file type is a UWP application, it may not be correctly identified in the "Open With" dialog
 
->#####Fixed the problem that the "Size on disk" in the properties may be incorrect
+>#####Fixed the problem that the built-in text viewer may display blank encoding format
 
->#####Fixed the problem that after setting this application as the default manager, clicking "Open with system explorer" in the context menu will still open this application
+>#####Fixed an issue that may cause the app to crash when loading "Libraries"
 
->#####Fixed the problem that the objects in the folder cannot be enumerated correctly, which may cause the incorrect calculation of the number of subfolders and subfiles in the property window
-
->#####Fixed some problems caused by SDK
+>#####Fixed the problem that may cause the inability to enter the built-in image editor
