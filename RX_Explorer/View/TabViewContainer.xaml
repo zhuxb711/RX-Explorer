@@ -196,7 +196,7 @@
                                                   SelectionChanged="ViewModeList_SelectionChanged">
                                             <ListView.ItemTemplate>
                                                 <DataTemplate x:DataType="Cls:LayoutModeModel">
-                                                    <Grid Padding="10">
+                                                    <Grid Windows11NotPresent:Padding="10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="20" />
                                                             <ColumnDefinition Width="*" />

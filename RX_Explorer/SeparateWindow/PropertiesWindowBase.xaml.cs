@@ -39,6 +39,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
     {
         private readonly AppWindow Window;
         private readonly FileSystemStorageItemBase[] StorageItems;
+        private readonly DriveDataBase RootDrive;
         private readonly ObservableCollection<PropertiesGroupItem> PropertiesCollection = new ObservableCollection<PropertiesGroupItem>();
         private static readonly Dictionary<uint, string> OfflineAvailabilityMap = new Dictionary<uint, string>(3)
         {
@@ -102,6 +103,26 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 throw new ArgumentOutOfRangeException(nameof(StorageItems));
             }
 
+            await Task.WhenAll(StorageItems.Select((Item) => Item.LoadAsync()));
+
+            AppWindow CoreWindow = await InitializeWindowsAsync();
+            PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(CoreWindow, StorageItems);
+            ElementCompositionPreview.SetAppWindowContent(CoreWindow, PropertiesWindow);
+
+            return PropertiesWindow;
+        }
+
+        public static async Task<PropertiesWindowBase> CreateAsync(DriveDataBase Drive)
+        {
+            AppWindow CoreWindow = await InitializeWindowsAsync();
+            PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(CoreWindow, Drive);
+            ElementCompositionPreview.SetAppWindowContent(CoreWindow, PropertiesWindow);
+
+            return PropertiesWindow;
+        }
+
+        private static async Task<AppWindow> InitializeWindowsAsync()
+        {
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
@@ -110,17 +131,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            foreach (FileSystemStorageItemBase Item in StorageItems)
-            {
-                await Item.LoadAsync();
-            }
-
-            PropertiesWindowBase PropertiesWindow = new PropertiesWindowBase(NewWindow, StorageItems);
-
-            ElementCompositionPreview.SetAppWindowContent(NewWindow, PropertiesWindow);
             WindowManagementPreview.SetPreferredMinSize(NewWindow, WindowSize);
 
-            return PropertiesWindow;
+            return NewWindow;
         }
 
         public async Task ShowAsync(Point ShowAt)
@@ -129,18 +142,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             await Window.TryShowAsync();
         }
 
-        private PropertiesWindowBase(AppWindow Window, params FileSystemStorageItemBase[] StorageItems)
+        private PropertiesWindowBase(AppWindow Window)
         {
             InitializeComponent();
 
             this.Window = Window;
-            this.StorageItems = StorageItems;
 
-            PropertiesTitleLeft.Text = string.Join(", ", StorageItems.Select((Item) => Item is FileSystemStorageFolder
-                                                                                       ? (string.IsNullOrEmpty(Item.DisplayName)
-                                                                                           ? Item.Name
-                                                                                           : Item.DisplayName)
-                                                                                       : Item.Name));
             GeneralTab.Text = Globalization.GetString("Properties_General_Tab");
             ShortcutTab.Text = Globalization.GetString("Properties_Shortcut_Tab");
             DetailsTab.Text = Globalization.GetString("Properties_Details_Tab");
@@ -151,6 +158,35 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             ShortcutWindowsStateContent.Items.Add(Globalization.GetString("ShortcutWindowsStateText3"));
 
             ShortcutWindowsStateContent.SelectedIndex = 0;
+
+            Window.Closed += Window_Closed;
+            Loading += PropertiesWindow_Loading;
+            Loaded += PropertiesWindow_Loaded;
+        }
+
+        private PropertiesWindowBase(AppWindow Window, DriveDataBase RootDrive) : this(Window)
+        {
+            this.RootDrive = RootDrive;
+
+            PropertiesTitleLeft.Text = RootDrive.DisplayName;
+
+            GeneralPanelSwitcher.Value = "RootDrive";
+
+            while (PivotControl.Items.Count > 1)
+            {
+                PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
+            }
+        }
+
+        private PropertiesWindowBase(AppWindow Window, params FileSystemStorageItemBase[] StorageItems) : this(Window)
+        {
+            this.StorageItems = StorageItems;
+
+            PropertiesTitleLeft.Text = string.Join(", ", StorageItems.Select((Item) => Item is FileSystemStorageFolder
+                                                                                       ? (string.IsNullOrEmpty(Item.DisplayName)
+                                                                                           ? Item.Name
+                                                                                           : Item.DisplayName)
+                                                                                       : Item.Name));
 
             if (StorageItems.Length > 1)
             {
@@ -208,10 +244,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     throw new NotSupportedException();
                 }
             }
-
-            Window.Closed += Window_Closed;
-            Loading += PropertiesWindow_Loading;
-            Loaded += PropertiesWindow_Loaded;
         }
 
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)
@@ -223,31 +255,40 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             SHA1Cancellation?.Cancel();
             SHA256Cancellation?.Cancel();
 
-            if (StorageItems.Length > 1)
+            switch ((StorageItems?.Length).GetValueOrDefault())
             {
-                MultiLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
-                MultiLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
-                MultiLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
-                MultiLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
-            }
-            else
-            {
-                FileSystemStorageItemBase StorageItem = StorageItems.FirstOrDefault();
+                case > 1:
+                    {
+                        MultiLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+                        MultiLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+                        MultiLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+                        MultiLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
+                        break;
+                    }
+                case 1:
+                    {
+                        switch (StorageItems.First())
+                        {
+                            case FileSystemStorageFolder:
+                                {
+                                    FolderLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+                                    FolderLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+                                    FolderLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+                                    FolderLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
+                                    break;
+                                }
+                            case FileSystemStorageFile:
+                                {
+                                    FileLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+                                    FileLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+                                    FileLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+                                    FileLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
+                                    break;
+                                }
+                        }
 
-                if (StorageItem is FileSystemStorageFolder)
-                {
-                    FolderLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
-                    FolderLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
-                    FolderLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
-                    FolderLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
-                }
-                else if (StorageItem is FileSystemStorageFile)
-                {
-                    FileLocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
-                    FileLocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
-                    FileLocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
-                    FileLocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
-                }
+                        break;
+                    }
             }
 
             WindowClosed?.Invoke(this, new EventArgs());
@@ -255,105 +296,108 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task SaveConfiguration()
         {
-            Task ShowLoadingTask = Task.Delay(2000).ContinueWith((_) =>
+            if(StorageItems != null)
+            {
+                Task ShowLoadingTask = Task.Delay(2000).ContinueWith((_) =>
             {
                 LoadingControl.IsLoading = true;
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
-            List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>> AttributeDic = new List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>>(2);
+            List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>> AttributeDic = new List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>>();
 
-            foreach (FileSystemStorageItemBase StorageItem in StorageItems)
-            {
-                switch (StorageItem)
+                foreach (FileSystemStorageItemBase StorageItem in StorageItems)
                 {
-                    case FileSystemStorageFolder:
-                        {
-                            if (FolderReadonlyAttribute.IsChecked != null)
-                            {
-                                AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(FolderReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
-                            }
-
-                            if (FolderHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
-                            {
-                                AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
-                            }
-
-                            if (StorageItems.Length == 1 && FolderStorageItemName.Text != StorageItem.Name)
-                            {
-                                if (HandleRenameAutomatically)
-                                {
-                                    await StorageItem.RenameAsync(FolderStorageItemName.Text);
-                                }
-                                else
-                                {
-                                    await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FolderStorageItemName.Text));
-                                }
-                            }
-
-                            break;
-                        }
-                    case FileSystemStorageFile File:
-                        {
-                            if (FileReadonlyAttribute.IsChecked.GetValueOrDefault() != File.IsReadOnly)
-                            {
-                                AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
-                            }
-
-                            if (FileHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
-                            {
-                                AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
-                            }
-
-                            if (StorageItems.Length == 1 && FileStorageItemName.Text != StorageItem.Name)
-                            {
-                                if (HandleRenameAutomatically)
-                                {
-                                    await StorageItem.RenameAsync(FileStorageItemName.Text);
-                                }
-                                else
-                                {
-                                    await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FileStorageItemName.Text));
-                                }
-                            }
-
-                            break;
-                        }
-                }
-
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                {
-                    await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
-
                     switch (StorageItem)
                     {
-                        case LinkStorageFile:
+                        case FileSystemStorageFolder:
                             {
-                                string[] TargetSplit = ShortcutTargetContent.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                                await Exclusive.Controller.UpdateLinkAsync(new LinkDataPackage
+                                if (FolderReadonlyAttribute.IsChecked != null)
                                 {
-                                    LinkPath = StorageItem.Path,
-                                    LinkTargetPath = TargetSplit.FirstOrDefault(),
-                                    Arguments = TargetSplit.Skip(1).ToArray(),
-                                    WorkDirectory = ShortcutStartInContent.Text,
-                                    WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                    HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
-                                    Comment = ShortcutCommentContent.Text,
-                                    NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
-                                });
+                                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(FolderReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
+                                }
+
+                                if (FolderHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
+                                {
+                                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                }
+
+                                if (StorageItems.Length == 1 && FolderStorageItemName.Text != StorageItem.Name)
+                                {
+                                    if (HandleRenameAutomatically)
+                                    {
+                                        await StorageItem.RenameAsync(FolderStorageItemName.Text);
+                                    }
+                                    else
+                                    {
+                                        await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FolderStorageItemName.Text));
+                                    }
+                                }
 
                                 break;
                             }
-                        case UrlStorageFile:
+                        case FileSystemStorageFile File:
                             {
-                                await Exclusive.Controller.UpdateUrlAsync(new UrlDataPackage
+                                if (FileReadonlyAttribute.IsChecked.GetValueOrDefault() != File.IsReadOnly)
                                 {
-                                    UrlPath = StorageItem.Path,
-                                    UrlTargetPath = ShortcutUrlContent.Text
-                                });
+                                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
+                                }
+
+                                if (FileHiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
+                                {
+                                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
+                                }
+
+                                if (StorageItems.Length == 1 && FileStorageItemName.Text != StorageItem.Name)
+                                {
+                                    if (HandleRenameAutomatically)
+                                    {
+                                        await StorageItem.RenameAsync(FileStorageItemName.Text);
+                                    }
+                                    else
+                                    {
+                                        await RenameRequested?.InvokeAsync(this, new FileRenamedDeferredEventArgs(StorageItem.Path, FileStorageItemName.Text));
+                                    }
+                                }
 
                                 break;
                             }
+                    }
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    {
+                        await Exclusive.Controller.SetFileAttributeAsync(StorageItem.Path, AttributeDic.ToArray());
+
+                        switch (StorageItem)
+                        {
+                            case LinkStorageFile:
+                                {
+                                    string[] TargetSplit = ShortcutTargetContent.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                                    await Exclusive.Controller.UpdateLinkAsync(new LinkDataPackage
+                                    {
+                                        LinkPath = StorageItem.Path,
+                                        LinkTargetPath = TargetSplit.FirstOrDefault(),
+                                        Arguments = TargetSplit.Skip(1).ToArray(),
+                                        WorkDirectory = ShortcutStartInContent.Text,
+                                        WindowState = (WindowState)ShortcutWindowsStateContent.SelectedIndex,
+                                        HotKey = ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                        Comment = ShortcutCommentContent.Text,
+                                        NeedRunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault()
+                                    });
+
+                                    break;
+                                }
+                            case UrlStorageFile:
+                                {
+                                    await Exclusive.Controller.UpdateUrlAsync(new UrlDataPackage
+                                    {
+                                        UrlPath = StorageItem.Path,
+                                        UrlTargetPath = ShortcutUrlContent.Text
+                                    });
+
+                                    break;
+                                }
+                        }
                     }
                 }
             }
@@ -366,33 +410,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void PropertiesWindow_Loading(FrameworkElement sender, object args)
         {
-            if (StorageItems.Length > 1)
-            {
-                await LoadDataForGeneralPage();
-            }
-            else
-            {
-                FileSystemStorageItemBase StorageItem = StorageItems.First();
+            await LoadDataForGeneralPage();
 
-                switch (StorageItem)
+            if ((StorageItems?.Length).GetValueOrDefault() == 1 && StorageItems?.First() is FileSystemStorageFile StorageItem)
+            {
+                await LoadDataForDetailPage();
+
+                if (StorageItem is LinkStorageFile or UrlStorageFile)
                 {
-                    case FileSystemStorageFolder:
-                        {
-                            await LoadDataForGeneralPage();
-                            break;
-                        }
-                    case FileSystemStorageFile:
-                        {
-                            await LoadDataForGeneralPage();
-                            await LoadDataForDetailPage();
-
-                            if (StorageItem is LinkStorageFile or UrlStorageFile)
-                            {
-                                await LoadDataForShortCutPage();
-                            }
-
-                            break;
-                        }
+                    await LoadDataForShortCutPage();
                 }
             }
         }
@@ -877,366 +903,406 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task LoadDataForGeneralPage()
         {
-            if (StorageItems.Length > 1)
+            switch((StorageItems?.Length).GetValueOrDefault())
             {
-                MultiThumbnail.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/MultiItems_White.png" : "ms-appx:///Assets/MultiItems_Black.png"));
-                MultiTypeContent.Text = StorageItems.Skip(1).All((Item) => Item.DisplayType == StorageItems.First().DisplayType) ? $"{Globalization.GetString("MultiProperty_Type_Text")} {StorageItems.First().DisplayType}" : Globalization.GetString("MultiProperty_TypeDescription_Text");
-                MultiStorageItemName.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                MultiSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                MultiSizeOnDiskContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                MultiLocationContent.Text = $"{Globalization.GetString("MultiProperty_Location_Text")} {Path.GetDirectoryName(StorageItems.First().Path) ?? StorageItems.First().Path}";
-                MultiHiddenAttribute.IsChecked = StorageItems.All((Item) => Item is IHiddenStorageItem)
-                                                              ? true
-                                                              : (StorageItems.Any((Item) => Item is IHiddenStorageItem)
-                                                                    ? null
-                                                                    : false);
-                MultiReadonlyAttribute.IsChecked = StorageItems.Any((Item) => Item is FileSystemStorageFolder)
-                                                               ? null
-                                                               : (Array.TrueForAll(StorageItems, (Item) => Item.IsReadOnly)
-                                                                       ? true
-                                                                       : (Array.TrueForAll(StorageItems, (Item) => !Item.IsReadOnly)
-                                                                               ? false
-                                                                               : null));
-
-                try
-                {
-                    SizeCalculateCancellation = new CancellationTokenSource();
-
-                    long FileCount = 0;
-                    long FolderCount = 0;
-                    long TotalSize = 0;
-
-                    ConcurrentBag<Task<ulong>> SizeOnDiskTaskList = new ConcurrentBag<Task<ulong>>();
-
-                    await Task.Factory.StartNew(() => Parallel.ForEach(StorageItems, (StorageItem) =>
+                case > 1:
                     {
+                        MultiThumbnail.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/MultiItems_White.png" : "ms-appx:///Assets/MultiItems_Black.png"));
+                        MultiTypeContent.Text = StorageItems.Skip(1).All((Item) => Item.DisplayType == StorageItems.First().DisplayType) ? $"{Globalization.GetString("MultiProperty_Type_Text")} {StorageItems.First().DisplayType}" : Globalization.GetString("MultiProperty_TypeDescription_Text");
+                        MultiStorageItemName.Text = Globalization.GetString("SizeProperty_Calculating_Text");
+                        MultiSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
+                        MultiSizeOnDiskContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
+                        MultiLocationContent.Text = $"{Globalization.GetString("MultiProperty_Location_Text")} {Path.GetDirectoryName(StorageItems.First().Path) ?? StorageItems.First().Path}";
+                        MultiHiddenAttribute.IsChecked = StorageItems.All((Item) => Item is IHiddenStorageItem)
+                                                                      ? true
+                                                                      : (StorageItems.Any((Item) => Item is IHiddenStorageItem)
+                                                                            ? null
+                                                                            : false);
+                        MultiReadonlyAttribute.IsChecked = StorageItems.Any((Item) => Item is FileSystemStorageFolder)
+                                                                       ? null
+                                                                       : (Array.TrueForAll(StorageItems, (Item) => Item.IsReadOnly)
+                                                                               ? true
+                                                                               : (Array.TrueForAll(StorageItems, (Item) => !Item.IsReadOnly)
+                                                                                       ? false
+                                                                                       : null));
+
                         try
                         {
-                            if (StorageItem is FileSystemStorageFolder Folder)
+                            SizeCalculateCancellation = new CancellationTokenSource();
+
+                            long FileCount = 0;
+                            long FolderCount = 0;
+                            long TotalSize = 0;
+
+                            ConcurrentBag<Task<ulong>> SizeOnDiskTaskList = new ConcurrentBag<Task<ulong>>();
+
+                            await Task.Factory.StartNew(() => Parallel.ForEach(StorageItems, (StorageItem) =>
                             {
-                                IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: SizeCalculateCancellation.Token).Result;
-
-                                if (!SizeCalculateCancellation.IsCancellationRequested)
+                                try
                                 {
-                                    Interlocked.Add(ref TotalSize, Result.OfType<FileSystemStorageFile>().Sum((SubFile) => Convert.ToInt64(SubFile.Size)));
-                                    Interlocked.Add(ref FileCount, Result.OfType<FileSystemStorageFile>().LongCount());
-                                    Interlocked.Add(ref FolderCount, Result.OfType<FileSystemStorageFolder>().LongCount());
-
-                                    foreach (FileSystemStorageFile SubFile in Result.OfType<FileSystemStorageFile>())
+                                    if (StorageItem is FileSystemStorageFolder Folder)
                                     {
-                                        SizeOnDiskTaskList.Add(SubFile.GetSizeOnDiskAsync());
+                                        Interlocked.Increment(ref FolderCount);
+
+                                        IReadOnlyList<FileSystemStorageItemBase> Result = Folder.GetChildItemsAsync(true, true, true, CancelToken: SizeCalculateCancellation.Token).Result;
+
+                                        if (!SizeCalculateCancellation.IsCancellationRequested)
+                                        {
+                                            Interlocked.Add(ref TotalSize, Result.OfType<FileSystemStorageFile>().Sum((SubFile) => Convert.ToInt64(SubFile.Size)));
+                                            Interlocked.Add(ref FileCount, Result.OfType<FileSystemStorageFile>().LongCount());
+                                            Interlocked.Add(ref FolderCount, Result.OfType<FileSystemStorageFolder>().LongCount());
+
+                                            foreach (FileSystemStorageFile SubFile in Result.OfType<FileSystemStorageFile>())
+                                            {
+                                                SizeOnDiskTaskList.Add(SubFile.GetSizeOnDiskAsync());
+                                            }
+                                        }
+                                    }
+                                    else if (StorageItem is FileSystemStorageFile File)
+                                    {
+                                        Interlocked.Add(ref FileCount, 1);
+                                        Interlocked.Add(ref TotalSize, Convert.ToInt64(File.Size));
+                                        SizeOnDiskTaskList.Add(File.GetSizeOnDiskAsync());
                                     }
                                 }
-                            }
-                            else if (StorageItem is FileSystemStorageFile File)
-                            {
-                                Interlocked.Add(ref FileCount, 1);
-                                Interlocked.Add(ref TotalSize, Convert.ToInt64(File.Size));
-                                SizeOnDiskTaskList.Add(File.GetSizeOnDiskAsync());
-                            }
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            //No need to handle this exception
+                                catch (TaskCanceledException)
+                                {
+                                    //No need to handle this exception
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
+                                }
+                            }), TaskCreationOptions.LongRunning);
+
+                            MultiStorageItemName.Text = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
+                            MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+
+                            ulong[] SizeOnDiskResultArray = await Task.WhenAll(SizeOnDiskTaskList);
+                            ulong SizeOnDisk = Convert.ToUInt64(SizeOnDiskResultArray.Sum((Result) => Convert.ToInt64(Result)));
+                            MultiSizeOnDiskContent.Text = $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})";
                         }
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
                         }
-                    }), TaskCreationOptions.LongRunning);
-
-                    MultiStorageItemName.Text = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
-                    MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
-
-                    ulong[] SizeOnDiskResultArray = await Task.WhenAll(SizeOnDiskTaskList);
-                    ulong SizeOnDisk = Convert.ToUInt64(SizeOnDiskResultArray.Sum((Result) => Convert.ToInt64(Result)));
-                    MultiSizeOnDiskContent.Text = $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})";
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
-                }
-                finally
-                {
-                    SizeCalculateCancellation.Dispose();
-                    SizeCalculateCancellation = null;
-                }
-            }
-            else
-            {
-                FileSystemStorageItemBase StorageItem = StorageItems.FirstOrDefault();
-
-                if (StorageItem is FileSystemStorageFolder Folder)
-                {
-                    FolderStorageItemName.Text = Folder.Name;
-                    FolderThumbnail.Source = Folder.Thumbnail;
-                    FolderTypeContent.Text = Folder.DisplayType;
-                    FolderSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                    FolderContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
-                    FolderLocationContent.Text = Path.GetDirectoryName(Folder.Path) ?? Folder.Path;
-                    FolderCreatedContent.Text = Folder.CreationTime.ToString("F");
-                    FolderHiddenAttribute.IsChecked = Folder is IHiddenStorageItem;
-                    FolderReadonlyAttribute.IsChecked = null;
-
-                    try
-                    {
-                        SizeCalculateCancellation = new CancellationTokenSource();
-
-                        Task CountTask = CalculateFolderAndFileCount(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
+                        finally
                         {
-                            FolderContainsContent.Text = $"{PreviousTask.Result.Item1} {Globalization.GetString("FolderInfo_File_Count")} , {PreviousTask.Result.Item2} {Globalization.GetString("FolderInfo_Folder_Count")}";
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                        Task SizeTask = CalculateFolderSize(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
-                        {
-                            FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Device_Capacity_Unit")})";
-
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                        await Task.WhenAll(CountTask, SizeTask);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        //No need to handle this exception
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
-                    }
-                    finally
-                    {
-                        SizeCalculateCancellation.Dispose();
-                        SizeCalculateCancellation = null;
-                    }
-                }
-                else if (StorageItem is FileSystemStorageFile File)
-                {
-                    FileStorageItemName.Text = File.Name;
-                    FileThumbnail.Source = File.Thumbnail;
-                    FileReadonlyAttribute.IsChecked = File.IsReadOnly;
-                    FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
-                    FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
-                    FileCreatedContent.Text = File.CreationTime.ToString("F");
-                    FileModifiedContent.Text = File.ModifiedTime.ToString("F");
-                    FileHiddenAttribute.IsChecked = File is IHiddenStorageItem;
-
-                    if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
-                    {
-                        string Description = string.Empty;
-
-                        if (File is LinkStorageFile Link)
-                        {
-                            if (await FileSystemStorageItemBase.OpenAsync(Link.LinkTargetPath) is FileSystemStorageItemBase LinkTarget)
-                            {
-                                if (LinkTarget is FileSystemStorageFile)
-                                {
-                                    IReadOnlyDictionary<string, string> DescriptionResult = await LinkTarget.GetPropertiesAsync(new string[] { "System.FileDescription" });
-                                    Description = DescriptionResult["System.FileDescription"];
-                                }
-                                else
-                                {
-                                    Description = LinkTarget.Name;
-                                }
-                            }
-                        }
-                        else if (File is not IUnsupportedStorageItem)
-                        {
-                            IReadOnlyDictionary<string, string> DescriptionResult = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
-                            Description = DescriptionResult["System.FileDescription"];
+                            SizeCalculateCancellation.Dispose();
+                            SizeCalculateCancellation = null;
                         }
 
-                        FileDescriptionContent.Text = string.IsNullOrEmpty(Description) ? File.Name : Description;
+                        break;
                     }
-
-                    ulong SizeOnDisk = await File.GetSizeOnDiskAsync();
-                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})" : Globalization.GetString("UnknownText");
-
-                    bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
-                    bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);
-
-                    if (IsDisplayTypeEmpty && IsTypeEmpty)
+                case 1:
                     {
-                        FileTypeContent.Text = Globalization.GetString("UnknownText");
-                    }
-                    else if (IsDisplayTypeEmpty && !IsTypeEmpty)
-                    {
-                        FileTypeContent.Text = File.Type.ToUpper();
-                    }
-                    else if (!IsDisplayTypeEmpty && IsTypeEmpty)
-                    {
-                        FileTypeContent.Text = File.DisplayType;
-                    }
-                    else
-                    {
-                        FileTypeContent.Text = $"{File.DisplayType} ({File.Type.ToLower()})";
-                    }
-
-                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
-
-                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
-                    {
-                        switch (File.Type.ToLower())
+                        switch (StorageItems.First())
                         {
-                            case ".jpg":
-                            case ".png":
-                            case ".bmp":
-                            case ".mkv":
-                            case ".mp4":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".wmv":
-                            case ".m4a":
-                            case ".mov":
-                            case ".txt":
-                            case ".pdf":
+                            case FileSystemStorageFolder Folder:
                                 {
-                                    FileOpenWithContent.Text = Globalization.GetString("AppDisplayName");
+                                    FolderStorageItemName.Text = Folder.Name;
+                                    FolderThumbnail.Source = Folder.Thumbnail;
+                                    FolderTypeContent.Text = Folder.DisplayType;
+                                    FolderSizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
+                                    FolderContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
+                                    FolderLocationContent.Text = Path.GetDirectoryName(Folder.Path) ?? Folder.Path;
+                                    FolderCreatedContent.Text = Folder.CreationTime.ToString("F");
+                                    FolderHiddenAttribute.IsChecked = Folder is IHiddenStorageItem;
+                                    FolderReadonlyAttribute.IsChecked = null;
 
                                     try
                                     {
-                                        RandomAccessStreamReference Reference = Package.Current.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
+                                        SizeCalculateCancellation = new CancellationTokenSource();
 
-                                        using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                                        Task CountTask = CalculateFolderAndFileCount(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
                                         {
-                                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
+                                            FolderContainsContent.Text = $"{PreviousTask.Result.Item1} {Globalization.GetString("FolderInfo_File_Count")} , {PreviousTask.Result.Item2} {Globalization.GetString("FolderInfo_Folder_Count")}";
+                                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                            using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
-                                            {
-                                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                                        Task SizeTask = CalculateFolderSize(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
+                                        {
+                                            FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Device_Capacity_Unit")})";
 
-                                                Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                                await Encoder.FlushAsync();
+                                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                                BitmapImage Image = new BitmapImage();
-                                                FileOpenWithImage.Source = Image;
-                                                await Image.SetSourceAsync(Stream);
-                                            }
-                                        }
+                                        await Task.WhenAll(CountTask, SizeTask);
                                     }
-                                    catch
+                                    catch (TaskCanceledException)
                                     {
-                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                        //No need to handle this exception
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception");
+                                    }
+                                    finally
+                                    {
+                                        SizeCalculateCancellation.Dispose();
+                                        SizeCalculateCancellation = null;
                                     }
 
                                     break;
                                 }
-                            default:
+                            case FileSystemStorageFile File:
                                 {
-                                    try
+                                    FileStorageItemName.Text = File.Name;
+                                    FileThumbnail.Source = File.Thumbnail;
+                                    FileReadonlyAttribute.IsChecked = File.IsReadOnly;
+                                    FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                                    FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
+                                    FileCreatedContent.Text = File.CreationTime.ToString("F");
+                                    FileModifiedContent.Text = File.ModifiedTime.ToString("F");
+                                    FileHiddenAttribute.IsChecked = File is IHiddenStorageItem;
+
+                                    if (Regex.IsMatch(File.Name, @"\.(exe|bat|lnk|url)$"))
                                     {
-                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                        string Description = string.Empty;
+
+                                        if (File is LinkStorageFile Link)
                                         {
-                                            AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
+                                            if (await FileSystemStorageItemBase.OpenAsync(Link.LinkTargetPath) is FileSystemStorageItemBase LinkTarget)
+                                            {
+                                                if (LinkTarget is FileSystemStorageFile)
+                                                {
+                                                    IReadOnlyDictionary<string, string> DescriptionResult = await LinkTarget.GetPropertiesAsync(new string[] { "System.FileDescription" });
+                                                    Description = DescriptionResult["System.FileDescription"];
+                                                }
+                                                else
+                                                {
+                                                    Description = LinkTarget.Name;
+                                                }
+                                            }
+                                        }
+                                        else if (File is not IUnsupportedStorageItem)
+                                        {
+                                            IReadOnlyDictionary<string, string> DescriptionResult = await File.GetPropertiesAsync(new string[] { "System.FileDescription" });
+                                            Description = DescriptionResult["System.FileDescription"];
                                         }
 
-                                        if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
+                                        FileDescriptionContent.Text = string.IsNullOrEmpty(Description) ? File.Name : Description;
+                                    }
+
+                                    ulong SizeOnDisk = await File.GetSizeOnDiskAsync();
+                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})" : Globalization.GetString("UnknownText");
+
+                                    bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
+                                    bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);
+
+                                    if (IsDisplayTypeEmpty && IsTypeEmpty)
+                                    {
+                                        FileTypeContent.Text = Globalization.GetString("UnknownText");
+                                    }
+                                    else if (IsDisplayTypeEmpty && !IsTypeEmpty)
+                                    {
+                                        FileTypeContent.Text = File.Type.ToUpper();
+                                    }
+                                    else if (!IsDisplayTypeEmpty && IsTypeEmpty)
+                                    {
+                                        FileTypeContent.Text = File.DisplayType;
+                                    }
+                                    else
+                                    {
+                                        FileTypeContent.Text = $"{File.DisplayType} ({File.Type.ToLower()})";
+                                    }
+
+                                    string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
+
+                                    if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
+                                    {
+                                        switch (File.Type.ToLower())
                                         {
-                                            FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-                                            IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
+                                            case ".jpg":
+                                            case ".png":
+                                            case ".bmp":
+                                            case ".mkv":
+                                            case ".mp4":
+                                            case ".mp3":
+                                            case ".flac":
+                                            case ".wma":
+                                            case ".wmv":
+                                            case ".m4a":
+                                            case ".mov":
+                                            case ".txt":
+                                            case ".pdf":
+                                                {
+                                                    FileOpenWithContent.Text = Globalization.GetString("AppDisplayName");
 
-                                            string AppName = PropertiesDic["System.FileDescription"];
+                                                    try
+                                                    {
+                                                        RandomAccessStreamReference Reference = Package.Current.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
 
-                                            if (string.IsNullOrEmpty(AppName))
+                                                        using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                                                        {
+                                                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
+
+                                                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                                            using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                                                            {
+                                                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+
+                                                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                                await Encoder.FlushAsync();
+
+                                                                BitmapImage Image = new BitmapImage();
+                                                                FileOpenWithImage.Source = Image;
+                                                                await Image.SetSourceAsync(Stream);
+                                                            }
+                                                        }
+                                                    }
+                                                    catch
+                                                    {
+                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                    }
+
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    try
+                                                    {
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                                        {
+                                                            AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
+                                                        }
+
+                                                        if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
+                                                        {
+                                                            FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+                                                            IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
+
+                                                            string AppName = PropertiesDic["System.FileDescription"];
+
+                                                            if (string.IsNullOrEmpty(AppName))
+                                                            {
+                                                                FileOpenWithContent.Text = OpenWithFile.DisplayName;
+                                                            }
+                                                            else
+                                                            {
+                                                                FileOpenWithContent.Text = AppName;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            throw new FileNotFoundException();
+                                                        }
+                                                    }
+                                                    catch
+                                                    {
+                                                        FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                    else if (Path.IsPathRooted(AdminExecutablePath))
+                                    {
+                                        try
+                                        {
+                                            if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
                                             {
-                                                FileOpenWithContent.Text = OpenWithFile.DisplayName;
+                                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
+                                                IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
+
+                                                string AppName = PropertiesDic["System.FileDescription"];
+
+                                                if (string.IsNullOrEmpty(AppName))
+                                                {
+                                                    FileOpenWithContent.Text = OpenWithFile.DisplayName;
+                                                }
+                                                else
+                                                {
+                                                    FileOpenWithContent.Text = AppName;
+                                                }
                                             }
                                             else
                                             {
-                                                FileOpenWithContent.Text = AppName;
+                                                throw new FileNotFoundException();
                                             }
                                         }
-                                        else
+                                        catch
                                         {
-                                            throw new FileNotFoundException();
+                                            FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                                         }
                                     }
-                                    catch
+                                    else
                                     {
-                                        FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                        FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                        try
+                                        {
+                                            if (!string.IsNullOrEmpty(File.Type) && (await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                            {
+                                                FileOpenWithContent.Text = Info.Package.DisplayName;
+
+                                                RandomAccessStreamReference Reference = Info.Package.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
+
+                                                using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                                                {
+                                                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
+
+                                                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                                    using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                                                    {
+                                                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+
+                                                        Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                        await Encoder.FlushAsync();
+
+                                                        BitmapImage Image = new BitmapImage();
+                                                        FileOpenWithImage.Source = Image;
+                                                        await Image.SetSourceAsync(Stream);
+                                                    }
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                                FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                        }
                                     }
 
                                     break;
                                 }
                         }
+
+                        break;
                     }
-                    else if (Path.IsPathRooted(AdminExecutablePath))
+                default:
                     {
-                        try
+                        RootDriveThumbnail.Source = RootDrive.Thumbnail;
+                        RootDriveName.Text = RootDrive.DisplayName;
+                        RootDriveUsedSpace.Text = RootDrive.UsedSpace;
+                        RootDriveFreeSpace.Text = RootDrive.FreeSpace;
+                        RootDriveTotalSpace.Text = RootDrive.Capacity;
+                        RootDriveUsedByte.Text = $"{RootDrive.UsedByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+                        RootDriveFreeByte.Text = $"{RootDrive.FreeByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+                        RootDriveTotalByte.Text = $"{RootDrive.TotalByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+                        RootDriveFileSystemContent.Text = RootDrive.FileSystem;
+                        RootDriveTypeContent.Text = RootDrive.DriveType switch
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(AdminExecutablePath) is FileSystemStorageFile OpenWithFile)
-                            {
-                                FileOpenWithImage.Source = await OpenWithFile.GetThumbnailAsync(ThumbnailMode.SingleItem);
-                                IReadOnlyDictionary<string, string> PropertiesDic = await OpenWithFile.GetPropertiesAsync(new string[] { "System.FileDescription" });
+                            DriveType.Fixed => Globalization.GetString("Device_Type_1"),
+                            DriveType.CDRom => Globalization.GetString("Device_Type_2"),
+                            DriveType.Removable => Globalization.GetString("Device_Type_3"),
+                            DriveType.Ram => Globalization.GetString("Device_Type_4"),
+                            DriveType.Network => Globalization.GetString("Device_Type_5"),
+                            _ => Globalization.GetString("UnknownText")
+                        };
 
-                                string AppName = PropertiesDic["System.FileDescription"];
+                        CapacityRingDoubleAnimation.To = RootDrive.Percent;
+                        CapacityRingStoryboard.Begin();
 
-                                if (string.IsNullOrEmpty(AppName))
-                                {
-                                    FileOpenWithContent.Text = OpenWithFile.DisplayName;
-                                }
-                                else
-                                {
-                                    FileOpenWithContent.Text = AppName;
-                                }
-                            }
-                            else
-                            {
-                                throw new FileNotFoundException();
-                            }
-                        }
-                        catch
-                        {
-                            FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
-                        }
+                        break;
                     }
-                    else
-                    {
-                        try
-                        {
-                            if (!string.IsNullOrEmpty(StorageItem.Type) && (await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
-                            {
-                                FileOpenWithContent.Text = Info.Package.DisplayName;
-
-                                RandomAccessStreamReference Reference = Info.Package.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
-
-                                using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
-                                {
-                                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-
-                                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                    using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
-                                    {
-                                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
-                                        Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                        await Encoder.FlushAsync();
-
-                                        BitmapImage Image = new BitmapImage();
-                                        FileOpenWithImage.Source = Image;
-                                        await Image.SetSourceAsync(Stream);
-                                    }
-                                }
-
-                            }
-                            else
-                            {
-                                FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
-                            }
-                        }
-                        catch
-                        {
-                            FileOpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                            FileOpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
-                        }
-                    }
-                }
             }
         }
 

@@ -4075,7 +4075,8 @@ namespace RX_Explorer
                 if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
                     && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                 {
-                    await new DriveInfoDialog(Drive).ShowAsync();
+                    PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Drive);
+                    await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                 }
                 else
                 {

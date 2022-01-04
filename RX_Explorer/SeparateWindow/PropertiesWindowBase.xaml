@@ -9,6 +9,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Trigger="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+      xmlns:Sys="using:System"
       mc:Ignorable="d"
       d:DesignHeight="600"
       d:DesignWidth="400"
@@ -63,6 +64,19 @@
         <Cls:RatingControlDataTemplateSelector x:Key="DetailListDataTemplateSelector"
                                                Label="{StaticResource LabelTemplate}"
                                                Rating="{StaticResource RatingTemplate}" />
+
+        <Storyboard x:Name="CapacityRingStoryboard">
+            <DoubleAnimation Duration="0:0:1"
+                             x:Name="CapacityRingDoubleAnimation"
+                             EnableDependentAnimation="True"
+                             From="0"
+                             Storyboard.TargetName="CapacityProgress"
+                             Storyboard.TargetProperty="Value">
+                <DoubleAnimation.EasingFunction>
+                    <CircleEase EasingMode="EaseInOut"></CircleEase>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
     </Page.Resources>
 
     <Grid>
@@ -117,7 +131,7 @@
                 <ScrollViewer Padding="5,10"
                               VerticalScrollBarVisibility="Hidden">
                     <controls:SwitchPresenter Grid.Row="1"
-                                              Value="File"
+                                              Value="RootDrive"
                                               Name="GeneralPanelSwitcher">
                         <controls:Case Value="File">
                             <Grid>
@@ -563,6 +577,172 @@
                                                   x:Uid="Properties_General_HiddenCheckbox"
                                                   Margin="10,0,0,0" />
                                     </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </controls:Case>
+                        <controls:Case Value="RootDrive">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"
+                                                          MinWidth="100" />
+                                        <ColumnDefinition Width="3*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Stretch="Uniform"
+                                           Name="RootDriveThumbnail"
+                                           HorizontalAlignment="Left" />
+                                    <TextBox VerticalAlignment="Center"
+                                             Grid.Column="1"
+                                             Margin="2,0,0,0"
+                                             Name="RootDriveName" />
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"
+                                                              MinWidth="100" />
+                                            <ColumnDefinition Width="3*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="35"/>
+                                            <RowDefinition Height="35"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock x:Name="RootDriveTypeLabel"
+                                                   VerticalAlignment="Center"
+                                                   Text="类型:"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="RootDriveTypeContent"
+                                                   Grid.Column="1"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="RootDriveFileSystemLabel"
+                                                   VerticalAlignment="Center"
+                                                   Grid.Row="1"
+                                                   Text="文件系统:"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="RootDriveFileSystemContent"
+                                                   Grid.Row="1"
+                                                   Grid.Column="1"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                    <Border Height="2"
+                                            Grid.Row="1"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                    <Grid Grid.Row="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition Height="25"/>
+                                            <RowDefinition Height="25" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="5*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="20"
+                                                Height="20"
+                                                Background="{ThemeResource SystemAccentColor}" />
+                                        <TextBlock Text="已用空间"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   x:Uid="DeviceUsedSpace"
+                                                   Grid.Column="1" />
+                                        <TextBlock x:Name="RootDriveUsedByte"
+                                                   Grid.Column="2"
+                                                   Padding="2,0,0,0"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="RootDriveUsedSpace"
+                                                   Grid.Column="3"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <Border Width="20"
+                                                Height="20"
+                                                Grid.Row="1"
+                                                Background="LightGray" />
+                                        <TextBlock Text="可用空间"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   x:Uid="DeviceFreeSpace"
+                                                   Grid.Row="1"
+                                                   Grid.Column="1" />
+                                        <TextBlock x:Name="RootDriveFreeByte"
+                                                   Grid.Row="1"
+                                                   Grid.Column="2"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="RootDriveFreeSpace"
+                                                   Grid.Row="1"
+                                                   Grid.Column="3"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="总计空间"
+                                                   x:Uid="DeviceCapacity"
+                                                   Grid.Row="2"
+                                                   Grid.Column="1"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="RootDriveTotalByte"
+                                                   Grid.Row="2"
+                                                   Grid.Column="2"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock x:Name="RootDriveTotalSpace"
+                                                   Grid.Row="2"
+                                                   Grid.Column="3"
+                                                   Padding="2,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                    <Border Height="2"
+                                            Grid.Row="3"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                    <Grid Grid.Row="4"
+                                          Margin="0,10,0,0"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center">
+                                        <muxc:ProgressRing Name="CapacityProgress"
+                                                           IsIndeterminate="False"
+                                                           Foreground="{ThemeResource SystemAccentColor}"
+                                                           Minimum="0"
+                                                           Maximum="1"
+                                                           Width="80"
+                                                           Height="80"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center" />
+                                        <TextBlock x:Name="CapacityPercentText"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{ThemeResource SystemAccentColorDark1}"
+                                                   Text="{x:Bind Sys:String.Format('{0:0%}',CapacityProgress.Value),Mode=OneWay}"/>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </controls:Case>

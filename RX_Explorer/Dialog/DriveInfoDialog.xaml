@@ -11,7 +11,7 @@
 
     <Cls:QueueContentDialog.Resources>
         <Storyboard x:Name="Animation">
-            <DoubleAnimation Duration="0:0:0.8"
+            <DoubleAnimation Duration="0:0:1"
                              x:Name="DoubleAnimation"
                              EnableDependentAnimation="True"
                              From="0"

@@ -100,6 +100,21 @@ namespace RX_Explorer.Class
             }
         }
 
+        public string UsedSpace
+        {
+            get
+            {
+                if (UsedByte > 0)
+                {
+                    return UsedByte.GetSizeDescription();
+                }
+                else
+                {
+                    return Globalization.GetString("UnknownText");
+                }
+            }
+        }
+
         /// <summary>
         /// 总字节数
         /// </summary>
@@ -109,6 +124,8 @@ namespace RX_Explorer.Class
         /// 空闲字节数
         /// </summary>
         public ulong FreeByte { get; }
+
+        public ulong UsedByte => TotalByte - FreeByte;
 
         /// <summary>
         /// 存储空间描述

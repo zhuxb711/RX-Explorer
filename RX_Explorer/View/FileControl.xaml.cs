@@ -1288,9 +1288,10 @@ namespace RX_Explorer
             {
                 if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
+                    if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(Item.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                     {
-                        await new DriveInfoDialog(Info).ShowAsync();
+                        PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Drive);
+                        await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                     }
                     else
                     {
