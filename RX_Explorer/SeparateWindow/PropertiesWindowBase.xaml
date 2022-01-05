@@ -70,6 +70,7 @@
                              x:Name="CapacityRingDoubleAnimation"
                              EnableDependentAnimation="True"
                              From="0"
+                             To="{x:Bind RootDrive.Percent,TargetNullValue=0}"
                              Storyboard.TargetName="CapacityProgress"
                              Storyboard.TargetProperty="Value">
                 <DoubleAnimation.EasingFunction>
@@ -609,6 +610,8 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="10" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="10" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -654,9 +657,9 @@
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="30"/>
+                                            <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="5*"/>
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Border Width="20"
                                                 Height="20"
@@ -669,12 +672,12 @@
                                         <TextBlock x:Name="RootDriveUsedByte"
                                                    Grid.Column="2"
                                                    Padding="2,0,0,0"
-                                                   HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock x:Name="RootDriveUsedSpace"
                                                    Grid.Column="3"
                                                    Padding="2,0,0,0"
+                                                   HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <Border Width="20"
@@ -692,12 +695,12 @@
                                                    Grid.Column="2"
                                                    Padding="2,0,0,0"
                                                    VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock x:Name="RootDriveFreeSpace"
                                                    Grid.Row="1"
                                                    Grid.Column="3"
                                                    Padding="2,0,0,0"
+                                                   HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock Text="总计空间"
@@ -710,12 +713,12 @@
                                                    Grid.Column="2"
                                                    Padding="2,0,0,0"
                                                    VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock x:Name="RootDriveTotalSpace"
                                                    Grid.Row="2"
                                                    Grid.Column="3"
                                                    Padding="2,0,0,0"
+                                                   HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                     </Grid>
@@ -725,9 +728,13 @@
                                             HorizontalAlignment="Stretch"
                                             Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                                     <Grid Grid.Row="4"
-                                          Margin="0,10,0,0"
-                                          HorizontalAlignment="Center"
+                                          Margin="0,10"
+                                          HorizontalAlignment="Stretch"
                                           VerticalAlignment="Center">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="30"/>
+                                        </Grid.RowDefinitions>
                                         <muxc:ProgressRing Name="CapacityProgress"
                                                            IsIndeterminate="False"
                                                            Foreground="{ThemeResource SystemAccentColor}"
@@ -740,9 +747,53 @@
                                         <TextBlock x:Name="CapacityPercentText"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
-                                                   Foreground="{ThemeResource SystemAccentColorDark1}"
+                                                   Foreground="{ThemeResource SystemAccentColor}"
                                                    Text="{x:Bind Sys:String.Format('{0:0%}',CapacityProgress.Value),Mode=OneWay}"/>
+                                        <TextBlock Grid.Row="1"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Name="RootDriveDescriptionLabel"/>
+                                        <Button HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Grid.Row="1"
+                                                Content="磁盘清理"
+                                                Name="DiskCleanup"
+                                                Click="DiskCleanup_Click"/>
                                     </Grid>
+                                    <Border Height="2"
+                                            Grid.Row="5"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                    <StackPanel Grid.Row="6"
+                                                ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                        <CheckBox Content="压缩此驱动器以节约磁盘空间"
+                                                  Checked="CompressDrive_Checked"
+                                                  Unchecked="CompressDrive_Unchecked"
+                                                  x:Name="CompressDrive"/>
+                                        <StackPanel Margin="30,0,0,0"
+                                                    Name="CompressDriveOptionArea"
+                                                    Visibility="Collapsed">
+                                            <RadioButton Content="仅应用到磁盘根目录"
+                                                         x:Name="CompressDriveOptionApplyToRoot"
+                                                         IsChecked="{x:Bind CompressDriveOptionArea.Visibility,Mode=OneWay}"/>
+                                            <RadioButton Content="应用到所有子文件和子文件夹"
+                                                         x:Name="CompressDriveOptionApplySubItems"/>
+                                        </StackPanel>
+                                        <CheckBox Content="除了文件属性外，还允许索引此驱动器上文件的内容"
+                                                  x:Name="AllowIndex"
+                                                  Checked="AllowIndex_Checked"
+                                                  Unchecked="AllowIndex_Unchecked"/>
+                                        <StackPanel Margin="30,0,0,0"
+                                                    Name="AllowIndexOptionArea"
+                                                    Visibility="Collapsed">
+                                            <RadioButton Content="仅应用到磁盘根目录"
+                                                         x:Name="AllowIndexOptionApplyToRoot"
+                                                         IsChecked="{x:Bind AllowIndexOptionArea.Visibility,Mode=OneWay}" />
+                                            <RadioButton Content="应用到所有子文件和子文件夹"
+                                                         x:Name="AllowIndexOptionApplySubItems" />
+                                        </StackPanel>
+                                    </StackPanel>
                                 </Grid>
                             </Grid>
                         </controls:Case>
@@ -1143,7 +1194,12 @@
                            HorizontalAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"
                                   Width="180"
-                                  Margin="0,10,0,0" />
+                                  Margin="0,10" />
+                <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        Name="CancelSavingButton"
+                        HorizontalAlignment="Center"
+                        MinWidth="100"
+                        Click="CancelSavingButton_Click"/>
             </StackPanel>
         </controls:Loading>
     </Grid>

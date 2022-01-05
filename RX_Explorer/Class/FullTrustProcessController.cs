@@ -489,6 +489,97 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task SetDriveLabelAsync(string DrivePath, string DriveLabelName)
+        {
+            if (await SendCommandAsync(CommandType.SetDriveLabel, ("Path", DrivePath), ("DriveLabelName", DriveLabelName)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
+                }
+            }
+        }
+
+        public async Task<bool> GetDriveIndexStatusAsync(string DrivePath)
+        {
+            if (await SendCommandAsync(CommandType.GetDriveIndexStatus, ("Path", DrivePath)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string StatusString))
+                {
+                    return Convert.ToBoolean(StatusString);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDriveIndexStatusAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public async Task SetDriveIndexStatusAsync(string DrivePath, bool AllowIndex, bool ApplyToSubItems, CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(SetDriveIndexStatusAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.SetDriveIndexStatus, ("Path", DrivePath), ("AllowIndex", Convert.ToString(AllowIndex)), ("ApplyToSubItems", Convert.ToString(ApplyToSubItems))) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveIndexStatusAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+        }
+
+        public async Task<bool> GetDriveCompressionStatusAsync(string DrivePath)
+        {
+            if (await SendCommandAsync(CommandType.GetDriveCompressionStatus, ("Path", DrivePath)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string StatusString))
+                {
+                    return Convert.ToBoolean(StatusString);
+                }
+                else
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetDriveCompressionStatusAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public async Task SetDriveCompressionStatusAsync(string DrivePath, bool IsSetCompressionStatus, bool ApplyToSubItems, CancellationToken CancelToken = default)
+        {
+            using (CancelToken.Register(() =>
+            {
+                if (!TryCancelCurrentOperation())
+                {
+                    LogTracer.Log($"Could not cancel the operation in {nameof(SetDriveCompressionStatusAsync)}");
+                }
+            }))
+            {
+                if (await SendCommandAsync(CommandType.SetDriveCompressionStatus, ("Path", DrivePath), ("IsSetCompressionStatus", Convert.ToString(IsSetCompressionStatus)), ("ApplyToSubItems", Convert.ToString(ApplyToSubItems))) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveCompressionStatusAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+        }
+
         public async Task<IReadOnlyList<Encoding>> GetAllEncodingsAsync()
         {
             if (await SendCommandAsync(CommandType.GetAllEncodings) is IDictionary<string, string> Response)
@@ -1509,65 +1600,66 @@ namespace RX_Explorer.Class
                                       CancellationToken CancelToken = default,
                                       ProgressChangedEventHandler ProgressHandler = null)
         {
-            CancelToken.Register(() =>
+            using (CancelToken.Register(() =>
             {
                 if (!TryCancelCurrentOperation())
                 {
                     LogTracer.Log($"Could not cancel the operation in {nameof(DeleteAsync)}");
                 }
-            });
-
-            if (await SendCommandAndReportProgressAsync(CommandType.Delete,
-                                                        ProgressHandler,
-                                                        ("ExecutePath", JsonSerializer.Serialize(Source)),
-                                                        ("PermanentDelete", Convert.ToString(PermanentDelete))) is IDictionary<string, string> Response)
+            }))
             {
-                if (Response.TryGetValue("Success", out string Record))
+                if (await SendCommandAndReportProgressAsync(CommandType.Delete,
+                                                            ProgressHandler,
+                                                            ("ExecutePath", JsonSerializer.Serialize(Source)),
+                                                            ("PermanentDelete", Convert.ToString(PermanentDelete))) is IDictionary<string, string> Response)
                 {
-                    if (!PermanentDelete && !SkipOperationRecord)
+                    if (Response.TryGetValue("Success", out string Record))
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        if (!PermanentDelete && !SkipOperationRecord)
+                        {
+                            OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        }
                     }
-                }
-                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
-                    throw new FileNotFoundException();
-                }
-                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
-                    throw new InvalidOperationException("Fail to delete item");
-                }
-                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
-                    throw new FileCaputureException();
-                }
-                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
-                    throw new InvalidOperationException("Fail to delete item");
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage5))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
-                    throw new Exception("Unknown reason");
-                }
-                else if (Response.ContainsKey("Error_Cancelled"))
-                {
-                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
-                    throw new OperationCanceledException("Operation was cancelled successfully");
+                    else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
+                        throw new InvalidOperationException("Fail to delete item");
+                    }
+                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
+                        throw new FileCaputureException();
+                    }
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
+                        throw new InvalidOperationException("Fail to delete item");
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage5}");
+                        throw new Exception("Unknown reason");
+                    }
+                    else if (Response.ContainsKey("Error_Cancelled"))
+                    {
+                        LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                        throw new OperationCanceledException("Operation was cancelled successfully");
+                    }
+                    else
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
+                        throw new Exception("Unknown reason");
+                    }
                 }
                 else
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
-                    throw new Exception("Unknown reason");
+                    throw new NoResponseException();
                 }
-            }
-            else
-            {
-                throw new NoResponseException();
             }
         }
 
@@ -1611,71 +1703,72 @@ namespace RX_Explorer.Class
                 }
             }
 
-            CancelToken.Register(() =>
+            using (CancelToken.Register(() =>
             {
                 if (!TryCancelCurrentOperation())
                 {
                     LogTracer.Log($"Could not cancel the operation in {nameof(MoveAsync)}");
                 }
-            });
-
-            if (await SendCommandAndReportProgressAsync(CommandType.Move,
-                                                        ProgressHandler,
-                                                        ("SourcePath", JsonSerializer.Serialize(MessageList)),
-                                                        ("DestinationPath", DestinationPath),
-                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
+            }))
             {
-                if (Response.TryGetValue("Success", out string Record))
+                if (await SendCommandAndReportProgressAsync(CommandType.Move,
+                                                            ProgressHandler,
+                                                            ("SourcePath", JsonSerializer.Serialize(MessageList)),
+                                                            ("DestinationPath", DestinationPath),
+                                                            ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
                 {
-                    if (!SkipOperationRecord)
+                    if (Response.TryGetValue("Success", out string Record))
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        if (!SkipOperationRecord)
+                        {
+                            OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        }
                     }
-                }
-                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
-                    throw new FileNotFoundException();
-                }
-                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
-                    throw new InvalidOperationException();
-                }
-                else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
-                    throw new FileCaputureException();
-                }
-                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
-                    throw new InvalidOperationException();
-                }
-                else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage5))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
-                    throw new OperationCanceledException("Operation was cancelled");
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage6))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
-                    throw new Exception();
-                }
-                else if (Response.ContainsKey("Error_Cancelled"))
-                {
-                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
-                    throw new OperationCanceledException("Operation was cancelled");
+                    else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
+                        throw new InvalidOperationException();
+                    }
+                    else if (Response.TryGetValue("Error_Capture", out string ErrorMessage3))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
+                        throw new FileCaputureException();
+                    }
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage4))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
+                        throw new InvalidOperationException();
+                    }
+                    else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage5))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage5}");
+                        throw new OperationCanceledException("Operation was cancelled");
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage6))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage6}");
+                        throw new Exception();
+                    }
+                    else if (Response.ContainsKey("Error_Cancelled"))
+                    {
+                        LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                        throw new OperationCanceledException("Operation was cancelled");
+                    }
+                    else
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
+                        throw new Exception();
+                    }
                 }
                 else
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
-                    throw new Exception();
+                    throw new NoResponseException();
                 }
-            }
-            else
-            {
-                throw new NoResponseException();
             }
         }
 
@@ -1742,66 +1835,67 @@ namespace RX_Explorer.Class
                 }
             }
 
-            CancelToken.Register(() =>
+            using (CancelToken.Register(() =>
             {
                 if (!TryCancelCurrentOperation())
                 {
                     LogTracer.Log($"Could not cancel the operation in {nameof(CopyAsync)}");
                 }
-            });
-
-            if (await SendCommandAndReportProgressAsync(CommandType.Copy,
-                                                        ProgressHandler,
-                                                        ("SourcePath", JsonSerializer.Serialize(ItemList)),
-                                                        ("DestinationPath", DestinationPath),
-                                                        ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
+            }))
             {
-                if (Response.TryGetValue("Success", out string Record))
+                if (await SendCommandAndReportProgressAsync(CommandType.Copy,
+                                                            ProgressHandler,
+                                                            ("SourcePath", JsonSerializer.Serialize(ItemList)),
+                                                            ("DestinationPath", DestinationPath),
+                                                            ("CollisionOptions", Enum.GetName(typeof(CollisionOptions), Option))) is IDictionary<string, string> Response)
                 {
-                    if (!SkipOperationRecord)
+                    if (Response.TryGetValue("Success", out string Record))
                     {
-                        OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        if (!SkipOperationRecord)
+                        {
+                            OperationRecorder.Current.Push(JsonSerializer.Deserialize<string[]>(Convert.ToString(Record)));
+                        }
                     }
-                }
-                else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
-                    throw new FileNotFoundException();
-                }
-                else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
-                    throw new InvalidOperationException();
-                }
-                else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
-                    throw new InvalidOperationException();
-                }
-                else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage4))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
-                    throw new OperationCanceledException("Operation was cancelled");
-                }
-                else if (Response.TryGetValue("Error", out string ErrorMessage5))
-                {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
-                    throw new Exception();
-                }
-                else if (Response.ContainsKey("Error_Cancelled"))
-                {
-                    LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
-                    throw new OperationCanceledException("Operation was cancelled");
+                    else if (Response.TryGetValue("Error_NotFound", out string ErrorMessage1))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.TryGetValue("Error_Failure", out string ErrorMessage2))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
+                        throw new InvalidOperationException();
+                    }
+                    else if (Response.TryGetValue("Error_NoPermission", out string ErrorMessage3))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
+                        throw new InvalidOperationException();
+                    }
+                    else if (Response.TryGetValue("Error_UserCancel", out string ErrorMessage4))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage4}");
+                        throw new OperationCanceledException("Operation was cancelled");
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage5))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage5}");
+                        throw new Exception();
+                    }
+                    else if (Response.ContainsKey("Error_Cancelled"))
+                    {
+                        LogTracer.Log($"Operation was cancelled successfully in {nameof(DeleteAsync)}");
+                        throw new OperationCanceledException("Operation was cancelled");
+                    }
+                    else
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
+                        throw new Exception("Unknown reason");
+                    }
                 }
                 else
                 {
-                    LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
-                    throw new Exception("Unknown reason");
+                    throw new NoResponseException();
                 }
-            }
-            else
-            {
-                throw new NoResponseException();
             }
         }
 

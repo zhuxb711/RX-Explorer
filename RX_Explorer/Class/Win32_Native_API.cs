@@ -111,6 +111,7 @@ namespace RX_Explorer.Class
             Generic_Write = ACCESS_MASK.Generic_Write,
             Generic_Execute = ACCESS_MASK.Generic_Execute,
             Generic_All = ACCESS_MASK.Generic_All,
+            None = 0,
             File_Read_Data = 0x0001,
             File_List_Directory = 0x0001,
             File_Write_DATA = 0x0002,
@@ -649,11 +650,16 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
+            using (SafeFileHandle Handle = CreateFileFromApp(Path,
+                                                             FILE_ACCESS.None,
+                                                             FILE_SHARE.Read | FILE_SHARE.Write,
+                                                             IntPtr.Zero,
+                                                             CREATE_OPTION.Open_Existing,
+                                                             FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics,
+                                                             IntPtr.Zero))
 
-            try
             {
-                if (Ptr.CheckIfValidPtr())
+                if (!Handle.IsInvalid)
                 {
                     return true;
                 }
@@ -666,10 +672,6 @@ namespace RX_Explorer.Class
                 {
                     throw new LocationNotAvailableException();
                 }
-            }
-            finally
-            {
-                FindClose(Ptr);
             }
         }
 

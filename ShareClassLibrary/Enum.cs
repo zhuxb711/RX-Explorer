@@ -44,6 +44,11 @@
     public enum CommandType
     {
         Test,
+        SetDriveLabel,
+        SetDriveIndexStatus,
+        GetDriveIndexStatus,
+        SetDriveCompressionStatus,
+        GetDriveCompressionStatus,
         DetectEncoding,
         GetAllEncodings,
         RunExecutable,
