@@ -156,22 +156,16 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>內容</value>
   </data>
-  <data name="DeviceCapacity.Text" xml:space="preserve">
+  <data name="DriveCapacity.Text" xml:space="preserve">
     <value>容量</value>
-  </data>
-  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
-    <value>確認</value>
   </data>
   <data name="DeviceExpander.Text" xml:space="preserve">
     <value>裝置</value>
   </data>
-  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+  <data name="DriveFreeSpace.Text" xml:space="preserve">
     <value>可用空間：</value>
   </data>
-  <data name="DeviceType.Text" xml:space="preserve">
-    <value>磁碟類型:</value>
-  </data>
-  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+  <data name="DriveUsedSpace.Text" xml:space="preserve">
     <value>已使用空間:</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
@@ -1812,7 +1806,7 @@
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>輸入或瀏覽目標路徑</value>
   </data>
-  <data name="DeviceFileSystem.Text" xml:space="preserve">
+  <data name="DriveFileSystem.Text" xml:space="preserve">
     <value>文件系統:</value>
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
@@ -3334,5 +3328,50 @@
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
     <value>已啟用</value>
+  </data>
+  <data name="AllowIndex.Content" xml:space="preserve">
+    <value>除了文件属性外，还允许索引此驱动器上的文件内容</value>
+  </data>
+  <data name="CompressDrive.Content" xml:space="preserve">
+    <value>壓縮此驅動器以節省磁盤空間</value>
+  </data>
+  <data name="DriveApplyToRootOption.Content" xml:space="preserve">
+    <value>仅適用于驱动器根目录</value>
+  </data>
+  <data name="DriveApplyToSubItems.Content" xml:space="preserve">
+    <value>適用於所有子文件和子文件夾</value>
+  </data>
+  <data name="DriveCleanup.Content" xml:space="preserve">
+    <value>磁盤清理</value>
+  </data>
+  <data name="DriveType.Text" xml:space="preserve">
+    <value>類型:</value>
+  </data>
+  <data name="DriveCleanupButton.Content" xml:space="preserve">
+    <value>清理</value>
+  </data>
+  <data name="DriveCleanupContent.Text" xml:space="preserve">
+    <value>清理不再需要的文件以節省磁盤空間並提高磁盤速度</value>
+  </data>
+  <data name="DriveCleanupHeader.Text" xml:space="preserve">
+    <value>硬盘清理</value>
+  </data>
+  <data name="DriveErrorCheckButton.Content" xml:space="preserve">
+    <value>檢查</value>
+  </data>
+  <data name="DriveErrorCheckContent.Text" xml:space="preserve">
+    <value>此選項將檢查驅動器是否存在文件系統錯誤</value>
+  </data>
+  <data name="DriveErrorCheckHeader.Text" xml:space="preserve">
+    <value>硬盘错误检查</value>
+  </data>
+  <data name="DriveOptimizeButton.Content" xml:space="preserve">
+    <value>優化</value>
+  </data>
+  <data name="DriveOptimizeContent.Text" xml:space="preserve">
+    <value>優化計算機的磁盤驅動器可以使其運行更高效</value>
+  </data>
+  <data name="DriveOptimizeHeader.Text" xml:space="preserve">
+    <value>硬盘碎片优化</value>
   </data>
 </root>

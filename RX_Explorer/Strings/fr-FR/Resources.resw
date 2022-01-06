@@ -156,22 +156,16 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Propriétés</value>
   </data>
-  <data name="DeviceCapacity.Text" xml:space="preserve">
+  <data name="DriveCapacity.Text" xml:space="preserve">
     <value>Capacité</value>
-  </data>
-  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
-    <value>Confirmer</value>
   </data>
   <data name="DeviceExpander.Text" xml:space="preserve">
     <value>Appareils</value>
   </data>
-  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+  <data name="DriveFreeSpace.Text" xml:space="preserve">
     <value>Espace libre</value>
   </data>
-  <data name="DeviceType.Text" xml:space="preserve">
-    <value>Type de lecteur:</value>
-  </data>
-  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+  <data name="DriveUsedSpace.Text" xml:space="preserve">
     <value>Espace utilisé</value>
   </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
@@ -1812,7 +1806,7 @@ Les noms non valides incluent
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Entrez ou parcourez le chemin cible</value>
   </data>
-  <data name="DeviceFileSystem.Text" xml:space="preserve">
+  <data name="DriveFileSystem.Text" xml:space="preserve">
     <value>Système de fichiers:</value>
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
@@ -3334,5 +3328,50 @@ Les noms non valides incluent
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
     <value>Activé</value>
+  </data>
+  <data name="AllowIndex.Content" xml:space="preserve">
+    <value>Autoriser les fichiers sur ce lecteur à avoir un contenu indexé en plus des propriétés de fichier</value>
+  </data>
+  <data name="CompressDrive.Content" xml:space="preserve">
+    <value>Compresser ce lecteur pour économiser l'espace disque</value>
+  </data>
+  <data name="DriveApplyToRootOption.Content" xml:space="preserve">
+    <value>Appliquer uniquement au répertoire racine du lecteur</value>
+  </data>
+  <data name="DriveApplyToSubItems.Content" xml:space="preserve">
+    <value>Appliquer à tous les sous-fichiers et sous-dossiers</value>
+  </data>
+  <data name="DriveCleanup.Content" xml:space="preserve">
+    <value>Nettoyage de disque</value>
+  </data>
+  <data name="DriveType.Text" xml:space="preserve">
+    <value>Taper:</value>
+  </data>
+  <data name="DriveCleanupButton.Content" xml:space="preserve">
+    <value>Nettoyer</value>
+  </data>
+  <data name="DriveCleanupContent.Text" xml:space="preserve">
+    <value>Nettoyez les fichiers qui ne sont plus nécessaires pour économiser de l'espace disque et augmenter la vitesse du disque</value>
+  </data>
+  <data name="DriveCleanupHeader.Text" xml:space="preserve">
+    <value>Nettoyage du disque</value>
+  </data>
+  <data name="DriveErrorCheckButton.Content" xml:space="preserve">
+    <value>Chèque</value>
+  </data>
+  <data name="DriveErrorCheckContent.Text" xml:space="preserve">
+    <value>Cette option vérifiera le lecteur pour les erreurs du système de fichiers</value>
+  </data>
+  <data name="DriveErrorCheckHeader.Text" xml:space="preserve">
+    <value>Vérification des erreurs de lecteur</value>
+  </data>
+  <data name="DriveOptimizeButton.Content" xml:space="preserve">
+    <value>Optimiser</value>
+  </data>
+  <data name="DriveOptimizeContent.Text" xml:space="preserve">
+    <value>L'optimisation du lecteur de disque de l'ordinateur peut le rendre plus efficace</value>
+  </data>
+  <data name="DriveOptimizeHeader.Text" xml:space="preserve">
+    <value>Optimisation de la fragmentation des disques</value>
   </data>
 </root>

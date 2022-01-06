@@ -198,27 +198,19 @@
           <source>Properties</source>
           <target state="translated">属性</target>
         </trans-unit>
-        <trans-unit id="DeviceCapacity.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveCapacity.Text" translate="yes" xml:space="preserve">
           <source>Capacity</source>
           <target state="translated">总计空间</target>
-        </trans-unit>
-        <trans-unit id="DeviceDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">确定</target>
         </trans-unit>
         <trans-unit id="DeviceExpander.Text" translate="yes" xml:space="preserve">
           <source>Devices</source>
           <target state="translated">设备和驱动器</target>
         </trans-unit>
-        <trans-unit id="DeviceFreeSpace.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveFreeSpace.Text" translate="yes" xml:space="preserve">
           <source>Free space</source>
           <target state="translated">可用空间</target>
         </trans-unit>
-        <trans-unit id="DeviceType.Text" translate="yes" xml:space="preserve">
-          <source>Disk Type:</source>
-          <target state="translated">磁盘类型:</target>
-        </trans-unit>
-        <trans-unit id="DeviceUsedSpace.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveUsedSpace.Text" translate="yes" xml:space="preserve">
           <source>Used space</source>
           <target state="translated">已用空间</target>
         </trans-unit>
@@ -2398,7 +2390,7 @@ Invalid names include
           <source>Enter or browse the target path</source>
           <target state="translated">输入或浏览目标路径</target>
         </trans-unit>
-        <trans-unit id="DeviceFileSystem.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveFileSystem.Text" translate="yes" xml:space="preserve">
           <source>File system:</source>
           <target state="translated">文件系统:</target>
         </trans-unit>
@@ -4428,6 +4420,66 @@ Invalid names include
         <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="AllowIndex.Content" translate="yes" xml:space="preserve">
+          <source>Allow files on this drive to have contents indexed in addition to file properties</source>
+          <target state="translated">除了文件属性外，还允许索引此驱动器上的文件内容</target>
+        </trans-unit>
+        <trans-unit id="CompressDrive.Content" translate="yes" xml:space="preserve">
+          <source>Compress this drive to save disk space</source>
+          <target state="translated">压缩此驱动器以节省磁盘空间</target>
+        </trans-unit>
+        <trans-unit id="DriveApplyToRootOption.Content" translate="yes" xml:space="preserve">
+          <source>Apply to the root directory of drive only</source>
+          <target state="translated">仅应用到磁盘根目录</target>
+        </trans-unit>
+        <trans-unit id="DriveApplyToSubItems.Content" translate="yes" xml:space="preserve">
+          <source>Apply to all sub-files and sub-folders</source>
+          <target state="translated">应用到所有子文件和子文件夹</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanup.Content" translate="yes" xml:space="preserve">
+          <source>Disk cleanup</source>
+          <target state="translated">磁盘清理</target>
+        </trans-unit>
+        <trans-unit id="DriveType.Text" translate="yes" xml:space="preserve">
+          <source>Type:</source>
+          <target state="translated">类型:</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupButton.Content" translate="yes" xml:space="preserve">
+          <source>Cleanup</source>
+          <target state="translated">清理</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupContent.Text" translate="yes" xml:space="preserve">
+          <source>Clean up files that are no longer needed to save disk space and increase disk speed</source>
+          <target state="translated">清理不再需要的文件以节省磁盘空间并提升磁盘速度</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive cleanup</source>
+          <target state="translated">磁盘清理</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckButton.Content" translate="yes" xml:space="preserve">
+          <source>Check</source>
+          <target state="translated">检查</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckContent.Text" translate="yes" xml:space="preserve">
+          <source>This option will check the drive for file system errors</source>
+          <target state="translated">此选项将检查驱动器是否存在文件系统错误</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive error checking</source>
+          <target state="translated">磁盘错误检查</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeButton.Content" translate="yes" xml:space="preserve">
+          <source>Optimize</source>
+          <target state="translated">优化</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeContent.Text" translate="yes" xml:space="preserve">
+          <source>Optimizing the computer's disk drive can make it run more efficiently</source>
+          <target state="translated">优化计算机的磁盘驱动器可以使它更高效运行</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive fragmentation optimization</source>
+          <target state="translated">磁盘碎片优化</target>
         </trans-unit>
       </group>
     </body>

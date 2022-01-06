@@ -198,27 +198,19 @@
           <source>Properties</source>
           <target state="translated">Propiedades</target>
         </trans-unit>
-        <trans-unit id="DeviceCapacity.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveCapacity.Text" translate="yes" xml:space="preserve">
           <source>Capacity</source>
           <target state="translated">Capacidad</target>
-        </trans-unit>
-        <trans-unit id="DeviceDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">Confirmar</target>
         </trans-unit>
         <trans-unit id="DeviceExpander.Text" translate="yes" xml:space="preserve">
           <source>Devices</source>
           <target state="translated">Dispositivos</target>
         </trans-unit>
-        <trans-unit id="DeviceFreeSpace.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveFreeSpace.Text" translate="yes" xml:space="preserve">
           <source>Free space</source>
           <target state="translated">Espacio usado</target>
         </trans-unit>
-        <trans-unit id="DeviceType.Text" translate="yes" xml:space="preserve">
-          <source>Disk Type:</source>
-          <target state="translated">Tipo de disco:</target>
-        </trans-unit>
-        <trans-unit id="DeviceUsedSpace.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveUsedSpace.Text" translate="yes" xml:space="preserve">
           <source>Used space</source>
           <target state="translated">Espacio usado</target>
         </trans-unit>
@@ -2459,7 +2451,7 @@ Las denominaciones no válidas son:
           <source>Enter or browse the target path</source>
           <target state="translated">Introducir o examinar ruta de destino</target>
         </trans-unit>
-        <trans-unit id="DeviceFileSystem.Text" translate="yes" xml:space="preserve">
+        <trans-unit id="DriveFileSystem.Text" translate="yes" xml:space="preserve">
           <source>File system:</source>
           <target state="translated">Sistema de archivos:</target>
         </trans-unit>
@@ -4426,6 +4418,66 @@ Las denominaciones no válidas son:
         <trans-unit id="FileExtensionSwitch.OnContent" translate="yes" xml:space="preserve">
           <source>Enabled</source>
           <target state="translated">Activado</target>
+        </trans-unit>
+        <trans-unit id="AllowIndex.Content" translate="yes" xml:space="preserve">
+          <source>Allow files on this drive to have contents indexed in addition to file properties</source>
+          <target state="translated">Permitir que los archivos de esta unidad tengan contenido indexado además de las propiedades del archivo</target>
+        </trans-unit>
+        <trans-unit id="CompressDrive.Content" translate="yes" xml:space="preserve">
+          <source>Compress this drive to save disk space</source>
+          <target state="translated">Comprimir esta unidad para ahorrar espacio en disco</target>
+        </trans-unit>
+        <trans-unit id="DriveApplyToRootOption.Content" translate="yes" xml:space="preserve">
+          <source>Apply to the root directory of drive only</source>
+          <target state="translated">Aplicar solo al directorio raíz de la unidad</target>
+        </trans-unit>
+        <trans-unit id="DriveApplyToSubItems.Content" translate="yes" xml:space="preserve">
+          <source>Apply to all sub-files and sub-folders</source>
+          <target state="translated">Aplicar a todos los subarchivos y subcarpetas</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanup.Content" translate="yes" xml:space="preserve">
+          <source>Disk cleanup</source>
+          <target state="translated">Limpieza de disco</target>
+        </trans-unit>
+        <trans-unit id="DriveType.Text" translate="yes" xml:space="preserve">
+          <source>Type:</source>
+          <target state="translated">Tipo:</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupButton.Content" translate="yes" xml:space="preserve">
+          <source>Cleanup</source>
+          <target state="translated">Limpiar</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupContent.Text" translate="yes" xml:space="preserve">
+          <source>Clean up files that are no longer needed to save disk space and increase disk speed</source>
+          <target state="translated">Limpiar archivos que ya no son necesarios para ahorrar espacio en disco y aumentar la velocidad del disco</target>
+        </trans-unit>
+        <trans-unit id="DriveCleanupHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive cleanup</source>
+          <target state="translated">Limpieza de unidades</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckButton.Content" translate="yes" xml:space="preserve">
+          <source>Check</source>
+          <target state="translated">Cheque</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckContent.Text" translate="yes" xml:space="preserve">
+          <source>This option will check the drive for file system errors</source>
+          <target state="translated">Esta opción comprobará la unidad en busca de errores del sistema de archivos.</target>
+        </trans-unit>
+        <trans-unit id="DriveErrorCheckHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive error checking</source>
+          <target state="translated">Comprobación de errores de la unidad</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeButton.Content" translate="yes" xml:space="preserve">
+          <source>Optimize</source>
+          <target state="translated">Optimizar</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeContent.Text" translate="yes" xml:space="preserve">
+          <source>Optimizing the computer's disk drive can make it run more efficiently</source>
+          <target state="translated">La optimización de la unidad de disco de la computadora puede hacer que funcione de manera más eficiente</target>
+        </trans-unit>
+        <trans-unit id="DriveOptimizeHeader.Text" translate="yes" xml:space="preserve">
+          <source>Drive fragmentation optimization</source>
+          <target state="translated">Impulsar la optimización de la fragmentación</target>
         </trans-unit>
       </group>
     </body>

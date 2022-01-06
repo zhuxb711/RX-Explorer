@@ -156,22 +156,16 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Eigenschaften</value>
   </data>
-  <data name="DeviceCapacity.Text" xml:space="preserve">
+  <data name="DriveCapacity.Text" xml:space="preserve">
     <value>Kapazität</value>
-  </data>
-  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
-    <value>Bestätigen</value>
   </data>
   <data name="DeviceExpander.Text" xml:space="preserve">
     <value>Geräte</value>
   </data>
-  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+  <data name="DriveFreeSpace.Text" xml:space="preserve">
     <value>Freier Speicherplatz</value>
   </data>
-  <data name="DeviceType.Text" xml:space="preserve">
-    <value>Laufwerktyp:</value>
-  </data>
-  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+  <data name="DriveUsedSpace.Text" xml:space="preserve">
     <value>Belegter Speicherplatz</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
@@ -1861,7 +1855,7 @@ Inkorrekte Namen sind
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Zielpfad eingeben oder suchen</value>
   </data>
-  <data name="DeviceFileSystem.Text" xml:space="preserve">
+  <data name="DriveFileSystem.Text" xml:space="preserve">
     <value>Dateisystem:</value>
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
@@ -3334,5 +3328,50 @@ Inkorrekte Namen sind
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
     <value>Aktiviert</value>
+  </data>
+  <data name="AllowIndex.Content" xml:space="preserve">
+    <value>Zulassen, dass Dateien auf diesem Laufwerk zusätzlich zu den Dateieigenschaften auch Inhalte indiziert haben</value>
+  </data>
+  <data name="CompressDrive.Content" xml:space="preserve">
+    <value>Komprimieren Sie dieses Laufwerk, um Speicherplatz zu sparen</value>
+  </data>
+  <data name="DriveApplyToRootOption.Content" xml:space="preserve">
+    <value>Nur auf das Stammverzeichnis des Laufwerks anwenden</value>
+  </data>
+  <data name="DriveApplyToSubItems.Content" xml:space="preserve">
+    <value>Auf alle Unterdateien und Unterordner anwenden</value>
+  </data>
+  <data name="DriveCleanup.Content" xml:space="preserve">
+    <value>Datenträgerbereinigung</value>
+  </data>
+  <data name="DriveType.Text" xml:space="preserve">
+    <value>Typ:</value>
+  </data>
+  <data name="DriveCleanupButton.Content" xml:space="preserve">
+    <value>Aufräumen</value>
+  </data>
+  <data name="DriveCleanupContent.Text" xml:space="preserve">
+    <value>Bereinigen Sie nicht mehr benötigte Dateien, um Speicherplatz zu sparen und die Festplattengeschwindigkeit zu erhöhen</value>
+  </data>
+  <data name="DriveCleanupHeader.Text" xml:space="preserve">
+    <value>Laufwerksbereinigung</value>
+  </data>
+  <data name="DriveErrorCheckButton.Content" xml:space="preserve">
+    <value>Überprüfen</value>
+  </data>
+  <data name="DriveErrorCheckContent.Text" xml:space="preserve">
+    <value>Diese Option überprüft das Laufwerk auf Dateisystemfehler</value>
+  </data>
+  <data name="DriveErrorCheckHeader.Text" xml:space="preserve">
+    <value>Überprüfung von Laufwerksfehlern</value>
+  </data>
+  <data name="DriveOptimizeButton.Content" xml:space="preserve">
+    <value>Optimieren</value>
+  </data>
+  <data name="DriveOptimizeContent.Text" xml:space="preserve">
+    <value>Durch die Optimierung des Festplattenlaufwerks des Computers kann dieser effizienter ausgeführt werden</value>
+  </data>
+  <data name="DriveOptimizeHeader.Text" xml:space="preserve">
+    <value>Optimierung der Laufwerksfragmentierung</value>
   </data>
 </root>

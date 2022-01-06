@@ -156,22 +156,16 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Propiedades</value>
   </data>
-  <data name="DeviceCapacity.Text" xml:space="preserve">
+  <data name="DriveCapacity.Text" xml:space="preserve">
     <value>Capacidad</value>
-  </data>
-  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
-    <value>Confirmar</value>
   </data>
   <data name="DeviceExpander.Text" xml:space="preserve">
     <value>Dispositivos</value>
   </data>
-  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+  <data name="DriveFreeSpace.Text" xml:space="preserve">
     <value>Espacio usado</value>
   </data>
-  <data name="DeviceType.Text" xml:space="preserve">
-    <value>Tipo de disco:</value>
-  </data>
-  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+  <data name="DriveUsedSpace.Text" xml:space="preserve">
     <value>Espacio usado</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
@@ -1858,7 +1852,7 @@ Las denominaciones no válidas son:
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Introducir o examinar ruta de destino</value>
   </data>
-  <data name="DeviceFileSystem.Text" xml:space="preserve">
+  <data name="DriveFileSystem.Text" xml:space="preserve">
     <value>Sistema de archivos:</value>
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
@@ -3334,5 +3328,50 @@ Las denominaciones no válidas son:
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
     <value>Activado</value>
+  </data>
+  <data name="AllowIndex.Content" xml:space="preserve">
+    <value>Permitir que los archivos de esta unidad tengan contenido indexado además de las propiedades del archivo</value>
+  </data>
+  <data name="CompressDrive.Content" xml:space="preserve">
+    <value>Comprimir esta unidad para ahorrar espacio en disco</value>
+  </data>
+  <data name="DriveApplyToRootOption.Content" xml:space="preserve">
+    <value>Aplicar solo al directorio raíz de la unidad</value>
+  </data>
+  <data name="DriveApplyToSubItems.Content" xml:space="preserve">
+    <value>Aplicar a todos los subarchivos y subcarpetas</value>
+  </data>
+  <data name="DriveCleanup.Content" xml:space="preserve">
+    <value>Limpieza de disco</value>
+  </data>
+  <data name="DriveType.Text" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="DriveCleanupButton.Content" xml:space="preserve">
+    <value>Limpiar</value>
+  </data>
+  <data name="DriveCleanupContent.Text" xml:space="preserve">
+    <value>Limpiar archivos que ya no son necesarios para ahorrar espacio en disco y aumentar la velocidad del disco</value>
+  </data>
+  <data name="DriveCleanupHeader.Text" xml:space="preserve">
+    <value>Limpieza de unidades</value>
+  </data>
+  <data name="DriveErrorCheckButton.Content" xml:space="preserve">
+    <value>Cheque</value>
+  </data>
+  <data name="DriveErrorCheckContent.Text" xml:space="preserve">
+    <value>Esta opción comprobará la unidad en busca de errores del sistema de archivos.</value>
+  </data>
+  <data name="DriveErrorCheckHeader.Text" xml:space="preserve">
+    <value>Comprobación de errores de la unidad</value>
+  </data>
+  <data name="DriveOptimizeButton.Content" xml:space="preserve">
+    <value>Optimizar</value>
+  </data>
+  <data name="DriveOptimizeContent.Text" xml:space="preserve">
+    <value>La optimización de la unidad de disco de la computadora puede hacer que funcione de manera más eficiente</value>
+  </data>
+  <data name="DriveOptimizeHeader.Text" xml:space="preserve">
+    <value>Impulsar la optimización de la fragmentación</value>
   </data>
 </root>

@@ -625,6 +625,7 @@
                                         </Grid.RowDefinitions>
                                         <TextBlock x:Name="RootDriveTypeLabel"
                                                    VerticalAlignment="Center"
+                                                   x:Uid="DriveType"
                                                    Text="类型:"
                                                    TextTrimming="CharacterEllipsis"/>
                                         <TextBlock x:Name="RootDriveTypeContent"
@@ -636,6 +637,7 @@
                                                    VerticalAlignment="Center"
                                                    Grid.Row="1"
                                                    Text="文件系统:"
+                                                   x:Uid="DriveFileSystem"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock x:Name="RootDriveFileSystemContent"
                                                    Grid.Row="1"
@@ -667,14 +669,14 @@
                                         <TextBlock Text="已用空间"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
-                                                   x:Uid="DeviceUsedSpace"
+                                                   x:Uid="DriveUsedSpace"
                                                    Grid.Column="1" />
                                         <TextBlock x:Name="RootDriveUsedByte"
                                                    Grid.Column="2"
                                                    Padding="2,0,0,0"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveUsedSpace"
+                                        <TextBlock x:Name="RootDriveCapacity"
                                                    Grid.Column="3"
                                                    Padding="2,0,0,0"
                                                    HorizontalAlignment="Right"
@@ -687,7 +689,7 @@
                                         <TextBlock Text="可用空间"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
-                                                   x:Uid="DeviceFreeSpace"
+                                                   x:Uid="DriveFreeSpace"
                                                    Grid.Row="1"
                                                    Grid.Column="1" />
                                         <TextBlock x:Name="RootDriveFreeByte"
@@ -704,7 +706,7 @@
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock Text="总计空间"
-                                                   x:Uid="DeviceCapacity"
+                                                   x:Uid="DriveCapacity"
                                                    Grid.Row="2"
                                                    Grid.Column="1"
                                                    TextTrimming="CharacterEllipsis"/>
@@ -757,8 +759,9 @@
                                                 VerticalAlignment="Center"
                                                 Grid.Row="1"
                                                 Content="磁盘清理"
-                                                Name="DiskCleanup"
-                                                Click="DiskCleanup_Click"/>
+                                                x:Uid="DriveCleanup"
+                                                Name="DriveCleanup"
+                                                Click="DriveCleanup_Click"/>
                                     </Grid>
                                     <Border Height="2"
                                             Grid.Row="5"
@@ -770,27 +773,33 @@
                                         <CheckBox Content="压缩此驱动器以节约磁盘空间"
                                                   Checked="CompressDrive_Checked"
                                                   Unchecked="CompressDrive_Unchecked"
+                                                  x:Uid="CompressDrive"
                                                   x:Name="CompressDrive"/>
                                         <StackPanel Margin="30,0,0,0"
                                                     Name="CompressDriveOptionArea"
                                                     Visibility="Collapsed">
                                             <RadioButton Content="仅应用到磁盘根目录"
+                                                         x:Uid="DriveApplyToRootOption"
                                                          x:Name="CompressDriveOptionApplyToRoot"
                                                          IsChecked="{x:Bind CompressDriveOptionArea.Visibility,Mode=OneWay}"/>
                                             <RadioButton Content="应用到所有子文件和子文件夹"
+                                                         x:Uid="DriveApplyToSubItems"
                                                          x:Name="CompressDriveOptionApplySubItems"/>
                                         </StackPanel>
                                         <CheckBox Content="除了文件属性外，还允许索引此驱动器上文件的内容"
                                                   x:Name="AllowIndex"
+                                                  x:Uid="AllowIndex"
                                                   Checked="AllowIndex_Checked"
                                                   Unchecked="AllowIndex_Unchecked"/>
                                         <StackPanel Margin="30,0,0,0"
                                                     Name="AllowIndexOptionArea"
                                                     Visibility="Collapsed">
                                             <RadioButton Content="仅应用到磁盘根目录"
+                                                         x:Uid="DriveApplyToRootOption"
                                                          x:Name="AllowIndexOptionApplyToRoot"
                                                          IsChecked="{x:Bind AllowIndexOptionArea.Visibility,Mode=OneWay}" />
                                             <RadioButton Content="应用到所有子文件和子文件夹"
+                                                         x:Uid="DriveApplyToSubItems"
                                                          x:Name="AllowIndexOptionApplySubItems" />
                                         </StackPanel>
                                     </StackPanel>
@@ -1031,135 +1040,248 @@
                                FontSize="18"
                                Name="ToolsTab" />
                 </PivotItem.Header>
-                <StackPanel Padding="5,10">
-                    <RelativePanel>
-                        <Button Content="Unlock occupation"
-                                x:Uid="Properties_Tools_Unlock"
-                                Name="Unlock"
-                                RelativePanel.AlignLeftWithPanel="True"
-                                RelativePanel.AlignVerticalCenterWithPanel="True">
-                            <Button.Flyout>
-                                <Flyout Placement="BottomEdgeAlignedLeft"
-                                        x:Name="UnlockFlyout">
-                                    <StackPanel MaxWidth="320">
-                                        <TextBlock Text="您要如何解除占用?"
-                                                   x:Uid="Properties_Tools_UnlockFlyout_Text1" />
-                                        <TextBlock Text="点击&quot;请求关闭应用&quot;将通知正在使用此文件的应用退出，应用可以保存所有数据"
-                                                   TextWrapping="WrapWholeWords"
-                                                   x:Uid="Properties_Tools_UnlockFlyout_Text2"
-                                                   Margin="0,10,0,0"
-                                                   FontSize="12" />
-                                        <TextBlock Text="点击&quot;强制终止应用&quot;将立即退出应用，所有未保存的数据都将丢失"
-                                                   TextWrapping="WrapWholeWords"
-                                                   x:Uid="Properties_Tools_UnlockFlyout_Text3"
-                                                   Margin="0,5,0,0"
-                                                   FontSize="12" />
-                                        <Grid Margin="0,10,0,0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition />
-                                                <ColumnDefinition />
-                                            </Grid.ColumnDefinitions>
-                                            <Button Content="请求关闭应用"
-                                                    HorizontalAlignment="Stretch"
-                                                    x:Uid="Properties_Tools_UnlockFlyout_CloseNormal"
-                                                    Name="CloseNormal"
-                                                    Click="Unlock_Click"
-                                                    Margin="0,0,5,0" />
-                                            <Button Content="强制终止应用"
-                                                    Grid.Column="1"
-                                                    Margin="5,0,0,0"
-                                                    Name="CloseForce"
-                                                    x:Uid="Properties_Tools_UnlockFlyout_CloseForce"
-                                                    Click="Unlock_Click"
-                                                    HorizontalAlignment="Stretch" />
-                                        </Grid>
+                <ScrollViewer Padding="5,10">
+                    <controls:SwitchPresenter Value="NormalTools"
+                                              Name="ToolsPanelSwitcher">
+                        <controls:Case Value="NormalTools">
+                            <StackPanel>
+                                <RelativePanel>
+                                    <Button Content="Unlock occupation"
+                                            x:Uid="Properties_Tools_Unlock"
+                                            Name="Unlock"
+                                            RelativePanel.AlignLeftWithPanel="True"
+                                            RelativePanel.AlignVerticalCenterWithPanel="True">
+                                        <Button.Flyout>
+                                            <Flyout Placement="BottomEdgeAlignedLeft"
+                                                    x:Name="UnlockFlyout">
+                                                <StackPanel MaxWidth="320">
+                                                    <TextBlock Text="您要如何解除占用?"
+                                                               x:Uid="Properties_Tools_UnlockFlyout_Text1" />
+                                                    <TextBlock Text="点击&quot;请求关闭应用&quot;将通知正在使用此文件的应用退出，应用可以保存所有数据"
+                                                               TextWrapping="WrapWholeWords"
+                                                               x:Uid="Properties_Tools_UnlockFlyout_Text2"
+                                                               Margin="0,10,0,0"
+                                                               FontSize="12" />
+                                                    <TextBlock Text="点击&quot;强制终止应用&quot;将立即退出应用，所有未保存的数据都将丢失"
+                                                               TextWrapping="WrapWholeWords"
+                                                               x:Uid="Properties_Tools_UnlockFlyout_Text3"
+                                                               Margin="0,5,0,0"
+                                                               FontSize="12" />
+                                                    <Grid Margin="0,10,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition />
+                                                            <ColumnDefinition />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Content="请求关闭应用"
+                                                                HorizontalAlignment="Stretch"
+                                                                x:Uid="Properties_Tools_UnlockFlyout_CloseNormal"
+                                                                Name="CloseNormal"
+                                                                Click="Unlock_Click"
+                                                                Margin="0,0,5,0" />
+                                                        <Button Content="强制终止应用"
+                                                                Grid.Column="1"
+                                                                Margin="5,0,0,0"
+                                                                Name="CloseForce"
+                                                                x:Uid="Properties_Tools_UnlockFlyout_CloseForce"
+                                                                Click="Unlock_Click"
+                                                                HorizontalAlignment="Stretch" />
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                    <muxc:ProgressRing Margin="10,0,0,0"
+                                                       Height="24"
+                                                       Width="24"
+                                                       Name="UnlockProgressRing"
+                                                       Visibility="Collapsed"
+                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                       RelativePanel.RightOf="Unlock" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               Name="UnlockText"
+                                               TextWrapping="WrapWholeWords"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="10,0,0,0"
+                                               FontSize="12"
+                                               Visibility="Collapsed"
+                                               RelativePanel.RightOf="UnlockProgressRing"
+                                               RelativePanel.AlignRightWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                </RelativePanel>
+                                <Border Height="2"
+                                        Margin="0,20,0,10"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition MinWidth="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox IsSpellCheckEnabled="False"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Header="MD5"
+                                             Name="MD5TextBox"
+                                             Margin="0,10,5,0"
+                                             HorizontalAlignment="Stretch" />
+                                    <Button Margin="5,0,0,0"
+                                            Grid.Column="1"
+                                            x:Uid="Properties_Tools_CalculateButton"
+                                            Content="Calculate"
+                                            VerticalAlignment="Bottom"
+                                            Name="CalculateMd5"
+                                            Click="CalculateMd5_Click" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition MinWidth="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox IsSpellCheckEnabled="False"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Header="SHA-1"
+                                             Name="SHA1TextBox"
+                                             Margin="0,10,5,0"
+                                             HorizontalAlignment="Stretch" />
+                                    <Button Margin="5,0,0,0"
+                                            Grid.Column="1"
+                                            Content="Calculate"
+                                            Name="CalculateSHA1"
+                                            x:Uid="Properties_Tools_CalculateButton"
+                                            Click="CalculateSHA1_Click"
+                                            VerticalAlignment="Bottom" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition MinWidth="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox IsSpellCheckEnabled="False"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Header="SHA-256"
+                                             Name="SHA256TextBox"
+                                             Margin="0,10,5,0"
+                                             HorizontalAlignment="Stretch" />
+                                    <Button Margin="5,0,0,0"
+                                            Grid.Column="1"
+                                            Name="CalculateSHA256"
+                                            Content="Calculate"
+                                            x:Uid="Properties_Tools_CalculateButton"
+                                            VerticalAlignment="Bottom"
+                                            Click="CalculateSHA256_Click" />
+                                </Grid>
+                            </StackPanel>
+                        </controls:Case>
+                        <controls:Case Value="RootDrive">
+                            <StackPanel>
+                                <Border Background="Transparent"
+                                        BorderBrush="Gray"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <StackPanel Padding="10">
+                                        <RelativePanel>
+                                            <Viewbox x:Name="DriveErrorCheckIcon"
+                                                     Height="35"
+                                                     Width="35"
+                                                     RelativePanel.AlignLeftWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Glyph="&#xEE6F;" />
+                                            </Viewbox>
+                                            <StackPanel RelativePanel.RightOf="DriveErrorCheckIcon"
+                                                        RelativePanel.AlignRightWithPanel="True"
+                                                        Margin="10,0,0,0">
+                                                <TextBlock Text="磁盘错误检查"
+                                                           x:Uid="DriveErrorCheckHeader"/>
+                                                <TextBlock Text="此选项将检查驱动器是否存在文件系统错误"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           FontSize="12"
+                                                           x:Uid="DriveErrorCheckContent"/>
+                                            </StackPanel>
+                                        </RelativePanel>
+                                        <Button Margin="0,10,0,0"
+                                                Content="检查"
+                                                MinWidth="120"
+                                                Name="DriveErrorCheck"
+                                                x:Uid="DriveErrorCheckButton"
+                                                HorizontalAlignment="Right"
+                                                Click="DriveErrorCheck_Click"/>
                                     </StackPanel>
-                                </Flyout>
-                            </Button.Flyout>
-                        </Button>
-                        <muxc:ProgressRing Margin="10,0,0,0"
-                                           Height="24"
-                                           Width="24"
-                                           Name="UnlockProgressRing"
-                                           Visibility="Collapsed"
-                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                           RelativePanel.RightOf="Unlock" />
-                        <TextBlock VerticalAlignment="Center"
-                                   Name="UnlockText"
-                                   TextWrapping="WrapWholeWords"
-                                   TextTrimming="CharacterEllipsis"
-                                   Margin="10,0,0,0"
-                                   FontSize="12"
-                                   Visibility="Collapsed"
-                                   RelativePanel.RightOf="UnlockProgressRing"
-                                   RelativePanel.AlignRightWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                    </RelativePanel>
-                    <Border Height="2"
-                            Margin="0,20,0,10"
-                            HorizontalAlignment="Stretch"
-                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 IsEnabled="False"
-                                 Header="MD5"
-                                 Name="MD5TextBox"
-                                 Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch" />
-                        <Button Margin="5,0,0,0"
-                                Grid.Column="1"
-                                x:Uid="Properties_Tools_CalculateButton"
-                                Content="Calculate"
-                                VerticalAlignment="Bottom"
-                                Name="CalculateMd5"
-                                Click="CalculateMd5_Click" />
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 IsEnabled="False"
-                                 Header="SHA-1"
-                                 Name="SHA1TextBox"
-                                 Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch" />
-                        <Button Margin="5,0,0,0"
-                                Grid.Column="1"
-                                Content="Calculate"
-                                Name="CalculateSHA1"
-                                x:Uid="Properties_Tools_CalculateButton"
-                                Click="CalculateSHA1_Click"
-                                VerticalAlignment="Bottom" />
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition MinWidth="100" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 IsEnabled="False"
-                                 Header="SHA-256"
-                                 Name="SHA256TextBox"
-                                 Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch" />
-                        <Button Margin="5,0,0,0"
-                                Grid.Column="1"
-                                Name="CalculateSHA256"
-                                Content="Calculate"
-                                x:Uid="Properties_Tools_CalculateButton"
-                                VerticalAlignment="Bottom"
-                                Click="CalculateSHA256_Click" />
-                    </Grid>
-                </StackPanel>
+                                </Border>
+                                <Border Background="Transparent"
+                                        BorderBrush="Gray"
+                                        BorderThickness="1"
+                                        Margin="0,20,0,0"
+                                        CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <StackPanel Padding="10">
+                                        <RelativePanel>
+                                            <Viewbox x:Name="DriveOptimizeIcon"
+                                                     Height="35"
+                                                     Width="35"
+                                                     RelativePanel.AlignLeftWithPanel="True">
+                                                <SymbolIcon Symbol="Manage" />
+                                            </Viewbox>
+                                            <StackPanel RelativePanel.RightOf="DriveOptimizeIcon"
+                                                        RelativePanel.AlignRightWithPanel="True"
+                                                        Margin="10,0,0,0">
+                                                <TextBlock Text="磁盘碎片优化"
+                                                           x:Uid="DriveOptimizeHeader"/>
+                                                <TextBlock Text="优化计算机的磁盘驱动器可以使它更高效运行"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           FontSize="12"
+                                                           x:Uid="DriveOptimizeContent"/>
+                                            </StackPanel>
+                                        </RelativePanel>
+                                        <Button Margin="0,10,0,0"
+                                                Content="优化"
+                                                MinWidth="120"
+                                                x:Name="DriveOptimize"
+                                                x:Uid="DriveOptimizeButton"
+                                                HorizontalAlignment="Right"
+                                                Click="DriveOptimize_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="Transparent"
+                                        BorderBrush="Gray"
+                                        BorderThickness="1"
+                                        Margin="0,20,0,0"
+                                        CornerRadius="{StaticResource ControlCornerRadius}">
+                                    <StackPanel Padding="10">
+                                        <RelativePanel>
+                                            <Viewbox x:Name="DriveCleanupIcon"
+                                                     Height="35"
+                                                     Width="35"
+                                                     RelativePanel.AlignLeftWithPanel="True">
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Glyph="&#xEF17;" />
+                                            </Viewbox>
+                                            <StackPanel RelativePanel.RightOf="DriveCleanupIcon"
+                                                        RelativePanel.AlignRightWithPanel="True"
+                                                        Margin="10,0,0,0">
+                                                <TextBlock Text="磁盘清理"
+                                                           x:Uid="DriveCleanupHeader"/>
+                                                <TextBlock Text="清理不再需要的文件以节省磁盘空间并提升磁盘速度"
+                                                           TextWrapping="WrapWholeWords"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           x:Uid="DriveCleanupContent"
+                                                           FontSize="12" />
+                                            </StackPanel>
+                                        </RelativePanel>
+                                        <Button Margin="0,10,0,0"
+                                                Content="清理"
+                                                MinWidth="120"
+                                                x:Uid="DriveCleanupButton"
+                                                HorizontalAlignment="Right"
+                                                Click="DriveCleanup_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </controls:Case>
+                    </controls:SwitchPresenter>
+                </ScrollViewer>
             </PivotItem>
         </Pivot>
         <StackPanel Orientation="Horizontal"

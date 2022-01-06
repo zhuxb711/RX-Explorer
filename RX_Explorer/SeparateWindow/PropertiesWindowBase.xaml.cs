@@ -173,11 +173,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             PropertiesTitleLeft.Text = RootDrive.DisplayName;
 
             GeneralPanelSwitcher.Value = "RootDrive";
+            ToolsPanelSwitcher.Value = "RootDrive";
 
-            while (PivotControl.Items.Count > 1)
-            {
-                PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
-            }
+            PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
+            PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Details_Tab")));
         }
 
         private PropertiesWindowBase(AppWindow Window, params FileSystemStorageItemBase[] StorageItems) : this(Window)
@@ -225,6 +224,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 else if (StorageItem is FileSystemStorageFile)
                 {
                     GeneralPanelSwitcher.Value = "File";
+                    ToolsPanelSwitcher.Value = "NormalTools";
 
                     FileLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
                     FileLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
@@ -409,7 +409,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 else
                 {
-                    if (RootDriveName.Text != RootDrive.DisplayName)
+                    if (RootDriveName.Text != Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim())
                     {
                         if (HandleRenameAutomatically)
                         {
@@ -1350,8 +1350,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 default:
                     {
                         RootDriveThumbnail.Source = RootDrive.Thumbnail;
-                        RootDriveName.Text = RootDrive.DisplayName.Replace($"({RootDrive.Path.TrimEnd('\\')})", string.Empty).Trim();
-                        RootDriveUsedSpace.Text = RootDrive.UsedSpace;
+                        RootDriveName.Text = Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim();
+                        RootDriveCapacity.Text = RootDrive.UsedSpace;
                         RootDriveFreeSpace.Text = RootDrive.FreeSpace;
                         RootDriveTotalSpace.Text = RootDrive.Capacity;
                         RootDriveUsedByte.Text = $"{RootDrive.UsedByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
@@ -1756,11 +1756,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private async void DiskCleanup_Click(object sender, RoutedEventArgs e)
+        private async void DriveCleanup_Click(object sender, RoutedEventArgs e)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                await Exclusive.Controller.RunAsync("cleanmgr.exe", Parameters: new string[] { "/d", RootDrive.Path.TrimEnd('\\') });
+                if (!await Exclusive.Controller.RunAsync("cleanmgr.exe", Parameters: new string[] { "/d", RootDrive.Path.TrimEnd('\\') }))
+                {
+                    LogTracer.Log("Could not launch exe: cleanmgr.exe");
+                }
             }
         }
 
@@ -1827,6 +1830,22 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private void CancelSavingButton_Click(object sender, RoutedEventArgs e)
         {
             SavingCancellation?.Cancel();
+        }
+
+        private void DriveErrorCheck_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void DriveOptimize_Click(object sender, RoutedEventArgs e)
+        {
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                if(!await Exclusive.Controller.RunAsync("dfrgui.exe"))
+                {
+                    LogTracer.Log("Could not launch exe: dfrgui.exe");
+                }
+            }
         }
     }
 }

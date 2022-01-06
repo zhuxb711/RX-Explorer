@@ -316,9 +316,6 @@
     <Compile Include="View\BlueScreen.xaml.cs">
       <DependentUpon>BlueScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\DriveInfoDialog.xaml.cs">
-      <DependentUpon>DriveInfoDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialog\QuickStartModifiedDialog.xaml.cs">
       <DependentUpon>QuickStartModifiedDialog.xaml</DependentUpon>
     </Compile>
@@ -660,10 +657,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\BlueScreen.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialog\DriveInfoDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

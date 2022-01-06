@@ -264,23 +264,17 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Properties</value>
   </data>
-  <data name="DeviceCapacity.Text" xml:space="preserve">
-    <value>Capacity</value>
+  <data name="DriveUsedSpace.Text" xml:space="preserve">
+    <value>Used space</value>
   </data>
-  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
-    <value>Confirm</value>
+  <data name="DriveCapacity.Text" xml:space="preserve">
+    <value>Capacity</value>
   </data>
   <data name="DeviceExpander.Text" xml:space="preserve">
     <value>Devices</value>
   </data>
-  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+  <data name="DriveFreeSpace.Text" xml:space="preserve">
     <value>Free space</value>
-  </data>
-  <data name="DeviceType.Text" xml:space="preserve">
-    <value>Disk Type:</value>
-  </data>
-  <data name="DeviceUsedSpace.Text" xml:space="preserve">
-    <value>Used space</value>
   </data>
   <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
     <value>Purchase</value>
@@ -1975,7 +1969,7 @@ Invalid names include
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Enter or browse the target path</value>
   </data>
-  <data name="DeviceFileSystem.Text" xml:space="preserve">
+  <data name="DriveFileSystem.Text" xml:space="preserve">
     <value>File system:</value>
   </data>
   <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
@@ -3439,5 +3433,50 @@ Invalid names include
   </data>
   <data name="FileExtensionSwitch.OnContent" xml:space="preserve">
     <value>Enabled</value>
+  </data>
+  <data name="AllowIndex.Content" xml:space="preserve">
+    <value>Allow files on this drive to have contents indexed in addition to file properties</value>
+  </data>
+  <data name="CompressDrive.Content" xml:space="preserve">
+    <value>Compress this drive to save disk space</value>
+  </data>
+  <data name="DriveApplyToRootOption.Content" xml:space="preserve">
+    <value>Apply to the root directory of drive only</value>
+  </data>
+  <data name="DriveApplyToSubItems.Content" xml:space="preserve">
+    <value>Apply to all sub-files and sub-folders</value>
+  </data>
+  <data name="DriveCleanup.Content" xml:space="preserve">
+    <value>Disk cleanup</value>
+  </data>
+  <data name="DriveType.Text" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="DriveCleanupButton.Content" xml:space="preserve">
+    <value>Cleanup</value>
+  </data>
+  <data name="DriveCleanupContent.Text" xml:space="preserve">
+    <value>Clean up files that are no longer needed to save disk space and increase disk speed</value>
+  </data>
+  <data name="DriveCleanupHeader.Text" xml:space="preserve">
+    <value>Drive cleanup</value>
+  </data>
+  <data name="DriveErrorCheckButton.Content" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="DriveErrorCheckContent.Text" xml:space="preserve">
+    <value>This option will check the drive for file system errors</value>
+  </data>
+  <data name="DriveErrorCheckHeader.Text" xml:space="preserve">
+    <value>Drive error checking</value>
+  </data>
+  <data name="DriveOptimizeButton.Content" xml:space="preserve">
+    <value>Optimize</value>
+  </data>
+  <data name="DriveOptimizeContent.Text" xml:space="preserve">
+    <value>Optimizing the computer's disk drive can make it run more efficiently</value>
+  </data>
+  <data name="DriveOptimizeHeader.Text" xml:space="preserve">
+    <value>Drive fragmentation optimization</value>
   </data>
 </root>
