@@ -962,20 +962,20 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
     <value>Das Zielgerät kann nicht erneut verbunden werden.</value>
   </data>
-  <data name="Device_Capacity_Unit" xml:space="preserve">
+  <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>Bytes</value>
     <comment>Example: 1024 bytes</comment>
   </data>
-  <data name="Device_Type_1" xml:space="preserve">
+  <data name="Drive_Type_1" xml:space="preserve">
     <value>Lokales Laufwerk</value>
   </data>
-  <data name="Device_Type_3" xml:space="preserve">
+  <data name="Drive_Type_3" xml:space="preserve">
     <value>Abnehmbares Laufwerk</value>
   </data>
-  <data name="Device_Type_4" xml:space="preserve">
+  <data name="Drive_Type_4" xml:space="preserve">
     <value>RAM-Laufwerk</value>
   </data>
-  <data name="Device_Type_5" xml:space="preserve">
+  <data name="Drive_Type_5" xml:space="preserve">
     <value>Netzwerkgerät</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
@@ -1634,19 +1634,19 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>Papierkorb leeren</value>
   </data>
-  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
-    <value>Anwendung beenden fehlgeschlagen</value>
+  <data name="Properties_Tools_Unlock_Failure" xml:space="preserve">
+    <value>Entsperren fehlgeschlagen</value>
   </data>
-  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_FileNotFound" xml:space="preserve">
     <value>Zugehörige Datei konnte nicht gefunden werden</value>
   </data>
-  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
-    <value>Die Datei wird nicht andersweitig verwendet. Sie muss nicht geschlossen werden.</value>
+  <data name="Properties_Tools_Unlock_NoLock" xml:space="preserve">
+    <value>Die Datei ist nicht gesperrt, die Datei muss nicht entsperrt werden</value>
   </data>
-  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
-    <value>Anwendung erfolgreich beendet</value>
+  <data name="Properties_Tools_Unlock_Success" xml:space="preserve">
+    <value>Erfolgreich entsperren</value>
   </data>
-  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_UnexpectedError" xml:space="preserve">
     <value>Ein unerwarteter Fehler ist aufgetreten.</value>
   </data>
   <data name="RecyclePermanentDelete.Label" xml:space="preserve">
@@ -1658,7 +1658,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
     <value>USB-Stick konnte nicht ausgeworfen werden</value>
   </data>
-  <data name="EjectUSB.Label" xml:space="preserve">
+  <data name="Operate_Text_EjectUSB" xml:space="preserve">
     <value>Auswerfen</value>
   </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
@@ -2014,7 +2014,7 @@ Inkorrekte Namen sind
   <data name="SearchInEverythingEngine.Content" xml:space="preserve">
     <value>Everything-Suchmaschine verwenden (schneller)</value>
   </data>
-  <data name="UnlockBitlocker.Label" xml:space="preserve">
+  <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
     <value>Entsperren</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
@@ -2494,8 +2494,8 @@ Inkorrekte Namen sind
   <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
     <value>Berechnen</value>
   </data>
-  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
-    <value>Verwendung beenden</value>
+  <data name="Properties_Tools_Unlock.Text" xml:space="preserve">
+    <value>Freischalten</value>
   </data>
   <data name="Properties_Window_Title" xml:space="preserve">
     <value>Eigenschaften</value>
@@ -3140,7 +3140,7 @@ Inkorrekte Namen sind
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Layoutmodus</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
+  <data name="Drive_Type_2" xml:space="preserve">
     <value>CD-ROM-Laufwerk</value>
   </data>
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
@@ -3373,5 +3373,20 @@ Inkorrekte Namen sind
   </data>
   <data name="DriveOptimizeHeader.Text" xml:space="preserve">
     <value>Optimierung der Laufwerksfragmentierung</value>
+  </data>
+  <data name="UnlockContent.Text" xml:space="preserve">
+    <value>Diese Option findet und beendet das Programm, das diese Datei sperrt</value>
+  </data>
+  <data name="UnlockHeader.Text" xml:space="preserve">
+    <value>Entsperren Sie die Datei</value>
+  </data>
+  <data name="HashContent.Text" xml:space="preserve">
+    <value>Überprüfen Sie den Hash-Wert, um sicherzustellen, dass die Dateien genau gleich sind</value>
+  </data>
+  <data name="HashHeader.Text" xml:space="preserve">
+    <value>Berechne den Hash</value>
+  </data>
+  <data name="Drive_Description_Name" xml:space="preserve">
+    <value>Laufwerk</value>
   </data>
 </root>

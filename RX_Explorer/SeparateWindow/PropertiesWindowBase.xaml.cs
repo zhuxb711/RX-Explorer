@@ -1046,11 +1046,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             }), TaskCreationOptions.LongRunning);
 
                             MultiStorageItemName.Text = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
-                            MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                            MultiSizeContent.Text = $"{Convert.ToUInt64(TotalSize).GetSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
 
                             ulong[] SizeOnDiskResultArray = await Task.WhenAll(SizeOnDiskTaskList);
                             ulong SizeOnDisk = Convert.ToUInt64(SizeOnDiskResultArray.Sum((Result) => Convert.ToInt64(Result)));
-                            MultiSizeOnDiskContent.Text = $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                            MultiSizeOnDiskContent.Text = $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
                         }
                         catch (Exception ex)
                         {
@@ -1091,7 +1091,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                                         Task SizeTask = CalculateFolderSize(Folder, SizeCalculateCancellation.Token).ContinueWith((PreviousTask) =>
                                         {
-                                            FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                                            FolderSizeContent.Text = $"{PreviousTask.Result.GetSizeDescription()} ({PreviousTask.Result:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
 
                                         }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
@@ -1118,7 +1118,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     FileStorageItemName.Text = File.Name;
                                     FileThumbnail.Source = File.Thumbnail;
                                     FileReadonlyAttribute.IsChecked = File.IsReadOnly;
-                                    FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                                    FileSizeContent.Text = $"{File.SizeDescription} ({File.Size:N0} {Globalization.GetString("Drive_Capacity_Unit")})";
                                     FileLocationContent.Text = Path.GetDirectoryName(File.Path) ?? File.Path;
                                     FileCreatedContent.Text = File.CreationTime.ToString("F");
                                     FileModifiedContent.Text = File.ModifiedTime.ToString("F");
@@ -1153,7 +1153,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     }
 
                                     ulong SizeOnDisk = await File.GetSizeOnDiskAsync();
-                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Device_Capacity_Unit")})" : Globalization.GetString("UnknownText");
+                                    FileSizeOnDiskContent.Text = SizeOnDisk > 0 ? $"{SizeOnDisk.GetSizeDescription()} ({SizeOnDisk:N0} {Globalization.GetString("Drive_Capacity_Unit")})" : Globalization.GetString("UnknownText");
 
                                     bool IsDisplayTypeEmpty = string.IsNullOrEmpty(File.DisplayType);
                                     bool IsTypeEmpty = string.IsNullOrEmpty(File.Type);
@@ -1354,18 +1354,18 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         RootDriveCapacity.Text = RootDrive.UsedSpace;
                         RootDriveFreeSpace.Text = RootDrive.FreeSpace;
                         RootDriveTotalSpace.Text = RootDrive.Capacity;
-                        RootDriveUsedByte.Text = $"{RootDrive.UsedByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
-                        RootDriveFreeByte.Text = $"{RootDrive.FreeByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
-                        RootDriveTotalByte.Text = $"{RootDrive.TotalByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+                        RootDriveUsedByte.Text = $"{RootDrive.UsedByte:N0} {Globalization.GetString("Drive_Capacity_Unit")}";
+                        RootDriveFreeByte.Text = $"{RootDrive.FreeByte:N0} {Globalization.GetString("Drive_Capacity_Unit")}";
+                        RootDriveTotalByte.Text = $"{RootDrive.TotalByte:N0} {Globalization.GetString("Drive_Capacity_Unit")}";
                         RootDriveFileSystemContent.Text = RootDrive.FileSystem;
-                        RootDriveDescriptionLabel.Text = $"Drive {RootDrive.Path.TrimEnd('\\')}";
+                        RootDriveDescriptionLabel.Text = $"{Globalization.GetString("Drive_Description_Name")} {RootDrive.Path.TrimEnd('\\')}";
                         RootDriveTypeContent.Text = RootDrive.DriveType switch
                         {
-                            DriveType.Fixed => Globalization.GetString("Device_Type_1"),
-                            DriveType.CDRom => Globalization.GetString("Device_Type_2"),
-                            DriveType.Removable => Globalization.GetString("Device_Type_3"),
-                            DriveType.Ram => Globalization.GetString("Device_Type_4"),
-                            DriveType.Network => Globalization.GetString("Device_Type_5"),
+                            DriveType.Fixed => Globalization.GetString("Drive_Type_1"),
+                            DriveType.CDRom => Globalization.GetString("Drive_Type_2"),
+                            DriveType.Removable => Globalization.GetString("Drive_Type_3"),
+                            DriveType.Ram => Globalization.GetString("Drive_Type_4"),
+                            DriveType.Network => Globalization.GetString("Drive_Type_5"),
                             _ => Globalization.GetString("UnknownText")
                         };
 
@@ -1657,39 +1657,51 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (StorageItems.First() is FileSystemStorageFile File)
             {
+                DateTimeOffset StartTime = DateTimeOffset.Now;
+
                 try
                 {
-                    UnlockProgressRing.Visibility = Visibility.Visible;
-                    UnlockText.Visibility = Visibility.Collapsed;
+                    VisualStateManager.GoToState(this, "UnlockRunningStatus", true);
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
                         if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce"))
                         {
-                            UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Success_Content");
+                            UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_Success");
                         }
                         else
                         {
-                            UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Failure_Content");
+                            UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_Failure");
                         }
                     }
                 }
                 catch (FileNotFoundException)
                 {
-                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_FileNotFound_Content");
+                    UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_FileNotFound");
                 }
                 catch (UnlockException)
                 {
-                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_NoLock_Content");
+                    UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_NoLock");
                 }
                 catch
                 {
-                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_UnexpectedError_Content");
+                    UnlockText.Text = Globalization.GetString("Properties_Tools_Unlock_UnexpectedError");
                 }
                 finally
                 {
-                    UnlockProgressRing.Visibility = Visibility.Collapsed;
-                    UnlockText.Visibility = Visibility.Visible;
+                    if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 1000)
+                    {
+                        await Task.Delay(1500);
+                    }
+
+                    if (UnlockText.Text == Globalization.GetString("Properties_Tools_Unlock_Success"))
+                    {
+                        VisualStateManager.GoToState(this, "UnlockSuccessStatus", true);
+                    }
+                    else
+                    {
+                        VisualStateManager.GoToState(this, "UnlockErrorStatus", true);
+                    }
                 }
             }
         }
@@ -1830,11 +1842,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private void CancelSavingButton_Click(object sender, RoutedEventArgs e)
         {
             SavingCancellation?.Cancel();
-        }
-
-        private void DriveErrorCheck_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private async void DriveOptimize_Click(object sender, RoutedEventArgs e)

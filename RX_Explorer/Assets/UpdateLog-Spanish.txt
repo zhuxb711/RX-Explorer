@@ -1,17 +1,13 @@
-﻿###Novedades de la versión 7.3.9.0
+﻿###Novedades de la versión 7.4.0.0
 
 #####Actualización de funciones
 
->#####Se mejoró la interfaz de usuario del control flotante adjunto al botón "Diseño" y se agregaron varios interruptores de acceso directo
+>#####Se rediseñó la interfaz de usuario de la ventana Propiedades de la unidad, agregando múltiples funciones relacionadas con el disco
 
->#####Se agregó una nueva configuración para permitir el control de si se muestran las extensiones de archivo
+>#####Se rediseñó la interfaz de usuario de la página de herramientas de la ventana de propiedades del archivo
+
+>#####Se rediseñó el mecanismo de cancelación de tareas para controlar las tareas realizadas bajo la autoridad de administrador
 
 #####Arreglo del fallo
 
->#####Se solucionó el problema de que cuando la aplicación predeterminada de un determinado tipo de archivo es una aplicación para UWP, es posible que no se identifique correctamente en el cuadro de diálogo "Abrir con"
-
->#####Se solucionó el problema de que el visor de texto incorporado puede mostrar un formato de codificación en blanco
-
->#####Se solucionó un problema que podía hacer que la aplicación se bloqueara al cargar "Bibliotecas"
-
->#####Se solucionó el problema que podía causar la imposibilidad de ingresar al editor de imágenes incorporado
+>#####Se solucionó el problema que podía causar un bloqueo en algunos casos

@@ -275,7 +275,13 @@ namespace FullTrustProcess
                                                                 {
                                                                     List<string> OperationRecordList = new List<string>();
 
-                                                                    if (StorageController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, PostCopyEvent: (se, arg) =>
+                                                                    if (StorageController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
+                                                                    {
+                                                                        if (Cancellation.IsCancellationRequested)
+                                                                        {
+                                                                            throw new COMException(null, HRESULT.E_ABORT);
+                                                                        }
+                                                                    }, PostCopyEvent: (se, arg) =>
                                                                     {
                                                                         if (arg.Result == HRESULT.S_OK)
                                                                         {
@@ -329,7 +335,13 @@ namespace FullTrustProcess
                                                                     {
                                                                         List<string> OperationRecordList = new List<string>();
 
-                                                                        if (StorageController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, PostMoveEvent: (se, arg) =>
+                                                                        if (StorageController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
+                                                                        {
+                                                                            if (Cancellation.IsCancellationRequested)
+                                                                            {
+                                                                                throw new COMException(null, HRESULT.E_ABORT);
+                                                                            }
+                                                                        }, PostMoveEvent: (se, arg) =>
                                                                         {
                                                                             if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                                                             {
@@ -391,7 +403,13 @@ namespace FullTrustProcess
                                                                     {
                                                                         List<string> OperationRecordList = new List<string>();
 
-                                                                        if (StorageController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, PostDeleteEvent: (se, arg) =>
+                                                                        if (StorageController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
+                                                                        {
+                                                                            if (Cancellation.IsCancellationRequested)
+                                                                            {
+                                                                                throw new COMException(null, HRESULT.E_ABORT);
+                                                                            }
+                                                                        }, PostDeleteEvent: (se, arg) =>
                                                                         {
                                                                             if (!DeleteData.PermanentDelete)
                                                                             {

@@ -919,20 +919,20 @@
   <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
     <value>Impossible de se reconnecter à l'appareil</value>
   </data>
-  <data name="Device_Capacity_Unit" xml:space="preserve">
+  <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>bytes</value>
     <comment>Example: 1024 bytes</comment>
   </data>
-  <data name="Device_Type_1" xml:space="preserve">
+  <data name="Drive_Type_1" xml:space="preserve">
     <value>Lecteur local</value>
   </data>
-  <data name="Device_Type_3" xml:space="preserve">
+  <data name="Drive_Type_3" xml:space="preserve">
     <value>Lecteur amovible</value>
   </data>
-  <data name="Device_Type_4" xml:space="preserve">
+  <data name="Drive_Type_4" xml:space="preserve">
     <value>Lecteur RAM</value>
   </data>
-  <data name="Device_Type_5" xml:space="preserve">
+  <data name="Drive_Type_5" xml:space="preserve">
     <value>Lecteur réseau</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
@@ -1576,19 +1576,19 @@
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>Une erreur inattendue s'est produite et la corbeille n'a pas pu être vidée</value>
   </data>
-  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
-    <value>Échec inoccupé</value>
+  <data name="Properties_Tools_Unlock_Failure" xml:space="preserve">
+    <value>Échec du déverrouillage</value>
   </data>
-  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_FileNotFound" xml:space="preserve">
     <value>Impossible de trouver le fichier correspondant</value>
   </data>
-  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
-    <value>Le fichier n'est pas occupé, pas besoin de supprimer l'occupation</value>
+  <data name="Properties_Tools_Unlock_NoLock" xml:space="preserve">
+    <value>Le fichier n'est pas verrouillé, pas besoin de déverrouiller le fichier</value>
   </data>
-  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
-    <value>Inoccupé avec succès</value>
+  <data name="Properties_Tools_Unlock_Success" xml:space="preserve">
+    <value>Déverrouiller avec succès</value>
   </data>
-  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_UnexpectedError" xml:space="preserve">
     <value>Une erreur inattendue est apparue</value>
   </data>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
@@ -1603,7 +1603,7 @@
   <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
     <value>Impossible d'éjecter ce périphérique USB</value>
   </data>
-  <data name="EjectUSB.Label" xml:space="preserve">
+  <data name="Operate_Text_EjectUSB" xml:space="preserve">
     <value>Éjecter</value>
   </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
@@ -1977,7 +1977,7 @@ Les noms non valides incluent
   <data name="SearchInEverythingEngine.Content" xml:space="preserve">
     <value>Utilisez le moteur de recherche Everything (plus rapide)</value>
   </data>
-  <data name="UnlockBitlocker.Label" xml:space="preserve">
+  <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
     <value>Ouvrir</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
@@ -2488,8 +2488,8 @@ Les noms non valides incluent
   <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
     <value>Calculer</value>
   </data>
-  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
-    <value>Déverrouiller l'occupation</value>
+  <data name="Properties_Tools_Unlock.Text" xml:space="preserve">
+    <value>Déverrouiller</value>
   </data>
   <data name="Properties_Window_Title" xml:space="preserve">
     <value>Propriétés</value>
@@ -3140,7 +3140,7 @@ Les noms non valides incluent
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Mode de présentation</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
+  <data name="Drive_Type_2" xml:space="preserve">
     <value>Lecteur CD ROM</value>
   </data>
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
@@ -3373,5 +3373,20 @@ Les noms non valides incluent
   </data>
   <data name="DriveOptimizeHeader.Text" xml:space="preserve">
     <value>Optimisation de la fragmentation des disques</value>
+  </data>
+  <data name="UnlockContent.Text" xml:space="preserve">
+    <value>Cette option trouvera et terminera le programme qui verrouille ce fichier</value>
+  </data>
+  <data name="UnlockHeader.Text" xml:space="preserve">
+    <value>Déverrouiller le fichier</value>
+  </data>
+  <data name="HashContent.Text" xml:space="preserve">
+    <value>Vérifiez la valeur de hachage pour vous assurer que les fichiers sont exactement les mêmes</value>
+  </data>
+  <data name="HashHeader.Text" xml:space="preserve">
+    <value>Calculer le hachage</value>
+  </data>
+  <data name="Drive_Description_Name" xml:space="preserve">
+    <value>Drive</value>
   </data>
 </root>

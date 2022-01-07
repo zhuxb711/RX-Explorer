@@ -28,7 +28,7 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="DriveEmptyFlyout"
-                               ShouldConstrainToRootBounds="False" >
+                               ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
@@ -46,78 +46,6 @@
                               x:Uid="AddDevice"
                               x:Name="AddDrive"
                               Click="AddDrive_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="DriveFlyout"
-                               ShouldConstrainToRootBounds="False">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow"
-                              Label="打开"
-                              Width="320"
-                              x:Uid="OpenDevice"
-                              Click="OpenDrive_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Enter"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarSeparator />
-                <AppBarButton Icon="Tag"
-                              Label="属性"
-                              Width="320"
-                              x:Uid="DeviceAttribute"
-                              x:Name="Attribute"
-                              Click="Properties_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="PortableDeviceFlyout"
-                               ShouldConstrainToRootBounds="False">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow"
-                              Label="打开"
-                              MinWidth="200"
-                              x:Uid="OpenDevice"
-                              Click="OpenDrive_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Enter"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarSeparator />
-                <AppBarButton Label="弹出"
-                              MinWidth="200"
-                              x:Uid="EjectUSB"
-                              Name="EjectButton"
-                              Click="EjectButton_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xF847;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarSeparator />
-                <AppBarButton Icon="Tag"
-                              Label="属性"
-                              MinWidth="200"
-                              x:Uid="DeviceAttribute"
-                              Click="Properties_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="BitlockerDeviceFlyout"
-                               ShouldConstrainToRootBounds="False">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Label="解锁"
-                              MinWidth="200"
-                              Name="UnlockBitlocker"
-                              x:Uid="UnlockBitlocker"
-                              Click="UnlockBitlocker_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xE785;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Page.Resources>

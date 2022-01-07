@@ -41,11 +41,18 @@ namespace RX_Explorer
         private CancellationTokenSource DelayEnterCancellation;
         private CancellationTokenSource ContextMenuCancellation;
         private CommandBarFlyout LibraryFlyout;
+        private CommandBarFlyout NormalDriveFlyout;
+        private CommandBarFlyout PortableDriveFlyout;
+        private CommandBarFlyout BitlockerDriveFlyout;
 
         public Home()
         {
             InitializeComponent();
+
             LibraryFlyout = CreateNewFolderContextMenu();
+            NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
+            PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+            BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
         }
 
         private CommandBarFlyout CreateNewFolderContextMenu()
@@ -98,8 +105,8 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(OpenButton);
             #endregion
 
-            #region SecondaryCommand -> OpenFolderInNewTabButton
-            AppBarButton OpenFolderInNewTabButton = new AppBarButton
+            #region SecondaryCommand -> OpenInNewTabButton
+            AppBarButton OpenInNewTabButton = new AppBarButton
             {
                 Label = Globalization.GetString("Operate_Text_NewTab"),
                 Width = 320,
@@ -109,19 +116,19 @@ namespace RX_Explorer
                     Glyph = "\uF7ED"
                 }
             };
-            OpenFolderInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            OpenInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
                 Modifiers = VirtualKeyModifiers.Control,
                 Key = VirtualKey.T,
                 IsEnabled = false
             });
-            OpenFolderInNewTabButton.Click += OpenFolderInNewTab_Click;
+            OpenInNewTabButton.Click += OpenInNewTab_Click;
 
-            Flyout.SecondaryCommands.Add(OpenFolderInNewTabButton);
+            Flyout.SecondaryCommands.Add(OpenInNewTabButton);
             #endregion
 
-            #region SecondaryCommand -> OpenFolderInNewWindowButton
-            AppBarButton OpenFolderInNewWindowButton = new AppBarButton
+            #region SecondaryCommand -> OpenInNewWindowButton
+            AppBarButton OpenInNewWindowButton = new AppBarButton
             {
                 Label = Globalization.GetString("Operate_Text_NewWindow"),
                 Width = 320,
@@ -131,23 +138,23 @@ namespace RX_Explorer
                     Glyph = "\uE727"
                 }
             };
-            OpenFolderInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            OpenInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
                 Modifiers = VirtualKeyModifiers.Control,
                 Key = VirtualKey.Q,
                 IsEnabled = false
             });
-            OpenFolderInNewWindowButton.Click += OpenFolderInNewWindow_Click;
+            OpenInNewWindowButton.Click += OpenInNewWindow_Click;
 
-            Flyout.SecondaryCommands.Add(OpenFolderInNewWindowButton);
+            Flyout.SecondaryCommands.Add(OpenInNewWindowButton);
             #endregion
 
-            #region SecondaryCommand -> OpenFolderInVerticalSplitViewButton
-            AppBarButton OpenFolderInVerticalSplitViewButton = new AppBarButton
+            #region SecondaryCommand -> OpenInVerticalSplitViewButton
+            AppBarButton OpenInVerticalSplitViewButton = new AppBarButton
             {
                 Label = Globalization.GetString("Operate_Text_SplitView"),
                 Width = 320,
-                Name = "OpenFolderInVerticalSplitView",
+                Name = "OpenInVerticalSplitView",
                 Visibility = Visibility.Collapsed,
                 Icon = new FontIcon
                 {
@@ -155,15 +162,15 @@ namespace RX_Explorer
                     Glyph = "\uEA61"
                 }
             };
-            OpenFolderInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+            OpenInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
             {
                 Modifiers = VirtualKeyModifiers.Control,
                 Key = VirtualKey.B,
                 IsEnabled = false
             });
-            OpenFolderInVerticalSplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
+            OpenInVerticalSplitViewButton.Click += OpenInVerticalSplitView_Click;
 
-            Flyout.SecondaryCommands.Add(OpenFolderInVerticalSplitViewButton);
+            Flyout.SecondaryCommands.Add(OpenInVerticalSplitViewButton);
             #endregion
 
             Flyout.SecondaryCommands.Add(new AppBarSeparator());
@@ -199,13 +206,181 @@ namespace RX_Explorer
             return Flyout;
         }
 
+        private CommandBarFlyout CreateNewDriveContextMenu(DriveContextMenuType Type)
+        {
+            CommandBarFlyout Flyout = new CommandBarFlyout
+            {
+                AlwaysExpanded = true,
+                ShouldConstrainToRootBounds = false
+            };
+            Flyout.Closing += CommandBarFlyout_Closing;
+
+            FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
+
+            switch (Type)
+            {
+                case DriveContextMenuType.Portable:
+                    {
+                        #region SecondaryCommand -> EjectButton
+                        AppBarButton EjectButton = new AppBarButton
+                        {
+                            Icon = new FontIcon
+                            {
+                                FontFamily = FontIconFamily,
+                                Glyph = "\uF847"
+                            },
+                            Label = Globalization.GetString("Operate_Text_EjectUSB"),
+                            Width = 320
+                        };
+                        EjectButton.Click += EjectButton_Click;
+
+                        Flyout.SecondaryCommands.Add(EjectButton);
+                        #endregion
+
+                        goto case DriveContextMenuType.Normal;
+                    }
+                case DriveContextMenuType.Normal:
+                    {
+                        Flyout.Opening += CommandBarFlyout_Opening;
+
+                        #region SecondaryCommand -> OpenButton
+                        AppBarButton OpenButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon { Symbol = Symbol.OpenFile },
+                            Label = Globalization.GetString("Operate_Text_Open"),
+                            Width = 320
+                        };
+                        OpenButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Control,
+                            Key = VirtualKey.G,
+                            IsEnabled = false
+                        });
+                        OpenButton.Click += OpenDrive_Click;
+
+                        Flyout.SecondaryCommands.Insert(0,OpenButton);
+                        #endregion
+
+                        #region SecondaryCommand -> OpenInNewTabButton
+                        AppBarButton OpenInNewTabButton = new AppBarButton
+                        {
+                            Label = Globalization.GetString("Operate_Text_NewTab"),
+                            Width = 320,
+                            Icon = new FontIcon
+                            {
+                                FontFamily = FontIconFamily,
+                                Glyph = "\uF7ED"
+                            }
+                        };
+                        OpenInNewTabButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Control,
+                            Key = VirtualKey.T,
+                            IsEnabled = false
+                        });
+                        OpenInNewTabButton.Click += OpenInNewTab_Click;
+
+                        Flyout.SecondaryCommands.Insert(1,OpenInNewTabButton);
+                        #endregion
+
+                        #region SecondaryCommand -> OpenInNewWindowButton
+                        AppBarButton OpenInNewWindowButton = new AppBarButton
+                        {
+                            Label = Globalization.GetString("Operate_Text_NewWindow"),
+                            Width = 320,
+                            Icon = new FontIcon
+                            {
+                                FontFamily = FontIconFamily,
+                                Glyph = "\uE727"
+                            }
+                        };
+                        OpenInNewWindowButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Control,
+                            Key = VirtualKey.Q,
+                            IsEnabled = false
+                        });
+                        OpenInNewWindowButton.Click += OpenInNewWindow_Click;
+
+                        Flyout.SecondaryCommands.Insert(2,OpenInNewWindowButton);
+                        #endregion
+
+                        #region SecondaryCommand -> OpenInVerticalSplitViewButton
+                        AppBarButton OpenInVerticalSplitViewButton = new AppBarButton
+                        {
+                            Label = Globalization.GetString("Operate_Text_SplitView"),
+                            Width = 320,
+                            Name = "OpenInVerticalSplitView",
+                            Visibility = Visibility.Collapsed,
+                            Icon = new FontIcon
+                            {
+                                FontFamily = FontIconFamily,
+                                Glyph = "\uEA61"
+                            }
+                        };
+                        OpenInVerticalSplitViewButton.KeyboardAccelerators.Add(new KeyboardAccelerator
+                        {
+                            Modifiers = VirtualKeyModifiers.Control,
+                            Key = VirtualKey.B,
+                            IsEnabled = false
+                        });
+                        OpenInVerticalSplitViewButton.Click += OpenInVerticalSplitView_Click;
+
+                        Flyout.SecondaryCommands.Insert(3,OpenInVerticalSplitViewButton);
+                        #endregion
+
+                        Flyout.SecondaryCommands.Add(new AppBarSeparator());
+
+                        #region SecondaryCommand -> PropertyButton
+                        AppBarButton PropertyButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon { Symbol = Symbol.Tag },
+                            Width = 320,
+                            Label = Globalization.GetString("Operate_Text_Property")
+                        };
+                        PropertyButton.Click += DriveProperties_Click;
+
+                        Flyout.SecondaryCommands.Add(PropertyButton);
+                        #endregion
+
+                        break;
+                    }
+                case DriveContextMenuType.Locked:
+                    {
+                        #region SecondaryCommand -> UnlockBitlockerButton
+                        AppBarButton UnlockBitlockerButton = new AppBarButton
+                        {
+                            Icon = new FontIcon
+                            {
+                                FontFamily = FontIconFamily,
+                                Glyph = "\uE785"
+                            },
+                            Label = Globalization.GetString("Operate_Text_UnlockBitlocker"),
+                            Width = 320
+                        };
+                        UnlockBitlockerButton.Click += UnlockBitlocker_Click;
+
+                        Flyout.SecondaryCommands.Add(UnlockBitlockerButton);
+                        #endregion
+
+                        break;
+                    }
+                default:
+                    {
+                        throw new NotSupportedException();
+                    }
+            }
+
+            return Flyout;
+        }
+
         private async void CommandBarFlyout_Opening(object sender, object e)
         {
             if (sender is CommandBarFlyout Flyout)
             {
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
-                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenFolderInVerticalSplitView").Visibility = Visibility.Visible;
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
                 }
             }
         }
@@ -216,10 +391,10 @@ namespace RX_Explorer
             {
                 LibraryEmptyFlyout.Hide();
                 DriveEmptyFlyout.Hide();
-                DriveFlyout.Hide();
+                NormalDriveFlyout.Hide();
                 LibraryFlyout.Hide();
-                PortableDeviceFlyout.Hide();
-                BitlockerDeviceFlyout.Hide();
+                PortableDriveFlyout.Hide();
+                BitlockerDriveFlyout.Hide();
             }
             catch (Exception ex)
             {
@@ -507,18 +682,18 @@ namespace RX_Explorer
             }
         }
 
-        private void ItemContainer_PointerCanceled(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
             DelaySelectionCancellation?.Cancel();
             DelayEnterCancellation?.Cancel();
         }
 
-        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             DelaySelectionCancellation?.Cancel();
         }
 
-        private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
             {
@@ -753,7 +928,7 @@ namespace RX_Explorer
             }
         }
 
-        private void DriveGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void DriveGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
@@ -765,7 +940,7 @@ namespace RX_Explorer
             }
         }
 
-        private void LibraryGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void LibraryGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
@@ -777,7 +952,7 @@ namespace RX_Explorer
             }
         }
 
-        private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             DriveGrid.SelectedIndex = -1;
             LibraryGrid.SelectedIndex = -1;
@@ -921,7 +1096,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Properties_Click(object sender, RoutedEventArgs e)
+        private async void DriveProperties_Click(object sender, RoutedEventArgs e)
         {
             if (DriveGrid.SelectedItem is DriveDataBase Drive)
             {
@@ -1117,7 +1292,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private async void OpenInNewTab_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -1125,9 +1300,13 @@ namespace RX_Explorer
             {
                 await TabViewContainer.Current.CreateNewTabAsync(Lib.Path);
             }
+            else if (DriveGrid.SelectedItem is DriveDataBase Drive)
+            {
+                await TabViewContainer.Current.CreateNewTabAsync(Drive.Path);
+            }
         }
 
-        private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
+        private async void OpenInNewWindow_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -1140,15 +1319,28 @@ namespace RX_Explorer
 
                 await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
             }
+            else if (DriveGrid.SelectedItem is DriveDataBase Drive)
+            {
+                string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
+                {
+                    new string[]{ Drive.Path }
+                }));
+
+                await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{StartupArgument}"));
+            }
         }
 
-        private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
+        private async void OpenInVerticalSplitView_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Lib)
             {
                 await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Lib.Path);
+            }
+            else if (DriveGrid.SelectedItem is DriveDataBase Drive)
+            {
+                await this.FindParentOfType<FileControl>()?.CreateNewBladeAsync(Drive.Path);
             }
         }
 
@@ -1457,6 +1649,8 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    LibraryGrid.SelectedIndex = -1;
+
                     LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
                     {
                         Position = Position,
@@ -1472,7 +1666,7 @@ namespace RX_Explorer
             CloseAllFlyout();
         }
 
-        private async void DriveGrid_ContextRequested(UIElement sender, Windows.UI.Xaml.Input.ContextRequestedEventArgs args)
+        private async void DriveGrid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
             if (args.TryGetPosition(sender, out Point Position))
             {
@@ -1485,29 +1679,64 @@ namespace RX_Explorer
                 {
                     DriveGrid.SelectedItem = Context;
 
-                    CommandBarFlyout Flyout;
-
-                    if (Context is LockedDriveData)
-                    {
-                        Flyout = BitlockerDeviceFlyout;
-                    }
-                    else if (Context.DriveType == DriveType.Removable)
-                    {
-                        Flyout = PortableDeviceFlyout;
-                    }
-                    else
-                    {
-                        Flyout = DriveFlyout;
-                    }
-
                     ContextMenuCancellation?.Cancel();
                     ContextMenuCancellation?.Dispose();
                     ContextMenuCancellation = new CancellationTokenSource();
 
-                    await Flyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                               Position,
-                                                                               ContextMenuCancellation.Token,
-                                                                               DriveGrid.SelectedItems.Cast<DriveDataBase>().Select((Drive) => Drive.Path).ToArray());
+                    if (Context is LockedDriveData)
+                    {
+                    Retry:
+                        try
+                        {
+                            await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                     Position,
+                                                                                                     ContextMenuCancellation.Token,
+                                                                                                     DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                            .Select((Lib) => Lib.Path)
+                                                                                                                            .ToArray());
+                        }
+                        catch (Exception)
+                        {
+                            BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
+                            goto Retry;
+                        }
+                    }
+                    else if (Context.DriveType == DriveType.Removable)
+                    {
+                    Retry:
+                        try
+                        {
+                            await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                           .Select((Lib) => Lib.Path)
+                                                                                                                           .ToArray());
+                        }
+                        catch (Exception)
+                        {
+                            PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+                            goto Retry;
+                        }
+                    }
+                    else
+                    {
+                    Retry:
+                        try
+                        {
+                            await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                  Position,
+                                                                                                  ContextMenuCancellation.Token,
+                                                                                                  DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                         .Select((Lib) => Lib.Path)
+                                                                                                                         .ToArray());
+                        }
+                        catch (Exception)
+                        {
+                            NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
+                            goto Retry;
+                        }
+                    }
                 }
                 else
                 {

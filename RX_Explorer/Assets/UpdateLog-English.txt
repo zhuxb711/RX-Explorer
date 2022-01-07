@@ -1,17 +1,13 @@
-﻿###What's new in Ver.7.3.9.0
+﻿###What's new in Ver.7.4.0.0
 
 #####Feature update
 
->#####Improved the UI of the floating control attached to the "Layout" button and added several shortcut switches
+>#####Redesigned the UI of the Drive Properties window, adding multiple disk-related functions
 
->#####Added a new setting to allow control of whether to display file extensions
+>#####Redesigned the Tool page UI of the file properties window
+
+>#####Redesigned the mechanism of canceling tasks to control tasks performed under administrator authority
 
 #####Bug fix
 
->#####Fixed a problem that when the default application of a certain file type is a UWP application, it may not be correctly identified in the "Open With" dialog
-
->#####Fixed the problem that the built-in text viewer may display blank encoding format
-
->#####Fixed an issue that may cause the app to crash when loading "Libraries"
-
->#####Fixed the problem that may cause the inability to enter the built-in image editor
+>#####Fixed the problem that may cause a crash in some cases

@@ -962,20 +962,20 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
     <value>No se ha podido reconectar el dispositivo de destino.</value>
   </data>
-  <data name="Device_Capacity_Unit" xml:space="preserve">
+  <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>bytes</value>
     <comment>Example: 1024 bytes</comment>
   </data>
-  <data name="Device_Type_1" xml:space="preserve">
+  <data name="Drive_Type_1" xml:space="preserve">
     <value>Unidad local</value>
   </data>
-  <data name="Device_Type_3" xml:space="preserve">
+  <data name="Drive_Type_3" xml:space="preserve">
     <value>Unidad extraíble</value>
   </data>
-  <data name="Device_Type_4" xml:space="preserve">
+  <data name="Drive_Type_4" xml:space="preserve">
     <value>Unidad RAM</value>
   </data>
-  <data name="Device_Type_5" xml:space="preserve">
+  <data name="Drive_Type_5" xml:space="preserve">
     <value>Unidad de red</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
@@ -1634,19 +1634,19 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>Vaciar papelera</value>
   </data>
-  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
-    <value>La desocupación ha fallado.</value>
+  <data name="Properties_Tools_Unlock_Failure" xml:space="preserve">
+    <value>Desbloqueo fallido</value>
   </data>
-  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_FileNotFound" xml:space="preserve">
     <value>No se ha podido encontrar el archivo correspondiente.</value>
   </data>
-  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
-    <value>El archivo no está ocupado; no es necesario eliminar la ocupación.</value>
+  <data name="Properties_Tools_Unlock_NoLock" xml:space="preserve">
+    <value>El archivo no está bloqueado, no es necesario desbloquearlo</value>
   </data>
-  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
-    <value>Desocupación correcta</value>
+  <data name="Properties_Tools_Unlock_Success" xml:space="preserve">
+    <value>Desbloquear con éxito</value>
   </data>
-  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_UnexpectedError" xml:space="preserve">
     <value>Se ha producido un error inesperado.</value>
   </data>
   <data name="RecyclePermanentDelete.Label" xml:space="preserve">
@@ -1658,7 +1658,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
     <value>No se ha podido expulsar este dispositivo USB.</value>
   </data>
-  <data name="EjectUSB.Label" xml:space="preserve">
+  <data name="Operate_Text_EjectUSB" xml:space="preserve">
     <value>Expulsar</value>
   </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
@@ -2011,7 +2011,7 @@ Las denominaciones no válidas son:
   <data name="SearchInEverythingEngine.Content" xml:space="preserve">
     <value>Usar motor de búsqueda Everything (más rápido)</value>
   </data>
-  <data name="UnlockBitlocker.Label" xml:space="preserve">
+  <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
     <value>Desbloquear</value>
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
@@ -2488,8 +2488,8 @@ Las denominaciones no válidas son:
   <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
     <value>Calcular</value>
   </data>
-  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
-    <value>Desbloquear ocupación</value>
+  <data name="Properties_Tools_Unlock.Text" xml:space="preserve">
+    <value>Abrir cerradura</value>
   </data>
   <data name="Properties_Window_Title" xml:space="preserve">
     <value>Propiedades</value>
@@ -3140,7 +3140,7 @@ Las denominaciones no válidas son:
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Modo de diseño</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
+  <data name="Drive_Type_2" xml:space="preserve">
     <value>Lector de CD ROM</value>
   </data>
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
@@ -3373,5 +3373,20 @@ Las denominaciones no válidas son:
   </data>
   <data name="DriveOptimizeHeader.Text" xml:space="preserve">
     <value>Impulsar la optimización de la fragmentación</value>
+  </data>
+  <data name="UnlockContent.Text" xml:space="preserve">
+    <value>Esta opción encontrará y terminará el programa que bloquea este archivo.</value>
+  </data>
+  <data name="UnlockHeader.Text" xml:space="preserve">
+    <value>Desbloquear el archivo</value>
+  </data>
+  <data name="HashContent.Text" xml:space="preserve">
+    <value>Vérifiez la valeur de hachage pour vous assurer que les fichiers sont exactement les mêmes</value>
+  </data>
+  <data name="HashHeader.Text" xml:space="preserve">
+    <value>Calcular el hash</value>
+  </data>
+  <data name="Drive_Description_Name" xml:space="preserve">
+    <value>Drive</value>
   </data>
 </root>

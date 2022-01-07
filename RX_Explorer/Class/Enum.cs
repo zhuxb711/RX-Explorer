@@ -2,6 +2,13 @@
 
 namespace RX_Explorer.Class
 {
+    public enum DriveContextMenuType
+    {
+        Locked,
+        Portable,
+        Normal
+    }
+
     public enum StateChangeType
     {
         Unknown_Action = 0,

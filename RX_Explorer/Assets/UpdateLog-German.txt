@@ -1,17 +1,13 @@
-﻿###Was ist neu in Ver.7.3.8.0
+﻿###Was ist neu in Ver.7.4.0.0
 
 #####Funktionsupdate
 
->#####Die Benutzeroberfläche des schwebenden Steuerelements, das mit der Schaltfläche "Layout" verbunden ist, wurde verbessert und mehrere Verknüpfungsschalter hinzugefügt
+>#####Die Benutzeroberfläche des Fensters "Laufwerkeigenschaften" wurde neu gestaltet und mehrere datenträgerbezogene Funktionen hinzugefügt.
 
->#####Neue Einstellung hinzugefügt, um zu steuern, ob Dateierweiterungen angezeigt werden sollen
+>#####Die Benutzeroberfläche der Tool-Seite des Dateieigenschaftenfensters wurde neu gestaltet
+
+>#####Der Mechanismus zum Abbrechen von Aufgaben wurde neu gestaltet, um die Aufgaben zu kontrollieren, die unter der Autorität des Administrators ausgeführt werden
 
 #####Bug-Fix
 
->######Es wurde ein Problem behoben, bei dem die Standardanwendung eines bestimmten Dateityps eine UWP-Anwendung ist, die im Dialogfeld "Öffnen mit" möglicherweise nicht richtig identifiziert wird.
-
->#####Das Problem wurde behoben, dass der integrierte Textbetrachter möglicherweise ein leeres Kodierungsformat anzeigt
-
->#####Es wurde ein Problem behoben, das zum Absturz der App beim Laden von "Bibliotheken" führen kann
-
->#####Das Problem wurde behoben, das dazu führen kann, dass der integrierte Bildeditor nicht aufgerufen werden kann
+>#####Das Problem wurde behoben, das in einigen Fällen zu einem Absturz führen konnte

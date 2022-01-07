@@ -1,17 +1,13 @@
-﻿###Quoi de neuf dans la version 7.3.9.0
+﻿###Quoi de neuf dans la version 7.4.0.0
 
 #####Mise à jour des fonctionnalités
 
->#####Amélioration de l'interface utilisateur du contrôle flottant attaché au bouton "Layout" et ajout de plusieurs commutateurs de raccourci
+>#####Refonte de l'interface utilisateur de la fenêtre Propriétés du lecteur, ajoutant plusieurs fonctions liées au disque
 
->#####Ajout d'un nouveau paramètre pour permettre le contrôle de l'affichage ou non des extensions de fichiers
+>#####Refonte de l'interface utilisateur de la page Outil de la fenêtre des propriétés du fichier
+
+>#####Reconception du mécanisme d'annulation des tâches pour contrôler les tâches effectuées sous l'autorité de l'administrateur
 
 #####Correction d'un bug
 
->#####Correction d'un problème selon lequel lorsque l'application par défaut d'un certain type de fichier est une application UWP, elle peut ne pas être correctement identifiée dans la boîte de dialogue « Ouvrir avec »
-
->#####Correction du problème selon lequel la visionneuse de texte intégrée pouvait afficher un format de codage vierge
-
->#####Correction d'un problème pouvant entraîner le blocage de l'application lors du chargement de "Bibliothèques"
-
->#####Correction du problème pouvant entraîner l'impossibilité d'accéder à l'éditeur d'images intégré
+>#####Correction du problème pouvant provoquer un plantage dans certains cas

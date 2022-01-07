@@ -3502,118 +3502,118 @@ namespace RX_Explorer
 
         private async void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DelayRenameCancellation?.Cancel();
-
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItems = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
-
-            string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
-
-            if (SelectedItems.Count > 0)
+            try
             {
-                string SizeInfo = string.Empty;
+                DelayRenameCancellation?.Cancel();
 
-                if (SelectedItems.All((Item) => Item is FileSystemStorageFile))
+                IReadOnlyList<FileSystemStorageItemBase> SelectedItems = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+
+                string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
+
+                if (SelectedItems.Count > 0)
                 {
-                    ulong TotalSize = 0;
+                    string SizeInfo = string.Empty;
 
-                    foreach (ulong Size in SelectedItems.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
+                    if (SelectedItems.All((Item) => Item is FileSystemStorageFile))
                     {
-                        TotalSize += Size;
+                        ulong TotalSize = 0;
+
+                        foreach (ulong Size in SelectedItems.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
+                        {
+                            TotalSize += Size;
+                        }
+
+                        SizeInfo = $"  |  {TotalSize.GetSizeDescription()}";
                     }
 
-                    SizeInfo = $"  |  {TotalSize.GetSizeDescription()}";
-                }
-
-                if (StatusTipsSplit.Length > 0)
-                {
-                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                    if (StatusTipsSplit.Length > 0)
+                    {
+                        StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                    }
+                    else
+                    {
+                        StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                    }
                 }
                 else
                 {
-                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
-                }
-            }
-            else
-            {
-                if (StatusTipsSplit.Length > 0)
-                {
-                    StatusTips.Text = StatusTipsSplit[0];
-                }
-            }
-
-            if (SelectedItems.Count == 1 && SelectedItems.First() is FileSystemStorageItemBase Item)
-            {
-                if (Item is FileSystemStorageFile)
-                {
-                    AppBarButton EditButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "EditButton");
-                    AppBarButton OpenWithButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenWithButton");
-
-                    if (EditButton.Flyout is MenuFlyout EditButtonFlyout && OpenWithButton.Flyout is MenuFlyout OpenWithButtonFlyout)
+                    if (StatusTipsSplit.Length > 0)
                     {
-                        MenuFlyoutItem ChooseOtherAppButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "ChooseOtherAppButton");
-                        MenuFlyoutItem RunAsAdminButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "RunAsAdminButton");
-                        MenuFlyoutItem TranscodeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "TranscodeButton");
-                        MenuFlyoutItem VideoEditButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoEditButton");
-                        MenuFlyoutItem VideoMergeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoMergeButton");
-
-                        EditButton.Visibility = Visibility.Collapsed;
-                        ChooseOtherAppButton.Visibility = Visibility.Visible;
-                        RunAsAdminButton.Visibility = Visibility.Collapsed;
-
-                        switch (Item.Type.ToLower())
-                        {
-                            case ".mp4":
-                            case ".wmv":
-                                {
-                                    EditButton.Visibility = Visibility.Visible;
-                                    TranscodeButton.Visibility = Visibility.Visible;
-                                    VideoEditButton.Visibility = Visibility.Visible;
-                                    VideoMergeButton.Visibility = Visibility.Visible;
-                                    break;
-                                }
-                            case ".mkv":
-                            case ".m4a":
-                            case ".mov":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".alac":
-                            case ".png":
-                            case ".bmp":
-                            case ".jpg":
-                            case ".heic":
-                            case ".tiff":
-                                {
-                                    EditButton.Visibility = Visibility.Visible;
-                                    TranscodeButton.Visibility = Visibility.Visible;
-                                    VideoEditButton.Visibility = Visibility.Collapsed;
-                                    VideoMergeButton.Visibility = Visibility.Collapsed;
-                                    break;
-                                }
-                            case ".exe":
-                                {
-                                    ChooseOtherAppButton.Visibility = Visibility.Collapsed;
-                                    RunAsAdminButton.Visibility = Visibility.Visible;
-                                    break;
-                                }
-                            case ".msi":
-                            case ".bat":
-                                {
-                                    RunAsAdminButton.Visibility = Visibility.Visible;
-                                    break;
-                                }
-                            case ".msc":
-                                {
-                                    ChooseOtherAppButton.Visibility = Visibility.Collapsed;
-                                    break;
-                                }
-                        }
+                        StatusTips.Text = StatusTipsSplit[0];
                     }
                 }
 
-                if (SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
+                if (SelectedItems.Count == 1 && SelectedItems.First() is FileSystemStorageItemBase Item)
                 {
-                    try
+                    if (Item is FileSystemStorageFile)
+                    {
+                        AppBarButton EditButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "EditButton");
+                        AppBarButton OpenWithButton = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenWithButton");
+
+                        if (EditButton.Flyout is MenuFlyout EditButtonFlyout && OpenWithButton.Flyout is MenuFlyout OpenWithButtonFlyout)
+                        {
+                            MenuFlyoutItem ChooseOtherAppButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "ChooseOtherAppButton");
+                            MenuFlyoutItem RunAsAdminButton = OpenWithButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "RunAsAdminButton");
+                            MenuFlyoutItem TranscodeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "TranscodeButton");
+                            MenuFlyoutItem VideoEditButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoEditButton");
+                            MenuFlyoutItem VideoMergeButton = EditButtonFlyout.Items.OfType<MenuFlyoutItem>().First((Btn) => Btn.Name == "VideoMergeButton");
+
+                            EditButton.Visibility = Visibility.Collapsed;
+                            ChooseOtherAppButton.Visibility = Visibility.Visible;
+                            RunAsAdminButton.Visibility = Visibility.Collapsed;
+
+                            switch (Item.Type.ToLower())
+                            {
+                                case ".mp4":
+                                case ".wmv":
+                                    {
+                                        EditButton.Visibility = Visibility.Visible;
+                                        TranscodeButton.Visibility = Visibility.Visible;
+                                        VideoEditButton.Visibility = Visibility.Visible;
+                                        VideoMergeButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                case ".mkv":
+                                case ".m4a":
+                                case ".mov":
+                                case ".mp3":
+                                case ".flac":
+                                case ".wma":
+                                case ".alac":
+                                case ".png":
+                                case ".bmp":
+                                case ".jpg":
+                                case ".heic":
+                                case ".tiff":
+                                    {
+                                        EditButton.Visibility = Visibility.Visible;
+                                        TranscodeButton.Visibility = Visibility.Visible;
+                                        VideoEditButton.Visibility = Visibility.Collapsed;
+                                        VideoMergeButton.Visibility = Visibility.Collapsed;
+                                        break;
+                                    }
+                                case ".exe":
+                                    {
+                                        ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                        RunAsAdminButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                case ".msi":
+                                case ".bat":
+                                    {
+                                        RunAsAdminButton.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                case ".msc":
+                                    {
+                                        ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+
+                    if (SettingPage.IsQuicklookEnabled && !SettingPage.IsOpened)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
@@ -3626,11 +3626,11 @@ namespace RX_Explorer
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_SelectionChanged)}");
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_SelectionChanged)}");
             }
         }
 

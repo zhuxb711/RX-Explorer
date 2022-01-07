@@ -1214,24 +1214,24 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Unable to reconnect the target device</source>
           <target state="translated">Impossible de se reconnecter à l'appareil</target>
         </trans-unit>
-        <trans-unit id="Device_Capacity_Unit" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Capacity_Unit" translate="yes" xml:space="preserve">
           <source>bytes</source>
           <target state="translated">bytes</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: 1024 bytes</note>
         </trans-unit>
-        <trans-unit id="Device_Type_1" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_1" translate="yes" xml:space="preserve">
           <source>Local drive</source>
           <target state="translated">Lecteur local</target>
         </trans-unit>
-        <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_3" translate="yes" xml:space="preserve">
           <source>Removable drive</source>
           <target state="translated">Lecteur amovible</target>
         </trans-unit>
-        <trans-unit id="Device_Type_4" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_4" translate="yes" xml:space="preserve">
           <source>Ram drive</source>
           <target state="translated">Lecteur RAM</target>
         </trans-unit>
-        <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_5" translate="yes" xml:space="preserve">
           <source>Network drive</source>
           <target state="translated">Lecteur réseau</target>
         </trans-unit>
@@ -2080,24 +2080,24 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">Une erreur inattendue s'est produite et la corbeille n'a pas pu être vidée</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
-          <source>Unoccupied failed</source>
-          <target state="translated">Échec inoccupé</target>
+        <trans-unit id="Properties_Tools_Unlock_Failure" translate="yes" xml:space="preserve">
+          <source>Unlock failed</source>
+          <target state="translated">Échec du déverrouillage</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_FileNotFound_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="Properties_Tools_Unlock_FileNotFound" translate="yes" xml:space="preserve">
           <source>Unable to find the corresponding file</source>
           <target state="translated">Impossible de trouver le fichier correspondant</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_NoLock_Content" translate="yes" xml:space="preserve">
-          <source>The file is not occupied, no need to remove the occupation</source>
-          <target state="translated">Le fichier n'est pas occupé, pas besoin de supprimer l'occupation</target>
+        <trans-unit id="Properties_Tools_Unlock_NoLock" translate="yes" xml:space="preserve">
+          <source>The file is not locked, no need to unlock the file</source>
+          <target state="translated">Le fichier n'est pas verrouillé, pas besoin de déverrouiller le fichier</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_Success_Content" translate="yes" xml:space="preserve">
-          <source>Unoccupied successfully</source>
-          <target state="translated">Inoccupé avec succès</target>
+        <trans-unit id="Properties_Tools_Unlock_Success" translate="yes" xml:space="preserve">
+          <source>Unlock successfully</source>
+          <target state="translated">Déverrouiller avec succès</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_UnexpectedError_Content" translate="yes" xml:space="preserve">
-          <source>An unexpected error occurred</source>
+        <trans-unit id="Properties_Tools_Unlock_UnexpectedError" translate="yes" xml:space="preserve">
+          <source>An unexpected error detected</source>
           <target state="translated">Une erreur inattendue est apparue</target>
         </trans-unit>
         <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
@@ -2116,7 +2116,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Could not eject this USB device</source>
           <target state="translated">Impossible d'éjecter ce périphérique USB</target>
         </trans-unit>
-        <trans-unit id="EjectUSB.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_EjectUSB" translate="yes" xml:space="preserve">
           <source>Eject</source>
           <target state="translated">Éjecter</target>
         </trans-unit>
@@ -2620,7 +2620,7 @@ Les noms non valides incluent
           <source>Use Everything search engine (Faster)</source>
           <target state="translated">Utilisez le moteur de recherche Everything (plus rapide)</target>
         </trans-unit>
-        <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
           <source>Unlock</source>
           <target state="translated">Ouvrir</target>
         </trans-unit>
@@ -3301,9 +3301,9 @@ Les noms non valides incluent
           <source>Calculate</source>
           <target state="translated">Calculer</target>
         </trans-unit>
-        <trans-unit id="Properties_Tools_Unlock.Content" translate="yes" xml:space="preserve">
-          <source>Unlock occupation</source>
-          <target state="translated">Déverrouiller l'occupation</target>
+        <trans-unit id="Properties_Tools_Unlock.Text" translate="yes" xml:space="preserve">
+          <source>Unlock</source>
+          <target state="translated">Déverrouiller</target>
         </trans-unit>
         <trans-unit id="Properties_Window_Title" translate="yes" xml:space="preserve">
           <source>Properties</source>
@@ -4169,7 +4169,7 @@ Les noms non valides incluent
           <source>Layout mode</source>
           <target state="translated">Mode de présentation</target>
         </trans-unit>
-        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_2" translate="yes" xml:space="preserve">
           <source>CD-ROM drive</source>
           <target state="translated">Lecteur CD ROM</target>
         </trans-unit>
@@ -4480,6 +4480,26 @@ Les noms non valides incluent
         <trans-unit id="DriveOptimizeHeader.Text" translate="yes" xml:space="preserve">
           <source>Drive fragmentation optimization</source>
           <target state="translated">Optimisation de la fragmentation des disques</target>
+        </trans-unit>
+        <trans-unit id="UnlockContent.Text" translate="yes" xml:space="preserve">
+          <source>This option will find and terminate the program that locks this file</source>
+          <target state="translated">Cette option trouvera et terminera le programme qui verrouille ce fichier</target>
+        </trans-unit>
+        <trans-unit id="UnlockHeader.Text" translate="yes" xml:space="preserve">
+          <source>Unlock the file</source>
+          <target state="translated">Déverrouiller le fichier</target>
+        </trans-unit>
+        <trans-unit id="HashContent.Text" translate="yes" xml:space="preserve">
+          <source>Verify the hash value to ensure that the files are exactly the same</source>
+          <target state="translated">Vérifiez la valeur de hachage pour vous assurer que les fichiers sont exactement les mêmes</target>
+        </trans-unit>
+        <trans-unit id="HashHeader.Text" translate="yes" xml:space="preserve">
+          <source>Calculate the hash</source>
+          <target state="translated">Calculer le hachage</target>
+        </trans-unit>
+        <trans-unit id="Drive_Description_Name" translate="yes" xml:space="preserve">
+          <source>Drive</source>
+          <target state="translated">Drive</target>
         </trans-unit>
       </group>
     </body>

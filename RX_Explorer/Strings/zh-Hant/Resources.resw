@@ -928,20 +928,20 @@
   <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
     <value>無法重新連接目標設備</value>
   </data>
-  <data name="Device_Capacity_Unit" xml:space="preserve">
+  <data name="Drive_Capacity_Unit" xml:space="preserve">
     <value>位元組</value>
     <comment>Example: 1024 bytes</comment>
   </data>
-  <data name="Device_Type_1" xml:space="preserve">
+  <data name="Drive_Type_1" xml:space="preserve">
     <value>本地磁碟</value>
   </data>
-  <data name="Device_Type_3" xml:space="preserve">
+  <data name="Drive_Type_3" xml:space="preserve">
     <value>抽取式磁碟機</value>
   </data>
-  <data name="Device_Type_4" xml:space="preserve">
+  <data name="Drive_Type_4" xml:space="preserve">
     <value>記憶體硬碟</value>
   </data>
-  <data name="Device_Type_5" xml:space="preserve">
+  <data name="Drive_Type_5" xml:space="preserve">
     <value>網絡驅動器</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
@@ -1582,19 +1582,19 @@
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>清理資源回收筒</value>
   </data>
-  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
-    <value>清除失敗</value>
+  <data name="Properties_Tools_Unlock_Failure" xml:space="preserve">
+    <value>解鎖失敗</value>
   </data>
-  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_FileNotFound" xml:space="preserve">
     <value>找不到對應的檔案</value>
   </data>
-  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
-    <value>此檔案未被覆蓋，無需移除覆蓋</value>
+  <data name="Properties_Tools_Unlock_NoLock" xml:space="preserve">
+    <value>文件没有被锁定，不需要解锁文件</value>
   </data>
-  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
-    <value>成功覆蓋</value>
+  <data name="Properties_Tools_Unlock_Success" xml:space="preserve">
+    <value>解鎖成功</value>
   </data>
-  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+  <data name="Properties_Tools_Unlock_UnexpectedError" xml:space="preserve">
     <value>發生意外錯誤</value>
   </data>
   <data name="RecyclePermanentDelete.Label" xml:space="preserve">
@@ -1606,7 +1606,7 @@
   <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
     <value>無法彈出此USB裝置</value>
   </data>
-  <data name="EjectUSB.Label" xml:space="preserve">
+  <data name="Operate_Text_EjectUSB" xml:space="preserve">
     <value>退出</value>
   </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
@@ -1977,7 +1977,7 @@
   <data name="SearchInEverythingEngine.Content" xml:space="preserve">
     <value>使用Everything搜索引擎 (更快)</value>
   </data>
-  <data name="UnlockBitlocker.Label" xml:space="preserve">
+  <data name="Operate_Text_UnlockBitlocker" xml:space="preserve">
     <value>開鎖</value>
   </data>
   <data name="EverythingQuestion.Title" xml:space="preserve">
@@ -2488,8 +2488,8 @@
   <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
     <value>計算</value>
   </data>
-  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
-    <value>解鎖佔用</value>
+  <data name="Properties_Tools_Unlock.Text" xml:space="preserve">
+    <value>解鎖</value>
   </data>
   <data name="Properties_Window_Title" xml:space="preserve">
     <value>屬性</value>
@@ -3140,7 +3140,7 @@
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>排版方式</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
+  <data name="Drive_Type_2" xml:space="preserve">
     <value>CD-ROM驅動器</value>
   </data>
   <data name="FileControlHomeButton.ToolTipService.ToolTip" xml:space="preserve">
@@ -3373,5 +3373,20 @@
   </data>
   <data name="DriveOptimizeHeader.Text" xml:space="preserve">
     <value>硬盘碎片优化</value>
+  </data>
+  <data name="UnlockContent.Text" xml:space="preserve">
+    <value>此選項將查找並終止鎖定此文件的程序</value>
+  </data>
+  <data name="UnlockHeader.Text" xml:space="preserve">
+    <value>解鎖文件</value>
+  </data>
+  <data name="HashContent.Text" xml:space="preserve">
+    <value>驗證哈希值以確保文件完全相同</value>
+  </data>
+  <data name="HashHeader.Text" xml:space="preserve">
+    <value>计算散列值</value>
+  </data>
+  <data name="Drive_Description_Name" xml:space="preserve">
+    <value>驅動器</value>
   </data>
 </root>

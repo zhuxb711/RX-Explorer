@@ -1214,24 +1214,24 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Unable to reconnect the target device</source>
           <target state="translated">未能重新连接至目标设备</target>
         </trans-unit>
-        <trans-unit id="Device_Capacity_Unit" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Capacity_Unit" translate="yes" xml:space="preserve">
           <source>bytes</source>
           <target state="translated">字节</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Example: 1024 bytes</note>
         </trans-unit>
-        <trans-unit id="Device_Type_1" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_1" translate="yes" xml:space="preserve">
           <source>Local drive</source>
           <target state="translated">本地驱动器</target>
         </trans-unit>
-        <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_3" translate="yes" xml:space="preserve">
           <source>Removable drive</source>
           <target state="translated">可移动驱动器</target>
         </trans-unit>
-        <trans-unit id="Device_Type_4" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_4" translate="yes" xml:space="preserve">
           <source>Ram drive</source>
           <target state="translated">内存驱动器</target>
         </trans-unit>
-        <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_5" translate="yes" xml:space="preserve">
           <source>Network drive</source>
           <target state="translated">网络驱动器</target>
         </trans-unit>
@@ -2080,24 +2080,24 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">出现意外错误，无法清空回收站</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
-          <source>Unoccupied failed</source>
+        <trans-unit id="Properties_Tools_Unlock_Failure" translate="yes" xml:space="preserve">
+          <source>Unlock failed</source>
           <target state="translated">无法解除文件占用</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_FileNotFound_Content" translate="yes" xml:space="preserve">
+        <trans-unit id="Properties_Tools_Unlock_FileNotFound" translate="yes" xml:space="preserve">
           <source>Unable to find the corresponding file</source>
           <target state="translated">无法找到对应的文件</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_NoLock_Content" translate="yes" xml:space="preserve">
-          <source>The file is not occupied, no need to remove the occupation</source>
+        <trans-unit id="Properties_Tools_Unlock_NoLock" translate="yes" xml:space="preserve">
+          <source>The file is not locked, no need to unlock the file</source>
           <target state="translated">该文件未被占用，无需解除占用</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_Success_Content" translate="yes" xml:space="preserve">
-          <source>Unoccupied successfully</source>
+        <trans-unit id="Properties_Tools_Unlock_Success" translate="yes" xml:space="preserve">
+          <source>Unlock successfully</source>
           <target state="translated">解除占用成功</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Unlock_UnexpectedError_Content" translate="yes" xml:space="preserve">
-          <source>An unexpected error occurred</source>
+        <trans-unit id="Properties_Tools_Unlock_UnexpectedError" translate="yes" xml:space="preserve">
+          <source>An unexpected error detected</source>
           <target state="translated">出现未知错误</target>
         </trans-unit>
         <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
@@ -2116,7 +2116,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Could not eject this USB device</source>
           <target state="translated">无法弹出此USB设备</target>
         </trans-unit>
-        <trans-unit id="EjectUSB.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_EjectUSB" translate="yes" xml:space="preserve">
           <source>Eject</source>
           <target state="translated">弹出</target>
         </trans-unit>
@@ -2620,7 +2620,7 @@ Invalid names include
           <source>Use Everything search engine (Faster)</source>
           <target state="translated">使用Everything搜索引擎 (更快)</target>
         </trans-unit>
-        <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Operate_Text_UnlockBitlocker" translate="yes" xml:space="preserve">
           <source>Unlock</source>
           <target state="translated">解锁</target>
         </trans-unit>
@@ -3301,8 +3301,8 @@ Invalid names include
           <source>Calculate</source>
           <target state="translated">计算</target>
         </trans-unit>
-        <trans-unit id="Properties_Tools_Unlock.Content" translate="yes" xml:space="preserve">
-          <source>Unlock occupation</source>
+        <trans-unit id="Properties_Tools_Unlock.Text" translate="yes" xml:space="preserve">
+          <source>Unlock</source>
           <target state="translated">解除文件占用</target>
         </trans-unit>
         <trans-unit id="Properties_Window_Title" translate="yes" xml:space="preserve">
@@ -4169,7 +4169,7 @@ Invalid names include
           <source>Layout mode</source>
           <target state="translated">布局模式</target>
         </trans-unit>
-        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+        <trans-unit id="Drive_Type_2" translate="yes" xml:space="preserve">
           <source>CD-ROM drive</source>
           <target state="translated">CD-ROM驱动器</target>
         </trans-unit>
@@ -4480,6 +4480,26 @@ Invalid names include
         <trans-unit id="DriveOptimizeHeader.Text" translate="yes" xml:space="preserve">
           <source>Drive fragmentation optimization</source>
           <target state="translated">磁盘碎片优化</target>
+        </trans-unit>
+        <trans-unit id="UnlockContent.Text" translate="yes" xml:space="preserve">
+          <source>This option will find and terminate the program that locks this file</source>
+          <target state="translated">此选项将寻找并终止占用此文件的程序</target>
+        </trans-unit>
+        <trans-unit id="UnlockHeader.Text" translate="yes" xml:space="preserve">
+          <source>Unlock the file</source>
+          <target state="translated">解除文件占用</target>
+        </trans-unit>
+        <trans-unit id="HashContent.Text" translate="yes" xml:space="preserve">
+          <source>Verify the hash value to ensure that the files are exactly the same</source>
+          <target state="translated">校验哈希值以确保文件完全一致</target>
+        </trans-unit>
+        <trans-unit id="HashHeader.Text" translate="yes" xml:space="preserve">
+          <source>Calculate the hash</source>
+          <target state="translated">计算哈希值</target>
+        </trans-unit>
+        <trans-unit id="Drive_Description_Name" translate="yes" xml:space="preserve">
+          <source>Drive</source>
+          <target state="translated">驱动器</target>
         </trans-unit>
       </group>
     </body>
