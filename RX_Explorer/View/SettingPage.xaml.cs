@@ -148,6 +148,26 @@ namespace RX_Explorer
             }
         }
 
+        public static bool IsParallelShowContextMenu
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["ParallelShowContextMenu"] is bool IsParallel)
+                {
+                    return IsParallel;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["ParallelShowContextMenu"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["ParallelShowContextMenu"] = value;
+            }
+        }
+
         public static bool IsTabPreviewEnabled
         {
             get
@@ -815,6 +835,8 @@ namespace RX_Explorer
             EverythingEngineIncludeRegex.Unchecked -= SeachEngineOptionSave_UnChecked;
             EverythingEngineSearchGloble.Checked -= SeachEngineOptionSave_Checked;
             EverythingEngineSearchGloble.Unchecked -= SeachEngineOptionSave_UnChecked;
+            ShowContextMenuWhenLoading.Checked -= ShowContextMenuWhenLoading_Checked;
+            ShowContextMenuWhenLoading.Unchecked -= ShowContextMenuWhenLoading_Unchecked;
 
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
@@ -846,6 +868,7 @@ namespace RX_Explorer
             AlwaysOnTop.IsOn = WindowAlwaysOnTop;
             ContextMenuExtSwitch.IsOn = ContextMenuExtensionEnabled;
             FileExtensionSwitch.IsOn = IsShowFileExtensionsEnabled;
+            ShowContextMenuWhenLoading.IsChecked = !IsParallelShowContextMenu;
 
             UIMode.SelectedIndex = BackgroundController.Current.CurrentType switch
             {
@@ -1016,6 +1039,8 @@ namespace RX_Explorer
             EverythingEngineIncludeRegex.Unchecked += SeachEngineOptionSave_UnChecked;
             EverythingEngineSearchGloble.Checked += SeachEngineOptionSave_Checked;
             EverythingEngineSearchGloble.Unchecked += SeachEngineOptionSave_UnChecked;
+            ShowContextMenuWhenLoading.Checked += ShowContextMenuWhenLoading_Checked;
+            ShowContextMenuWhenLoading.Unchecked += ShowContextMenuWhenLoading_Unchecked;
         }
 
         private void FontFamilyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -3299,6 +3324,18 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.SignalDataChanged();
             }
+        }
+
+        private void ShowContextMenuWhenLoading_Checked(object sender, RoutedEventArgs e)
+        {
+            IsParallelShowContextMenu = false;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void ShowContextMenuWhenLoading_Unchecked(object sender, RoutedEventArgs e)
+        {
+            IsParallelShowContextMenu = true;
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }

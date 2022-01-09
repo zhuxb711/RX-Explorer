@@ -3237,7 +3237,7 @@ Inkorrekte Namen sind
     <value>Steuern Sie, ob Animationseffekte für jede Komponente in der Anwendung aktiviert sind</value>
   </data>
   <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
-    <value>Die Menüpunkte von Fremdprogrammen im System werden nach Aktivierung dieser Option abgerufen. Hinweis: Diese Option hat einen erheblichen Einfluss auf die Popup-Geschwindigkeit des Kontextmenüs</value>
+    <value>Die Menüpunkte von Fremdprogrammen im System werden nach Aktivierung dieser Option abgerufen</value>
   </data>
   <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
     <value>Geben Sie die Suchmaschinenkonfiguration an, Sie können immer eine bestimmte Konfiguration verwenden oder jedes Mal fragen</value>
@@ -3388,5 +3388,11 @@ Inkorrekte Namen sind
   </data>
   <data name="Drive_Description_Name" xml:space="preserve">
     <value>Laufwerk</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelContent.Text" xml:space="preserve">
+    <value>Durch Aktivieren dieser Option wird verhindert, dass das Menü angezeigt wird, bis alle Menüelemente vollständig geladen sind. Hinweis: Diese Option hat einen erheblichen Einfluss auf die Geschwindigkeit, mit der das Kontextmenü angezeigt wird</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
+    <value>Warten Sie, bis die Menüelemente geladen sind, bevor Sie auftauchen</value>
   </data>
 </root>

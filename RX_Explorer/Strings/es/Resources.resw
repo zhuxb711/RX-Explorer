@@ -3237,7 +3237,7 @@ Las denominaciones no válidas son:
     <value>Controlar si los efectos de animación están habilitados para cada componente de la aplicación</value>
   </data>
   <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
-    <value>Los elementos del menú de programas de terceros en el sistema se obtendrán después de habilitar esta opción. Nota: esta opción tendrá un impacto significativo en la velocidad emergente del menú contextual</value>
+    <value>Los elementos del menú de programas de terceros en el sistema se obtendrán después de habilitar esta opción</value>
   </data>
   <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
     <value>Especifique la configuración del motor de búsqueda, siempre puede usar una configuración específica o preguntar cada vez</value>
@@ -3388,5 +3388,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="Drive_Description_Name" xml:space="preserve">
     <value>Drive</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelContent.Text" xml:space="preserve">
+    <value>Habilitar esta opción evitará que el menú aparezca hasta que todos los elementos del menú hayan terminado de cargarse. Nota: Esta opción tendrá un efecto significativo en la velocidad a la que aparece el menú contextual.</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
+    <value>Espere a que los elementos del menú terminen de cargarse antes de que aparezcan</value>
   </data>
 </root>

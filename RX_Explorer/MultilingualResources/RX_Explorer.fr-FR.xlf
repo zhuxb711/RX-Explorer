@@ -4298,8 +4298,8 @@ Les noms non valides incluent
           <target state="translated">Contrôler si les effets d'animation sont activés pour chaque composant de l'application</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExtDescription.Text" translate="yes" xml:space="preserve">
-          <source>The menu items of third-party programs in the system will be obtained after enabling this option. Note: This option will have a significant impact on the pop-up speed of the context menu</source>
-          <target state="translated">Les éléments de menu des programmes tiers du système seront obtenus après avoir activé cette option. Remarque : cette option aura un impact significatif sur la vitesse d'affichage du menu contextuel</target>
+          <source>The menu items of third-party programs in the system will be obtained after enabling this option</source>
+          <target state="translated">Les éléments de menu des programmes tiers du système seront obtenus après avoir activé cette option</target>
         </trans-unit>
         <trans-unit id="SettingPageSearchEngineConfigDescription.Text" translate="yes" xml:space="preserve">
           <source>Specify search engine configuration, you can always use a specific configuration or ask every time</source>
@@ -4500,6 +4500,14 @@ Les noms non valides incluent
         <trans-unit id="Drive_Description_Name" translate="yes" xml:space="preserve">
           <source>Drive</source>
           <target state="translated">Drive</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtensionParallelContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will prevent the menu from popping up until all menu items have finished loading. Note: This option will have a significant effect on the speed at which the context menu pops up</source>
+          <target state="translated">L'activation de cette option empêchera le menu de s'afficher jusqu'à ce que tous les éléments de menu aient fini de se charger. Remarque : cette option aura un effet significatif sur la vitesse à laquelle le menu contextuel apparaît</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtensionParallelHeader.Text" translate="yes" xml:space="preserve">
+          <source>Wait for menu items to finish loading before popping up</source>
+          <target state="translated">Attendez la fin du chargement des éléments de menu avant de s'afficher</target>
         </trans-unit>
       </group>
     </body>

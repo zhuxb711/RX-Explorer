@@ -3237,7 +3237,7 @@ Les noms non valides incluent
     <value>Contrôler si les effets d'animation sont activés pour chaque composant de l'application</value>
   </data>
   <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
-    <value>Les éléments de menu des programmes tiers du système seront obtenus après avoir activé cette option. Remarque : cette option aura un impact significatif sur la vitesse d'affichage du menu contextuel</value>
+    <value>Les éléments de menu des programmes tiers du système seront obtenus après avoir activé cette option</value>
   </data>
   <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
     <value>Spécifiez la configuration du moteur de recherche, vous pouvez toujours utiliser une configuration spécifique ou demander à chaque fois</value>
@@ -3388,5 +3388,11 @@ Les noms non valides incluent
   </data>
   <data name="Drive_Description_Name" xml:space="preserve">
     <value>Drive</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelContent.Text" xml:space="preserve">
+    <value>L'activation de cette option empêchera le menu de s'afficher jusqu'à ce que tous les éléments de menu aient fini de se charger. Remarque : cette option aura un effet significatif sur la vitesse à laquelle le menu contextuel apparaît</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
+    <value>Attendez la fin du chargement des éléments de menu avant de s'afficher</value>
   </data>
 </root>

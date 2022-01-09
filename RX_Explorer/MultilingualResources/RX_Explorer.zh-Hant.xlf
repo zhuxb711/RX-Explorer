@@ -4298,8 +4298,8 @@ Invalid names include
           <target state="translated">控制是否為應用中的每個組件啟用動畫效果</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExtDescription.Text" translate="yes" xml:space="preserve">
-          <source>The menu items of third-party programs in the system will be obtained after enabling this option. Note: This option will have a significant impact on the pop-up speed of the context menu</source>
-          <target state="translated">啟用該選項後，將獲得系統中第三方程序的菜單項。 注意：這個選項會對上下文菜單的彈出速度有很大的影響</target>
+          <source>The menu items of third-party programs in the system will be obtained after enabling this option</source>
+          <target state="translated">啟用該選項後，將獲得系統中第三方程序的菜單項</target>
         </trans-unit>
         <trans-unit id="SettingPageSearchEngineConfigDescription.Text" translate="yes" xml:space="preserve">
           <source>Specify search engine configuration, you can always use a specific configuration or ask every time</source>
@@ -4500,6 +4500,14 @@ Invalid names include
         <trans-unit id="Drive_Description_Name" translate="yes" xml:space="preserve">
           <source>Drive</source>
           <target state="translated">驅動器</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtensionParallelContent.Text" translate="yes" xml:space="preserve">
+          <source>Enabling this option will prevent the menu from popping up until all menu items have finished loading. Note: This option will have a significant effect on the speed at which the context menu pops up</source>
+          <target state="translated">啟用此選項將阻止菜單彈出，直到所有菜單項完成加載。 注意：此選項將對上下文菜單彈出的速度產生顯著影響</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExtensionParallelHeader.Text" translate="yes" xml:space="preserve">
+          <source>Wait for menu items to finish loading before popping up</source>
+          <target state="translated">在彈出之前等待菜單項完成加載</target>
         </trans-unit>
       </group>
     </body>

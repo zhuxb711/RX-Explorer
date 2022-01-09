@@ -13,20 +13,18 @@ namespace FullTrustProcess
 {
     public static class ExtensionAssociate
     {
-        public static List<AssociationPackage> GetAllAssociation(string Path)
+        public static IReadOnlyList<AssociationPackage> GetAllAssociateProgramPathWithExtension(string Extension)
         {
             List<AssociationPackage> Association = new List<AssociationPackage>();
 
             try
             {
-                string Extension = System.IO.Path.GetExtension(Path).ToLower();
-
-                foreach (AppInfo App in Launcher.FindFileHandlersAsync(Extension).AsTask().Result)
+                foreach (AppInfo App in Launcher.FindFileHandlersAsync(Extension.ToLower()).AsTask().Result)
                 {
-                    Association.Add(new AssociationPackage(Extension, App.PackageFamilyName, true));
+                    Association.Add(new AssociationPackage(Extension.ToLower(), App.PackageFamilyName, true));
                 }
 
-                if (Shell32.SHAssocEnumHandlers(Extension, Shell32.ASSOC_FILTER.ASSOC_FILTER_NONE, out Shell32.IEnumAssocHandlers AssocHandlers) == HRESULT.S_OK)
+                if (Shell32.SHAssocEnumHandlers(Extension.ToLower(), Shell32.ASSOC_FILTER.ASSOC_FILTER_NONE, out Shell32.IEnumAssocHandlers AssocHandlers) == HRESULT.S_OK)
                 {
                     try
                     {
@@ -48,7 +46,7 @@ namespace FullTrustProcess
                                         //Filter UWP applications here
                                         if (DisplayName != FullPath && UWPInstallLocationBase.All((BasePath) => !FullPath.StartsWith(BasePath, StringComparison.OrdinalIgnoreCase)))
                                         {
-                                            Association.Add(new AssociationPackage(Extension, FullPath, Handler.IsRecommended() == HRESULT.S_OK));
+                                            Association.Add(new AssociationPackage(Extension.ToLower(), FullPath, Handler.IsRecommended() == HRESULT.S_OK));
                                         }
                                     }
                                 }
@@ -71,15 +69,20 @@ namespace FullTrustProcess
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(GetAllAssociation)}");
+                LogTracer.Log(ex, $"An exception was threw in {nameof(GetAllAssociateProgramPath)}");
             }
 
             return Association;
         }
 
-        public static string GetDefaultProgramPathRelated(string Path)
+        public static IReadOnlyList<AssociationPackage> GetAllAssociateProgramPath(string Path)
         {
-            string GetAssocString(ShlwApi.ASSOCSTR AssocString)
+            return GetAllAssociateProgramPathWithExtension(System.IO.Path.GetExtension(Path));
+        }
+
+        public static string GetDefaultProgramPathWithExtension(string Extension)
+        {
+            string GetAssocString(string Extension, ShlwApi.ASSOCSTR AssocString)
             {
                 uint BufferSize = 0;
 
@@ -88,7 +91,7 @@ namespace FullTrustProcess
                                                           | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
                                                           | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
                                                           AssocString,
-                                                          System.IO.Path.GetExtension(Path).ToLower(),
+                                                          Extension.ToLower(),
                                                           null,
                                                           null,
                                                           ref BufferSize);
@@ -102,7 +105,7 @@ namespace FullTrustProcess
                                                       | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
                                                       | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
                                                       AssocString,
-                                                      System.IO.Path.GetExtension(Path).ToLower(),
+                                                      Extension.ToLower(),
                                                       null,
                                                       Builder,
                                                       ref BufferSize);
@@ -116,14 +119,19 @@ namespace FullTrustProcess
                 return string.Empty;
             }
 
-            string AssocString = GetAssocString(ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE);
+            string AssocString = GetAssocString(Extension, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE);
 
             if (string.IsNullOrEmpty(AssocString))
             {
-                AssocString = GetAssocString(ShlwApi.ASSOCSTR.ASSOCSTR_APPID).Split('!', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                AssocString = GetAssocString(Extension, ShlwApi.ASSOCSTR.ASSOCSTR_APPID).Split('!', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             }
 
             return AssocString;
+        }
+
+        public static string GetDefaultProgramPathRelated(string Path)
+        {
+            return GetDefaultProgramPathWithExtension(System.IO.Path.GetExtension(Path));
         }
     }
 }

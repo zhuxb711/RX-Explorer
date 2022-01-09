@@ -475,12 +475,15 @@ namespace RX_Explorer.Class
             CleanUpContextMenuExtensionItems();
             CleanUpContextMenuOpenWithFlyoutItems();
 
-            Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
+            if (SettingPage.IsParallelShowContextMenu)
             {
-                Position = ShowAt,
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
-                ShowMode = FlyoutShowMode.Standard
-            });
+                Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
+                {
+                    Position = ShowAt,
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
+                });
+            }
 
             if (SettingPage.ContextMenuExtensionEnabled)
             {
@@ -716,6 +719,16 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log(ex, "Could not load context menu items");
                 }
+            }
+
+            if (!SettingPage.IsParallelShowContextMenu)
+            {
+                Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
+                {
+                    Position = ShowAt,
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    ShowMode = FlyoutShowMode.Standard
+                });
             }
         }
 

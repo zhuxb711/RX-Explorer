@@ -75,7 +75,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(450, 620);
+        private static readonly Size WindowSize = new Size(420, 650);
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
@@ -125,7 +125,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private static async Task<AppWindow> InitializeWindowsAsync()
         {
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.PersistedStateId = "Properties";
+            NewWindow.PersistedStateId = "PropertyWindow";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
@@ -207,43 +207,50 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 FileSystemStorageItemBase StorageItem = StorageItems.First();
 
-                if (StorageItem is FileSystemStorageFolder)
+                switch (StorageItem)
                 {
-                    GeneralPanelSwitcher.Value = "Folder";
+                    case FileSystemStorageFolder:
+                        {
+                            GeneralPanelSwitcher.Value = "Folder";
 
-                    FolderLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
-                    FolderLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
-                    FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
-                    FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
+                            FolderLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
+                            FolderLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
+                            FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
+                            FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
 
-                    while (PivotControl.Items.Count > 1)
-                    {
-                        PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
-                    }
-                }
-                else if (StorageItem is FileSystemStorageFile)
-                {
-                    GeneralPanelSwitcher.Value = "File";
-                    ToolsPanelSwitcher.Value = "NormalTools";
+                            while (PivotControl.Items.Count > 1)
+                            {
+                                PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
+                            }
 
-                    FileLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
-                    FileLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
-                    FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
-                    FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
+                            break;
+                        }
+                    case FileSystemStorageFile:
+                        {
+                            GeneralPanelSwitcher.Value = "File";
+                            ToolsPanelSwitcher.Value = "NormalTools";
 
-                    if (StorageItem is IUnsupportedStorageItem)
-                    {
-                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
-                    }
+                            FileLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
+                            FileLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
+                            FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
+                            FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
 
-                    if (StorageItem is not (LinkStorageFile or UrlStorageFile))
-                    {
-                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException();
+                            if (StorageItem is IUnsupportedStorageItem)
+                            {
+                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
+                            }
+
+                            if (StorageItem is not (LinkStorageFile or UrlStorageFile))
+                            {
+                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            throw new NotSupportedException();
+                        }
                 }
             }
         }
@@ -480,32 +487,36 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void PropertiesWindow_Loading(FrameworkElement sender, object args)
         {
-            await LoadDataForGeneralPage();
+            List<Task> ParallelLoadingList = new List<Task>(3)
+            {
+                LoadDataForGeneralPage()
+            };
 
             if ((StorageItems?.Length).GetValueOrDefault() == 1 && StorageItems?.First() is FileSystemStorageFile StorageItem)
             {
-                await LoadDataForDetailPage();
+                ParallelLoadingList.Add(LoadDataForDetailPage());
 
                 if (StorageItem is LinkStorageFile or UrlStorageFile)
                 {
-                    await LoadDataForShortCutPage();
+                    ParallelLoadingList.Add(LoadDataForShortCutPage());
                 }
             }
+
+            await Task.WhenAll(ParallelLoadingList);
         }
 
         private async Task LoadDataForShortCutPage()
         {
             FileSystemStorageItemBase StorageItem = StorageItems.First();
 
+            ShortcutThumbnail.Source = StorageItem.Thumbnail;
+            ShortcutItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.Name);
+
             switch (StorageItem)
             {
                 case LinkStorageFile LinkFile:
                     {
-                        UrlArea.Visibility = Visibility.Collapsed;
-                        LinkArea.Visibility = Visibility.Visible;
-
-                        ShortcutThumbnail.Source = LinkFile.Thumbnail;
-                        ShortcutItemName.Text = Path.GetFileNameWithoutExtension(LinkFile.Name);
+                        ShortcutPanelSwitcher.Value = "Link";
                         ShortcutCommentContent.Text = LinkFile.Comment;
                         ShortcutWindowsStateContent.SelectedIndex = (int)LinkFile.WindowState;
 
@@ -570,11 +581,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 case UrlStorageFile UrlFile:
                     {
-                        UrlArea.Visibility = Visibility.Visible;
-                        LinkArea.Visibility = Visibility.Collapsed;
-
-                        ShortcutThumbnail.Source = UrlFile.Thumbnail;
-                        ShortcutItemName.Text = Path.GetFileNameWithoutExtension(UrlFile.Name);
+                        ShortcutPanelSwitcher.Value = "Url";
                         ShortcutUrlContent.Text = UrlFile.UrlTargetPath;
                         break;
                     }
@@ -1848,9 +1855,20 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                if(!await Exclusive.Controller.RunAsync("dfrgui.exe"))
+                if (!await Exclusive.Controller.RunAsync("dfrgui.exe"))
                 {
-                    LogTracer.Log("Could not launch exe: dfrgui.exe");
+                    LogTracer.Log("Could not launch dfrgui.exe");
+                }
+            }
+        }
+
+        private async void DriveErrorCheck_Click(object sender, RoutedEventArgs e)
+        {
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { $"-NoExit -Command \"chkdsk {RootDrive.Path.TrimEnd('\\')}\"" }))
+                {
+                    LogTracer.Log("Could not launch chkdsk.exe");
                 }
             }
         }

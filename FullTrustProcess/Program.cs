@@ -1706,7 +1706,10 @@ namespace FullTrustProcess
 
                                     try
                                     {
-                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
+                                        string DefaultProgramPath = ExtensionAssociate.GetDefaultProgramPathWithExtension(".html");
+
+                                        using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
+                                        using (Image IconImage = DefaultProgramItem.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
                                         using (MemoryStream IconStream = new MemoryStream())
                                         using (Bitmap TempBitmap = new Bitmap(IconImage))
                                         {
@@ -1718,7 +1721,7 @@ namespace FullTrustProcess
                                     }
                                     catch (Exception ex)
                                     {
-                                        LogTracer.Log(ex, "Could not get the icon");
+                                        LogTracer.Log(ex, $"Could not get the icon of \"{ExecutePath}\"");
                                         Package.IconData = Array.Empty<byte>();
                                     }
 
@@ -2307,7 +2310,7 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["ExecutePath"];
 
-                            Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociation(Path)));
+                            Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociateProgramPath(Path)));
 
                             break;
                         }

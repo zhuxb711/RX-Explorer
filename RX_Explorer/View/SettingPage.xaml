@@ -606,39 +606,6 @@
                                         </RelativePanel>
                                     </Border>
 
-                                    <Border Padding="20,10"
-                                            MinHeight="60"
-                                            Margin="0,5,0,0"
-                                            BorderThickness="1"
-                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                            CornerRadius="{StaticResource ControlCornerRadius}"
-                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                        <RelativePanel>
-                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                        RelativePanel.AlignLeftWithPanel="True"
-                                                        RelativePanel.LeftOf="ContextMenuExtSwitch"
-                                                        Margin="0,0,20,0">
-                                                <TextBlock Text="扩展右键菜单"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           x:Uid="SettingPageContextMenuExtLabel" />
-                                                <TextBlock Text="启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响"
-                                                           FontSize="12"
-                                                           Foreground="Gray"
-                                                           x:Uid="SettingPageContextMenuExtDescription"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           TextWrapping="WrapWholeWords" />
-                                            </StackPanel>
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="禁用"
-                                                          x:Uid="SettingPageContextMenuExt"
-                                                          Name="ContextMenuExtSwitch"
-                                                          Style="{StaticResource SettingToggleSwitchStyle}"
-                                                          RelativePanel.AlignRightWithPanel="True"
-                                                          RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                          Toggled="ContextMenuExtSwitch_Toggled" />
-                                        </RelativePanel>
-                                    </Border>
-
                                     <muxc:Expander Margin="0,5,0,0"
                                                    ExpandDirection="Down"
                                                    HorizontalAlignment="Stretch"
@@ -847,6 +814,65 @@
                                                     </CheckBox>
                                                 </Border>
                                             </StackPanel>
+                                        </muxc:Expander.Content>
+                                    </muxc:Expander>
+
+                                    <muxc:Expander Margin="0,5,0,0"
+                                                   ExpandDirection="Down"
+                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Stretch"
+                                                   Padding="0"
+                                                   MinHeight="60"
+                                                   Background="Transparent"
+                                                   CornerRadius="4,4,0,0">
+                                        <muxc:Expander.Header>
+                                            <RelativePanel Padding="4,10,0,10">
+                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.LeftOf="ContextMenuExtSwitch"
+                                                            Margin="0,0,20,0">
+                                                    <TextBlock Text="扩展右键菜单"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               x:Uid="SettingPageContextMenuExtLabel" />
+                                                    <TextBlock Text="启用此选项后将获取系统中第三方程序的菜单项。注意: 此选项将对右键菜单弹出速度产生显著影响"
+                                                               FontSize="12"
+                                                               Foreground="Gray"
+                                                               x:Uid="SettingPageContextMenuExtDescription"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               TextWrapping="WrapWholeWords" />
+                                                </StackPanel>
+                                                <ToggleSwitch OnContent="启用"
+                                                              OffContent="禁用"
+                                                              x:Uid="SettingPageContextMenuExt"
+                                                              Name="ContextMenuExtSwitch"
+                                                              Style="{StaticResource SettingToggleSwitchStyle}"
+                                                              RelativePanel.AlignRightWithPanel="True"
+                                                              RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                              Toggled="ContextMenuExtSwitch_Toggled" />
+                                            </RelativePanel>
+                                        </muxc:Expander.Header>
+                                        <muxc:Expander.Content>
+                                            <Border Padding="40,10,10,10"
+                                                    MinHeight="45"
+                                                    CornerRadius="0,0,4,4"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                <CheckBox Name="ShowContextMenuWhenLoading">
+                                                    <StackPanel>
+                                                        <TextBlock Text="弹出前等待菜单项完成加载"
+                                                                   x:Uid="SettingPageContextMenuExtensionParallelHeader"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="启用此选项后将阻止菜单弹出直到所有菜单项已完成加载。注意: 此选项将对右键菜单弹出速度产生显著影响"
+                                                                   FontSize="12"
+                                                                   Foreground="Gray"
+                                                                   x:Uid="SettingPageContextMenuExtensionParallelContent"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   TextWrapping="WrapWholeWords" />
+                                                    </StackPanel>
+                                                </CheckBox>
+                                            </Border>
                                         </muxc:Expander.Content>
                                     </muxc:Expander>
 

@@ -3237,7 +3237,7 @@
     <value>控制是否為應用中的每個組件啟用動畫效果</value>
   </data>
   <data name="SettingPageContextMenuExtDescription.Text" xml:space="preserve">
-    <value>啟用該選項後，將獲得系統中第三方程序的菜單項。 注意：這個選項會對上下文菜單的彈出速度有很大的影響</value>
+    <value>啟用該選項後，將獲得系統中第三方程序的菜單項</value>
   </data>
   <data name="SettingPageSearchEngineConfigDescription.Text" xml:space="preserve">
     <value>指定搜索引擎配置，您可以一直使用特定配置或每次詢問</value>
@@ -3388,5 +3388,11 @@
   </data>
   <data name="Drive_Description_Name" xml:space="preserve">
     <value>驅動器</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelContent.Text" xml:space="preserve">
+    <value>啟用此選項將阻止菜單彈出，直到所有菜單項完成加載。 注意：此選項將對上下文菜單彈出的速度產生顯著影響</value>
+  </data>
+  <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
+    <value>在彈出之前等待菜單項完成加載</value>
   </data>
 </root>
