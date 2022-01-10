@@ -4509,6 +4509,58 @@ Invalid names include
           <source>Wait for menu items to finish loading before popping up</source>
           <target state="translated">在彈出之前等待菜單項完成加載</target>
         </trans-unit>
+        <trans-unit id="Properties_Security_Tab" translate="yes" xml:space="preserve">
+          <source>Security</source>
+          <target state="translated">安全</target>
+        </trans-unit>
+        <trans-unit id="SecurityAccountHeaderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Group or user</source>
+          <target state="translated">組或用戶</target>
+        </trans-unit>
+        <trans-unit id="SecurityObjectNameLabel.Text" translate="yes" xml:space="preserve">
+          <source>Object name:</source>
+          <target state="translated">對象名稱:</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderAllowLabel.Text" translate="yes" xml:space="preserve">
+          <source>Allow</source>
+          <target state="translated">允許</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderDenyLabel.Text" translate="yes" xml:space="preserve">
+          <source>Deny</source>
+          <target state="translated">拒絕</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderPermissionLabel.Text" translate="yes" xml:space="preserve">
+          <source>Permissions</source>
+          <target state="translated">權限</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_FullControl" translate="yes" xml:space="preserve">
+          <source>Fully control</source>
+          <target state="translated">完全控制</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Modify" translate="yes" xml:space="preserve">
+          <source>Modify</source>
+          <target state="translated">修改</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Read" translate="yes" xml:space="preserve">
+          <source>Read</source>
+          <target state="translated">讀取</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_ReadAndExecute" translate="yes" xml:space="preserve">
+          <source>Read and execute</source>
+          <target state="translated">讀取並執行</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Write" translate="yes" xml:space="preserve">
+          <source>Write</source>
+          <target state="translated">寫入 </target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartRequiredActionButton" translate="yes" xml:space="preserve">
+          <source>Restart now</source>
+          <target state="translated">現在重啟</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_ListDirectory" translate="yes" xml:space="preserve">
+          <source>List folder contents</source>
+          <target state="translated">列出文件夾內容</target>
+        </trans-unit>
       </group>
     </body>
   </file>

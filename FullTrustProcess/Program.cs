@@ -245,9 +245,9 @@ namespace FullTrustProcess
                                                         }
                                                     case ElevationCreateNewData NewData:
                                                         {
-                                                            if (StorageController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
+                                                            if (StorageItemController.CheckPermission(Path.GetDirectoryName(NewData.Path) ?? NewData.Path, NewData.Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                                                             {
-                                                                if (StorageController.Create(NewData.Type, NewData.Path))
+                                                                if (StorageItemController.Create(NewData.Type, NewData.Path))
                                                                 {
                                                                     Value.Add("Success", NewData.Path);
                                                                 }
@@ -271,11 +271,11 @@ namespace FullTrustProcess
                                                         {
                                                             if (CopyData.SourcePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                             {
-                                                                if (StorageController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
+                                                                if (StorageItemController.CheckPermission(CopyData.DestinationPath, FileSystemRights.Modify))
                                                                 {
                                                                     List<string> OperationRecordList = new List<string>();
 
-                                                                    if (StorageController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
+                                                                    if (StorageItemController.Copy(CopyData.SourcePath, CopyData.DestinationPath, CopyData.Option, (s, e) =>
                                                                     {
                                                                         if (Cancellation.IsCancellationRequested)
                                                                         {
@@ -324,18 +324,18 @@ namespace FullTrustProcess
                                                         {
                                                             if (MoveData.SourcePath.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                             {
-                                                                if (MoveData.SourcePath.Keys.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                                if (MoveData.SourcePath.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                                 {
                                                                     Value.Add("Error_Capture", "An error occurred while renaming the files");
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (StorageController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
-                                                                        && MoveData.SourcePath.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                                                    if (StorageItemController.CheckPermission(MoveData.DestinationPath, FileSystemRights.Modify)
+                                                                        && MoveData.SourcePath.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                                     {
                                                                         List<string> OperationRecordList = new List<string>();
 
-                                                                        if (StorageController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
+                                                                        if (StorageItemController.Move(MoveData.SourcePath, MoveData.DestinationPath, MoveData.Option, (s, e) =>
                                                                         {
                                                                             if (Cancellation.IsCancellationRequested)
                                                                             {
@@ -393,17 +393,17 @@ namespace FullTrustProcess
                                                         {
                                                             if (DeleteData.DeletePath.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                                             {
-                                                                if (DeleteData.DeletePath.Any((Item) => StorageController.CheckCaptured(Item)))
+                                                                if (DeleteData.DeletePath.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                                                 {
                                                                     Value.Add("Error_Capture", "An error occurred while renaming the files");
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (DeleteData.DeletePath.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                                                    if (DeleteData.DeletePath.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                                                     {
                                                                         List<string> OperationRecordList = new List<string>();
 
-                                                                        if (StorageController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
+                                                                        if (StorageItemController.Delete(DeleteData.DeletePath, DeleteData.PermanentDelete, (s, e) =>
                                                                         {
                                                                             if (Cancellation.IsCancellationRequested)
                                                                             {
@@ -452,17 +452,17 @@ namespace FullTrustProcess
                                                         {
                                                             if (File.Exists(RenameData.Path) || Directory.Exists(RenameData.Path))
                                                             {
-                                                                if (StorageController.CheckCaptured(RenameData.Path))
+                                                                if (StorageItemController.CheckCaptured(RenameData.Path))
                                                                 {
                                                                     Value.Add("Error_Capture", "An error occurred while renaming the files");
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (StorageController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
+                                                                    if (StorageItemController.CheckPermission(Path.GetDirectoryName(RenameData.Path) ?? RenameData.Path, FileSystemRights.Modify))
                                                                     {
                                                                         string NewName = string.Empty;
 
-                                                                        if (StorageController.Rename(RenameData.Path, RenameData.DesireName, (s, e) =>
+                                                                        if (StorageItemController.Rename(RenameData.Path, RenameData.DesireName, (s, e) =>
                                                                         {
                                                                             NewName = e.Name;
                                                                         }))
@@ -717,6 +717,21 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetPermissions:
+                        {
+                            string Path = Convert.ToString(CommandValue["Path"]);
+
+                            if (Directory.Exists(Path) || File.Exists(Path))
+                            {
+                                Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetAllAccountPermissions(Path)));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File or directory is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.SetDriveLabel:
                         {
                             string Path = Convert.ToString(CommandValue["Path"]);
@@ -1349,7 +1364,7 @@ namespace FullTrustProcess
                                 Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(" ") ? $"\"{Para.Trim('\"')}\"" : Para));
                             }
 
-                            using (ShellLink Link = ShellLink.Create(StorageController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
+                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -1403,13 +1418,13 @@ namespace FullTrustProcess
                     case CommandType.CreateNew:
                         {
                             string CreateNewPath = CommandValue["NewPath"];
-                            string UniquePath = StorageController.GenerateUniquePath(CreateNewPath);
+                            string UniquePath = StorageItemController.GenerateUniquePath(CreateNewPath);
 
                             CreateType Type = (CreateType)Enum.Parse(typeof(CreateType), CommandValue["Type"]);
 
-                            if (StorageController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
+                            if (StorageItemController.CheckPermission(Path.GetDirectoryName(UniquePath) ?? UniquePath, Type == CreateType.File ? FileSystemRights.CreateFiles : FileSystemRights.CreateDirectories))
                             {
-                                if (StorageController.Create(Type, UniquePath))
+                                if (StorageItemController.Create(Type, UniquePath))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -1446,17 +1461,17 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
-                                if (StorageController.CheckCaptured(ExecutePath))
+                                if (StorageItemController.CheckCaptured(ExecutePath))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while renaming the files");
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
+                                    if (StorageItemController.CheckPermission(Path.GetDirectoryName(ExecutePath) ?? ExecutePath, FileSystemRights.Modify))
                                     {
                                         string NewName = string.Empty;
 
-                                        if (StorageController.Rename(ExecutePath, DesireName, (s, e) =>
+                                        if (StorageItemController.Rename(ExecutePath, DesireName, (s, e) =>
                                         {
                                             NewName = e.Name;
                                         }))
@@ -2381,9 +2396,9 @@ namespace FullTrustProcess
 
                             if (File.Exists(Path))
                             {
-                                if (StorageController.CheckCaptured(Path))
+                                if (StorageItemController.CheckCaptured(Path))
                                 {
-                                    IReadOnlyList<Process> LockingProcesses = StorageController.GetLockingProcesses(Path);
+                                    IReadOnlyList<Process> LockingProcesses = StorageItemController.GetLockingProcesses(Path);
 
                                     try
                                     {
@@ -2445,11 +2460,11 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify))
+                                if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify))
                                 {
                                     try
                                     {
-                                        if (StorageController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
+                                        if (StorageItemController.Copy(SourcePathList, DestinationPath, Option, (s, e) =>
                                         {
                                             if (CurrentTaskCancellation.IsCancellationRequested)
                                             {
@@ -2530,18 +2545,18 @@ namespace FullTrustProcess
 
                             if (SourcePathList.Keys.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (SourcePathList.Keys.Any((Item) => StorageController.CheckCaptured(Item)))
+                                if (SourcePathList.Keys.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    if (StorageController.CheckPermission(DestinationPath, FileSystemRights.Modify)
-                                        && SourcePathList.Keys.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                    if (StorageItemController.CheckPermission(DestinationPath, FileSystemRights.Modify)
+                                        && SourcePathList.Keys.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
                                         try
                                         {
-                                            if (StorageController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
+                                            if (StorageItemController.Move(SourcePathList, DestinationPath, Option, (s, e) =>
                                             {
                                                 if (CurrentTaskCancellation.IsCancellationRequested)
                                                 {
@@ -2629,17 +2644,17 @@ namespace FullTrustProcess
 
                             if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (ExecutePathList.Any((Item) => StorageController.CheckCaptured(Item)))
+                                if (ExecutePathList.Any((Item) => StorageItemController.CheckCaptured(Item)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while deleting the files");
                                 }
                                 else
                                 {
-                                    if (ExecutePathList.All((Path) => StorageController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
+                                    if (ExecutePathList.All((Path) => StorageItemController.CheckPermission(System.IO.Path.GetDirectoryName(Path) ?? Path, FileSystemRights.Modify)))
                                     {
                                         try
                                         {
-                                            if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                            if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
                                                 if (CurrentTaskCancellation.IsCancellationRequested)
                                                 {
@@ -2715,7 +2730,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageController.CheckPermission(ExecutePath, FileSystemRights.ReadAndExecute))
+                                if (StorageItemController.CheckPermission(ExecutePath, FileSystemRights.ReadAndExecute))
                                 {
                                     try
                                     {
@@ -2906,7 +2921,7 @@ namespace FullTrustProcess
                                                 Directory.CreateDirectory(DirectoryPath);
                                             }
 
-                                            string UniqueName = StorageController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+                                            string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
 
                                             using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
                                             {
@@ -2943,7 +2958,7 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["Path"];
 
-                            Value.Add("Success", JsonSerializer.Serialize(StorageController.GetThumbnailOverlay(Path)));
+                            Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetThumbnailOverlay(Path)));
 
                             break;
                         }

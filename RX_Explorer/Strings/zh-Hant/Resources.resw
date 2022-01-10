@@ -3395,4 +3395,43 @@
   <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
     <value>在彈出之前等待菜單項完成加載</value>
   </data>
+  <data name="Properties_Security_Tab" xml:space="preserve">
+    <value>安全</value>
+  </data>
+  <data name="SecurityAccountHeaderLabel.Text" xml:space="preserve">
+    <value>組或用戶</value>
+  </data>
+  <data name="SecurityObjectNameLabel.Text" xml:space="preserve">
+    <value>對象名稱:</value>
+  </data>
+  <data name="SecurityPermissionHeaderAllowLabel.Text" xml:space="preserve">
+    <value>允許</value>
+  </data>
+  <data name="SecurityPermissionHeaderDenyLabel.Text" xml:space="preserve">
+    <value>拒絕</value>
+  </data>
+  <data name="SecurityPermissionHeaderPermissionLabel.Text" xml:space="preserve">
+    <value>權限</value>
+  </data>
+  <data name="Property_Security_Permission_FullControl" xml:space="preserve">
+    <value>完全控制</value>
+  </data>
+  <data name="Property_Security_Permission_Modify" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="Property_Security_Permission_Read" xml:space="preserve">
+    <value>讀取</value>
+  </data>
+  <data name="Property_Security_Permission_ReadAndExecute" xml:space="preserve">
+    <value>讀取並執行</value>
+  </data>
+  <data name="Property_Security_Permission_Write" xml:space="preserve">
+    <value>寫入 </value>
+  </data>
+  <data name="SystemTip_RestartRequiredActionButton" xml:space="preserve">
+    <value>現在重啟</value>
+  </data>
+  <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
+    <value>列出文件夾內容</value>
+  </data>
 </root>

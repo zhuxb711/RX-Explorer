@@ -3395,4 +3395,43 @@ Inkorrekte Namen sind
   <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
     <value>Warten Sie, bis die Menüelemente geladen sind, bevor Sie auftauchen</value>
   </data>
+  <data name="Properties_Security_Tab" xml:space="preserve">
+    <value>Sicherheit</value>
+  </data>
+  <data name="SecurityAccountHeaderLabel.Text" xml:space="preserve">
+    <value>Gruppe oder Benutzer</value>
+  </data>
+  <data name="SecurityObjectNameLabel.Text" xml:space="preserve">
+    <value>Objektname:</value>
+  </data>
+  <data name="SecurityPermissionHeaderAllowLabel.Text" xml:space="preserve">
+    <value>Erlauben</value>
+  </data>
+  <data name="SecurityPermissionHeaderDenyLabel.Text" xml:space="preserve">
+    <value>Aberkennen</value>
+  </data>
+  <data name="SecurityPermissionHeaderPermissionLabel.Text" xml:space="preserve">
+    <value>Berechtigungen</value>
+  </data>
+  <data name="Property_Security_Permission_FullControl" xml:space="preserve">
+    <value>Volle Kontrolle</value>
+  </data>
+  <data name="Property_Security_Permission_Modify" xml:space="preserve">
+    <value>Ändern</value>
+  </data>
+  <data name="Property_Security_Permission_Read" xml:space="preserve">
+    <value>Lesen</value>
+  </data>
+  <data name="Property_Security_Permission_ReadAndExecute" xml:space="preserve">
+    <value>Lesen und ausführen</value>
+  </data>
+  <data name="Property_Security_Permission_Write" xml:space="preserve">
+    <value>Schreiben</value>
+  </data>
+  <data name="SystemTip_RestartRequiredActionButton" xml:space="preserve">
+    <value>Jetzt neustarten</value>
+  </data>
+  <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
+    <value>Ordnerinhalt auflisten</value>
+  </data>
 </root>

@@ -3395,4 +3395,43 @@ Les noms non valides incluent
   <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
     <value>Attendez la fin du chargement des éléments de menu avant de s'afficher</value>
   </data>
+  <data name="Properties_Security_Tab" xml:space="preserve">
+    <value>Sécurité</value>
+  </data>
+  <data name="SecurityAccountHeaderLabel.Text" xml:space="preserve">
+    <value>Groupe ou utilisateur</value>
+  </data>
+  <data name="SecurityObjectNameLabel.Text" xml:space="preserve">
+    <value>Nom de l'objet :</value>
+  </data>
+  <data name="SecurityPermissionHeaderAllowLabel.Text" xml:space="preserve">
+    <value>Permettre</value>
+  </data>
+  <data name="SecurityPermissionHeaderDenyLabel.Text" xml:space="preserve">
+    <value>Nier</value>
+  </data>
+  <data name="SecurityPermissionHeaderPermissionLabel.Text" xml:space="preserve">
+    <value>Autorisations</value>
+  </data>
+  <data name="Property_Security_Permission_FullControl" xml:space="preserve">
+    <value>Contrôle total</value>
+  </data>
+  <data name="Property_Security_Permission_Modify" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="Property_Security_Permission_Read" xml:space="preserve">
+    <value>Lire</value>
+  </data>
+  <data name="Property_Security_Permission_ReadAndExecute" xml:space="preserve">
+    <value>Lire et exécuter</value>
+  </data>
+  <data name="Property_Security_Permission_Write" xml:space="preserve">
+    <value>Écrivez</value>
+  </data>
+  <data name="SystemTip_RestartRequiredActionButton" xml:space="preserve">
+    <value>Redémarrer maintenant</value>
+  </data>
+  <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
+    <value>Répertorier le contenu du dossier</value>
+  </data>
 </root>

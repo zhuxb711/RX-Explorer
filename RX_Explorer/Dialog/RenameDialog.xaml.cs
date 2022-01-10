@@ -15,27 +15,39 @@ namespace RX_Explorer.Dialog
     {
         public Dictionary<string, string> DesireNameMap { get; private set; } = new Dictionary<string, string>();
 
-        private readonly IEnumerable<FileSystemStorageItemBase> RenameItems;
+        private readonly IReadOnlyList<string> RenameItems;
 
         private SemaphoreSlim TextChangeLock = new SemaphoreSlim(1, 1);
 
-        public RenameDialog(FileSystemStorageItemBase RenameItems) : this(new FileSystemStorageItemBase[] { RenameItems })
+        public RenameDialog(DriveDataBase RootDrive) : this(new string[] { Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim() })
         {
 
         }
 
-        public RenameDialog(IEnumerable<FileSystemStorageItemBase> RenameItems)
+        public RenameDialog(FileSystemStorageItemBase RenameItem) : this(new string[] { RenameItem.Path })
+        {
+
+        }
+
+        public RenameDialog(IEnumerable<FileSystemStorageItemBase> RenameItems) : this(RenameItems.Select((Item) => Item.Path))
+        {
+
+        }
+
+        public RenameDialog(IEnumerable<string> RenameItems) : this()
         {
             if (!(RenameItems?.Any()).GetValueOrDefault())
             {
                 throw new ArgumentException("Argument could not be empty", nameof(RenameItems));
             }
 
+            this.RenameItems = RenameItems.ToList();
+            RenameText.Text = Path.GetFileName(this.RenameItems[0]);
+        }
+
+        private RenameDialog()
+        {
             InitializeComponent();
-
-            this.RenameItems = RenameItems;
-
-            RenameText.Text = RenameItems.First().Name;
 
             Loaded += RenameDialog_Loaded;
             Closed += RenameDialog_Closed;
@@ -50,39 +62,55 @@ namespace RX_Explorer.Dialog
         {
             DesireNameMap.Clear();
 
-            if (RenameItems.Count() > 1)
+            if (RenameItems.Count > 1)
             {
-                FileSystemStorageItemBase BaseItem = RenameItems.First();
-
-                StorageItemTypes BaseTypes = BaseItem switch
+                if (await FileSystemStorageItemBase.OpenAsync(RenameItems[0]) is FileSystemStorageItemBase BaseItem)
                 {
-                    FileSystemStorageFile => StorageItemTypes.File,
-                    FileSystemStorageFolder => StorageItemTypes.Folder,
-                    _ => StorageItemTypes.None
-                };
+                    StorageItemTypes BaseTypes = BaseItem switch
+                    {
+                        FileSystemStorageFile => StorageItemTypes.File,
+                        FileSystemStorageFolder => StorageItemTypes.Folder,
+                        _ => StorageItemTypes.None
+                    };
 
-                HashSet<string> ExceptPath = new HashSet<string>();
-                List<string> StringArray = new List<string>();
+                    HashSet<string> ExceptPath = new HashSet<string>();
+                    List<string> StringArray = new List<string>();
 
-                foreach (string Name in RenameItems.Select((Item) => Item.Name))
-                {
-                    string UniquePath = await GenerateUniquePath(BaseItem.Path, BaseTypes, ExceptPath);
-                    ExceptPath.Add(UniquePath);
-                    StringArray.Add($"{Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Path.GetFileName(UniquePath)}");
-                    DesireNameMap.Add(Name, Path.GetFileName(UniquePath));
+                    foreach (string Name in RenameItems.Select((Item) =>
+                    {
+                        string Name = Path.GetFileName(Item);
+
+                        if (string.IsNullOrEmpty(Name))
+                        {
+                            Name = Item;
+                        }
+
+                        return Name;
+                    }))
+                    {
+                        string UniquePath = await GenerateUniquePath(BaseItem.Path, BaseTypes, ExceptPath);
+                        ExceptPath.Add(UniquePath);
+                        StringArray.Add($"{Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Path.GetFileName(UniquePath)}");
+                        DesireNameMap.Add(Name, Path.GetFileName(UniquePath));
+                    }
+
+                    Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, StringArray);
                 }
-
-                Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, StringArray);
             }
             else
             {
-                string OriginName = RenameItems.First().Name;
+                string OriginName = Path.GetFileName(RenameItems[0]);
+
+                if (string.IsNullOrEmpty(OriginName))
+                {
+                    OriginName = RenameItems[0];
+                }
 
                 DesireNameMap.Add(OriginName, OriginName);
                 Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{OriginName}";
             }
 
-            if (RenameItems.First() is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.OpenAsync(RenameItems[0]) is FileSystemStorageFile File)
             {
                 if (File.Name != Path.GetExtension(File.Name))
                 {
@@ -114,31 +142,47 @@ namespace RX_Explorer.Dialog
 
                 if (RenameItems.Count() > 1)
                 {
-                    FileSystemStorageItemBase BaseItem = RenameItems.First();
-
-                    StorageItemTypes BaseTypes = BaseItem switch
+                    if (await FileSystemStorageItemBase.OpenAsync(RenameItems[0]) is FileSystemStorageItemBase BaseItem)
                     {
-                        FileSystemStorageFile => StorageItemTypes.File,
-                        FileSystemStorageFolder => StorageItemTypes.Folder,
-                        _ => StorageItemTypes.None
-                    };
+                        StorageItemTypes BaseTypes = BaseItem switch
+                        {
+                            FileSystemStorageFile => StorageItemTypes.File,
+                            FileSystemStorageFolder => StorageItemTypes.Folder,
+                            _ => StorageItemTypes.None
+                        };
 
-                    HashSet<string> ExceptPath = new HashSet<string>();
-                    List<string> StringArray = new List<string>();
+                        HashSet<string> ExceptPath = new HashSet<string>();
+                        List<string> StringArray = new List<string>();
 
-                    foreach (string Name in RenameItems.Select((Item) => Item.Name))
-                    {
-                        string UniquePath = await GenerateUniquePath(Path.Combine(Path.GetDirectoryName(BaseItem.Path), RenameText.Text), BaseTypes, ExceptPath);
-                        ExceptPath.Add(UniquePath);
-                        StringArray.Add($"{Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Path.GetFileName(UniquePath)}");
-                        DesireNameMap.Add(Name, Path.GetFileName(UniquePath));
+                        foreach (string Name in RenameItems.Select((Item) =>
+                        {
+                            string Name = Path.GetFileName(Item);
+
+                            if (string.IsNullOrEmpty(Name))
+                            {
+                                Name = Item;
+                            }
+
+                            return Name;
+                        }))
+                        {
+                            string UniquePath = await GenerateUniquePath(Path.Combine(Path.GetDirectoryName(BaseItem.Path), RenameText.Text), BaseTypes, ExceptPath);
+                            ExceptPath.Add(UniquePath);
+                            StringArray.Add($"{Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Path.GetFileName(UniquePath)}");
+                            DesireNameMap.Add(Name, Path.GetFileName(UniquePath));
+                        }
+
+                        Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, StringArray);
                     }
-
-                    Preview.Text = string.Join(Environment.NewLine + Environment.NewLine, StringArray);
                 }
                 else
                 {
-                    string OriginName = RenameItems.First().Name;
+                    string OriginName = Path.GetFileName(RenameItems[0]);
+
+                    if (string.IsNullOrEmpty(OriginName))
+                    {
+                        OriginName = RenameItems[0];
+                    }
 
                     DesireNameMap.Add(OriginName, RenameText.Text);
                     Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";

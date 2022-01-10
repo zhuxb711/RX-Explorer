@@ -3395,4 +3395,43 @@ Las denominaciones no válidas son:
   <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
     <value>Espere a que los elementos del menú terminen de cargarse antes de que aparezcan</value>
   </data>
+  <data name="Properties_Security_Tab" xml:space="preserve">
+    <value>Seguridad</value>
+  </data>
+  <data name="SecurityAccountHeaderLabel.Text" xml:space="preserve">
+    <value>Grupo o usuario</value>
+  </data>
+  <data name="SecurityObjectNameLabel.Text" xml:space="preserve">
+    <value>Nombre del objeto:</value>
+  </data>
+  <data name="SecurityPermissionHeaderAllowLabel.Text" xml:space="preserve">
+    <value>Permitir</value>
+  </data>
+  <data name="SecurityPermissionHeaderDenyLabel.Text" xml:space="preserve">
+    <value>Negar</value>
+  </data>
+  <data name="SecurityPermissionHeaderPermissionLabel.Text" xml:space="preserve">
+    <value>Permisos</value>
+  </data>
+  <data name="Property_Security_Permission_FullControl" xml:space="preserve">
+    <value>Control total</value>
+  </data>
+  <data name="Property_Security_Permission_Modify" xml:space="preserve">
+    <value>Modificar</value>
+  </data>
+  <data name="Property_Security_Permission_Read" xml:space="preserve">
+    <value>Leer</value>
+  </data>
+  <data name="Property_Security_Permission_ReadAndExecute" xml:space="preserve">
+    <value>Leer y ejecutar</value>
+  </data>
+  <data name="Property_Security_Permission_Write" xml:space="preserve">
+    <value>Escribir</value>
+  </data>
+  <data name="SystemTip_RestartRequiredActionButton" xml:space="preserve">
+    <value>Reiniciar ahora</value>
+  </data>
+  <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
+    <value>Lista de contenidos en la carpeta</value>
+  </data>
 </root>

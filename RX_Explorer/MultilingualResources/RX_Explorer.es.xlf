@@ -4507,6 +4507,58 @@ Las denominaciones no válidas son:
           <source>Wait for menu items to finish loading before popping up</source>
           <target state="translated">Espere a que los elementos del menú terminen de cargarse antes de que aparezcan</target>
         </trans-unit>
+        <trans-unit id="Properties_Security_Tab" translate="yes" xml:space="preserve">
+          <source>Security</source>
+          <target state="translated">Seguridad</target>
+        </trans-unit>
+        <trans-unit id="SecurityAccountHeaderLabel.Text" translate="yes" xml:space="preserve">
+          <source>Group or user</source>
+          <target state="translated">Grupo o usuario</target>
+        </trans-unit>
+        <trans-unit id="SecurityObjectNameLabel.Text" translate="yes" xml:space="preserve">
+          <source>Object name:</source>
+          <target state="translated">Nombre del objeto:</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderAllowLabel.Text" translate="yes" xml:space="preserve">
+          <source>Allow</source>
+          <target state="translated">Permitir</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderDenyLabel.Text" translate="yes" xml:space="preserve">
+          <source>Deny</source>
+          <target state="translated">Negar</target>
+        </trans-unit>
+        <trans-unit id="SecurityPermissionHeaderPermissionLabel.Text" translate="yes" xml:space="preserve">
+          <source>Permissions</source>
+          <target state="translated">Permisos</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_FullControl" translate="yes" xml:space="preserve">
+          <source>Fully control</source>
+          <target state="translated">Control total</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Modify" translate="yes" xml:space="preserve">
+          <source>Modify</source>
+          <target state="translated">Modificar</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Read" translate="yes" xml:space="preserve">
+          <source>Read</source>
+          <target state="translated">Leer</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_ReadAndExecute" translate="yes" xml:space="preserve">
+          <source>Read and execute</source>
+          <target state="translated">Leer y ejecutar</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_Write" translate="yes" xml:space="preserve">
+          <source>Write</source>
+          <target state="translated">Escribir</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartRequiredActionButton" translate="yes" xml:space="preserve">
+          <source>Restart now</source>
+          <target state="translated">Reiniciar ahora</target>
+        </trans-unit>
+        <trans-unit id="Property_Security_Permission_ListDirectory" translate="yes" xml:space="preserve">
+          <source>List folder contents</source>
+          <target state="translated">Lista de contenidos en la carpeta</target>
+        </trans-unit>
       </group>
     </body>
   </file>

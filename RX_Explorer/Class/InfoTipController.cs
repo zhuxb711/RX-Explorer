@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Windows.ApplicationModel.Core;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -106,25 +107,58 @@ namespace RX_Explorer.Class
                         }
                     case InfoTipType.ConfigRestartRequired:
                         {
+                            Button ActionButton = new Button
+                            {
+                                Content = Globalization.GetString("SystemTip_RestartRequiredActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+                            };
+                            ActionButton.Click += async (s, e) =>
+                            {
+                                await CoreApplication.RequestRestartAsync(string.Empty);
+                            };
+
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_ConfigRestartContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
+                            InfoTip.ActionButton = ActionButton;
 
                             break;
                         }
                     case InfoTipType.LanguageRestartRequired:
                         {
+                            Button ActionButton = new Button
+                            {
+                                Content = Globalization.GetString("SystemTip_RestartRequiredActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+                            };
+                            ActionButton.Click += async (s, e) =>
+                            {
+                                await CoreApplication.RequestRestartAsync(string.Empty);
+                            };
+
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_LanguageRestartContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
+                            InfoTip.ActionButton = ActionButton;
 
                             break;
                         }
                     case InfoTipType.FontFamilyRestartRequired:
                         {
+                            Button ActionButton = new Button
+                            {
+                                Content = Globalization.GetString("SystemTip_RestartRequiredActionButton"),
+                                FontFamily = Application.Current.Resources["ContentControlThemeFontFamily"] as FontFamily
+                            };
+                            ActionButton.Click += async (s, e) =>
+                            {
+                                await CoreApplication.RequestRestartAsync(string.Empty);
+                            };
+
                             InfoTip.Title = Globalization.GetString("SystemTip_RestartTitle");
                             InfoTip.Message = Globalization.GetString("SystemTip_FontFamilyRestartContent");
                             InfoTip.Severity = InfoBarSeverity.Warning;
+                            InfoTip.ActionButton = ActionButton;
 
                             break;
                         }

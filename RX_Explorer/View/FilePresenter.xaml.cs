@@ -3426,10 +3426,12 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                         };
 
-                        _ = await LoadExceptionDialog.ShowAsync();
+                        await LoadExceptionDialog.ShowAsync();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, "Could not rename the file");
+
                         QueueContentDialog UnauthorizeDialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),

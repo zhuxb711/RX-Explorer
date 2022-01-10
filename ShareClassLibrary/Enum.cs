@@ -1,5 +1,24 @@
-﻿namespace ShareClassLibrary
+﻿using System;
+
+namespace ShareClassLibrary
 {
+    public enum AccountType
+    {
+        Group,
+        User,
+        Unknown
+    }
+
+    public enum Permissions
+    {
+        FullControl,
+        Modify,
+        ListDirectory,
+        ReadAndExecute,
+        Read,
+        Write
+    }
+
     public enum CreateType
     {
         File,
@@ -44,6 +63,7 @@
     public enum CommandType
     {
         Test,
+        GetPermissions,
         SetDriveLabel,
         SetDriveIndexStatus,
         GetDriveIndexStatus,

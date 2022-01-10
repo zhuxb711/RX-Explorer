@@ -151,6 +151,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             this.Window = Window;
 
             GeneralTab.Text = Globalization.GetString("Properties_General_Tab");
+            SecurityTab.Text = Globalization.GetString("Properties_Security_Tab");
             ShortcutTab.Text = Globalization.GetString("Properties_Shortcut_Tab");
             DetailsTab.Text = Globalization.GetString("Properties_Details_Tab");
             ToolsTab.Text = Globalization.GetString("Properties_Tools_Tab");
@@ -177,6 +178,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
             PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Details_Tab")));
+
+            SecurityObjectNameContentScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
+            SecurityObjectNameContentScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
+            SecurityObjectNameContentScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
+            SecurityObjectNameContentScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
         }
 
         private PropertiesWindowBase(AppWindow Window, params FileSystemStorageItemBase[] StorageItems) : this(Window)
@@ -189,69 +195,79 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                                            : Item.DisplayName)
                                                                                        : Item.Name));
 
-            if (StorageItems.Length > 1)
+            switch ((StorageItems?.Length).GetValueOrDefault())
             {
-                GeneralPanelSwitcher.Value = "MultiItems";
+                case > 1:
+                    {
+                        GeneralPanelSwitcher.Value = "MultiItems";
 
-                MultiLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
-                MultiLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
-                MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
-                MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
+                        MultiLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
+                        MultiLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
+                        MultiLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
+                        MultiLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                while (PivotControl.Items.Count > 1)
-                {
-                    PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
-                }
-            }
-            else
-            {
-                FileSystemStorageItemBase StorageItem = StorageItems.First();
-
-                switch (StorageItem)
-                {
-                    case FileSystemStorageFolder:
+                        while (PivotControl.Items.Count > 2)
                         {
-                            GeneralPanelSwitcher.Value = "Folder";
-
-                            FolderLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
-                            FolderLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
-                            FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
-                            FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
-
-                            while (PivotControl.Items.Count > 1)
-                            {
-                                PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
-                            }
-
-                            break;
+                            PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
                         }
-                    case FileSystemStorageFile:
+
+                        break;
+                    }
+                case 1:
+                    {
+                        SecurityObjectNameContentScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
+                        SecurityObjectNameContentScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
+                        SecurityObjectNameContentScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
+                        SecurityObjectNameContentScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
+
+                        switch (StorageItems.First())
                         {
-                            GeneralPanelSwitcher.Value = "File";
-                            ToolsPanelSwitcher.Value = "NormalTools";
+                            case FileSystemStorageFolder:
+                                {
+                                    GeneralPanelSwitcher.Value = "Folder";
 
-                            FileLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
-                            FileLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
-                            FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
-                            FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
+                                    FolderLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
+                                    FolderLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
+                                    FolderLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
+                                    FolderLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
 
-                            if (StorageItem is IUnsupportedStorageItem)
-                            {
-                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
-                            }
+                                    while (PivotControl.Items.Count > 2)
+                                    {
+                                        PivotControl.Items.RemoveAt(PivotControl.Items.Count - 1);
+                                    }
 
-                            if (StorageItem is not (LinkStorageFile or UrlStorageFile))
-                            {
-                                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
-                            }
+                                    break;
+                                }
+                            case FileSystemStorageFile File:
+                                {
+                                    GeneralPanelSwitcher.Value = "File";
+                                    ToolsPanelSwitcher.Value = "NormalTools";
 
-                            break;
+                                    FileLocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(ScrollableTextBlock_PointerPressed), true);
+                                    FileLocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(ScrollableTextBlock_PointerReleased), true);
+                                    FileLocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(ScrollableTextBlock_PointerCanceled), true);
+                                    FileLocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(ScrollableTextBlock_PointerMoved), true);
+
+                                    if (File is IUnsupportedStorageItem)
+                                    {
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
+                                    }
+
+                                    if (File is not (LinkStorageFile or UrlStorageFile))
+                                    {
+                                        PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                {
+                                    throw new NotSupportedException();
+                                }
                         }
-                    default:
-                        {
-                            throw new NotSupportedException();
-                        }
-                }
+
+                        break;
+                    }
             }
         }
 
@@ -276,6 +292,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     }
                 case 1:
                     {
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
+
                         switch (StorageItems.First())
                         {
                             case FileSystemStorageFolder:
@@ -295,6 +316,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     break;
                                 }
                         }
+
+                        break;
+                    }
+                default:
+                    {
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+                        SecurityObjectNameContentScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
 
                         break;
                     }
@@ -489,7 +519,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             List<Task> ParallelLoadingList = new List<Task>(3)
             {
-                LoadDataForGeneralPage()
+                LoadDataForGeneralPage(),
+                LoadDataForSecurityPage()
             };
 
             if ((StorageItems?.Length).GetValueOrDefault() == 1 && StorageItems?.First() is FileSystemStorageFile StorageItem)
@@ -503,6 +534,48 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
 
             await Task.WhenAll(ParallelLoadingList);
+        }
+
+        private async Task LoadDataForSecurityPage()
+        {
+            string SecurityObjectPath = string.Empty;
+
+            switch ((StorageItems?.Length).GetValueOrDefault())
+            {
+                case > 1:
+                    {
+                        break;
+                    }
+                case 1:
+                    {
+                        SecurityObjectPath = StorageItems.First().Path;
+                        break;
+                    }
+                default:
+                    {
+                        SecurityObjectPath = RootDrive.Path;
+                        break;
+                    }
+            }
+
+            if (string.IsNullOrEmpty(SecurityObjectPath))
+            {
+                PivotControl.Items.Remove(PivotControl.Items.Cast<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Security_Tab")));
+            }
+            else
+            {
+                SecurityObjectNameContent.Text = SecurityObjectPath;
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                {
+                    foreach (PermissionDataPackage Data in await Exclusive.Controller.GetPermissionsAsync(SecurityObjectPath))
+                    {
+                        SecurityAccountList.Items.Add(new SecurityAccount(Data.AccountName, Data.AccountType, Data.AccountPermissions));
+                    }
+                }
+
+                SecurityAccountList.SelectedIndex = 0;
+            }
         }
 
         private async Task LoadDataForShortCutPage()
@@ -1713,7 +1786,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void LocationScrollViewer_PointerMoved(object sender, PointerRoutedEventArgs e)
+        private void ScrollableTextBlock_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             if (sender is ScrollViewer Viewer)
             {
@@ -1740,7 +1813,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void LocationScrollViewer_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void ScrollableTextBlock_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (sender is ScrollViewer Viewer)
             {
@@ -1753,7 +1826,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void LocationScrollViewer_PointerReleased(object sender, PointerRoutedEventArgs e)
+        private void ScrollableTextBlock_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             if (sender is ScrollViewer Viewer)
             {
@@ -1764,7 +1837,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
-        private void LocationScrollViewer_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        private void ScrollableTextBlock_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
             if (sender is ScrollViewer Viewer)
             {
@@ -1869,6 +1942,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 if (!await Exclusive.Controller.RunAsync("powershell.exe", RunAsAdmin: true, Parameters: new string[] { $"-NoExit -Command \"chkdsk {RootDrive.Path.TrimEnd('\\')}\"" }))
                 {
                     LogTracer.Log("Could not launch chkdsk.exe");
+                }
+            }
+        }
+
+        private void SecurityAccountList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SecurityAccountList.SelectedItem is SecurityAccount Account)
+            {
+                SecurityPermissionList.Items.Clear();
+
+                foreach (KeyValuePair<Permissions, bool> PermissionMap in Account.AccountPermissions)
+                {
+                    SecurityPermissionList.Items.Add(new SecurityAccountPermissions(PermissionMap.Key, PermissionMap.Value));
                 }
             }
         }

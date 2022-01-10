@@ -1,13 +1,23 @@
-﻿###Quoi de neuf dans la version 7.4.0.0
+﻿###Quoi de neuf dans la version 7.4.1.0
 
 #####Mise à jour des fonctionnalités
 
->#####Refonte de l'interface utilisateur de la fenêtre Propriétés du lecteur, ajoutant plusieurs fonctions liées au disque
+>#####Ajout de l'onglet "Sécurité" dans la fenêtre des propriétés pour indiquer les autorisations pour chaque utilisateur
 
->#####Refonte de l'interface utilisateur de la page Outil de la fenêtre des propriétés du fichier
+>#####Ajout de paramètres pour contrôler le comportement lorsque le menu contextuel apparaît
 
->#####Reconception du mécanisme d'annulation des tâches pour contrôler les tâches effectuées sous l'autorité de l'administrateur
+>#####Ajout d'une fonction de renommage pour la bibliothèque et le lecteur
 
-#####Correction d'un bug
+#####Mise à jour de l'interface utilisateur
 
->#####Correction du problème pouvant provoquer un plantage dans certains cas
+>#####Refonte de l'interface utilisateur de la fenêtre des propriétés du disque, ajoutant un certain nombre de fonctions liées au disque
+
+>#####Refonte de l'interface utilisateur de l'onglet "Outil" dans la fenêtre de propriétés du fichier
+
+>#####Reconception du mécanisme d'annulation des tâches pour contrôler les tâches exécutées sous les privilèges d'administrateur
+
+#####Correction de bugs
+
+>#####Correction d'un problème pouvant provoquer un plantage dans certains cas
+
+>#####Correction d'un problème où le terminal Windows pouvait ne pas être correctement détecté et profilé

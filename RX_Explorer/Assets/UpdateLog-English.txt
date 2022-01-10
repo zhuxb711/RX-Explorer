@@ -1,13 +1,23 @@
-﻿###What's new in Ver.7.4.0.0
+﻿###What's new in Ver.7.4.1.0
 
 #####Feature update
 
->#####Redesigned the UI of the Drive Properties window, adding multiple disk-related functions
+>#####Added "Security" tab in property window to indicate permissions for each user
 
->#####Redesigned the Tool page UI of the file properties window
+>#####Added settings to control the behavior when the context menu pops up
 
->#####Redesigned the mechanism of canceling tasks to control tasks performed under administrator authority
+>#####Added rename function for Library and Drive
 
-#####Bug fix
+#####UI update
 
->#####Fixed the problem that may cause a crash in some cases
+>#####Redesigned the UI of the disk property window, adding a number of disk-related functions
+
+>#####Redesigned the UI of "Tool" tab in file property window
+
+>#####Redesigned the mechanism for canceling tasks to control tasks executed under administrator privileges
+
+#####Bug Fixes
+
+>#####Fixed an issue that could cause a crash in some cases
+
+>#####Fixed an issue where Windows Terminal might not be properly detected and profiled

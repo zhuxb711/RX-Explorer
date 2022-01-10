@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -62,7 +63,7 @@ namespace RX_Explorer
                 AlwaysExpanded = true,
                 ShouldConstrainToRootBounds = false
             };
-            Flyout.Opening += CommandBarFlyout_Opening;
+            Flyout.Opening += LibraryFlyout_Opening;
             Flyout.Closing += CommandBarFlyout_Closing;
 
             FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
@@ -75,15 +76,23 @@ namespace RX_Explorer
             ToolTipService.SetToolTip(CopyButton, Globalization.GetString("Operate_Text_Copy"));
             CopyButton.Click += Copy_Click;
 
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename },
+                Name = "RenameButton"
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += LibraryRename_Click;
+
             AppBarButton RemovePinButton = new AppBarButton
             {
-                Icon = new SymbolIcon { Symbol = Symbol.UnPin },
-                Name = "RemovePinButton"
+                Icon = new SymbolIcon { Symbol = Symbol.UnPin }
             };
             ToolTipService.SetToolTip(RemovePinButton, Globalization.GetString("Operate_Text_Unpin"));
             RemovePinButton.Click += RemovePin_Click;
 
             Flyout.PrimaryCommands.Add(CopyButton);
+            Flyout.PrimaryCommands.Add(RenameButton);
             Flyout.PrimaryCommands.Add(RemovePinButton);
             #endregion
 
@@ -217,6 +226,17 @@ namespace RX_Explorer
 
             FontFamily FontIconFamily = Application.Current.Resources["SymbolThemeFontFamily"] as FontFamily;
 
+            #region PrimaryCommand -> StandBarContainer
+            AppBarButton RenameButton = new AppBarButton
+            {
+                Icon = new SymbolIcon { Symbol = Symbol.Rename }
+            };
+            ToolTipService.SetToolTip(RenameButton, Globalization.GetString("Operate_Text_Rename"));
+            RenameButton.Click += DriveRename_Click;
+
+            Flyout.PrimaryCommands.Add(RenameButton);
+            #endregion
+
             switch (Type)
             {
                 case DriveContextMenuType.Portable:
@@ -241,7 +261,7 @@ namespace RX_Explorer
                     }
                 case DriveContextMenuType.Normal:
                     {
-                        Flyout.Opening += CommandBarFlyout_Opening;
+                        Flyout.Opening += DriveFlyout_Opening;
 
                         #region SecondaryCommand -> OpenButton
                         AppBarButton OpenButton = new AppBarButton
@@ -258,7 +278,7 @@ namespace RX_Explorer
                         });
                         OpenButton.Click += OpenDrive_Click;
 
-                        Flyout.SecondaryCommands.Insert(0,OpenButton);
+                        Flyout.SecondaryCommands.Insert(0, OpenButton);
                         #endregion
 
                         #region SecondaryCommand -> OpenInNewTabButton
@@ -280,7 +300,7 @@ namespace RX_Explorer
                         });
                         OpenInNewTabButton.Click += OpenInNewTab_Click;
 
-                        Flyout.SecondaryCommands.Insert(1,OpenInNewTabButton);
+                        Flyout.SecondaryCommands.Insert(1, OpenInNewTabButton);
                         #endregion
 
                         #region SecondaryCommand -> OpenInNewWindowButton
@@ -302,7 +322,7 @@ namespace RX_Explorer
                         });
                         OpenInNewWindowButton.Click += OpenInNewWindow_Click;
 
-                        Flyout.SecondaryCommands.Insert(2,OpenInNewWindowButton);
+                        Flyout.SecondaryCommands.Insert(2, OpenInNewWindowButton);
                         #endregion
 
                         #region SecondaryCommand -> OpenInVerticalSplitViewButton
@@ -326,7 +346,7 @@ namespace RX_Explorer
                         });
                         OpenInVerticalSplitViewButton.Click += OpenInVerticalSplitView_Click;
 
-                        Flyout.SecondaryCommands.Insert(3,OpenInVerticalSplitViewButton);
+                        Flyout.SecondaryCommands.Insert(3, OpenInVerticalSplitViewButton);
                         #endregion
 
                         Flyout.SecondaryCommands.Add(new AppBarSeparator());
@@ -374,13 +394,172 @@ namespace RX_Explorer
             return Flyout;
         }
 
-        private async void CommandBarFlyout_Opening(object sender, object e)
+        private async void DriveFlyout_Opening(object sender, object e)
         {
             if (sender is CommandBarFlyout Flyout)
             {
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
                     Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private async void LibraryFlyout_Opening(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (LibraryGrid.SelectedItem is LibraryStorageFolder Folder)
+                {
+                    AppBarButton RenameButton = Flyout.PrimaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "RenameButton");
+
+                    if (Folder.LibType == LibraryType.UserCustom)
+                    {
+                        RenameButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        RenameButton.IsEnabled = false;
+                    }
+                }
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Flyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "OpenInVerticalSplitView").Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+
+        private async void DriveRename_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (DriveGrid.SelectedItem is DriveDataBase RootDrive)
+            {
+                RenameDialog dialog = new RenameDialog(RootDrive);
+
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    string OriginName = Regex.Replace(RootDrive.DisplayName, $@"\({RootDrive.Path.TrimEnd('\\')}\)$", string.Empty).Trim();
+                    string NewName = dialog.DesireNameMap[OriginName];
+
+                    if (NewName != OriginName)
+                    {
+                        try
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                if (await Exclusive.Controller.SetDriveLabelAsync(RootDrive.Path, NewName))
+                                {
+                                    DriveDataBase RefreshedDrive = await DriveDataBase.CreateAsync(RootDrive.DriveType, await StorageFolder.GetFolderFromPathAsync(RootDrive.Path));
+
+                                    int Index = CommonAccessCollection.DriveList.IndexOf(RootDrive);
+
+                                    if (CommonAccessCollection.DriveList.Remove(RootDrive))
+                                    {
+                                        CommonAccessCollection.DriveList.Insert(Index, RefreshedDrive);
+                                    }
+                                }
+                                else
+                                {
+                                    throw new Exception();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Could not rename the drive");
+
+                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            await UnauthorizeDialog.ShowAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void LibraryRename_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (LibraryGrid.SelectedItem is LibraryStorageFolder Folder)
+            {
+                RenameDialog dialog = new RenameDialog(Folder);
+
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    try
+                    {
+                        string OriginName = Folder.Name;
+                        string OriginPath = Folder.Path;
+                        string DesireName = dialog.DesireNameMap[OriginName];
+
+                        if (!OriginName.Equals(DesireName, StringComparison.OrdinalIgnoreCase)
+                            && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(Path.GetDirectoryName(Folder.Path), DesireName)))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
+                            {
+                                return;
+                            }
+                        }
+
+                        string NewName = await Folder.RenameAsync(DesireName);
+                        string NewPath = Path.Combine(Path.GetDirectoryName(OriginPath), NewName);
+
+                        if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, NewPath) is LibraryStorageFolder RefreshedLibrary)
+                        {
+                            int Index = CommonAccessCollection.LibraryList.IndexOf(RefreshedLibrary);
+
+                            if (CommonAccessCollection.LibraryList.Remove(RefreshedLibrary))
+                            {
+                                SQLite.Current.DeleteLibrary(OriginPath);
+                                await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, OriginPath);
+                                SQLite.Current.SetLibraryPath(LibraryType.UserCustom, NewPath);
+                                await JumpListController.Current.AddItemAsync(JumpListGroup.Library, NewPath);
+
+                                CommonAccessCollection.LibraryList.Insert(Index, RefreshedLibrary);
+                            }
+                        }
+                    }
+                    catch (FileLoadException)
+                    {
+                        QueueContentDialog LoadExceptionDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
+
+                        await LoadExceptionDialog.ShowAsync();
+                    }
+                    catch (Exception)
+                    {
+                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        await UnauthorizeDialog.ShowAsync();
+                    }
                 }
             }
         }

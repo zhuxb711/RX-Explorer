@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -16,7 +17,7 @@ using Vanara.Windows.Shell;
 
 namespace FullTrustProcess
 {
-    public static class StorageController
+    public static class StorageItemController
     {
         /// <summary>
         /// Find out what process(es) have a lock on the specified file.
@@ -178,77 +179,211 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool CheckPermission(string Path, FileSystemRights Permission)
+        public static IReadOnlyList<PermissionDataPackage> GetAllAccountPermissions(string Path)
         {
-            try
+            FileSystemSecurity Security;
+
+            if (Directory.Exists(Path))
+            {
+                Security = new DirectoryInfo(Path).GetAccessControl(AccessControlSections.Access);
+            }
+            else if (File.Exists(Path))
+            {
+                Security = new FileInfo(Path).GetAccessControl(AccessControlSections.Access);
+            }
+            else
+            {
+                throw new FileNotFoundException(Path);
+            }
+
+            static bool CheckPermissionCore(IEnumerable<FileSystemAccessRule> Rules, FileSystemRights Permission)
             {
                 bool InheritedDeny = false;
                 bool InheritedAllow = false;
 
-                WindowsIdentity CurrentUser = WindowsIdentity.GetCurrent();
-                WindowsPrincipal CurrentPrincipal = new WindowsPrincipal(CurrentUser);
-
-                FileSystemSecurity Security;
-
-                if (Directory.Exists(Path))
+                foreach (FileSystemAccessRule Rule in Rules)
                 {
-                    Security = new DirectoryInfo(Path).GetAccessControl(AccessControlSections.Access);
-                }
-                else if (File.Exists(Path))
-                {
-                    Security = new FileInfo(Path).GetAccessControl(AccessControlSections.Access);
-                }
-                else
-                {
-                    //Relative path will come here, so we won't check its permission becasue no full path available
-                    return true;
-                }
-
-                if (Security == null)
-                {
-                    return false;
-                }
-
-                AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
-
-                foreach (FileSystemAccessRule Rule in AccessRules)
-                {
-                    if (CurrentUser.User.Equals(Rule.IdentityReference) || CurrentPrincipal.IsInRole((SecurityIdentifier)Rule.IdentityReference))
+                    if (Rule.AccessControlType == AccessControlType.Deny)
                     {
-                        if (Rule.AccessControlType == AccessControlType.Deny)
+                        if (Rule.FileSystemRights.HasFlag(Permission))
                         {
-                            if ((Rule.FileSystemRights & Permission) == Permission)
+                            if (Rule.IsInherited)
                             {
-                                if (Rule.IsInherited)
-                                {
-                                    InheritedDeny = true;
-                                }
-                                else
-                                {
-                                    // Non inherited "deny" takes overall precedence.
-                                    return false;
-                                }
+                                InheritedDeny = true;
+                            }
+                            else
+                            {
+                                // Non inherited "deny" takes overall precedence.
+                                return false;
                             }
                         }
-                        else if (Rule.AccessControlType == AccessControlType.Allow)
+                    }
+                    else if (Rule.AccessControlType == AccessControlType.Allow)
+                    {
+                        if (Rule.FileSystemRights.HasFlag(Permission))
                         {
-                            if ((Rule.FileSystemRights & Permission) == Permission)
+                            if (Rule.IsInherited)
                             {
-                                if (Rule.IsInherited)
-                                {
-                                    InheritedAllow = true;
-                                }
-                                else
-                                {
-                                    // Non inherited "allow" takes precedence over inherited rules
-                                    return true;
-                                }
+                                InheritedAllow = true;
+                            }
+                            else
+                            {
+                                // Non inherited "allow" takes precedence over inherited rules
+                                return true;
                             }
                         }
                     }
                 }
 
                 return InheritedAllow && !InheritedDeny;
+            }
+
+            HashSet<string> WellKnownSID = new HashSet<string>(8)
+            {
+                "S-1-1-0",
+                "S-1-5-11",
+                "S-1-5-18",
+                "S-1-5-32-544",
+                "S-1-5-32-546",
+                "S-1-5-32-545",
+                "S-1-5-21domain-500",
+                "S-1-5-21domain-501"
+            };
+
+            List<PermissionDataPackage> PermissionsResult = new List<PermissionDataPackage>();
+
+            foreach (IGrouping<IdentityReference, FileSystemAccessRule> RuleGroupByAccount in Security.GetAccessRules(true, true, typeof(NTAccount)).Cast<FileSystemAccessRule>()
+                                                                                                                                                    .GroupBy((Rule) => Rule.IdentityReference))
+            {
+                SecurityIdentifier SecurityId = new SecurityIdentifier(RuleGroupByAccount.Key.Translate(typeof(SecurityIdentifier)).Value);
+                byte[] SidBuffer = new byte[SecurityId.BinaryLength];
+                SecurityId.GetBinaryForm(SidBuffer, 0);
+
+                int CchName = 256;
+                int CchRefDomainName = 256;
+                StringBuilder Name = new StringBuilder(CchName);
+                StringBuilder Domain = new StringBuilder(CchRefDomainName);
+                AccountType Type = AccountType.Unknown;
+
+                if (AdvApi32.LookupAccountSid(null, SidBuffer, Name, ref CchName, Domain, ref CchRefDomainName, out AdvApi32.SID_NAME_USE SidType))
+                {
+                    switch (SidType)
+                    {
+                        case AdvApi32.SID_NAME_USE.SidTypeGroup:
+                        case AdvApi32.SID_NAME_USE.SidTypeWellKnownGroup:
+                        case AdvApi32.SID_NAME_USE.SidTypeAlias:
+                            {
+                                Type = AccountType.Group;
+                                break;
+                            }
+                        case AdvApi32.SID_NAME_USE.SidTypeUser:
+                            {
+                                Type = AccountType.User;
+                                break;
+                            }
+                    }
+                }
+
+                PermissionsResult.Add(new PermissionDataPackage
+                {
+                    AccountName = Type switch
+                    {
+                        AccountType.User or AccountType.Group => WellKnownSID.Contains(SecurityId.Value) ? Name.ToString() : $"{Domain}\\{Name}",
+                        _ => RuleGroupByAccount.Key.Value
+                    },
+                    AccountType = Type,
+                    AccountPermissions = new Dictionary<Permissions, bool>
+                    {
+                        { Permissions.FullControl, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.FullControl) },
+                        { Permissions.Modify, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Modify) },
+                        { Permissions.ListDirectory, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ListDirectory) },
+                        { Permissions.ReadAndExecute, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.ReadAndExecute) },
+                        { Permissions.Read, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Read) },
+                        { Permissions.Write, CheckPermissionCore(RuleGroupByAccount, FileSystemRights.Write) },
+                    }
+                });
+            }
+
+            return PermissionsResult;
+        }
+
+        public static bool CheckPermission(string Path, FileSystemRights Permission)
+        {
+            try
+            {
+                using (WindowsIdentity CurrentUser = WindowsIdentity.GetCurrent())
+                {
+                    WindowsPrincipal CurrentPrincipal = new WindowsPrincipal(CurrentUser);
+
+                    FileSystemSecurity Security;
+
+                    if (Directory.Exists(Path))
+                    {
+                        Security = new DirectoryInfo(Path).GetAccessControl(AccessControlSections.Access);
+                    }
+                    else if (File.Exists(Path))
+                    {
+                        Security = new FileInfo(Path).GetAccessControl(AccessControlSections.Access);
+                    }
+                    else
+                    {
+                        //Relative path will come here, so we won't check its permission becasue no full path available
+                        return true;
+                    }
+
+                    if (Security == null)
+                    {
+                        return false;
+                    }
+
+                    bool InheritedDeny = false;
+                    bool InheritedAllow = false;
+
+                    foreach (FileSystemAccessRule Rule in Security.GetAccessRules(true, true, typeof(SecurityIdentifier)).Cast<FileSystemAccessRule>()
+                                                                                                                         .Where((Rule) => CurrentUser.User.Equals(Rule.IdentityReference) 
+                                                                                                                                          || CurrentPrincipal.IsInRole((SecurityIdentifier)Rule.IdentityReference)))
+                    {
+                        switch (Rule.AccessControlType)
+                        {
+                            case AccessControlType.Deny:
+                                {
+                                    if (Rule.FileSystemRights.HasFlag(Permission))
+                                    {
+                                        if (Rule.IsInherited)
+                                        {
+                                            InheritedDeny = true;
+                                        }
+                                        else
+                                        {
+                                            // Non inherited "deny" takes overall precedence.
+                                            return false;
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            case AccessControlType.Allow:
+                                {
+                                    if (Rule.FileSystemRights.HasFlag(Permission))
+                                    {
+                                        if (Rule.IsInherited)
+                                        {
+                                            InheritedAllow = true;
+                                        }
+                                        else
+                                        {
+                                            // Non inherited "allow" takes precedence over inherited rules
+                                            return true;
+                                        }
+                                    }
+
+                                    break;
+                                }
+                        }
+                    }
+
+                    return InheritedAllow && !InheritedDeny;
+                }
             }
             catch (Exception ex)
             {

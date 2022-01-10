@@ -3500,4 +3500,43 @@ Invalid names include
   <data name="SettingPageContextMenuExtensionParallelHeader.Text" xml:space="preserve">
     <value>Wait for menu items to finish loading before popping up</value>
   </data>
+  <data name="Properties_Security_Tab" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="SecurityAccountHeaderLabel.Text" xml:space="preserve">
+    <value>Group or user</value>
+  </data>
+  <data name="SecurityObjectNameLabel.Text" xml:space="preserve">
+    <value>Object name:</value>
+  </data>
+  <data name="SecurityPermissionHeaderAllowLabel.Text" xml:space="preserve">
+    <value>Allow</value>
+  </data>
+  <data name="SecurityPermissionHeaderDenyLabel.Text" xml:space="preserve">
+    <value>Deny</value>
+  </data>
+  <data name="SecurityPermissionHeaderPermissionLabel.Text" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="Property_Security_Permission_FullControl" xml:space="preserve">
+    <value>Fully control</value>
+  </data>
+  <data name="Property_Security_Permission_Modify" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="Property_Security_Permission_Read" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="Property_Security_Permission_ReadAndExecute" xml:space="preserve">
+    <value>Read and execute</value>
+  </data>
+  <data name="Property_Security_Permission_Write" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="SystemTip_RestartRequiredActionButton" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
+  <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
+    <value>List folder contents</value>
+  </data>
 </root>

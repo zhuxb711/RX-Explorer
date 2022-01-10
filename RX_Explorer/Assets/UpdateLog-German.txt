@@ -1,13 +1,23 @@
-﻿###Was ist neu in Ver.7.4.0.0
+﻿###Was ist neu in Ver.7.4.1.0
 
 #####Funktionsupdate
 
->#####Die Benutzeroberfläche des Fensters "Laufwerkeigenschaften" wurde neu gestaltet und mehrere datenträgerbezogene Funktionen hinzugefügt.
+>#####Registerkarte "Sicherheit" im Eigenschaftsfenster hinzugefügt, um Berechtigungen für jeden Benutzer anzuzeigen
 
->#####Die Benutzeroberfläche der Tool-Seite des Dateieigenschaftenfensters wurde neu gestaltet
+>#####Einstellungen hinzugefügt, um das Verhalten zu steuern, wenn das Kontextmenü angezeigt wird
 
->#####Der Mechanismus zum Abbrechen von Aufgaben wurde neu gestaltet, um die Aufgaben zu kontrollieren, die unter der Autorität des Administrators ausgeführt werden
+>#####Umbenennungsfunktion für Bibliothek und Drive hinzugefügt
 
-#####Bug-Fix
+#####UI-Update
 
->#####Das Problem wurde behoben, das in einigen Fällen zu einem Absturz führen konnte
+>#####Die Benutzeroberfläche des Festplatteneigenschaftenfensters wurde neu gestaltet und eine Reihe von Festplattenfunktionen hinzugefügt
+
+>#####Neu gestaltete Benutzeroberfläche der Registerkarte "Tool" im Dateieigenschaftenfenster
+
+>#####Der Mechanismus zum Abbrechen von Aufgaben wurde neu gestaltet, um Aufgaben zu kontrollieren, die unter Administratorrechten ausgeführt werden
+
+#####Fehlerbehebung
+
+>#####Ein Problem wurde behoben, das in einigen Fällen zu einem Absturz führen konnte
+
+>#####Es wurde ein Problem behoben, bei dem das Windows-Terminal möglicherweise nicht richtig erkannt und profiliert wird

@@ -125,11 +125,11 @@ namespace FullTrustProcess
 
                         if (File.Exists(SourceItem.FileSystemPath))
                         {
-                            File.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(OriginPath));
+                            File.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath));
                         }
                         else if (Directory.Exists(SourceItem.FileSystemPath))
                         {
-                            Directory.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(OriginPath));
+                            Directory.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(OriginPath));
                         }
 
                         string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));

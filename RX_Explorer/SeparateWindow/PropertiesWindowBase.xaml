@@ -9,10 +9,12 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Trigger="using:Microsoft.Toolkit.Uwp.UI.Triggers"
+      xmlns:Windows11Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,11)"
+      xmlns:Windows11NotPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractNotPresent(Windows.Foundation.UniversalApiContract,11)"
       xmlns:Sys="using:System"
       mc:Ignorable="d"
-      d:DesignHeight="600"
-      d:DesignWidth="400"
+      d:DesignHeight="650"
+      d:DesignWidth="420"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
@@ -59,12 +61,16 @@
             </Grid>
         </DataTemplate>
 
+        <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
+
         <Cls:RatingValueConverter x:Key="RatingConverter" />
 
         <Cls:RatingControlDataTemplateSelector x:Key="DetailListDataTemplateSelector"
                                                Label="{StaticResource LabelTemplate}"
                                                Rating="{StaticResource RatingTemplate}" />
 
+        <Cls:InverseConverter x:Key="InverseConverter" />
+        
         <Storyboard x:Name="CapacityRingStoryboard">
             <DoubleAnimation Duration="0:0:1.2"
                              x:Name="CapacityRingDoubleAnimation"
@@ -852,6 +858,148 @@
                             </Grid>
                         </controls:Case>
                     </controls:SwitchPresenter>
+                </ScrollViewer>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="Security"
+                               Name="SecurityTab"
+                               FontSize="18" />
+                </PivotItem.Header>
+                <ScrollViewer Padding="5,10"
+                              VerticalScrollBarVisibility="Hidden">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="3*" />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"
+                                                  MinWidth="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="对象名称:"
+                                       x:Uid="SecurityObjectNameLabel"
+                                       x:Name="SecurityObjectNameLabel"/>
+                            <ScrollViewer Grid.Column="1"
+                                          Margin="10,0,0,0"
+                                          HorizontalScrollMode="Enabled"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          Name="SecurityObjectNameContentScrollViewer">
+                                <TextBlock Name="SecurityObjectNameContent"
+                                           ToolTipService.ToolTip="{x:Bind SecurityObjectNameContent.Text, Mode=OneWay}"
+                                           IsTextSelectionEnabled="True" />
+                            </ScrollViewer>
+                        </Grid>
+                        <ListView Grid.Row="1"
+                                  BorderThickness="1"
+                                  BorderBrush="Gray"
+                                  CornerRadius="4"
+                                  Padding="5"
+                                  MaxHeight="210"
+                                  x:Name="SecurityAccountList"
+                                  SelectionMode="Single"
+                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
+                                  SelectionChanged="SecurityAccountList_SelectionChanged">
+                            <ListView.Header>
+                                <Grid Windows11Present:Padding="12,5"
+                                      Windows11NotPresent:Padding="0,5">
+                                    <TextBlock Text="组或用户名:"
+                                               x:Uid="SecurityAccountHeaderLabel"/>
+                                </Grid>
+                            </ListView.Header>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="Cls:SecurityAccount">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Viewbox>
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                      Glyph="{x:Bind AccountIcon}" />
+                                        </Viewbox>
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="10,0,0,0"
+                                                   Text="{x:Bind AccountName}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        <ListView Grid.Row="2"
+                                  Margin="0,20,0,0"
+                                  x:Name="SecurityPermissionList"
+                                  SelectionMode="None"
+                                  BorderThickness="1"
+                                  BorderBrush="Gray"
+                                  CornerRadius="4"
+                                  Padding="5">
+                            <ListView.Header>
+                                <Grid Windows11Present:Padding="12,5"
+                                      Windows11NotPresent:Padding="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="权限"
+                                               x:Uid="SecurityPermissionHeaderPermissionLabel"
+                                               Grid.ColumnSpan="2" />
+                                    <TextBlock Text="允许"
+                                               Name="SecurityPermissionHeaderAllowLabel"
+                                               x:Uid="SecurityPermissionHeaderAllowLabel"
+                                               Grid.Column="2">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="{x:Bind SecurityPermissionHeaderAllowLabel.Text}"
+                                                       Visibility="{x:Bind SecurityPermissionHeaderAllowLabel.IsTextTrimmed,Mode=OneWay}" />
+                                        </ToolTipService.ToolTip>
+                                    </TextBlock>
+                                    <TextBlock Text="拒绝"
+                                               Name="SecurityPermissionHeaderDenyLabel"
+                                               x:Uid="SecurityPermissionHeaderDenyLabel"
+                                               Grid.Column="3">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="{x:Bind SecurityPermissionHeaderDenyLabel.Text}"
+                                                       Visibility="{x:Bind SecurityPermissionHeaderDenyLabel.IsTextTrimmed,Mode=OneWay}" />
+                                        </ToolTipService.ToolTip>
+                                    </TextBlock>
+                                </Grid>
+                            </ListView.Header>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="Cls:SecurityAccountPermissions">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20" />
+                                            <ColumnDefinition Width="3*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Viewbox>
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                      Glyph="&#xE192;" />
+                                        </Viewbox>
+                                        <TextBlock Text="{x:Bind PermissionDescription}"
+                                                   Grid.Column="1"
+                                                   Margin="10,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                        <CheckBox Grid.Column="2"
+                                                  IsEnabled="False"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{x:Bind IsAllowed}"/>
+                                        <CheckBox Grid.Column="3"
+                                                  IsEnabled="False"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{x:Bind IsAllowed,Converter={StaticResource InverseConverter}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
                 </ScrollViewer>
             </PivotItem>
             <PivotItem>

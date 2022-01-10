@@ -489,15 +489,38 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task SetDriveLabelAsync(string DrivePath, string DriveLabelName)
+        public async Task<IReadOnlyList<PermissionDataPackage>> GetPermissionsAsync(string Path)
         {
-            if (await SendCommandAsync(CommandType.SetDriveLabel, ("Path", DrivePath), ("DriveLabelName", DriveLabelName)) is IDictionary<string, string> Response)
+            if (await SendCommandAsync(CommandType.GetPermissions, ("Path", Path)) is IDictionary<string, string> Response)
             {
-                if (Response.TryGetValue("Error", out string ErrorMessage))
+                if (Response.TryGetValue("Success", out string PermissionText))
+                {
+                    return JsonSerializer.Deserialize<IReadOnlyList<PermissionDataPackage>>(PermissionText);
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
                 {
                     LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
                 }
             }
+
+            return new List<PermissionDataPackage>(0);
+        }
+
+        public async Task<bool> SetDriveLabelAsync(string DrivePath, string DriveLabelName)
+        {
+            if (await SendCommandAsync(CommandType.SetDriveLabel, ("Path", DrivePath), ("DriveLabelName", DriveLabelName)) is IDictionary<string, string> Response)
+            {
+                if (Response.ContainsKey("Success"))
+                {
+                    return true;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(SetDriveLabelAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return false;
         }
 
         public async Task<bool> GetDriveIndexStatusAsync(string DrivePath)
