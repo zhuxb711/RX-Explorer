@@ -4,13 +4,16 @@ namespace RX_Explorer.Class
 {
     public sealed class InstalledFonts : IEquatable<InstalledFonts>
     {
-        public string Name { get; }
+        public string DisplayName { get; }
 
         public string Path { get; }
 
-        public InstalledFonts(string Name, string Path)
+        public string FamilyName { get; }
+
+        public InstalledFonts(string DisplayName, string FamilyName, string Path)
         {
-            this.Name = Name;
+            this.DisplayName = DisplayName;
+            this.FamilyName = FamilyName;
             this.Path = Path;
         }
 
@@ -24,7 +27,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is InstalledFonts Item)
                 {
-                    return string.IsNullOrEmpty(Path) ? Item.Name == Name : Item.Path == Path;
+                    return Item.FamilyName == FamilyName && Item.Path == Path;
                 }
                 else
                 {
@@ -35,12 +38,12 @@ namespace RX_Explorer.Class
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode() + Path.GetHashCode();
+            return FamilyName.GetHashCode() + Path.GetHashCode();
         }
 
         public override string ToString()
         {
-            return Name;
+            return DisplayName;
         }
 
         public bool Equals(InstalledFonts Item)
@@ -57,7 +60,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return Item.Name == Name && Item.Path == Path;
+                    return Item.FamilyName == FamilyName && Item.Path == Path;
                 }
             }
         }
@@ -76,7 +79,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name == right.Name && left.Path == right.Path;
+                    return left.FamilyName == right.FamilyName && left.Path == right.Path;
                 }
             }
         }
@@ -95,7 +98,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Name != right.Name || left.Path != right.Path;
+                    return left.FamilyName != right.FamilyName || left.Path != right.Path;
                 }
             }
         }

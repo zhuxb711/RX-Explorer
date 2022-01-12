@@ -36,12 +36,12 @@ namespace RX_Explorer.Class
 
         public static void Initialize()
         {
-            Application.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(Current.Name);
+            Application.Current.Resources["ContentControlThemeFontFamily"] = new FontFamily(Current.FamilyName);
         }
 
         public static InstalledFonts Transform(FontFamily Fonts)
         {
-            return GetInstalledFontFamily().FirstOrDefault((Font) => Font.Name.Equals(Fonts.Source, StringComparison.OrdinalIgnoreCase));
+            return GetInstalledFontFamily().FirstOrDefault((Font) => Font.FamilyName.Equals(Fonts.Source, StringComparison.OrdinalIgnoreCase));
         }
 
         public static IEnumerable<InstalledFonts> GetInstalledFontFamily()
@@ -108,7 +108,22 @@ namespace RX_Explorer.Class
                                             }
                                         }
 
-                                        if (!string.IsNullOrEmpty(FontFilePath))
+                                        string FamilyName = null;
+
+                                        if (Family.FamilyNames.FindLocaleName(CurrentLocaleName, out int FamilyLocaleNameIndex))
+                                        {
+                                            FamilyName = Family.FamilyNames.GetString(FamilyLocaleNameIndex);
+                                        }
+                                        else if (Family.FamilyNames.FindLocaleName("en-US", out int FamilyEngNameIndex))
+                                        {
+                                            FamilyName = Family.FamilyNames.GetString(FamilyEngNameIndex);
+                                        }
+                                        else if (Family.FamilyNames.Count > 0)
+                                        {
+                                            FamilyName = Family.FamilyNames.GetString(0);
+                                        }
+
+                                        if (!string.IsNullOrEmpty(FontFilePath) && !string.IsNullOrEmpty(FamilyName))
                                         {
                                             LocalizedStrings PreferLocalizedNames = null;
                                             LocalizedStrings FullLocalizedNames = null;
@@ -195,12 +210,12 @@ namespace RX_Explorer.Class
 
                                                     if (!string.IsNullOrEmpty(PreferDisplayName))
                                                     {
-                                                        FontList.Add(new InstalledFonts(PreferDisplayName, FontFilePath));
+                                                        FontList.Add(new InstalledFonts(PreferDisplayName, FamilyName, FontFilePath));
                                                         break;
                                                     }
                                                     else if (!string.IsNullOrEmpty(FullDisplayName))
                                                     {
-                                                        FontList.Add(new InstalledFonts(FullDisplayName, FontFilePath));
+                                                        FontList.Add(new InstalledFonts(FullDisplayName, FamilyName, FontFilePath));
                                                         break;
                                                     }
                                                 }
@@ -230,12 +245,12 @@ namespace RX_Explorer.Class
 
                                                     if (!string.IsNullOrEmpty(FullDisplayName))
                                                     {
-                                                        FontList.Add(new InstalledFonts(FullDisplayName, FontFilePath));
+                                                        FontList.Add(new InstalledFonts(FullDisplayName, FamilyName, FontFilePath));
                                                         break;
                                                     }
                                                     else if (FullLocalizedNames.Count > 0)
                                                     {
-                                                        FontList.Add(new InstalledFonts(FullLocalizedNames.GetString(0), FontFilePath));
+                                                        FontList.Add(new InstalledFonts(FullLocalizedNames.GetString(0), FamilyName, FontFilePath));
                                                         break;
                                                     }
                                                 }
@@ -257,7 +272,7 @@ namespace RX_Explorer.Class
                 });
             }
 
-            return FontList.Distinct().OrderByLikeFileSystem((Fonts) => Fonts.Name, SortDirection.Ascending);
+            return FontList.Distinct().OrderByLikeFileSystem((Fonts) => Fonts.DisplayName, SortDirection.Ascending);
         }
 
         static FontFamilyController()

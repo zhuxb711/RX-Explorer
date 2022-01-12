@@ -489,9 +489,9 @@
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="Cls:InstalledFonts">
                                                         <Grid>
-                                                            <TextBlock Text="{x:Bind Name}"
-                                                                       FontFamily="{x:Bind Name}"
-                                                                       ToolTipService.ToolTip="{x:Bind Name}"
+                                                            <TextBlock Text="{x:Bind DisplayName}"
+                                                                       FontFamily="{x:Bind FamilyName}"
+                                                                       ToolTipService.ToolTip="{x:Bind DisplayName}"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        VerticalAlignment="Center" />
                                                         </Grid>

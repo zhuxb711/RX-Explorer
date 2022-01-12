@@ -2772,7 +2772,7 @@ namespace FullTrustProcess
                                             Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
                                             {
                                                 hwnd = HWND.NULL,
-                                                lpVerb = ExecuteAuthority == "Administrator" ? "runas" : "open",
+                                                lpVerb = ExecuteAuthority == "Administrator" ? "runas" : null,
                                                 cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
                                                 lpFile = ExecutePath,
                                                 lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
@@ -2885,7 +2885,7 @@ namespace FullTrustProcess
                                     }
                                     catch (Exception ex)
                                     {
-                                        Value.Add("Error", $"Path: {ExecutePath}, Parameter: {ExecuteParameter}, Authority: {ExecuteAuthority}, ErrorMessage: {ex.Message}");
+                                        Value.Add("Error", $"Path: {ExecutePath}, Parameter: {(string.IsNullOrEmpty(ExecuteParameter) ? "<None>" : ExecuteParameter)}, Authority: {ExecuteAuthority}, ErrorMessage: {ex.Message}");
                                     }
                                 }
                                 else
