@@ -45,6 +45,7 @@ using ZXing.QrCode;
 using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
@@ -2704,10 +2705,9 @@ namespace RX_Explorer
                         }
 
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-
-                        ListViewDetailHeader.Filter.SetDataSource(FileCollection);
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
+                        await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
                         await AreaWatcher.StartMonitorAsync(Folder.Path);
                     }
                     else
@@ -3595,20 +3595,16 @@ namespace RX_Explorer
                                         break;
                                     }
                                 case ".exe":
+                                case ".bat":
                                     {
                                         ChooseOtherAppButton.Visibility = Visibility.Collapsed;
                                         RunAsAdminButton.Visibility = Visibility.Visible;
                                         break;
                                     }
                                 case ".msi":
-                                case ".bat":
-                                    {
-                                        RunAsAdminButton.Visibility = Visibility.Visible;
-                                        break;
-                                    }
                                 case ".msc":
                                     {
-                                        ChooseOtherAppButton.Visibility = Visibility.Collapsed;
+                                        RunAsAdminButton.Visibility = Visibility.Visible;
                                         break;
                                     }
                             }
@@ -4414,7 +4410,7 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator))
+                                                if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), RunAsAdmin: RunAsAdministrator))
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {
@@ -4433,7 +4429,7 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
-                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
+                                                if (!await Exclusive.Controller.RunAsync(File.Path, RunAsAdmin: RunAsAdministrator, Parameters: new string[] { File.Path }))
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {
@@ -6193,7 +6189,7 @@ namespace RX_Explorer
             Container.ShouldNotAcceptShortcutKeyInput = true;
         }
 
-        private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs args)
+        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs args)
         {
             PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 

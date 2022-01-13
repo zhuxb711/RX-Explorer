@@ -55,7 +55,11 @@
           x:FieldModifier="public"
           PointerPressed="Grid_PointerPressed">
         <ScrollViewer Padding="5">
-            <StackPanel IsRightTapEnabled="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <controls:Expander x:Name="LibraryExpander"
                                    VerticalAlignment="Stretch"
                                    AllowFocusOnInteraction="False"
@@ -65,9 +69,8 @@
                                    Collapsed="LibraryExpander_Collapsed"
                                    ExpandDirection="Down"
                                    HorizontalContentAlignment="Stretch"
-                                   VerticalContentAlignment="Top"
-                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}"
-                                   Margin="5">
+                                   VerticalContentAlignment="Stretch"
+                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}">
                     <controls:Expander.HeaderTemplate>
                         <DataTemplate>
                             <RelativePanel>
@@ -85,8 +88,7 @@
                             </RelativePanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
-                    <GridView Margin="0,20,0,0"
-                              Name="LibraryGrid"
+                    <GridView Name="LibraryGrid"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
@@ -94,6 +96,7 @@
                               CanReorderItems="True"
                               CanDragItems="True"
                               AllowDrop="True"
+                              Padding="0"
                               DragOver="LibraryGrid_DragOver"
                               DragItemsCompleted="LibraryGrid_DragItemsCompleted"
                               ItemClick="LibraryGrid_ItemClick"
@@ -162,17 +165,17 @@
                     </GridView>
                 </controls:Expander>
                 <controls:Expander x:Name="DeviceExpander"
+                                   Grid.Row="1"
                                    Background="Transparent"
                                    VerticalAlignment="Stretch"
+                                   VerticalContentAlignment="Stretch"
                                    HorizontalContentAlignment="Stretch"
                                    IsExpanded="{x:Bind local:SettingPage.DeviceExpanderIsExpanded,Mode=TwoWay}"
                                    ExpandDirection="Down"
                                    Expanded="DeviceExpander_Expanded"
                                    Collapsed="DeviceExpander_Collapsed"
-                                   VerticalContentAlignment="Top"
                                    AllowFocusOnInteraction="False"
-                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}"
-                                   Margin="5">
+                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}">
                     <controls:Expander.HeaderTemplate>
                         <DataTemplate>
                             <RelativePanel>
@@ -190,13 +193,12 @@
                             </RelativePanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
-                    <GridView Margin="0,20,0,0"
-                              Name="DriveGrid"
+                    <GridView Name="DriveGrid"
+                              Padding="0"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.DriveList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"
-                              MinHeight="300"
                               ItemClick="DriveGrid_ItemClick"
                               ContextRequested="DriveGrid_ContextRequested"
                               ContextCanceled="DriveGrid_ContextCanceled"
@@ -267,7 +269,7 @@
                         </GridView.ItemsPanel>
                     </GridView>
                 </controls:Expander>
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>

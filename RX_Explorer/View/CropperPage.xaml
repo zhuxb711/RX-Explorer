@@ -218,7 +218,7 @@
                               Margin="0,20,0,0"
                               ItemContainerTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="local:FilterItem">
+                            <DataTemplate x:DataType="local:ImageFilterItem">
                                 <StackPanel>
                                     <Image Source="{x:Bind Bitmap}"
                                            HorizontalAlignment="Center"

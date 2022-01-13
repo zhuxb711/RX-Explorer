@@ -23,6 +23,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Package = Windows.ApplicationModel.Package;
+using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
 
 namespace RX_Explorer
 {
@@ -56,7 +57,7 @@ namespace RX_Explorer
             PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
         }
 
-        private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs e)
+        private void Filter_RefreshListRequested(object sender, RefreshRequestedEventArgs e)
         {
             SearchResult.Clear();
 
@@ -315,9 +316,10 @@ namespace RX_Explorer
                         }
                 }
 
-                ListViewDetailHeader.Filter.SetDataSource(SearchResult);
-                SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
+                await ListViewDetailHeader.Filter.SetDataSourceAsync(SearchResult);
+
                 SearchStatusBar.Visibility = Visibility.Collapsed;
+                SearchStatus.Text = $"{Globalization.GetString("SearchCompletedText")} ({SearchResult.Count} {Globalization.GetString("Items_Description")})";
             }
             catch (Exception ex)
             {

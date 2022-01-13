@@ -906,14 +906,14 @@
                                   SelectionChanged="SecurityAccountList_SelectionChanged">
                             <ListView.Header>
                                 <Grid Windows11Present:Padding="12,5"
-                                      Windows11NotPresent:Padding="0,5">
+                                      Windows11NotPresent:Padding="5">
                                     <TextBlock Text="组或用户名:"
                                                x:Uid="SecurityAccountHeaderLabel"/>
                                 </Grid>
                             </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="Cls:SecurityAccount">
-                                    <Grid>
+                                    <Grid Padding="5,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20" />
                                             <ColumnDefinition Width="*" />
@@ -937,10 +937,11 @@
                                   BorderThickness="1"
                                   BorderBrush="Gray"
                                   CornerRadius="4"
-                                  Padding="5">
+                                  Padding="5"
+                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}">
                             <ListView.Header>
                                 <Grid Windows11Present:Padding="12,5"
-                                      Windows11NotPresent:Padding="0,5">
+                                      Windows11NotPresent:Padding="5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="20" />
                                         <ColumnDefinition Width="3*" />
@@ -972,7 +973,7 @@
                             </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="Cls:SecurityAccountPermissions">
-                                    <Grid>
+                                    <Grid Padding="5,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20" />
                                             <ColumnDefinition Width="3*" />

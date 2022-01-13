@@ -181,6 +181,7 @@
     <Compile Include="Class\QueueContentDialog.cs" />
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\RefreshRequestedEventArgs.cs" />
     <Compile Include="Class\RefSharedRegion.cs" />
     <Compile Include="Class\RootStorageFolder.cs" />
     <Compile Include="Class\SearchOptions.cs" />
@@ -300,7 +301,7 @@
     <Compile Include="Class\ProgramPickerItem.cs" />
     <Compile Include="Class\Extension.cs" />
     <Compile Include="Class\FileSystemStorageItemBase.cs" />
-    <Compile Include="Class\FilterItem.cs" />
+    <Compile Include="Class\ImageFilterItem.cs" />
     <Compile Include="Class\GeneralTransformer.cs" />
     <Compile Include="Class\Globalization.cs" />
     <Compile Include="Class\DriveDataBase.cs" />

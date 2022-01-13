@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -19,8 +20,9 @@ namespace RX_Explorer.Class
         private ColorFilterCondition ColorCondition;
         private DateTimeOffset ModTimeFrom;
         private DateTimeOffset ModTimeTo;
-        private readonly List<string> TypeFilter;
-        private readonly List<FileSystemStorageItemBase> OriginCopy;
+        private readonly List<string> TypeFilter = new List<string>();
+        private readonly List<FileSystemStorageItemBase> OriginCopy = new List<FileSystemStorageItemBase>();
+        private readonly Dictionary<string, string> DisplayTypeList = new Dictionary<string, string>();
 
         private DateTimeOffset? fromDate;
         private DateTimeOffset fromDateMax = DateTimeOffset.Now;
@@ -547,7 +549,7 @@ namespace RX_Explorer.Class
                     Orientation = Orientation.Vertical
                 };
 
-                foreach (string Type in OriginCopy.GroupBy((Source) => Source.Type).Select((Group) => Group.Key))
+                foreach (KeyValuePair<string, string> Pair in DisplayTypeList)
                 {
                     StackPanel InnerPanel = new StackPanel
                     {
@@ -565,16 +567,16 @@ namespace RX_Explorer.Class
 
                     InnerPanel.Children.Add(new TextBlock
                     {
-                        Text = Type.ToUpper(),
+                        Text = Pair.Value,
                         Margin = new Thickness(10, 0, 0, 0)
                     });
 
                     CheckBox Box = new CheckBox
                     {
                         Content = InnerPanel,
+                        Tag = Pair.Key,
                         VerticalContentAlignment = VerticalAlignment.Center,
-                        Padding = new Thickness(8, 0, 8, 0),
-                        IsChecked = TypeFilter.Contains(Type.ToUpper())
+                        Padding = new Thickness(8, 0, 8, 0)
                     };
 
                     Box.Checked += FilterCheckBox_Checked;
@@ -597,25 +599,17 @@ namespace RX_Explorer.Class
 
         private void FilterCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox Box)
+            if (sender is CheckBox Box && Box.Tag is string Extension)
             {
-                if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
-                {
-                    AddTypeCondition(Block.Text);
-                    FireRefreshEvent();
-                }
+                AddTypeCondition(Extension);
             }
         }
 
         private void FilterCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox Box)
+            if (sender is CheckBox Box && Box.Tag is string Extension)
             {
-                if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
-                {
-                    RemoveTypeCondition(Block.Text);
-                    FireRefreshEvent();
-                }
+                RemoveTypeCondition(Extension);
             }
         }
 
@@ -727,10 +721,34 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetDataSource(IEnumerable<FileSystemStorageItemBase> DataSource)
+        public async Task SetDataSourceAsync(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
             OriginCopy.Clear();
             OriginCopy.AddRange(DataSource);
+
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+            {
+                DisplayTypeList.Clear();
+
+                if (OriginCopy.OfType<FileSystemStorageFolder>().Any())
+                {
+                    DisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
+                }
+
+                string[] ExtensionArray = OriginCopy.OfType<FileSystemStorageFile>()
+                                                    .Select((Source) => Source.Type)
+                                                    .Where((Type) => !string.IsNullOrWhiteSpace(Type))
+                                                    .OrderByLikeFileSystem((Type) => Type, SortDirection.Ascending)
+                                                    .Distinct()
+                                                    .ToArray();
+
+                string[] FriendlyNameArray = await Exclusive.Controller.GetFriendlyTypeNameAsync(ExtensionArray);
+
+                for (int Index = 0; Index < Math.Min(ExtensionArray.Length, FriendlyNameArray.Length); Index++)
+                {
+                    DisplayTypeList.Add(ExtensionArray[Index], FriendlyNameArray[Index]);
+                }
+            }
 
             ResetAllSettings();
         }
@@ -851,14 +869,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void RemoveTypeCondition(string Type)
-        {
-            TypeFilter.Remove(Type.ToUpper());
-        }
-
         private void AddTypeCondition(string Type)
         {
-            TypeFilter.Add(Type.ToUpper());
+            TypeFilter.Add(Type);
+            FireRefreshEvent();
+        }
+
+        private void RemoveTypeCondition(string Type)
+        {
+            TypeFilter.Remove(Type);
+            FireRefreshEvent();
         }
 
         private void AddSizeCondition(SizeFilterCondition Condition)
@@ -983,7 +1003,7 @@ namespace RX_Explorer.Class
 
             if (TypeFilter.Count > 0)
             {
-                TypeFilterResult = OriginCopy.Where((Item) => TypeFilter.Contains(Item.Type.ToUpper())).ToList();
+                TypeFilterResult = OriginCopy.Where((Item) => TypeFilter.Contains(Item.Type)).ToList();
             }
 
             if (SizeCondition != SizeFilterCondition.None)
@@ -1080,24 +1100,6 @@ namespace RX_Explorer.Class
             else
             {
                 return new List<FileSystemStorageItemBase>(0);
-            }
-        }
-
-        public FilterController()
-        {
-            OriginCopy = new List<FileSystemStorageItemBase>();
-            TypeFilter = new List<string>();
-            ModTimeFrom = default;
-            ModTimeTo = default;
-        }
-
-        public sealed class RefreshRequestedEventArgs
-        {
-            public IEnumerable<FileSystemStorageItemBase> FilterCollection { get; }
-
-            public RefreshRequestedEventArgs(IEnumerable<FileSystemStorageItemBase> FilterCollection)
-            {
-                this.FilterCollection = FilterCollection;
             }
         }
     }

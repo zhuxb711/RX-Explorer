@@ -26,7 +26,7 @@ namespace RX_Explorer
         private SoftwareBitmap FilterBackupImage;
         private FileSystemStorageFile OriginFile;
         private Rect UnchangedRegion;
-        private readonly ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
+        private readonly ObservableCollection<ImageFilterItem> FilterCollection = new ObservableCollection<ImageFilterItem>();
 
         public CropperPage()
         {
@@ -72,62 +72,62 @@ namespace RX_Explorer
             {
                 SoftwareBitmapSource Source1 = new SoftwareBitmapSource();
                 await Source1.SetBitmapAsync(ResizedImage);
-                FilterCollection.Add(new FilterItem(Source1, Globalization.GetString("CropperPage_Filter_Type_1"), FilterType.Origin));
+                FilterCollection.Add(new ImageFilterItem(Source1, Globalization.GetString("CropperPage_Filter_Type_1"), FilterType.Origin));
 
                 using (SoftwareBitmap Bitmap2 = ComputerVisionProvider.InvertEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source2 = new SoftwareBitmapSource();
                     await Source2.SetBitmapAsync(Bitmap2);
-                    FilterCollection.Add(new FilterItem(Source2, Globalization.GetString("CropperPage_Filter_Type_2"), FilterType.Invert));
+                    FilterCollection.Add(new ImageFilterItem(Source2, Globalization.GetString("CropperPage_Filter_Type_2"), FilterType.Invert));
                 }
 
                 using (SoftwareBitmap Bitmap3 = ComputerVisionProvider.GrayEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source3 = new SoftwareBitmapSource();
                     await Source3.SetBitmapAsync(Bitmap3);
-                    FilterCollection.Add(new FilterItem(Source3, Globalization.GetString("CropperPage_Filter_Type_3"), FilterType.Gray));
+                    FilterCollection.Add(new ImageFilterItem(Source3, Globalization.GetString("CropperPage_Filter_Type_3"), FilterType.Gray));
                 }
 
                 using (SoftwareBitmap Bitmap4 = ComputerVisionProvider.ThresholdEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source4 = new SoftwareBitmapSource();
                     await Source4.SetBitmapAsync(Bitmap4);
-                    FilterCollection.Add(new FilterItem(Source4, Globalization.GetString("CropperPage_Filter_Type_4"), FilterType.Threshold));
+                    FilterCollection.Add(new ImageFilterItem(Source4, Globalization.GetString("CropperPage_Filter_Type_4"), FilterType.Threshold));
                 }
 
                 using (SoftwareBitmap Bitmap5 = ComputerVisionProvider.SepiaEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source5 = new SoftwareBitmapSource();
                     await Source5.SetBitmapAsync(Bitmap5);
-                    FilterCollection.Add(new FilterItem(Source5, Globalization.GetString("CropperPage_Filter_Type_5"), FilterType.Sepia));
+                    FilterCollection.Add(new ImageFilterItem(Source5, Globalization.GetString("CropperPage_Filter_Type_5"), FilterType.Sepia));
                 }
 
                 using (SoftwareBitmap Bitmap6 = ComputerVisionProvider.MosaicEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source6 = new SoftwareBitmapSource();
                     await Source6.SetBitmapAsync(Bitmap6);
-                    FilterCollection.Add(new FilterItem(Source6, Globalization.GetString("CropperPage_Filter_Type_6"), FilterType.Mosaic));
+                    FilterCollection.Add(new ImageFilterItem(Source6, Globalization.GetString("CropperPage_Filter_Type_6"), FilterType.Mosaic));
                 }
 
                 using (SoftwareBitmap Bitmap7 = ComputerVisionProvider.SketchEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
                     await Source7.SetBitmapAsync(Bitmap7);
-                    FilterCollection.Add(new FilterItem(Source7, Globalization.GetString("CropperPage_Filter_Type_7"), FilterType.Sketch));
+                    FilterCollection.Add(new ImageFilterItem(Source7, Globalization.GetString("CropperPage_Filter_Type_7"), FilterType.Sketch));
                 }
 
                 using (SoftwareBitmap Bitmap8 = ComputerVisionProvider.GaussianBlurEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
                     await Source8.SetBitmapAsync(Bitmap8);
-                    FilterCollection.Add(new FilterItem(Source8, Globalization.GetString("CropperPage_Filter_Type_8"), FilterType.GaussianBlur));
+                    FilterCollection.Add(new ImageFilterItem(Source8, Globalization.GetString("CropperPage_Filter_Type_8"), FilterType.GaussianBlur));
                 }
 
                 using (SoftwareBitmap Bitmap9 = ComputerVisionProvider.OilPaintingEffect(ResizedImage))
                 {
                     SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
                     await Source9.SetBitmapAsync(Bitmap9);
-                    FilterCollection.Add(new FilterItem(Source9, Globalization.GetString("CropperPage_Filter_Type_9"), FilterType.OilPainting));
+                    FilterCollection.Add(new ImageFilterItem(Source9, Globalization.GetString("CropperPage_Filter_Type_9"), FilterType.OilPainting));
                 }
             }
 
@@ -158,7 +158,7 @@ namespace RX_Explorer
             HistogramImage.Source = null;
             FilterGrid.SelectionChanged -= FilterGrid_SelectionChanged;
 
-            foreach (FilterItem Item in FilterCollection)
+            foreach (ImageFilterItem Item in FilterCollection)
             {
                 Item.Dispose();
             }
@@ -509,7 +509,7 @@ namespace RX_Explorer
 
         private void FilterGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (FilterGrid.SelectedItem is FilterItem Item)
+            if (FilterGrid.SelectedItem is ImageFilterItem Item)
             {
                 if (FilterImage != null)
                 {

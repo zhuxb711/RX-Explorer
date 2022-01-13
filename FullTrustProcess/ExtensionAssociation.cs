@@ -11,7 +11,7 @@ using Windows.System;
 
 namespace FullTrustProcess
 {
-    public static class ExtensionAssociate
+    public static class ExtensionAssociation
     {
         public static IReadOnlyList<AssociationPackage> GetAllAssociateProgramPathWithExtension(string Extension)
         {
@@ -80,45 +80,8 @@ namespace FullTrustProcess
             return GetAllAssociateProgramPathWithExtension(System.IO.Path.GetExtension(Path));
         }
 
-        public static string GetDefaultProgramPathWithExtension(string Extension)
+        public static string GetDefaultProgramPathFromExtension(string Extension)
         {
-            string GetAssocString(string Extension, ShlwApi.ASSOCSTR AssocString)
-            {
-                uint BufferSize = 0;
-
-                HRESULT Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
-                                                          | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
-                                                          | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
-                                                          | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
-                                                          AssocString,
-                                                          Extension.ToLower(),
-                                                          null,
-                                                          null,
-                                                          ref BufferSize);
-
-                if (Result == HRESULT.S_FALSE && BufferSize > 0)
-                {
-                    StringBuilder Builder = new StringBuilder(Convert.ToInt32(BufferSize));
-
-                    Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
-                                                      | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
-                                                      | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
-                                                      | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
-                                                      AssocString,
-                                                      Extension.ToLower(),
-                                                      null,
-                                                      Builder,
-                                                      ref BufferSize);
-
-                    if (Result == HRESULT.S_OK)
-                    {
-                        return Builder.ToString();
-                    }
-                }
-
-                return string.Empty;
-            }
-
             string AssocString = GetAssocString(Extension, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE);
 
             if (string.IsNullOrEmpty(AssocString))
@@ -131,7 +94,49 @@ namespace FullTrustProcess
 
         public static string GetDefaultProgramPathRelated(string Path)
         {
-            return GetDefaultProgramPathWithExtension(System.IO.Path.GetExtension(Path));
+            return GetDefaultProgramPathFromExtension(System.IO.Path.GetExtension(Path));
+        }
+
+        public static string GetFriendlyTypeNameFromExtension(string Extension)
+        {
+            return GetAssocString(Extension, ShlwApi.ASSOCSTR.ASSOCSTR_FRIENDLYDOCNAME);
+        }
+
+        private static string GetAssocString(string Extension, ShlwApi.ASSOCSTR AssocString)
+        {
+            uint BufferSize = 0;
+
+            HRESULT Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
+                                                      | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
+                                                      | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
+                                                      | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
+                                                      AssocString,
+                                                      Extension.ToLower(),
+                                                      null,
+                                                      null,
+                                                      ref BufferSize);
+
+            if (Result == HRESULT.S_FALSE && BufferSize > 0)
+            {
+                StringBuilder Builder = new StringBuilder(Convert.ToInt32(BufferSize));
+
+                Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY
+                                                  | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE
+                                                  | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR
+                                                  | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL,
+                                                  AssocString,
+                                                  Extension.ToLower(),
+                                                  null,
+                                                  Builder,
+                                                  ref BufferSize);
+
+                if (Result == HRESULT.S_OK)
+                {
+                    return Builder.ToString();
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

@@ -489,6 +489,26 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<string[]> GetFriendlyTypeNameAsync(params string[] ExtensionArray)
+        {
+            if (ExtensionArray.Length > 0)
+            {
+                if (await SendCommandAsync(CommandType.GetFriendlyTypeName, ("ExtensionArray", JsonSerializer.Serialize(ExtensionArray))) is IDictionary<string, string> Response)
+                {
+                    if (Response.TryGetValue("Success", out string TypeText))
+                    {
+                        return JsonSerializer.Deserialize<string[]>(TypeText);
+                    }
+                    else if (Response.TryGetValue("Error", out string ErrorMessage))
+                    {
+                        LogTracer.Log($"An unexpected error was threw in {nameof(GetFriendlyTypeNameAsync)}, message: {ErrorMessage}");
+                    }
+                }
+            }
+
+            return Array.Empty<string>();
+        }
+
         public async Task<IReadOnlyList<PermissionDataPackage>> GetPermissionsAsync(string Path)
         {
             if (await SendCommandAsync(CommandType.GetPermissions, ("Path", Path)) is IDictionary<string, string> Response)

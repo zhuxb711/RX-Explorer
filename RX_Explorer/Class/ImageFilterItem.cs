@@ -6,7 +6,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 滤镜缩略效果图对象
     /// </summary>
-    public sealed class FilterItem : IDisposable
+    public sealed class ImageFilterItem : IDisposable
     {
         /// <summary>
         /// 滤镜名称
@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
         /// <param name="Bitmap">缩略效果图</param>
         /// <param name="Text">滤镜名称</param>
         /// <param name="Type">滤镜类型</param>
-        public FilterItem(SoftwareBitmapSource Bitmap, string Text, FilterType Type)
+        public ImageFilterItem(SoftwareBitmapSource Bitmap, string Text, FilterType Type)
         {
             this.Bitmap = Bitmap;
             this.Text = Text;
@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        ~FilterItem()
+        ~ImageFilterItem()
         {
             Dispose();
         }

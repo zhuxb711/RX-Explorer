@@ -717,6 +717,30 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.GetFriendlyTypeName:
+                        {
+                            string[] ExtensionArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExtensionArray"]));
+
+                            List<string> Result = new List<string>(ExtensionArray.Length);
+
+                            foreach (string Extension in ExtensionArray)
+                            {
+                                string FriendlyName = ExtensionAssociation.GetFriendlyTypeNameFromExtension(Extension);
+
+                                if (string.IsNullOrEmpty(FriendlyName))
+                                {
+                                    Result.Add(Extension);
+                                }
+                                else
+                                {
+                                    Result.Add(FriendlyName);
+                                }
+                            }
+
+                            Value.Add("Success", JsonSerializer.Serialize(Result));
+
+                            break;
+                        }
                     case CommandType.GetPermissions:
                         {
                             string Path = Convert.ToString(CommandValue["Path"]);
@@ -1721,7 +1745,7 @@ namespace FullTrustProcess
 
                                     try
                                     {
-                                        string DefaultProgramPath = ExtensionAssociate.GetDefaultProgramPathWithExtension(".html");
+                                        string DefaultProgramPath = ExtensionAssociation.GetDefaultProgramPathFromExtension(".html");
 
                                         using (ShellItem DefaultProgramItem = new ShellItem(DefaultProgramPath))
                                         using (Image IconImage = DefaultProgramItem.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.IconOnly))
@@ -2325,7 +2349,7 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["ExecutePath"];
 
-                            Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociateProgramPath(Path)));
+                            Value.Add("Associate_Result", JsonSerializer.Serialize(ExtensionAssociation.GetAllAssociateProgramPath(Path)));
 
                             break;
                         }
@@ -2333,7 +2357,7 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["ExecutePath"];
 
-                            Value.Add("Success", ExtensionAssociate.GetDefaultProgramPathRelated(Path));
+                            Value.Add("Success", ExtensionAssociation.GetDefaultProgramPathRelated(Path));
 
                             break;
                         }
@@ -2769,10 +2793,16 @@ namespace FullTrustProcess
                                                 }
                                             }
 
+                                            bool CouldBeRunAsAdmin = Path.GetExtension(ExecutePath).ToLower() switch
+                                            {
+                                                ".exe" or ".bat" or ".msi" or ".msc" => true,
+                                                _ => false
+                                            };
+
                                             Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
                                             {
                                                 hwnd = HWND.NULL,
-                                                lpVerb = ExecuteAuthority == "Administrator" ? "runas" : null,
+                                                lpVerb = CouldBeRunAsAdmin && ExecuteAuthority == "Administrator" ? "runas" : null,
                                                 cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
                                                 lpFile = ExecutePath,
                                                 lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,

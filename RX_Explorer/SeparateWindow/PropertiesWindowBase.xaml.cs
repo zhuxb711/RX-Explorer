@@ -75,7 +75,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(420, 650);
+        private static readonly Size WindowSize = new Size(450, 650);
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
