@@ -1810,20 +1810,22 @@ namespace RX_Explorer
                     ContextMenuCancellation?.Dispose();
                     ContextMenuCancellation = new CancellationTokenSource();
 
-                Retry:
-                    try
+                    for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                     {
-                        await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
-                                                                                          Position,
-                                                                                          ContextMenuCancellation.Token,
-                                                                                          LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>()
-                                                                                                                   .Select((Lib) => Lib.Path)
-                                                                                                                   .ToArray());
-                    }
-                    catch (Exception)
-                    {
-                        LibraryFlyout = CreateNewFolderContextMenu();
-                        goto Retry;
+                        try
+                        {
+                            await LibraryFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(LibraryGrid,
+                                                                                              Position,
+                                                                                              ContextMenuCancellation.Token,
+                                                                                              LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>()
+                                                                                                                       .Select((Lib) => Lib.Path)
+                                                                                                                       .ToArray());
+                            break;
+                        }
+                        catch (Exception)
+                        {
+                            LibraryFlyout = CreateNewFolderContextMenu();
+                        }
                     }
                 }
                 else
@@ -1864,56 +1866,62 @@ namespace RX_Explorer
 
                     if (Context is LockedDriveData)
                     {
-                    Retry:
-                        try
+                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                         {
-                            await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                     Position,
-                                                                                                     ContextMenuCancellation.Token,
-                                                                                                     DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                            .Select((Lib) => Lib.Path)
-                                                                                                                            .ToArray());
-                        }
-                        catch (Exception)
-                        {
-                            BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
-                            goto Retry;
+                            try
+                            {
+                                await BitlockerDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                         Position,
+                                                                                                         ContextMenuCancellation.Token,
+                                                                                                         DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                                .Select((Lib) => Lib.Path)
+                                                                                                                                .ToArray());
+                                break;
+                            }
+                            catch (Exception)
+                            {
+                                BitlockerDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Locked);
+                            }
                         }
                     }
                     else if (Context.DriveType == DriveType.Removable)
                     {
-                    Retry:
-                        try
+                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                         {
-                            await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                           .Select((Lib) => Lib.Path)
-                                                                                                                           .ToArray());
-                        }
-                        catch (Exception)
-                        {
-                            PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
-                            goto Retry;
+                            try
+                            {
+                                await PortableDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                        Position,
+                                                                                                        ContextMenuCancellation.Token,
+                                                                                                        DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                               .Select((Lib) => Lib.Path)
+                                                                                                                               .ToArray());
+                                break;
+                            }
+                            catch (Exception)
+                            {
+                                PortableDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Portable);
+                            }
                         }
                     }
                     else
                     {
-                    Retry:
-                        try
+                        for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                         {
-                            await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
-                                                                                                  Position,
-                                                                                                  ContextMenuCancellation.Token,
-                                                                                                  DriveGrid.SelectedItems.Cast<DriveDataBase>()
-                                                                                                                         .Select((Lib) => Lib.Path)
-                                                                                                                         .ToArray());
-                        }
-                        catch (Exception)
-                        {
-                            NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
-                            goto Retry;
+                            try
+                            {
+                                await NormalDriveFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(DriveGrid,
+                                                                                                      Position,
+                                                                                                      ContextMenuCancellation.Token,
+                                                                                                      DriveGrid.SelectedItems.Cast<DriveDataBase>()
+                                                                                                                             .Select((Lib) => Lib.Path)
+                                                                                                                             .ToArray());
+                                break;
+                            }
+                            catch (Exception)
+                            {
+                                NormalDriveFlyout = CreateNewDriveContextMenu(DriveContextMenuType.Normal);
+                            }
                         }
                     }
                 }

@@ -3424,18 +3424,20 @@ namespace RX_Explorer
                                 ContextMenuCancellation?.Dispose();
                                 ContextMenuCancellation = new CancellationTokenSource();
 
-                            Retry:
-                                try
+                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                 {
-                                    await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
-                                                                                                       Position,
-                                                                                                       ContextMenuCancellation.Token,
-                                                                                                       Content.Path);
-                                }
-                                catch (Exception)
-                                {
-                                    RightTapFlyout = CreateNewFolderContextMenu();
-                                    goto Retry;
+                                    try
+                                    {
+                                        await RightTapFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(FolderTree,
+                                                                                                           Position,
+                                                                                                           ContextMenuCancellation.Token,
+                                                                                                           Content.Path);
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        RightTapFlyout = CreateNewFolderContextMenu();
+                                    }
                                 }
                             }
                         }

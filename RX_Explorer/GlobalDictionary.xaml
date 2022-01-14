@@ -1931,7 +1931,7 @@
            x:Key="CustomListViewItemWithoutAnimationStyle"
            BasedOn="{StaticResource DefaultListViewItemStyle}">
         <Setter Property="Padding"
-                Value="0"/>
+                Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListViewItem">

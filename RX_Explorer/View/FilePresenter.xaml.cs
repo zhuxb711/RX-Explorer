@@ -7046,20 +7046,22 @@ namespace RX_Explorer
                         {
                             if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
                             {
-                            Retry:
-                                try
+                                for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                 {
-                                    await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                    Position,
-                                                                                                    ContextMenuCancellation.Token,
-                                                                                                    ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
-                                                                                                                               .Select((Item) => Item.Path)
-                                                                                                                               .ToArray());
-                                }
-                                catch (Exception)
-                                {
-                                    MixedFlyout = CreateNewMixedContextMenu();
-                                    goto Retry;
+                                    try
+                                    {
+                                        await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                        Position,
+                                                                                                        ContextMenuCancellation.Token,
+                                                                                                        ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
+                                                                                                                                   .Select((Item) => Item.Path)
+                                                                                                                                   .ToArray());
+                                        break;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        MixedFlyout = CreateNewMixedContextMenu();
+                                    }
                                 }
                             }
                             else
@@ -7076,45 +7078,48 @@ namespace RX_Explorer
                                         _ => throw new NotImplementedException()
                                     };
 
-                                Retry:
-                                    try
+                                    for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                     {
-                                        await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                          Position,
-                                                                                                          ContextMenuCancellation.Token,
-                                                                                                          ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
-                                                                                                                                     .Select((Item) => Item.Path)
-                                                                                                                                     .ToArray());
-                                    }
-                                    catch (Exception)
-                                    {
-                                        ContextFlyout = Context switch
+                                        try
                                         {
-                                            LinkStorageFile => LinkFlyout = CreateNewLinkFileContextMenu(),
-                                            FileSystemStorageFolder => FolderFlyout = CreateNewFolderContextMenu(),
-                                            FileSystemStorageFile => FileFlyout = CreateNewFileContextMenu(),
-                                            _ => throw new NotImplementedException()
-                                        };
-
-                                        goto Retry;
+                                            await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                              Position,
+                                                                                                              ContextMenuCancellation.Token,
+                                                                                                              ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
+                                                                                                                                         .Select((Item) => Item.Path)
+                                                                                                                                         .ToArray());
+                                            break;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            ContextFlyout = Context switch
+                                            {
+                                                LinkStorageFile => LinkFlyout = CreateNewLinkFileContextMenu(),
+                                                FileSystemStorageFolder => FolderFlyout = CreateNewFolderContextMenu(),
+                                                FileSystemStorageFile => FileFlyout = CreateNewFileContextMenu(),
+                                                _ => throw new NotImplementedException()
+                                            };
+                                        }
                                     }
                                 }
                                 else
                                 {
                                     SelectedItem = null;
 
-                                Retry:
-                                    try
+                                    for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                     {
-                                        await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                        Position,
-                                                                                                        ContextMenuCancellation.Token,
-                                                                                                        CurrentFolder.Path);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        EmptyFlyout = CreateNewEmptyContextMenu();
-                                        goto Retry;
+                                        try
+                                        {
+                                            await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                            Position,
+                                                                                                            ContextMenuCancellation.Token,
+                                                                                                            CurrentFolder.Path);
+                                            break;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            EmptyFlyout = CreateNewEmptyContextMenu();
+                                        }
                                     }
                                 }
                             }
@@ -7123,18 +7128,20 @@ namespace RX_Explorer
                         {
                             SelectedItem = null;
 
-                        Retry:
-                            try
+                            for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                             {
-                                await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
-                                                                                                Position,
-                                                                                                ContextMenuCancellation.Token,
-                                                                                                CurrentFolder.Path);
-                            }
-                            catch (Exception)
-                            {
-                                EmptyFlyout = CreateNewEmptyContextMenu();
-                                goto Retry;
+                                try
+                                {
+                                    await EmptyFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
+                                                                                                    Position,
+                                                                                                    ContextMenuCancellation.Token,
+                                                                                                    CurrentFolder.Path);
+                                    break;
+                                }
+                                catch (Exception)
+                                {
+                                    EmptyFlyout = CreateNewEmptyContextMenu();
+                                }
                             }
                         }
                     }

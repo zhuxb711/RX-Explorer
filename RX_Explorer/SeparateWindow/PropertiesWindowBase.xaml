@@ -913,7 +913,7 @@
                             </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="Cls:SecurityAccount">
-                                    <Grid Padding="5,0">
+                                    <Grid Windows11NotPresent:Padding="5,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20" />
                                             <ColumnDefinition Width="*" />
@@ -938,7 +938,7 @@
                                   BorderBrush="Gray"
                                   CornerRadius="4"
                                   Padding="5"
-                                  Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}">
+                                  Windows11NotPresent:ItemContainerStyle="{StaticResource CustomListViewItemWithoutAnimationStyle}">
                             <ListView.Header>
                                 <Grid Windows11Present:Padding="12,5"
                                       Windows11NotPresent:Padding="5">
@@ -973,7 +973,7 @@
                             </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="Cls:SecurityAccountPermissions">
-                                    <Grid Padding="5,0">
+                                    <Grid Windows11NotPresent:Padding="5,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20" />
                                             <ColumnDefinition Width="3*" />
