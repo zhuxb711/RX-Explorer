@@ -65,21 +65,22 @@
     </UserControl.Resources>
 
     <Grid x:Name="RootGrid"
-          Padding="180,80"
           Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
-                <VisualState x:Name="NavNormalState">
+                <VisualState x:Name="NavNormalWidthState">
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="1100" />
+                        <AdaptiveTrigger MinWindowWidth="1150" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SettingNavigation.PaneDisplayMode"
                                 Value="Left" />
+                        <Setter Target="ContentRootGrid.Margin" 
+                                Value="150,80"/>
                     </VisualState.Setters>
                 </VisualState>
-                <VisualState x:Name="NavOverlayState">
+                <VisualState x:Name="NavOverlayWidthState">
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
@@ -88,6 +89,8 @@
                                 Value="LeftCompact" />
                         <Setter Target="SettingNavigation.IsPaneToggleButtonVisible"
                                 Value="True" />
+                        <Setter Target="ContentRootGrid.Margin"
+                                Value="80,80" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -96,8 +99,12 @@
         <Grid HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               BorderThickness="1.5"
+              Margin="150,80"
+              MaxWidth="1000"
+              MaxHeight="800"
+              x:Name="ContentRootGrid"
               BorderBrush="{ThemeResource BorderDefaultBrush}"
-              CornerRadius="{StaticResource CustomCornerRadius}">
+              CornerRadius="{StaticResource CustomCornerRadius}" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="60" />

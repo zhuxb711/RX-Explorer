@@ -794,7 +794,7 @@ namespace RX_Explorer
                 CropperPage => Globalization.GetString("BuildIn_CropperPage_Description"),
                 SearchPage => Globalization.GetString("BuildIn_SearchPage_Description"),
                 CompressionViewer => Globalization.GetString("BuildIn_CompressionViewer_Description"),
-                _ => string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Name) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentPresenter.CurrentFolder.Name,
+                _ => $"<{Globalization.GetString("UnknownText")}>"
             };
         }
 
@@ -2607,6 +2607,7 @@ namespace RX_Explorer
                     {
                         Content = Presenter,
                         IsExpanded = true,
+                        Header = RootStorageFolder.Instance.Path.Equals(ItemPath, StringComparison.OrdinalIgnoreCase) ? RootStorageFolder.Instance.DisplayName : Path.GetFileName(ItemPath),
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,

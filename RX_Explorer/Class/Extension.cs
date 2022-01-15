@@ -42,6 +42,11 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extension
     {
+        public static IEnumerable<T> GetElementAtPoint<T>(this UIElement Element, Point At, bool IncludeInvisble) where T : UIElement
+        {
+            return VisualTreeHelper.FindElementsInHostCoordinates(At, Element, IncludeInvisble).OfType<T>();
+        }
+
         public static IEnumerable<string> Split(this string OriginString, int ChunkSize)
         {
             if (string.IsNullOrEmpty(OriginString))

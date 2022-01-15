@@ -135,30 +135,43 @@ namespace RX_Explorer
                 {
                     Container.UpdateAddressButton(value.Path);
 
-                    if (value is RootStorageFolder)
+                    string CurrentFolderDisplayName = string.Empty;
+
+                    if (string.IsNullOrEmpty(value.DisplayName))
                     {
-                        Container.GoParentFolder.IsEnabled = false;
+                        CurrentFolderDisplayName = $"<{Globalization.GetString("UnknownText")}>";
+                    }
+                    else if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => (Drive.Path?.Equals(value.Path)).GetValueOrDefault()) is DriveDataBase Drive)
+                    {
+                        CurrentFolderDisplayName = Drive.DisplayName;
                     }
                     else
                     {
-                        Container.GoParentFolder.IsEnabled = !value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase)
-                                                             || !value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase);
+                        CurrentFolderDisplayName = value.DisplayName;
                     }
 
-                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.DisplayName}";
+                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {CurrentFolderDisplayName}";
                     Container.GoBackRecord.IsEnabled = RecordIndex > 0;
                     Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
-                    Container.CurrentTabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
+                    Container.CurrentTabItem.Header = CurrentFolderDisplayName;
+
+                    Container.GoParentFolder.IsEnabled = value is not RootStorageFolder
+                                                         && !(value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase)
+                                                              && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
 
                     PageSwitcher.Value = value.Path;
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
-                        Parent.Header = value.DisplayName;
+                        Parent.Header = CurrentFolderDisplayName;
                     }
-                }
 
-                TaskBarController.SetText(value?.DisplayName);
+                    TaskBarController.SetText(CurrentFolderDisplayName);
+                }
+                else
+                {
+                    TaskBarController.SetText(null);
+                }
 
                 currentFolder = value;
             }
@@ -253,7 +266,6 @@ namespace RX_Explorer
             Window.KeyDown += FilePresenter_KeyDown;
             Window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
 
-            Loaded += FilePresenter_Loaded;
             RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
 
             Application.Current.Suspending += Current_Suspending;
@@ -2820,14 +2832,6 @@ namespace RX_Explorer
             }
         }
 
-        private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
-            {
-                Parent.Header = CurrentFolder?.DisplayName;
-            }
-        }
-
         private void NavigateToStorageItem(VirtualKey Key)
         {
             if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
@@ -5075,12 +5079,12 @@ namespace RX_Explorer
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
                         e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.Name}\"";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.DisplayName}\"";
                     }
                     else
                     {
                         e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.Name}\"";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.DisplayName}\"";
                     }
 
                     e.DragUIOverride.IsContentVisible = true;
