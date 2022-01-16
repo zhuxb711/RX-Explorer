@@ -77,7 +77,7 @@
                         <Setter Target="SettingNavigation.PaneDisplayMode"
                                 Value="Left" />
                         <Setter Target="ContentRootGrid.Margin" 
-                                Value="150,80"/>
+                                Value="140,80"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="NavOverlayWidthState">
@@ -90,7 +90,7 @@
                         <Setter Target="SettingNavigation.IsPaneToggleButtonVisible"
                                 Value="True" />
                         <Setter Target="ContentRootGrid.Margin"
-                                Value="80,80" />
+                                Value="60,80" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -99,7 +99,7 @@
         <Grid HorizontalAlignment="Stretch"
               VerticalAlignment="Stretch"
               BorderThickness="1.5"
-              Margin="150,80"
+              Margin="140,80"
               MaxWidth="1000"
               MaxHeight="800"
               x:Name="ContentRootGrid"

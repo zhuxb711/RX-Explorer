@@ -104,7 +104,7 @@
                     <VisualState.Setters>
                         <Setter Target="FileOpenWithLabel.Visibility"
                                 Value="Collapsed" />
-                        <Setter Target="FileDescroptionLabel.Visibility"
+                        <Setter Target="FileDescriptionLabel.Visibility"
                                 Value="Visible" />
                         <Setter Target="OpenWithContentPanel.Visibility"
                                 Value="Collapsed" />
@@ -242,9 +242,8 @@
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
                                                Grid.Row="2" />
-                                    <TextBlock Text="Description:"
-                                               x:Uid="Properties_General_Description"
-                                               Name="FileDescroptionLabel"
+                                    <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_General_Description')}"
+                                               Name="FileDescriptionLabel"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"
                                                Grid.Row="2"

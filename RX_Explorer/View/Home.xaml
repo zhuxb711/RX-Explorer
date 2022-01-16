@@ -96,7 +96,7 @@
                               CanReorderItems="True"
                               CanDragItems="True"
                               AllowDrop="True"
-                              Padding="0"
+                              Padding="15,0"
                               DragOver="LibraryGrid_DragOver"
                               DragItemsCompleted="LibraryGrid_DragItemsCompleted"
                               ItemClick="LibraryGrid_ItemClick"
@@ -194,7 +194,7 @@
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
                     <GridView Name="DriveGrid"
-                              Padding="0"
+                              Padding="15,0"
                               ItemsSource="{x:Bind Cls:CommonAccessCollection.DriveList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
