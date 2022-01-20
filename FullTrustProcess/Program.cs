@@ -1355,7 +1355,7 @@ namespace FullTrustProcess
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                Value.Add("Success", JsonSerializer.Serialize(ContextMenu.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
+                                Value.Add("Success", JsonSerializer.Serialize(ContextMenu.Current.GetContextMenuItems(ExecutePath, Convert.ToBoolean(CommandValue["IncludeExtensionItem"]))));
                             });
 
                             break;
@@ -1366,7 +1366,7 @@ namespace FullTrustProcess
 
                             await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                if (ContextMenu.InvokeVerb(Package))
+                                if (ContextMenu.Current.InvokeVerb(Package))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
