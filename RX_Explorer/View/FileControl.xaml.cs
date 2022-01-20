@@ -99,7 +99,7 @@ namespace RX_Explorer
 
                     if (value?.CurrentFolder is FileSystemStorageItemBase Folder)
                     {
-                        UpdateAddressButton(Folder.Path);
+                        RefreshAddressButton(Folder.Path);
 
                         GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {Folder.DisplayName}";
                         GoParentFolder.IsEnabled = Folder.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase) ? !Folder.Path.Equals(Path.GetPathRoot(Folder.Path), StringComparison.OrdinalIgnoreCase) : Folder is not RootStorageFolder;
@@ -388,7 +388,7 @@ namespace RX_Explorer
             LoadingControl.IsLoading = IsLoading;
         }
 
-        public async void UpdateAddressButton(string Path)
+        public void RefreshAddressButton(string Path)
         {
             if (Interlocked.Exchange(ref AddressButtonLockResource, 1) == 0)
             {
@@ -425,7 +425,7 @@ namespace RX_Explorer
 
                         if (!string.IsNullOrEmpty(RootPath))
                         {
-                            AddressButtonList.Add(new AddressBlock(RootPath, (await StorageFolder.GetFolderFromPathAsync(RootPath)).DisplayName));
+                            AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
@@ -435,7 +435,8 @@ namespace RX_Explorer
                             }
                         }
                     }
-                    else if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) && AddressButtonList.First().Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    else if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase)
+                             && AddressButtonList.First().Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                     {
                         foreach (AddressBlock Block in AddressButtonList.Skip(1))
                         {
@@ -444,21 +445,20 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        string LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
-                        string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
+                        string LastPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
+                        string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
 
-                        if (string.IsNullOrEmpty(LastGrayPath))
+                        if (AddressButtonList.FirstOrDefault((Address) => Address.Path.Equals(RootPath, StringComparison.OrdinalIgnoreCase)) is AddressBlock RootBlock
+                            && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive
+                            && RootBlock.DisplayName.Equals(Drive.DisplayName, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                            if (string.IsNullOrEmpty(LastGrayPath) && LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
-                                if (LastPath.StartsWith(@"\\"))
+                                if (LastPath.StartsWith(@"\\") && LastSplit.Length > 0)
                                 {
-                                    if (LastSplit.Length > 0)
-                                    {
-                                        LastSplit[0] = $@"\\{LastSplit[0]}";
-                                    }
+                                    LastSplit[0] = $@"\\{LastSplit[0]}";
                                 }
 
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
@@ -466,82 +466,77 @@ namespace RX_Explorer
                                     AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
+                            else
                             {
-                                foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
+                                if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    GrayBlock.BlockType = AddressBlockType.Normal;
-                                }
-                            }
-                            else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    string[] LastGraySplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                                    if (LastGrayPath.StartsWith(@"\\"))
+                                    foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
                                     {
-                                        if (LastGraySplit.Length > 0)
+                                        GrayBlock.BlockType = AddressBlockType.Normal;
+                                    }
+                                }
+                                else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        string[] LastGraySplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                                        if (LastGrayPath.StartsWith(@"\\") && LastGraySplit.Length > 0)
                                         {
                                             LastGraySplit[0] = $@"\\{LastGraySplit[0]}";
                                         }
-                                    }
 
-                                    for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
-                                    {
-                                        AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
+                                        for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
+                                        {
+                                            AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
+                                        }
                                     }
-                                }
-                                else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                                    if (LastPath.StartsWith(@"\\"))
+                                    else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (LastSplit.Length > 0)
+                                        string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                                        if (LastPath.StartsWith(@"\\") && LastSplit.Length > 0)
                                         {
                                             LastSplit[0] = @$"\\{LastSplit[0]}";
                                         }
-                                    }
 
-                                    for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
+                                        for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
+                                        {
+                                            if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
+                                            {
+                                                GrayBlock.BlockType = AddressBlockType.Normal;
+                                            }
+                                        }
+                                    }
+                                    else if (LastPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
+                                        foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                         {
                                             GrayBlock.BlockType = AddressBlockType.Normal;
                                         }
                                     }
                                 }
-                                else if (LastPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
-                                    {
-                                        GrayBlock.BlockType = AddressBlockType.Normal;
-                                    }
-                                }
                             }
+                        }
+                        else
+                        {
+                            AddressButtonList.Clear();
                         }
 
                         //Refresh LastPath and LastGrayPath because we might changed the result
-                        LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
-                        LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
+                        LastPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Normal)?.Path ?? string.Empty;
+                        LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path ?? string.Empty;
 
                         string[] OriginSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
 
-                        if (LastPath.StartsWith(@"\\"))
+                        if (LastPath.StartsWith(@"\\") && OriginSplit.Length > 0)
                         {
-                            if (OriginSplit.Length > 0)
-                            {
-                                OriginSplit[0] = @$"\\{OriginSplit[0]}";
-                            }
+                            OriginSplit[0] = @$"\\{OriginSplit[0]}";
                         }
 
                         List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
 
-                        for (int i = 0; i < CurrentSplit.Length && i < OriginSplit.Length; i++)
+                        for (int i = 0; i < Math.Min(CurrentSplit.Length, OriginSplit.Length); i++)
                         {
                             if (CurrentSplit[i].Equals(OriginSplit[i], StringComparison.OrdinalIgnoreCase))
                             {
@@ -564,7 +559,7 @@ namespace RX_Explorer
 
                             if (!string.IsNullOrEmpty(RootPath))
                             {
-                                AddressButtonList.Add(new AddressBlock(RootPath, (await StorageFolder.GetFolderFromPathAsync(RootPath)).DisplayName));
+                                AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
 
                                 PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
@@ -578,9 +573,14 @@ namespace RX_Explorer
                         {
                             if (string.IsNullOrEmpty(LastGrayPath)
                                 || !Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase)
-                                    || !(Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase) || LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase)))
+                                || !(Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase) || LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase)))
                             {
-                                int LimitIndex = AddressButtonList.Any((Block) => Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase)) ? IntersectList.Count + 1 : IntersectList.Count;
+                                int LimitIndex = IntersectList.Count;
+
+                                if (AddressButtonList.Any((Block) => Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    LimitIndex += 1;
+                                }
 
                                 for (int i = AddressButtonList.Count - 1; i >= LimitIndex; i--)
                                 {
@@ -604,7 +604,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{nameof(UpdateAddressButton)} throw an exception");
+                    LogTracer.Log(ex, $"{nameof(RefreshAddressButton)} throw an exception");
                 }
                 finally
                 {

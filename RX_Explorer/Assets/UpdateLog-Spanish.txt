@@ -1,23 +1,21 @@
-﻿###Novedades de la versión 7.4.1.0
-
-#####Actualización de funciones
-
->#####Se agregó la pestaña "Seguridad" en la ventana de propiedades para indicar los permisos para cada usuario
-
->#####Configuraciones agregadas para controlar el comportamiento cuando aparece el menú contextual
-
->#####Se agregó la función de cambio de nombre para Biblioteca y Drive
+﻿###Novedades de la versión 7.4.3.0
 
 #####Actualización de la interfaz de usuario
 
->#####Se rediseñó la interfaz de usuario de la ventana de propiedades del disco, agregando una serie de funciones relacionadas con el disco
+>#####El diseño de la página "Inicio" se ha actualizado, reduciendo los espacios en blanco para hacerlo más compacto
 
->#####Se rediseñó la interfaz de usuario de la pestaña "Herramienta" en la ventana de propiedades del archivo
-
->#####Rediseñado el mecanismo de cancelación de tareas para controlar las tareas ejecutadas bajo privilegios de administrador
+>#####El menú de filtro de tipo ahora mostrará nombres descriptivos
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía provocar un bloqueo en algunos casos
+>#####Se solucionó un problema por el cual ciertos tipos de archivos no se podían abrir
 
->#####Se solucionó un problema por el cual Windows Terminal podría no ser detectado y perfilado correctamente
+>#####Se solucionó un problema por el cual no se podían usar algunas fuentes
+
+>#####Se solucionó el problema de diseño de la pestaña Seguridad en la ventana Propiedades en Win10
+
+>#####Se solucionó un problema por el cual el nombre de la unidad en la barra de direcciones no se actualizaba después de cambiar el nombre de una unidad
+
+>#####Se corrigieron algunos problemas de la interfaz de usuario relacionados con el nombre para mostrar del disco
+
+>#####Se corrigieron algunos problemas de traducción

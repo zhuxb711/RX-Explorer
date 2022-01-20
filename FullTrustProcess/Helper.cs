@@ -187,7 +187,7 @@ namespace FullTrustProcess
             return Info;
         }
 
-        public static Task<bool> ExecuteOnSTAThreadAsync(Action Act)
+        public static Task ExecuteOnSTAThreadAsync(Action Act)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
@@ -196,7 +196,7 @@ namespace FullTrustProcess
             else
             {
                 Act();
-                return Task.FromResult(true);
+                return Task.CompletedTask;
             }
         }
 
@@ -258,43 +258,53 @@ namespace FullTrustProcess
             return Manager.FindPackagesForUserWithPackageTypes(Convert.ToString(WindowsIdentity.GetCurrent()?.User), PackageFamilyName, PackageTypes.Main).Any();
         }
 
-        public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
+        public static async Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
         {
-            return ExecuteOnSTAThreadAsync(() =>
+            try
             {
-                if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
+                await ExecuteOnSTAThreadAsync(() =>
                 {
-                    if (PathArray.Length > 0)
+                    if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
                     {
-                        List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
-
-                        try
+                        if (PathArray.Length > 0)
                         {
-                            foreach (string Path in PathArray)
-                            {
-                                SItemList.Add(new ShellItem(Path));
-                            }
+                            List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
 
-                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                            try
                             {
-                                Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                                foreach (string Path in PathArray)
+                                {
+                                    SItemList.Add(new ShellItem(Path));
+                                }
+
+                                using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                                {
+                                    Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                                }
+                            }
+                            finally
+                            {
+                                SItemList.ForEach((Item) => Item.Dispose());
                             }
                         }
-                        finally
+                        else
                         {
-                            SItemList.ForEach((Item) => Item.Dispose());
+                            Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
                         }
                     }
                     else
                     {
-                        Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+                        throw new NotSupportedException();
                     }
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
-            });
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not launch the application from AUMID");
+                return false;
+            }
         }
 
         public static async Task<bool> LaunchApplicationFromPackageFamilyNameAsync(string PackageFamilyName, params string[] PathArray)

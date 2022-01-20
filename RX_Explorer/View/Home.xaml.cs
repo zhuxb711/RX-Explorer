@@ -1024,7 +1024,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void DriveGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void DriveGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 

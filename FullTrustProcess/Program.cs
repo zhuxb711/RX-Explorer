@@ -25,6 +25,7 @@ using UtfUnknown;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel;
+using IDataObject = System.Windows.Forms.IDataObject;
 using Size = System.Drawing.Size;
 using Timer = System.Timers.Timer;
 
@@ -2934,53 +2935,66 @@ namespace FullTrustProcess
                         {
                             string Path = CommandValue["Path"];
 
-                            if (await Helper.ExecuteOnSTAThreadAsync(() =>
+                            await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
-
-                                foreach (RemoteDataObject.DataPackage Package in Rdo.GetRemoteData())
+                                if (Clipboard.GetDataObject() is IDataObject RawData)
                                 {
-                                    try
+                                    RemoteDataObject Rdo = new RemoteDataObject(RawData);
+
+                                    foreach (RemoteClipboardDataPackage Package in Rdo.GetRemoteData())
                                     {
-                                        if (Package.ItemType == RemoteDataObject.StorageType.File)
+                                        try
                                         {
-                                            string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
-
-                                            if (!Directory.Exists(DirectoryPath))
+                                            switch (Package.ItemType)
                                             {
-                                                Directory.CreateDirectory(DirectoryPath);
-                                            }
+                                                case RemoteClipboardStorageType.File:
+                                                    {
+                                                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                                            string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+                                                        if (!Directory.Exists(DirectoryPath))
+                                                        {
+                                                            Directory.CreateDirectory(DirectoryPath);
+                                                        }
 
-                                            using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
-                                            {
-                                                Package.ContentStream.CopyTo(Stream);
+                                                        string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+
+                                                        using (FileStream Stream = File.Open(UniqueName, FileMode.CreateNew, FileAccess.Write))
+                                                        {
+                                                            Package.ContentStream.CopyTo(Stream);
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case RemoteClipboardStorageType.Folder:
+                                                    {
+                                                        string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
+
+                                                        if (!Directory.Exists(DirectoryPath))
+                                                        {
+                                                            Directory.CreateDirectory(DirectoryPath);
+                                                        }
+
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        throw new NotSupportedException();
+                                                    }
                                             }
                                         }
-                                        else
+                                        finally
                                         {
-                                            string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
-
-                                            if (!Directory.Exists(DirectoryPath))
-                                            {
-                                                Directory.CreateDirectory(DirectoryPath);
-                                            }
+                                            Package.Dispose();
                                         }
-                                    }
-                                    finally
-                                    {
-                                        Package.Dispose();
                                     }
                                 }
-                            }))
-                            {
-                                Value.Add("Success", string.Empty);
-                            }
-                            else
-                            {
-                                Value.Add("Error", "Clipboard is empty or could not get the content");
-                            }
+                                else
+                                {
+                                    throw new Exception("Could not get the data from clipboard");
+                                }
+                            });
+
+                            Value.Add("Success", string.Empty);
 
                             break;
                         }

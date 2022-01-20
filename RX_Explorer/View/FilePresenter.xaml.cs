@@ -133,7 +133,7 @@ namespace RX_Explorer
             {
                 if (value != null)
                 {
-                    Container.UpdateAddressButton(value.Path);
+                    Container.RefreshAddressButton(value.Path);
 
                     string CurrentFolderDisplayName = string.Empty;
 

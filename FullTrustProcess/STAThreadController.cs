@@ -11,25 +11,28 @@ namespace FullTrustProcess
         private readonly Thread STAThread;
         private readonly ConcurrentQueue<(TaskCompletionSource<bool>, Action)> TaskQueue;
         private readonly AutoResetEvent ProcessSleepLocker;
-
+        private readonly static object Locker = new object();
 
         private static STAThreadController Instance;
         public static STAThreadController Current
         {
             get
             {
-                return Instance ??= new STAThreadController();
+                lock (Locker)
+                {
+                    return Instance ??= new STAThreadController();
+                }
             }
         }
 
-        public async Task<bool> RunAsync(Action Act)
+        public Task RunAsync(Action Act)
         {
             TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
 
             TaskQueue.Enqueue((CompletionSource, Act));
             ProcessSleepLocker.Set();
 
-            return await CompletionSource.Task;
+            return CompletionSource.Task;
         }
 
         private void ThreadProcess()

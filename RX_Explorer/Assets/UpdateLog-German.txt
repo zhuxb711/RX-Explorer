@@ -1,23 +1,21 @@
-﻿###Was ist neu in Ver.7.4.1.0
-
-#####Funktionsupdate
-
->#####Registerkarte "Sicherheit" im Eigenschaftsfenster hinzugefügt, um Berechtigungen für jeden Benutzer anzuzeigen
-
->#####Einstellungen hinzugefügt, um das Verhalten zu steuern, wenn das Kontextmenü angezeigt wird
-
->#####Umbenennungsfunktion für Bibliothek und Drive hinzugefügt
+﻿###Was ist neu in Ver.7.4.3.0
 
 #####UI-Update
 
->#####Die Benutzeroberfläche des Festplatteneigenschaftenfensters wurde neu gestaltet und eine Reihe von Festplattenfunktionen hinzugefügt
+>#####Das Layout der "Home"-Seite wurde aktualisiert, indem der Leerraum reduziert wurde, um sie kompakter zu machen
 
->#####Neu gestaltete Benutzeroberfläche der Registerkarte "Tool" im Dateieigenschaftenfenster
-
->#####Der Mechanismus zum Abbrechen von Aufgaben wurde neu gestaltet, um Aufgaben zu kontrollieren, die unter Administratorrechten ausgeführt werden
+>#####Typfiltermenü zeigt jetzt freundliche Namen an
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das in einigen Fällen zu einem Absturz führen konnte
+>#####Problem behoben, bei dem bestimmte Dateitypen möglicherweise nicht geöffnet werden konnten
 
->#####Es wurde ein Problem behoben, bei dem das Windows-Terminal möglicherweise nicht richtig erkannt und profiliert wird
+>#####Ein Problem wurde behoben, bei dem einige Schriftarten nicht verwendet werden konnten
+
+>#####Layout-Problem der Registerkarte Sicherheit im Eigenschaftsfenster unter Win10 behoben
+
+>#####Es wurde ein Problem behoben, bei dem der Laufwerksname in der Adressleiste nach dem Umbenennen eines Laufwerks nicht aktualisiert wurde
+
+>#####Einige UI-Probleme im Zusammenhang mit dem Anzeigenamen der Festplatte wurden behoben
+
+>#####Einige Übersetzungsprobleme behoben

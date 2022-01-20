@@ -451,6 +451,7 @@ namespace RX_Explorer.Class
         {
             PortalDriveWatcher.Added += PortalDriveWatcher_Added;
             PortalDriveWatcher.Removed += PortalDriveWatcher_Removed;
+
             NetworkDriveCheckTimer.Elapsed += NetworkDriveCheckTimer_Tick;
 
             DriveList.CollectionChanged += DriveList_CollectionChanged;

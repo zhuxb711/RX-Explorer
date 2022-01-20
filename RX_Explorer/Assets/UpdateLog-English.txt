@@ -1,23 +1,21 @@
-﻿###What's new in Ver.7.4.1.0
-
-#####Feature update
-
->#####Added "Security" tab in property window to indicate permissions for each user
-
->#####Added settings to control the behavior when the context menu pops up
-
->#####Added rename function for Library and Drive
+﻿###What's new in Ver.7.4.3.0
 
 #####UI update
 
->#####Redesigned the UI of the disk property window, adding a number of disk-related functions
+>#####The layout of the "Home" page has been updated, reducing white space to make it more compact
 
->#####Redesigned the UI of "Tool" tab in file property window
-
->#####Redesigned the mechanism for canceling tasks to control tasks executed under administrator privileges
+>#####Type filter menu will now show friendly names
 
 #####Bug Fixes
 
->#####Fixed an issue that could cause a crash in some cases
+>#####Fixed an issue where certain types of files might not be opened
 
->#####Fixed an issue where Windows Terminal might not be properly detected and profiled
+>#####Fixed an issue where some fonts could not be used
+
+>#####Fixed the layout problem of the Security tab in the Property window under Win10
+
+>#####Fixed an issue where the drive name in the address bar would not be updated after renaming a drive
+
+>#####Fixed some UI issues related to disk display name
+
+>#####Fixed some translation issues

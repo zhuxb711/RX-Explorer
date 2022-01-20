@@ -3033,6 +3033,12 @@ namespace RX_Explorer
 
         private async void DisableSelectionAnimation_Changed(object sender, RoutedEventArgs e)
         {
+            List<Task> ParallelTask = new List<Task>
+            {
+                CommonAccessCollection.LoadDriveAsync(true),
+                CommonAccessCollection.LoadLibraryFoldersAsync(true)
+            };
+
             foreach (FileControl Control in TabViewContainer.Current.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
             {
                 foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
@@ -3041,10 +3047,12 @@ namespace RX_Explorer
                 {
                     if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
                     {
-                        await Presenter.DisplayItemsInFolder(CurrentFolder, true);
+                        ParallelTask.Add(Presenter.DisplayItemsInFolder(CurrentFolder, true));
                     }
                 }
             }
+
+            await Task.WhenAll(ParallelTask);
         }
 
         private void SettingNavigation_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)

@@ -12,43 +12,24 @@ namespace FullTrustProcess
 {
     public class RemoteDataObject
     {
-        /// <summary>
-        /// Holds the <see cref="System.Windows.IDataObject"/> that this class is wrapping
-        /// </summary>
-        private System.Windows.Forms.IDataObject underlyingDataObject;
+        private readonly System.Windows.Forms.IDataObject UnderlyingDataObject;
+        private readonly System.Runtime.InteropServices.ComTypes.IDataObject ComUnderlyingDataObject;
+        private readonly System.Windows.Forms.IDataObject OleUnderlyingDataObject;
+        private readonly MethodInfo GetDataFromHGLOBALMethod;
 
-        /// <summary>
-        /// Holds the <see cref="System.Runtime.InteropServices.ComTypes.IDataObject"/> interface to the <see cref="System.Windows.IDataObject"/> that this class is wrapping.
-        /// </summary>
-        private System.Runtime.InteropServices.ComTypes.IDataObject comUnderlyingDataObject;
-
-        /// <summary>
-        /// Holds the internal ole <see cref="System.Windows.IDataObject"/> to the <see cref="System.Windows.IDataObject"/> that this class is wrapping.
-        /// </summary>
-        private System.Windows.Forms.IDataObject oleUnderlyingDataObject;
-
-        /// <summary>
-        /// Holds the <see cref="MethodInfo"/> of the "GetDataFromHGLOBAL" method of the internal ole <see cref="System.Windows.IDataObject"/>.
-        /// </summary>
-        private MethodInfo getDataFromHGLOBALMethod;
-
-        /// <summary>
-        /// Initializes a new instance of the class.
-        /// </summary>
-        /// <param name="underlyingDataObject">The underlying data object to wrap.</param>
-        public RemoteDataObject(System.Windows.Forms.IDataObject underlyingDataObject)
+        public RemoteDataObject(System.Windows.Forms.IDataObject Data)
         {
             //get the underlying dataobject and its ComType IDataObject interface to it
-            this.underlyingDataObject = underlyingDataObject;
-            comUnderlyingDataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)this.underlyingDataObject;
+            UnderlyingDataObject = Data;
+            ComUnderlyingDataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)Data;
 
             //get the internal ole dataobject and its GetDataFromHGLOBAL so it can be called later
-            FieldInfo innerDataField = this.underlyingDataObject.GetType().GetField("innerData", BindingFlags.NonPublic | BindingFlags.Instance);
-            oleUnderlyingDataObject = (System.Windows.Forms.IDataObject)innerDataField.GetValue(this.underlyingDataObject);
-            getDataFromHGLOBALMethod = oleUnderlyingDataObject.GetType().GetMethod("GetDataFromHGLOBAL", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo innerDataField = Data.GetType().GetField("innerData", BindingFlags.NonPublic | BindingFlags.Instance);
+            OleUnderlyingDataObject = (System.Windows.Forms.IDataObject)innerDataField.GetValue(Data);
+            GetDataFromHGLOBALMethod = OleUnderlyingDataObject.GetType().GetMethod("GetDataFromHGLOBAL", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
-        public IEnumerable<DataPackage> GetRemoteData()
+        public IEnumerable<RemoteClipboardDataPackage> GetRemoteData()
         {
             string FormatName = string.Empty;
 
@@ -67,7 +48,7 @@ namespace FullTrustProcess
             }
             else
             {
-                if (underlyingDataObject.GetData(FormatName, true) is MemoryStream FileGroupDescriptorStream)
+                if (UnderlyingDataObject.GetData(FormatName, true) is MemoryStream FileGroupDescriptorStream)
                 {
                     try
                     {
@@ -89,11 +70,11 @@ namespace FullTrustProcess
 
                                 if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
                                 {
-                                    yield return new DataPackage(FileDescriptor.cFileName, StorageType.Directroy, null);
+                                    yield return new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.Folder, null);
                                 }
                                 else
                                 {
-                                    yield return new DataPackage(FileDescriptor.cFileName, StorageType.File, GetContentData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, FileDescriptorIndex));
+                                    yield return new RemoteClipboardDataPackage(FileDescriptor.cFileName, RemoteClipboardStorageType.File, GetContentData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, FileDescriptorIndex));
                                 }
 
                                 FileDescriptorPointer = (IntPtr)(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
@@ -132,12 +113,12 @@ namespace FullTrustProcess
                 cfFormat = (short)DataFormats.GetFormat(Format).Id,
                 dwAspect = DVASPECT.DVASPECT_CONTENT,
                 lindex = Index,
-                ptd = new IntPtr(0),
+                ptd = IntPtr.Zero,
                 tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_ISTORAGE | TYMED.TYMED_HGLOBAL
             };
 
             //using the Com IDataObject interface get the data using the defined FORMATETC
-            comUnderlyingDataObject.GetData(ref Formatetc, out STGMEDIUM Medium);
+            ComUnderlyingDataObject.GetData(ref Formatetc, out STGMEDIUM Medium);
 
             //retrieve the data depending on the returned store type
             switch (Medium.tymed)
@@ -235,7 +216,7 @@ namespace FullTrustProcess
 
                         try
                         {
-                            return (MemoryStream)getDataFromHGLOBALMethod.Invoke(oleUnderlyingDataObject, new object[] { DataFormats.GetFormat(Formatetc.cfFormat).Name, Medium.unionmember });
+                            return (MemoryStream)GetDataFromHGLOBALMethod.Invoke(OleUnderlyingDataObject, new object[] { DataFormats.GetFormat(Formatetc.cfFormat).Name, Medium.unionmember });
                         }
                         finally
                         {
@@ -258,40 +239,7 @@ namespace FullTrustProcess
         /// </returns>
         public bool GetDataPresent(string format)
         {
-            return underlyingDataObject.GetDataPresent(format);
-        }
-
-        public sealed class DataPackage : IDisposable
-        {
-            public StorageType ItemType { get; }
-
-            public MemoryStream ContentStream { get; }
-
-            public string Name { get; }
-
-            public DataPackage(string Name, StorageType ItemType, MemoryStream ContentStream)
-            {
-                this.Name = Name;
-                this.ItemType = ItemType;
-                this.ContentStream = ContentStream;
-            }
-
-            public void Dispose()
-            {
-                GC.SuppressFinalize(this);
-                ContentStream?.Dispose();
-            }
-
-            ~DataPackage()
-            {
-                Dispose();
-            }
-        }
-
-        public enum StorageType
-        {
-            File = 0,
-            Directroy = 1
+            return UnderlyingDataObject.GetDataPresent(format);
         }
     }
 }
