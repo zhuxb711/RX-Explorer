@@ -196,18 +196,23 @@ namespace FullTrustProcess
                                 {
                                     string Verb = string.Empty;
 
-                                    using (SafeHGlobalHandle VerbHandle = new SafeHGlobalHandle(BufferSize))
+                                    using (SafeHGlobalHandle VerbAHandle = new SafeHGlobalHandle(BufferSize))
                                     {
-                                        if (COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBA, IntPtr.Zero, VerbHandle, CchMax).Succeeded)
+                                        if (COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VALIDATEA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded
+                                            && COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded)
                                         {
-                                            Verb = Marshal.PtrToStringAnsi(VerbHandle);
+                                            Verb = Marshal.PtrToStringAnsi(VerbAHandle);
                                         }
+                                    }
 
-                                        if (string.IsNullOrEmpty(Verb))
+                                    if (string.IsNullOrEmpty(Verb))
+                                    {
+                                        using (SafeHGlobalHandle VerbWHandle = new SafeHGlobalHandle(BufferSize))
                                         {
-                                            if (COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbHandle, CchMax).Succeeded)
+                                            if (COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VALIDATEW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded
+                                                  && COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
                                             {
-                                                Verb = Marshal.PtrToStringUni(VerbHandle);
+                                                Verb = Marshal.PtrToStringUni(VerbWHandle);
                                             }
                                         }
                                     }
@@ -222,6 +227,25 @@ namespace FullTrustProcess
                                             IncludeExtensionItem = IncludeExtensionItem,
                                             RelatedPath = RelatedPath
                                         };
+
+                                        if (Info.hbmpItem == new HBITMAP(new IntPtr(-1)))
+                                        {
+                                            switch (COMInterface)
+                                            {
+                                                case Shell32.IContextMenu3 CMenu3:
+                                                    {
+                                                        CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_MEASUREITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                        CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_DRAWITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                        break;
+                                                    }
+                                                case Shell32.IContextMenu2 CMenu2:
+                                                    {
+                                                        CMenu2.HandleMenuMsg((uint)User32.WindowMessage.WM_MEASUREITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                        CMenu2.HandleMenuMsg((uint)User32.WindowMessage.WM_DRAWITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                        break;
+                                                    }
+                                            }
+                                        }
 
                                         if (Info.hbmpItem != HBITMAP.NULL && Info.hbmpItem.DangerousGetHandle().CheckIfValidPtr())
                                         {
@@ -252,6 +276,27 @@ namespace FullTrustProcess
 
                                         if (Info.hSubMenu != HMENU.NULL)
                                         {
+                                            try
+                                            {
+                                                switch (COMInterface)
+                                                {
+                                                    case Shell32.IContextMenu3 CMenu3:
+                                                        {
+                                                            CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                            break;
+                                                        }
+                                                    case Shell32.IContextMenu2 CMenu2:
+                                                        {
+                                                            CMenu2.HandleMenuMsg((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                //No need to handle this since we will still try to generate the submenu if HandleMenuMsg throw an exception
+                                            }
+
                                             Package.SubMenus = FetchContextMenuCore(ref COMInterface, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
                                         }
                                         else
