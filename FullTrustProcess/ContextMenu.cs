@@ -210,7 +210,7 @@ namespace FullTrustProcess
                                         using (SafeHGlobalHandle VerbWHandle = new SafeHGlobalHandle(BufferSize))
                                         {
                                             if (COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VALIDATEW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded
-                                                  && COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
+                                                && COMInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
                                             {
                                                 Verb = Marshal.PtrToStringUni(VerbWHandle);
                                             }
@@ -228,26 +228,7 @@ namespace FullTrustProcess
                                             RelatedPath = RelatedPath
                                         };
 
-                                        if (Info.hbmpItem == new HBITMAP(new IntPtr(-1)))
-                                        {
-                                            switch (COMInterface)
-                                            {
-                                                case Shell32.IContextMenu3 CMenu3:
-                                                    {
-                                                        CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_MEASUREITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
-                                                        CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_DRAWITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
-                                                        break;
-                                                    }
-                                                case Shell32.IContextMenu2 CMenu2:
-                                                    {
-                                                        CMenu2.HandleMenuMsg((uint)User32.WindowMessage.WM_MEASUREITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
-                                                        CMenu2.HandleMenuMsg((uint)User32.WindowMessage.WM_DRAWITEM, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
-                                                        break;
-                                                    }
-                                            }
-                                        }
-
-                                        if (Info.hbmpItem != HBITMAP.NULL && Info.hbmpItem.DangerousGetHandle().CheckIfValidPtr())
+                                        if (Info.hbmpItem.DangerousGetHandle().CheckIfValidPtr())
                                         {
                                             using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
                                             {
@@ -282,7 +263,7 @@ namespace FullTrustProcess
                                                 {
                                                     case Shell32.IContextMenu3 CMenu3:
                                                         {
-                                                            CMenu3.HandleMenuMsg((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index));
+                                                            CMenu3.HandleMenuMsg2((uint)User32.WindowMessage.WM_INITMENUPOPUP, Info.hSubMenu.DangerousGetHandle(), new IntPtr(Index), out _);
                                                             break;
                                                         }
                                                     case Shell32.IContextMenu2 CMenu2:
