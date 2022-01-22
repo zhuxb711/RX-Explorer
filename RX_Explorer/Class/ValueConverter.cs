@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -11,18 +12,24 @@ namespace RX_Explorer.Class
 {
     public sealed class NameExtensionsConverter : IValueConverter
     {
+        public string CurrentPath { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, string language)
         {
+            if (string.IsNullOrEmpty(CurrentPath))
+            {
+                throw new ArgumentException("CurrentPath must be set", nameof(CurrentPath));
+            }
+
             if (value is string Name)
             {
-                if (SettingPage.IsShowFileExtensionsEnabled)
-                {
-                    return Name;
-                }
-                else
+                if (Name.EndsWith(".lnk",StringComparison.OrdinalIgnoreCase)
+                    || (!SettingPage.IsShowFileExtensionsEnabled && Win32_Native_API.CheckItemTypeFromPath(Path.Combine(CurrentPath, Name)) == StorageItemTypes.File))
                 {
                     return Path.GetFileNameWithoutExtension(Name);
                 }
+
+                return Name;
             }
             else
             {
@@ -292,33 +299,6 @@ namespace RX_Explorer.Class
             {
                 return Visibility.Visible;
             }
-        }
-    }
-
-    public sealed class FolderStateConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is bool IsExpanded)
-            {
-                if (IsExpanded)
-                {
-                    return "\xE838";
-                }
-                else
-                {
-                    return "\xE8B7";
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
         }
     }
 

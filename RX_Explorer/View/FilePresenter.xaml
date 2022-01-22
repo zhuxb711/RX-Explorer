@@ -17,7 +17,7 @@
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
-        <Cls:NameExtensionsConverter x:Key="NameExtensionsConverter" />
+        <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter" />
         
         <CollectionViewSource x:Name="CollectionVS"
                               IsSourceGrouped="False" />

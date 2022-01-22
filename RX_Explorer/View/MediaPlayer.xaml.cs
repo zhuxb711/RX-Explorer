@@ -49,7 +49,7 @@ namespace RX_Explorer
 
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -61,7 +61,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    MediaStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    MediaStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                     TypeString = MediaFile.Type.ToLower();
                 }
 
@@ -151,7 +151,7 @@ namespace RX_Explorer
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -162,7 +162,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                 }
 
                 if (FStream != null)
@@ -223,7 +223,7 @@ namespace RX_Explorer
             {
                 if (MediaFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FileStream Stream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -234,7 +234,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FStream = await MediaFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                 }
 
                 if (FStream != null)

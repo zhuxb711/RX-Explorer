@@ -24,6 +24,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Input;
 using Windows.UI.WindowManagement;
 using Windows.UI.WindowManagement.Preview;
@@ -75,7 +76,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(450, 650);
+        private static readonly Size WindowSize = new Size(420, 700);
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
@@ -141,7 +142,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         public async Task ShowAsync(Point ShowAt)
         {
             Window.RequestMoveRelativeToCurrentViewContent(ShowAt);
-            await Window.TryShowAsync();
+
+            if (await Window.TryShowAsync())
+            {
+                Window.RequestSize(WindowSize);
+            }
         }
 
         private PropertiesWindowBase(AppWindow Window)
@@ -164,7 +169,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             Window.Closed += Window_Closed;
             Loading += PropertiesWindow_Loading;
-            Loaded += PropertiesWindow_Loaded;
         }
 
         private PropertiesWindowBase(AppWindow Window, DriveDataBase RootDrive) : this(Window)
@@ -508,11 +512,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 SavingCancellation.Dispose();
             }
-        }
-
-        private void PropertiesWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            Window.RequestSize(WindowSize);
         }
 
         private async void PropertiesWindow_Loading(FrameworkElement sender, object args)
@@ -1616,31 +1615,35 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
-                CalculateMd5.IsEnabled = false;
-                MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
-                Md5Cancellation = new CancellationTokenSource();
-
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
+                    MD5TextBox.IsEnabled = false;
+                    CalculateMd5.IsEnabled = false;
+                    MD5Progress.Value = 0;
+                    MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    Md5Cancellation = new CancellationTokenSource();
+
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (MD5 MD5Alg = MD5.Create())
                     {
-                        await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token).ContinueWith((beforeTask) =>
+                        MD5TextBox.Text = await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token, async (s, args) =>
                         {
-                            MD5TextBox.Text = beforeTask.Result;
-                            MD5TextBox.IsEnabled = true;
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                MD5Progress.Value = args.ProgressPercentage;
+                            });
+                        });
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Calculate MD5 failed");
-
                     MD5TextBox.Text = Globalization.GetString("HashError");
-                    CalculateMd5.IsEnabled = true;
+                    LogTracer.Log(ex, "Calculate MD5 failed");
                 }
                 finally
                 {
+                    MD5TextBox.IsEnabled = true;
+                    CalculateMd5.IsEnabled = true;
                     Md5Cancellation?.Dispose();
                     Md5Cancellation = null;
                 }
@@ -1649,33 +1652,37 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void CalculateSHA1_Click(object sender, RoutedEventArgs e)
         {
-            if (StorageItems.First() is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
-                CalculateSHA1.IsEnabled = false;
-                SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
-                SHA1Cancellation = new CancellationTokenSource();
-
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
+                    SHA1TextBox.IsEnabled = false;
+                    CalculateSHA1.IsEnabled = false;
+                    SHA1Progress.Value = 0;
+                    SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    SHA1Cancellation = new CancellationTokenSource();
+
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (SHA1 SHA1Alg = SHA1.Create())
                     {
-                        await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token).ContinueWith((beforeTask) =>
+                        SHA1TextBox.Text = await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token, async (s, args) =>
                         {
-                            SHA1TextBox.Text = beforeTask.Result;
-                            SHA1TextBox.IsEnabled = true;
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                SHA1Progress.Value = args.ProgressPercentage;
+                            });
+                        });
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Calculate SHA1 failed");
-
                     SHA1TextBox.Text = Globalization.GetString("HashError");
-                    CalculateSHA1.IsEnabled = true;
+                    LogTracer.Log(ex, "Calculate SHA1 failed");
                 }
                 finally
                 {
+                    SHA1TextBox.IsEnabled = true;
+                    CalculateSHA1.IsEnabled = true;
                     SHA1Cancellation?.Dispose();
                     SHA1Cancellation = null;
                 }
@@ -1684,33 +1691,37 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void CalculateSHA256_Click(object sender, RoutedEventArgs e)
         {
-            if (StorageItems.First() is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
-                CalculateSHA256.IsEnabled = false;
-                SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
-                SHA256Cancellation = new CancellationTokenSource();
-
                 try
                 {
-                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
+                    SHA256TextBox.IsEnabled = false;
+                    CalculateSHA256.IsEnabled = false;
+                    SHA256Progress.Value = 0;
+                    SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    SHA256Cancellation = new CancellationTokenSource();
+
+                    using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
                     using (SHA256 SHA256Alg = SHA256.Create())
                     {
-                        await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token).ContinueWith((beforeTask) =>
+                        SHA256TextBox.Text = await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token, async (s, args) =>
                         {
-                            SHA256TextBox.Text = beforeTask.Result;
-                            SHA256TextBox.IsEnabled = true;
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                SHA256Progress.Value = args.ProgressPercentage;
+                            });
+                        });
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Calculate SHA256 failed");
-
                     SHA256TextBox.Text = Globalization.GetString("HashError");
-                    CalculateSHA256.IsEnabled = true;
+                    LogTracer.Log(ex, "Calculate SHA256 failed");
                 }
                 finally
                 {
+                    SHA256TextBox.IsEnabled = true;
+                    CalculateSHA256.IsEnabled = true;
                     SHA256Cancellation?.Dispose();
                     SHA256Cancellation = null;
                 }

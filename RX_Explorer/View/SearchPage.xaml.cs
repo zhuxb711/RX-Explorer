@@ -254,6 +254,7 @@ namespace RX_Explorer
             {
                 this.SearchCancellation = SearchCancellation;
 
+                NameExtensionsConverter.CurrentPath = Options.SearchFolder.Path;
                 SearchStatus.Text = $"{Globalization.GetString("SearchProcessingText")} \"{Options.SearchText}\"";
                 SearchStatusBar.Visibility = Visibility.Visible;
 

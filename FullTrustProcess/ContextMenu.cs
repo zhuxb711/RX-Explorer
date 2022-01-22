@@ -273,7 +273,7 @@ namespace FullTrustProcess
                                                         }
                                                 }
                                             }
-                                            catch (Exception ex)
+                                            catch (Exception)
                                             {
                                                 //No need to handle this since we will still try to generate the submenu if HandleMenuMsg throw an exception
                                             }

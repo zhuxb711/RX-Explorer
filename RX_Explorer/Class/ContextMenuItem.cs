@@ -92,6 +92,8 @@ namespace RX_Explorer.Class
                         }
                     };
 
+                    ToolTipService.SetToolTip(Item, SubItem.Name);
+
                     Item.Items.AddRange(await GenerateSubMenuItemsAsync(SubItem.SubMenus, ClickHandler));
 
                     MenuItems.Add(Item);
@@ -126,6 +128,8 @@ namespace RX_Explorer.Class
                             Glyph = "\uE2AC"
                         };
                     }
+
+                    ToolTipService.SetToolTip(FlyoutItem, SubItem.Name);
 
                     MenuItems.Add(FlyoutItem);
                 }

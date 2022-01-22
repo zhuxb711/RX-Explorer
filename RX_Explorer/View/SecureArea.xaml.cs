@@ -404,8 +404,8 @@ namespace RX_Explorer
 
                         if (await FileSystemStorageItemBase.CreateNewAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile EncryptedFile)
                         {
-                            using (FileStream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_Sequential))
-                            using (FileStream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential))
+                            using (FileStream OriginFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            using (FileStream EncryptFStream = await EncryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                             {
                                 SLEVersion Version;
 
@@ -692,10 +692,10 @@ namespace RX_Explorer
                         {
                             try
                             {
-                                using (FileStream EncryptedFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                                using (FileStream EncryptedFStream = await OriginFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                 using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AESKey))
                                 {
-                                    using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential))
+                                    using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                     {
                                         await SLEStream.CopyToAsync(DecryptedFStream, EncryptedFStream.Length, Cancellation.Token, async (s, e) =>
                                         {
@@ -1118,7 +1118,7 @@ namespace RX_Explorer
 
         private async Task<bool> TryOpenInternally(FileSystemStorageFile File)
         {
-            using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+            using (FileStream Stream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
             {
                 SLEHeader Header = SLEHeader.GetHeader(Stream);
 

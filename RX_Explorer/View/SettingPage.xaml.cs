@@ -1172,9 +1172,45 @@ namespace RX_Explorer
 
                 foreach (TabViewItem Tab in TabViewContainer.Current.TabCollection)
                 {
-                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentPresenter.CurrentFolder != null)
+                    if ((Tab.Content as Frame)?.Content is FileControl Control)
                     {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
+                        Control.FolderTree.RootNodes.Clear();
+
+                        Control.FolderTree.RootNodes.Add(new TreeViewNode
+                        {
+                            Content = TreeViewNodeContent.QuickAccessNode,
+                            IsExpanded = false,
+                            HasUnrealizedChildren = true
+                        });
+
+                        foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
+                        {
+                            TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
+
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                IsExpanded = false,
+                                Content = Content,
+                                HasUnrealizedChildren = Content.HasChildren
+                            };
+
+                            Control.FolderTree.RootNodes.Add(RootNode);
+
+                            if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
+                            {
+                                if (Content.HasChildren)
+                                {
+                                    RootNode.IsExpanded = true;
+                                }
+
+                                Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                            }
+                        }
+
+                        if (Control.CurrentPresenter.CurrentFolder != null)
+                        {
+                            await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
+                        }
                     }
                 }
             }
@@ -1250,10 +1286,10 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.CreateNewAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                                    using (FileStream EncryptedFStream = await Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                     using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
                                     {
-                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential))
+                                        using (FileStream DecryptedFStream = await DecryptedFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                                         {
                                             await SLEStream.CopyToAsync(DecryptedFStream, 2048);
                                         }
@@ -1565,7 +1601,7 @@ namespace RX_Explorer
 
                 if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
-                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                    using (FileStream FileStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 
@@ -1931,30 +1967,29 @@ namespace RX_Explorer
                         {
                             Control.FolderTree.RootNodes.Clear();
 
+                            Control.FolderTree.RootNodes.Add(new TreeViewNode
+                            {
+                                Content = TreeViewNodeContent.QuickAccessNode,
+                                IsExpanded = false,
+                                HasUnrealizedChildren = true
+                            });
+
                             foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
                             {
-                                bool HasAnyFolder = await DriveFolder.CheckContainsAnyItemAsync(IsShowHiddenFilesEnabled, IsDisplayProtectedSystemItems, BasicFilters.Folder);
+                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(DriveFolder);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
                                     IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
+                                    Content = Content,
+                                    HasUnrealizedChildren = Content.HasChildren
                                 };
-
-                                if (await DriveFolder.GetStorageItemAsync() is StorageFolder Folder)
-                                {
-                                    RootNode.Content = new TreeViewNodeContent(Folder);
-                                }
-                                else
-                                {
-                                    RootNode.Content = new TreeViewNodeContent(DriveFolder.Path);
-                                }
 
                                 Control.FolderTree.RootNodes.Add(RootNode);
 
                                 if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
                                 {
-                                    if (HasAnyFolder)
+                                    if (Content.HasChildren)
                                     {
                                         RootNode.IsExpanded = true;
                                     }

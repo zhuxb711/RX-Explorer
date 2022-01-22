@@ -56,8 +56,8 @@ namespace ShareClassLibrary
     public enum OptimizeOption
     {
         None,
-        Optimize_Sequential,
-        Optimize_RandomAccess,
+        Sequential,
+        RandomAccess,
     }
 
     public enum CommandType

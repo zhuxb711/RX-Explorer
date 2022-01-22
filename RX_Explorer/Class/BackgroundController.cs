@@ -570,7 +570,7 @@ namespace RX_Explorer.Class
 
                                 BingPictureBursh.ImageSource = Bitmap;
 
-                                using (FileStream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                                using (FileStream Stream = await ImageFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                                 {
                                     await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
                                 }

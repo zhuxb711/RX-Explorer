@@ -1095,8 +1095,8 @@ namespace FullTrustProcess
                                         Flags = FileFlagsAndAttributes.FILE_FLAG_OVERLAPPED | Option switch
                                         {
                                             OptimizeOption.None => FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL,
-                                            OptimizeOption.Optimize_Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
-                                            OptimizeOption.Optimize_RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
+                                            OptimizeOption.Sequential => FileFlagsAndAttributes.FILE_FLAG_SEQUENTIAL_SCAN,
+                                            OptimizeOption.RandomAccess => FileFlagsAndAttributes.FILE_FLAG_RANDOM_ACCESS,
                                             _ => throw new NotSupportedException()
                                         };
                                     }

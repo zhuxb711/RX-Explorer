@@ -201,8 +201,6 @@
                       ItemTemplateSelector="{StaticResource NavTemplateSelector}" />
         </Flyout>
 
-        <Cls:FolderStateConverter x:Key="StateConverter" />
-
         <muxc:CommandBarFlyout x:Name="QuickAccessFlyout"
                                ShouldConstrainToRootBounds="False">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -653,18 +651,17 @@
                     </Style>
                 </muxc:TreeView.ItemContainerStyle>
                 <muxc:TreeView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="muxc:TreeViewNode">
                         <RelativePanel Padding="0,5">
-                            <Viewbox Height="20"
-                                     Width="20"
-                                     Name="Icon"
-                                     Margin="0,2,0,0"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     RelativePanel.AlignLeftWithPanel="True">
-                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}" />
-                            </Viewbox>
-                            <TextBlock Text="{Binding Content.DisplayName, Mode=OneWay}"
+                            <Image Height="25"
+                                   Width="25"
+                                   Stretch="Uniform"
+                                   Name="Icon"
+                                   Margin="0,2,0,0"
+                                   Source="{x:Bind ((Cls:TreeViewNodeContent)Content).Thumbnail}"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                   RelativePanel.AlignLeftWithPanel="True" />
+                            <TextBlock Text="{x:Bind ((Cls:TreeViewNodeContent)Content).Name}"
                                        Margin="5,0,0,0"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"

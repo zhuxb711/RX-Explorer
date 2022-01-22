@@ -1,71 +1,82 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class TreeViewNodeContent : INotifyPropertyChanged
+    public sealed class TreeViewNodeContent
     {
-        private StorageFolder InnerFolder;
-        private string InnerPath;
-        private readonly string DisplayNameOverride;
+        public static TreeViewNodeContent QuickAccessNode { get; } = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName"));
 
-        public string DisplayName => DisplayNameOverride ?? InnerFolder?.DisplayName ?? System.IO.Path.GetFileName(Path);
+        public BitmapImage Thumbnail { get; }
 
-        public string Path => InnerFolder?.Path ?? InnerPath;
+        public string Name { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public string Path { get; }
 
-        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        public bool HasChildren { get; }
+
+        public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
-        }
-
-        public void ReplaceWithNewPath(string NewPath)
-        {
-            if (InnerPath != NewPath)
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
             {
-                InnerFolder = null;
-                InnerPath = NewPath;
-                OnPropertyChanged(nameof(DisplayName));
-            }
-        }
-
-        public async Task<StorageFolder> GetStorageFolderAsync()
-        {
-            if (InnerFolder == null)
-            {
-                try
-                {
-                    return InnerFolder = await StorageFolder.GetFolderFromPathAsync(Path).AsTask().ConfigureAwait(false);
-                }
-                catch
-                {
-                    return null;
-                }
+                return await CreateAsync(Folder);
             }
             else
             {
-                return InnerFolder;
+                throw new DirectoryNotFoundException();
             }
         }
 
-        public TreeViewNodeContent(StorageFolder Folder)
+        public static Task<TreeViewNodeContent> CreateAsync(StorageFolder Folder)
         {
-            InnerFolder = Folder ?? throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+            return CreateAsync(new FileSystemStorageFolder(Folder));
         }
 
-        public TreeViewNodeContent(string Path, string DisplayNameOverride = null)
+        public static async Task<TreeViewNodeContent> CreateAsync(FileSystemStorageFolder Folder)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            BitmapImage Thubnail = null;
+
+            if (SettingPage.ContentLoadMode == LoadMode.All)
             {
-                throw new ArgumentNullException(nameof(Path), "Argument could not be null or empty");
+                Thubnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
             }
 
-            InnerPath = Path;
-            this.DisplayNameOverride = DisplayNameOverride;
+            return new TreeViewNodeContent(Folder, Thubnail, await Folder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder));
+        }
+
+        private TreeViewNodeContent(FileSystemStorageFolder InnerFolder, BitmapImage Thumbnail, bool HasChildren)
+        {
+            Path = InnerFolder.Path;
+            Name = System.IO.Path.GetPathRoot(InnerFolder.Path) == InnerFolder.Path ? InnerFolder.DisplayName : InnerFolder.Name;
+
+            this.HasChildren = HasChildren;
+
+            if (Thumbnail != null)
+            {
+                this.Thumbnail = Thumbnail;
+            }
+            else
+            {
+                this.Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+            }
+        }
+
+        private TreeViewNodeContent(string OverridePath, string OverrideDisplayName)
+        {
+            Path = OverridePath;
+            Name = OverrideDisplayName;
+            HasChildren = true;
+            Thumbnail = new BitmapImage(OverridePath == "QuickAccessPath" 
+                                                        ? new Uri("ms-appx:///Assets/Favourite.png") 
+                                                        : WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
         }
     }
 }

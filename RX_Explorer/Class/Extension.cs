@@ -412,8 +412,8 @@ namespace RX_Explorer.Class
             UWP_HANDLE_OPTIONS Optimize = Option switch
             {
                 OptimizeOption.None => UWP_HANDLE_OPTIONS.NONE,
-                OptimizeOption.Optimize_Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
-                OptimizeOption.Optimize_RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
+                OptimizeOption.Sequential => UWP_HANDLE_OPTIONS.SEQUENTIAL_SCAN,
+                OptimizeOption.RandomAccess => UWP_HANDLE_OPTIONS.RANDOM_ACCESS,
                 _ => throw new NotSupportedException()
             };
 
@@ -906,10 +906,12 @@ namespace RX_Explorer.Class
                         {
                             if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                             {
+                                TreeViewNodeContent Content = await TreeViewNodeContent.CreateAsync(Folder);
+
                                 Node.Children.Add(new TreeViewNode
                                 {
-                                    Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder),
+                                    Content = Content,
+                                    HasUnrealizedChildren = Content.HasChildren,
                                     IsExpanded = false
                                 });
                             }
@@ -1334,15 +1336,23 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default)
+        public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default, ProgressChangedEventHandler ProgressHandler = null)
         {
-            Func<string> ComputeFunction = new Func<string>(() =>
+            return Task.Factory.StartNew(() =>
             {
-                byte[] Buffer = new byte[8192];
+                int CurrentProgressValue = 0;
+                byte[] Buffer = new byte[4096];
 
-                while (!Token.IsCancellationRequested)
+                do
                 {
                     int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
+                    int NewProgressValue = Convert.ToInt32(Math.Round(InputStream.Position * 100d / InputStream.Length, MidpointRounding.AwayFromZero));
+
+                    if (NewProgressValue > CurrentProgressValue)
+                    {
+                        CurrentProgressValue = NewProgressValue;
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(NewProgressValue, null));
+                    }
 
                     if (CurrentReadCount < Buffer.Length)
                     {
@@ -1353,33 +1363,12 @@ namespace RX_Explorer.Class
                     {
                         Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
                     }
-                }
+                } while (!Token.IsCancellationRequested);
 
                 Token.ThrowIfCancellationRequested();
 
-                StringBuilder builder = new StringBuilder();
-
-                foreach (byte Bt in Algorithm.Hash)
-                {
-                    builder.Append(Bt.ToString("x2"));
-                }
-
-                return builder.ToString();
-            });
-
-            if (InputStream.CanSeek)
-            {
-                InputStream.Seek(0, SeekOrigin.Begin);
-            }
-
-            if ((InputStream.Length >> 30) >= 2)
-            {
-                return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-            }
-            else
-            {
-                return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.None, TaskScheduler.Default);
-            }
+                return string.Concat(Algorithm.Hash.Select((Byte) => Byte.ToString("x2")));
+            }, Token, (InputStream.Length >> 30) >= 1 ? TaskCreationOptions.LongRunning : TaskCreationOptions.None, TaskScheduler.Default);
         }
 
         public static string GetHash(this HashAlgorithm Algorithm, string InputString)
@@ -1390,16 +1379,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
-
-                StringBuilder builder = new StringBuilder();
-
-                foreach (byte Bt in Hash)
-                {
-                    builder.Append(Bt.ToString("x2"));
-                }
-
-                return builder.ToString();
+                return string.Concat(Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString)).Select((Byte) => Byte.ToString("x2")));
             }
         }
     }

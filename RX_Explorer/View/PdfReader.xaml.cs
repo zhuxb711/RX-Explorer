@@ -94,7 +94,7 @@ namespace RX_Explorer
 
                 if (PdfFile.Type.Equals(".sle", StringComparison.OrdinalIgnoreCase))
                 {
-                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    FileStream Stream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
 
                     SLEHeader Header = SLEHeader.GetHeader(Stream);
 
@@ -109,7 +109,7 @@ namespace RX_Explorer
                 }
                 else if (PdfFile.Type.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
-                    PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess);
+                    PdfStream = await PdfFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess);
                 }
                 else
                 {

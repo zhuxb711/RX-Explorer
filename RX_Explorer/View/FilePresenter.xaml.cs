@@ -160,6 +160,7 @@ namespace RX_Explorer
                                                               && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
 
                     PageSwitcher.Value = value.Path;
+                    NameExtensionsConverter.CurrentPath = value.Path;
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
@@ -3944,7 +3945,7 @@ namespace RX_Explorer
                         {
                             TranscodeImageDialog Dialog = null;
 
-                            using (FileStream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                            using (FileStream OriginStream = await File.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

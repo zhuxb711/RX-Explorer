@@ -82,6 +82,14 @@ namespace RX_Explorer.Class
                                                     out uint lpNumberOfFreeClusters,
                                                     out uint lpTotalNumberOfClusters);
 
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool GetFileAttributesExFromAppW(string lpFileName, GET_FILEEX_INFO_LEVELS fInfoLevelId, out WIN32_FILE_ATTRIBUTE_DATA lpFileInformation);
+
+        public enum GET_FILEEX_INFO_LEVELS
+        {
+            GetFileExInfoStandard,
+        }
+
         [Flags]
         private enum ACCESS_MASK : uint
         {
@@ -232,6 +240,17 @@ namespace RX_Explorer.Class
             MaximumFileInfoByHandlesClass,
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WIN32_FILE_ATTRIBUTE_DATA
+        {
+            public FileAttributes dwFileAttributes;
+            public FILETIME ftCreationTime;
+            public FILETIME ftLastAccessTime;
+            public FILETIME ftLastWriteTime;
+            public uint nFileSizeHigh;
+            public uint nFileSizeLow;
+        }
+
         [StructLayout(LayoutKind.Sequential, Size = 40)]
         private struct FILE_BASIC_INFO
         {
@@ -266,7 +285,7 @@ namespace RX_Explorer.Class
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct WIN32_FIND_DATA : IEquatable<WIN32_FIND_DATA>
         {
-            public uint dwFileAttributes;
+            public FileAttributes dwFileAttributes;
             public FILETIME ftCreationTime;
             public FILETIME ftLastAccessTime;
             public FILETIME ftLastWriteTime;
@@ -338,8 +357,8 @@ namespace RX_Explorer.Class
             FILE_ATTRIBUTE_FLAG Flags = FILE_ATTRIBUTE_FLAG.File_Flag_Overlapped | Option switch
             {
                 OptimizeOption.None => FILE_ATTRIBUTE_FLAG.File_Attribute_Normal,
-                OptimizeOption.Optimize_Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
-                OptimizeOption.Optimize_RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
+                OptimizeOption.Sequential => FILE_ATTRIBUTE_FLAG.File_Flag_Sequential_Scan,
+                OptimizeOption.RandomAccess => FILE_ATTRIBUTE_FLAG.File_Flag_Random_Access,
                 _ => throw new NotSupportedException()
             };
 
@@ -601,7 +620,7 @@ namespace RX_Explorer.Class
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+                            FileAttributes Attribute = Data.dwFileAttributes;
 
                             if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                             {
@@ -650,29 +669,63 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            using (SafeFileHandle Handle = CreateFileFromApp(Path,
-                                                             FILE_ACCESS.None,
-                                                             FILE_SHARE.Read | FILE_SHARE.Write,
-                                                             IntPtr.Zero,
-                                                             CREATE_OPTION.Open_Existing,
-                                                             FILE_ATTRIBUTE_FLAG.File_Flag_Backup_Semantics,
-                                                             IntPtr.Zero))
-
+            if (CheckItemTypeFromPath(Path) is StorageItemTypes.File or StorageItemTypes.Folder)
             {
-                if (!Handle.IsInvalid)
+                return true;
+            }
+            else if (Marshal.GetLastWin32Error() is 2 or 3)
+            {
+                return false;
+            }
+            else
+            {
+                throw new LocationNotAvailableException();
+            }
+        }
+
+        public static StorageItemTypes CheckItemTypeFromPath(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            if (GetFileAttributesExFromAppW(Path, GET_FILEEX_INFO_LEVELS.GetFileExInfoStandard, out WIN32_FILE_ATTRIBUTE_DATA AttributeData))
+            {
+                if (AttributeData.dwFileAttributes.HasFlag(FileAttributes.Directory))
                 {
-                    return true;
-                }
-                else if (Marshal.GetLastWin32Error() is 2 or 3
-                         && !System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
+                    return StorageItemTypes.Folder;
                 }
                 else
                 {
-                    throw new LocationNotAvailableException();
+                    return StorageItemTypes.File;
                 }
             }
+            else if (Marshal.GetLastWin32Error() is not 2 and not 3)
+            {
+                IntPtr SearchPtr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA FindData, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.None);
+
+                try
+                {
+                    if (SearchPtr.CheckIfValidPtr())
+                    {
+                        if (FindData.dwFileAttributes.HasFlag(FileAttributes.Directory))
+                        {
+                            return StorageItemTypes.Folder;
+                        }
+                        else
+                        {
+                            return StorageItemTypes.File;
+                        }
+                    }
+                }
+                finally
+                {
+                    FindClose(SearchPtr);
+                }
+            }
+
+            return StorageItemTypes.None;
         }
 
         public static IReadOnlyList<FileSystemStorageItemBase> Search(string FolderPath,
@@ -707,18 +760,16 @@ namespace RX_Explorer.Class
 
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
+                            if ((IncludeHiddenItem || !Data.dwFileAttributes.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Data.dwFileAttributes.HasFlag(FileAttributes.System)))
                             {
                                 if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
                                                        : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                    if (Attribute.HasFlag(FileAttributes.Directory))
+                                    if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                                     {
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                         {
                                             SearchResult.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
                                         }
@@ -729,7 +780,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                         {
                                             SearchResult.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
                                         }
@@ -792,15 +843,13 @@ namespace RX_Explorer.Class
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
+                            if ((IncludeHiddenItem || !Data.dwFileAttributes.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Data.dwFileAttributes.HasFlag(FileAttributes.System)))
                             {
-                                if (Attribute.HasFlag(FileAttributes.Directory))
+                                if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                     {
                                         Result.Add(new HiddenStorageFolder(new Win32_File_Data(CurrentDataPath, Data)));
                                     }
@@ -813,7 +862,7 @@ namespace RX_Explorer.Class
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                                     {
                                         Result.Add(new HiddenStorageFile(new Win32_File_Data(CurrentDataPath, Data)));
                                     }
@@ -868,11 +917,9 @@ namespace RX_Explorer.Class
                 {
                     if (Data.cFileName != "." && Data.cFileName != "..")
                     {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (Attribute.HasFlag(FileAttributes.Directory))
+                        if (Data.dwFileAttributes.HasFlag(FileAttributes.Directory))
                         {
-                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                             {
                                 return new HiddenStorageFolder(new Win32_File_Data(ItemPath, Data));
                             }
@@ -883,7 +930,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            if (Data.dwFileAttributes.HasFlag(FileAttributes.Hidden))
                             {
                                 return new HiddenStorageFile(new Win32_File_Data(ItemPath, Data));
                             }

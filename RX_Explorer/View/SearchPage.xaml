@@ -14,7 +14,7 @@
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
-        <Cls:NameExtensionsConverter x:Key="NameExtensionsConverter" />
+        <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter" />
 
         <Flyout x:Name="TooltipFlyout"
                 ShouldConstrainToRootBounds="False">

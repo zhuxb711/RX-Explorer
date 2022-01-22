@@ -576,6 +576,7 @@ namespace RX_Explorer.Class
                     finally
                     {
                         OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(DisplayName));
                         OnPropertyChanged(nameof(SizeDescription));
                         OnPropertyChanged(nameof(DisplayType));
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
@@ -907,6 +908,7 @@ namespace RX_Explorer.Class
 
                     OnPropertyChanged(nameof(SizeDescription));
                     OnPropertyChanged(nameof(Name));
+                    OnPropertyChanged(nameof(DisplayName));
                     OnPropertyChanged(nameof(ModifiedTimeDescription));
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));

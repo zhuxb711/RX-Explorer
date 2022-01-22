@@ -415,6 +415,7 @@
     <Content Include="Assets\DesktopIcon.ico" />
     <Content Include="Assets\DocumentIcon.ico" />
     <Content Include="Assets\ExcelFileIcon.png" />
+    <Content Include="Assets\Favourite.png" />
     <Content Include="Assets\FolderIcon_Win11.png" />
     <Content Include="Assets\Github-Intro1.png" />
     <Content Include="Assets\Github-Intro2.png" />

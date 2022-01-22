@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
         {
             this.Path = Path;
             Size = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-            Attributes = (FileAttributes)Data.dwFileAttributes;
+            Attributes = Data.dwFileAttributes;
 
             if (Win32_Native_API.FileTimeToSystemTime(ref Data.ftLastWriteTime, out Win32_Native_API.SYSTEMTIME ModTime))
             {

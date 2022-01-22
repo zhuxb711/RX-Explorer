@@ -303,7 +303,7 @@ namespace RX_Explorer
         {
             LoadingControl.IsLoading = true;
 
-            using (FileStream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.Optimize_RandomAccess))
+            using (FileStream Stream = await OriginFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
             {
                 switch (OriginFile.Type.ToLower())
                 {

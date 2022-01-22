@@ -13,8 +13,6 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase, ICoreStorageItem<StorageFile>
     {
-        public override string DisplayName => (StorageItem?.DisplayName) ?? Name;
-
         public override string SizeDescription => Size.GetSizeDescription();
 
         public override string DisplayType => (StorageItem?.DisplayType) ?? Type;

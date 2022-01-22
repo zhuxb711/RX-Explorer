@@ -183,13 +183,9 @@
                                         </Style>
                                     </Flyout.FlyoutPresenterStyle>
                                     <Grid Padding="10">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="200" />
-                                            <ColumnDefinition Width="30" />
-                                            <ColumnDefinition Width="200" />
-                                        </Grid.ColumnDefinitions>
                                         <ListView x:Name="ViewModeList"
                                                   SelectionMode="Single"
+                                                  Width="220"
                                                   Windows11NotPresent:ItemContainerStyleSelector="{StaticResource AnimationStyleSelector}"
                                                   ItemsSource="{x:Bind Cls:LayoutModeController.ItemsSource}"
                                                   SelectedIndex="{x:Bind LayoutModeControl.ViewModeIndex,Mode=TwoWay}"
@@ -213,45 +209,6 @@
                                                 </DataTemplate>
                                             </ListView.ItemTemplate>
                                         </ListView>
-                                        <Border Background="Gray"
-                                                Grid.Column="1"
-                                                Width="3"
-                                                Margin="0,5"
-                                                CornerRadius="2"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Stretch"/>
-                                        <StackPanel Grid.Column="2">
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="禁用"
-                                                          x:Uid="SettingDisplayHiddenItem"
-                                                          Name="DisplayHiddenItem">
-                                                <ToggleSwitch.Header>
-                                                    <TextBlock Text="显示隐藏文件"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               x:Uid="SettingDisplayHiddenItemLabel" />
-                                                </ToggleSwitch.Header>
-                                            </ToggleSwitch>
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="禁用"
-                                                          x:Uid="FileExtensionSwitch"
-                                                          Name="DisplayFileExtension">
-                                                <ToggleSwitch.Header>
-                                                    <TextBlock Text="显示文件扩展名称"
-                                                               x:Uid="SettingDisplayExtensionsLabel"
-                                                               TextTrimming="CharacterEllipsis" />
-                                                </ToggleSwitch.Header>
-                                            </ToggleSwitch>
-                                            <ToggleSwitch OnContent="启用"
-                                                          OffContent="隐藏"
-                                                          x:Uid="SettingTreeViewDetach"
-                                                          x:Name="TreeViewDetach">
-                                                <ToggleSwitch.Header>
-                                                    <TextBlock Text="文件夹目录"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               x:Uid="SettingTreeViewDetachLabel" />
-                                                </ToggleSwitch.Header>
-                                            </ToggleSwitch>
-                                        </StackPanel>
                                     </Grid>
                                 </Flyout>
                             </muxc:SplitButton.Flyout>

@@ -391,7 +391,7 @@ namespace RX_Explorer.Class
 
                                                             if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CModel.CopyTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
                                                             {
-                                                                using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential).Result)
+                                                                using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
                                                                 using (Stream WebStream = Response.GetResponseStream())
                                                                 {
                                                                     WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>
@@ -589,7 +589,7 @@ namespace RX_Explorer.Class
 
                                                             if (FileSystemStorageItemBase.CreateNewAsync(Path.Combine(MModel.MoveTo, FileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).Result is FileSystemStorageFile NewFile)
                                                             {
-                                                                using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Optimize_Sequential).Result)
+                                                                using (FileStream FStream = NewFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential).Result)
                                                                 using (Stream WebStream = Response.GetResponseStream())
                                                                 {
                                                                     WebStream.CopyToAsync(FStream, ProgressHandler: (s, e) =>

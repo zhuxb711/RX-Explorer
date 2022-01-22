@@ -114,7 +114,7 @@
                 </VisualState>
             </VisualStateGroup>
             <VisualStateGroup>
-                <VisualState x:Name="UnlockNormalSatatus" />
+                <VisualState x:Name="UnlockNormalStatus" />
                 <VisualState x:Name="UnlockSuccessStatus">
                     <VisualState.Setters>
                         <Setter Target="UnlockProgressRing.Visibility"
@@ -186,463 +186,439 @@
                                               Value="RootDrive"
                                               Name="GeneralPanelSwitcher">
                         <controls:Case Value="File">
-                            <Grid>
+                            <Grid x:Name="FilePanelRoot">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"
+                                                      MinWidth="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Stretch="Uniform"
-                                           Name="FileThumbnail"
-                                           HorizontalAlignment="Left" />
-                                    <TextBox VerticalAlignment="Center"
-                                             Grid.Column="1"
-                                             Margin="2,0,0,0"
-                                             Name="FileStorageItemName" />
-                                </Grid>
-                                <Grid x:Name="FilePanelRoot"
-                                      Grid.Row="1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="50" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <Border Height="2"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Text="Type:"
-                                               Grid.Row="1"
-                                               x:Uid="Properties_General_Type"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Text="Open with:"
-                                               Name="FileOpenWithLabel"
-                                               x:Uid="Properties_General_OpenWith"
+                                <Image Stretch="Uniform"
+                                       Name="FileThumbnail"
+                                       HorizontalAlignment="Left" />
+                                <TextBox VerticalAlignment="Center"
+                                         Grid.Column="1"
+                                         Margin="2,0,0,0"
+                                         Name="FileStorageItemName" />
+                                <Border Height="2"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Text="Type:"
+                                           Grid.Row="2"
+                                           x:Uid="Properties_General_Type"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="Open with:"
+                                           Name="FileOpenWithLabel"
+                                           x:Uid="Properties_General_OpenWith"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           Grid.Row="3" />
+                                <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_General_Description')}"
+                                           Name="FileDescriptionLabel"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           Grid.Row="3"
+                                           Visibility="Collapsed" />
+                                <Border Height="2"
+                                        Grid.Row="4"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Grid.Row="5"
+                                           VerticalAlignment="Center"
+                                           x:Uid="Properties_General_Location"
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="Location:" />
+                                <TextBlock Grid.Row="6"
+                                           x:Uid="Properties_General_Size"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Text="Size:" />
+                                <TextBlock Grid.Row="7"
+                                           x:Uid="Properties_General_SizeOnDisk"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Text="Size on disk:" />
+                                <TextBlock Grid.Row="9"
+                                           TextTrimming="CharacterEllipsis"
+                                           x:Uid="Properties_General_CreatedTime"
+                                           VerticalAlignment="Center"
+                                           Text="Created:" />
+                                <TextBlock Grid.Row="10"
+                                           x:Uid="Properties_General_ModifiedTime"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="Modified:" />
+                                <TextBlock Name="FileTypeContent"
+                                           IsTextSelectionEnabled="True"
+                                           Grid.Row="2"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="FileDescriptionContent"
+                                           IsTextSelectionEnabled="True"
+                                           Grid.Row="3"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Visibility="Collapsed"
+                                           TextTrimming="CharacterEllipsis" />
+                                <RelativePanel Grid.Row="3"
+                                               Grid.Column="1"
                                                VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               Grid.Row="2" />
-                                    <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_General_Description')}"
-                                               Name="FileDescriptionLabel"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               Grid.Row="2"
-                                               Visibility="Collapsed" />
-                                    <Border Height="2"
-                                            Grid.Row="3"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Grid.Row="4"
-                                               VerticalAlignment="Center"
-                                               x:Uid="Properties_General_Location"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="Location:" />
-                                    <TextBlock Grid.Row="5"
-                                               x:Uid="Properties_General_Size"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Text="Size:" />
-                                    <TextBlock Grid.Row="6"
-                                               x:Uid="Properties_General_SizeOnDisk"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Text="Size on disk:" />
-                                    <TextBlock Grid.Row="8"
-                                               TextTrimming="CharacterEllipsis"
-                                               x:Uid="Properties_General_CreatedTime"
-                                               VerticalAlignment="Center"
-                                               Text="Created:" />
-                                    <TextBlock Grid.Row="9"
-                                               x:Uid="Properties_General_ModifiedTime"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="Modified:" />
-                                    <TextBlock Name="FileTypeContent"
+                                               Name="OpenWithContentPanel">
+                                    <Image Name="FileOpenWithImage"
+                                           Height="25"
+                                           Stretch="Uniform"
+                                           RelativePanel.AlignLeftWithPanel="True" />
+                                    <TextBlock RelativePanel.LeftOf="FileChangeOpenWithButton"
+                                               RelativePanel.RightOf="FileOpenWithImage"
+                                               Name="FileOpenWithContent"
                                                IsTextSelectionEnabled="True"
-                                               Grid.Row="1"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               VerticalAlignment="Center"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               Margin="8,0"
+                                               ToolTipService.ToolTip="{x:Bind FileOpenWithContent.Text,Mode=OneWay}"
                                                TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="FileDescriptionContent"
-                                               IsTextSelectionEnabled="True"
-                                               Grid.Row="2"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
+                                    <Button RelativePanel.AlignRightWithPanel="True"
+                                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                                            Name="FileChangeOpenWithButton"
+                                            Click="ChangeOpenWithButton_Click"
+                                            Content="Change"
+                                            x:Uid="Properties_General_Change"
+                                            MinWidth="80"
+                                            Padding="4,2" />
+                                </RelativePanel>
+                                <ScrollViewer Grid.Row="5"
+                                              Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              Padding="2,0,0,0"
+                                              HorizontalScrollMode="Enabled"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Name="FileLocationScrollViewer">
+                                    <TextBlock Name="FileLocationContent"
                                                VerticalAlignment="Center"
-                                               Visibility="Collapsed"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <RelativePanel Grid.Row="2"
-                                                   Grid.Column="1"
-                                                   VerticalAlignment="Center"
-                                                   Name="OpenWithContentPanel">
-                                        <Image Name="FileOpenWithImage"
-                                               Height="25"
-                                               Stretch="Uniform"
-                                               RelativePanel.AlignLeftWithPanel="True" />
-                                        <TextBlock RelativePanel.LeftOf="FileChangeOpenWithButton"
-                                                   RelativePanel.RightOf="FileOpenWithImage"
-                                                   Name="FileOpenWithContent"
-                                                   IsTextSelectionEnabled="True"
-                                                   RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                   Margin="8,0"
-                                                   ToolTipService.ToolTip="{x:Bind FileOpenWithContent.Text,Mode=OneWay}"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <Button RelativePanel.AlignRightWithPanel="True"
-                                                RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                Name="FileChangeOpenWithButton"
-                                                Click="ChangeOpenWithButton_Click"
-                                                Content="Change"
-                                                x:Uid="Properties_General_Change"
-                                                MinWidth="80"
-                                                Padding="4,2" />
-                                    </RelativePanel>
-                                    <ScrollViewer Grid.Row="4"
-                                                  Grid.Column="1"
-                                                  VerticalAlignment="Center"
-                                                  Padding="2,0,0,0"
-                                                  HorizontalScrollMode="Enabled"
-                                                  VerticalScrollBarVisibility="Disabled"
-                                                  HorizontalScrollBarVisibility="Hidden"
-                                                  Name="FileLocationScrollViewer">
-                                        <TextBlock Name="FileLocationContent"
-                                                   VerticalAlignment="Center"
-                                                   ToolTipService.ToolTip="{x:Bind FileLocationContent.Text, Mode=OneWay}"
-                                                   IsTextSelectionEnabled="True" />
-                                    </ScrollViewer>
-                                    <TextBlock Name="FileSizeContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="5"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="FileSizeOnDiskContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="6"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <Border Height="2"
-                                            Grid.Row="7"
+                                               ToolTipService.ToolTip="{x:Bind FileLocationContent.Text, Mode=OneWay}"
+                                               IsTextSelectionEnabled="True" />
+                                </ScrollViewer>
+                                <TextBlock Name="FileSizeContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="6"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="FileSizeOnDiskContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="7"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Border Height="2"
+                                        Grid.Row="8"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Name="FileCreatedContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="9"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="FileModifiedContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="10"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Border Height="2"
+                                        Grid.Row="11"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <StackPanel Grid.Row="12"
                                             Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Name="FileCreatedContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="8"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="FileModifiedContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="9"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <Border Height="2"
-                                            Grid.Row="10"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <StackPanel Grid.Row="11"
-                                                Grid.ColumnSpan="2"
-                                                Orientation="Horizontal">
-                                        <CheckBox Content="Readonly"
-                                                  IsThreeState="True"
-                                                  x:Uid="Properties_General_ReadonlyCheckbox"
-                                                  x:Name="FileReadonlyAttribute" />
-                                        <CheckBox Content="Hidden"
-                                                  IsThreeState="True"
-                                                  x:Name="FileHiddenAttribute"
-                                                  x:Uid="Properties_General_HiddenCheckbox"
-                                                  Margin="10,0,0,0" />
-                                    </StackPanel>
-                                </Grid>
+                                            Orientation="Horizontal">
+                                    <CheckBox Content="Readonly"
+                                              IsThreeState="True"
+                                              x:Uid="Properties_General_ReadonlyCheckbox"
+                                              x:Name="FileReadonlyAttribute" />
+                                    <CheckBox Content="Hidden"
+                                              IsThreeState="True"
+                                              x:Name="FileHiddenAttribute"
+                                              x:Uid="Properties_General_HiddenCheckbox"
+                                              Margin="10,0,0,0" />
+                                </StackPanel>
                             </Grid>
                         </controls:Case>
                         <controls:Case Value="Folder">
-                            <Grid>
+                            <Grid x:Name="FolderPanelRoot">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"
+                                                      MinWidth="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50" />
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition />
                                 </Grid.RowDefinitions>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Stretch="Uniform"
-                                           Name="FolderThumbnail"
-                                           HorizontalAlignment="Left" />
-                                    <TextBox VerticalAlignment="Center"
-                                             Grid.Column="1"
-                                             Margin="2,0,0,0"
-                                             Name="FolderStorageItemName" />
-                                </Grid>
-                                <Grid x:Name="FolderPanelRoot"
-                                      Grid.Row="1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="50" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <Border Height="2"
+                                <Image Stretch="Uniform"
+                                       Name="FolderThumbnail"
+                                       HorizontalAlignment="Left" />
+                                <TextBox VerticalAlignment="Center"
+                                         Grid.Column="1"
+                                         Margin="2,0,0,0"
+                                         Name="FolderStorageItemName" />
+                                <Border Height="2"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Text="Type:"
+                                           Grid.Row="2"
+                                           x:Uid="Properties_General_Type"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Row="3"
+                                           VerticalAlignment="Center"
+                                           x:Uid="Properties_General_Location"
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="Location:" />
+                                <TextBlock Grid.Row="4"
+                                           x:Uid="Properties_General_Size"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Text="Size:" />
+                                <TextBlock Grid.Row="5"
+                                           TextTrimming="CharacterEllipsis"
+                                           x:Uid="Properties_General_Contains"
+                                           VerticalAlignment="Center"
+                                           Text="Contains:" />
+                                <Border Height="2"
+                                        Grid.Row="6"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Grid.Row="7"
+                                           TextTrimming="CharacterEllipsis"
+                                           x:Uid="Properties_General_CreatedTime"
+                                           VerticalAlignment="Center"
+                                           Text="Created:" />
+                                <Border Height="2"
+                                        Grid.Row="8"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock RelativePanel.AlignRightWithPanel="True"
+                                           Name="FolderTypeContent"
+                                           IsTextSelectionEnabled="True"
+                                           Grid.Row="2"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                                <ScrollViewer Grid.Row="3"
+                                              Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              Padding="2,0,0,0"
+                                              HorizontalScrollMode="Enabled"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Name="FolderLocationScrollViewer">
+                                    <TextBlock Name="FolderLocationContent"
+                                               VerticalAlignment="Center"
+                                               ToolTipService.ToolTip="{x:Bind FolderLocationContent.Text, Mode=OneWay}"
+                                               IsTextSelectionEnabled="True" />
+                                </ScrollViewer>
+                                <TextBlock Name="FolderSizeContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="4"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="FolderContainsContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="5"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="FolderCreatedContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="7"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <StackPanel Grid.Row="9"
                                             Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Text="Type:"
-                                               Grid.Row="1"
-                                               x:Uid="Properties_General_Type"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="2"
-                                               VerticalAlignment="Center"
-                                               x:Uid="Properties_General_Location"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="Location:" />
-                                    <TextBlock Grid.Row="3"
-                                               x:Uid="Properties_General_Size"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Text="Size:" />
-                                    <TextBlock Grid.Row="4"
-                                               TextTrimming="CharacterEllipsis"
-                                               x:Uid="Properties_General_Contains"
-                                               VerticalAlignment="Center"
-                                               Text="Contains:" />
-                                    <Border Height="2"
-                                            Grid.Row="5"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Grid.Row="6"
-                                               TextTrimming="CharacterEllipsis"
-                                               x:Uid="Properties_General_CreatedTime"
-                                               VerticalAlignment="Center"
-                                               Text="Created:" />
-                                    <Border Height="2"
-                                            Grid.Row="7"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock RelativePanel.AlignRightWithPanel="True"
-                                               Name="FolderTypeContent"
-                                               IsTextSelectionEnabled="True"
-                                               Grid.Row="1"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <ScrollViewer Grid.Row="2"
-                                                  Grid.Column="1"
-                                                  VerticalAlignment="Center"
-                                                  Padding="2,0,0,0"
-                                                  HorizontalScrollMode="Enabled"
-                                                  VerticalScrollBarVisibility="Disabled"
-                                                  HorizontalScrollBarVisibility="Hidden"
-                                                  Name="FolderLocationScrollViewer">
-                                        <TextBlock Name="FolderLocationContent"
-                                                   VerticalAlignment="Center"
-                                                   ToolTipService.ToolTip="{x:Bind FolderLocationContent.Text, Mode=OneWay}"
-                                                   IsTextSelectionEnabled="True" />
-                                    </ScrollViewer>
-                                    <TextBlock Name="FolderSizeContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="3"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="FolderContainsContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="4"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="FolderCreatedContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="6"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <StackPanel Grid.Row="8"
-                                                Grid.ColumnSpan="2"
-                                                Orientation="Horizontal">
-                                        <CheckBox Content="Readonly"
-                                                  IsThreeState="True"
-                                                  x:Uid="Properties_General_ReadonlyCheckbox"
-                                                  x:Name="FolderReadonlyAttribute" />
-                                        <CheckBox Content="Hidden"
-                                                  IsThreeState="True"
-                                                  x:Name="FolderHiddenAttribute"
-                                                  x:Uid="Properties_General_HiddenCheckbox"
-                                                  Margin="10,0,0,0" />
-                                    </StackPanel>
-                                </Grid>
+                                            Orientation="Horizontal">
+                                    <CheckBox Content="Readonly"
+                                              IsThreeState="True"
+                                              x:Uid="Properties_General_ReadonlyCheckbox"
+                                              x:Name="FolderReadonlyAttribute" />
+                                    <CheckBox Content="Hidden"
+                                              IsThreeState="True"
+                                              x:Name="FolderHiddenAttribute"
+                                              x:Uid="Properties_General_HiddenCheckbox"
+                                              Margin="10,0,0,0" />
+                                </StackPanel>
                             </Grid>
                         </controls:Case>
                         <controls:Case Value="MultiItems">
-                            <Grid>
+                            <Grid x:Name="MultiPanelRoot">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"
+                                                      MinWidth="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50" />
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition />
                                 </Grid.RowDefinitions>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Image Stretch="Uniform"
-                                           Name="MultiThumbnail"
-                                           HorizontalAlignment="Left" />
-                                    <TextBlock VerticalAlignment="Center"
-                                               Grid.Column="1"
-                                               Margin="2,0,0,0"
-                                               Name="MultiStorageItemName" />
-                                </Grid>
-                                <Grid x:Name="MultiPanelRoot"
-                                      Grid.Row="1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="35" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="50" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <Border Height="2"
+                                <Image Stretch="Uniform"
+                                       Name="MultiThumbnail"
+                                       HorizontalAlignment="Left" />
+                                <TextBlock VerticalAlignment="Center"
+                                           Grid.Column="1"
+                                           Margin="2,0,0,0"
+                                           Name="MultiStorageItemName" />
+                                <Border Height="2"
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock Text="Type:"
+                                           Grid.Row="2"
+                                           x:Uid="Properties_General_Type"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Row="3"
+                                           VerticalAlignment="Center"
+                                           x:Uid="Properties_General_Location"
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="Location:" />
+                                <TextBlock Grid.Row="4"
+                                           x:Uid="Properties_General_Size"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Text="Size:" />
+                                <TextBlock Grid.Row="5"
+                                           x:Uid="Properties_General_SizeOnDisk"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Text="Size on disk:" />
+                                <Border Height="2"
+                                        Grid.Row="6"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <TextBlock RelativePanel.AlignRightWithPanel="True"
+                                           Name="MultiTypeContent"
+                                           IsTextSelectionEnabled="True"
+                                           Grid.Row="2"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                                <ScrollViewer Grid.Row="3"
+                                              Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              Padding="2,0,0,0"
+                                              HorizontalScrollMode="Enabled"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Name="MultiLocationScrollViewer">
+                                    <TextBlock Name="MultiLocationContent"
+                                               VerticalAlignment="Center"
+                                               ToolTipService.ToolTip="{x:Bind FolderLocationContent.Text, Mode=OneWay}"
+                                               IsTextSelectionEnabled="True" />
+                                </ScrollViewer>
+                                <TextBlock Name="MultiSizeContent"
+                                           VerticalAlignment="Center"
+                                           Grid.Row="4"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           x:Uid="Properties_General_Size"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Name="MultiSizeOnDiskContent"
+                                           VerticalAlignment="Center"
+                                           x:Uid="Properties_General_SizeOnDisk"
+                                           Grid.Row="5"
+                                           Grid.Column="1"
+                                           Padding="2,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <StackPanel Grid.Row="7"
                                             Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock Text="Type:"
-                                               Grid.Row="1"
-                                               x:Uid="Properties_General_Type"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="2"
-                                               VerticalAlignment="Center"
-                                               x:Uid="Properties_General_Location"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="Location:" />
-                                    <TextBlock Grid.Row="3"
-                                               x:Uid="Properties_General_Size"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Text="Size:" />
-                                    <TextBlock Grid.Row="4"
-                                               x:Uid="Properties_General_SizeOnDisk"
-                                               TextTrimming="CharacterEllipsis"
-                                               VerticalAlignment="Center"
-                                               Text="Size on disk:" />
-                                    <Border Height="2"
-                                            Grid.Row="5"
-                                            Grid.ColumnSpan="2"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <TextBlock RelativePanel.AlignRightWithPanel="True"
-                                               Name="MultiTypeContent"
-                                               IsTextSelectionEnabled="True"
-                                               Grid.Row="1"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <ScrollViewer Grid.Row="2"
-                                                  Grid.Column="1"
-                                                  VerticalAlignment="Center"
-                                                  Padding="2,0,0,0"
-                                                  HorizontalScrollMode="Enabled"
-                                                  VerticalScrollBarVisibility="Disabled"
-                                                  HorizontalScrollBarVisibility="Hidden"
-                                                  Name="MultiLocationScrollViewer">
-                                        <TextBlock Name="MultiLocationContent"
-                                                   VerticalAlignment="Center"
-                                                   ToolTipService.ToolTip="{x:Bind FolderLocationContent.Text, Mode=OneWay}"
-                                                   IsTextSelectionEnabled="True" />
-                                    </ScrollViewer>
-                                    <TextBlock Name="MultiSizeContent"
-                                               VerticalAlignment="Center"
-                                               Grid.Row="3"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               x:Uid="Properties_General_Size"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Name="MultiSizeOnDiskContent"
-                                               VerticalAlignment="Center"
-                                               x:Uid="Properties_General_SizeOnDisk"
-                                               Grid.Row="4"
-                                               Grid.Column="1"
-                                               Padding="2,0,0,0"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <StackPanel Grid.Row="6"
-                                                Grid.ColumnSpan="2"
-                                                Orientation="Horizontal">
-                                        <CheckBox Content="Readonly"
-                                                  IsThreeState="True"
-                                                  x:Uid="Properties_General_ReadonlyCheckbox"
-                                                  x:Name="MultiReadonlyAttribute" />
-                                        <CheckBox Content="Hidden"
-                                                  IsThreeState="True"
-                                                  x:Name="MultiHiddenAttribute"
-                                                  x:Uid="Properties_General_HiddenCheckbox"
-                                                  Margin="10,0,0,0" />
-                                    </StackPanel>
-                                </Grid>
+                                            Orientation="Horizontal">
+                                    <CheckBox Content="Readonly"
+                                              IsThreeState="True"
+                                              x:Uid="Properties_General_ReadonlyCheckbox"
+                                              x:Name="MultiReadonlyAttribute" />
+                                    <CheckBox Content="Hidden"
+                                              IsThreeState="True"
+                                              x:Name="MultiHiddenAttribute"
+                                              x:Uid="Properties_General_HiddenCheckbox"
+                                              Margin="10,0,0,0" />
+                                </StackPanel>
                             </Grid>
                         </controls:Case>
                         <controls:Case Value="RootDrive">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"
-                                                          MinWidth="100" />
-                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="Auto"
+                                                          MinWidth="80" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="35" />
+                                        <RowDefinition Height="35" />
+                                    </Grid.RowDefinitions>
                                     <Image Stretch="Uniform"
                                            Name="RootDriveThumbnail"
                                            HorizontalAlignment="Left" />
@@ -650,210 +626,190 @@
                                              Grid.Column="1"
                                              Margin="2,0,0,0"
                                              Name="RootDriveName" />
+                                    <TextBlock x:Name="RootDriveTypeLabel"
+                                               VerticalAlignment="Center"
+                                               x:Uid="DriveType"
+                                               Grid.Row="1"
+                                               Text="类型:"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveTypeContent"
+                                               Grid.Row="1"
+                                               Grid.Column="1"
+                                               Padding="2,0,0,0"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveFileSystemLabel"
+                                               VerticalAlignment="Center"
+                                               Grid.Row="2"
+                                               Text="文件系统:"
+                                               x:Uid="DriveFileSystem"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveFileSystemContent"
+                                               Grid.Row="2"
+                                               Grid.Column="1"
+                                               Padding="2,0,0,0"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
                                 </Grid>
-                                <Grid Grid.Row="1">
+                                <Border Height="2"
+                                        Grid.Row="1"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <Grid Grid.Row="2">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="10" />
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="25" />
+                                        <RowDefinition Height="25" />
+                                        <RowDefinition Height="25" />
                                     </Grid.RowDefinitions>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"
-                                                              MinWidth="100" />
-                                            <ColumnDefinition Width="3*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="35" />
-                                            <RowDefinition Height="35" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock x:Name="RootDriveTypeLabel"
-                                                   VerticalAlignment="Center"
-                                                   x:Uid="DriveType"
-                                                   Text="类型:"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveTypeContent"
-                                                   Grid.Column="1"
-                                                   Padding="2,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveFileSystemLabel"
-                                                   VerticalAlignment="Center"
-                                                   Grid.Row="1"
-                                                   Text="文件系统:"
-                                                   x:Uid="DriveFileSystem"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveFileSystemContent"
-                                                   Grid.Row="1"
-                                                   Grid.Column="1"
-                                                   Padding="2,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </Grid>
-                                    <Border Height="2"
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="20"
+                                            Height="20"
+                                            HorizontalAlignment="Left"
+                                            Background="{ThemeResource SystemAccentColor}" />
+                                    <TextBlock Text="已用空间"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               x:Uid="DriveUsedSpace"
+                                               Grid.Column="1" />
+                                    <TextBlock x:Name="RootDriveUsedByte"
+                                               Grid.Column="2"
+                                               Padding="2,0,0,0"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveCapacity"
+                                               Grid.Column="3"
+                                               Padding="2,0,0,0"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <Border Width="20"
+                                            Height="20"
                                             Grid.Row="1"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <Grid Grid.Row="2">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="25" />
-                                            <RowDefinition Height="25" />
-                                            <RowDefinition Height="25" />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="30" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Width="20"
-                                                Height="20"
-                                                Background="{ThemeResource SystemAccentColor}" />
-                                        <TextBlock Text="已用空间"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   x:Uid="DriveUsedSpace"
-                                                   Grid.Column="1" />
-                                        <TextBlock x:Name="RootDriveUsedByte"
-                                                   Grid.Column="2"
-                                                   Padding="2,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveCapacity"
-                                                   Grid.Column="3"
-                                                   Padding="2,0,0,0"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <Border Width="20"
-                                                Height="20"
-                                                Grid.Row="1"
-                                                Background="LightGray" />
-                                        <TextBlock Text="可用空间"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   x:Uid="DriveFreeSpace"
-                                                   Grid.Row="1"
-                                                   Grid.Column="1" />
-                                        <TextBlock x:Name="RootDriveFreeByte"
-                                                   Grid.Row="1"
-                                                   Grid.Column="2"
-                                                   Padding="2,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveFreeSpace"
-                                                   Grid.Row="1"
-                                                   Grid.Column="3"
-                                                   Padding="2,0,0,0"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="总计空间"
-                                                   x:Uid="DriveCapacity"
-                                                   Grid.Row="2"
-                                                   Grid.Column="1"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveTotalByte"
-                                                   Grid.Row="2"
-                                                   Grid.Column="2"
-                                                   Padding="2,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock x:Name="RootDriveTotalSpace"
-                                                   Grid.Row="2"
-                                                   Grid.Column="3"
-                                                   Padding="2,0,0,0"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </Grid>
-                                    <Border Height="2"
-                                            Grid.Row="3"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <Grid Grid.Row="4"
-                                          Margin="0,10"
-                                          HorizontalAlignment="Stretch"
-                                          VerticalAlignment="Center">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="30" />
-                                        </Grid.RowDefinitions>
-                                        <muxc:ProgressRing Name="CapacityProgress"
-                                                           IsIndeterminate="False"
-                                                           Foreground="{ThemeResource SystemAccentColor}"
-                                                           Minimum="0"
-                                                           Maximum="1"
-                                                           Width="80"
-                                                           Height="80"
-                                                           VerticalAlignment="Center"
-                                                           HorizontalAlignment="Center" />
-                                        <TextBlock x:Name="CapacityPercentText"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   Foreground="{ThemeResource SystemAccentColor}"
-                                                   Text="{x:Bind Sys:String.Format('{0:0%}',CapacityProgress.Value),Mode=OneWay}" />
-                                        <TextBlock Grid.Row="1"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Name="RootDriveDescriptionLabel" />
-                                        <Button HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Grid.Row="1"
-                                                Content="磁盘清理"
-                                                x:Uid="DriveCleanup"
-                                                Name="DriveCleanup"
-                                                Click="DriveCleanup_Click" />
-                                    </Grid>
-                                    <Border Height="2"
-                                            Grid.Row="5"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Stretch"
-                                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                                    <StackPanel Grid.Row="6"
-                                                ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                                        <CheckBox Content="压缩此驱动器以节约磁盘空间"
-                                                  Checked="CompressDrive_Checked"
-                                                  Unchecked="CompressDrive_Unchecked"
-                                                  x:Uid="CompressDrive"
-                                                  x:Name="CompressDrive" />
-                                        <StackPanel Margin="30,0,0,0"
-                                                    Name="CompressDriveOptionArea"
-                                                    Visibility="Collapsed">
-                                            <RadioButton Content="仅应用到磁盘根目录"
-                                                         x:Uid="DriveApplyToRootOption"
-                                                         x:Name="CompressDriveOptionApplyToRoot"
-                                                         IsChecked="{x:Bind CompressDriveOptionArea.Visibility,Mode=OneWay}" />
-                                            <RadioButton Content="应用到所有子文件和子文件夹"
-                                                         x:Uid="DriveApplyToSubItems"
-                                                         x:Name="CompressDriveOptionApplySubItems" />
-                                        </StackPanel>
-                                        <CheckBox Content="除了文件属性外，还允许索引此驱动器上文件的内容"
-                                                  x:Name="AllowIndex"
-                                                  x:Uid="AllowIndex"
-                                                  Checked="AllowIndex_Checked"
-                                                  Unchecked="AllowIndex_Unchecked" />
-                                        <StackPanel Margin="30,0,0,0"
-                                                    Name="AllowIndexOptionArea"
-                                                    Visibility="Collapsed">
-                                            <RadioButton Content="仅应用到磁盘根目录"
-                                                         x:Uid="DriveApplyToRootOption"
-                                                         x:Name="AllowIndexOptionApplyToRoot"
-                                                         IsChecked="{x:Bind AllowIndexOptionArea.Visibility,Mode=OneWay}" />
-                                            <RadioButton Content="应用到所有子文件和子文件夹"
-                                                         x:Uid="DriveApplyToSubItems"
-                                                         x:Name="AllowIndexOptionApplySubItems" />
-                                        </StackPanel>
-                                    </StackPanel>
+                                            HorizontalAlignment="Left"
+                                            Background="LightGray" />
+                                    <TextBlock Text="可用空间"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               x:Uid="DriveFreeSpace"
+                                               Grid.Row="1"
+                                               Grid.Column="1" />
+                                    <TextBlock x:Name="RootDriveFreeByte"
+                                               Grid.Row="1"
+                                               Grid.Column="2"
+                                               Padding="2,0,0,0"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveFreeSpace"
+                                               Grid.Row="1"
+                                               Grid.Column="3"
+                                               Padding="2,0,0,0"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="总计空间"
+                                               x:Uid="DriveCapacity"
+                                               Grid.Row="2"
+                                               Grid.Column="1"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveTotalByte"
+                                               Grid.Row="2"
+                                               Grid.Column="2"
+                                               Padding="2,0,0,0"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="RootDriveTotalSpace"
+                                               Grid.Row="2"
+                                               Grid.Column="3"
+                                               Padding="2,0,0,0"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
                                 </Grid>
+                                <Border Height="2"
+                                        Grid.Row="3"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <Grid Grid.Row="4"
+                                      Margin="0,10"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="30" />
+                                    </Grid.RowDefinitions>
+                                    <muxc:ProgressRing Name="CapacityProgress"
+                                                       IsIndeterminate="False"
+                                                       Foreground="{ThemeResource SystemAccentColor}"
+                                                       Minimum="0"
+                                                       Maximum="1"
+                                                       Width="80"
+                                                       Height="80"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center" />
+                                    <TextBlock x:Name="CapacityPercentText"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{ThemeResource SystemAccentColor}"
+                                               Text="{x:Bind Sys:String.Format('{0:0%}',CapacityProgress.Value),Mode=OneWay}" />
+                                    <TextBlock Grid.Row="1"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Name="RootDriveDescriptionLabel" />
+                                    <Button HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Grid.Row="1"
+                                            Content="磁盘清理"
+                                            x:Uid="DriveCleanup"
+                                            Name="DriveCleanup"
+                                            Click="DriveCleanup_Click" />
+                                </Grid>
+                                <Border Height="2"
+                                        Grid.Row="5"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Stretch"
+                                        Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                <StackPanel Grid.Row="6"
+                                            ChildrenTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                                    <CheckBox Content="压缩此驱动器以节约磁盘空间"
+                                              Checked="CompressDrive_Checked"
+                                              Unchecked="CompressDrive_Unchecked"
+                                              x:Uid="CompressDrive"
+                                              x:Name="CompressDrive" />
+                                    <StackPanel Margin="30,0,0,0"
+                                                Name="CompressDriveOptionArea"
+                                                Visibility="Collapsed">
+                                        <RadioButton Content="仅应用到磁盘根目录"
+                                                     x:Uid="DriveApplyToRootOption"
+                                                     x:Name="CompressDriveOptionApplyToRoot"
+                                                     IsChecked="{x:Bind CompressDriveOptionArea.Visibility,Mode=OneWay}" />
+                                        <RadioButton Content="应用到所有子文件和子文件夹"
+                                                     x:Uid="DriveApplyToSubItems"
+                                                     x:Name="CompressDriveOptionApplySubItems" />
+                                    </StackPanel>
+                                    <CheckBox Content="除了文件属性外，还允许索引此驱动器上文件的内容"
+                                              x:Name="AllowIndex"
+                                              x:Uid="AllowIndex"
+                                              Checked="AllowIndex_Checked"
+                                              Unchecked="AllowIndex_Unchecked" />
+                                    <StackPanel Margin="30,0,0,0"
+                                                Name="AllowIndexOptionArea"
+                                                Visibility="Collapsed">
+                                        <RadioButton Content="仅应用到磁盘根目录"
+                                                     x:Uid="DriveApplyToRootOption"
+                                                     x:Name="AllowIndexOptionApplyToRoot"
+                                                     IsChecked="{x:Bind AllowIndexOptionArea.Visibility,Mode=OneWay}" />
+                                        <RadioButton Content="应用到所有子文件和子文件夹"
+                                                     x:Uid="DriveApplyToSubItems"
+                                                     x:Name="AllowIndexOptionApplySubItems" />
+                                    </StackPanel>
+                                </StackPanel>
                             </Grid>
                         </controls:Case>
                     </controls:SwitchPresenter>
@@ -869,14 +825,14 @@
                               VerticalScrollBarVisibility="Hidden">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="35"/>
                             <RowDefinition Height="2*" />
                             <RowDefinition Height="3*" />
                         </Grid.RowDefinitions>
-                        <Grid>
+                        <Grid Padding="2,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"
-                                                  MinWidth="100"/>
+                                                  MinWidth="80"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="对象名称:"
@@ -1017,9 +973,9 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"
-                                                  MinWidth="100" />
-                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="Auto"
+                                                  MinWidth="80" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Image Stretch="Uniform"
                                    Name="ShortcutThumbnail"
@@ -1387,13 +1343,20 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBox IsSpellCheckEnabled="False"
-                                                     IsReadOnly="True"
-                                                     IsEnabled="False"
-                                                     Header="MD5"
-                                                     Name="MD5TextBox"
-                                                     Margin="0,10,5,0"
-                                                     HorizontalAlignment="Stretch" />
+                                            <StackPanel Margin="0,10,5,0">
+                                                <TextBox IsSpellCheckEnabled="False"
+                                                         IsReadOnly="True"
+                                                         IsEnabled="False"
+                                                         Header="MD5"
+                                                         Name="MD5TextBox"
+                                                         HorizontalAlignment="Stretch" />
+                                                <muxc:ProgressBar Minimum="0"
+                                                                  Maximum="100"
+                                                                  Height="3"
+                                                                  HorizontalAlignment="Stretch"
+                                                                  Name="MD5Progress"
+                                                                  Visibility="{x:Bind CalculateMd5.IsEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
+                                            </StackPanel>
                                             <Button Margin="5,0,0,0"
                                                     Grid.Column="1"
                                                     MinWidth="100"
@@ -1402,14 +1365,21 @@
                                                     VerticalAlignment="Bottom"
                                                     Name="CalculateMd5"
                                                     Click="CalculateMd5_Click" />
-                                            <TextBox IsSpellCheckEnabled="False"
-                                                     IsReadOnly="True"
-                                                     IsEnabled="False"
-                                                     Header="SHA-1"
-                                                     Grid.Row="1"
-                                                     Name="SHA1TextBox"
-                                                     Margin="0,10,5,0"
-                                                     HorizontalAlignment="Stretch" />
+                                            <StackPanel Grid.Row="1"
+                                                        Margin="0,10,5,0">
+                                                <TextBox IsSpellCheckEnabled="False"
+                                                         IsReadOnly="True"
+                                                         IsEnabled="False"
+                                                         Header="SHA-1"
+                                                         Name="SHA1TextBox"
+                                                         HorizontalAlignment="Stretch" />
+                                                <muxc:ProgressBar Minimum="0"
+                                                                  Maximum="100"
+                                                                  Height="3"
+                                                                  HorizontalAlignment="Stretch"
+                                                                  Name="SHA1Progress"
+                                                                  Visibility="{x:Bind CalculateSHA1.IsEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
+                                            </StackPanel>
                                             <Button Margin="5,0,0,0"
                                                     Grid.Row="1"
                                                     Grid.Column="1"
@@ -1419,14 +1389,21 @@
                                                     x:Uid="Properties_Tools_CalculateButton"
                                                     Click="CalculateSHA1_Click"
                                                     VerticalAlignment="Bottom" />
-                                            <TextBox IsSpellCheckEnabled="False"
-                                                     IsReadOnly="True"
-                                                     IsEnabled="False"
-                                                     Grid.Row="2"
-                                                     Header="SHA-256"
-                                                     Name="SHA256TextBox"
-                                                     Margin="0,10,5,0"
-                                                     HorizontalAlignment="Stretch" />
+                                            <StackPanel Grid.Row="2"
+                                                        Margin="0,10,5,0">
+                                                <TextBox IsSpellCheckEnabled="False"
+                                                         IsReadOnly="True"
+                                                         IsEnabled="False"
+                                                         Header="SHA-256"
+                                                         Name="SHA256TextBox"
+                                                         HorizontalAlignment="Stretch" />
+                                                <muxc:ProgressBar Minimum="0"
+                                                                  Maximum="100"
+                                                                  Height="3"
+                                                                  HorizontalAlignment="Stretch"
+                                                                  Name="SHA256Progress"
+                                                                  Visibility="{x:Bind CalculateSHA256.IsEnabled,Mode=OneWay,Converter={StaticResource InverseConverter}}"/>
+                                            </StackPanel>
                                             <Button Margin="5,0,0,0"
                                                     Grid.Row="2"
                                                     Grid.Column="1"

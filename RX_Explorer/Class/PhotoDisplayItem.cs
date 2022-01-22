@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
                 {
                     BitmapImage TempImage = new BitmapImage();
 
-                    using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                    using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                     {
                         await TempImage.SetSourceAsync(Stream.AsRandomAccessStream());
                     }
@@ -84,7 +84,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Optimize_RandomAccess))
+                using (FileStream Stream = await PhotoFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream.AsRandomAccessStream());
 

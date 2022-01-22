@@ -40,7 +40,8 @@
     <Color x:Key="ElementFallBackWhiteLighterColor">#DCDCDCDC</Color>
 
     <CornerRadius x:Key="CustomCornerRadius">8,8,8,8</CornerRadius>
-
+    <TextTrimming x:Key="MenuFlyoutItemTextTrimming">CharacterEllipsis</TextTrimming>
+    
     <AcrylicBrush x:Key="DialogAcrylicBrush"
                   TintColor="{ThemeResource SystemAltHighColor}"
                   TintOpacity="0.6"

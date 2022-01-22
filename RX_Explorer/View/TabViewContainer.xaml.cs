@@ -64,7 +64,6 @@ namespace RX_Explorer
             PreviewTimer.Elapsed += PreviewTimer_Tick;
 
             Application.Current.Suspending += Current_Suspending;
-            ApplicationData.Current.DataChanged += Current_DataChanged;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
@@ -681,14 +680,6 @@ namespace RX_Explorer
                 AddBtn.IsTabStop = false;
             }
 
-            DisplayHiddenItem.IsOn = SettingPage.IsShowHiddenFilesEnabled;
-            DisplayFileExtension.IsOn = SettingPage.IsShowFileExtensionsEnabled;
-            TreeViewDetach.IsOn = !SettingPage.IsDetachTreeViewAndPresenter;
-
-            DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
-            DisplayFileExtension.Toggled += DisplayFileExtension_Toggled;
-            TreeViewDetach.Toggled += TreeViewDetach_Toggled;
-
             List<Task> LoadTaskList = new List<Task>(3)
             {
                 CommonAccessCollection.LoadQuickStartItemsAsync(),
@@ -701,24 +692,6 @@ namespace RX_Explorer
             }
 
             await Task.WhenAll(LoadTaskList).ContinueWith((_) => PreviewTimer.Start(), TaskScheduler.FromCurrentSynchronizationContext()).ConfigureAwait(false);
-        }
-
-        private async void Current_DataChanged(ApplicationData sender, object args)
-        {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
-                DisplayFileExtension.Toggled -= DisplayFileExtension_Toggled;
-                TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
-
-                DisplayHiddenItem.IsOn = SettingPage.IsShowHiddenFilesEnabled;
-                DisplayFileExtension.IsOn = SettingPage.IsShowFileExtensionsEnabled;
-                TreeViewDetach.IsOn = !SettingPage.IsDetachTreeViewAndPresenter;
-
-                DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
-                DisplayFileExtension.Toggled += DisplayFileExtension_Toggled;
-                TreeViewDetach.Toggled += TreeViewDetach_Toggled;
-            });
         }
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
@@ -1449,140 +1422,6 @@ namespace RX_Explorer
         private void ViewModeControlButton_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
         {
             sender.Flyout.ShowAt(sender);
-        }
-
-        private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                SettingPage.IsShowHiddenFilesEnabled = DisplayHiddenItem.IsOn;
-
-                foreach (FileControl Control in TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-                {
-                    if (!SettingPage.IsDetachTreeViewAndPresenter)
-                    {
-                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            await RootNode.UpdateAllSubNodeAsync();
-                        }
-                    }
-
-                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                 .Select((Blade) => Blade.Content)
-                                                                                 .OfType<FilePresenter>())
-                    {
-                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                        {
-                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Error in {nameof(DisplayHiddenItem_Toggled)}");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
-        private async void DisplayFileExtension_Toggled(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                SettingPage.IsShowFileExtensionsEnabled = DisplayFileExtension.IsOn;
-
-                foreach (FileControl Control in TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-                {
-                    foreach (FilePresenter Presenter in Control.BladeViewer.Items.Cast<BladeItem>()
-                                                                                 .Select((Blade) => Blade.Content)
-                                                                                 .OfType<FilePresenter>())
-                    {
-                        if (Presenter.CurrentFolder is FileSystemStorageFolder CurrentFolder)
-                        {
-                            await Presenter.DisplayItemsInFolder(CurrentFolder, true);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Error in {nameof(DisplayFileExtension_Toggled)}");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
-        private async void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                SettingPage.IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
-
-                foreach (FileControl Control in TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
-                {
-                    if (Control.CurrentPresenter?.CurrentFolder != null)
-                    {
-                        if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
-                        {
-                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(Scale * Control.ActualWidth) : new GridLength(0);
-                        }
-                        else
-                        {
-                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
-                        }
-
-                        if (TreeViewDetach.IsOn)
-                        {
-                            Control.FolderTree.RootNodes.Clear();
-
-                            foreach (FileSystemStorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder).ToArray())
-                            {
-                                bool HasAnyFolder = await DriveFolder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder);
-
-                                TreeViewNode RootNode = new TreeViewNode
-                                {
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-
-                                if (await DriveFolder.GetStorageItemAsync() is StorageFolder Folder)
-                                {
-                                    RootNode.Content = new TreeViewNodeContent(Folder);
-                                }
-                                else
-                                {
-                                    RootNode.Content = new TreeViewNodeContent(DriveFolder.Path);
-                                }
-
-                                Control.FolderTree.RootNodes.Add(RootNode);
-
-                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
-                                {
-                                    if (HasAnyFolder)
-                                    {
-                                        RootNode.IsExpanded = true;
-                                    }
-
-                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Error in {nameof(TreeViewDetach_Toggled)}");
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
         }
     }
 }
