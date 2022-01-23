@@ -1493,7 +1493,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_NotSupportARM_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                
+
                 await Dialog.ShowAsync();
             }
 
@@ -2064,7 +2064,7 @@ namespace RX_Explorer
                 {
                     if (!IsDetachTreeViewAndPresenter)
                     {
-                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
                             await RootNode.UpdateAllSubNodeAsync();
                         }
@@ -2185,8 +2185,9 @@ namespace RX_Explorer
             }
             finally
             {
-                ApplicationData.Current.SignalDataChanged();
+                await Task.Delay(1000);
                 LoadingControl.IsLoading = false;
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -3296,8 +3297,9 @@ namespace RX_Explorer
             }
             finally
             {
-                ApplicationData.Current.SignalDataChanged();
+                await Task.Delay(1000);
                 LoadingControl.IsLoading = false;
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
