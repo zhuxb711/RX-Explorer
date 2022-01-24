@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
 
         protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-        public static async Task<bool> CheckExistAsync(string Path)
+        public static async Task<bool> CheckExistsAsync(string Path)
         {
             if (!string.IsNullOrEmpty(Path) && System.IO.Path.IsPathRooted(Path))
             {
@@ -123,7 +123,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        return Win32_Native_API.CheckExist(Path);
+                        return Win32_Native_API.CheckExists(Path);
                     }
                     catch (LocationNotAvailableException)
                     {
@@ -309,7 +309,6 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    LogTracer.Log($"Try get storageitem from {nameof(Win32_Native_API.GetStorageItemFromHandle)}");
                                     return Win32_Native_API.GetStorageItemFromHandle(Path, Handle.DangerousGetHandle());
                                 }
                             }
@@ -902,7 +901,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (await CheckExistAsync(Path))
+                if (await CheckExistsAsync(Path))
                 {
                     await LoadCoreAsync(true);
 

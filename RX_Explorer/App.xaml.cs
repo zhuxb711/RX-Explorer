@@ -198,7 +198,7 @@ namespace RX_Explorer
                         {
                             if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                             {
-                                if (!string.IsNullOrWhiteSpace(LaunchArgs.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(LaunchArgs.Arguments))
+                                if (!string.IsNullOrWhiteSpace(LaunchArgs.Arguments) && await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
                                 {
                                     await TabContainer.CreateNewTabAsync(LaunchArgs.Arguments);
                                 }
@@ -210,7 +210,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (string.IsNullOrWhiteSpace(LaunchArgs.Arguments) || !await FileSystemStorageItemBase.CheckExistAsync(LaunchArgs.Arguments))
+                            if (string.IsNullOrWhiteSpace(LaunchArgs.Arguments) || !await FileSystemStorageItemBase.CheckExistsAsync(LaunchArgs.Arguments))
                             {
                                 await LaunchWithStartupMode(LaunchArgs);
                             }

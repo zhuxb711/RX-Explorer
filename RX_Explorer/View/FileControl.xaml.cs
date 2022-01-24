@@ -1118,7 +1118,7 @@ namespace RX_Explorer
                         string NewName = dialog.DesireNameMap[OriginName];
 
                         if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                            && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(Folder.Path, NewName)))
+                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(Folder.Path, NewName)))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -1183,7 +1183,7 @@ namespace RX_Explorer
 
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(Content.Path))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(Content.Path))
                 {
                     if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(Content.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder Folder)
                     {
@@ -1507,179 +1507,171 @@ namespace RX_Explorer
                 string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
                 string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-                if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath1))
+                if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath1))
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1) is FileSystemStorageItemBase Item)
+                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath1);
+                }
+                else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath2))
+                {
+                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath2);
+                }
+                else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistsAsync(ProtentialPath3))
+                {
+                    await CurrentPresenter.EnterSelectedItemAsync(ProtentialPath3);
+                }
+                else
+                {
+                    if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
                     {
-                        await CurrentPresenter.EnterSelectedItemAsync(Item);
+                        QueryText = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
                     }
 
-                    return;
-                }
-                else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath2))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2) is FileSystemStorageItemBase Item)
+                    if (await FileSystemStorageItemBase.CheckExistsAsync(QueryText))
                     {
-                        await CurrentPresenter.EnterSelectedItemAsync(Item);
-                    }
-
-                    return;
-                }
-                else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath3))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3) is FileSystemStorageItemBase Item)
-                    {
-                        await CurrentPresenter.EnterSelectedItemAsync(Item);
-                    }
-
-                    return;
-                }
-
-                if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
-                {
-                    QueryText = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
-                }
-
-                if (Path.IsPathRooted(QueryText))
-                {
-                    if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
-                    {
-                    Retry:
-                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
                         {
-                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                        Retry:
+                            BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                if (!await LockedDrive.UnlockAsync(Dialog.Password))
                                 {
-                                    goto Retry;
+                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                }
+
+                                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
+
+                                if (NewDrive is LockedDriveData)
+                                {
+                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
                                 }
                                 else
                                 {
-                                    return;
-                                }
-                            }
+                                    int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
 
-                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(Drive.DriveType, await StorageFolder.GetFolderFromPathAsync(Drive.Path));
-
-                            if (NewDrive is LockedDriveData)
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    return;
+                                    if (Index >= 0)
+                                    {
+                                        CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                        CommonAccessCollection.DriveList.Insert(Index, NewDrive);
+                                    }
+                                    else
+                                    {
+                                        CommonAccessCollection.DriveList.Add(NewDrive);
+                                    }
                                 }
                             }
                             else
                             {
-                                int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
-
-                                if (Index >= 0)
-                                {
-                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
-                                    CommonAccessCollection.DriveList.Insert(Index, NewDrive);
-                                }
-                                else
-                                {
-                                    CommonAccessCollection.DriveList.Add(NewDrive);
-                                }
+                                return;
                             }
                         }
-                        else
+
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            return;
+                            QueryText = await Exclusive.Controller.ConvertShortPathToLongPathAsync(QueryText);
                         }
-                    }
 
-                    switch (await FileSystemStorageItemBase.OpenAsync(QueryText))
-                    {
-                        case FileSystemStorageFile File:
-                            {
-                                await CurrentPresenter.EnterSelectedItemAsync(File);
-                                break;
-                            }
-                        case FileSystemStorageFolder Folder:
-                            {
-                                string TargetRootPath = Path.GetPathRoot(Folder.Path);
-                                string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
-
-                                if (!CurrentRootPath.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase))
+                        switch (await FileSystemStorageItemBase.OpenAsync(QueryText))
+                        {
+                            case FileSystemStorageFile File:
                                 {
-                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetRootNode)
-                                    {
-                                        FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
-                                        TargetRootNode.IsExpanded = true;
-                                    }
+                                    await CurrentPresenter.EnterSelectedItemAsync(File);
+                                    break;
                                 }
-
-                                if (await CurrentPresenter.DisplayItemsInFolder(Folder))
+                            case FileSystemStorageFolder Folder:
                                 {
-                                    if (SettingPage.IsPathHistoryEnabled)
+                                    string TargetRootPath = Path.GetPathRoot(Folder.Path);
+                                    string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+
+                                    if (!CurrentRootPath.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        SQLite.Current.SetPathHistory(Folder.Path);
+                                        if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(TargetRootPath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetRootNode)
+                                        {
+                                            FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
+                                            TargetRootNode.IsExpanded = true;
+                                        }
                                     }
 
-                                    await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                    if (await CurrentPresenter.DisplayItemsInFolder(Folder))
+                                    {
+                                        if (SettingPage.IsPathHistoryEnabled)
+                                        {
+                                            SQLite.Current.SetPathHistory(Folder.Path);
+                                        }
+
+                                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
+
+                                    break;
                                 }
-                                else
+                            default:
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                                     };
 
-                                    await Dialog.ShowAsync();
+                                    await dialog.ShowAsync();
+
+                                    break;
                                 }
-
-                                break;
-                            }
-                        default:
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                                };
-
-                                await dialog.ShowAsync();
-
-                                break;
-                            }
+                        }
                     }
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    else
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{QueryText}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
 
-                    await dialog.ShowAsync();
+                        await dialog.ShowAsync();
+                    }
                 }
             }
             catch (Exception)
@@ -1714,7 +1706,7 @@ namespace RX_Explorer
                             string InputPath = sender.Text.Replace('/', '\\');
                             string ActualPath = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
-                            if (Path.IsPathRooted(ActualPath))
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(ActualPath))
                             {
                                 string FileName = Path.GetFileName(ActualPath);
                                 string DirectoryPath = Path.GetPathRoot(ActualPath).Equals(ActualPath, StringComparison.OrdinalIgnoreCase)
@@ -2240,7 +2232,7 @@ namespace RX_Explorer
         {
             if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(Content.Path))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(Content.Path))
                 {
                     string StartupArgument = Uri.EscapeDataString(JsonSerializer.Serialize(new List<string[]>
                     {
@@ -2267,7 +2259,7 @@ namespace RX_Explorer
         {
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
-            if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+            if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
             {
                 await TabViewContainer.Current.CreateNewTabAsync(Path);
             }
@@ -3080,7 +3072,7 @@ namespace RX_Explorer
                             {
                                 string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
@@ -3111,7 +3103,7 @@ namespace RX_Explorer
                                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                                  : UserDataPaths.GetDefault();
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                        if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
@@ -3149,7 +3141,7 @@ namespace RX_Explorer
                             {
                                 string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                 {
                                     QueueTaskController.EnqueueCopyOpeartion(Content.Path, DocumentPath);
                                 }
@@ -3163,7 +3155,7 @@ namespace RX_Explorer
                                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                                  : UserDataPaths.GetDefault();
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                        if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                         {
                                             QueueTaskController.EnqueueCopyOpeartion(Content.Path, DataPath.Documents);
                                         }

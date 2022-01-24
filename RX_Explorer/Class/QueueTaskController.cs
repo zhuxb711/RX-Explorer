@@ -424,7 +424,7 @@ namespace RX_Explorer.Class
                                                     Option = CollisionOptions.RenameOnCollision;
                                                 }
                                                 else if (CModel.CopyFrom.Select((SourcePath) => Path.Combine(CModel.CopyTo, Path.GetFileName(SourcePath)))
-                                                                        .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
+                                                                        .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -616,7 +616,7 @@ namespace RX_Explorer.Class
                                             else
                                             {
                                                 if (MModel.MoveFrom.Select((SourcePath) => Path.Combine(MModel.MoveTo, Path.GetFileName(SourcePath)))
-                                                                   .Any((DestPath) => FileSystemStorageItemBase.CheckExistAsync(DestPath).Result))
+                                                                   .Any((DestPath) => FileSystemStorageItemBase.CheckExistsAsync(DestPath).Result))
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {

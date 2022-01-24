@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.Storage;
@@ -399,7 +400,7 @@ namespace RX_Explorer.Class
 
                     if (Analysis.HasNextLevel)
                     {
-                        if (!CheckExist(NextPath))
+                        if (!CheckExists(NextPath))
                         {
                             if (!CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                             {
@@ -431,7 +432,7 @@ namespace RX_Explorer.Class
                                 }
                             case CreateOption.OpenIfExist:
                                 {
-                                    if (CheckExist(NextPath))
+                                    if (CheckExists(NextPath))
                                     {
                                         NewFolderPath = NextPath;
                                         return true;
@@ -475,7 +476,7 @@ namespace RX_Explorer.Class
                 {
                     case CreateOption.GenerateUniqueName:
                         {
-                            if (CheckExist(Path))
+                            if (CheckExists(Path))
                             {
                                 string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
 
@@ -553,7 +554,7 @@ namespace RX_Explorer.Class
                 string Extension = System.IO.Path.GetExtension(Path);
                 string Directory = System.IO.Path.GetDirectoryName(Path);
 
-                for (ushort Count = 1; CheckExist(UniquePath); Count++)
+                for (ushort Count = 1; CheckExists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
                     {
@@ -570,7 +571,7 @@ namespace RX_Explorer.Class
                 string Directory = System.IO.Path.GetDirectoryName(Path);
                 string Name = System.IO.Path.GetFileName(Path);
 
-                for (ushort Count = 1; CheckExist(UniquePath); Count++)
+                for (ushort Count = 1; CheckExists(UniquePath); Count++)
                 {
                     if (Regex.IsMatch(Name, @".*\(\d+\)"))
                     {
@@ -662,7 +663,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckExist(string Path)
+        public static bool CheckExists(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {

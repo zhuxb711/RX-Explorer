@@ -22,6 +22,37 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static string ConvertShortPathToLongPath(string ShortPath)
+        {
+            int BufferSize = 512;
+
+            StringBuilder Builder = new StringBuilder(BufferSize);
+
+            uint ReturnNum = Kernel32.GetLongPathName(ShortPath, Builder, Convert.ToUInt32(BufferSize));
+
+            if (ReturnNum > BufferSize)
+            {
+                BufferSize = Builder.EnsureCapacity(Convert.ToInt32(ReturnNum));
+
+                if (Kernel32.GetLongPathName(ShortPath, Builder, Convert.ToUInt32(BufferSize)) > 0)
+                {
+                    return Builder.ToString();
+                }
+                else
+                {
+                    return ShortPath;
+                }
+            }
+            else if (ReturnNum > 0)
+            {
+                return Builder.ToString();
+            }
+            else
+            {
+                return ShortPath;
+            }
+        }
+
         public static DateTimeOffset ConvertToLocalDateTimeOffset(FILETIME FileTime)
         {
             try

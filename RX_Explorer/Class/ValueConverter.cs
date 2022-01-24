@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Windows.Storage;
+using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -12,19 +12,19 @@ namespace RX_Explorer.Class
 {
     public sealed class NameExtensionsConverter : IValueConverter
     {
-        public string CurrentPath { get; set; }
+        public IReadOnlyList<FileSystemStorageItemBase> ItemsSource { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (string.IsNullOrEmpty(CurrentPath))
+            if (ItemsSource == null)
             {
-                throw new ArgumentException("CurrentPath must be set", nameof(CurrentPath));
+                throw new ArgumentException("ItemSource must be set", nameof(ItemsSource));
             }
 
             if (value is string Name)
             {
-                if (Name.EndsWith(".lnk",StringComparison.OrdinalIgnoreCase)
-                    || (!SettingPage.IsShowFileExtensionsEnabled && Win32_Native_API.CheckItemTypeFromPath(Path.Combine(CurrentPath, Name)) == StorageItemTypes.File))
+                if (Name.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)
+                    || (!SettingPage.IsShowFileExtensionsEnabled && ItemsSource.OfType<FileSystemStorageFile>().Any((Item) => Item.Name.Equals(Name, StringComparison.OrdinalIgnoreCase))))
                 {
                     return Path.GetFileNameWithoutExtension(Name);
                 }

@@ -63,6 +63,7 @@ namespace ShareClassLibrary
     public enum CommandType
     {
         Test,
+        ConvertToLongPath,
         GetFriendlyTypeName,
         GetPermissions,
         SetDriveLabel,

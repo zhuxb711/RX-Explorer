@@ -14,7 +14,8 @@
     <Page.Resources>
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
         <Cls:ColorTagConverter x:Key="ColorTagConverter" />
-        <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter" />
+        <Cls:NameExtensionsConverter x:Name="NameExtensionsConverter"
+                                     ItemsSource="{x:Bind SearchResult}"/>
 
         <Flyout x:Name="TooltipFlyout"
                 ShouldConstrainToRootBounds="False">

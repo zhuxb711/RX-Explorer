@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             BitmapImage Thubnail = null;
 
-            if (SettingPage.ContentLoadMode == LoadMode.All)
+            if (SettingPage.ContentLoadMode == LoadMode.All || (System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {
                 Thubnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
             }
@@ -72,8 +72,8 @@ namespace RX_Explorer.Class
             Path = OverridePath;
             Name = OverrideDisplayName;
             HasChildren = true;
-            Thumbnail = new BitmapImage(OverridePath == "QuickAccessPath" 
-                                                        ? new Uri("ms-appx:///Assets/Favourite.png") 
+            Thumbnail = new BitmapImage(OverridePath == "QuickAccessPath"
+                                                        ? new Uri("ms-appx:///Assets/Favourite.png")
                                                         : WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
                                                                 ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
                                                                 : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));

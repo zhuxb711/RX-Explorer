@@ -17,7 +17,6 @@ using System.Timers;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
 using Windows.Services.Store;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -32,7 +31,6 @@ using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
 using Timer = System.Timers.Timer;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
@@ -743,13 +741,19 @@ namespace RX_Explorer
 
             FlyoutBase.SetAttachedFlyout(Item, PreviewFlyout);
 
-            List<string> ValidPathArray = new List<string>();
+            List<string> ValidPathArray = new List<string>(PathForNewTab.Length);
 
-            foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
+            if (PathForNewTab.Length > 0)
             {
-                if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) || await FileSystemStorageItemBase.CheckExistAsync(Path))
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                 {
-                    ValidPathArray.Add(Path);
+                    foreach (string Path in PathForNewTab.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
+                    {
+                        if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) || await FileSystemStorageItemBase.CheckExistsAsync(Path))
+                        {
+                            ValidPathArray.Add(await Exclusive.Controller.ConvertShortPathToLongPathAsync(Path));
+                        }
+                    }
                 }
             }
 

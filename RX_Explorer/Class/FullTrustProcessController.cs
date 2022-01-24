@@ -489,6 +489,23 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<string> ConvertShortPathToLongPathAsync(string Path)
+        {
+            if (await SendCommandAsync(CommandType.ConvertToLongPath, ("Path", Path)) is IDictionary<string, string> Response)
+            {
+                if (Response.TryGetValue("Success", out string LongPath))
+                {
+                    return LongPath;
+                }
+                else if (Response.TryGetValue("Error", out string ErrorMessage))
+                {
+                    LogTracer.Log($"An unexpected error was threw in {nameof(ConvertShortPathToLongPathAsync)}, message: {ErrorMessage}");
+                }
+            }
+
+            return Path;
+        }
+
         public async Task<string[]> GetFriendlyTypeNameAsync(params string[] ExtensionArray)
         {
             if (ExtensionArray.Length > 0)
@@ -1736,7 +1753,7 @@ namespace RX_Explorer.Class
 
             foreach (KeyValuePair<string, string> SourcePair in Source)
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(SourcePair.Key))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePair.Key))
                 {
                     MessageList.Add(SourcePair.Key, SourcePair.Value);
                 }
@@ -1868,7 +1885,7 @@ namespace RX_Explorer.Class
 
             foreach (string SourcePath in Source)
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(SourcePath))
+                if (await FileSystemStorageItemBase.CheckExistsAsync(SourcePath))
                 {
                     ItemList.Add(SourcePath);
                 }

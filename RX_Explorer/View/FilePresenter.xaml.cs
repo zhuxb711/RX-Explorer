@@ -160,7 +160,6 @@ namespace RX_Explorer
                                                               && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
 
                     PageSwitcher.Value = value.Path;
-                    NameExtensionsConverter.CurrentPath = value.Path;
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
@@ -1943,7 +1942,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
+                if (!await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
                 {
                     return;
                 }
@@ -2654,7 +2653,7 @@ namespace RX_Explorer
 
                         await AreaWatcher.StopMonitorAsync();
                     }
-                    else if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
+                    else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                     {
                         //If target is network path and the user had already mapped it as drive, then we should remap the network path to the drive path if possible.
                         //Use drive path could get more benefit from loading speed and directory monitor
@@ -3378,7 +3377,7 @@ namespace RX_Explorer
                             string NewName = dialog.DesireNameMap[OriginName];
 
                             if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                                && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NewName)))
+                                && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NewName)))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -3457,7 +3456,7 @@ namespace RX_Explorer
 
             if (await SelectedItem.GetStorageItemAsync() is StorageFile ShareFile)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(ShareFile.Path))
+                if (!await FileSystemStorageItemBase.CheckExistsAsync(ShareFile.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -3842,7 +3841,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path))
+            if (!await FileSystemStorageItemBase.CheckExistsAsync(SelectedItem.Path))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -4073,7 +4072,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
+            if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
             {
                 if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
                     && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
@@ -4164,7 +4163,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
+            if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
             {
                 if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
@@ -4288,7 +4287,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path))
+                if (!await FileSystemStorageItemBase.CheckExistsAsync(SelectedItem.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -4393,7 +4392,7 @@ namespace RX_Explorer
                     {
                         case FileSystemStorageFile File:
                             {
-                                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
+                                if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -5025,7 +5024,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
+                if (!await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -5712,7 +5711,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (!CurrentEditItem.Name.Equals(NameEditBox.Text, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
+                    if (!CurrentEditItem.Name.Equals(NameEditBox.Text, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -6260,7 +6259,7 @@ namespace RX_Explorer
             {
                 CloseAllFlyout();
 
-                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
+                if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -6693,7 +6692,7 @@ namespace RX_Explorer
                             {
                                 string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(DesktopPath))
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                     {
@@ -6724,7 +6723,7 @@ namespace RX_Explorer
                                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                                  : UserDataPaths.GetDefault();
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                        if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Desktop))
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                             {
@@ -6762,7 +6761,7 @@ namespace RX_Explorer
                             {
                                 string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(DocumentPath))
                                 {
                                     QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
                                 }
@@ -6776,7 +6775,7 @@ namespace RX_Explorer
                                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                                  : UserDataPaths.GetDefault();
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                        if (await FileSystemStorageItemBase.CheckExistsAsync(DataPath.Documents))
                                         {
                                             QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
                                         }

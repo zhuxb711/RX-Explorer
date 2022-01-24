@@ -64,7 +64,7 @@ namespace RX_Explorer.Class
 
                             foreach (string Path in JsonSerializer.Deserialize<IEnumerable<string>>(RawData).Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+                                if (await FileSystemStorageItemBase.CheckExistsAsync(Path))
                                 {
                                     yield return new string[] { Path };
                                 }
@@ -88,7 +88,7 @@ namespace RX_Explorer.Class
 
                                 foreach (string ValidPath in PathList.Where((Path) => !string.IsNullOrWhiteSpace(Path)))
                                 {
-                                    if (await FileSystemStorageItemBase.CheckExistAsync(ValidPath))
+                                    if (await FileSystemStorageItemBase.CheckExistsAsync(ValidPath))
                                     {
                                         ValidPathList.Add(ValidPath);
                                     }

@@ -718,6 +718,21 @@ namespace FullTrustProcess
             {
                 switch (Enum.Parse(typeof(CommandType), CommandValue["CommandType"]))
                 {
+                    case CommandType.ConvertToLongPath:
+                        {
+                            string Path = Convert.ToString(CommandValue["Path"]);
+
+                            if (Directory.Exists(Path) || File.Exists(Path))
+                            {
+                                Value.Add("Success", Helper.ConvertShortPathToLongPath(Path));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File or directory is not found");
+                            }
+
+                            break;
+                        }
                     case CommandType.GetFriendlyTypeName:
                         {
                             string[] ExtensionArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExtensionArray"]));

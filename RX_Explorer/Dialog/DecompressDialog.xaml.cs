@@ -64,7 +64,7 @@ namespace RX_Explorer.Dialog
 
                 if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
                 {
-                    if (await FileSystemStorageItemBase.CheckExistAsync(ExtractLocation) == false)
+                    if (await FileSystemStorageItemBase.CheckExistsAsync(ExtractLocation) == false)
                     {
                         await FileSystemStorageItemBase.CreateNewAsync(ExtractLocation, StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
                     }

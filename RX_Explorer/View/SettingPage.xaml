@@ -1483,9 +1483,7 @@
                                                                                   x:Uid="SettingPagDisableSelectionAnimation"
                                                                                   IsEnabled="{x:Bind Cls:AnimationController.Current.IsEnableAnimation,Mode=OneWay}"
                                                                                   IsChecked="{x:Bind Cls:AnimationController.Current.IsDisableSelectionAnimation,Mode=TwoWay}"
-                                                                                  Name="DisableSelectionAnimation"
-                                                                                  Checked="DisableSelectionAnimation_Changed"
-                                                                                  Unchecked="DisableSelectionAnimation_Changed" />
+                                                                                  Name="DisableSelectionAnimation" />
                                                 </Windows11NotPresent:Border>
                                                 <Border Padding="40,10,10,10"
                                                         MinHeight="45"

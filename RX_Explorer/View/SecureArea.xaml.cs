@@ -830,7 +830,7 @@ namespace RX_Explorer
                         string NewName = dialog.DesireNameMap[OriginName];
 
                         if (!OriginName.Equals(NewName, StringComparison.OrdinalIgnoreCase)
-                            && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, NewName)))
+                            && await FileSystemStorageItemBase.CheckExistsAsync(Path.Combine(SecureFolder.Path, NewName)))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {

@@ -221,7 +221,7 @@ namespace RX_Explorer.Dialog
                         string Extension = Path.GetExtension(ItemPath);
                         string Directory = Path.GetDirectoryName(ItemPath);
 
-                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
+                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistsAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
                         {
                             if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
                             {
@@ -240,7 +240,7 @@ namespace RX_Explorer.Dialog
                         string Directory = Path.GetDirectoryName(ItemPath);
                         string Name = Path.GetFileName(ItemPath);
 
-                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
+                        for (ushort Count = 1; await FileSystemStorageItemBase.CheckExistsAsync(UniquePath) || ExceptPath.Contains(UniquePath); Count++)
                         {
                             if (Regex.IsMatch(Name, @".*\(\d+\)"))
                             {

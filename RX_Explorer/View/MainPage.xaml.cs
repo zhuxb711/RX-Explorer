@@ -1145,7 +1145,7 @@ namespace RX_Explorer
                             {
                                 if (Ur.IsFile)
                                 {
-                                    if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
+                                    if (await FileSystemStorageItemBase.CheckExistsAsync(Item.Protocol))
                                     {
                                         try
                                         {

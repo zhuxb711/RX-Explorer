@@ -254,7 +254,6 @@ namespace RX_Explorer
             {
                 this.SearchCancellation = SearchCancellation;
 
-                NameExtensionsConverter.CurrentPath = Options.SearchFolder.Path;
                 SearchStatus.Text = $"{Globalization.GetString("SearchProcessingText")} \"{Options.SearchText}\"";
                 SearchStatusBar.Visibility = Visibility.Visible;
 
@@ -815,7 +814,7 @@ namespace RX_Explorer
                 {
                     case FileSystemStorageFile File:
                         {
-                            if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
+                            if (!await FileSystemStorageItemBase.CheckExistsAsync(File.Path))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -1058,7 +1057,7 @@ namespace RX_Explorer
                         }
                     case FileSystemStorageFolder Folder:
                         {
-                            if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
+                            if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                             {
                                 await TabViewContainer.Current.CreateNewTabAsync(Folder.Path);
                                 await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
