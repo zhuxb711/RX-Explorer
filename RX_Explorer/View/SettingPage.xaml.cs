@@ -809,8 +809,12 @@ namespace RX_Explorer
                 LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
                 FontFamilyComboBox.SelectionChanged -= FontFamilyComboBox_SelectionChanged;
                 AlwaysOnTop.Toggled -= AlwaysOnTop_Toggled;
-                DisableSelectionAnimation.Checked -= DisableSelectionAnimation_Changed;
-                DisableSelectionAnimation.Unchecked -= DisableSelectionAnimation_Changed;
+
+                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
+                {
+                    DisableSelectionAnimation.Checked -= DisableSelectionAnimation_Changed;
+                    DisableSelectionAnimation.Unchecked -= DisableSelectionAnimation_Changed;
+                }
             }
 
             DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
@@ -1015,8 +1019,12 @@ namespace RX_Explorer
                 LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
                 FontFamilyComboBox.SelectionChanged += FontFamilyComboBox_SelectionChanged;
                 AlwaysOnTop.Toggled += AlwaysOnTop_Toggled;
-                DisableSelectionAnimation.Checked += DisableSelectionAnimation_Changed;
-                DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
+
+                if (WindowsVersionChecker.IsOlderOrEqual(Class.Version.Windows10_2004))
+                {
+                    DisableSelectionAnimation.Checked += DisableSelectionAnimation_Changed;
+                    DisableSelectionAnimation.Unchecked += DisableSelectionAnimation_Changed;
+                }
             }
 
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;

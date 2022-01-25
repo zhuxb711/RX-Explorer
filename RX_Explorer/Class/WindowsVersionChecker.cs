@@ -1,4 +1,5 @@
-﻿using Windows.Foundation.Metadata;
+﻿using System;
+using Windows.Foundation.Metadata;
 
 namespace RX_Explorer.Class
 {
@@ -17,6 +18,12 @@ namespace RX_Explorer.Class
         public static bool IsNewerOrEqual(Version Version)
         {
             return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", (ushort)Version);
+        }
+
+        public static bool IsOlderOrEqual(Version Version)
+        {
+            return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", Convert.ToUInt16((int)Version)) 
+                   && !ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", Convert.ToUInt16((int)Version + 1));
         }
     }
 }
