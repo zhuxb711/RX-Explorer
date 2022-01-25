@@ -4561,6 +4561,22 @@ Les noms non valides incluent
           <source>List folder contents</source>
           <target state="translated">Répertorier le contenu du dossier</target>
         </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashButtonLabel.Text" translate="yes" xml:space="preserve">
+          <source>Check</source>
+          <target state="translated">Vérifier</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashKind_None" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Rien</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashTitle.Text" translate="yes" xml:space="preserve">
+          <source>Hash comparison</source>
+          <target state="translated">Comparaison de hachage</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please paste the hash here</source>
+          <target state="translated">Veuillez coller le hachage ici</target>
+        </trans-unit>
       </group>
     </body>
   </file>

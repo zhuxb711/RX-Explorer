@@ -4561,6 +4561,22 @@ Invalid names include
           <source>List folder contents</source>
           <target state="translated">列出文件夾內容</target>
         </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashButtonLabel.Text" translate="yes" xml:space="preserve">
+          <source>Check</source>
+          <target state="translated">檢查</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashKind_None" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">無</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashTitle.Text" translate="yes" xml:space="preserve">
+          <source>Hash comparison</source>
+          <target state="translated">哈希比較 </target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please paste the hash here</source>
+          <target state="translated">請在此處粘貼哈希</target>
+        </trans-unit>
       </group>
     </body>
   </file>

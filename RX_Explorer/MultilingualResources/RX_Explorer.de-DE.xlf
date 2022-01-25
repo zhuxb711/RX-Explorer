@@ -4559,6 +4559,22 @@ Inkorrekte Namen sind
           <source>List folder contents</source>
           <target state="translated">Ordnerinhalt auflisten</target>
         </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashButtonLabel.Text" translate="yes" xml:space="preserve">
+          <source>Check</source>
+          <target state="translated">Überprüfen</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashKind_None" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Keiner</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashTitle.Text" translate="yes" xml:space="preserve">
+          <source>Hash comparison</source>
+          <target state="translated">Hash-Vergleich</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please paste the hash here</source>
+          <target state="translated">Bitte fügen Sie den Hash hier ein</target>
+        </trans-unit>
       </group>
     </body>
   </file>

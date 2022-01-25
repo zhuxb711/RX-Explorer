@@ -14,7 +14,7 @@
       xmlns:Sys="using:System"
       mc:Ignorable="d"
       d:DesignHeight="650"
-      d:DesignWidth="420"
+      d:DesignWidth="440"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
@@ -155,6 +155,54 @@
                                 Value="Collapsed" />
                         <Setter Target="UnlockButtonText.Visibility"
                                 Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup>
+                <VisualState x:Name="NormalHashCheckStatus">
+                    <VisualState.Setters>
+                        <Setter Target="CheckHashStatusIcon.Visibility"
+                                Value="Collapsed" />
+                        <Setter Target="HashKindLabel.Visibility"
+                                Value="Collapsed" />
+                        <Setter Target="CheckHashButtonText.Visibility"
+                                Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="SuccessHashCheckStatus">
+                    <VisualState.StateTriggers>
+                        <Trigger:RegexStateTrigger Value="{x:Bind HashKindLabel.Content,Mode=OneWay}"
+                                                   Expression="MD5|SHA1|SHA256"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CheckHashStatusIcon.Visibility"
+                                Value="Visible"/>
+                        <Setter Target="CheckHashStatusIcon.Glyph"
+                                Value="&#xE930;" />
+                        <Setter Target="CheckHashStatusIcon.Foreground"
+                                Value="LightGreen" />
+                        <Setter Target="CheckHashButtonText.Visibility"
+                                Value="Collapsed" />
+                        <Setter Target="HashKindLabel.Visibility"
+                                Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ErrorHashCheckStatus">
+                    <VisualState.StateTriggers>
+                        <Trigger:IsEqualStateTrigger Value="{x:Bind HashKindLabel.Content,Mode=OneWay}"
+                                                     To="{x:Bind Cls:Globalization.GetString('Properties_Tools_CheckHashKind_None')}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CheckHashStatusIcon.Visibility"
+                                Value="Visible" />
+                        <Setter Target="CheckHashStatusIcon.Glyph"
+                                Value="&#xE783;" />
+                        <Setter Target="CheckHashStatusIcon.Foreground"
+                                Value="Orange" />
+                        <Setter Target="CheckHashButtonText.Visibility"
+                                Value="Collapsed" />
+                        <Setter Target="HashKindLabel.Visibility"
+                                Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1338,6 +1386,8 @@
                                                 <RowDefinition />
                                                 <RowDefinition />
                                                 <RowDefinition />
+                                                <RowDefinition Height="20"/>
+                                                <RowDefinition />
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -1413,6 +1463,54 @@
                                                     x:Uid="Properties_Tools_CalculateButton"
                                                     VerticalAlignment="Bottom"
                                                     Click="CalculateSHA256_Click" />
+                                            <Border Height="2"
+                                                    Grid.Row="3"
+                                                    Grid.ColumnSpan="2"
+                                                    HorizontalAlignment="Stretch"
+                                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                                            <StackPanel Grid.Row="4"
+                                                        Margin="0,0,5,0">
+                                                <TextBlock Text="哈希值对比"
+                                                           Name="CheckHashTitle"
+                                                           Foreground="Gray"
+                                                           x:Uid="Properties_Tools_CheckHashTitle"/>
+                                                <RelativePanel Margin="0,8,0,0"
+                                                               ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+                                                    <Button Name="HashKindLabel"
+                                                            Margin="0,0,2,0"
+                                                            Visibility="Collapsed"
+                                                            RelativePanel.AlignLeftWithPanel="True"
+                                                            RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                    <TextBox Name="CheckHashBox"
+                                                             IsEnabled="False"
+                                                             IsSpellCheckEnabled="False"
+                                                             PlaceholderText="请在此处粘贴哈希值"
+                                                             x:Uid="Properties_Tools_CheckHashBoxPlaceholderText"
+                                                             TextChanging="CheckHashBox_TextChanging"
+                                                             RelativePanel.RightOf="HashKindLabel"
+                                                             RelativePanel.AlignRightWithPanel="True"
+                                                             RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                                </RelativePanel>
+                                            </StackPanel>
+                                            <Button Margin="5,0,0,0"
+                                                    Grid.Row="4"
+                                                    Grid.Column="1"
+                                                    MinWidth="100"
+                                                    IsEnabled="False"
+                                                    Name="CheckHashButton"
+                                                    VerticalAlignment="Bottom"
+                                                    Click="CheckHashButton_Click">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Check"
+                                                               x:Uid="Properties_Tools_CheckHashButtonLabel"
+                                                               Name="CheckHashButtonText"/>
+                                                    <Viewbox>
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                  Name="CheckHashStatusIcon"
+                                                                  Visibility="Collapsed" />
+                                                    </Viewbox>
+                                                </StackPanel>
+                                            </Button>
                                         </Grid>
                                     </StackPanel>
                                 </Border>

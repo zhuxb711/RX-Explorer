@@ -3434,4 +3434,16 @@ Inkorrekte Namen sind
   <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
     <value>Ordnerinhalt auflisten</value>
   </data>
+  <data name="Properties_Tools_CheckHashButtonLabel.Text" xml:space="preserve">
+    <value>Überprüfen</value>
+  </data>
+  <data name="Properties_Tools_CheckHashKind_None" xml:space="preserve">
+    <value>Keiner</value>
+  </data>
+  <data name="Properties_Tools_CheckHashTitle.Text" xml:space="preserve">
+    <value>Hash-Vergleich</value>
+  </data>
+  <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
+    <value>Bitte fügen Sie den Hash hier ein</value>
+  </data>
 </root>

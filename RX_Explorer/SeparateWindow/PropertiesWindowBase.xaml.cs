@@ -32,6 +32,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.SeparateWindow.PropertyWindow
@@ -76,7 +77,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(420, 700);
+        private static readonly Size WindowSize = new Size(440, 650);
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
@@ -1615,6 +1616,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
+                DateTimeOffset StartTime = DateTimeOffset.Now;
+
                 try
                 {
                     MD5TextBox.IsEnabled = false;
@@ -1642,10 +1645,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 finally
                 {
-                    MD5TextBox.IsEnabled = true;
-                    CalculateMd5.IsEnabled = true;
                     Md5Cancellation?.Dispose();
                     Md5Cancellation = null;
+
+                    if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
+                    {
+                        await Task.Delay(500);
+                    }
+
+                    MD5TextBox.IsEnabled = true;
+                    CalculateMd5.IsEnabled = true;
+                    CheckHashButton.IsEnabled = true;
+                    CheckHashBox.IsEnabled = true;
+                    CheckHashTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
                 }
             }
         }
@@ -1654,6 +1666,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
+                DateTimeOffset StartTime = DateTimeOffset.Now;
+
                 try
                 {
                     SHA1TextBox.IsEnabled = false;
@@ -1681,10 +1695,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 finally
                 {
-                    SHA1TextBox.IsEnabled = true;
-                    CalculateSHA1.IsEnabled = true;
                     SHA1Cancellation?.Dispose();
                     SHA1Cancellation = null;
+
+                    if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
+                    {
+                        await Task.Delay(500);
+                    }
+
+                    SHA1TextBox.IsEnabled = true;
+                    CalculateSHA1.IsEnabled = true;
+                    CheckHashButton.IsEnabled = true;
+                    CheckHashBox.IsEnabled = true;
+                    CheckHashTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
                 }
             }
         }
@@ -1693,6 +1716,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (await FileSystemStorageItemBase.OpenAsync(StorageItems.First().Path) is FileSystemStorageFile File)
             {
+                DateTimeOffset StartTime = DateTimeOffset.Now;
+
                 try
                 {
                     SHA256TextBox.IsEnabled = false;
@@ -1720,10 +1745,19 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 finally
                 {
-                    SHA256TextBox.IsEnabled = true;
-                    CalculateSHA256.IsEnabled = true;
                     SHA256Cancellation?.Dispose();
                     SHA256Cancellation = null;
+
+                    if ((DateTimeOffset.Now - StartTime).TotalMilliseconds < 500)
+                    {
+                        await Task.Delay(500);
+                    }
+
+                    SHA256TextBox.IsEnabled = true;
+                    CalculateSHA256.IsEnabled = true;
+                    CheckHashButton.IsEnabled = true;
+                    CheckHashBox.IsEnabled = true;
+                    CheckHashTitle.Foreground = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
                 }
             }
         }
@@ -1732,7 +1766,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItems.First() is FileSystemStorageFile File)
             {
-                await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     ProgramPickerDialog Dialog = new ProgramPickerDialog(File, true);
                     await Dialog.ShowAsync();
@@ -1968,6 +2002,35 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     SecurityPermissionList.Items.Add(new SecurityAccountPermissions(PermissionMap.Key, PermissionMap.Value));
                 }
             }
+        }
+
+        private void CheckHashButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(CheckHashBox.Text))
+            {
+                if (MD5TextBox.IsEnabled && CheckHashBox.Text == MD5TextBox.Text)
+                {
+                    HashKindLabel.Content = "MD5";
+                }
+                else if (SHA1TextBox.IsEnabled && CheckHashBox.Text == SHA1TextBox.Text)
+                {
+                    HashKindLabel.Content = "SHA1";
+                }
+                else if (SHA256TextBox.IsEnabled && CheckHashBox.Text == SHA256TextBox.Text)
+                {
+                    HashKindLabel.Content = "SHA256";
+                }
+                else
+                {
+                    HashKindLabel.Content = Globalization.GetString("Properties_Tools_CheckHashKind_None");
+                }
+            }
+        }
+
+        private void CheckHashBox_TextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            HashKindLabel.Content = string.Empty;
+            VisualStateManager.GoToState(this, "NormalHashCheckStatus", true);
         }
     }
 }

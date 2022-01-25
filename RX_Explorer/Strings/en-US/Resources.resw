@@ -3539,4 +3539,16 @@ Invalid names include
   <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
     <value>List folder contents</value>
   </data>
+  <data name="Properties_Tools_CheckHashButtonLabel.Text" xml:space="preserve">
+    <value>Check</value>
+  </data>
+  <data name="Properties_Tools_CheckHashKind_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Properties_Tools_CheckHashTitle.Text" xml:space="preserve">
+    <value>Hash comparison</value>
+  </data>
+  <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
+    <value>Please paste the hash here</value>
+  </data>
 </root>

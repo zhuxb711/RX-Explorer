@@ -3434,4 +3434,16 @@ Las denominaciones no válidas son:
   <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
     <value>Lista de contenidos en la carpeta</value>
   </data>
+  <data name="Properties_Tools_CheckHashButtonLabel.Text" xml:space="preserve">
+    <value>Cheque</value>
+  </data>
+  <data name="Properties_Tools_CheckHashKind_None" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Properties_Tools_CheckHashTitle.Text" xml:space="preserve">
+    <value>Comparación de hash</value>
+  </data>
+  <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
+    <value>Pegue el hash aquí</value>
+  </data>
 </root>

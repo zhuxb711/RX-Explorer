@@ -3434,4 +3434,16 @@
   <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
     <value>列出文件夹内容</value>
   </data>
+  <data name="Properties_Tools_CheckHashButtonLabel.Text" xml:space="preserve">
+    <value>检查</value>
+  </data>
+  <data name="Properties_Tools_CheckHashKind_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Properties_Tools_CheckHashTitle.Text" xml:space="preserve">
+    <value>哈希值对比</value>
+  </data>
+  <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
+    <value>请在此处粘贴哈希值</value>
+  </data>
 </root>

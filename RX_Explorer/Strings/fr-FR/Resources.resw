@@ -3434,4 +3434,16 @@ Les noms non valides incluent
   <data name="Property_Security_Permission_ListDirectory" xml:space="preserve">
     <value>Répertorier le contenu du dossier</value>
   </data>
+  <data name="Properties_Tools_CheckHashButtonLabel.Text" xml:space="preserve">
+    <value>Vérifier</value>
+  </data>
+  <data name="Properties_Tools_CheckHashKind_None" xml:space="preserve">
+    <value>Rien</value>
+  </data>
+  <data name="Properties_Tools_CheckHashTitle.Text" xml:space="preserve">
+    <value>Comparaison de hachage</value>
+  </data>
+  <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
+    <value>Veuillez coller le hachage ici</value>
+  </data>
 </root>

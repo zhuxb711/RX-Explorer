@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
 
         public static async Task<bool> CheckExistsAsync(string Path)
         {
-            if (!string.IsNullOrEmpty(Path) && System.IO.Path.IsPathRooted(Path))
+            if (!string.IsNullOrEmpty(Path))
             {
                 try
                 {
