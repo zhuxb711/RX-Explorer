@@ -196,6 +196,7 @@
     <Compile Include="Class\LayoutModeChangedEventArgs.cs" />
     <Compile Include="Class\LayoutModeModel.cs" />
     <Compile Include="Class\Win32_File_Data.cs" />
+    <Compile Include="Class\WindowSizeConfiguration.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="Dialog\AQSGuide.xaml.cs">
       <DependentUpon>AQSGuide.xaml</DependentUpon>

@@ -23,7 +23,7 @@ namespace RX_Explorer.Dialog
         private readonly FileSystemStorageFile OpenFile;
         private readonly List<ProgramPickerItem> RecommandList = new List<ProgramPickerItem>();
         private readonly List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
-        private readonly bool OpenFromPropertiesWindow;
+        private readonly bool OpenedByPropertyWindow;
 
         public ProgramPickerItem UserPickedItem { get; private set; }
 
@@ -32,7 +32,7 @@ namespace RX_Explorer.Dialog
             InitializeComponent();
 
             this.OpenFile = OpenFile ?? throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
-            this.OpenFromPropertiesWindow = OpenFromPropertiesWindow;
+            this.OpenedByPropertyWindow = OpenFromPropertiesWindow;
 
             if (OpenFromPropertiesWindow)
             {
@@ -258,7 +258,7 @@ namespace RX_Explorer.Dialog
                     args.Cancel = true;
                 }
 
-                if ((UserPickedItem != null && UseAsAdmin.IsChecked.GetValueOrDefault()) || OpenFromPropertiesWindow)
+                if ((UserPickedItem != null && UseAsAdmin.IsChecked.GetValueOrDefault()) || OpenedByPropertyWindow)
                 {
                     string ExecutablePath = UserPickedItem.Path;
 

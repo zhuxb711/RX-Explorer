@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,13 +78,30 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(420, 650);
+        private static readonly Size DefaultWindowSize = new Size(420, 650);
+
+        private static Size RequestWindowSize
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] is string SizeConfigText)
+                {
+                    WindowSizeConfiguration SizeConfig = JsonSerializer.Deserialize<WindowSizeConfiguration>(SizeConfigText);
+                    return new Size(SizeConfig.Width, SizeConfig.Height);
+                }
+                else
+                {
+                    return DefaultWindowSize;
+                }
+            }
+        }
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
         private CancellationTokenSource SHA1Cancellation;
         private CancellationTokenSource SHA256Cancellation;
         private CancellationTokenSource SavingCancellation;
+
         private int ConfirmButtonLockResource;
 
         private readonly PointerEventHandler PointerPressedHandler;
@@ -133,9 +151,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            NewWindow.RequestSize(WindowSize);
+            NewWindow.RequestSize(RequestWindowSize);
 
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, WindowSize);
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, DefaultWindowSize);
 
             return NewWindow;
         }
@@ -146,7 +164,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (await Window.TryShowAsync())
             {
-                Window.RequestSize(WindowSize);
+                Window.RequestSize(RequestWindowSize);
             }
         }
 
@@ -169,6 +187,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             ShortcutWindowsStateContent.SelectedIndex = 0;
 
             Window.Closed += Window_Closed;
+            Window.CloseRequested += Window_CloseRequested;
+
             Loading += PropertiesWindow_Loading;
         }
 
@@ -274,6 +294,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         break;
                     }
             }
+        }
+
+        private void Window_CloseRequested(AppWindow sender, AppWindowCloseRequestedEventArgs args)
+        {
+            Window.CloseRequested -= Window_CloseRequested;
+
+            AppWindowPlacement Placement = sender.GetPlacement();
+            ApplicationData.Current.LocalSettings.Values["PropertyWindowSizeConfiguration"] = JsonSerializer.Serialize(new WindowSizeConfiguration(Placement.Size.Height, Placement.Size.Width));
         }
 
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)

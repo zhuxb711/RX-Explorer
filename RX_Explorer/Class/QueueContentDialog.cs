@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -9,26 +12,57 @@ namespace RX_Explorer.Class
 {
     public class QueueContentDialog : ContentDialog
     {
-        private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+        public static bool IsRunningOrWaiting => Queue.IsEmpty;
 
-        public static bool IsRunningOrWaiting => Locker.CurrentCount == 0;
+        private static readonly ConcurrentQueue<QueueContentDialogInternalData> Queue = new ConcurrentQueue<QueueContentDialogInternalData>();
 
-        public new async Task<ContentDialogResult> ShowAsync()
+        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
+
+        private static readonly Thread BackgroundProcessThread = new Thread(ProcessThread)
         {
-            try
+            IsBackground = true,
+            Priority = ThreadPriority.BelowNormal
+        };
+
+        private static void ProcessThread()
+        {
+            while (true)
             {
-                await Locker.WaitAsync();
-                return await base.ShowAsync();
+                ProcessSleepLocker.WaitOne();
+
+                while (Queue.TryDequeue(out QueueContentDialogInternalData Data))
+                {
+                    TaskCompletionSource<ContentDialogResult> CompleteSource = new TaskCompletionSource<ContentDialogResult>();
+
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        try
+                        {
+                            CompleteSource.SetResult(await Data.Instance.ShowAsync());
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Could not pop up the ContentDialog");
+                            CompleteSource.SetResult(ContentDialogResult.None);
+                        }
+                    }).AsTask().Wait();
+
+                    Data.ResultSource.SetResult(CompleteSource.Task.Result);
+                }
             }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not pop up the ContentDialog");
-                return ContentDialogResult.None;
-            }
-            finally
-            {
-                Locker.Release();
-            }
+        }
+
+        public new Task<ContentDialogResult> ShowAsync()
+        {
+            TaskCompletionSource<ContentDialogResult> CompletionSource = new TaskCompletionSource<ContentDialogResult>();
+            Queue.Enqueue(new QueueContentDialogInternalData(this, CompletionSource));
+            ProcessSleepLocker.Set();
+            return CompletionSource.Task;
+        }
+
+        static QueueContentDialog()
+        {
+            BackgroundProcessThread.Start();
         }
 
         public QueueContentDialog()
@@ -56,6 +90,19 @@ namespace RX_Explorer.Class
         {
             RequestedTheme = newTheme;
             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+        }
+
+        private class QueueContentDialogInternalData
+        {
+            public ContentDialog Instance { get; }
+
+            public TaskCompletionSource<ContentDialogResult> ResultSource { get; }
+
+            public QueueContentDialogInternalData(QueueContentDialog Instance, TaskCompletionSource<ContentDialogResult> ResultSource)
+            {
+                this.Instance = Instance;
+                this.ResultSource = ResultSource;
+            }
         }
     }
 }
