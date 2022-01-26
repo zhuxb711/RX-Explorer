@@ -77,7 +77,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 15, Globalization.GetString("OfflineAvailabilityStatusText3") },
         };
 
-        private static readonly Size WindowSize = new Size(440, 650);
+        private static readonly Size WindowSize = new Size(420, 650);
 
         private CancellationTokenSource SizeCalculateCancellation;
         private CancellationTokenSource Md5Cancellation;
@@ -127,7 +127,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private static async Task<AppWindow> InitializeWindowsAsync()
         {
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.PersistedStateId = "PropertyWindow";
+            NewWindow.PersistedStateId = "RX_Property_Window";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
@@ -2008,15 +2008,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (!string.IsNullOrWhiteSpace(CheckHashBox.Text))
             {
-                if (MD5TextBox.IsEnabled && CheckHashBox.Text == MD5TextBox.Text)
+                if (MD5TextBox.IsEnabled && CheckHashBox.Text.Equals(MD5TextBox.Text, StringComparison.OrdinalIgnoreCase))
                 {
                     HashKindLabel.Content = "MD5";
                 }
-                else if (SHA1TextBox.IsEnabled && CheckHashBox.Text == SHA1TextBox.Text)
+                else if (SHA1TextBox.IsEnabled && CheckHashBox.Text.Equals(SHA1TextBox.Text, StringComparison.OrdinalIgnoreCase))
                 {
                     HashKindLabel.Content = "SHA1";
                 }
-                else if (SHA256TextBox.IsEnabled && CheckHashBox.Text == SHA256TextBox.Text)
+                else if (SHA256TextBox.IsEnabled && CheckHashBox.Text.Equals(SHA256TextBox.Text, StringComparison.OrdinalIgnoreCase))
                 {
                     HashKindLabel.Content = "SHA256";
                 }

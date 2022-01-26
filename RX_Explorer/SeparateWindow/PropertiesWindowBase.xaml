@@ -14,7 +14,7 @@
       xmlns:Sys="using:System"
       mc:Ignorable="d"
       d:DesignHeight="650"
-      d:DesignWidth="440"
+      d:DesignWidth="420"
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
@@ -1634,11 +1634,13 @@
             <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                     Background="{ThemeResource SystemAccentColor}"
                     Width="120"
+                    d:Content="确定"
                     Name="ConfirmButton"
                     Click="ConfirmButton_Click" />
             <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
                     Margin="10,0,0,0"
                     Width="120"
+                    d:Content="取消"
                     Name="CancelButton"
                     Click="CancelButton_Click" />
         </StackPanel>
