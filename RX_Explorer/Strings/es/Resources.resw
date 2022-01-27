@@ -3446,4 +3446,7 @@ Las denominaciones no válidas son:
   <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
     <value>Pegue el hash aquí</value>
   </data>
+  <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
+    <value>Añadir a Acceso Rápido</value>
+  </data>
 </root>

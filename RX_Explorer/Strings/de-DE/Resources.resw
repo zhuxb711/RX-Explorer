@@ -3446,4 +3446,7 @@ Inkorrekte Namen sind
   <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
     <value>Bitte fügen Sie den Hash hier ein</value>
   </data>
+  <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
+    <value>Zu Schnellzugriff hinzufügen</value>
+  </data>
 </root>

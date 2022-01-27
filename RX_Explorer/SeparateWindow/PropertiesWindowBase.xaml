@@ -1507,6 +1507,7 @@
                                                     <Viewbox>
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                   Name="CheckHashStatusIcon"
+                                                                  Margin="0,2,0,0"
                                                                   Visibility="Collapsed" />
                                                     </Viewbox>
                                                 </StackPanel>

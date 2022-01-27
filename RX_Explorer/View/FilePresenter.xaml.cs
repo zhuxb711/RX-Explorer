@@ -1013,22 +1013,6 @@ namespace RX_Explorer
 
             Flyout.SecondaryCommands.Add(new AppBarSeparator());
 
-            #region SecondaryCommand -> CompressFolderButton
-            AppBarButton CompressFolderButton = new AppBarButton
-            {
-                Label = Globalization.GetString("Operate_Text_Compression"),
-                Width = 320,
-                Icon = new FontIcon
-                {
-                    FontFamily = FontIconFamily,
-                    Glyph = "\uE7B8"
-                }
-            };
-            CompressFolderButton.Click += CompressFolder_Click;
-
-            Flyout.SecondaryCommands.Add(CompressFolderButton);
-            #endregion
-
             #region SecondaryCommand -> SendToButton
             AppBarButton SendToButton = new AppBarButton
             {
@@ -1045,6 +1029,38 @@ namespace RX_Explorer
             Flyout.SecondaryCommands.Add(SendToButton);
             #endregion
 
+            #region SecondaryCommand -> CompressFolderButton
+            AppBarButton CompressFolderButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_Compression"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uE7B8"
+                }
+            };
+            CompressFolderButton.Click += CompressFolder_Click;
+
+            Flyout.SecondaryCommands.Add(CompressFolderButton);
+            #endregion
+
+            #region SecondaryCommand -> SetAsQuickAccessButton
+            AppBarButton SetAsQuickAccessButton = new AppBarButton
+            {
+                Label = Globalization.GetString("Operate_Text_SetAsQuickAccess"),
+                Width = 320,
+                Icon = new FontIcon
+                {
+                    FontFamily = FontIconFamily,
+                    Glyph = "\uE735"
+                }
+            };
+            SetAsQuickAccessButton.Click += SetAsQuickAccessButton_Click;
+
+            Flyout.SecondaryCommands.Add(SetAsQuickAccessButton);
+            #endregion
+
             #region SecondaryCommand -> PropertyButton
             AppBarButton PropertyButton = new AppBarButton
             {
@@ -1058,6 +1074,33 @@ namespace RX_Explorer
             #endregion
 
             return Flyout;
+        }
+
+        private async void SetAsQuickAccessButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItem is FileSystemStorageFolder Folder)
+            {
+                if (CommonAccessCollection.LibraryList.Any((Library) => Library.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    if (await LibraryStorageFolder.CreateAsync(LibraryType.UserCustom, Folder.Path) is LibraryStorageFolder LibFolder)
+                    {
+                        CommonAccessCollection.LibraryList.Add(LibFolder);
+                        SQLite.Current.SetLibraryPath(LibraryType.UserCustom, Folder.Path);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path);
+                    }
+                }
+            }
         }
 
         private async void CommandBarFlyout_Opening(object sender, object e)

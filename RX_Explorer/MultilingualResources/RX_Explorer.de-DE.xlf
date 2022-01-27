@@ -4575,6 +4575,10 @@ Inkorrekte Namen sind
           <source>Please paste the hash here</source>
           <target state="translated">Bitte fügen Sie den Hash hier ein</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SetAsQuickAccess" translate="yes" xml:space="preserve">
+          <source>Add to Quick Access</source>
+          <target state="translated">Zu Schnellzugriff hinzufügen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

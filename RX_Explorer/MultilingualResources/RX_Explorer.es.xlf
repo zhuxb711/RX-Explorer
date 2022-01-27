@@ -4575,6 +4575,10 @@ Las denominaciones no válidas son:
           <source>Please paste the hash here</source>
           <target state="translated">Pegue el hash aquí</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SetAsQuickAccess" translate="yes" xml:space="preserve">
+          <source>Add to Quick Access</source>
+          <target state="translated">Añadir a Acceso Rápido</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text.Json;
+using System.Threading.Tasks;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -12,68 +14,68 @@ namespace FullTrustProcess
 {
     public static class RecycleBinController
     {
-        public static string GenerateRecycleItemsByJson()
+        public static IReadOnlyList<IDictionary<string, string>> GetRecycleItems()
         {
-            try
-            {
-                List<Dictionary<string, string>> RecycleItemList = new List<Dictionary<string, string>>();
+            ConcurrentBag<Dictionary<string, string>> RecycleItemList = new ConcurrentBag<Dictionary<string, string>>();
 
-                foreach (ShellItem Item in RecycleBin.GetItems())
+            Parallel.ForEach(RecycleBin.GetItems(), (Item) =>
+            {
+                try
                 {
+                    Dictionary<string, string> PropertyDic = new Dictionary<string, string>(4)
+                    {
+                            { "ActualPath", Item.FileSystemPath }
+                    };
+
                     try
                     {
-                        Dictionary<string, string> PropertyDic = new Dictionary<string, string>
+                        if (Item.IShellItem is Shell32.IShellItem2 Shell2)
                         {
-                            { "ActualPath", Item.FileSystemPath }
-                        };
-
-                        try
-                        {
-                            PropertyDic.Add("DeleteTime", (Item.IShellItem as Shell32.IShellItem2).GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString());
-                        }
-                        catch
-                        {
-                            PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
-                        }
-
-                        if (File.Exists(Item.FileSystemPath))
-                        {
-                            PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
-
-                            if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
-                            {
-                                PropertyDic.Add("OriginPath", Item.Name);
-                            }
-                            else
-                            {
-                                PropertyDic.Add("OriginPath", Item.Name + Item.FileInfo.Extension);
-                            }
-                        }
-                        else if (Directory.Exists(Item.FileSystemPath))
-                        {
-                            PropertyDic.Add("OriginPath", Item.Name);
-                            PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.Folder));
+                            PropertyDic.Add("DeleteTime", Shell2.GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString());
                         }
                         else
                         {
-                            continue;
+                            PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
+                        }
+                    }
+                    catch
+                    {
+                        PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
+                    }
+
+                    if (File.Exists(Item.FileSystemPath))
+                    {
+                        PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
+
+                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
+                        {
+                            PropertyDic.Add("OriginPath", Item.Name);
+                        }
+                        else
+                        {
+                            PropertyDic.Add("OriginPath", Item.Name + Item.FileInfo.Extension);
                         }
 
                         RecycleItemList.Add(PropertyDic);
                     }
-                    finally
+                    else if (Directory.Exists(Item.FileSystemPath))
                     {
-                        Item.Dispose();
+                        PropertyDic.Add("OriginPath", Item.Name);
+                        PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.Folder));
+                        RecycleItemList.Add(PropertyDic);
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw when fetching recycle bin, name: {Item.Name}, path: {Item.FileSystemPath}");
+                }
+                finally
+                {
+                    Item.Dispose();
+                }
+            });
 
-                return JsonSerializer.Serialize(RecycleItemList);
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"An exception was threw in {nameof(GenerateRecycleItemsByJson)}");
-                return string.Empty;
-            }
+            return RecycleItemList.ToList();
         }
 
         public static bool EmptyRecycleBin()

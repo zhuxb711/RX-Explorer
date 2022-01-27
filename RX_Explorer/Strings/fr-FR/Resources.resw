@@ -3446,4 +3446,7 @@ Les noms non valides incluent
   <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
     <value>Veuillez coller le hachage ici</value>
   </data>
+  <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
+    <value>Ajouter à Accès rapide</value>
+  </data>
 </root>

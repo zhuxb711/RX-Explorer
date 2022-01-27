@@ -216,7 +216,7 @@ namespace RX_Explorer
 
             AppBarButton RemovePinButton = new AppBarButton
             {
-                Icon = new SymbolIcon { Symbol = Symbol.UnPin },
+                Icon = new FontIcon { FontFamily = new FontFamily("Segoe MDL2 Assets"), Glyph = "\uE8D9" },
                 Visibility = Visibility.Collapsed,
                 Name = "RemovePinButton"
             };

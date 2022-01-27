@@ -2379,7 +2379,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.Get_RecycleBinItems:
                         {
-                            string RecycleItemResult = RecycleBinController.GenerateRecycleItemsByJson();
+                            string RecycleItemResult = JsonSerializer.Serialize(RecycleBinController.GetRecycleItems());
 
                             if (string.IsNullOrEmpty(RecycleItemResult))
                             {

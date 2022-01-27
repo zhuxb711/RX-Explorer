@@ -3446,4 +3446,7 @@
   <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
     <value>请在此处粘贴哈希值</value>
   </data>
+  <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
+    <value>添加到快速访问</value>
+  </data>
 </root>

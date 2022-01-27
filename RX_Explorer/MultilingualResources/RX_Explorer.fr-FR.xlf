@@ -4577,6 +4577,10 @@ Les noms non valides incluent
           <source>Please paste the hash here</source>
           <target state="translated">Veuillez coller le hachage ici</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SetAsQuickAccess" translate="yes" xml:space="preserve">
+          <source>Add to Quick Access</source>
+          <target state="translated">Ajouter à Accès rapide</target>
+        </trans-unit>
       </group>
     </body>
   </file>

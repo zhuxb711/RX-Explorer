@@ -252,11 +252,11 @@ namespace RX_Explorer.Class
         {
             BitmapImage Thumbnail = await DriveFolder.GetThumbnailAsync(ThumbnailMode.SingleItem);
 
-            switch (BitlockerStatusCode)
+            if (Thumbnail == null)
             {
-                case -1:
-                    {
-                        if (Thumbnail == null)
+                switch (BitlockerStatusCode)
+                {
+                    case -1:
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -270,18 +270,16 @@ namespace RX_Explorer.Class
                             {
                                 Thumbnail = new BitmapImage(NormalDriveIconUri);
                             }
-                        }
 
-                        return Thumbnail;
-                    }
-                case 6:
-                    {
-                        return Thumbnail ?? new BitmapImage(NormalDriveLockedIconUri);
-                    }
-                case 3:
-                case 2:
-                    {
-                        if (Thumbnail == null)
+                            break;
+                        }
+                    case 6:
+                        {
+                            Thumbnail = new BitmapImage(NormalDriveLockedIconUri);
+                            break;
+                        }
+                    case 3:
+                    case 2:
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -291,13 +289,10 @@ namespace RX_Explorer.Class
                             {
                                 Thumbnail = new BitmapImage(NormalDriveIconUri);
                             }
-                        }
 
-                        return Thumbnail;
-                    }
-                default:
-                    {
-                        if (Thumbnail == null)
+                            break;
+                        }
+                    default:
                         {
                             if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -307,11 +302,13 @@ namespace RX_Explorer.Class
                             {
                                 Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
                             }
-                        }
 
-                        return Thumbnail;
-                    }
+                            break;
+                        }
+                }
             }
+
+            return Thumbnail;
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

@@ -3551,4 +3551,7 @@ Invalid names include
   <data name="Properties_Tools_CheckHashBoxPlaceholderText.PlaceholderText" xml:space="preserve">
     <value>Please paste the hash here</value>
   </data>
+  <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
+    <value>Add to Quick Access</value>
+  </data>
 </root>

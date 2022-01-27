@@ -4577,6 +4577,10 @@ Invalid names include
           <source>Please paste the hash here</source>
           <target state="translated">請在此處粘貼哈希</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SetAsQuickAccess" translate="yes" xml:space="preserve">
+          <source>Add to Quick Access</source>
+          <target state="translated">添加到快速訪問</target>
+        </trans-unit>
       </group>
     </body>
   </file>
