@@ -1,21 +1,29 @@
-﻿###Novedades de la versión 7.4.3.0
+﻿###Novedades de la versión 7.4.5.0
+
+#####Actualización de funciones
+
+>#####Herramienta de comparación de hash añadida
+
+>#####El progreso se mostrará mientras se calcula el hash
 
 #####Actualización de la interfaz de usuario
 
->#####El diseño de la página "Inicio" se ha actualizado, reduciendo los espacios en blanco para hacerlo más compacto
+>#####La barra de direcciones convertirá automáticamente los nombres de archivo cortos en nombres de archivo largos
 
->#####El menú de filtro de tipo ahora mostrará nombres descriptivos
+>#####El árbol de directorio ahora tiene una nueva interfaz de usuario y mostrará íconos reales de acuerdo con la configuración
+
+>##### La extensión de archivo .lnk siempre estará oculta
+
+>#####El tamaño de la ventana de propiedades se guardará y aplicará la próxima vez que se abra
+
+>#####"Agregar a acceso rápido" se agregó al menú del directorio
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual ciertos tipos de archivos no se podían abrir
+>#####Se solucionó un problema por el cual los nombres de las carpetas se podían truncar al mismo tiempo al ocultar las extensiones de archivo
 
->#####Se solucionó un problema por el cual no se podían usar algunas fuentes
+>#####Se solucionó un problema que podía causar que todas las pestañas recargaran el contenido al ingresar a la página de configuración
 
->#####Se solucionó el problema de diseño de la pestaña Seguridad en la ventana Propiedades en Win10
+>#####Se solucionó un problema por el cual los submenús para algunos elementos del menú podrían no mostrarse
 
->#####Se solucionó un problema por el cual el nombre de la unidad en la barra de direcciones no se actualizaba después de cambiar el nombre de una unidad
-
->#####Se corrigieron algunos problemas de la interfaz de usuario relacionados con el nombre para mostrar del disco
-
->#####Se corrigieron algunos problemas de traducción
+>#####Se corrigieron algunos problemas que podrían causar fallas

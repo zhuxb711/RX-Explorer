@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (string.IsNullOrEmpty(InnerDisplayName))
+                if (string.IsNullOrEmpty(OverrideDisplayName))
                 {
                     string FileName = System.IO.Path.GetFileName(Path);
 
@@ -42,19 +42,19 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return InnerDisplayName;
+                    return OverrideDisplayName;
                 }
             }
         }
 
-        private readonly string InnerDisplayName;
+        private readonly string OverrideDisplayName;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AddressBlock(string Path, string DisplayName = null)
+        public AddressBlock(string Path, string OverrideDisplayName = null)
         {
             this.Path = Path;
-            InnerDisplayName = DisplayName;
+            this.OverrideDisplayName = OverrideDisplayName;
         }
 
         private void OnPropertyChanged([CallerMemberName] string PropertyName = null)

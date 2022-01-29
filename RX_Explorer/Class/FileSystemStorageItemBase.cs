@@ -751,19 +751,27 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                try
                 {
-                    if (ControllerRef != null)
+                    using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
                     {
-                        return await GetThumbnailCoreAsync(ControllerRef.Value);
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        if (ControllerRef != null)
                         {
-                            return await GetThumbnailCoreAsync(Exclusive);
+                            return await GetThumbnailCoreAsync(ControllerRef.Value);
+                        }
+                        else
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                            {
+                                return await GetThumbnailCoreAsync(Exclusive);
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not get thumbnail of path: \"{Path}\"");
+                    return null;
                 }
             }
 

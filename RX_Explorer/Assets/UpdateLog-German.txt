@@ -1,21 +1,29 @@
-﻿###Was ist neu in Ver.7.4.3.0
+﻿###Was ist neu in Ver.7.4.5.0
+
+#####Funktionsaktualisierung
+
+>##### Hash-Vergleichstool hinzugefügt
+
+>#####Der Fortschritt wird angezeigt, während der Hash berechnet wird
 
 #####UI-Update
 
->#####Das Layout der "Home"-Seite wurde aktualisiert, indem der Leerraum reduziert wurde, um sie kompakter zu machen
+>#####Die Adressleiste wandelt kurze Dateinamen automatisch in lange Dateinamen um
 
->#####Typfiltermenü zeigt jetzt freundliche Namen an
+>#####Verzeichnisbaum hat jetzt eine neue Benutzeroberfläche und zeigt aktuelle Symbole gemäß den Einstellungen
+
+>#####.lnk-Dateierweiterung wird immer ausgeblendet
+
+>#####Die Größe des Eigenschaftsfensters wird gespeichert und beim nächsten Öffnen übernommen
+
+>#####"Zum Schnellzugriff hinzufügen" wurde zum Verzeichnismenü hinzugefügt
 
 #####Fehlerbehebung
 
->#####Problem behoben, bei dem bestimmte Dateitypen möglicherweise nicht geöffnet werden konnten
+>#####Es wurde ein Problem behoben, bei dem Ordnernamen beim Ausblenden von Dateierweiterungen gleichzeitig abgeschnitten werden konnten
 
->#####Ein Problem wurde behoben, bei dem einige Schriftarten nicht verwendet werden konnten
+>#####Es wurde ein Problem behoben, das dazu führen konnte, dass alle Registerkarten den Inhalt beim Aufrufen der Einstellungsseite neu luden
 
->#####Layout-Problem der Registerkarte Sicherheit im Eigenschaftsfenster unter Win10 behoben
+>#####Ein Problem wurde behoben, bei dem Untermenüs für einige Menüpunkte möglicherweise nicht angezeigt wurden
 
->#####Es wurde ein Problem behoben, bei dem der Laufwerksname in der Adressleiste nach dem Umbenennen eines Laufwerks nicht aktualisiert wurde
-
->#####Einige UI-Probleme im Zusammenhang mit dem Anzeigenamen der Festplatte wurden behoben
-
->#####Einige Übersetzungsprobleme behoben
+>#####Einige Probleme behoben, die zu Abstürzen führen konnten

@@ -1,21 +1,29 @@
-﻿###Quoi de neuf dans la version 7.4.3.0
+﻿###Quoi de neuf dans la version 7.4.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout d'un outil de comparaison de hachage
+
+>#####La progression sera affichée pendant le calcul du hachage
 
 #####Mise à jour de l'interface utilisateur
 
->#####La mise en page de la page "Accueil" a été mise à jour, réduisant l'espace blanc pour la rendre plus compacte
+>#####La barre d'adresse convertira automatiquement les noms de fichiers courts en noms de fichiers longs
 
->#####Le menu de filtre de type affichera désormais des noms conviviaux
+>#####L'arborescence des répertoires a maintenant une nouvelle interface utilisateur et affichera les icônes réelles en fonction des paramètres
 
-#####Corrections de bogues
+> L'extension de fichier #####.lnk sera toujours masquée
 
->#####Correction d'un problème où certains types de fichiers pouvaient ne pas être ouverts
+>#####La taille de la fenêtre de propriétés sera enregistrée et appliquée à la prochaine ouverture
 
->#####Correction d'un problème où certaines polices ne pouvaient pas être utilisées
+>##### "Ajouter à l'accès rapide" a été ajouté au menu du répertoire
 
->#####Correction du problème de mise en page de l'onglet Sécurité dans la fenêtre Propriétés sous Win10
+#####Corrections de bugs
 
->#####Correction d'un problème où le nom du lecteur dans la barre d'adresse n'était pas mis à jour après avoir renommé un lecteur
+>#####Correction d'un problème où les noms de dossiers pouvaient être tronqués en même temps lors du masquage des extensions de fichiers
 
->#####Correction de certains problèmes d'interface utilisateur liés au nom d'affichage du disque
+>#####Correction d'un problème qui pouvait entraîner le rechargement du contenu de tous les onglets lors de l'accès à la page des paramètres
 
->#####Correction de quelques problèmes de traduction
+>#####Correction d'un problème où les sous-menus de certains éléments de menu pouvaient ne pas s'afficher
+
+>#####Correction de certains problèmes pouvant provoquer des plantages

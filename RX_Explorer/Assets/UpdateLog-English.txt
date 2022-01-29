@@ -1,21 +1,29 @@
-﻿###What's new in Ver.7.4.3.0
+﻿###What's new in Ver.7.4.5.0
+
+#####Feature update
+
+>#####Added hash comparison tool
+
+>#####The progress will be displayed while the hash is calculated
 
 #####UI update
 
->#####The layout of the "Home" page has been updated, reducing white space to make it more compact
+>#####The address bar will automatically convert short filenames to long filenames
 
->#####Type filter menu will now show friendly names
+>#####Directory tree now has a new UI and will shows actual icons according to settings
 
-#####Bug Fixes
+>#####.lnk file extension will always be hidden
 
->#####Fixed an issue where certain types of files might not be opened
+>#####The size of the property window will be saved and applied the next time it is opened
 
->#####Fixed an issue where some fonts could not be used
+>#####"Add to Quick Access" was added to the menu of directory
 
->#####Fixed the layout problem of the Security tab in the Property window under Win10
+#####Bug fixes
 
->#####Fixed an issue where the drive name in the address bar would not be updated after renaming a drive
+>#####Fixed an issue where folder names could be truncated at the same time when hidding file extensions
 
->#####Fixed some UI issues related to disk display name
+>#####Fixed an issue that could cause all tabs to reload the contents when entering the settings page
 
->#####Fixed some translation issues
+>#####Fixed an issue where submenus for some menu items might not be displayed
+
+>#####Fixed some issues that could cause crashes

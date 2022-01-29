@@ -1944,7 +1944,7 @@ namespace RX_Explorer
         {
             Button Btn = sender as Button;
 
-            if (Btn.DataContext is AddressBlock Block && Block.Path != CurrentPresenter.CurrentFolder.Path)
+            if (Btn.DataContext is AddressBlock Block && !Block.Path.Equals(CurrentPresenter.CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
             {
                 if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
                 {
