@@ -1368,9 +1368,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Lizenz wird überprüft...</value>
   </data>
-  <data name="Progress_Tip_Deleting" xml:space="preserve">
-    <value>Wird gelöscht</value>
-  </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Wird exportiert</value>
   </data>

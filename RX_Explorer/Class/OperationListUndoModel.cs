@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected OperationListUndoModel(EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        protected OperationListUndoModel(EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
 
         }

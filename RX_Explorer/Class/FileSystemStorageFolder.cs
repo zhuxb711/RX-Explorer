@@ -45,6 +45,10 @@ namespace RX_Explorer.Class
 
         public StorageFolder StorageItem { get; protected set; }
 
+        private static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                 ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                 : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
+
         public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
 
         public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path, Item.GetSafeFileHandle(AccessMode.Read, OptimizeOption.None), false)

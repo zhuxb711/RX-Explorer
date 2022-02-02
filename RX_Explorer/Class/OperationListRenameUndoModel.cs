@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        public OperationListRenameUndoModel(string UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListRenameUndoModel(string UndoFrom, string UndoTo, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
             if (string.IsNullOrWhiteSpace(UndoTo))
             {

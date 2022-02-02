@@ -2076,6 +2076,14 @@ namespace RX_Explorer
                 {
                     if (!IsDetachTreeViewAndPresenter)
                     {
+                        if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                        {
+                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                            {
+                                await Node.UpdateAllSubNodeAsync();
+                            }
+                        }
+
                         foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
                             await RootNode.UpdateAllSubNodeAsync();
@@ -2734,7 +2742,15 @@ namespace RX_Explorer
                     {
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                            if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                            {
+                                foreach (TreeViewNode Node in QuickAccessNode.Children)
+                                {
+                                    await Node.UpdateAllSubNodeAsync();
+                                }
+                            }
+
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }
@@ -2778,7 +2794,15 @@ namespace RX_Explorer
                 {
                     if (!IsDetachTreeViewAndPresenter)
                     {
-                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                        if (Control.FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                        {
+                            foreach (TreeViewNode Node in QuickAccessNode.Children)
+                            {
+                                await Node.UpdateAllSubNodeAsync();
+                            }
+                        }
+
+                        foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                         {
                             await RootNode.UpdateAllSubNodeAsync();
                         }

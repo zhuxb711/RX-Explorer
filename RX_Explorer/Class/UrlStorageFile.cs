@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
 
         public async Task<UrlDataPackage> GetRawDataAsync()
         {
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
             {
                 if (ControllerRef != null)
                 {
@@ -76,27 +76,25 @@ namespace RX_Explorer.Class
                     return Task.FromResult(IconStream.AsRandomAccessStream());
                 }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
-        public override async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
+        protected override async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
+                BitmapImage Thumbnail = new BitmapImage();
+
                 using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                 {
-                    BitmapImage Image = new BitmapImage();
-                    await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                    return Image;
+                    await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
                 }
+
+                return Thumbnail;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public UrlStorageFile(Win32_File_Data Data) : base(Data)

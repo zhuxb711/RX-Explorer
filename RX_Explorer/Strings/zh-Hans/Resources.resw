@@ -1303,9 +1303,6 @@
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>正在检测许可证...</value>
   </data>
-  <data name="Progress_Tip_Deleting" xml:space="preserve">
-    <value>正在删除</value>
-  </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>正在导出</value>
   </data>

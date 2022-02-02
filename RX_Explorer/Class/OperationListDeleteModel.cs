@@ -61,7 +61,7 @@ namespace RX_Explorer.Class
             Calculator = new ProgressCalculator(TotalSize);
         }
 
-        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
             if (DeleteFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
             {

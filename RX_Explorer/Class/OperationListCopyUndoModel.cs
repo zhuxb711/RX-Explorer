@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
             Calculator = new ProgressCalculator(TotalSize);
         }
 
-        public OperationListCopyUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListCopyUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
             if (UndoFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
             {

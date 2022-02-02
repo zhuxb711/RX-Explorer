@@ -49,8 +49,8 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool ThubmnalModeChanged;
-        private int IsLoaded;
+        private int IsContentLoaded;
+        private int IsThubmnalModeChanged;
         private RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerSharedRef;
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
@@ -93,7 +93,7 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual BitmapImage Thumbnail { get; private set; }
+        public virtual BitmapImage Thumbnail { get; protected set; }
 
         public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
@@ -106,14 +106,6 @@ namespace RX_Explorer.Class
         protected ThumbnailMode ThumbnailMode { get; set; } = ThumbnailMode.ListView;
 
         public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
-
-        protected static readonly Uri Const_Folder_Image_Uri = WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                 ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                 : new Uri("ms-appx:///Assets/FolderIcon_Win10.png");
-
-        protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
-
-        protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
         public static async Task<bool> CheckExistsAsync(string Path)
         {
@@ -511,23 +503,21 @@ namespace RX_Explorer.Class
             if (Mode != ThumbnailMode)
             {
                 ThumbnailMode = Mode;
-                ThubmnalModeChanged = true;
+                Interlocked.CompareExchange(ref IsThubmnalModeChanged, 1, 0);
             }
         }
 
         public async Task LoadAsync()
         {
-            if (Interlocked.CompareExchange(ref IsLoaded, 1, 0) > 0)
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) > 0)
             {
-                if (ThubmnalModeChanged)
+                if (Interlocked.CompareExchange(ref IsThubmnalModeChanged, 0, 1) > 0)
                 {
-                    ThubmnalModeChanged = false;
-
                     if (ShouldGenerateThumbnail)
                     {
                         try
                         {
-                            Thumbnail = await GetThumbnailAsync(ThumbnailMode);
+                            Thumbnail = await GetThumbnailCoreAsync(ThumbnailMode);
                         }
                         catch (Exception ex)
                         {
@@ -546,26 +536,20 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        await StartProcessRefShareRegionAsync();
-
-                        await LoadCoreAsync(false);
-
-                        if (ShouldGenerateThumbnail)
+                        using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
+                        using (DisposableNotification Disposable = SetProcessRefShareRegion(SharedRegion))
                         {
-                            if (await GetThumbnailOverlayAsync() is BitmapImage ThumbnailOverlay)
+                            await LoadCoreAsync(false);
+
+                            if (ShouldGenerateThumbnail)
                             {
-                                this.ThumbnailOverlay = ThumbnailOverlay;
+                                await Task.WhenAll(GetThumbnailAsync(ThumbnailMode), GetThumbnailOverlayAsync());
                             }
 
-                            if (await GetThumbnailAsync(ThumbnailMode) is BitmapImage Thumbnail)
+                            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
                             {
-                                this.Thumbnail = Thumbnail;
+                                await GetSyncStatusAsync();
                             }
-                        }
-
-                        if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
-                        {
-                            await GetSyncStatusAsync();
                         }
                     }
                     catch (Exception ex)
@@ -581,8 +565,7 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ModifiedTimeDescription));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
-
-                        await EndProcessRefShareRegionAsync();
+                        OnPropertyChanged(nameof(SyncStatus));
                     }
                 };
 
@@ -597,29 +580,25 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task StartProcessRefShareRegionAsync()
+        public DisposableNotification SetProcessRefShareRegion(RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRef)
         {
-            RefSharedRegion<FullTrustProcessController.ExclusiveUsage> Ref = new RefSharedRegion<FullTrustProcessController.ExclusiveUsage>(await FullTrustProcessController.GetAvailableControllerAsync());
-
-            if (Interlocked.Exchange(ref ControllerSharedRef, Ref) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+            if (Interlocked.Exchange(ref ControllerSharedRef, SharedRef) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
             {
                 PreviousRef.Dispose();
             }
+
+            return new DisposableNotification(() =>
+            {
+                if (Interlocked.Exchange(ref ControllerSharedRef, null) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
+                {
+                    PreviousRef.Dispose();
+                }
+            });
         }
 
-        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetProcessRefShareRegion()
+        protected RefSharedRegion<FullTrustProcessController.ExclusiveUsage> GetProcessSharedRegion()
         {
             return ControllerSharedRef?.CreateNew();
-        }
-
-        public Task EndProcessRefShareRegionAsync()
-        {
-            if (Interlocked.Exchange(ref ControllerSharedRef, null) is RefSharedRegion<FullTrustProcessController.ExclusiveUsage> PreviousRef)
-            {
-                PreviousRef.Dispose();
-            }
-
-            return Task.CompletedTask;
         }
 
         private async Task GetSyncStatusAsync()
@@ -643,15 +622,13 @@ namespace RX_Explorer.Class
                     _ => SyncStatus.Unknown
                 };
             }
-
-            OnPropertyChanged(nameof(SyncStatus));
         }
 
         public async Task<SafeFileHandle> GetNativeHandleAsync(AccessMode Mode, OptimizeOption Option)
         {
             async Task<SafeFileHandle> GetNativeHandleCoreAsync()
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
                 {
                     if (ControllerRef != null)
                     {
@@ -687,7 +664,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected virtual async Task<BitmapImage> GetThumbnailOverlayAsync()
+        protected async Task<BitmapImage> GetThumbnailOverlayAsync()
         {
             async Task<BitmapImage> GetThumbnailOverlayCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
             {
@@ -708,17 +685,17 @@ namespace RX_Explorer.Class
                 }
             }
 
-            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+            using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
             {
                 if (ControllerRef != null)
                 {
-                    return await GetThumbnailOverlayCoreAsync(ControllerRef.Value);
+                    return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(ControllerRef.Value);
                 }
                 else
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                     {
-                        return await GetThumbnailOverlayCoreAsync(Exclusive);
+                        return ThumbnailOverlay = await GetThumbnailOverlayCoreAsync(Exclusive);
                     }
                 }
             }
@@ -728,71 +705,70 @@ namespace RX_Explorer.Class
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
-        public virtual async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
+        public async Task<BitmapImage> GetThumbnailAsync(ThumbnailMode Mode)
         {
-            async Task<BitmapImage> GetThumbnailTask()
+            if (Thumbnail == null || !string.IsNullOrEmpty(Thumbnail.UriSource?.AbsoluteUri))
             {
-                async Task<BitmapImage> GetThumbnailCoreAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
-                {
-                    byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
-
-                    if (ThumbnailData.Length > 0)
-                    {
-                        using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
-                        {
-                            BitmapImage Image = new BitmapImage();
-                            await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
-                            return Image;
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-
-                try
-                {
-                    using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
-                    {
-                        if (ControllerRef != null)
-                        {
-                            return await GetThumbnailCoreAsync(ControllerRef.Value);
-                        }
-                        else
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                            {
-                                return await GetThumbnailCoreAsync(Exclusive);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Could not get thumbnail of path: \"{Path}\"");
-                    return null;
-                }
-            }
-
-            if (await GetStorageItemAsync() is IStorageItem Item)
-            {
-                BitmapImage LocalThumbnail = await Item.GetThumbnailBitmapAsync(Mode);
-
-                if (LocalThumbnail == null)
-                {
-                    return await GetThumbnailTask();
-                }
-                else
-                {
-                    return LocalThumbnail;
-                }
+                return Thumbnail = await GetThumbnailCoreAsync(Mode);
             }
             else
             {
-                return await GetThumbnailTask();
+                return Thumbnail;
             }
         }
+
+        protected virtual async Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        {
+            async Task<BitmapImage> InternalGetThumbnailAsync(FullTrustProcessController.ExclusiveUsage Exclusive)
+            {
+                byte[] ThumbnailData = await Exclusive.Controller.GetThumbnailAsync(Path);
+
+                if (ThumbnailData.Length > 0)
+                {
+                    using (MemoryStream IconStream = new MemoryStream(ThumbnailData))
+                    {
+                        BitmapImage Image = new BitmapImage();
+                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        return Image;
+                    }
+                }
+
+                return null;
+            }
+
+            try
+            {
+                if (await GetStorageItemAsync() is IStorageItem Item)
+                {
+                    if (await Item.GetThumbnailBitmapAsync(Mode) is BitmapImage LocalThumbnail)
+                    {
+                        return LocalThumbnail;
+                    }
+                }
+
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
+                {
+                    if (ControllerRef != null)
+                    {
+                        return await InternalGetThumbnailAsync(ControllerRef.Value);
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            return await InternalGetThumbnailAsync(Exclusive);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not get thumbnail of path: \"{Path}\"");
+            }
+
+            return null;
+        }
+
 
         public virtual async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
         {
@@ -819,7 +795,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
                 {
                     if (ControllerRef != null)
                     {
@@ -840,7 +816,7 @@ namespace RX_Explorer.Class
         {
             async Task<IReadOnlyDictionary<string, string>> GetPropertiesTask(IEnumerable<string> Properties)
             {
-                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessRefShareRegion())
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
                 {
                     if (ControllerRef != null)
                     {

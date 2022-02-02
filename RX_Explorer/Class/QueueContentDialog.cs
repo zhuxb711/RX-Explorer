@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
 {
     public class QueueContentDialog : ContentDialog
     {
-        public static bool IsRunningOrWaiting => Queue.IsEmpty;
+        public static bool IsRunningOrWaiting => !Queue.IsEmpty;
 
         private static readonly ConcurrentQueue<QueueContentDialogInternalData> Queue = new ConcurrentQueue<QueueContentDialogInternalData>();
 

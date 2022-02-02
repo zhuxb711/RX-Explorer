@@ -1740,10 +1740,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Checking license...</source>
           <target state="translated">檢查許可...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
-          <source>Deleting</source>
-          <target state="translated">正在刪除...</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">正在輸出...</target>

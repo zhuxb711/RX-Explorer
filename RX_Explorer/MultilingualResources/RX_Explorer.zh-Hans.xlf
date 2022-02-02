@@ -1719,10 +1719,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Checking license...</source>
           <target state="translated">正在检测许可证...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
-          <source>Deleting</source>
-          <target state="translated">正在删除</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">正在导出</target>

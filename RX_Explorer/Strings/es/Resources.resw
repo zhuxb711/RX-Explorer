@@ -1368,9 +1368,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Comprobando licencia...</value>
   </data>
-  <data name="Progress_Tip_Deleting" xml:space="preserve">
-    <value>Eliminando</value>
-  </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Exportando</value>
   </data>

@@ -57,7 +57,7 @@ namespace RX_Explorer.Class
             Calculator = new ProgressCalculator(TotalSize);
         }
 
-        public OperationListDeleteUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListDeleteUndoModel(string[] UndoFrom, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
             if (UndoFrom.Any((Path) => string.IsNullOrWhiteSpace(Path)))
             {

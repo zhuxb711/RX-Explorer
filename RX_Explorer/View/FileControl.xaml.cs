@@ -39,6 +39,7 @@ using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedE
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
 using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvokedEventArgs;
+using TreeViewList = Microsoft.UI.Xaml.Controls.TreeViewList;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
@@ -167,6 +168,12 @@ namespace RX_Explorer
             RightTapFlyout = CreateNewFolderContextMenu();
 
             Loaded += FileControl_Loaded;
+            Loaded += FileControl_Loaded1;
+
+            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
+            {
+                TList.ContainerContentChanging += TList_ContainerContentChanging;
+            }
         }
 
         private CommandBarFlyout CreateNewFolderContextMenu()
@@ -354,41 +361,31 @@ namespace RX_Explorer
             }
         }
 
-        /// <summary>
-        /// 激活或关闭正在加载提示
-        /// </summary>
-        /// <param name="IsLoading">激活或关闭</param>
-        /// <param name="Info">提示内容</param>
-        public async Task LoadingActivation(bool IsLoading, string Info = null)
+        private void FileControl_Loaded1(object sender, RoutedEventArgs e)
         {
-            if (LoadingControl.IsLoading == IsLoading)
+            Loaded -= FileControl_Loaded1;
+
+            if (FolderTree.FindChildOfType<TreeViewList>() is TreeViewList TList)
             {
-                return;
+                TList.ContainerContentChanging += TList_ContainerContentChanging;
             }
-
-            if (IsLoading)
-            {
-                if (CurrentPresenter.HasFile.Visibility == Visibility.Visible)
-                {
-                    CurrentPresenter.HasFile.Visibility = Visibility.Collapsed;
-                }
-
-                ProBar.IsIndeterminate = true;
-                ProBar.Value = 0;
-                ProgressInfo.Text = Info + "...";
-
-                ShouldNotAcceptShortcutKeyInput = true;
-            }
-            else
-            {
-                await Task.Delay(500);
-                ShouldNotAcceptShortcutKeyInput = false;
-            }
-
-            LoadingControl.IsLoading = IsLoading;
         }
 
-        public void RefreshAddressButton(string Path)
+        private void TList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (!args.InRecycleQueue)
+            {
+                args.RegisterUpdateCallback(async (s, e) =>
+                {
+                    if (e.Item is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+                    {
+                        await Content.LoadAsync().ConfigureAwait(false);
+                    }
+                });
+            }
+        }
+
+        public async void RefreshAddressButton(string Path)
         {
             if (Interlocked.Exchange(ref AddressButtonLockResource, 1) == 0)
             {
@@ -420,18 +417,18 @@ namespace RX_Explorer
                     {
                         if (!Path.StartsWith(@"\\"))
                         {
-                            AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
+                            AddressButtonList.Add(await AddressBlock.CreateAsync(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                         }
 
                         if (!string.IsNullOrEmpty(RootPath))
                         {
-                            AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
+                            AddressButtonList.Add(await AddressBlock.CreateAsync(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                             while (Analysis.HasNextLevel)
                             {
-                                AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                AddressButtonList.Add(await AddressBlock.CreateAsync(Analysis.NextFullPath()));
                             }
                         }
                     }
@@ -440,7 +437,7 @@ namespace RX_Explorer
                     {
                         foreach (AddressBlock Block in AddressButtonList.Skip(1))
                         {
-                            Block.BlockType = AddressBlockType.Gray;
+                            Block.SetBlockType(AddressBlockType.Gray);
                         }
                     }
                     else
@@ -463,7 +460,7 @@ namespace RX_Explorer
 
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
-                                    AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
+                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
                                 }
                             }
                             else
@@ -472,7 +469,7 @@ namespace RX_Explorer
                                 {
                                     foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
                                     {
-                                        GrayBlock.BlockType = AddressBlockType.Normal;
+                                        GrayBlock.SetBlockType(AddressBlockType.Normal);
                                     }
                                 }
                                 else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
@@ -488,7 +485,7 @@ namespace RX_Explorer
 
                                         for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                         {
-                                            AddressButtonList[AddressButtonList.Count - 1 - i].BlockType = AddressBlockType.Gray;
+                                            AddressButtonList[AddressButtonList.Count - 1 - i].SetBlockType(AddressBlockType.Gray);
                                         }
                                     }
                                     else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
@@ -504,7 +501,7 @@ namespace RX_Explorer
                                         {
                                             if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
                                             {
-                                                GrayBlock.BlockType = AddressBlockType.Normal;
+                                                GrayBlock.SetBlockType(AddressBlockType.Normal);
                                             }
                                         }
                                     }
@@ -512,7 +509,7 @@ namespace RX_Explorer
                                     {
                                         foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
                                         {
-                                            GrayBlock.BlockType = AddressBlockType.Normal;
+                                            GrayBlock.SetBlockType(AddressBlockType.Normal);
                                         }
                                     }
                                 }
@@ -554,18 +551,18 @@ namespace RX_Explorer
 
                             if (!Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
                             {
-                                AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
+                                AddressButtonList.Add(await AddressBlock.CreateAsync(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                             }
 
                             if (!string.IsNullOrEmpty(RootPath))
                             {
-                                AddressButtonList.Add(new AddressBlock(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
+                                AddressButtonList.Add(await AddressBlock.CreateAsync(RootPath, CommonAccessCollection.DriveList.FirstOrDefault((Drive) => RootPath.Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))?.DisplayName));
 
                                 PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                                 while (Analysis.HasNextLevel)
                                 {
-                                    AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                    AddressButtonList.Add(await AddressBlock.CreateAsync(Analysis.NextFullPath()));
                                 }
                             }
                         }
@@ -596,7 +593,7 @@ namespace RX_Explorer
 
                                 while (Analysis.HasNextLevel)
                                 {
-                                    AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                                    AddressButtonList.Add(await AddressBlock.CreateAsync(Analysis.NextFullPath()));
                                 }
                             }
                         }
@@ -943,7 +940,11 @@ namespace RX_Explorer
         {
             if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
             {
-                if (CurrentPresenter != null && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                if (Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase))
+                {
+                    Node.IsExpanded = !Node.IsExpanded;
+                }
+                else if (CurrentPresenter != null)
                 {
                     if (!await CurrentPresenter.DisplayItemsInFolder(Content.Path))
                     {
@@ -964,9 +965,9 @@ namespace RX_Explorer
         {
             RightTapFlyout.Hide();
 
-            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            if (FolderTree.SelectedNode is TreeViewNode Node && Node.Content is TreeViewNodeContent TargetContent)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Item)
+                if (await FileSystemStorageItemBase.CheckExistsAsync(TargetContent.Path))
                 {
                     bool ExecuteDelete = false;
                     bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
@@ -1016,71 +1017,21 @@ namespace RX_Explorer
 
                     if (ExecuteDelete)
                     {
-                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting"));
-
-                        try
+                        QueueTaskController.EnqueueDeleteOpeartion(TargetContent.Path, PermanentDelete, async (s, e) =>
                         {
-                            await Item.DeleteAsync(PermanentDelete);
+                            if (FolderTree.RootNodes.FirstOrDefault((Node) => Node.Content is TreeViewNodeContent Content && Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)) is TreeViewNode QuickAccessNode)
+                            {
+                                foreach (TreeViewNode Node in QuickAccessNode.Children.Where((Node) => Node.Content is TreeViewNodeContent Content && TargetContent.Path.StartsWith(Content.Path, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    await Node.UpdateAllSubNodeAsync();
+                                }
+                            }
 
-                            await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
-
-                            foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => !(Node.Content as TreeViewNodeContent).Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
+                            foreach (TreeViewNode RootNode in FolderTree.RootNodes.Where((Node) => Node.Content is TreeViewNodeContent Content && !Content.Path.Equals("QuickAccessPath", StringComparison.OrdinalIgnoreCase)))
                             {
                                 await RootNode.UpdateAllSubNodeAsync();
                             }
-                        }
-                        catch (FileCaputureException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await dialog.ShowAsync();
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                            };
-
-                            await Dialog.ShowAsync();
-
-                            await CurrentPresenter.DisplayItemsInFolder(System.IO.Path.GetDirectoryName(Item.Path));
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                await Launcher.LaunchFolderPathAsync(System.IO.Path.GetDirectoryName(Item.Path));
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync();
-                        }
-
-                        await LoadingActivation(false);
+                        });
                     }
                 }
                 else
@@ -1365,8 +1316,6 @@ namespace RX_Explorer
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            LoadingControl.Focus(FocusState.Programmatic);
-
             string QueryText = args.ChosenSuggestion is AddressSuggestionItem SuggestItem ? SuggestItem.Path.TrimEnd('\\').Replace('/', '\\').Trim() : args.QueryText.TrimEnd('\\').Replace('/', '\\').Trim();
 
             if (string.IsNullOrWhiteSpace(QueryText) || QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
@@ -1976,7 +1925,7 @@ namespace RX_Explorer
                     for (int i = 0; i < CommonAccessCollection.DriveList.Count; i++)
                     {
                         DriveDataBase Drive = CommonAccessCollection.DriveList[i];
-                        AddressExtensionList.Add(new AddressBlock(Drive.Path, Drive.DisplayName));
+                        AddressExtensionList.Add(await AddressBlock.CreateAsync(Drive.Path, Drive.DisplayName));
                     }
                 }
                 else
@@ -1985,7 +1934,7 @@ namespace RX_Explorer
                     {
                         foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, Filter: BasicFilters.Folder))
                         {
-                            AddressExtensionList.Add(new AddressBlock(SubFolder.Path));
+                            AddressExtensionList.Add(await AddressBlock.CreateAsync(SubFolder));
                         }
                     }
                 }

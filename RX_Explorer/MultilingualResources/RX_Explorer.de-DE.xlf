@@ -1805,10 +1805,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Checking license...</source>
           <target state="translated">Lizenz wird überprüft...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
-          <source>Deleting</source>
-          <target state="translated">Wird gelöscht</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">Wird exportiert</target>

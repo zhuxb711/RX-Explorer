@@ -95,7 +95,7 @@
                 </AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.Content>
-                <Grid Height="32"
+                <Grid Height="Auto"
                       Width="450">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="35" />
@@ -128,13 +128,14 @@
                   Grid.Row="1"
                   SelectionMode="Extended"
                   CanDrag="False"
+                  CanDragItems="False"
                   CanReorderItems="False"
                   AllowDrop="True"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
+                  ShowsScrollingPlaceholders="False"
                   ContextRequested="ListViewControl_ContextRequested"
                   ContextCanceled="ListViewControl_ContextCanceled"
-                  ShowsScrollingPlaceholders="False"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   DragOver="ListViewControl_DragOver"
                   Drop="ListViewControl_Drop"

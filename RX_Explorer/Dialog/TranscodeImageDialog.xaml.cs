@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -18,7 +19,7 @@ namespace RX_Explorer.Dialog
 
         private readonly uint PixelHeight;
 
-        private FileSavePicker Picker = new FileSavePicker
+        private readonly FileSavePicker Picker = new FileSavePicker
         {
             SuggestedStartLocation = PickerLocationId.Desktop
         };
@@ -34,17 +35,36 @@ namespace RX_Explorer.Dialog
         public TranscodeImageDialog(uint PixelWidth, uint PixelHeight)
         {
             InitializeComponent();
+
             this.PixelWidth = PixelWidth;
             this.PixelHeight = PixelHeight;
+
             ScaleCombo.SelectedIndex = 0;
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (TargetFile == null)
+            ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
+
+            try
             {
-                SaveErrorTip.IsOpen = true;
-                args.Cancel = true;
+                if (TargetFile == null)
+                {
+                    args.Cancel = true;
+                    SaveErrorTip.IsOpen = true;
+                }
+                else
+                {
+                    IsPrimaryButtonEnabled = false;
+                    IsSecondaryButtonEnabled = false;
+                    ProgressArea.Visibility = Visibility.Visible;
+
+                    await Task.WhenAll(GeneralTransformer.TranscodeFromImageAsync(TargetFile, TargetFile, IsEnableScale, ScaleWidth, ScaleHeight, InterpolationMode), Task.Delay(1000));
+                }
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -59,19 +79,21 @@ namespace RX_Explorer.Dialog
         private (uint, uint) GetScalePixelData(string ComboBoxInputText)
         {
             float ScaleFactor = Convert.ToSingle(ComboBoxInputText.Remove(ComboBoxInputText.Length - 1)) / 100;
+
             if (ScaleFactor == 1f)
             {
                 return (PixelWidth, PixelHeight);
             }
 
-            var ScalePixelWidth = Convert.ToUInt32(Math.Round(PixelWidth * ScaleFactor, MidpointRounding.AwayFromZero));
-            var ScalePixelHeight = Convert.ToUInt32(Math.Round(PixelHeight * ScaleFactor, MidpointRounding.AwayFromZero));
+            uint ScalePixelWidth = Convert.ToUInt32(Math.Round(PixelWidth * ScaleFactor, MidpointRounding.AwayFromZero));
+            uint ScalePixelHeight = Convert.ToUInt32(Math.Round(PixelHeight * ScaleFactor, MidpointRounding.AwayFromZero));
+
             return (ScalePixelWidth, ScalePixelHeight);
         }
 
         private void ScaleCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var ScalePixelData = GetScalePixelData(ScaleCombo.SelectedItem.ToString());
+            (uint, uint) ScalePixelData = GetScalePixelData(ScaleCombo.SelectedItem.ToString());
             ScaleWidth = ScalePixelData.Item1;
             ScaleHeight = ScalePixelData.Item2;
             PreviewText.Text = $"{Globalization.GetString("Transcode_Image_Preview_Resolution")}: {ScaleWidth} X {ScaleHeight}";

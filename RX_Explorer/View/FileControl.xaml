@@ -656,12 +656,13 @@
                             <Image Height="25"
                                    Width="25"
                                    Stretch="Uniform"
-                                   Name="Icon"
                                    Margin="0,2,0,0"
-                                   Source="{x:Bind ((Cls:TreeViewNodeContent)Content).Thumbnail}"
+                                   x:Name="Icon"
+                                   x:Phase="1"
+                                   Source="{x:Bind ((Cls:TreeViewNodeContent)Content).Thumbnail,Mode=OneWay}"
                                    RelativePanel.AlignVerticalCenterWithPanel="True"
                                    RelativePanel.AlignLeftWithPanel="True" />
-                            <TextBlock Text="{x:Bind ((Cls:TreeViewNodeContent)Content).Name}"
+                            <TextBlock Text="{x:Bind ((Cls:TreeViewNodeContent)Content).DisplayName,Mode=OneWay}"
                                        Margin="5,0,0,0"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"
@@ -682,29 +683,5 @@
                                    PointerPressed="GridSplitter_PointerPressed"
                                    PointerReleased="GridSplitter_PointerReleased" />
         </Grid>
-        <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          x:FieldModifier="public"
-                          Grid.RowSpan="2">
-            <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="{ThemeResource SystemAltHighColor}"
-                                    TintOpacity="0.6"
-                                    BlurAmount="3" />
-            </controls:Loading.Background>
-            <StackPanel>
-                <TextBlock Name="ProgressInfo"
-                           FontSize="16"
-                           VerticalAlignment="Center"
-                           TextAlignment="Center" />
-                <muxc:ProgressBar IsIndeterminate="True"
-                                  Width="180"
-                                  Name="ProBar"
-                                  x:FieldModifier="public"
-                                  Minimum="0"
-                                  Maximum="100"
-                                  Value="0"
-                                  Margin="0,10,0,0" />
-            </StackPanel>
-        </controls:Loading>
     </Grid>
 </Page>

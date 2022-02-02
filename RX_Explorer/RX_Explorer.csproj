@@ -130,6 +130,7 @@
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
     <Compile Include="Class\CustomStaticDataSource.cs" />
     <Compile Include="Class\CustomStyleSelector.cs" />
+    <Compile Include="Class\DisposableNotification.cs" />
     <Compile Include="Class\DisposableObservableCollection.cs" />
     <Compile Include="Class\DriveChangedDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
@@ -805,7 +806,7 @@
       <Version>2.0.7</Version>
     </PackageReference>
     <PackageReference Include="System.Interactive.Async">
-      <Version>5.1.0</Version>
+      <Version>6.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
       <Version>5.0.2</Version>

@@ -202,56 +202,38 @@ namespace RX_Explorer.Class
                 using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecutionAsync())
                 using (FileStream OriginStream = await SourceFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.RandomAccess))
                 {
-                    try
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+
+                    using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
+                    using (FileStream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
                     {
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
-
-                        using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                        using (FileStream TargetStream = await DestinationFile.GetStreamFromFileAsync(AccessMode.ReadWrite, OptimizeOption.RandomAccess))
+                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(DestinationFile.Type.ToLower() switch
                         {
-                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(DestinationFile.Type.ToLower() switch
-                            {
-                                ".png" => BitmapEncoder.PngEncoderId,
-                                ".jpg" => BitmapEncoder.JpegEncoderId,
-                                ".bmp" => BitmapEncoder.BmpEncoderId,
-                                ".heic" => BitmapEncoder.HeifEncoderId,
-                                ".tiff" => BitmapEncoder.TiffEncoderId,
-                                _ => throw new InvalidOperationException("Unsupport image format"),
-                            }, TargetStream.AsRandomAccessStream());
+                            ".png" => BitmapEncoder.PngEncoderId,
+                            ".jpg" => BitmapEncoder.JpegEncoderId,
+                            ".bmp" => BitmapEncoder.BmpEncoderId,
+                            ".heic" => BitmapEncoder.HeifEncoderId,
+                            ".tiff" => BitmapEncoder.TiffEncoderId,
+                            _ => throw new InvalidOperationException("Unsupport image format"),
+                        }, TargetStream.AsRandomAccessStream());
 
-                            if (IsEnableScale)
-                            {
-                                Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
-                                Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
-                                Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
-                            }
-
-                            Encoder.SetSoftwareBitmap(TranscodeImage);
-
-                            await Encoder.FlushAsync();
+                        if (IsEnableScale)
+                        {
+                            Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
+                            Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
+                            Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
                         }
-                    }
-                    catch (Exception)
-                    {
-                        await DestinationFile.DeleteAsync(true);
 
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("EnDecode_Dialog_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                        Encoder.SetSoftwareBitmap(TranscodeImage);
 
-                            _ = await dialog.ShowAsync();
-                        });
+                        await Encoder.FlushAsync();
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                await DestinationFile.DeleteAsync(true);
+                LogTracer.Log(ex, "Could not transcode the image");
             }
             finally
             {

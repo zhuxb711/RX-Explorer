@@ -80,7 +80,7 @@ namespace RX_Explorer.Class
             Calculator = new ProgressCalculator(TotalSize);
         }
 
-        public OperationListCopyModel(string[] CopyFrom, string CopyTo, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorHappended, OnCancelled)
+        public OperationListCopyModel(string[] CopyFrom, string CopyTo, EventHandler OnCompleted = null, EventHandler OnErrorThrow = null, EventHandler OnCancelled = null) : base(OnCompleted, OnErrorThrow, OnCancelled)
         {
             if (string.IsNullOrWhiteSpace(CopyTo))
             {

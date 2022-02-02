@@ -1805,10 +1805,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Checking license...</source>
           <target state="translated">Comprobando licencia...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
-          <source>Deleting</source>
-          <target state="translated">Eliminando</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">Exportando</target>

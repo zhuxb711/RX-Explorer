@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -7,17 +9,21 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public sealed class TreeViewNodeContent
+    public sealed class TreeViewNodeContent : INotifyPropertyChanged
     {
         public static TreeViewNodeContent QuickAccessNode { get; } = new TreeViewNodeContent("QuickAccessPath", Globalization.GetString("QuickAccessDisplayName"));
 
-        public BitmapImage Thumbnail { get; }
-
-        public string Name { get; }
+        public BitmapImage Thumbnail { get; private set; }
 
         public string Path { get; }
 
+        public string DisplayName { get; private set; }
+
         public bool HasChildren { get; }
+
+        private readonly FileSystemStorageFolder InnerFolder;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
@@ -31,52 +37,80 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Task<TreeViewNodeContent> CreateAsync(StorageFolder Folder)
-        {
-            return CreateAsync(new FileSystemStorageFolder(Folder));
-        }
-
         public static async Task<TreeViewNodeContent> CreateAsync(FileSystemStorageFolder Folder)
         {
-            BitmapImage Thubnail = null;
+            TreeViewNodeContent Content = new TreeViewNodeContent(Folder, await Folder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder));
 
-            if (SettingPage.ContentLoadMode == LoadMode.All || (System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
+            if ((System.IO.Path.GetPathRoot(Folder.Path)?.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault())
             {
-                Thubnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
+                Content.Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.SingleItem);
             }
 
-            return new TreeViewNodeContent(Folder, Thubnail, await Folder.CheckContainsAnyItemAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems, BasicFilters.Folder));
+            return Content;
         }
 
-        private TreeViewNodeContent(FileSystemStorageFolder InnerFolder, BitmapImage Thumbnail, bool HasChildren)
+        public async Task LoadAsync()
+        {
+            try
+            {
+                if (Thumbnail == null)
+                {
+                    if (InnerFolder != null 
+                        && SettingPage.ContentLoadMode == LoadMode.All)
+                    {
+                        Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
+                    }
+
+                    if (Thumbnail == null)
+                    {
+                        Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                    }
+                }
+
+                if (InnerFolder != null
+                    && await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
+                {
+                    DisplayName = Folder.DisplayName;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Could not load the TreeViewNodeContent on path: {Path}");
+            }
+            finally
+            {
+                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(DisplayName));
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
+        private TreeViewNodeContent(FileSystemStorageFolder InnerFolder, bool HasChildren)
         {
             Path = InnerFolder.Path;
-            Name = System.IO.Path.GetPathRoot(InnerFolder.Path) == InnerFolder.Path ? InnerFolder.DisplayName : InnerFolder.Name;
+            DisplayName = InnerFolder.DisplayName;
 
             this.HasChildren = HasChildren;
-
-            if (Thumbnail != null)
-            {
-                this.Thumbnail = Thumbnail;
-            }
-            else
-            {
-                this.Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
-            }
+            this.InnerFolder = InnerFolder;
         }
 
         private TreeViewNodeContent(string OverridePath, string OverrideDisplayName)
         {
             Path = OverridePath;
-            Name = OverrideDisplayName;
+            DisplayName = OverrideDisplayName;
+
             HasChildren = true;
-            Thumbnail = new BitmapImage(OverridePath == "QuickAccessPath"
-                                                        ? new Uri("ms-appx:///Assets/Favourite.png")
-                                                        : WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+
+            if (OverridePath == "QuickAccessPath")
+            {
+                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/Favourite.png"));
+            }
         }
     }
 }

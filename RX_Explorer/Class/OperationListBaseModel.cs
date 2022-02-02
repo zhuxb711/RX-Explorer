@@ -170,7 +170,7 @@ namespace RX_Explorer.Class
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
 
-                            OnErrorHappened?.Invoke(this, null);
+                            OnErrorThrow?.Invoke(this, null);
                             break;
                         }
                     case OperationStatus.Cancelling:
@@ -247,7 +247,7 @@ namespace RX_Explorer.Class
         private short ActionButtonIndex = -1;
 
         private event EventHandler OnCompleted;
-        private event EventHandler OnErrorHappened;
+        private event EventHandler OnErrorThrow;
         private event EventHandler OnCancelled;
         public event EventHandler OnCancelRequested;
 
@@ -319,7 +319,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListBaseModel(EventHandler OnCompleted, EventHandler OnErrorHappened, EventHandler OnCancelled)
+        public OperationListBaseModel(EventHandler OnCompleted, EventHandler OnErrorThrow, EventHandler OnCancelled)
         {
             Status = OperationStatus.Waiting;
             RemoveButtonVisibility = Visibility.Collapsed;
@@ -329,7 +329,7 @@ namespace RX_Explorer.Class
             ProgressIndeterminate = true;
 
             this.OnCompleted = OnCompleted;
-            this.OnErrorHappened = OnErrorHappened;
+            this.OnErrorThrow = OnErrorThrow;
             this.OnCancelled = OnCancelled;
         }
     }

@@ -1303,9 +1303,6 @@
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Vérification de la license...</value>
   </data>
-  <data name="Progress_Tip_Deleting" xml:space="preserve">
-    <value>Suppression en cours</value>
-  </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Export en cours</value>
   </data>

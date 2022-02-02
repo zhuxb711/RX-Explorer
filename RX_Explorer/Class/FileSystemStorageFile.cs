@@ -47,7 +47,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
+        private static readonly Uri Const_File_Image_Uri = AppThemeController.Current.Theme == ElementTheme.Dark 
+                                                                ? new Uri("ms-appx:///Assets/Page_Solid_White.png")
+                                                                : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+        public override BitmapImage Thumbnail => base.Thumbnail ?? new BitmapImage(Const_File_Image_Uri);
 
         public StorageFile StorageItem { get; protected set; }
 

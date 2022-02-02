@@ -1482,9 +1482,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Checking license...</value>
   </data>
-  <data name="Progress_Tip_Deleting" xml:space="preserve">
-    <value>Deleting</value>
-  </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Exporting</value>
   </data>

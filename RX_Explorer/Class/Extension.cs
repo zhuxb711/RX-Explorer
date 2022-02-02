@@ -6,12 +6,12 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -837,16 +837,16 @@ namespace RX_Explorer.Class
 
                 IEnumerable<(T OriginItem, string SortString)> Collection = Input.Select(Item => (
                     OriginItem: Item,
-                    SortString: Regex.Replace(GetString(Item) ?? string.Empty, @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                    SortString: GetString(Item) ?? string.Empty
                 ));
 
                 if (Direction == SortDirection.Ascending)
                 {
-                    return Collection.OrderBy(x => x.SortString).Select(x => x.OriginItem);
+                    return Collection.OrderBy((Item) => Item.SortString, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort))).Select((Item) => Item.OriginItem);
                 }
                 else
                 {
-                    return Collection.OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
+                    return Collection.OrderByDescending((Item) => Item.SortString, Comparer<string>.Create((a, b) => string.Compare(a, b, CultureInfo.CurrentCulture, CompareOptions.StringSort))).Select((Item) => Item.OriginItem);
                 }
             }
             else

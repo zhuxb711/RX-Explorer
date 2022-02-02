@@ -192,7 +192,7 @@ namespace RX_Explorer.Dialog
                     Info.Text = $"{Globalization.GetString("FileProperty_Resolution")}3840 X 2160，30FPS";
                     break;
                 case "HD1080p":
-                    Info.Text = $"{Globalization.GetString("FileProperty_Resolution")}分辨率1920 X 1080，30FPS";
+                    Info.Text = $"{Globalization.GetString("FileProperty_Resolution")}1920 X 1080，30FPS";
                     break;
                 case "HD720p":
                     Info.Text = $"{Globalization.GetString("FileProperty_Resolution")}1280 X 720，30FPS";

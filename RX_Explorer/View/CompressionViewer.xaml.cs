@@ -694,7 +694,7 @@ namespace RX_Explorer
                 {
                     ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                    await ExtractCore(EntryList, Dialog.ExtractLocation, async (s, e) =>
+                    await ExtractCore(Dialog.ExtractLocation, EntryList, async (s, e) =>
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                         {
@@ -735,26 +735,12 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ExtractCore(IEnumerable<CompressionItemBase> ItemList, string ExtractLocation, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task ExtractCore(string ExtractLocation, IEnumerable<CompressionItemBase> ItemList, ProgressChangedEventHandler ProgressHandler = null)
         {
-            long TotalSize = 0;
+            IReadOnlyList<ZipEntry> ExtractEntryList = ItemList.SelectMany((Item) => ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path))).ToList();
+
+            long TotalSize = ExtractEntryList.Sum((Entry)=>Entry.Size);
             long CurrentPosition = 0;
-
-            ConcurrentBag<ZipEntry> ExtractEntryList = new ConcurrentBag<ZipEntry>();
-
-            await Task.Run(() => Parallel.ForEach(ItemList, (Item) =>
-            {
-                for (int Index = 0; Index < ZipObj.Count; Index++)
-                {
-                    ZipEntry Entry = ZipObj[Index];
-
-                    if (Entry.Name.StartsWith(Item.Path))
-                    {
-                        ExtractEntryList.Add(Entry);
-                        Interlocked.Add(ref TotalSize, Entry.Size);
-                    }
-                }
-            })).ConfigureAwait(false);
 
             foreach (ZipEntry Entry in ExtractEntryList)
             {
@@ -891,7 +877,7 @@ namespace RX_Explorer
                     {
                         ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                        await ExtractCore(ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray(), Dialog.ExtractLocation, async (s, e) =>
+                        await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), async (s, e) =>
                         {
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {

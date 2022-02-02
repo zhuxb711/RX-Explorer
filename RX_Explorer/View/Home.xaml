@@ -136,13 +136,13 @@
                                                 Grid.Column="2"
                                                 VerticalAlignment="Top"
                                                 Margin="5,0,0,0">
-                                        <TextBlock Text="{x:Bind Name}"
+                                        <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
                                                    Name="NameLabel"
                                                    HorizontalTextAlignment="Left"
                                                    HorizontalAlignment="Stretch"
                                                    TextTrimming="CharacterEllipsis">
                                             <ToolTipService.ToolTip>
-                                                <ToolTip Content="{x:Bind Name,Mode=OneWay}"
+                                                <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
                                                          Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                             </ToolTipService.ToolTip>
                                         </TextBlock>

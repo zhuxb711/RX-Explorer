@@ -726,10 +726,10 @@
                                        HorizontalAlignment="Left"
                                        Grid.Column="1"
                                        Name="NameLabel"
-                                       Text="{x:Bind Name,Converter={StaticResource NameExtensionsConverter}}"
+                                       Text="{x:Bind DisplayName,Converter={StaticResource NameExtensionsConverter}}"
                                        TextTrimming="CharacterEllipsis">
                                  <ToolTipService.ToolTip>
-                                    <ToolTip Content="{x:Bind Name,Converter={StaticResource NameExtensionsConverter}}"
+                                    <ToolTip Content="{x:Bind DisplayName,Converter={StaticResource NameExtensionsConverter}}"
                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                  </ToolTipService.ToolTip>
                             </TextBlock>

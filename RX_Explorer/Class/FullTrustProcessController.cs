@@ -226,6 +226,11 @@ namespace RX_Explorer.Class
             return CompletionSource.Task;
         }
 
+        public static async Task<RefSharedRegion<ExclusiveUsage>> GetProcessSharedRegionAsync()
+        {
+            return new RefSharedRegion<ExclusiveUsage>(await GetAvailableControllerAsync());
+        }
+
         private static async Task<FullTrustProcessController> CreateAsync()
         {
             FullTrustProcessController Controller = new FullTrustProcessController();

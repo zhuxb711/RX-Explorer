@@ -695,387 +695,385 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             try
             {
-                await StorageItem.StartProcessRefShareRegionAsync();
-
-                Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
+                using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
+                using (DisposableNotification Disposable = StorageItem.SetProcessRefShareRegion(SharedRegion))
                 {
-                    { Globalization.GetString("Properties_Details_Name"), StorageItem.Name },
-                    { Globalization.GetString("Properties_Details_ItemType"), StorageItem.DisplayType },
-                    { Globalization.GetString("Properties_Details_FolderPath"), Path.GetDirectoryName(StorageItem.Path) },
-                    { Globalization.GetString("Properties_Details_Size"), StorageItem.SizeDescription },
-                    { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTimeDescription },
-                    { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTimeDescription },
-                    { Globalization.GetString("Properties_Details_Availability"), string.Empty },
-                    { Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), string.Empty },
-                    { Globalization.GetString("Properties_Details_Owner"), string.Empty },
-                    { Globalization.GetString("Properties_Details_ComputerName"), string.Empty }
-                };
-
-                IReadOnlyDictionary<string, string> BasicPropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
-                {
-                    "System.OfflineAvailability",
-                    "System.FileOfflineAvailabilityStatus",
-                    "System.FileOwner",
-                    "System.ComputerName",
-                    "System.FilePlaceholderStatus"
-                });
-
-                if (!string.IsNullOrEmpty(BasicPropertiesResult["System.OfflineAvailability"]))
-                {
-                    BasicPropertiesDictionary[Globalization.GetString("Properties_Details_Availability")] = OfflineAvailabilityMap[Convert.ToUInt32(BasicPropertiesResult["System.OfflineAvailability"])];
-                }
-
-                if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FileOfflineAvailabilityStatus"]))
-                {
-                    BasicPropertiesDictionary[Globalization.GetString("Properties_Details_OfflineAvailabilityStatus")] = OfflineAvailabilityStatusMap[Convert.ToUInt32(BasicPropertiesResult["System.FileOfflineAvailabilityStatus"])];
-                }
-                else if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FilePlaceholderStatus"]))
-                {
-                    BasicPropertiesDictionary[Globalization.GetString("Properties_Details_OfflineAvailabilityStatus")] = OfflineAvailabilityStatusMap[Convert.ToUInt32(BasicPropertiesResult["System.FilePlaceholderStatus"])];
-                }
-
-                if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FileOwner"]))
-                {
-                    BasicPropertiesDictionary[Globalization.GetString("Properties_Details_Owner")] = BasicPropertiesResult["System.FileOwner"];
-                }
-
-                if (!string.IsNullOrEmpty(BasicPropertiesResult["System.ComputerName"]))
-                {
-                    BasicPropertiesDictionary[Globalization.GetString("Properties_Details_ComputerName")] = BasicPropertiesResult["System.ComputerName"];
-                }
-
-                PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Basic_Label"), BasicPropertiesDictionary.ToArray()));
-
-                string ContentType = string.Empty;
-
-                if (string.IsNullOrEmpty(ContentType))
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                    Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
                     {
-                        ContentType = await Exclusive.Controller.GetMIMEContentTypeAsync(StorageItem.Path);
-                    }
-                }
+                        { Globalization.GetString("Properties_Details_Name"), StorageItem.Name },
+                        { Globalization.GetString("Properties_Details_ItemType"), StorageItem.DisplayType },
+                        { Globalization.GetString("Properties_Details_FolderPath"), Path.GetDirectoryName(StorageItem.Path) },
+                        { Globalization.GetString("Properties_Details_Size"), StorageItem.SizeDescription },
+                        { Globalization.GetString("Properties_Details_DateCreated"), StorageItem.CreationTimeDescription },
+                        { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTimeDescription },
+                        { Globalization.GetString("Properties_Details_Availability"), string.Empty },
+                        { Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), string.Empty },
+                        { Globalization.GetString("Properties_Details_Owner"), string.Empty },
+                        { Globalization.GetString("Properties_Details_ComputerName"), string.Empty }
+                    };
 
-                if (ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
-                {
-                    IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
+                    IReadOnlyDictionary<string, string> BasicPropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
                     {
-                        "System.Video.FrameWidth",
-                        "System.Video.FrameHeight",
-                        "System.Media.Duration",
-                        "System.Video.FrameRate",
-                        "System.Video.TotalBitrate",
-                        "System.Audio.EncodingBitrate",
-                        "System.Audio.SampleRate",
-                        "System.Audio.ChannelCount",
-                        "System.Title",
-                        "System.Media.SubTitle",
-                        "System.Rating",
-                        "System.Comment",
-                        "System.Media.Year",
-                        "System.Video.Director",
-                        "System.Media.Producer",
-                        "System.Media.Publisher",
-                        "System.Keywords",
-                        "System.Copyright"
+                        "System.OfflineAvailability",
+                        "System.FileOfflineAvailabilityStatus",
+                        "System.FileOwner",
+                        "System.ComputerName",
+                        "System.FilePlaceholderStatus"
                     });
 
-                    Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>(5)
+                    if (!string.IsNullOrEmpty(BasicPropertiesResult["System.OfflineAvailability"]))
                     {
-                        { Globalization.GetString("Properties_Details_Duration"), string.Empty },
-                        { Globalization.GetString("Properties_Details_FrameWidth"), PropertiesResult["System.Video.FrameWidth"] },
-                        { Globalization.GetString("Properties_Details_FrameHeight"), PropertiesResult["System.Video.FrameHeight"] },
-                        { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
-                        { Globalization.GetString("Properties_Details_FrameRate"), string.Empty }
-                    };
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Video.FrameRate"]))
-                    {
-                        uint FrameRate = Convert.ToUInt32(PropertiesResult["System.Video.FrameRate"]);
-                        VideoPropertiesDictionary[Globalization.GetString("Properties_Details_FrameRate")] = $"{ FrameRate / 1000:N2} {Globalization.GetString("Properties_Details_FrameRatePerSecond")}";
+                        BasicPropertiesDictionary[Globalization.GetString("Properties_Details_Availability")] = OfflineAvailabilityMap[Convert.ToUInt32(BasicPropertiesResult["System.OfflineAvailability"])];
                     }
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Video.TotalBitrate"]))
+                    if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FileOfflineAvailabilityStatus"]))
                     {
-                        uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Video.TotalBitrate"]);
-                        VideoPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
+                        BasicPropertiesDictionary[Globalization.GetString("Properties_Details_OfflineAvailabilityStatus")] = OfflineAvailabilityStatusMap[Convert.ToUInt32(BasicPropertiesResult["System.FileOfflineAvailabilityStatus"])];
+                    }
+                    else if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FilePlaceholderStatus"]))
+                    {
+                        BasicPropertiesDictionary[Globalization.GetString("Properties_Details_OfflineAvailabilityStatus")] = OfflineAvailabilityStatusMap[Convert.ToUInt32(BasicPropertiesResult["System.FilePlaceholderStatus"])];
                     }
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Media.Duration"]))
+                    if (!string.IsNullOrEmpty(BasicPropertiesResult["System.FileOwner"]))
                     {
-                        VideoPropertiesDictionary[Globalization.GetString("Properties_Details_Duration")] = TimeSpan.FromMilliseconds(Convert.ToUInt64(PropertiesResult["System.Media.Duration"]) / 10000).ConvertTimeSpanToString();
+                        BasicPropertiesDictionary[Globalization.GetString("Properties_Details_Owner")] = BasicPropertiesResult["System.FileOwner"];
                     }
 
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Video_Label"), VideoPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(3)
+                    if (!string.IsNullOrEmpty(BasicPropertiesResult["System.ComputerName"]))
                     {
-                        { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
-                        { Globalization.GetString("Properties_Details_Channels"), PropertiesResult["System.Audio.ChannelCount"] },
-                        { Globalization.GetString("Properties_Details_SampleRate"), string.Empty }
-                    };
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.EncodingBitrate"]))
-                    {
-                        uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Audio.EncodingBitrate"]);
-                        AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
+                        BasicPropertiesDictionary[Globalization.GetString("Properties_Details_ComputerName")] = BasicPropertiesResult["System.ComputerName"];
                     }
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.SampleRate"]))
+                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Basic_Label"), BasicPropertiesDictionary.ToArray()));
+
+                    string ContentType = string.Empty;
+
+                    if (string.IsNullOrEmpty(ContentType))
                     {
-                        uint SampleRate = Convert.ToUInt32(PropertiesResult["System.Audio.SampleRate"]);
-                        AudioPropertiesDictionary[Globalization.GetString("Properties_Details_SampleRate")] = $"{SampleRate / 1000:N3} kHz";
-                    }
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Audio_Label"), AudioPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
-                    {
-                        { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
-                        { Globalization.GetString("Properties_Details_Subtitle"), PropertiesResult["System.Media.SubTitle"] },
-                        { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
-                        { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
-                    };
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
-                    {
-                        { Globalization.GetString("Properties_Details_Year"), PropertiesResult["System.Media.Year"] },
-                        { Globalization.GetString("Properties_Details_Directors"), PropertiesResult["System.Video.Director"] },
-                        { Globalization.GetString("Properties_Details_Producers"), PropertiesResult["System.Media.Producer"] },
-                        { Globalization.GetString("Properties_Details_Publisher"), PropertiesResult["System.Media.Publisher"] },
-                        { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
-                        { Globalization.GetString("Properties_Details_Copyright"), PropertiesResult["System.Copyright"] }
-                    };
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
-                }
-                else if (ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
-                {
-                    IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
-                    {
-                        "System.Media.Duration",
-                        "System.Audio.SampleRate",
-                        "System.Audio.ChannelCount",
-                        "System.Audio.EncodingBitrate",
-                        "System.Title",
-                        "System.Media.SubTitle",
-                        "System.Rating",
-                        "System.Comment",
-                        "System.Media.Year",
-                        "System.Music.Genre",
-                        "System.Music.Artist",
-                        "System.Music.AlbumArtist",
-                        "System.Media.Producer",
-                        "System.Media.Publisher",
-                        "System.Music.Conductor",
-                        "System.Music.Composer",
-                        "System.Music.TrackNumber",
-                        "System.Copyright"
-                    });
-
-                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(4)
-                    {
-                        { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
-                        { Globalization.GetString("Properties_Details_Duration"), string.Empty },
-                        { Globalization.GetString("Properties_Details_Channels"), PropertiesResult["System.Audio.ChannelCount"] },
-                        { Globalization.GetString("Properties_Details_SampleRate"), string.Empty }
-                    };
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.EncodingBitrate"]))
-                    {
-                        uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Audio.EncodingBitrate"]);
-                        AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
-                    }
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Media.Duration"]))
-                    {
-                        AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Duration")] = TimeSpan.FromMilliseconds(Convert.ToUInt64(PropertiesResult["System.Media.Duration"]) / 10000).ConvertTimeSpanToString();
-                    }
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.SampleRate"]))
-                    {
-                        uint SampleRate = Convert.ToUInt32(PropertiesResult["System.Audio.SampleRate"]);
-                        AudioPropertiesDictionary[Globalization.GetString("Properties_Details_SampleRate")] = $"{SampleRate / 1000:N3} kHz";
-                    }
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Audio_Label"), AudioPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
-                    {
-                        { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
-                        { Globalization.GetString("Properties_Details_Subtitle"), PropertiesResult["System.Media.SubTitle"] },
-                        { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
-                        { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
-                    };
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(10)
-                    {
-                        { Globalization.GetString("Properties_Details_Year"), PropertiesResult["System.Media.Year"] },
-                        { Globalization.GetString("Properties_Details_Genre"), PropertiesResult["System.Music.Genre"] },
-                        { Globalization.GetString("Properties_Details_Artist"), PropertiesResult["System.Music.Artist"] },
-                        { Globalization.GetString("Properties_Details_AlbumArtist"), PropertiesResult["System.Music.AlbumArtist"] },
-                        { Globalization.GetString("Properties_Details_Producers"), PropertiesResult["System.Media.Producer"] },
-                        { Globalization.GetString("Properties_Details_Publisher"), PropertiesResult["System.Media.Publisher"] },
-                        { Globalization.GetString("Properties_Details_Conductors"), PropertiesResult["System.Music.Conductor"] },
-                        { Globalization.GetString("Properties_Details_Composers"), PropertiesResult["System.Music.Composer"] },
-                        { Globalization.GetString("Properties_Details_TrackNum"), PropertiesResult["System.Music.TrackNumber"] },
-                        { Globalization.GetString("Properties_Details_Copyright"), PropertiesResult["System.Copyright"] }
-                    };
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
-                }
-                else if (ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
-                {
-                    IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
-                    {
-                        "System.Image.Dimensions",
-                        "System.Image.HorizontalSize",
-                        "System.Image.VerticalSize",
-                        "System.Image.BitDepth",
-                        "System.Image.ColorSpace",
-                        "System.Title",
-                        "System.Photo.DateTaken",
-                        "System.Rating",
-                        "System.Photo.CameraModel",
-                        "System.Photo.CameraManufacturer",
-                        "System.Keywords",
-                        "System.Comment",
-                        "System.GPS.LatitudeDecimal",
-                        "System.GPS.LongitudeDecimal",
-                        "System.Photo.PeopleNames"
-                    });
-
-                    Dictionary<string, object> ImagePropertiesDictionary = new Dictionary<string, object>(5)
-                    {
-                        { Globalization.GetString("Properties_Details_Dimensions"), PropertiesResult["System.Image.Dimensions"] },
-                        { Globalization.GetString("Properties_Details_Width"), PropertiesResult["System.Image.HorizontalSize"] },
-                        { Globalization.GetString("Properties_Details_Height"), PropertiesResult["System.Image.VerticalSize"] },
-                        { Globalization.GetString("Properties_Details_BitDepth"), PropertiesResult["System.Image.BitDepth"]},
-                        { Globalization.GetString("Properties_Details_ColorSpace"), string.Empty }
-                    };
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Image.ColorSpace"]))
-                    {
-                        ushort ColorSpaceEnum = Convert.ToUInt16(PropertiesResult["System.Image.ColorSpace"]);
-
-                        if (ColorSpaceEnum == 1)
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                         {
-                            ImagePropertiesDictionary[Globalization.GetString("Properties_Details_ColorSpace")] = Globalization.GetString("Properties_Details_ColorSpace_SRGB");
-                        }
-                        else if (ColorSpaceEnum == ushort.MaxValue)
-                        {
-                            ImagePropertiesDictionary[Globalization.GetString("Properties_Details_ColorSpace")] = Globalization.GetString("Properties_Details_ColorSpace_Uncalibrated");
+                            ContentType = await Exclusive.Controller.GetMIMEContentTypeAsync(StorageItem.Path);
                         }
                     }
 
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Image_Label"), ImagePropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                    if (ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
                     {
-                        { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
-                        { Globalization.GetString("Properties_Details_DateTaken"), string.Empty },
-                        { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
-                        { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
-                    };
+                        IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
+                        {
+                            "System.Video.FrameWidth",
+                            "System.Video.FrameHeight",
+                            "System.Media.Duration",
+                            "System.Video.FrameRate",
+                            "System.Video.TotalBitrate",
+                            "System.Audio.EncodingBitrate",
+                            "System.Audio.SampleRate",
+                            "System.Audio.ChannelCount",
+                            "System.Title",
+                            "System.Media.SubTitle",
+                            "System.Rating",
+                            "System.Comment",
+                            "System.Media.Year",
+                            "System.Video.Director",
+                            "System.Media.Producer",
+                            "System.Media.Publisher",
+                            "System.Keywords",
+                            "System.Copyright"
+                        });
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Photo.DateTaken"]))
-                    {
-                        DescriptionPropertiesDictionary[Globalization.GetString("Properties_Details_DateTaken")] = DateTimeOffset.Parse(PropertiesResult["System.Photo.DateTaken"]).ToString("G");
+                        Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>(5)
+                        {
+                            { Globalization.GetString("Properties_Details_Duration"), string.Empty },
+                            { Globalization.GetString("Properties_Details_FrameWidth"), PropertiesResult["System.Video.FrameWidth"] },
+                            { Globalization.GetString("Properties_Details_FrameHeight"), PropertiesResult["System.Video.FrameHeight"] },
+                            { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
+                            { Globalization.GetString("Properties_Details_FrameRate"), string.Empty }
+                        };
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Video.FrameRate"]))
+                        {
+                            uint FrameRate = Convert.ToUInt32(PropertiesResult["System.Video.FrameRate"]);
+                            VideoPropertiesDictionary[Globalization.GetString("Properties_Details_FrameRate")] = $"{ FrameRate / 1000:N2} {Globalization.GetString("Properties_Details_FrameRatePerSecond")}";
+                        }
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Video.TotalBitrate"]))
+                        {
+                            uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Video.TotalBitrate"]);
+                            VideoPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
+                        }
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Media.Duration"]))
+                        {
+                            VideoPropertiesDictionary[Globalization.GetString("Properties_Details_Duration")] = TimeSpan.FromMilliseconds(Convert.ToUInt64(PropertiesResult["System.Media.Duration"]) / 10000).ConvertTimeSpanToString();
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Video_Label"), VideoPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(3)
+                        {
+                            { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
+                            { Globalization.GetString("Properties_Details_Channels"), PropertiesResult["System.Audio.ChannelCount"] },
+                            { Globalization.GetString("Properties_Details_SampleRate"), string.Empty }
+                        };
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.EncodingBitrate"]))
+                        {
+                            uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Audio.EncodingBitrate"]);
+                            AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
+                        }
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.SampleRate"]))
+                        {
+                            uint SampleRate = Convert.ToUInt32(PropertiesResult["System.Audio.SampleRate"]);
+                            AudioPropertiesDictionary[Globalization.GetString("Properties_Details_SampleRate")] = $"{SampleRate / 1000:N3} kHz";
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Audio_Label"), AudioPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                        {
+                            { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
+                            { Globalization.GetString("Properties_Details_Subtitle"), PropertiesResult["System.Media.SubTitle"] },
+                            { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
+                            { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
+                        {
+                            { Globalization.GetString("Properties_Details_Year"), PropertiesResult["System.Media.Year"] },
+                            { Globalization.GetString("Properties_Details_Directors"), PropertiesResult["System.Video.Director"] },
+                            { Globalization.GetString("Properties_Details_Producers"), PropertiesResult["System.Media.Producer"] },
+                            { Globalization.GetString("Properties_Details_Publisher"), PropertiesResult["System.Media.Publisher"] },
+                            { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
+                            { Globalization.GetString("Properties_Details_Copyright"), PropertiesResult["System.Copyright"] }
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
                     }
-
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
-
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
+                    else if (ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
                     {
-                        { Globalization.GetString("Properties_Details_CameraModel"), PropertiesResult["System.Photo.CameraModel"] },
-                        { Globalization.GetString("Properties_Details_CameraManufacturer"), PropertiesResult["System.Photo.CameraManufacturer"] },
-                        { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
-                        { Globalization.GetString("Properties_Details_Latitude"), PropertiesResult["System.GPS.LatitudeDecimal"] },
-                        { Globalization.GetString("Properties_Details_Longitude"), PropertiesResult["System.GPS.LongitudeDecimal"] },
-                        { Globalization.GetString("Properties_Details_PeopleNames"), PropertiesResult["System.Photo.PeopleNames"] }
-                    };
+                        IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
+                        {
+                            "System.Media.Duration",
+                            "System.Audio.SampleRate",
+                            "System.Audio.ChannelCount",
+                            "System.Audio.EncodingBitrate",
+                            "System.Title",
+                            "System.Media.SubTitle",
+                            "System.Rating",
+                            "System.Comment",
+                            "System.Media.Year",
+                            "System.Music.Genre",
+                            "System.Music.Artist",
+                            "System.Music.AlbumArtist",
+                            "System.Media.Producer",
+                            "System.Media.Publisher",
+                            "System.Music.Conductor",
+                            "System.Music.Composer",
+                            "System.Music.TrackNumber",
+                            "System.Copyright"
+                        });
 
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
-                }
-                else if (ContentType.StartsWith("application/msword", StringComparison.OrdinalIgnoreCase)
-                        || ContentType.StartsWith("application/vnd.ms-excel", StringComparison.OrdinalIgnoreCase)
-                        || ContentType.StartsWith("application/vnd.ms-powerpoint", StringComparison.OrdinalIgnoreCase)
-                        || ContentType.StartsWith("application/vnd.openxmlformats-officedocument", StringComparison.OrdinalIgnoreCase))
-                {
-                    IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
-                    {
-                        "System.Title",
-                        "System.Comment",
-                        "System.Keywords",
-                        "System.Author",
-                        "System.Document.LastAuthor",
-                        "System.Document.Version",
-                        "System.Document.RevisionNumber",
-                        "System.Document.Template",
-                        "System.Document.PageCount",
-                        "System.Document.WordCount",
-                        "System.Document.CharacterCount",
-                        "System.Document.LineCount",
-                        "System.Document.TotalEditingTime",
-                        "System.Document.DateCreated",
-                        "System.Document.DateSaved"
-                    });
+                        Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(4)
+                        {
+                            { Globalization.GetString("Properties_Details_Bitrate"), string.Empty },
+                            { Globalization.GetString("Properties_Details_Duration"), string.Empty },
+                            { Globalization.GetString("Properties_Details_Channels"), PropertiesResult["System.Audio.ChannelCount"] },
+                            { Globalization.GetString("Properties_Details_SampleRate"), string.Empty }
+                        };
 
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
-                    {
-                        { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
-                        { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] },
-                        { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
-                        { Globalization.GetString("Properties_Details_Authors"), PropertiesResult["System.Author"] },
-                    };
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.EncodingBitrate"]))
+                        {
+                            uint Bitrate = Convert.ToUInt32(PropertiesResult["System.Audio.EncodingBitrate"]);
+                            AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Bitrate")] = Bitrate / 1024f < 1024 ? $"{Math.Round(Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(Bitrate / 1048576f, 2):N2} Mbps";
+                        }
 
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Media.Duration"]))
+                        {
+                            AudioPropertiesDictionary[Globalization.GetString("Properties_Details_Duration")] = TimeSpan.FromMilliseconds(Convert.ToUInt64(PropertiesResult["System.Media.Duration"]) / 10000).ConvertTimeSpanToString();
+                        }
 
-                    Dictionary<string, string> ExtraPropertiesDictionary = new Dictionary<string, string>(11)
-                    {
-                        { Globalization.GetString("Properties_Details_LastAuthor"), PropertiesResult["System.Document.LastAuthor"] },
-                        { Globalization.GetString("Properties_Details_Version"), PropertiesResult["System.Document.Version"] },
-                        { Globalization.GetString("Properties_Details_RevisionNumber"), PropertiesResult["System.Document.RevisionNumber"] },
-                        { Globalization.GetString("Properties_Details_PageCount"), PropertiesResult["System.Document.PageCount"] },
-                        { Globalization.GetString("Properties_Details_WordCount"), PropertiesResult["System.Document.WordCount"] },
-                        { Globalization.GetString("Properties_Details_CharacterCount"), PropertiesResult["System.Document.CharacterCount"] },
-                        { Globalization.GetString("Properties_Details_LineCount"), PropertiesResult["System.Document.LineCount"] },
-                        { Globalization.GetString("Properties_Details_Template"), PropertiesResult["System.Document.Template"] },
-                        { Globalization.GetString("Properties_Details_TotalEditingTime"), string.Empty },
-                        { Globalization.GetString("Properties_Details_ContentCreated"), string.Empty },
-                        { Globalization.GetString("Properties_Details_DateLastSaved"), string.Empty }
-                    };
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Audio.SampleRate"]))
+                        {
+                            uint SampleRate = Convert.ToUInt32(PropertiesResult["System.Audio.SampleRate"]);
+                            AudioPropertiesDictionary[Globalization.GetString("Properties_Details_SampleRate")] = $"{SampleRate / 1000:N3} kHz";
+                        }
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Document.TotalEditingTime"]))
-                    {
-                        ulong TotalEditing = Convert.ToUInt64(PropertiesResult["System.Document.TotalEditingTime"]);
-                        ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_TotalEditingTime")] = TimeSpan.FromMilliseconds(TotalEditing / 10000).ConvertTimeSpanToString();
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Audio_Label"), AudioPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                        {
+                            { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
+                            { Globalization.GetString("Properties_Details_Subtitle"), PropertiesResult["System.Media.SubTitle"] },
+                            { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
+                            { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(10)
+                        {
+                            { Globalization.GetString("Properties_Details_Year"), PropertiesResult["System.Media.Year"] },
+                            { Globalization.GetString("Properties_Details_Genre"), PropertiesResult["System.Music.Genre"] },
+                            { Globalization.GetString("Properties_Details_Artist"), PropertiesResult["System.Music.Artist"] },
+                            { Globalization.GetString("Properties_Details_AlbumArtist"), PropertiesResult["System.Music.AlbumArtist"] },
+                            { Globalization.GetString("Properties_Details_Producers"), PropertiesResult["System.Media.Producer"] },
+                            { Globalization.GetString("Properties_Details_Publisher"), PropertiesResult["System.Media.Publisher"] },
+                            { Globalization.GetString("Properties_Details_Conductors"), PropertiesResult["System.Music.Conductor"] },
+                            { Globalization.GetString("Properties_Details_Composers"), PropertiesResult["System.Music.Composer"] },
+                            { Globalization.GetString("Properties_Details_TrackNum"), PropertiesResult["System.Music.TrackNumber"] },
+                            { Globalization.GetString("Properties_Details_Copyright"), PropertiesResult["System.Copyright"] }
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
                     }
-
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Document.DateCreated"]))
+                    else if (ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
                     {
-                        ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_ContentCreated")] = DateTimeOffset.Parse(PropertiesResult["System.Document.DateCreated"]).ToString("G");
-                    }
+                        IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
+                        {
+                            "System.Image.Dimensions",
+                            "System.Image.HorizontalSize",
+                            "System.Image.VerticalSize",
+                            "System.Image.BitDepth",
+                            "System.Image.ColorSpace",
+                            "System.Title",
+                            "System.Photo.DateTaken",
+                            "System.Rating",
+                            "System.Photo.CameraModel",
+                            "System.Photo.CameraManufacturer",
+                            "System.Keywords",
+                            "System.Comment",
+                            "System.GPS.LatitudeDecimal",
+                            "System.GPS.LongitudeDecimal",
+                            "System.Photo.PeopleNames"
+                        });
 
-                    if (!string.IsNullOrEmpty(PropertiesResult["System.Document.DateSaved"]))
+                        Dictionary<string, object> ImagePropertiesDictionary = new Dictionary<string, object>(5)
+                        {
+                            { Globalization.GetString("Properties_Details_Dimensions"), PropertiesResult["System.Image.Dimensions"] },
+                            { Globalization.GetString("Properties_Details_Width"), PropertiesResult["System.Image.HorizontalSize"] },
+                            { Globalization.GetString("Properties_Details_Height"), PropertiesResult["System.Image.VerticalSize"] },
+                            { Globalization.GetString("Properties_Details_BitDepth"), PropertiesResult["System.Image.BitDepth"]},
+                            { Globalization.GetString("Properties_Details_ColorSpace"), string.Empty }
+                        };
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Image.ColorSpace"]))
+                        {
+                            ushort ColorSpaceEnum = Convert.ToUInt16(PropertiesResult["System.Image.ColorSpace"]);
+
+                            if (ColorSpaceEnum == 1)
+                            {
+                                ImagePropertiesDictionary[Globalization.GetString("Properties_Details_ColorSpace")] = Globalization.GetString("Properties_Details_ColorSpace_SRGB");
+                            }
+                            else if (ColorSpaceEnum == ushort.MaxValue)
+                            {
+                                ImagePropertiesDictionary[Globalization.GetString("Properties_Details_ColorSpace")] = Globalization.GetString("Properties_Details_ColorSpace_Uncalibrated");
+                            }
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Image_Label"), ImagePropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                        {
+                            { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
+                            { Globalization.GetString("Properties_Details_DateTaken"), string.Empty },
+                            { Globalization.GetString("Properties_Details_Rating"), PropertiesResult["System.Rating"] },
+                            { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] }
+                        };
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Photo.DateTaken"]))
+                        {
+                            DescriptionPropertiesDictionary[Globalization.GetString("Properties_Details_DateTaken")] = DateTimeOffset.Parse(PropertiesResult["System.Photo.DateTaken"]).ToString("G");
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
+                        {
+                            { Globalization.GetString("Properties_Details_CameraModel"), PropertiesResult["System.Photo.CameraModel"] },
+                            { Globalization.GetString("Properties_Details_CameraManufacturer"), PropertiesResult["System.Photo.CameraManufacturer"] },
+                            { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
+                            { Globalization.GetString("Properties_Details_Latitude"), PropertiesResult["System.GPS.LatitudeDecimal"] },
+                            { Globalization.GetString("Properties_Details_Longitude"), PropertiesResult["System.GPS.LongitudeDecimal"] },
+                            { Globalization.GetString("Properties_Details_PeopleNames"), PropertiesResult["System.Photo.PeopleNames"] }
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
+                    }
+                    else if (ContentType.StartsWith("application/msword", StringComparison.OrdinalIgnoreCase)
+                            || ContentType.StartsWith("application/vnd.ms-excel", StringComparison.OrdinalIgnoreCase)
+                            || ContentType.StartsWith("application/vnd.ms-powerpoint", StringComparison.OrdinalIgnoreCase)
+                            || ContentType.StartsWith("application/vnd.openxmlformats-officedocument", StringComparison.OrdinalIgnoreCase))
                     {
-                        ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_DateLastSaved")] = DateTimeOffset.Parse(PropertiesResult["System.Document.DateSaved"]).ToString("G");
-                    }
+                        IReadOnlyDictionary<string, string> PropertiesResult = await StorageItem.GetPropertiesAsync(new string[]
+                        {
+                            "System.Title",
+                            "System.Comment",
+                            "System.Keywords",
+                            "System.Author",
+                            "System.Document.LastAuthor",
+                            "System.Document.Version",
+                            "System.Document.RevisionNumber",
+                            "System.Document.Template",
+                            "System.Document.PageCount",
+                            "System.Document.WordCount",
+                            "System.Document.CharacterCount",
+                            "System.Document.LineCount",
+                            "System.Document.TotalEditingTime",
+                            "System.Document.DateCreated",
+                            "System.Document.DateSaved"
+                        });
 
-                    PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.Select((Pair) => new KeyValuePair<string, object>(Pair.Key, Pair.Value))));
+                        Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                        {
+                            { Globalization.GetString("Properties_Details_Title"), PropertiesResult["System.Title"] },
+                            { Globalization.GetString("Properties_Details_Comment"), PropertiesResult["System.Comment"] },
+                            { Globalization.GetString("Properties_Details_Keywords"), PropertiesResult["System.Keywords"] },
+                            { Globalization.GetString("Properties_Details_Authors"), PropertiesResult["System.Author"] },
+                        };
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Description"), DescriptionPropertiesDictionary.ToArray()));
+
+                        Dictionary<string, string> ExtraPropertiesDictionary = new Dictionary<string, string>(11)
+                        {
+                            { Globalization.GetString("Properties_Details_LastAuthor"), PropertiesResult["System.Document.LastAuthor"] },
+                            { Globalization.GetString("Properties_Details_Version"), PropertiesResult["System.Document.Version"] },
+                            { Globalization.GetString("Properties_Details_RevisionNumber"), PropertiesResult["System.Document.RevisionNumber"] },
+                            { Globalization.GetString("Properties_Details_PageCount"), PropertiesResult["System.Document.PageCount"] },
+                            { Globalization.GetString("Properties_Details_WordCount"), PropertiesResult["System.Document.WordCount"] },
+                            { Globalization.GetString("Properties_Details_CharacterCount"), PropertiesResult["System.Document.CharacterCount"] },
+                            { Globalization.GetString("Properties_Details_LineCount"), PropertiesResult["System.Document.LineCount"] },
+                            { Globalization.GetString("Properties_Details_Template"), PropertiesResult["System.Document.Template"] },
+                            { Globalization.GetString("Properties_Details_TotalEditingTime"), string.Empty },
+                            { Globalization.GetString("Properties_Details_ContentCreated"), string.Empty },
+                            { Globalization.GetString("Properties_Details_DateLastSaved"), string.Empty }
+                        };
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Document.TotalEditingTime"]))
+                        {
+                            ulong TotalEditing = Convert.ToUInt64(PropertiesResult["System.Document.TotalEditingTime"]);
+                            ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_TotalEditingTime")] = TimeSpan.FromMilliseconds(TotalEditing / 10000).ConvertTimeSpanToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Document.DateCreated"]))
+                        {
+                            ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_ContentCreated")] = DateTimeOffset.Parse(PropertiesResult["System.Document.DateCreated"]).ToString("G");
+                        }
+
+                        if (!string.IsNullOrEmpty(PropertiesResult["System.Document.DateSaved"]))
+                        {
+                            ExtraPropertiesDictionary[Globalization.GetString("Properties_Details_DateLastSaved")] = DateTimeOffset.Parse(PropertiesResult["System.Document.DateSaved"]).ToString("G");
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.Select((Pair) => new KeyValuePair<string, object>(Pair.Key, Pair.Value))));
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not generate the details in property window");
-            }
-            finally
-            {
-                await StorageItem.EndProcessRefShareRegionAsync();
             }
         }
 
