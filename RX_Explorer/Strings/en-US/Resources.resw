@@ -3150,7 +3150,7 @@ Invalid names include
     <value>The task has been cancelled by the user</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>Preferred file layout mode</value>
+    <value>Preferred layout mode</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</value>

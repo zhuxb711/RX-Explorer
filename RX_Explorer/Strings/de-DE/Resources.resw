@@ -3039,7 +3039,7 @@ Inkorrekte Namen sind
     <value>Die Aufgabe wurde vom Benutzer abgebrochen</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>Bevorzugter Dateilayoutmodus</value>
+    <value>Bevorzugter Layoutmodus</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Es wurde ein obligatorisches Update veröffentlicht, das darauf hinweist, dass die von Ihnen verwendete Version möglicherweise ernsthafte Probleme hat. Bitte verwenden Sie die aktuelle Version nicht mehr und aktualisieren Sie so schnell wie möglich auf die neueste Version</value>

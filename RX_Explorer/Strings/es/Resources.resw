@@ -3039,7 +3039,7 @@ Las denominaciones no válidas son:
     <value>La tarea ha sido cancelada por el usuario</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>Modo de diseño de archivo preferido</value>
+    <value>Modo de diseño preferido</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Se ha publicado una actualización obligatoria, lo que indica que la versión que está utilizando puede tener problemas graves. Deje de utilizar la versión actual y actualice a la última versión lo antes posible.</value>

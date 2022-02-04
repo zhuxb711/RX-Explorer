@@ -3039,7 +3039,7 @@
     <value>任務已被用戶取消</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>首選文件佈局模式</value>
+    <value>首選佈局模式</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>已發布強制更新，表示您使用的版本可能存在嚴重問題，請停止使用當前版本並儘快更新到最新版本</value>

@@ -4032,8 +4032,8 @@ Las denominaciones no válidas son:
           <target state="translated">La tarea ha sido cancelada por el usuario</target>
         </trans-unit>
         <trans-unit id="DefaultDisplayModeLabel.Text" translate="yes" xml:space="preserve">
-          <source>Preferred file layout mode</source>
-          <target state="translated">Modo de diseño de archivo preferido</target>
+          <source>Preferred layout mode</source>
+          <target state="translated">Modo de diseño preferido</target>
         </trans-unit>
         <trans-unit id="SystemTip_ForeUpdateAvailableContent" translate="yes" xml:space="preserve">
           <source>A mandatory update has been released, which indicates that the version you are using may have serious problems, please stop using the current version and update to the latest version as soon as possible</source>

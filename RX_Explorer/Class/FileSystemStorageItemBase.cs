@@ -93,7 +93,7 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual BitmapImage Thumbnail { get; protected set; }
+        public virtual BitmapImage Thumbnail { get; private set; }
 
         public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
@@ -532,14 +532,14 @@ namespace RX_Explorer.Class
             }
             else
             {
-                async Task LocalLoadFunction()
+                async Task LocalLoadAsync()
                 {
                     try
                     {
                         using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
                         using (DisposableNotification Disposable = SetProcessRefShareRegion(SharedRegion))
                         {
-                            await LoadCoreAsync(false);
+                            await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync());
 
                             if (ShouldGenerateThumbnail)
                             {
@@ -571,11 +571,11 @@ namespace RX_Explorer.Class
 
                 if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
                 {
-                    await LocalLoadFunction();
+                    await LocalLoadAsync();
                 }
                 else
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadFunction());
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () => await LocalLoadAsync());
                 }
             }
         }

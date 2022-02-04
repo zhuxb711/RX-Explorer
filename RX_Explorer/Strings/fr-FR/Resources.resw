@@ -3039,7 +3039,7 @@ Les noms non valides incluent
     <value>La tâche a été annulée par l'utilisateur</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>Mode de disposition de fichier préféré</value>
+    <value>Mode de mise en page préféré</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>Une mise à jour obligatoire a été publiée, ce qui indique que la version que vous utilisez peut avoir de graves problèmes, veuillez cesser d'utiliser la version actuelle et mettre à jour vers la dernière version dès que possible</value>

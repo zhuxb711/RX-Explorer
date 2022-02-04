@@ -3039,7 +3039,7 @@
     <value>用户已取消该任务</value>
   </data>
   <data name="DefaultDisplayModeLabel.Text" xml:space="preserve">
-    <value>首选文件布局模式</value>
+    <value>首选布局模式</value>
   </data>
   <data name="SystemTip_ForeUpdateAvailableContent" xml:space="preserve">
     <value>一个强制更新已发布，这表明您正在使用的版本可能存在严重问题，请停止使用当前版本并尽快更新至最新版</value>
