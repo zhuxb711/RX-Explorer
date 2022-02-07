@@ -485,7 +485,7 @@ namespace RX_Explorer.Class
                 Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
                 {
                     Position = ShowAt,
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                     ShowMode = FlyoutShowMode.Standard
                 });
             }
@@ -712,6 +712,13 @@ namespace RX_Explorer.Class
                                     OpenWithFlyout.Items.Insert(0, MenuItem);
                                 }
 
+                                string DefaultProgramPath = SQLite.Current.GetDefaultProgramPickerRecord(Path.GetExtension(PathArray.First()));
+
+                                if (!ProgramPickerItem.InnerViewer.Path.Equals(DefaultProgramPath, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    OpenWithFlyout.Items.Insert(0, await GenerateOpenWithItemAsync(DefaultProgramPath));
+                                }
+
                                 if (OpenWithFlyout.Items.Count > 2)
                                 {
                                     OpenWithFlyout.Items.Insert(OpenWithFlyout.Items.Count - 2, new MenuFlyoutSeparator());
@@ -731,7 +738,7 @@ namespace RX_Explorer.Class
                 Flyout.ShowAt(RelatedTo, new FlyoutShowOptions
                 {
                     Position = ShowAt,
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                     ShowMode = FlyoutShowMode.Standard
                 });
             }

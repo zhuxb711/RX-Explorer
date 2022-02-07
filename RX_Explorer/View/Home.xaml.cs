@@ -528,7 +528,7 @@ namespace RX_Explorer
 
                             if (CommonAccessCollection.LibraryList.Remove(RefreshedLibrary))
                             {
-                                SQLite.Current.DeleteLibrary(OriginPath);
+                                SQLite.Current.DeleteLibraryFolder(OriginPath);
                                 await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, OriginPath);
                                 SQLite.Current.SetLibraryPath(LibraryType.UserCustom, NewPath);
                                 await JumpListController.Current.AddItemAsync(JumpListGroup.Library, NewPath);
@@ -1156,7 +1156,7 @@ namespace RX_Explorer
             if (LibraryGrid.SelectedItem is LibraryStorageFolder Library)
             {
                 CommonAccessCollection.LibraryList.Remove(Library);
-                SQLite.Current.DeleteLibrary(Library.Path);
+                SQLite.Current.DeleteLibraryFolder(Library.Path);
                 await JumpListController.Current.RemoveItemAsync(JumpListGroup.Library, Library.Path);
             }
         }
@@ -1835,7 +1835,7 @@ namespace RX_Explorer
                     LibraryEmptyFlyout.ShowAt(LibraryGrid, new FlyoutShowOptions
                     {
                         Position = Position,
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                         ShowMode = FlyoutShowMode.Standard
                     });
                 }
@@ -1932,7 +1932,7 @@ namespace RX_Explorer
                     DriveEmptyFlyout.ShowAt(DriveGrid, new FlyoutShowOptions
                     {
                         Position = Position,
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                         ShowMode = FlyoutShowMode.Standard
                     });
                 }

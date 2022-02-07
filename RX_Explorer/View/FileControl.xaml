@@ -6,7 +6,6 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       xmlns:Triggers="using:Microsoft.Toolkit.Uwp.UI.Triggers"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
@@ -19,31 +18,31 @@
                                                   NormalTemplate="{StaticResource NavNormalRecordTemplate}"
                                                   RootTemplate="{StaticResource NavRootRecordTemplate}" />
         <Cls:AddressSuggestionDataTemplateSelector x:Key="AddressTemplateSelector"
-                                                  PathOnlyTemplate="{StaticResource AddressPathOnlyTemplate}"
-                                                  DisplayNameAndPathTemplate="{StaticResource AddressDisplayNameAndPathTemplate}" />
+                                                   PathOnlyTemplate="{StaticResource AddressPathOnlyTemplate}"
+                                                   DisplayNameAndPathTemplate="{StaticResource AddressDisplayNameAndPathTemplate}" />
         <Cls:AnimationStyleSelector x:Key="AnimationStyleSelector" />
 
         <DataTemplate x:Key="AddressPathOnlyTemplate"
                       x:DataType="Cls:AddressSuggestionItem">
             <RelativePanel HorizontalAlignment="Stretch"
-                                       Padding="0,0,5,0">
+                           Padding="0,0,5,0">
                 <TextBlock Text="{x:Bind Path}"
-                                       ToolTipService.ToolTip="{x:Bind Path}"
-                                       RelativePanel.AlignLeftWithPanel="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True"
-                                       RelativePanel.LeftOf="AddressBarSelectionDelete"
-                                       TextTrimming="CharacterEllipsis" />
+                           ToolTipService.ToolTip="{x:Bind Path}"
+                           RelativePanel.AlignLeftWithPanel="True"
+                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                           RelativePanel.LeftOf="AddressBarSelectionDelete"
+                           TextTrimming="CharacterEllipsis" />
                 <Border Height="20"
-                                    Width="20"
-                                    Padding="5"
-                                    Visibility="{x:Bind CloseButtonVisibility}"
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    x:Name="AddressBarSelectionDelete"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    PointerPressed="AddressBarSelectionDelete_PointerPressed">
+                        Width="20"
+                        Padding="5"
+                        Visibility="{x:Bind CloseButtonVisibility}"
+                        RelativePanel.AlignRightWithPanel="True"
+                        x:Name="AddressBarSelectionDelete"
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                        PointerPressed="AddressBarSelectionDelete_PointerPressed">
                     <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                              Glyph="&#xE8BB;" />
+                                  Glyph="&#xE8BB;" />
                     </Viewbox>
                 </Border>
             </RelativePanel>
@@ -81,51 +80,66 @@
         </DataTemplate>
 
         <DataTemplate x:Key="NavNormalRecordTemplate"
-                      x:DataType="Cls:AddressNavigationRecord">
+                      x:DataType="Cls:NavigationRecordDisplay">
             <RelativePanel>
-                <Viewbox Height="28"
-                         RelativePanel.AlignLeftWithPanel="True"
-                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                         Margin="0,2,0,0"
-                         Name="Icon">
-                    <FontIcon Glyph="&#xED41;" />
-                </Viewbox>
+                <Image Height="25"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                       Margin="0,2,0,0"
+                       Name="Icon"
+                       x:Phase="1"
+                       Source="{x:Bind Thumbnail,Mode=OneWay}"/>
                 <StackPanel Margin="5,0,0,0"
                             RelativePanel.AlignRightWithPanel="True"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             RelativePanel.RightOf="Icon">
-                    <TextBlock Text="{x:Bind DisplayName}"
-                               ToolTipService.ToolTip="{x:Bind DisplayName}"
+                    <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
+                               Name="NameLabel"
                                TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis" />
+                               TextTrimming="CharacterEllipsis">
+                        <ToolTipService.ToolTip>
+                            <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
+                                     Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                        </ToolTipService.ToolTip>
+                    </TextBlock>
                     <TextBlock Text="{x:Bind Path}"
-                               ToolTipService.ToolTip="{x:Bind Path}"
                                FontSize="12"
+                               Name="PathLabel"
                                TextWrapping="NoWrap"
                                Foreground="Gray"
-                               TextTrimming="CharacterEllipsis" />
+                               TextTrimming="CharacterEllipsis">
+                        <ToolTipService.ToolTip>
+                            <ToolTip Content="{x:Bind Path}"
+                                     Visibility="{Binding ElementName=PathLabel,Path=IsTextTrimmed}" />
+                        </ToolTipService.ToolTip>
+                    </TextBlock>
                 </StackPanel>
             </RelativePanel>
         </DataTemplate>
 
         <DataTemplate x:Key="NavRootRecordTemplate"
-                      x:DataType="Cls:AddressNavigationRecord">
+                      x:DataType="Cls:NavigationRecordDisplay">
             <RelativePanel>
-                <Viewbox Height="28"
-                         RelativePanel.AlignLeftWithPanel="True"
-                         RelativePanel.AlignVerticalCenterWithPanel="True"
-                         Margin="0,2,0,0"
-                         Name="Icon">
-                    <FontIcon Glyph="&#xED41;" />
-                </Viewbox>
+                <Image Height="25"
+                       RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                       Margin="0,2,0,0"
+                       Name="Icon"
+                       x:Phase="1"
+                       Source="{x:Bind Thumbnail,Mode=OneWay}" />
                 <TextBlock Text="{x:Bind DisplayName}"
-                           ToolTipService.ToolTip="{x:Bind DisplayName}"
                            TextWrapping="NoWrap"
                            TextTrimming="CharacterEllipsis"
                            Margin="5,0,0,0"
+                           Name="NameLabel"
                            RelativePanel.AlignRightWithPanel="True"
                            RelativePanel.AlignVerticalCenterWithPanel="True"
-                           RelativePanel.RightOf="Icon" />
+                           RelativePanel.RightOf="Icon">
+                    <ToolTipService.ToolTip>
+                        <ToolTip Content="{x:Bind DisplayName}"
+                                 Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                    </ToolTipService.ToolTip>
+                </TextBlock>
             </RelativePanel>
         </DataTemplate>
 
@@ -147,29 +161,35 @@
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       Name="AddressExtensionSubFolderList"
+                      ContainerContentChanging="AddressExtensionSubFolderList_ContainerContentChanging"
                       ItemClick="AddressExtensionSubFolderList_ItemClick"
                       ItemsSource="{x:Bind AddressExtensionList}"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="Cls:AddressBlock">
+                    <DataTemplate x:DataType="Cls:FileSystemStorageFolder">
                         <RelativePanel>
-                            <Viewbox Width="18"
-                                     Height="18"
-                                     RelativePanel.AlignLeftWithPanel="True"
-                                     RelativePanel.AlignVerticalCenterWithPanel="True"
-                                     Name="Icon"
-                                     Margin="0,2,0,0">
-                                <FontIcon Glyph="&#xED41;" />
-                            </Viewbox>
+                            <Image Width="20"
+                                   Height="20"
+                                   Name="Icon"
+                                   Margin="0,2,0,0"
+                                   x:Phase="1"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}"/>
                             <TextBlock Text="{x:Bind DisplayName}"
-                                       ToolTipService.ToolTip="{x:Bind DisplayName}"
+                                       Name="NameLabel"
                                        Margin="5,0,0,0"
                                        RelativePanel.AlignRightWithPanel="True"
                                        RelativePanel.AlignVerticalCenterWithPanel="True"
                                        RelativePanel.RightOf="Icon"
                                        TextWrapping="NoWrap"
-                                       TextTrimming="CharacterEllipsis" />
+                                       TextTrimming="CharacterEllipsis">
+                                <ToolTipService.ToolTip>
+                                    <ToolTip Content="{x:Bind DisplayName}"
+                                             Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
+                                </ToolTipService.ToolTip>
+                            </TextBlock>
                         </RelativePanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -193,6 +213,7 @@
                       MinWidth="250"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
+                      ContainerContentChanging="AddressNavigationHistoryFlyoutList_ContainerContentChanging"
                       ItemClick="AddressNavigationHistoryFlyoutList_ItemClick"
                       Name="AddressNavigationHistoryFlyoutList"
                       ItemsSource="{x:Bind NavigationRecordList}"
@@ -331,6 +352,7 @@
                       Grid.Column="4"
                       x:Name="AddressButtonContainer"
                       ItemsSource="{x:Bind AddressButtonList}"
+                      ContainerContentChanging="AddressButtonContainer_ContainerContentChanging"
                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollMode="Enabled"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
@@ -378,7 +400,7 @@
                                         </VisualState>
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
-                                <Button Content="{x:Bind DisplayName}"
+                                <Button Content="{x:Bind DisplayName,Mode=OneWay}"
                                         Style="{ThemeResource WinUIBugFixedButtonStyle}"
                                         VerticalAlignment="Stretch"
                                         HorizontalAlignment="Stretch"
@@ -541,7 +563,7 @@
                                              Checked="SearchEngineChoiceSave_Checked"
                                              RelativePanel.LeftOf="EverythingQuestion"
                                              RelativePanel.AlignVerticalCenterWithPanel="True"
-                                             RelativePanel.AlignLeftWithPanel="True"/>
+                                             RelativePanel.AlignLeftWithPanel="True" />
                                 <Viewbox Margin="10,0,0,0"
                                          Height="15"
                                          Name="EverythingQuestion"
@@ -639,7 +661,7 @@
                            IsRightTapEnabled="True"
                            AllowFocusOnInteraction="False"
                            ContextRequested="FolderTree_ContextRequested"
-                           DoubleTapped="FolderTree_DoubleTapped" >
+                           DoubleTapped="FolderTree_DoubleTapped">
                 <muxc:TreeView.ItemContainerStyle>
                     <Style TargetType="muxc:TreeViewItem">
                         <Setter Property="UseSystemFocusVisuals"

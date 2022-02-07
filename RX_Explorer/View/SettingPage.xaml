@@ -50,7 +50,7 @@
             <Cls:ThemeToIndexConverter x:Key="ThemeConverter" />
             <Cls:InverseConverter x:Key="InverseConverter" />
 
-            <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
+            <muxc:CommandBarFlyout Placement="BottomEdgeAlignedLeft"
                                    ShouldConstrainToRootBounds="False"
                                    x:Name="PictureFlyout">
                 <muxc:CommandBarFlyout.SecondaryCommands>

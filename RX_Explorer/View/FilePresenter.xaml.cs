@@ -9,6 +9,7 @@ using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -46,6 +47,7 @@ using ZXing.QrCode.Internal;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using RefreshRequestedEventArgs = RX_Explorer.Class.RefreshRequestedEventArgs;
+using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
@@ -85,9 +87,9 @@ namespace RX_Explorer
             }
         }
 
-        public List<ValueTuple<string, string>> GoAndBackRecord { get; } = new List<ValueTuple<string, string>>();
+        public ConcurrentStack<NavigationRelatedRecord> BackNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
-        public int RecordIndex { get; set; }
+        public ConcurrentStack<NavigationRelatedRecord> ForwardNavigationStack { get; } = new ConcurrentStack<NavigationRelatedRecord>();
 
         private FileChangeMonitor AreaWatcher;
 
@@ -135,38 +137,15 @@ namespace RX_Explorer
                 {
                     Container.RefreshAddressButton(value.Path);
 
-                    string CurrentFolderDisplayName = string.Empty;
-
-                    if (string.IsNullOrEmpty(value.DisplayName))
-                    {
-                        CurrentFolderDisplayName = $"<{Globalization.GetString("UnknownText")}>";
-                    }
-                    else if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => (Drive.Path?.Equals(value.Path)).GetValueOrDefault()) is DriveDataBase Drive)
-                    {
-                        CurrentFolderDisplayName = Drive.DisplayName;
-                    }
-                    else
-                    {
-                        CurrentFolderDisplayName = value.DisplayName;
-                    }
-
-                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {CurrentFolderDisplayName}";
-                    Container.GoBackRecord.IsEnabled = RecordIndex > 0;
-                    Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
-                    Container.CurrentTabItem.Header = CurrentFolderDisplayName;
+                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.DisplayName}";
+                    Container.GoBackRecord.IsEnabled = !BackNavigationStack.IsEmpty;
+                    Container.GoForwardRecord.IsEnabled = !ForwardNavigationStack.IsEmpty;
 
                     Container.GoParentFolder.IsEnabled = value is not RootStorageFolder
                                                          && !(value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase)
                                                               && value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase));
 
                     PageSwitcher.Value = value.Path;
-
-                    if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
-                    {
-                        Parent.Header = CurrentFolderDisplayName;
-                    }
-
-                    TaskBarController.SetText(CurrentFolderDisplayName);
                 }
                 else
                 {
@@ -504,7 +483,7 @@ namespace RX_Explorer
 
             MenuFlyout OpenWithFlyout = new MenuFlyout
             {
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
             };
             OpenWithFlyout.Items.Add(RunAsAdminButton);
             OpenWithFlyout.Items.Add(ChooseOtherAppButton);
@@ -566,7 +545,7 @@ namespace RX_Explorer
 
             MenuFlyout EditFlyout = new MenuFlyout
             {
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
             };
             EditFlyout.Items.Add(VideoEditButton);
             EditFlyout.Items.Add(VideoMergeButton);
@@ -623,7 +602,7 @@ namespace RX_Explorer
 
             MenuFlyout ShareFlyout = new MenuFlyout
             {
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
             };
             ShareFlyout.Items.Add(WiFiShareButton);
             ShareFlyout.Items.Add(BluetoothShareButton);
@@ -720,7 +699,7 @@ namespace RX_Explorer
 
             MenuFlyout DecompressionFlyout = new MenuFlyout
             {
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
             };
             DecompressionFlyout.Opening += DecompressionOptionFlyout_Opening;
             DecompressionFlyout.Items.Add(DecompressOptionButton);
@@ -1608,7 +1587,7 @@ namespace RX_Explorer
 
             MenuFlyout MixedDecompressionFlyout = new MenuFlyout
             {
-                Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
             };
             MixedDecompressionFlyout.Items.Add(MixedDecompressOptionButton);
             MixedDecompressionFlyout.Items.Add(MixedDecompressHereButton);
@@ -2664,40 +2643,20 @@ namespace RX_Explorer
 
             try
             {
-                if (Folder == null)
-                {
-                    throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
-                }
-
-                if (ForceRefresh || !Folder.Path.Equals((CurrentFolder?.Path), StringComparison.OrdinalIgnoreCase))
+                if (ForceRefresh || !Folder.Path.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase))
                 {
                     if (!SkipNavigationRecord && !ForceRefresh)
                     {
-                        if (GoAndBackRecord.Count > 0)
+                        ForwardNavigationStack.Clear();
+
+                        if (CurrentFolder != null)
                         {
-                            if (RecordIndex != GoAndBackRecord.Count - 1)
+                            BackNavigationStack.Push(new NavigationRelatedRecord
                             {
-                                GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
-                            }
-
-                            string ParentPath = Path.GetDirectoryName(Folder.Path);
-
-                            if (!string.IsNullOrEmpty(ParentPath))
-                            {
-                                if (ParentPath.Equals(GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, Folder.Path);
-                                }
-                                else
-                                {
-                                    GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, (ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
-                                }
-                            }
+                                Path = CurrentFolder.Path,
+                                SelectedItemPath = (ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty)
+                            });
                         }
-
-                        GoAndBackRecord.Add((Folder.Path, string.Empty));
-
-                        RecordIndex = GoAndBackRecord.Count - 1;
                     }
 
                     DelayDragCancellation?.Cancel();
@@ -2718,7 +2677,7 @@ namespace RX_Explorer
                         FileCollection.Clear();
                         GroupCollection.Clear();
 
-                        await AreaWatcher.StopMonitorAsync();
+                        await Task.WhenAll(AreaWatcher.StopMonitorAsync(), SetExtraInformationOnCurrentFolder());
                     }
                     else if (await FileSystemStorageItemBase.CheckExistsAsync(Folder.Path))
                     {
@@ -2726,11 +2685,11 @@ namespace RX_Explorer
                         //Use drive path could get more benefit from loading speed and directory monitor
                         if (Folder.Path.StartsWith(@"\\"))
                         {
-                            IReadOnlyList<DriveDataBase> NetworkDriveList = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network).ToList();
+                            IEnumerable<DriveDataBase> NetworkDrives = CommonAccessCollection.DriveList.Where((Drive) => Drive.DriveType == DriveType.Network);
 
-                            if (NetworkDriveList.Count > 0)
+                            if (NetworkDrives.Any())
                             {
-                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDriveList.Select((Drive) => Drive.Path), Folder.Path);
+                                string RemappedPath = await UncPath.MapUncToDrivePath(NetworkDrives.Select((Drive) => Drive.Path), Folder.Path);
 
                                 if (await FileSystemStorageItemBase.OpenAsync(RemappedPath) is FileSystemStorageFolder RemappedFolder)
                                 {
@@ -2756,7 +2715,7 @@ namespace RX_Explorer
                         TabViewContainer.Current.LayoutModeControl.CurrentPath = Config.Path;
                         TabViewContainer.Current.LayoutModeControl.ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
 
-                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
+                        IReadOnlyList<FileSystemStorageItemBase> ChildItems = await Folder.GetChildItemsAsync(SettingPage.IsShowHiddenFilesEnabled, SettingPage.IsDisplayProtectedSystemItems);
 
                         if (ChildItems.Count > 0)
                         {
@@ -2786,8 +2745,7 @@ namespace RX_Explorer
                         StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
                         ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
-                        await ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection);
-                        await AreaWatcher.StartMonitorAsync(Folder.Path);
+                        await Task.WhenAll(AreaWatcher.StartMonitorAsync(Folder.Path), ListViewDetailHeader.Filter.SetDataSourceAsync(FileCollection), SetExtraInformationOnCurrentFolder());
                     }
                     else
                     {
@@ -2801,6 +2759,31 @@ namespace RX_Explorer
             }
         }
 
+        private async Task SetExtraInformationOnCurrentFolder()
+        {
+            BitmapImage TabIconImage = await CurrentFolder.GetThumbnailAsync(ThumbnailMode.ListView);
+
+            if (TabIconImage != null)
+            {
+                Container.CurrentTabItem.IconSource = new ImageIconSource { ImageSource = TabIconImage };
+            }
+            else
+            {
+                Container.CurrentTabItem.IconSource = new SymbolIconSource { Symbol = Symbol.Document };
+            }
+
+            string FolderDisplayName = await CurrentFolder.GetStorageItemAsync() is StorageFolder CoreItem ? CoreItem.DisplayName : CurrentFolder.DisplayName;
+
+            Container.CurrentTabItem.Header = FolderDisplayName;
+
+            TaskBarController.SetText(FolderDisplayName);
+
+            if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
+            {
+                Parent.Header = FolderDisplayName;
+            }
+        }
+
         public async Task<bool> DisplayItemsInFolder(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             if (Folder == null)
@@ -2811,20 +2794,21 @@ namespace RX_Explorer
             try
             {
                 await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
-                return true;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not display items in folder: \"{Folder.Path}\"");
                 return false;
             }
+
+            return true;
         }
 
         public async Task<bool> DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             if (RootStorageFolder.Instance.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
             {
-                return await DisplayItemsInFolder(RootStorageFolder.Instance, ForceRefresh, SkipNavigationRecord);
+                await DisplayItemsInFolderCore(RootStorageFolder.Instance, ForceRefresh, SkipNavigationRecord);
             }
             else
             {
@@ -2833,7 +2817,6 @@ namespace RX_Explorer
                     try
                     {
                         await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
-                        return true;
                     }
                     catch (Exception ex)
                     {
@@ -2841,11 +2824,9 @@ namespace RX_Explorer
                         return false;
                     }
                 }
-                else
-                {
-                    return false;
-                }
             }
+
+            return true;
         }
 
         private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -5566,7 +5547,7 @@ namespace RX_Explorer
                                     {
                                         Position = new Point(Point.Position.X, Point.Position.Y + 25),
                                         ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
                                     });
                                 }
                             }
@@ -7312,8 +7293,8 @@ namespace RX_Explorer
             EnterLock = null;
             CollectionChangeLock = null;
 
-            RecordIndex = 0;
-            GoAndBackRecord.Clear();
+            BackNavigationStack.Clear();
+            ForwardNavigationStack.Clear();
 
             FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
             ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;

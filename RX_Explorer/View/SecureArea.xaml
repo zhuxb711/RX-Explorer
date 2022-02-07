@@ -14,7 +14,7 @@
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="FileFlyout"
                                ShouldConstrainToRootBounds="False"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
@@ -46,7 +46,7 @@
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="MixedFlyout"
                                ShouldConstrainToRootBounds="False"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
                               Label="导出"
@@ -62,7 +62,7 @@
         </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                ShouldConstrainToRootBounds="False"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加文件"

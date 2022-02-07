@@ -127,35 +127,34 @@ namespace RX_Explorer.Class
                     {
                         IReadOnlyList<User> UserList = await User.FindAllAsync();
 
-                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated
-                                                                                   && User.Type == UserType.LocalUser) is User CurrentUser
+                        UserDataPaths DataPath = UserList.Where((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser)
+                                                         .FirstOrDefault() is User CurrentUser
                                                  ? UserDataPaths.GetForUser(CurrentUser)
                                                  : UserDataPaths.GetDefault();
 
-
-                        SQLite.Current.UpdateLibraryPath(new Dictionary<LibraryType, string>(7)
+                        SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(7)
                         {
-                            { LibraryType.Downloads, DataPath.Downloads },
-                            { LibraryType.Desktop, DataPath.Desktop },
-                            { LibraryType.Videos, DataPath.Videos },
-                            { LibraryType.Pictures, DataPath.Pictures },
-                            { LibraryType.Document, DataPath.Documents },
-                            { LibraryType.Music, DataPath.Music },
-                            { LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive") }
+                            new LibraryFolderRecord(LibraryType.Downloads, DataPath.Downloads),
+                            new LibraryFolderRecord(LibraryType.Desktop, DataPath.Desktop),
+                            new LibraryFolderRecord(LibraryType.Videos, DataPath.Videos),
+                            new LibraryFolderRecord(LibraryType.Pictures, DataPath.Pictures),
+                            new LibraryFolderRecord(LibraryType.Document, DataPath.Documents),
+                            new LibraryFolderRecord(LibraryType.Music, DataPath.Music),
+                            new LibraryFolderRecord(LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive"))
                         });
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
 
-                        SQLite.Current.UpdateLibraryPath(new Dictionary<LibraryType, string>(6)
+                        SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(6)
                         {
-                            { LibraryType.Desktop, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) },
-                            { LibraryType.Videos, Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) },
-                            { LibraryType.Pictures, Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) },
-                            { LibraryType.Document, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) },
-                            { LibraryType.Music, Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) },
-                            { LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive") }
+                            new LibraryFolderRecord( LibraryType.Desktop, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)),
+                            new LibraryFolderRecord(LibraryType.Videos, Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)),
+                            new LibraryFolderRecord(LibraryType.Pictures, Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
+                            new LibraryFolderRecord(LibraryType.Document, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)),
+                            new LibraryFolderRecord(LibraryType.Music, Environment.GetFolderPath(Environment.SpecialFolder.MyMusic)),
+                            new LibraryFolderRecord(LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive"))
                         });
                     }
 
@@ -163,13 +162,13 @@ namespace RX_Explorer.Class
 
                     List<Task> LongRunningTaskList = new List<Task>();
 
-                    foreach ((LibraryType Type, string Path) in SQLite.Current.GetLibraryPath())
+                    foreach (LibraryFolderRecord Record in SQLite.Current.GetLibraryFolderRecord().OrderBy((Item) => Item.Type))
                     {
-                        Task LoadTask = LibraryStorageFolder.CreateAsync(Type, Path).ContinueWith((PreviousTask) =>
+                        Task LoadTask = LibraryStorageFolder.CreateAsync(Record.Type, Record.Path).ContinueWith((PreviousTask) =>
                         {
                             if (PreviousTask.Result == null)
                             {
-                                ErrorList.Add(Path);
+                                ErrorList.Add(Record.Path);
                             }
                             else if (!LibraryList.Contains(PreviousTask.Result))
                             {
@@ -184,13 +183,15 @@ namespace RX_Explorer.Class
                     }
 
                     await Task.WhenAll(LongRunningTaskList);
-                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryList.Where((Library) => Library.LibType == LibraryType.UserCustom).Select((Library) => Library.Path).ToArray());
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryList.Where((Library) => Library.LibType == LibraryType.UserCustom)
+                                                                                                    .Select((Library) => Library.Path)
+                                                                                                    .ToArray());
 
                     if (!ErrorList.IsEmpty)
                     {
                         foreach (string ErrorPath in ErrorList)
                         {
-                            SQLite.Current.DeleteLibrary(ErrorPath);
+                            SQLite.Current.DeleteLibraryFolder(ErrorPath);
                         }
 
                         LibraryNotFound?.Invoke(null, ErrorList);

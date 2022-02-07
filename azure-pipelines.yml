@@ -76,7 +76,6 @@ jobs:
           msbuildArgs: '/t:$(buildProject):Rebuild /p:PreferredToolArchitecture="x64" /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
           configuration: '$(buildConfiguration)'
           clean: true
-          restoreNugetPackages: true
           msbuildArchitecture: 'x64'
 
       - task: PublishBuildArtifacts@1

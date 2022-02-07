@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -118,11 +119,15 @@ namespace MaintenanceTask
         {
             try
             {
-                SQLitePCL.Batteries_V2.Init();
-                SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
-                SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
+                SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
+                {
+                    DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
+                    Mode = SqliteOpenMode.ReadWrite,
+                    Cache = SqliteCacheMode.Default
+                };
 
-                SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db;");
+                SqliteConnection Connection = new SqliteConnection(Builder.ToString());
+                
                 Connection.Open();
 
                 return Connection;

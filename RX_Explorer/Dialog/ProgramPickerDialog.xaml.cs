@@ -235,7 +235,7 @@ namespace RX_Explorer.Dialog
                     }
                 }
 
-                SQLite.Current.AddProgramPickerRecord(new AssociationPackage(OpenFile.Type, ExecutablePath, true));
+                SQLite.Current.UpdateProgramPickerRecord(new AssociationPackage[] { new AssociationPackage(OpenFile.Type, ExecutablePath, true) });
             }
         }
 

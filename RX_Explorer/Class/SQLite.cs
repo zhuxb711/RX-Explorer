@@ -24,8 +24,6 @@ namespace RX_Explorer.Class
         /// </summary>
         private SQLite()
         {
-            SQLitePCL.Batteries_V2.Init();
-
             SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
             {
                 DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
@@ -83,16 +81,6 @@ namespace RX_Explorer.Class
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
             {
                 Builder.Clear();
-
-                string UserCustomString = Enum.GetName(typeof(LibraryType), LibraryType.UserCustom);
-
-                foreach (string LType in Enum.GetNames(typeof(LibraryType)))
-                {
-                    if (LType != UserCustomString)
-                    {
-                        Builder.Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{LType}');");
-                    }
-                }
 
                 foreach (int Index in Enumerable.Range(1, 15))
                 {
@@ -360,19 +348,6 @@ namespace RX_Explorer.Class
             Transaction.Commit();
         }
 
-        public void AddProgramPickerRecord(AssociationPackage Package)
-        {
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded)", Connection, Transaction);
-
-            Command.Parameters.AddWithValue("@Extension", Package.Extension);
-            Command.Parameters.AddWithValue("@ExecutablePath", Package.ExecutablePath);
-            Command.Parameters.AddWithValue("@IsRecommanded", Convert.ToString(Package.IsRecommanded));
-            Command.ExecuteNonQuery();
-
-            Transaction.Commit();
-        }
-
         public void UpdateProgramPickerRecord(IEnumerable<AssociationPackage> AssociationList)
         {
             if (AssociationList.Any())
@@ -384,12 +359,7 @@ namespace RX_Explorer.Class
                     string DefaultPath = GetDefaultProgramPickerRecord(Extension);
 
                     using SqliteTransaction Transaction = Connection.BeginTransaction();
-                    using SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType", Connection, Transaction);
-
-                    Command.Parameters.AddWithValue("@FileType", Extension);
-                    Command.ExecuteNonQuery();
-
-                    Command.CommandText = $"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);";
+                    using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);", Connection, Transaction);
 
                     foreach (AssociationPackage Package in AssociationList)
                     {
@@ -423,7 +393,7 @@ namespace RX_Explorer.Class
             Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
             Command.ExecuteNonQuery();
 
-            Command.CommandText = "Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path";
+            Command.CommandText = "Insert Into ProgramPicker Values (@FileType, @Path, 'True', 'True') On Conflict (FileType, Path) Do Update Set IsDefault = 'True'";
             Command.Parameters.AddWithValue("@Path", Path);
 
             Command.ExecuteNonQuery();
@@ -537,16 +507,16 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<(LibraryType, string)> GetLibraryPath()
+        public IReadOnlyList<LibraryFolderRecord> GetLibraryFolderRecord()
         {
-            List<(LibraryType, string)> Result = new List<(LibraryType, string)>();
+            List<LibraryFolderRecord> Result = new List<LibraryFolderRecord>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
             using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 while (Query.Read())
                 {
-                    Result.Add((Enum.Parse<LibraryType>(Convert.ToString(Query[1])), Convert.ToString(Query[0])));
+                    Result.Add(new LibraryFolderRecord(Enum.Parse<LibraryType>(Convert.ToString(Query[1])), Convert.ToString(Query[0])));
                 }
             }
 
@@ -597,7 +567,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">自定义文件夹的路径</param>
         /// <returns></returns>
-        public void DeleteLibrary(string Path)
+        public void DeleteLibraryFolder(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From Library Where Path = @Path", Connection))
             {
@@ -651,16 +621,16 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        public void UpdateLibraryPath(IDictionary<LibraryType, string> Mapper)
+        public void UpdateLibraryFolder(IEnumerable<LibraryFolderRecord> Records)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand("Update Or Ignore Library Set Path = @Path Where Type = @Type", Connection, Transaction);
+            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path, @Type)", Connection, Transaction);
 
-            foreach (KeyValuePair<LibraryType, string> Pair in Mapper.Where((Pair) => !string.IsNullOrEmpty(Pair.Value)))
+            foreach (LibraryFolderRecord Record in Records.Where((Pair) => !string.IsNullOrEmpty(Pair.Path)))
             {
                 Command.Parameters.Clear();
-                Command.Parameters.AddWithValue("@Path", Pair.Value);
-                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Pair.Key));
+                Command.Parameters.AddWithValue("@Path", Record.Path);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Record.Type));
                 Command.ExecuteNonQuery();
             }
 
@@ -972,6 +942,33 @@ namespace RX_Explorer.Class
 
                 Transaction.Commit();
             }
+        }
+
+        public void ClearAllData()
+        {
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand Command = new SqliteCommand("Select Name From sqlite_master Where type='table'", Connection, Transaction);
+
+            List<string> TableNames = new List<string>();
+
+            using (SqliteDataReader Reader = Command.ExecuteReader())
+            {
+                while (Reader.Read())
+                {
+                    TableNames.Add(Convert.ToString(Reader[0]));
+                }
+            }
+
+            Command.CommandText = "Drop Table @Name;";
+
+            foreach (string Name in TableNames)
+            {
+                Command.Parameters.Clear();
+                Command.Parameters.AddWithValue("@Name", Name);
+                Command.ExecuteNonQuery();
+            }
+
+            Transaction.Commit();
         }
 
         /// <summary>

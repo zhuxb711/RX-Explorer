@@ -199,7 +199,7 @@
             <muxc:TeachingTip.Resources>
                 <muxc:CommandBarFlyout x:Name="AppFlyout"
                                        ShouldConstrainToRootBounds="False"
-                                       Placement="RightEdgeAlignedTop">
+                                       Placement="BottomEdgeAlignedLeft">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
                                       Label="编辑"
@@ -218,7 +218,7 @@
 
                 <muxc:CommandBarFlyout x:Name="WebFlyout"
                                        ShouldConstrainToRootBounds="False"
-                                       Placement="RightEdgeAlignedTop">
+                                       Placement="BottomEdgeAlignedLeft">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Edit"
                                       Label="编辑"
@@ -237,7 +237,7 @@
 
                 <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
                                        ShouldConstrainToRootBounds="False"
-                                       Placement="RightEdgeAlignedTop">
+                                       Placement="BottomEdgeAlignedLeft">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"
                                       Label="添加"
@@ -250,7 +250,7 @@
 
                 <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
                                        ShouldConstrainToRootBounds="False"
-                                       Placement="RightEdgeAlignedTop">
+                                       Placement="BottomEdgeAlignedLeft">
                     <muxc:CommandBarFlyout.SecondaryCommands>
                         <AppBarButton Icon="Add"
                                       Label="添加"

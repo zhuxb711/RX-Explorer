@@ -20,7 +20,7 @@
 
         <muxc:CommandBarFlyout x:Name="SelectFlyout"
                                ShouldConstrainToRootBounds="False"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="永久删除"
                               Icon="Delete"
@@ -56,7 +56,7 @@
 
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                ShouldConstrainToRootBounds="False"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="BottomEdgeAlignedLeft">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               MinWidth="200"

@@ -1255,6 +1255,7 @@ namespace RX_Explorer
                 {
                     try
                     {
+                        SQLite.Current.ClearAllData();
                         SQLite.Current.Dispose();
                         await ApplicationData.Current.ClearAsync();
                     }
@@ -1316,6 +1317,7 @@ namespace RX_Explorer
 
                             try
                             {
+                                SQLite.Current.ClearAllData();
                                 SQLite.Current.Dispose();
                                 await ApplicationData.Current.ClearAsync();
                             }
@@ -1325,11 +1327,7 @@ namespace RX_Explorer
                                 LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                             }
 
-                            await Task.Delay(500);
-
-                            LoadingControl.IsLoading = false;
-
-                            await Task.Delay(500);
+                            await Task.Delay(1000);
 
                             Window.Current.Activate();
 

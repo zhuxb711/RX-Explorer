@@ -122,7 +122,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public override Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        protected override Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {

@@ -1216,7 +1216,7 @@ namespace RX_Explorer
                 TabCommandFlyout?.ShowAt(Item, new FlyoutShowOptions
                 {
                     Position = e.GetPosition(Item),
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                     ShowMode = FlyoutShowMode.Standard
                 });
             }

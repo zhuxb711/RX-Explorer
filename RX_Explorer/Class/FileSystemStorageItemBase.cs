@@ -770,7 +770,12 @@ namespace RX_Explorer.Class
         }
 
 
-        public virtual async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        public Task<IRandomAccessStream> GetThumbnailRawStreamAsync(ThumbnailMode Mode)
+        {
+            return GetThumbnailRawStreamCoreAsync(Mode);
+        }
+
+        protected virtual async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
         {
             if (await GetStorageItemAsync() is IStorageItem Item)
             {
@@ -811,6 +816,7 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
 
         public async Task<IReadOnlyDictionary<string, string>> GetPropertiesAsync(IEnumerable<string> Properties)
         {

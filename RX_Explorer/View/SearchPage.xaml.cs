@@ -620,7 +620,7 @@ namespace RX_Explorer
                                     {
                                         Position = new Point(Point.Position.X, Point.Position.Y + 25),
                                         ShowMode = FlyoutShowMode.TransientWithDismissOnPointerMoveAway,
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft
                                     });
                                 }
                             }
@@ -1308,7 +1308,7 @@ namespace RX_Explorer
                         MixCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
                         {
                             Position = Position,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                             ShowMode = FlyoutShowMode.Standard
                         });
                     }
@@ -1319,7 +1319,7 @@ namespace RX_Explorer
                         SingleCommandFlyout.ShowAt(SearchResultList, new FlyoutShowOptions
                         {
                             Position = Position,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                             ShowMode = FlyoutShowMode.Standard
                         });
                     }

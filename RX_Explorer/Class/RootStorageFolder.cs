@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -23,21 +26,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string Name
-        {
-            get
-            {
-                return Globalization.GetString("RootStorageFolderDisplayName");
-            }
-        }
+        public override string Name => Globalization.GetString("RootStorageFolderDisplayName");
 
-        public override string DisplayName
-        {
-            get
-            {
-                return Name;
-            }
-        }
+        public override string DisplayName => Name;
 
         protected override Task LoadCoreAsync(bool ForceUpdate)
         {
@@ -52,6 +43,17 @@ namespace RX_Explorer.Class
         public override Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
             return Task.FromResult((ulong)0);
+        }
+
+        protected override Task<BitmapImage> GetThumbnailCoreAsync(ThumbnailMode Mode)
+        {
+            return Task.FromResult(new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png")));
+        }
+
+        protected override async Task<IRandomAccessStream> GetThumbnailRawStreamCoreAsync(ThumbnailMode Mode)
+        {
+            StorageFile ThumbnailFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/ThisPC.png"));
+            return await ThumbnailFile.OpenAsync(FileAccessMode.Read);
         }
 
         public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,

@@ -110,7 +110,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
-    <Compile Include="Class\AddressNavigationRecord.cs" />
+    <Compile Include="Class\LibraryFolderRecord.cs" />
+    <Compile Include="Class\NavigationRecordDisplay.cs" />
     <Compile Include="Class\AddressSuggestionItem.cs" />
     <Compile Include="Class\AnimationController.cs" />
     <Compile Include="Class\AppInstanceIdContainer.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="Class\NamedPipeCommunicationBaseController.cs" />
     <Compile Include="Class\NamedPipeReadController.cs" />
     <Compile Include="Class\NamedPipeWriteController.cs" />
+    <Compile Include="Class\NavigationRelatedRecord.cs" />
     <Compile Include="Class\NormalDriveData.cs" />
     <Compile Include="Class\OperationListBaseModel.cs" />
     <Compile Include="Class\OperationListCompressionModel.cs" />
@@ -462,6 +464,7 @@
     <Content Include="Assets\SAIntro_fr.png" />
     <Content Include="Assets\SystemDrive.ico" />
     <Content Include="Assets\SystemDriveUnLocked.ico" />
+    <Content Include="Assets\ThisPC.png" />
     <Content Include="Assets\TxtFileIcon.png" />
     <Content Include="Assets\UpdateLog-Chinese_S.txt" />
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
@@ -815,7 +818,7 @@
       <Version>1.3.1</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
-      <Version>0.16.7</Version>
+      <Version>0.16.8</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
@@ -739,7 +738,7 @@ namespace RX_Explorer
         {
             IReadOnlyList<ZipEntry> ExtractEntryList = ItemList.SelectMany((Item) => ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path))).ToList();
 
-            long TotalSize = ExtractEntryList.Sum((Entry)=>Entry.Size);
+            long TotalSize = ExtractEntryList.Sum((Entry) => Entry.Size);
             long CurrentPosition = 0;
 
             foreach (ZipEntry Entry in ExtractEntryList)
@@ -1162,7 +1161,7 @@ namespace RX_Explorer
                             ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                             {
                                 Position = Position,
-                                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                                 ShowMode = FlyoutShowMode.Standard
                             });
                         }
@@ -1173,7 +1172,7 @@ namespace RX_Explorer
                                 ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                 {
                                     Position = Position,
-                                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                    Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                                     ShowMode = FlyoutShowMode.Standard
                                 });
                             }
@@ -1186,7 +1185,7 @@ namespace RX_Explorer
                                     ItemFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = Position,
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                                         ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
@@ -1197,7 +1196,7 @@ namespace RX_Explorer
                                     EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                                     {
                                         Position = Position,
-                                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                                        Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                                         ShowMode = FlyoutShowMode.Standard
                                     });
                                 }
@@ -1211,7 +1210,7 @@ namespace RX_Explorer
                         EmptyFlyout.ShowAt(ListViewControl, new FlyoutShowOptions
                         {
                             Position = Position,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                            Placement = FlyoutPlacementMode.BottomEdgeAlignedLeft,
                             ShowMode = FlyoutShowMode.Standard
                         });
                     }
