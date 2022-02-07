@@ -1,29 +1,29 @@
-﻿###Novedades de la versión 7.4.5.0
-
-#####Actualización de funciones
-
->#####Herramienta de comparación de hash añadida
-
->#####El progreso se mostrará mientras se calcula el hash
+﻿###Novedades de la versión 7.4.7.0
 
 #####Actualización de la interfaz de usuario
 
->#####La barra de direcciones convertirá automáticamente los nombres de archivo cortos en nombres de archivo largos
+>#####Mostrar el nombre localizado en lugar del nombre real si existe un nombre localizado para la carpeta,
 
->#####El árbol de directorio ahora tiene una nueva interfaz de usuario y mostrará íconos reales de acuerdo con la configuración
+>#####Muestra la miniatura real de la carpeta actual en las pestañas y el historial de navegación, etc.
 
->##### La extensión de archivo .lnk siempre estará oculta
-
->#####El tamaño de la ventana de propiedades se guardará y aplicará la próxima vez que se abra
-
->#####"Agregar a acceso rápido" se agregó al menú del directorio
+>#####Se agregó el ícono predeterminado para "Esta PC"
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el cual los nombres de las carpetas se podían truncar al mismo tiempo al ocultar las extensiones de archivo
+>#####Se solucionó un problema por el que los archivos podían organizarse en un orden incorrecto
 
->#####Se solucionó un problema que podía causar que todas las pestañas recargaran el contenido al ingresar a la página de configuración
+>#####Se solucionó el problema de los atajos de teclado que no funcionaban
 
->#####Se solucionó un problema por el cual los submenús para algunos elementos del menú podrían no mostrarse
+>#####Se solucionó un problema por el cual los cambios en las carpetas no se sincronizaban con esas carpetas en "Acceso rápido"
 
->#####Se corrigieron algunos problemas que podrían causar fallas
+>#####Se solucionó el problema de que la aplicación de terceros no se puede especificar como el programa predeterminado en algunos casos
+
+>#####Se solucionó el problema de las carpetas que faltaban después de reiniciar la aplicación
+
+>#####Se solucionó un problema por el cual los elementos del menú podían ocluirse en algunos casos
+
+#####Otras mejoras
+
+>#####Se ha mejorado la mecánica de la pila de navegación, haciéndola más fiable
+
+>#####El modo de caché de las miniaturas de archivos se ha mejorado para mejorar el rendimiento en algunos escenarios

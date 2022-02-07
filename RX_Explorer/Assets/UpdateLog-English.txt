@@ -1,29 +1,29 @@
-﻿###What's new in Ver.7.4.5.0
-
-#####Feature update
-
->#####Added hash comparison tool
-
->#####The progress will be displayed while the hash is calculated
+﻿###What's new in Ver.7.4.7.0
 
 #####UI update
 
->#####The address bar will automatically convert short filenames to long filenames
+>#####Display the localized name instead of the actual name if a localized name exists for the folder, 
 
->#####Directory tree now has a new UI and will shows actual icons according to settings
+>#####Display actual thumbnail of the current folder on tabs and navigation history etc.
 
->#####.lnk file extension will always be hidden
+>#####Added default icon for "This PC"
 
->#####The size of the property window will be saved and applied the next time it is opened
+#####Bug Fixes
 
->#####"Add to Quick Access" was added to the menu of directory
+>#####Fixed an issue where files might be arranged in incorrect order
 
-#####Bug fixes
+>#####Fixed the issue of keyboard shortcuts not working
 
->#####Fixed an issue where folder names could be truncated at the same time when hidding file extensions
+>#####Fixed an issue where changes to folders would not sync to those folder in "Quick Access"
 
->#####Fixed an issue that could cause all tabs to reload the contents when entering the settings page
+>#####Fixed an issue that the third-party application cannot be specified as the default program in some cases
 
->#####Fixed an issue where submenus for some menu items might not be displayed
+>#####Fixed the issue of missing folders after resetting the application
 
->#####Fixed some issues that could cause crashes
+>#####Fixed an issue where menu items could be occluded in some cases
+
+#####Other Improvements
+
+>#####The mechanics of the navigation stack have been improved, making it more reliable
+
+>#####The cache mode of file thumbnails has been improved to improve performance in some scenarios

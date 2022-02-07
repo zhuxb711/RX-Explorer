@@ -959,12 +959,9 @@ namespace RX_Explorer.Class
                 }
             }
 
-            Command.CommandText = "Drop Table @Name;";
-
             foreach (string Name in TableNames)
             {
-                Command.Parameters.Clear();
-                Command.Parameters.AddWithValue("@Name", Name);
+                Command.CommandText = $"Drop Table {Name}";
                 Command.ExecuteNonQuery();
             }
 

@@ -1,29 +1,29 @@
-﻿###Was ist neu in Ver.7.4.5.0
-
-#####Funktionsaktualisierung
-
->##### Hash-Vergleichstool hinzugefügt
-
->#####Der Fortschritt wird angezeigt, während der Hash berechnet wird
+﻿###Was ist neu in Ver.7.4.7.0
 
 #####UI-Update
 
->#####Die Adressleiste wandelt kurze Dateinamen automatisch in lange Dateinamen um
+>#####Lokalisierten Namen anstelle des tatsächlichen Namens anzeigen, wenn ein lokalisierter Name für den Ordner existiert,
 
->#####Verzeichnisbaum hat jetzt eine neue Benutzeroberfläche und zeigt aktuelle Symbole gemäß den Einstellungen
+>#####Aktuelles Miniaturbild des aktuellen Ordners auf Registerkarten und im Navigationsverlauf usw. anzeigen.
 
->#####.lnk-Dateierweiterung wird immer ausgeblendet
-
->#####Die Größe des Eigenschaftsfensters wird gespeichert und beim nächsten Öffnen übernommen
-
->#####"Zum Schnellzugriff hinzufügen" wurde zum Verzeichnismenü hinzugefügt
+>#####Standardsymbol für „Dieser PC“ hinzugefügt
 
 #####Fehlerbehebung
 
->#####Es wurde ein Problem behoben, bei dem Ordnernamen beim Ausblenden von Dateierweiterungen gleichzeitig abgeschnitten werden konnten
+>#####Problem behoben, bei dem Dateien möglicherweise in falscher Reihenfolge angeordnet wurden
 
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass alle Registerkarten den Inhalt beim Aufrufen der Einstellungsseite neu luden
+>#####Das Problem mit nicht funktionierenden Tastaturkürzeln wurde behoben
 
->#####Ein Problem wurde behoben, bei dem Untermenüs für einige Menüpunkte möglicherweise nicht angezeigt wurden
+>#####Problem behoben, bei dem Änderungen an Ordnern nicht mit diesen Ordnern im „Schnellzugriff“ synchronisiert wurden
 
->#####Einige Probleme behoben, die zu Abstürzen führen konnten
+>#####Es wurde ein Problem behoben, bei dem die Anwendung eines Drittanbieters in einigen Fällen nicht als Standardprogramm angegeben werden konnte
+
+>#####Das Problem fehlender Ordner nach dem Zurücksetzen der Anwendung wurde behoben
+
+>#####Ein Problem wurde behoben, bei dem Menüelemente in einigen Fällen verdeckt werden konnten
+
+#####Weitere Verbesserungen
+
+>#####Die Mechanik des Navigationsstacks wurde verbessert, wodurch er zuverlässiger wird
+
+>#####Der Cache-Modus von Datei-Thumbnails wurde verbessert, um die Leistung in einigen Szenarien zu verbessern

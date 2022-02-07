@@ -1251,40 +1251,7 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                if (Dialog.IsClearSecureFolder)
-                {
-                    try
-                    {
-                        SQLite.Current.ClearAllData();
-                        SQLite.Current.Dispose();
-                        await ApplicationData.Current.ClearAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        ApplicationData.Current.LocalSettings.Values.Clear();
-                        LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
-                    }
-
-                    Window.Current.Activate();
-
-                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
-                    {
-                        case AppRestartFailureReason.InvalidUser:
-                        case AppRestartFailureReason.NotInForeground:
-                        case AppRestartFailureReason.Other:
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                _ = await Dialog1.ShowAsync();
-                                break;
-                            }
-                    }
-                }
-                else
+                if (!Dialog.IsClearSecureFolder)
                 {
                     LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
@@ -1314,41 +1281,6 @@ namespace RX_Explorer
                                     }
                                 }
                             }
-
-                            try
-                            {
-                                SQLite.Current.ClearAllData();
-                                SQLite.Current.Dispose();
-                                await ApplicationData.Current.ClearAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                ApplicationData.Current.LocalSettings.Values.Clear();
-                                LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
-                            }
-
-                            await Task.Delay(1000);
-
-                            Window.Current.Activate();
-
-                            switch (await CoreApplication.RequestRestartAsync(string.Empty))
-                            {
-                                case AppRestartFailureReason.InvalidUser:
-                                case AppRestartFailureReason.NotInForeground:
-                                case AppRestartFailureReason.Other:
-                                    {
-                                        QueueContentDialog Dialog1 = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog1.ShowAsync();
-
-                                        break;
-                                    }
-                            }
                         }
                         catch (PasswordErrorException)
                         {
@@ -1359,7 +1291,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog1.ShowAsync();
+                            await Dialog1.ShowAsync();
                         }
                         catch (FileDamagedException)
                         {
@@ -1370,7 +1302,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog1.ShowAsync();
+                            await Dialog1.ShowAsync();
                         }
                         catch (Exception)
                         {
@@ -1381,9 +1313,42 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync();
+                            await Dialog.ShowAsync();
                         }
                     }
+
+                    await Task.Delay(1000);
+                }
+
+                try
+                {
+                    SQLite.Current.ClearAllData();
+                    ApplicationData.Current.LocalSettings.Values.Clear();
+
+                    Window.Current.Activate();
+
+                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                    {
+                        case AppRestartFailureReason.InvalidUser:
+                        case AppRestartFailureReason.NotInForeground:
+                        case AppRestartFailureReason.Other:
+                            {
+                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog1.ShowAsync();
+
+                                break;
+                            }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                 }
             }
         }

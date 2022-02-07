@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
-using RX_Explorer.Class;
+﻿using RX_Explorer.Class;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel;
-using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -203,6 +201,8 @@ namespace RX_Explorer.Dialog
                     }
                 }
 
+                SQLite.Current.UpdateProgramPickerRecord(new AssociationPackage[] { new AssociationPackage(OpenFile.Type, ExecutablePath, true) });
+
                 if (DefaultProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item1)
                 {
                     CurrentUseProgramList.SelectedItem = Item1;
@@ -210,7 +210,7 @@ namespace RX_Explorer.Dialog
                 else if (OtherProgramCollection.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item2)
                 {
                     OtherProgramList.SelectedItem = Item2;
-                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(Item2);
+                    OtherProgramList.ScrollIntoView(Item2);
                 }
                 else if (NotRecommandList.FirstOrDefault((Item) => Item.Path.Equals(ExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem Item3)
                 {
@@ -221,21 +221,16 @@ namespace RX_Explorer.Dialog
                     }
 
                     OtherProgramList.SelectedItem = Item3;
-                    await OtherProgramList.SmoothScrollIntoViewWithItemAsync(Item3);
+                    OtherProgramList.ScrollIntoView(Item3);
                 }
-                else
+                else if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is FileSystemStorageFile File)
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(ExecutablePath) is FileSystemStorageFile File)
-                    {
-                        ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(File);
+                    ProgramPickerItem NewItem = await ProgramPickerItem.CreateAsync(File);
 
-                        OtherProgramCollection.Add(NewItem);
-                        OtherProgramList.SelectedItem = NewItem;
-                        await OtherProgramList.SmoothScrollIntoViewWithItemAsync(NewItem);
-                    }
+                    OtherProgramCollection.Add(NewItem);
+                    OtherProgramList.SelectedItem = NewItem;
+                    OtherProgramList.ScrollIntoView(NewItem);
                 }
-
-                SQLite.Current.UpdateProgramPickerRecord(new AssociationPackage[] { new AssociationPackage(OpenFile.Type, ExecutablePath, true) });
             }
         }
 
