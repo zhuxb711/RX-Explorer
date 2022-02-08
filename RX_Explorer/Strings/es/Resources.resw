@@ -1757,7 +1757,7 @@ Las denominaciones no válidas son:
     <value>Error</value>
   </data>
   <data name="CustomUISubtype3.Text" xml:space="preserve">
-    <value>Imagen de Bing</value>
+    <value>Fondo de imagen de Bing</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>Esperando acción</value>
@@ -3132,7 +3132,7 @@ Las denominaciones no válidas son:
     <value>Desactivar la animación de selección de lista</value>
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
-    <value>Efecto mica</value>
+    <value>Fondo de mica</value>
   </data>
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Modo de diseño</value>

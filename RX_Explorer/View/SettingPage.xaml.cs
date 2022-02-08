@@ -567,11 +567,6 @@ namespace RX_Explorer
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
                 UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
 
-                if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows11))
-                {
-                    UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Mica"));
-                }
-
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
 
@@ -644,7 +639,6 @@ namespace RX_Explorer
                     {
                         BackgroundBrushType.DefaultAcrylic => 0,
                         BackgroundBrushType.SolidColor => 1,
-                        BackgroundBrushType.Mica => 3,
                         _ => 2
                     })
                     {
@@ -686,6 +680,11 @@ namespace RX_Explorer
                             case BackgroundBrushType.BingPicture:
                                 {
                                     BingPictureMode.IsChecked = true;
+                                    break;
+                                }
+                            case BackgroundBrushType.Mica:
+                                {
+                                    MicaMode.IsChecked = true;
                                     break;
                                 }
                             case BackgroundBrushType.Picture:
@@ -880,7 +879,6 @@ namespace RX_Explorer
             {
                 BackgroundBrushType.DefaultAcrylic => 0,
                 BackgroundBrushType.SolidColor => 1,
-                BackgroundBrushType.Mica => 3,
                 _ => 2
             };
 
@@ -1417,27 +1415,17 @@ namespace RX_Explorer
                                         PictureMode.IsChecked = true;
                                         break;
                                     }
+                                case BackgroundBrushType.Mica:
+                                    {
+                                        MicaMode.IsChecked = true;
+                                        break;
+                                    }
                                 default:
                                     {
                                         AcrylicMode.IsChecked = true;
                                         break;
                                     }
                             }
-
-                            break;
-                        }
-                    case 3:
-                        {
-                            AcrylicMode.IsChecked = false;
-                            PictureMode.IsChecked = false;
-                            BingPictureMode.IsChecked = false;
-                            SolidColor_White.IsChecked = false;
-                            SolidColor_FollowSystem.IsChecked = false;
-                            SolidColor_Black.IsChecked = false;
-                            PreventFallBack.IsChecked = null;
-
-                            BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
-                            ApplicationData.Current.SignalDataChanged();
 
                             break;
                         }
@@ -1478,11 +1466,7 @@ namespace RX_Explorer
         {
             try
             {
-                BingPictureMode.IsChecked = false;
-                PictureMode.IsChecked = false;
-                GetBingPhotoState.Visibility = Visibility.Collapsed;
                 PreventFallBack.IsChecked = PreventAcrylicFallbackEnabled;
-
                 BackgroundController.Current.SwitchTo(BackgroundBrushType.CustomAcrylic);
             }
             catch (Exception ex)
@@ -1499,10 +1483,7 @@ namespace RX_Explorer
         {
             try
             {
-                AcrylicMode.IsChecked = false;
-                BingPictureMode.IsChecked = false;
                 PreventFallBack.IsChecked = null;
-                GetBingPhotoState.Visibility = Visibility.Collapsed;
 
                 if (PictureList.Count == 0)
                 {
@@ -1567,8 +1548,6 @@ namespace RX_Explorer
         {
             try
             {
-                AcrylicMode.IsChecked = false;
-                PictureMode.IsChecked = false;
                 PreventFallBack.IsChecked = null;
                 GetBingPhotoState.Visibility = Visibility.Visible;
 
@@ -1649,7 +1628,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync();
+                await Dialog.ShowAsync();
             }
             finally
             {
@@ -2854,7 +2833,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        await QueueContenDialog.ShowAsync();
                         break;
                     }
                 case StorePurchaseStatus.AlreadyPurchased:
@@ -2865,7 +2844,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        await QueueContenDialog.ShowAsync();
                         break;
                     }
                 case StorePurchaseStatus.NotPurchased:
@@ -2876,7 +2855,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        await QueueContenDialog.ShowAsync();
                         break;
                     }
                 default:
@@ -2887,7 +2866,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        await QueueContenDialog.ShowAsync();
                         break;
                     }
             }
@@ -3379,6 +3358,18 @@ namespace RX_Explorer
         private void ShowContextMenuWhenLoading_Unchecked(object sender, RoutedEventArgs e)
         {
             IsParallelShowContextMenu = true;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void MicaMode_Checked(object sender, RoutedEventArgs e)
+        {
+            SolidColor_White.IsChecked = false;
+            SolidColor_FollowSystem.IsChecked = false;
+            SolidColor_Black.IsChecked = false;
+            PreventFallBack.IsChecked = null;
+
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.Mica);
+
             ApplicationData.Current.SignalDataChanged();
         }
     }

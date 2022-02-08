@@ -2251,8 +2251,8 @@ Invalid names include
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
-          <source>Bing Picture</source>
-          <target state="translated">必应图片</target>
+          <source>Bing Image Background</source>
+          <target state="translated">必应图片背景</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Recommend" translate="yes" xml:space="preserve">
           <source>Recommended</source>
@@ -2525,7 +2525,7 @@ Invalid names include
           <target state="translated">选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Fetching Bing Pictures</source>
+          <source>Fetching Bing Image</source>
           <target state="translated">正在获取必应图片...</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
@@ -4158,8 +4158,8 @@ Invalid names include
           <target state="translated">关闭列表选择动画</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
-          <source>Mica effect</source>
-          <target state="translated">云母效果</target>
+          <source>Mica Background</source>
+          <target state="translated">云母背景</target>
         </trans-unit>
         <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Layout mode</source>

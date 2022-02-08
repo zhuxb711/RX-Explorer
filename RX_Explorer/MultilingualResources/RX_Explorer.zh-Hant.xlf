@@ -2255,8 +2255,8 @@ Invalid names include
           <target state="translated" state-qualifier="tm-suggestion">錯誤</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
-          <source>Bing Picture</source>
-          <target state="translated">Bing圖片</target>
+          <source>Bing Image Background</source>
+          <target state="translated">Bing图片背景</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
@@ -2525,7 +2525,7 @@ Invalid names include
           <target state="translated">不使用此應用程序時，選中此選項可以防止Windows關閉亞克力效果。 在此模式下，僅允許調整丙烯酸透射率，而丙烯酸顏色透明度不可用。 注意：打開此選項可能會縮短電池壽命，並且連續的光線計算會增加CPU的負擔</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Fetching Bing Pictures</source>
+          <source>Fetching Bing Image</source>
           <target state="translated">正在取得Bing圖片</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
@@ -4158,8 +4158,8 @@ Invalid names include
           <target state="translated">關閉列表選擇動畫</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
-          <source>Mica effect</source>
-          <target state="translated">雲母效果</target>
+          <source>Mica Background</source>
+          <target state="translated">雲母背景</target>
         </trans-unit>
         <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Layout mode</source>

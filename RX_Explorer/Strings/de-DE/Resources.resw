@@ -1760,7 +1760,7 @@ Inkorrekte Namen sind
     <value>Fehler</value>
   </data>
   <data name="CustomUISubtype3.Text" xml:space="preserve">
-    <value>Bing Wallpaper</value>
+    <value>Bing-Bildhintergrund</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>Auf Aktion warten...</value>
@@ -1955,7 +1955,7 @@ Inkorrekte Namen sind
     <value>Wenn Sie diese Option aktivieren, kann verhindert werden, dass Windows den Acryleffekt ausschaltet, wenn Sie diese Anwendung nicht verwenden. In diesem Modus darf nur die Acryl-Übertragung angepasst werden, und die Acrylfarbtransparenz ist nicht verfügbar. Hinweis: Das Aktivieren dieser Option kann die Akkulaufzeit verkürzen, und die kontinuierliche Lichtberechnung erhöht die Belastung der CPU.</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
-    <value>Abrufen von Bing-Wallpaper Bildern</value>
+    <value>Bing-Bild wird abgerufen</value>
   </data>
   <data name="FileLoadModeLabel.Text" xml:space="preserve">
     <value>Symbol-Lademodus</value>
@@ -3132,7 +3132,7 @@ Inkorrekte Namen sind
     <value>Deaktivieren Sie die Listenauswahlanimation</value>
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
-    <value>Glimmer-Effekt</value>
+    <value>Glimmer-Hintergrund</value>
   </data>
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>Layoutmodus</value>

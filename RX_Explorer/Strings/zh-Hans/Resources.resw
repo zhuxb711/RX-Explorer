@@ -1702,7 +1702,7 @@
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
   </data>
   <data name="CustomUISubtype3.Text" xml:space="preserve">
-    <value>必应图片</value>
+    <value>必应图片背景</value>
   </data>
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
     <value>推荐</value>
@@ -3132,7 +3132,7 @@
     <value>关闭列表选择动画</value>
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
-    <value>云母效果</value>
+    <value>云母背景</value>
   </data>
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>布局模式</value>

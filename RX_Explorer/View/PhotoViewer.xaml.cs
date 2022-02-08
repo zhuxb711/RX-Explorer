@@ -371,7 +371,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -392,7 +392,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                    await Dialog.ShowAsync().ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -403,7 +403,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                    await Dialog.ShowAsync().ConfigureAwait(false);
                                 }
                             }
                             finally
@@ -420,7 +420,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            await Dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                 }
@@ -434,7 +434,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 

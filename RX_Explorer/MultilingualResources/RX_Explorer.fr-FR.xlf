@@ -2251,8 +2251,8 @@ Les noms non valides incluent
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
-          <source>Bing Picture</source>
-          <target state="translated">Image Bing</target>
+          <source>Bing Image Background</source>
+          <target state="translated">Fond d'écran Bing</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Recommend" translate="yes" xml:space="preserve">
           <source>Recommended</source>
@@ -2525,8 +2525,8 @@ Les noms non valides incluent
           <target state="translated">Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Fetching Bing Pictures</source>
-          <target state="translated">Récupération de photos Bing</target>
+          <source>Fetching Bing Image</source>
+          <target state="translated">Récupérer l'image Bing</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Icon loading mode</source>
@@ -4158,8 +4158,8 @@ Les noms non valides incluent
           <target state="translated">Désactiver l'animation de sélection de liste</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
-          <source>Mica effect</source>
-          <target state="translated">Effet mica</target>
+          <source>Mica Background</source>
+          <target state="translated">Arrière-plan mica</target>
         </trans-unit>
         <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Layout mode</source>

@@ -158,7 +158,7 @@ namespace RX_Explorer
                                             Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
-                                        _ = await Dialog.ShowAsync();
+                                        await Dialog.ShowAsync();
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 

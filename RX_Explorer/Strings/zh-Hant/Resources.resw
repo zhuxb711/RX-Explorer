@@ -1705,7 +1705,7 @@
     <value>錯誤</value>
   </data>
   <data name="CustomUISubtype3.Text" xml:space="preserve">
-    <value>Bing圖片</value>
+    <value>Bing图片背景</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>正在等候動作</value>
@@ -3132,7 +3132,7 @@
     <value>關閉列表選擇動畫</value>
   </data>
   <data name="Setting_UIMode_Mica" xml:space="preserve">
-    <value>雲母效果</value>
+    <value>雲母背景</value>
   </data>
   <data name="ViewModeControl.ToolTipService.ToolTip" xml:space="preserve">
     <value>排版方式</value>

@@ -74,7 +74,7 @@ namespace RX_Explorer.Dialog
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(false);
+                await dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 

@@ -76,8 +76,8 @@
                     <VisualState.Setters>
                         <Setter Target="SettingNavigation.PaneDisplayMode"
                                 Value="Left" />
-                        <Setter Target="ContentRootGrid.Margin" 
-                                Value="140,80"/>
+                        <Setter Target="ContentRootGrid.Margin"
+                                Value="140,80" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="NavOverlayWidthState">
@@ -91,6 +91,78 @@
                                 Value="True" />
                         <Setter Target="ContentRootGrid.Margin"
                                 Value="60,80" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup>
+                <VisualState x:Name="ModeNormalState" />
+                <VisualState x:Name="ModeAcrylicState">
+                    <VisualState.StateTriggers>
+                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                      To="CustomAcrylic" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="GetBingPhotoState.Visibility"
+                                Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ModePictureState">
+                    <VisualState.StateTriggers>
+                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                      To="Picture" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="GetBingPhotoState.Visibility"
+                                Value="Collapsed" />
+                        <Setter Target="OtherEffectArea.Visibility"
+                                Value="Visible" />
+                        <Setter Target="PictureGirdView.IsEnabled"
+                                Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ModeBingPictureState">
+                    <VisualState.StateTriggers>
+                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                      To="BingPicture" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="OtherEffectArea.Visibility"
+                                Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ModeMicaState">
+                    <VisualState.StateTriggers>
+                        <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                      To="Mica" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup>
+                <VisualState x:Name="ModeAcrylicNormalState" />
+                <VisualState x:Name="ModeAcrylicDisabledState">
+                    <VisualState.StateTriggers>
+                        <Triggers:IsNotEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
+                                                         To="CustomAcrylic" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PreventFallBack.IsEnabled"
+                                Value="False" />
+                        <Setter Target="TintOpacitySliderLabel.Foreground"
+                                Value="Gray" />
+                        <Setter Target="TintOpacitySliderValueText.Foreground"
+                                Value="Gray" />
+                        <Setter Target="TintOpacitySlider.IsEnabled"
+                                Value="False" />
+                        <Setter Target="AccentColorLabel.Foreground"
+                                Value="Gray" />
+                        <Setter Target="TintLuminositySliderLabel.Foreground"
+                                Value="Gray" />
+                        <Setter Target="TintLuminositySliderValueText.Foreground"
+                                Value="Gray" />
+                        <Setter Target="AcrylicColor.IsEnabled"
+                                Value="False" />
+                        <Setter Target="TintLuminositySlider.IsEnabled"
+                                Value="False" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1578,92 +1650,285 @@
                                                     </StackPanel>
                                                 </control:Case>
                                                 <control:Case Value="2">
-                                                    <UserControl>
-                                                        <StackPanel>
-                                                            <VisualStateManager.VisualStateGroups>
-                                                                <VisualStateGroup>
-                                                                    <VisualState x:Name="ModeNormalState" />
-                                                                    <VisualState x:Name="ModeAcrylicState">
-                                                                        <VisualState.StateTriggers>
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="CustomAcrylic" />
-                                                                        </VisualState.StateTriggers>
-                                                                        <VisualState.Setters>
-                                                                            <Setter Target="PictureGirdView.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="AddImageToPictureButton.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="BackgroundEffectArea.Visibility"
-                                                                                    Value="Collapsed" />
-                                                                        </VisualState.Setters>
-                                                                    </VisualState>
-                                                                    <VisualState x:Name="ModePictureState">
-                                                                        <VisualState.StateTriggers>
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="Picture" />
-                                                                        </VisualState.StateTriggers>
-                                                                        <VisualState.Setters>
-                                                                            <Setter Target="PreventFallBack.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="AccentColorLabel.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintLuminositySliderLabel.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintLuminositySliderValueText.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="AcrylicColor.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="TintLuminositySlider.IsEnabled"
-                                                                                    Value="False" />
-                                                                        </VisualState.Setters>
-                                                                    </VisualState>
-                                                                    <VisualState x:Name="ModeBingPictureState">
-                                                                        <VisualState.StateTriggers>
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="BingPicture" />
-                                                                        </VisualState.StateTriggers>
-                                                                        <VisualState.Setters>
-                                                                            <Setter Target="PreventFallBack.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="AccentColorLabel.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintLuminositySliderLabel.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintLuminositySliderValueText.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="AcrylicColor.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="TintLuminositySlider.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="PictureGirdView.IsEnabled"
-                                                                                    Value="False" />
-                                                                            <Setter Target="AddImageToPictureButton.IsEnabled"
-                                                                                    Value="False" />
-                                                                        </VisualState.Setters>
-                                                                    </VisualState>
-                                                                </VisualStateGroup>
-                                                                <VisualStateGroup>
-                                                                    <VisualState x:Name="PreventFallbackNormalState" />
-                                                                    <VisualState x:Name="PreventFallbackDisableState">
-                                                                        <VisualState.StateTriggers>
-                                                                            <Triggers:IsNotEqualStateTrigger Value="{x:Bind PreventFallBack.IsChecked,Mode=OneWay}"
-                                                                                                             To="False" />
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="Picture" />
-                                                                            <Triggers:IsEqualStateTrigger Value="{x:Bind Cls:BackgroundController.Current.CurrentType,Mode=OneWay}"
-                                                                                                          To="BingPicture" />
-                                                                        </VisualState.StateTriggers>
-                                                                        <VisualState.Setters>
-                                                                            <Setter Target="TintOpacitySliderLabel.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintOpacitySliderValueText.Foreground"
-                                                                                    Value="Gray" />
-                                                                            <Setter Target="TintOpacitySlider.IsEnabled"
-                                                                                    Value="False" />
-                                                                        </VisualState.Setters>
-                                                                    </VisualState>
-                                                                </VisualStateGroup>
-                                                            </VisualStateManager.VisualStateGroups>
+                                                    <StackPanel>
+                                                        <muxc:Expander ExpandDirection="Down"
+                                                                       HorizontalAlignment="Stretch"
+                                                                       HorizontalContentAlignment="Stretch"
+                                                                       VerticalContentAlignment="Top"
+                                                                       Padding="0"
+                                                                       MinHeight="45"
+                                                                       Background="Transparent"
+                                                                       CornerRadius="0">
+                                                            <muxc:Expander.Header>
+                                                                <StackPanel Padding="24,10,0,10">
+                                                                    <RadioButton Content="Acrylic背景"
+                                                                                 x:Uid="CustomUISubtype1"
+                                                                                 Name="AcrylicMode"
+                                                                                 Checked="AcrylicMode_Checked"
+                                                                                 GroupName="CustomSubRadio" />
+                                                                </StackPanel>
+                                                            </muxc:Expander.Header>
+                                                            <muxc:Expander.Content>
+                                                                <StackPanel>
+                                                                    <Border Padding="68,10,10,10"
+                                                                            MinHeight="45"
+                                                                            CornerRadius="0"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                        <StackPanel>
+                                                                            <CheckBox x:Name="PreventFallBack"
+                                                                                      x:Uid="PreventFallBack"
+                                                                                      Checked="PreventFallBack_Checked"
+                                                                                      Unchecked="PreventFallBack_Unchecked" />
+                                                                            <TextBlock Text="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担"
+                                                                                       FontSize="12"
+                                                                                       Foreground="Gray"
+                                                                                       x:Uid="PreventFallbackTipContent"
+                                                                                       TextTrimming="CharacterEllipsis"
+                                                                                       TextWrapping="WrapWholeWords" />
+                                                                        </StackPanel>
+                                                                    </Border>
+
+                                                                    <Border Padding="68,10,10,10"
+                                                                            MinHeight="45"
+                                                                            CornerRadius="0"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                        <RelativePanel>
+                                                                            <TextBlock Text="Acrylic主题颜色"
+                                                                                       x:Uid="AccentColorLabel"
+                                                                                       x:Name="AccentColorLabel"
+                                                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                                       RelativePanel.AlignLeftWithPanel="True"
+                                                                                       RelativePanel.LeftOf="AcrylicColor" />
+                                                                            <muxc:SplitButton Name="AcrylicColor"
+                                                                                              Padding="0"
+                                                                                              RelativePanel.AlignRightWithPanel="True"
+                                                                                              RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                                <Border x:Name="CurrentColor"
+                                                                                        Height="30"
+                                                                                        Width="35"
+                                                                                        CornerRadius="4,0,0,4">
+                                                                                    <Border.Background>
+                                                                                        <SolidColorBrush Color="{x:Bind AcrylicColorPicker.Color,Mode=OneWay}" />
+                                                                                    </Border.Background>
+                                                                                </Border>
+                                                                                <muxc:SplitButton.Flyout>
+                                                                                    <Flyout Placement="Left">
+                                                                                        <muxc:ColorPicker ColorSpectrumShape="Box"
+                                                                                                          IsAlphaEnabled="True"
+                                                                                                          ColorChanged="AcrylicColorPicker_ColorChanged"
+                                                                                                          Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
+                                                                                                          x:Name="AcrylicColorPicker" />
+                                                                                    </Flyout>
+                                                                                </muxc:SplitButton.Flyout>
+                                                                            </muxc:SplitButton>
+                                                                        </RelativePanel>
+                                                                    </Border>
+
+                                                                    <Border Padding="68,10,10,10"
+                                                                            MinHeight="45"
+                                                                            CornerRadius="0"
+                                                                            BorderThickness="1"
+                                                                            Name="TintOpacityArea"
+                                                                            Visibility="{x:Bind PreventFallBack.IsChecked,Mode=OneWay,Converter={StaticResource InverseConverter}}"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                        <RelativePanel>
+                                                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                                                        RelativePanel.LeftOf="TintOpacitySliderArea">
+                                                                                <TextBlock Text="Acrylic颜色透明度"
+                                                                                           TextTrimming="CharacterEllipsis"
+                                                                                           x:Name="TintOpacitySliderLabel"
+                                                                                           x:Uid="TintOpacitySliderLabel" />
+                                                                                <TextBlock TextTrimming="CharacterEllipsis"
+                                                                                           TextWrapping="WrapWholeWords"
+                                                                                           FontSize="12"
+                                                                                           Foreground="Gray"
+                                                                                           Text="Acrylic主题色层透明度，此值越大表示Acrylic颜色越淡，越小则表示颜色越深"
+                                                                                           x:Uid="TintOpacityTipContent" />
+                                                                            </StackPanel>
+                                                                            <StackPanel Orientation="Horizontal"
+                                                                                        Name="TintOpacitySliderArea"
+                                                                                        Margin="10,0,0,0"
+                                                                                        RelativePanel.AlignRightWithPanel="True"
+                                                                                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                                <Slider IsThumbToolTipEnabled="False"
+                                                                                        x:Name="TintOpacitySlider"
+                                                                                        StepFrequency="0.05"
+                                                                                        Maximum="1"
+                                                                                        Minimum="0"
+                                                                                        Width="180"
+                                                                                        Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                                                                        ValueChanged="CommonSlider_ValueChanged" />
+                                                                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
+                                                                                           Margin="5,0"
+                                                                                           Width="40"
+                                                                                           Name="TintOpacitySliderValueText"
+                                                                                           VerticalAlignment="Center" />
+                                                                            </StackPanel>
+                                                                        </RelativePanel>
+                                                                    </Border>
+
+                                                                    <Border Padding="68,10,10,10"
+                                                                            MinHeight="45"
+                                                                            CornerRadius="0,0,4,4"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                        <RelativePanel>
+                                                                            <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                                        RelativePanel.AlignLeftWithPanel="True"
+                                                                                        RelativePanel.LeftOf="TintLuminositySliderArea">
+                                                                                <TextBlock Text="Acrylic背景透光度"
+                                                                                           TextTrimming="CharacterEllipsis"
+                                                                                           x:Name="TintLuminositySliderLabel"
+                                                                                           x:Uid="TintLuminositySliderLabel"/>
+                                                                                <TextBlock TextTrimming="CharacterEllipsis"
+                                                                                           TextWrapping="WrapWholeWords"
+                                                                                           FontSize="12"
+                                                                                           Foreground="Gray"
+                                                                                           Text="Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高"
+                                                                                           x:Uid="TintLuminosityTipContent" />
+                                                                            </StackPanel>
+                                                                            <StackPanel Orientation="Horizontal"
+                                                                                        Name="TintLuminositySliderArea"
+                                                                                        Margin="10,0,0,0"
+                                                                                        RelativePanel.AlignRightWithPanel="True"
+                                                                                        RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                                <Slider IsThumbToolTipEnabled="False"
+                                                                                        x:Name="TintLuminositySlider"
+                                                                                        StepFrequency="0.05"
+                                                                                        Maximum="1"
+                                                                                        Minimum="0"
+                                                                                        Width="180"
+                                                                                        Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                                                                        ValueChanged="CommonSlider_ValueChanged" />
+                                                                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
+                                                                                           Margin="5,0"
+                                                                                           Width="40"
+                                                                                           Name="TintLuminositySliderValueText"
+                                                                                           VerticalAlignment="Center" />
+                                                                            </StackPanel>
+                                                                        </RelativePanel>
+                                                                    </Border>
+                                                                </StackPanel>
+                                                            </muxc:Expander.Content>
+                                                        </muxc:Expander>
+
+                                                        <muxc:Expander ExpandDirection="Down"
+                                                                       HorizontalAlignment="Stretch"
+                                                                       HorizontalContentAlignment="Stretch"
+                                                                       VerticalContentAlignment="Top"
+                                                                       Padding="0"
+                                                                       MinHeight="45"
+                                                                       Background="Transparent"
+                                                                       CornerRadius="0">
+                                                            <muxc:Expander.Header>
+                                                                <StackPanel Padding="24,10,0,10">
+                                                                    <RadioButton Content="自定义图片背景"
+                                                                                 x:Uid="CustomUISubtype2"
+                                                                                 Name="PictureMode"
+                                                                                 GroupName="CustomSubRadio"
+                                                                                 Checked="PictureMode_Checked" />
+                                                                </StackPanel>
+                                                            </muxc:Expander.Header>
+                                                            <muxc:Expander.Content>
+                                                                <StackPanel>
+                                                                    <Border Padding="68,10,10,10"
+                                                                            MinHeight="45"
+                                                                            CornerRadius="0"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                            Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <GridView Name="PictureGirdView"
+                                                                                      MaxWidth="400"
+                                                                                      IsEnabled="False"
+                                                                                      IsRightTapEnabled="True"
+                                                                                      VerticalAlignment="Top"
+                                                                                      SelectionMode="Single"
+                                                                                      Loaded="PictureGirdView_Loaded"
+                                                                                      RightTapped="PictureGirdView_RightTapped"
+                                                                                      ScrollViewer.HorizontalScrollMode="Enabled"
+                                                                                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                                                                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                                                                      SelectionChanged="PictureGirdView_SelectionChanged">
+                                                                                <GridView.ItemTemplate>
+                                                                                    <DataTemplate x:DataType="Cls:BackgroundPicture">
+                                                                                        <Image Width="80"
+                                                                                               Height="80"
+                                                                                               Stretch="UniformToFill"
+                                                                                               Source="{x:Bind Thumbnail}" />
+                                                                                    </DataTemplate>
+                                                                                </GridView.ItemTemplate>
+                                                                                <GridView.ItemsPanel>
+                                                                                    <ItemsPanelTemplate>
+                                                                                        <ItemsStackPanel Orientation="Horizontal" />
+                                                                                    </ItemsPanelTemplate>
+                                                                                </GridView.ItemsPanel>
+                                                                            </GridView>
+                                                                            <Button Margin="5,0,0,0"
+                                                                                    Width="80"
+                                                                                    Height="80"
+                                                                                    IsEnabled="{x:Bind PictureGirdView.IsEnabled,Mode=OneWay}"
+                                                                                    Name="AddImageToPictureButton"
+                                                                                    Click="AddImageToPictureButton_Click"
+                                                                                    VerticalAlignment="Top">
+                                                                                <Viewbox>
+                                                                                    <SymbolIcon Symbol="Add" />
+                                                                                </Viewbox>
+                                                                            </Button>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </StackPanel>
+                                                            </muxc:Expander.Content>
+                                                        </muxc:Expander>
+
+                                                        <Border Padding="40,10,10,10"
+                                                                MinHeight="45"
+                                                                CornerRadius="0"
+                                                                BorderThickness="1"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                            <RadioButton Name="BingPictureMode"
+                                                                         Checked="BingPictureMode_Checked"
+                                                                         GroupName="CustomSubRadio">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="必应图片"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               x:Uid="CustomUISubtype3" />
+                                                                    <muxc:ProgressRing IsActive="True"
+                                                                                       IsIndeterminate="True"
+                                                                                       Margin="10,0,0,0"
+                                                                                       Height="15"
+                                                                                       Width="15"
+                                                                                       VerticalAlignment="Center"
+                                                                                       Name="GetBingPhotoState"
+                                                                                       Visibility="Collapsed" />
+                                                                </StackPanel>
+                                                            </RadioButton>
+                                                        </Border>
+
+                                                        <Border Padding="40,10,10,10"
+                                                                MinHeight="45"
+                                                                CornerRadius="0,0,4,4"
+                                                                BorderThickness="1"
+                                                                Windows11NotPresent:Visibility="Collapsed"
+                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                            <RadioButton Name="MicaMode"
+                                                                         Checked="MicaMode_Checked"
+                                                                         GroupName="CustomSubRadio"
+                                                                         Content="{x:Bind Cls:Globalization.GetString('Setting_UIMode_Mica')}" />
+                                                        </Border>
+
+                                                        <StackPanel x:Name="OtherEffectArea"
+                                                                    Visibility="Collapsed">
                                                             <Border Padding="40,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
@@ -1686,333 +1951,75 @@
 
                                                                 </RelativePanel>
                                                             </Border>
-                                                            <muxc:Expander ExpandDirection="Down"
-                                                                           HorizontalAlignment="Stretch"
-                                                                           HorizontalContentAlignment="Stretch"
-                                                                           VerticalContentAlignment="Top"
-                                                                           Padding="0"
-                                                                           MinHeight="45"
-                                                                           Background="Transparent"
-                                                                           CornerRadius="0">
-                                                                <muxc:Expander.Header>
-                                                                    <StackPanel Padding="24,10,0,10">
-                                                                        <RadioButton Content="Acrylic背景"
-                                                                                     x:Uid="CustomUISubtype1"
-                                                                                     Name="AcrylicMode"
-                                                                                     Checked="AcrylicMode_Checked"
-                                                                                     GroupName="CustomSubRadio" />
-                                                                    </StackPanel>
-                                                                </muxc:Expander.Header>
-                                                                <muxc:Expander.Content>
-                                                                    <StackPanel>
-                                                                        <Border Padding="68,10,10,10"
-                                                                                MinHeight="45"
-                                                                                CornerRadius="0"
-                                                                                BorderThickness="1"
-                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                            <StackPanel>
-                                                                                <CheckBox x:Name="PreventFallBack"
-                                                                                          x:Uid="PreventFallBack"
-                                                                                          Checked="PreventFallBack_Checked"
-                                                                                          Unchecked="PreventFallBack_Unchecked" />
-                                                                                <TextBlock Text="选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担"
-                                                                                           FontSize="12"
-                                                                                           Foreground="Gray"
-                                                                                           x:Uid="PreventFallbackTipContent"
-                                                                                           TextTrimming="CharacterEllipsis"
-                                                                                           TextWrapping="WrapWholeWords" />
-                                                                            </StackPanel>
-                                                                        </Border>
-
-                                                                        <Border Padding="68,10,10,10"
-                                                                                MinHeight="45"
-                                                                                CornerRadius="0"
-                                                                                BorderThickness="1"
-                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                            <RelativePanel>
-                                                                                <TextBlock Text="Acrylic主题颜色"
-                                                                                           x:Uid="AccentColorLabel"
-                                                                                           x:Name="AccentColorLabel"
-                                                                                           RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                           RelativePanel.AlignLeftWithPanel="True"
-                                                                                           RelativePanel.LeftOf="AcrylicColor" />
-                                                                                <muxc:SplitButton Name="AcrylicColor"
-                                                                                                  Padding="0"
-                                                                                                  RelativePanel.AlignRightWithPanel="True"
-                                                                                                  RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                                    <Border x:Name="CurrentColor"
-                                                                                            Height="30"
-                                                                                            Width="35"
-                                                                                            CornerRadius="4,0,0,4">
-                                                                                        <Border.Background>
-                                                                                            <SolidColorBrush Color="{x:Bind AcrylicColorPicker.Color,Mode=OneWay}" />
-                                                                                        </Border.Background>
-                                                                                    </Border>
-                                                                                    <muxc:SplitButton.Flyout>
-                                                                                        <Flyout Placement="Left">
-                                                                                            <muxc:ColorPicker ColorSpectrumShape="Box"
-                                                                                                              IsAlphaEnabled="True"
-                                                                                                              ColorChanged="AcrylicColorPicker_ColorChanged"
-                                                                                                              Color="{x:Bind Cls:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
-                                                                                                              x:Name="AcrylicColorPicker" />
-                                                                                        </Flyout>
-                                                                                    </muxc:SplitButton.Flyout>
-                                                                                </muxc:SplitButton>
-                                                                            </RelativePanel>
-                                                                        </Border>
-
-                                                                        <Border Padding="68,10,10,10"
-                                                                                MinHeight="45"
-                                                                                CornerRadius="0"
-                                                                                BorderThickness="1"
-                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                            <RelativePanel>
-                                                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                            RelativePanel.AlignLeftWithPanel="True"
-                                                                                            RelativePanel.LeftOf="TintOpacitySliderArea">
-                                                                                    <TextBlock Text="Acrylic颜色透明度"
-                                                                                               TextTrimming="CharacterEllipsis"
-                                                                                               x:Name="TintOpacitySliderLabel"
-                                                                                               x:Uid="TintOpacitySliderLabel" />
-                                                                                    <TextBlock TextTrimming="CharacterEllipsis"
-                                                                                               TextWrapping="WrapWholeWords"
-                                                                                               FontSize="12"
-                                                                                               Foreground="Gray"
-                                                                                               Text="Acrylic主题色层透明度，此值越大表示Acrylic颜色越淡，越小则表示颜色越深"
-                                                                                               x:Uid="TintOpacityTipContent" />
-                                                                                </StackPanel>
-                                                                                <StackPanel Orientation="Horizontal"
-                                                                                            Name="TintOpacitySliderArea"
-                                                                                            Margin="10,0,0,0"
-                                                                                            RelativePanel.AlignRightWithPanel="True"
-                                                                                            RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                                    <Slider IsThumbToolTipEnabled="False"
-                                                                                            x:Name="TintOpacitySlider"
-                                                                                            StepFrequency="0.05"
-                                                                                            Maximum="1"
-                                                                                            Minimum="0"
-                                                                                            Width="180"
-                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="CommonSlider_ValueChanged" />
-                                                                                    <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                                                                               Margin="5,0"
-                                                                                               Width="40"
-                                                                                               Name="TintOpacitySliderValueText"
-                                                                                               VerticalAlignment="Center" />
-                                                                                </StackPanel>
-                                                                            </RelativePanel>
-                                                                        </Border>
-
-                                                                        <Border Padding="68,10,10,10"
-                                                                                MinHeight="45"
-                                                                                CornerRadius="0,0,4,4"
-                                                                                BorderThickness="1"
-                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                            <RelativePanel>
-                                                                                <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                            RelativePanel.AlignLeftWithPanel="True"
-                                                                                            RelativePanel.LeftOf="TintLuminositySliderArea">
-                                                                                    <TextBlock Text="Acrylic背景透光度"
-                                                                                               TextTrimming="CharacterEllipsis"
-                                                                                               x:Name="TintLuminositySliderLabel"
-                                                                                               x:Uid="TintLuminositySliderLabel" />
-                                                                                    <TextBlock TextTrimming="CharacterEllipsis"
-                                                                                               TextWrapping="WrapWholeWords"
-                                                                                               FontSize="12"
-                                                                                               Foreground="Gray"
-                                                                                               Text="Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高"
-                                                                                               x:Uid="TintLuminosityTipContent" />
-                                                                                </StackPanel>
-                                                                                <StackPanel Orientation="Horizontal"
-                                                                                            Name="TintLuminositySliderArea"
-                                                                                            Margin="10,0,0,0"
-                                                                                            RelativePanel.AlignRightWithPanel="True"
-                                                                                            RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                                    <Slider IsThumbToolTipEnabled="False"
-                                                                                            x:Name="TintLuminositySlider"
-                                                                                            StepFrequency="0.05"
-                                                                                            Maximum="1"
-                                                                                            Minimum="0"
-                                                                                            Width="180"
-                                                                                            Value="{x:Bind Cls:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
-                                                                                            ValueChanged="CommonSlider_ValueChanged" />
-                                                                                    <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                                                                               Margin="5,0"
-                                                                                               Width="40"
-                                                                                               Name="TintLuminositySliderValueText"
-                                                                                               VerticalAlignment="Center" />
-                                                                                </StackPanel>
-                                                                            </RelativePanel>
-                                                                        </Border>
-                                                                    </StackPanel>
-                                                                </muxc:Expander.Content>
-                                                            </muxc:Expander>
-
-                                                            <muxc:Expander ExpandDirection="Down"
-                                                                           HorizontalAlignment="Stretch"
-                                                                           HorizontalContentAlignment="Stretch"
-                                                                           VerticalContentAlignment="Top"
-                                                                           Padding="0"
-                                                                           MinHeight="45"
-                                                                           Background="Transparent"
-                                                                           CornerRadius="0">
-                                                                <muxc:Expander.Header>
-                                                                    <StackPanel Padding="24,10,0,10">
-                                                                        <RadioButton Content="自定义图片背景"
-                                                                                     x:Uid="CustomUISubtype2"
-                                                                                     Name="PictureMode"
-                                                                                     GroupName="CustomSubRadio"
-                                                                                     Checked="PictureMode_Checked" />
-                                                                    </StackPanel>
-                                                                </muxc:Expander.Header>
-                                                                <muxc:Expander.Content>
-                                                                    <StackPanel>
-                                                                        <Border Padding="68,10,10,10"
-                                                                                MinHeight="45"
-                                                                                CornerRadius="0"
-                                                                                BorderThickness="1"
-                                                                                BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                                Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                            <StackPanel Orientation="Horizontal">
-                                                                                <GridView Name="PictureGirdView"
-                                                                                          MaxWidth="400"
-                                                                                          IsRightTapEnabled="True"
-                                                                                          VerticalAlignment="Top"
-                                                                                          SelectionMode="Single"
-                                                                                          Loaded="PictureGirdView_Loaded"
-                                                                                          RightTapped="PictureGirdView_RightTapped"
-                                                                                          ScrollViewer.HorizontalScrollMode="Enabled"
-                                                                                          ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                                                                          ScrollViewer.VerticalScrollMode="Disabled"
-                                                                                          ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                                                                                          SelectionChanged="PictureGirdView_SelectionChanged">
-                                                                                    <GridView.ItemTemplate>
-                                                                                        <DataTemplate x:DataType="Cls:BackgroundPicture">
-                                                                                            <Image Width="80"
-                                                                                                   Height="80"
-                                                                                                   Stretch="UniformToFill"
-                                                                                                   Source="{x:Bind Thumbnail}" />
-                                                                                        </DataTemplate>
-                                                                                    </GridView.ItemTemplate>
-                                                                                    <GridView.ItemsPanel>
-                                                                                        <ItemsPanelTemplate>
-                                                                                            <ItemsStackPanel Orientation="Horizontal" />
-                                                                                        </ItemsPanelTemplate>
-                                                                                    </GridView.ItemsPanel>
-                                                                                </GridView>
-                                                                                <Button Margin="5,0,0,0"
-                                                                                        Width="80"
-                                                                                        Height="80"
-                                                                                        Name="AddImageToPictureButton"
-                                                                                        Click="AddImageToPictureButton_Click"
-                                                                                        VerticalAlignment="Top">
-                                                                                    <Viewbox>
-                                                                                        <SymbolIcon Symbol="Add" />
-                                                                                    </Viewbox>
-                                                                                </Button>
-                                                                            </StackPanel>
-                                                                        </Border>
-                                                                    </StackPanel>
-                                                                </muxc:Expander.Content>
-                                                            </muxc:Expander>
-
+                                                            
                                                             <Border Padding="40,10,10,10"
                                                                     MinHeight="45"
                                                                     CornerRadius="0"
                                                                     BorderThickness="1"
                                                                     BorderBrush="{ThemeResource BorderDefaultBrush}"
                                                                     Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                <RadioButton Name="BingPictureMode"
-                                                                             Checked="BingPictureMode_Checked"
-                                                                             GroupName="CustomSubRadio">
-                                                                    <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock Text="必应图片"
+                                                                <RelativePanel>
+                                                                    <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                                RelativePanel.LeftOf="BackgroundBlurSliderArea">
+                                                                        <TextBlock Text="调整背景模糊效果"
                                                                                    TextTrimming="CharacterEllipsis"
-                                                                                   x:Uid="CustomUISubtype3" />
-                                                                        <muxc:ProgressRing IsActive="True"
-                                                                                           Margin="10,0,0,0"
-                                                                                           Height="18"
-                                                                                           Width="18"
-                                                                                           Name="GetBingPhotoState"
-                                                                                           Visibility="Collapsed" />
+                                                                                   x:Uid="BackgroundBlurSliderLabel" />
                                                                     </StackPanel>
-                                                                </RadioButton>
+                                                                    <StackPanel Orientation="Horizontal"
+                                                                                Name="BackgroundBlurSliderArea"
+                                                                                Margin="10,0,0,0"
+                                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <Slider Maximum="100"
+                                                                                Minimum="0"
+                                                                                Width="180"
+                                                                                StepFrequency="5"
+                                                                                Name="BackgroundBlurSlider"
+                                                                                Value="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=TwoWay}"
+                                                                                ValueChanged="CommonSlider_ValueChanged" />
+                                                                        <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}"
+                                                                                   Margin="5,0"
+                                                                                   Width="40"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </RelativePanel>
                                                             </Border>
-
-                                                            <StackPanel x:Name="BackgroundEffectArea">
-                                                                <Border Padding="40,10,10,10"
-                                                                        MinHeight="45"
-                                                                        CornerRadius="0"
-                                                                        BorderThickness="1"
-                                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <RelativePanel>
-                                                                        <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                    RelativePanel.AlignLeftWithPanel="True"
-                                                                                    RelativePanel.LeftOf="BackgroundBlurSliderArea">
-                                                                            <TextBlock Text="调整背景模糊效果"
-                                                                                       TextTrimming="CharacterEllipsis"
-                                                                                       x:Uid="BackgroundBlurSliderLabel" />
-                                                                        </StackPanel>
-                                                                        <StackPanel Orientation="Horizontal"
-                                                                                    Name="BackgroundBlurSliderArea"
-                                                                                    Margin="10,0,0,0"
-                                                                                    RelativePanel.AlignRightWithPanel="True"
-                                                                                    RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                            <Slider Maximum="100"
-                                                                                    Minimum="0"
-                                                                                    Width="180"
-                                                                                    StepFrequency="5"
-                                                                                    Name="BackgroundBlurSlider"
-                                                                                    Value="{x:Bind Cls:BackgroundController.Current.BackgroundBlur,Mode=TwoWay}"
-                                                                                    ValueChanged="CommonSlider_ValueChanged" />
-                                                                            <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}"
-                                                                                       Margin="5,0"
-                                                                                       Width="40"
-                                                                                       VerticalAlignment="Center" />
-                                                                        </StackPanel>
-                                                                    </RelativePanel>
-                                                                </Border>
-                                                                <Border Padding="40,10,10,10"
-                                                                        MinHeight="45"
-                                                                        CornerRadius="0,0,4,4"
-                                                                        BorderThickness="1"
-                                                                        BorderBrush="{ThemeResource BorderDefaultBrush}"
-                                                                        Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
-                                                                    <RelativePanel>
-                                                                        <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
-                                                                                    RelativePanel.AlignLeftWithPanel="True"
-                                                                                    RelativePanel.LeftOf="BackgroundLightSliderArea">
-                                                                            <TextBlock Text="调整背景亮度"
-                                                                                       TextTrimming="CharacterEllipsis"
-                                                                                       x:Uid="BackgroundLightSliderLabel" />
-                                                                        </StackPanel>
-                                                                        <StackPanel Orientation="Horizontal"
-                                                                                    Name="BackgroundLightSliderArea"
-                                                                                    Margin="10,0,0,0"
-                                                                                    RelativePanel.AlignRightWithPanel="True"
-                                                                                    RelativePanel.AlignVerticalCenterWithPanel="True">
-                                                                            <Slider Maximum="100"
-                                                                                    Minimum="0"
-                                                                                    Width="180"
-                                                                                    StepFrequency="5"
-                                                                                    Name="BackgroundLightSlider"
-                                                                                    Value="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=TwoWay}"
-                                                                                    ValueChanged="CommonSlider_ValueChanged" />
-                                                                            <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider.Value),Mode=OneWay}"
-                                                                                       Margin="5,0"
-                                                                                       Width="40"
-                                                                                       VerticalAlignment="Center" />
-                                                                        </StackPanel>
-                                                                    </RelativePanel>
-                                                                </Border>
-                                                            </StackPanel>
+                                                            <Border Padding="40,10,10,10"
+                                                                    MinHeight="45"
+                                                                    CornerRadius="0,0,4,4"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="{ThemeResource BorderDefaultBrush}"
+                                                                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                                                                <RelativePanel>
+                                                                    <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                                                RelativePanel.AlignLeftWithPanel="True"
+                                                                                RelativePanel.LeftOf="BackgroundLightSliderArea">
+                                                                        <TextBlock Text="调整背景亮度"
+                                                                                   TextTrimming="CharacterEllipsis"
+                                                                                   x:Uid="BackgroundLightSliderLabel" />
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal"
+                                                                                Name="BackgroundLightSliderArea"
+                                                                                Margin="10,0,0,0"
+                                                                                RelativePanel.AlignRightWithPanel="True"
+                                                                                RelativePanel.AlignVerticalCenterWithPanel="True">
+                                                                        <Slider Maximum="100"
+                                                                                Minimum="0"
+                                                                                Width="180"
+                                                                                StepFrequency="5"
+                                                                                Name="BackgroundLightSlider"
+                                                                                Value="{x:Bind Cls:BackgroundController.Current.BackgroundLightness,Mode=TwoWay}"
+                                                                                ValueChanged="CommonSlider_ValueChanged" />
+                                                                        <TextBlock Text="{x:Bind sys:String.Format('{0}%',BackgroundLightSlider.Value),Mode=OneWay}"
+                                                                                   Margin="5,0"
+                                                                                   Width="40"
+                                                                                   VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </RelativePanel>
+                                                            </Border>
                                                         </StackPanel>
-                                                    </UserControl>
+                                                    </StackPanel>
                                                 </control:Case>
                                                 <control:Case IsDefault="True">
                                                     <Border MinHeight="45"

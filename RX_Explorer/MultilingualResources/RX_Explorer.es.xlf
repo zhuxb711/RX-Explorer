@@ -2324,8 +2324,8 @@ Las denominaciones no válidas son:
           <target state="translated">Error</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
-          <source>Bing Picture</source>
-          <target state="translated">Imagen de Bing</target>
+          <source>Bing Image Background</source>
+          <target state="translated">Fondo de imagen de Bing</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
@@ -2584,7 +2584,7 @@ Las denominaciones no válidas son:
           <target state="translated">Marcar esta opción puede evitar que Windows desactive el efecto acrílico mientras no se usa esta aplicación. En este modo, solo se permite ajustar la transmitancia acrílica y la transparencia de color acrílico no está disponible. Nota: Activar esta opción puede acortar la vida de la batería y el cálculo continuo de luz sobrecargará la CPU.</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Fetching Bing Pictures</source>
+          <source>Fetching Bing Image</source>
           <target state="translated">Obteniendo imágenes de Bing</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
@@ -4156,8 +4156,8 @@ Las denominaciones no válidas son:
           <target state="translated">Desactivar la animación de selección de lista</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
-          <source>Mica effect</source>
-          <target state="translated">Efecto mica</target>
+          <source>Mica Background</source>
+          <target state="translated">Fondo de mica</target>
         </trans-unit>
         <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Layout mode</source>

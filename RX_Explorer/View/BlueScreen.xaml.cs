@@ -29,7 +29,7 @@ namespace RX_Explorer
 
         private async void Report_Click(object sender, RoutedEventArgs e)
         {
-            _ = await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(Message.Text)));
+            await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(Message.Text)));
         }
 
         private async void ExportLog_Click(object sender, RoutedEventArgs e)

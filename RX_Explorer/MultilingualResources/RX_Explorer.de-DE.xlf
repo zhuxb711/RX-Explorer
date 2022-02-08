@@ -2328,8 +2328,8 @@ Inkorrekte Namen sind
           <target state="translated">Fehler</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
-          <source>Bing Picture</source>
-          <target state="translated">Bing Wallpaper</target>
+          <source>Bing Image Background</source>
+          <target state="translated">Bing-Bildhintergrund</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
@@ -2588,8 +2588,8 @@ Inkorrekte Namen sind
           <target state="translated">Wenn Sie diese Option aktivieren, kann verhindert werden, dass Windows den Acryleffekt ausschaltet, wenn Sie diese Anwendung nicht verwenden. In diesem Modus darf nur die Acryl-Übertragung angepasst werden, und die Acrylfarbtransparenz ist nicht verfügbar. Hinweis: Das Aktivieren dieser Option kann die Akkulaufzeit verkürzen, und die kontinuierliche Lichtberechnung erhöht die Belastung der CPU.</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Fetching Bing Pictures</source>
-          <target state="translated">Abrufen von Bing-Wallpaper Bildern</target>
+          <source>Fetching Bing Image</source>
+          <target state="translated">Bing-Bild wird abgerufen</target>
         </trans-unit>
         <trans-unit id="FileLoadModeLabel.Text" translate="yes" xml:space="preserve">
           <source>Icon loading mode</source>
@@ -4156,8 +4156,8 @@ Inkorrekte Namen sind
           <target state="translated">Deaktivieren Sie die Listenauswahlanimation</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Mica" translate="yes" xml:space="preserve">
-          <source>Mica effect</source>
-          <target state="translated">Glimmer-Effekt</target>
+          <source>Mica Background</source>
+          <target state="translated">Glimmer-Hintergrund</target>
         </trans-unit>
         <trans-unit id="ViewModeControl.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Layout mode</source>
