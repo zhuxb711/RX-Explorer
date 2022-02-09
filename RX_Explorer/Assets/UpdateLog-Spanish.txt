@@ -1,29 +1,15 @@
-﻿###Novedades de la versión 7.4.7.0
+﻿###Novedades de la versión 7.4.8.0
 
-#####Actualización de la interfaz de usuario
+#####UI actualizada
 
->#####Mostrar el nombre localizado en lugar del nombre real si existe un nombre localizado para la carpeta,
-
->#####Muestra la miniatura real de la carpeta actual en las pestañas y el historial de navegación, etc.
-
->#####Se agregó el ícono predeterminado para "Esta PC"
+>#####Mica Background ahora está disponible como submodos en el modo personalizado
 
 #####Corrección de errores
 
->#####Se solucionó un problema por el que los archivos podían organizarse en un orden incorrecto
+>#####Se solucionó un problema que podía causar que la aplicación terminara u otros estados anormales al usar el teclado para operar el cuadro de diálogo contextual
 
->#####Se solucionó el problema de los atajos de teclado que no funcionaban
+>#####Se solucionó el problema de que algunos atajos de teclado aún estaban disponibles cuando aparece el cuadro de diálogo contextual
 
->#####Se solucionó un problema por el cual los cambios en las carpetas no se sincronizaban con esas carpetas en "Acceso rápido"
+>#####Se solucionó el problema de que las teclas de acceso directo relacionadas con Alt no son válidas en la página de inicio
 
->#####Se solucionó el problema de que la aplicación de terceros no se puede especificar como el programa predeterminado en algunos casos
-
->#####Se solucionó el problema de las carpetas que faltaban después de reiniciar la aplicación
-
->#####Se solucionó un problema por el cual los elementos del menú podían ocluirse en algunos casos
-
-#####Otras mejoras
-
->#####Se ha mejorado la mecánica de la pila de navegación, haciéndola más fiable
-
->#####El modo de caché de las miniaturas de archivos se ha mejorado para mejorar el rendimiento en algunos escenarios
+>#####Se solucionó un problema que podía causar que los elementos de la interfaz de usuario de la página de configuración estuvieran en un estado incorrecto al cambiar los modos de fondo

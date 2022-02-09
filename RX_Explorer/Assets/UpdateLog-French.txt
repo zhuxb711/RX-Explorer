@@ -1,29 +1,15 @@
-﻿###Quoi de neuf dans la version 7.4.7.0
+﻿###Quoi de neuf dans la version 7.4.8.0
 
-#####Mise à jour de l'interface utilisateur
+#####UI mise à jour
 
->#####Afficher le nom localisé au lieu du nom réel si un nom localisé existe pour le dossier,
-
->#####Afficher la vignette réelle du dossier actuel sur les onglets et l'historique de navigation, etc.
-
->#####Ajout d'une icône par défaut pour "Ce PC"
+>#####Mica Background est désormais disponible en sous-modes en mode personnalisé
 
 #####Corrections de bogues
 
->#####Correction d'un problème où les fichiers pouvaient être organisés dans un ordre incorrect
+>#####Correction d'un problème pouvant entraîner la fermeture de l'application ou d'autres états anormaux lors de l'utilisation du clavier pour utiliser la boîte de dialogue contextuelle
 
->#####Correction du problème des raccourcis clavier qui ne fonctionnaient pas
+>#####Correction du problème que certains raccourcis clavier sont toujours disponibles lorsque la boîte de dialogue contextuelle apparaît
 
->#####Correction d'un problème où les modifications apportées aux dossiers ne se synchronisaient pas avec ces dossiers dans "Accès rapide"
+>#####Correction du problème d'invalidité des touches de raccourci liées à Alt dans la page d'accueil
 
->#####Correction d'un problème où l'application tierce ne peut pas être spécifiée comme programme par défaut dans certains cas
-
->#####Correction du problème des dossiers manquants après la réinitialisation de l'application
-
->#####Correction d'un problème où les éléments de menu pouvaient être masqués dans certains cas
-
-#####Autres améliorations
-
->#####La mécanique de la pile de navigation a été améliorée, la rendant plus fiable
-
->#####Le mode cache des vignettes de fichiers a été amélioré pour améliorer les performances dans certains scénarios
+>#####Correction d'un problème qui pouvait entraîner un état incorrect des éléments de l'interface utilisateur de la page des paramètres lors du changement de mode d'arrière-plan

@@ -1,29 +1,15 @@
-﻿###What's new in Ver.7.4.7.0
+﻿###What's new in Ver.7.4.8.0
 
-#####UI update
+#####UI updated
 
->#####Display the localized name instead of the actual name if a localized name exists for the folder, 
-
->#####Display actual thumbnail of the current folder on tabs and navigation history etc.
-
->#####Added default icon for "This PC"
+>#####Mica Background is now available as sub-modes in Custom Mode
 
 #####Bug Fixes
 
->#####Fixed an issue where files might be arranged in incorrect order
+>#####Fixed an issue that may cause the app terminated or other abnormal states when using the keyboard to operate the context dialog
 
->#####Fixed the issue of keyboard shortcuts not working
+>#####Fixed the problem that some keyboard shortcuts are still available when the context dialog pops up
 
->#####Fixed an issue where changes to folders would not sync to those folder in "Quick Access"
+>#####Fixed the problem that Alt-related shortcut keys are invalid in the home page
 
->#####Fixed an issue that the third-party application cannot be specified as the default program in some cases
-
->#####Fixed the issue of missing folders after resetting the application
-
->#####Fixed an issue where menu items could be occluded in some cases
-
-#####Other Improvements
-
->#####The mechanics of the navigation stack have been improved, making it more reliable
-
->#####The cache mode of file thumbnails has been improved to improve performance in some scenarios
+>#####Fixed an issue that could cause UI elements of the settings page to be in an incorrect state when switching background modes

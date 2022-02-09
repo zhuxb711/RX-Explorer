@@ -1,29 +1,15 @@
-﻿###Was ist neu in Ver.7.4.7.0
+﻿###Was ist neu in Ver.7.4.8.0
 
-#####UI-Update
+#####UI aktualisiert
 
->#####Lokalisierten Namen anstelle des tatsächlichen Namens anzeigen, wenn ein lokalisierter Name für den Ordner existiert,
-
->#####Aktuelles Miniaturbild des aktuellen Ordners auf Registerkarten und im Navigationsverlauf usw. anzeigen.
-
->#####Standardsymbol für „Dieser PC“ hinzugefügt
+>#####Glimmerhintergrund ist jetzt als Untermodi im benutzerdefinierten Modus verfügbar
 
 #####Fehlerbehebung
 
->#####Problem behoben, bei dem Dateien möglicherweise in falscher Reihenfolge angeordnet wurden
+>#####Ein Problem wurde behoben, das dazu führen kann, dass die App beendet wird oder andere anormale Zustände auftreten, wenn die Tastatur zum Bedienen des Kontextdialogs verwendet wird
 
->#####Das Problem mit nicht funktionierenden Tastaturkürzeln wurde behoben
+>#####Das Problem, dass einige Tastenkombinationen immer noch verfügbar sind, wenn der Kontextdialog erscheint, wurde behoben
 
->#####Problem behoben, bei dem Änderungen an Ordnern nicht mit diesen Ordnern im „Schnellzugriff“ synchronisiert wurden
+>#####Das Problem, dass Tastenkombinationen für Alt auf der Startseite ungültig sind, wurde behoben
 
->#####Es wurde ein Problem behoben, bei dem die Anwendung eines Drittanbieters in einigen Fällen nicht als Standardprogramm angegeben werden konnte
-
->#####Das Problem fehlender Ordner nach dem Zurücksetzen der Anwendung wurde behoben
-
->#####Ein Problem wurde behoben, bei dem Menüelemente in einigen Fällen verdeckt werden konnten
-
-#####Weitere Verbesserungen
-
->#####Die Mechanik des Navigationsstacks wurde verbessert, wodurch er zuverlässiger wird
-
->#####Der Cache-Modus von Datei-Thumbnails wurde verbessert, um die Leistung in einigen Szenarien zu verbessern
+>#####Es wurde ein Problem behoben, das dazu führen konnte, dass UI-Elemente der Einstellungsseite beim Wechseln des Hintergrundmodus in einem falschen Zustand waren

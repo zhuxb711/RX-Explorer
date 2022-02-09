@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TagLib;
+using Windows.ApplicationModel.Core;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
@@ -285,7 +286,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown -= MediaPlayer_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown -= MediaPlayer_KeyDown;
             MVControl.MediaPlayer.Pause();
             MVControl.Source = null;
             Cover.Source = null;
@@ -297,7 +298,7 @@ namespace RX_Explorer
         {
             if (e.Parameter is FileSystemStorageFile MediaFile)
             {
-                CoreWindow.GetForCurrentThread().KeyDown += MediaPlayer_KeyDown;
+                CoreApplication.MainView.CoreWindow.KeyDown += MediaPlayer_KeyDown;
                 await InitializeAsync(MediaFile).ConfigureAwait(false);
             }
         }

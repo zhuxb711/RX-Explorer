@@ -1206,7 +1206,7 @@ namespace RX_Explorer
 
                             Control.FolderTree.RootNodes.Add(RootNode);
 
-                            if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
+                            if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 if (Content.HasChildren)
                                 {
@@ -1941,7 +1941,7 @@ namespace RX_Explorer
 
                                 Control.FolderTree.RootNodes.Add(RootNode);
 
-                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
+                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path).Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase))
                                 {
                                     if (Content.HasChildren)
                                     {

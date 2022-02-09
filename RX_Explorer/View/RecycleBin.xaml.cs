@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
@@ -178,7 +179,7 @@ namespace RX_Explorer.View
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
-            CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown += RecycleBin_KeyDown;
             SelectionExtension = new ListViewBaseSelectionExtension(ListViewControl, DrawRectangle);
             CurrentSortTarget = SortTarget.Name;
             CurrentSortDirection = SortDirection.Ascending;
@@ -221,7 +222,7 @@ namespace RX_Explorer.View
             DelaySelectionCancellation?.Dispose();
             DelaySelectionCancellation = null;
 
-            CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown -= RecycleBin_KeyDown;
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
 
             FileCollection.Clear();

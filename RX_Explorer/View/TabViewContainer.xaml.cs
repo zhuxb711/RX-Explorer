@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,8 +15,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.System;
 using Windows.UI.Core;
@@ -27,6 +30,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -62,8 +66,9 @@ namespace RX_Explorer
             PreviewTimer.Elapsed += PreviewTimer_Tick;
 
             Application.Current.Suspending += Current_Suspending;
-            CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
-            CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
+            CoreApplication.MainView.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+            CoreApplication.MainView.CoreWindow.PointerPressed += TabViewContainer_PointerPressed;
+            CoreApplication.MainView.CoreWindow.KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
             QueueTaskController.ProgressChanged += QueueTaskController_ProgressChanged;
@@ -233,14 +238,83 @@ namespace RX_Explorer
                 Builder.AppendLine($"   {Message}");
             }
 
-            QueueContentDialog dialog = new QueueContentDialog
+            QueueContentDialog Dialog = new QueueContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                 Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Builder.ToString(),
                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
             };
 
-            await dialog.ShowAsync();
+            await Dialog.ShowAsync();
+        }
+
+        private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        {
+            if (CurrentNavigationControl?.Content is FileControl Control
+                && Enum.GetName(typeof(CoreAcceleratorKeyEventType), args.EventType).Contains("KeyUp")
+                && args.KeyStatus.IsMenuKeyDown
+                && Control.Frame.CurrentSourcePageType == typeof(FileControl)
+                && Control.Frame == CurrentNavigationControl
+                && !Control.ShouldNotAcceptShortcutKeyInput
+                && !QueueContentDialog.IsRunningOrWaiting
+                && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label")
+                )
+            {
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.Left:
+                        {
+                            args.Handled = true;
+
+                            await Control.ExecuteGoBackActionIfAvailable();
+
+                            break;
+                        }
+                    case VirtualKey.Right:
+                        {
+                            args.Handled = true;
+
+                            await Control.ExecuteGoForwardActionIfAvailable();
+
+                            break;
+                        }
+                    case VirtualKey.Enter:
+                        {
+                            args.Handled = true;
+
+                            PropertiesWindowBase NewWindow = null;
+
+                            if (Control.CurrentPresenter.CurrentFolder == RootStorageFolder.Instance)
+                            {
+                                Home HomeControl = Control.CurrentPresenter.RootFolderControl;
+
+                                if (HomeControl.LibraryGrid.SelectedItem is LibraryStorageFolder LibFolder)
+                                {
+                                    NewWindow = await PropertiesWindowBase.CreateAsync(LibFolder);
+                                }
+                                else if (HomeControl.DriveGrid.SelectedItem is DriveDataBase Drive)
+                                {
+                                    NewWindow = await PropertiesWindowBase.CreateAsync(Drive);
+                                }
+                            }
+                            else if (Control.CurrentPresenter.SelectedItems.Count == 1)
+                            {
+                                if (Control.CurrentPresenter.SelectedItem is FileSystemStorageItemBase Item)
+                                {
+                                    NewWindow = await PropertiesWindowBase.CreateAsync(Item);
+                                }
+                            }
+
+                            if (NewWindow != null)
+                            {
+                                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                            }
+
+                            break;
+                        }
+                }
+            }
         }
 
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -567,7 +641,7 @@ namespace RX_Explorer
             }
         }
 
-        private void TabViewContainer_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        private async void TabViewContainer_PointerPressed(CoreWindow sender, PointerEventArgs args)
         {
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
@@ -582,7 +656,7 @@ namespace RX_Explorer
                     {
                         if (Control.GoBackRecord.IsEnabled)
                         {
-                            Control.GoBackRecord_Click(null, null);
+                            await Control.ExecuteGoBackActionIfAvailable();
                         }
                         else
                         {
@@ -594,9 +668,9 @@ namespace RX_Explorer
                 {
                     args.Handled = true;
 
-                    if (!QueueContentDialog.IsRunningOrWaiting && Control.GoForwardRecord.IsEnabled)
+                    if (Control.GoForwardRecord.IsEnabled)
                     {
-                        Control.GoForwardRecord_Click(null, null);
+                        await Control.ExecuteGoForwardActionIfAvailable();
                     }
                 }
             }
@@ -1400,7 +1474,7 @@ namespace RX_Explorer
 
         private void TabViewControl_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            CoreWindow Window = CoreWindow.GetForCurrentThread();
+            CoreWindow Window = CoreApplication.MainView.CoreWindow;
 
             bool CtrlDown = Window.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
             bool ShiftDown = Window.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);

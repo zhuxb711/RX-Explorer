@@ -339,6 +339,7 @@ namespace RX_Explorer
             return Flyout;
         }
 
+
         private void RightTabFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
             if (sender is CommandBarFlyout Flyout)
@@ -643,6 +644,96 @@ namespace RX_Explorer
                 finally
                 {
                     Interlocked.Exchange(ref AddressButtonLockResource, 0);
+                }
+            }
+        }
+
+        public async Task ExecuteGoBackActionIfAvailable()
+        {
+            if (!QueueContentDialog.IsRunningOrWaiting)
+            {
+                try
+                {
+                    if (CurrentPresenter.BackNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
+                    {
+                        if (CurrentPresenter.CurrentFolder != null)
+                        {
+                            CurrentPresenter.ForwardNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentPresenter.CurrentFolder.Path,
+                                SelectedItemPath = CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
+                            });
+                        }
+
+                        if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
+                        {
+                            if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                            {
+                                CurrentPresenter.SelectedItem = Item;
+                                CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+            }
+        }
+
+        public async Task ExecuteGoForwardActionIfAvailable()
+        {
+            if (!QueueContentDialog.IsRunningOrWaiting)
+            {
+                try
+                {
+                    if (CurrentPresenter.ForwardNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
+                    {
+                        if (CurrentPresenter.CurrentFolder != null)
+                        {
+                            CurrentPresenter.BackNavigationStack.Push(new NavigationRelatedRecord
+                            {
+                                Path = CurrentPresenter.CurrentFolder.Path,
+                                SelectedItemPath = CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
+                            });
+                        }
+
+                        if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
+                        {
+                            if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                            {
+                                CurrentPresenter.SelectedItem = Item;
+                                CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -1763,7 +1854,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void GoParentFolder_Click(object sender, RoutedEventArgs e)
+        private async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
             string CurrentFolderPath = CurrentPresenter?.CurrentFolder?.Path;
 
@@ -1798,88 +1889,14 @@ namespace RX_Explorer
             }
         }
 
-        public async void GoBackRecord_Click(object sender, RoutedEventArgs e)
+        private async void GoBackRecord_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (CurrentPresenter.BackNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
-                {
-                    if (CurrentPresenter.CurrentFolder != null)
-                    {
-                        CurrentPresenter.ForwardNavigationStack.Push(new NavigationRelatedRecord
-                        {
-                            Path = CurrentPresenter.CurrentFolder.Path,
-                            SelectedItemPath = CurrentPresenter.ItemPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
-                        });
-                    }
-
-                    if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
-                    {
-                        if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
-                        {
-                            CurrentPresenter.SelectedItem = Item;
-                            CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
-            }
+            await ExecuteGoBackActionIfAvailable();
         }
 
-        public async void GoForwardRecord_Click(object sender, RoutedEventArgs e)
+        private async void GoForwardRecord_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (CurrentPresenter.ForwardNavigationStack.TryPop(out NavigationRelatedRecord CurrentRecord))
-                {
-                    if (CurrentPresenter.CurrentFolder != null)
-                    {
-                        CurrentPresenter.BackNavigationStack.Push(new NavigationRelatedRecord
-                        {
-                            Path = CurrentPresenter.CurrentFolder.Path,
-                            SelectedItemPath = CurrentPresenter.ItemPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty)
-                        });
-                    }
-
-                    if (await CurrentPresenter.DisplayItemsInFolder(CurrentRecord.Path, SkipNavigationRecord: true))
-                    {
-                        if (!string.IsNullOrEmpty(CurrentRecord.SelectedItemPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(CurrentRecord.SelectedItemPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
-                        {
-                            CurrentPresenter.SelectedItem = Item;
-                            CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocatePathFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                await Dialog.ShowAsync();
-            }
+            await ExecuteGoForwardActionIfAvailable();
         }
 
         private void AddressBox_GotFocus(object sender, RoutedEventArgs e)
@@ -2932,21 +2949,21 @@ namespace RX_Explorer
                 {
                     NavigationRelatedRecord[] Records = CurrentPresenter.BackNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
                     CurrentPresenter.BackNavigationStack.TryPopRange(Records);
-                    CurrentPresenter.ForwardNavigationStack.PushRange(Records.SkipLast(1).Reverse().Append(new NavigationRelatedRecord
+                    CurrentPresenter.ForwardNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
                     {
                         Path = CurrentPresenter.CurrentFolder.Path,
                         SelectedItemPath = (CurrentPresenter.ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((CurrentPresenter.SelectedItem?.Path) ?? string.Empty)
-                    }).Reverse().ToArray());
+                    }).ToArray());
                 }
                 else if (AddressHistoryFlyout.Target == GoForwardRecord)
                 {
                     NavigationRelatedRecord[] Records = CurrentPresenter.ForwardNavigationStack.Take(NavigationRecordList.IndexOf(Record) + 1).ToArray();
                     CurrentPresenter.ForwardNavigationStack.TryPopRange(Records);
-                    CurrentPresenter.BackNavigationStack.PushRange(Records.SkipLast(1).Reverse().Append(new NavigationRelatedRecord
+                    CurrentPresenter.BackNavigationStack.PushRange(Records.SkipLast(1).Prepend(new NavigationRelatedRecord
                     {
                         Path = CurrentPresenter.CurrentFolder.Path,
                         SelectedItemPath = (CurrentPresenter.ItemPresenter?.SelectedItems.Count).GetValueOrDefault() > 1 ? string.Empty : ((CurrentPresenter.SelectedItem?.Path) ?? string.Empty)
-                    }).Reverse().ToArray());
+                    }).ToArray());
                 }
 
                 if (!await CurrentPresenter.DisplayItemsInFolder(Record.Path, true, true))

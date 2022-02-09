@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -71,7 +72,7 @@ namespace RX_Explorer
 
         private void SecureArea_Unloaded(object sender, RoutedEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown -= SecureArea_KeyDown;
             SecureGridView.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
 
             if (!IsNavigatedFromInnerViewer)
@@ -85,7 +86,7 @@ namespace RX_Explorer
 
         private async void SecureArea_Loaded(object sender, RoutedEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown += SecureArea_KeyDown;
             SecureGridView.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
 
             if (IsNavigatedFromInnerViewer)

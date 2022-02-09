@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
@@ -1032,7 +1033,7 @@ namespace RX_Explorer
             {
                 if (Element.FindParentOfType<SelectorItem>()?.Content is DriveDataBase Drive)
                 {
-                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+                    CoreWindow CWindow = CoreApplication.MainView.CoreWindow;
 
                     if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                     {
@@ -1055,7 +1056,7 @@ namespace RX_Explorer
             {
                 if (Element.FindParentOfType<SelectorItem>()?.Content is LibraryStorageFolder Library)
                 {
-                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+                    CoreWindow CWindow = CoreApplication.MainView.CoreWindow;
 
                     if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                     {

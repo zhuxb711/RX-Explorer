@@ -63,18 +63,20 @@ namespace RX_Explorer.Dialog
                 CutRange.Maximum = VideoClip.OriginalDuration.TotalMilliseconds;
                 CutRange.RangeEnd = CutRange.Maximum;
             }
-            catch
+            catch (Exception ex)
             {
                 Hide();
 
-                QueueContentDialog dialog = new QueueContentDialog
+                LogTracer.Log(ex, "Could not load the video edit dialog");
+
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_EditErrorWhenOpen_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                await dialog.ShowAsync().ConfigureAwait(false);
+                await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 

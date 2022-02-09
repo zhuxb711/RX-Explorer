@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
 {
     public class QueueContentDialog : ContentDialog
     {
-        public static bool IsRunningOrWaiting => !Queue.IsEmpty;
+        public static bool IsRunningOrWaiting => !Queue.IsEmpty || InternalRunningStatus;
 
         private static readonly ConcurrentQueue<QueueContentDialogInternalData> Queue = new ConcurrentQueue<QueueContentDialogInternalData>();
 
@@ -24,11 +24,17 @@ namespace RX_Explorer.Class
             Priority = ThreadPriority.BelowNormal
         };
 
+        private static bool InternalRunningStatus = false;
+
         private static void ProcessThread()
         {
             while (true)
             {
+                InternalRunningStatus = false;
+
                 ProcessSleepLocker.WaitOne();
+
+                InternalRunningStatus = true;
 
                 while (Queue.TryDequeue(out QueueContentDialogInternalData Data))
                 {

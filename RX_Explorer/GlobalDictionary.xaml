@@ -722,6 +722,9 @@
         </Setter>
     </Style>
 
+    <!--
+    To fix WinUI Bug #5717 and should remove this after that issue resolved
+    -->
     <Style x:Key="WinUIBugFixedButtonStyle"
            TargetType="Button"
            BasedOn="{StaticResource DefaultButtonStyle}">

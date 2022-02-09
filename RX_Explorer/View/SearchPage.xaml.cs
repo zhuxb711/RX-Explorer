@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Foundation;
@@ -71,7 +72,7 @@ namespace RX_Explorer
         {
             if (e.Parameter is SearchOptions Parameters)
             {
-                CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
+                CoreApplication.MainView.CoreWindow.KeyDown += SearchPage_KeyDown;
 
                 SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
                 SearchResultList.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
@@ -338,7 +339,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
+            CoreApplication.MainView.CoreWindow.KeyDown -= SearchPage_KeyDown;
 
             SearchResultList.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
             SearchResultList.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);

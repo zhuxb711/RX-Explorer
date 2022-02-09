@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Input;
@@ -213,6 +214,14 @@ namespace RX_Explorer
             }
         }
 
+        public IReadOnlyList<FileSystemStorageItemBase> SelectedItems
+        {
+            get
+            {
+                return ItemPresenter?.SelectedItems.Cast<FileSystemStorageItemBase>().ToList() ?? new List<FileSystemStorageItemBase>();
+            }
+        }
+
         public FilePresenter(FileControl Container)
         {
             InitializeComponent();
@@ -241,10 +250,6 @@ namespace RX_Explorer
             MixedFlyout = CreateNewMixedContextMenu();
             EmptyFlyout = CreateNewEmptyContextMenu();
 
-            CoreWindow Window = CoreWindow.GetForCurrentThread();
-            Window.KeyDown += FilePresenter_KeyDown;
-            Window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-
             RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
 
             Application.Current.Suspending += Current_Suspending;
@@ -252,6 +257,7 @@ namespace RX_Explorer
             SortCollectionGenerator.SortConfigChanged += Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
+            CoreApplication.MainView.CoreWindow.KeyDown += FilePresenter_KeyDown;
         }
 
         private CommandBarFlyout CreateNewFileContextMenu()
@@ -1960,9 +1966,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            FileSystemStorageItemBase[] SelectedItems = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray();
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemList = SelectedItems;
 
-            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            foreach (FileSystemStorageItemBase Item in SelectedItemList)
             {
                 if (!await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
                 {
@@ -1970,7 +1976,7 @@ namespace RX_Explorer
                 }
             }
 
-            PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SelectedItems);
+            PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(SelectedItemList.ToArray());
             await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
         }
 
@@ -2299,56 +2305,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
-        {
-            if (Container.CurrentPresenter == this
-                && Enum.GetName(typeof(CoreAcceleratorKeyEventType), args.EventType).Contains("KeyUp")
-                && args.KeyStatus.IsMenuKeyDown
-                && Container.Frame.CurrentSourcePageType == typeof(FileControl)
-                && Container.Frame == TabViewContainer.CurrentNavigationControl
-                && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
-            {
-                switch (args.VirtualKey)
-                {
-                    case VirtualKey.Left:
-                        {
-                            args.Handled = true;
-
-                            if (Container.GoBackRecord.IsEnabled)
-                            {
-                                Container.GoBackRecord_Click(null, null);
-                            }
-
-                            break;
-                        }
-                    case VirtualKey.Right:
-                        {
-                            args.Handled = true;
-
-                            if (Container.GoForwardRecord.IsEnabled)
-                            {
-                                Container.GoForwardRecord_Click(null, null);
-                            }
-
-                            break;
-                        }
-                    case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1:
-                        {
-                            args.Handled = true;
-
-                            if (SelectedItem is FileSystemStorageItemBase Item)
-                            {
-                                PropertiesWindowBase NewWindow = await PropertiesWindowBase.CreateAsync(Item);
-                                await NewWindow.ShowAsync(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                            }
-
-                            break;
-                        }
-                }
-            }
-        }
-
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             try
@@ -2357,216 +2313,215 @@ namespace RX_Explorer
                     && CurrentFolder is not RootStorageFolder
                     && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                     && Container.Frame == TabViewContainer.CurrentNavigationControl
+                    && !Container.ShouldNotAcceptShortcutKeyInput
+                    && !QueueContentDialog.IsRunningOrWaiting
                     && MainPage.Current.NavView.SelectedItem is NavigationViewItem NavItem
                     && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                 {
                     bool CtrlDown = sender.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down);
                     bool ShiftDown = sender.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
 
-                    if (!QueueContentDialog.IsRunningOrWaiting && !Container.ShouldNotAcceptShortcutKeyInput)
+                    if (!CtrlDown && !ShiftDown)
                     {
-                        if (!CtrlDown && !ShiftDown)
-                        {
-                            args.Handled = true;
-                            NavigateToStorageItem(args.VirtualKey);
-                        }
+                        args.Handled = true;
+                        NavigateToStorageItem(args.VirtualKey);
+                    }
 
-                        switch (args.VirtualKey)
-                        {
-                            case VirtualKey.Space when SettingPage.IsQuicklookEnabled
-                                                       && !SettingPage.IsOpened
-                                                       && ItemPresenter.SelectedItems.Count == 1:
+                    switch (args.VirtualKey)
+                    {
+                        case VirtualKey.Space when SettingPage.IsQuicklookEnabled
+                                                   && !SettingPage.IsOpened
+                                                   && SelectedItems.Count == 1:
+                            {
+                                args.Handled = true;
+
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
                                 {
-                                    args.Handled = true;
-
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
-                                        {
-                                            string ViewPathWithQuicklook = SelectedItem?.Path;
+                                        string ViewPathWithQuicklook = SelectedItem?.Path;
 
-                                            if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
-                                            {
-                                                await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
-                                            }
+                                        if (!string.IsNullOrEmpty(ViewPathWithQuicklook))
+                                        {
+                                            await Exclusive.Controller.ToggleQuicklookAsync(ViewPathWithQuicklook);
                                         }
                                     }
-
-                                    break;
                                 }
-                            case VirtualKey.F2:
-                                {
-                                    args.Handled = true;
 
-                                    Rename_Click(null, null);
-                                    break;
+                                break;
+                            }
+                        case VirtualKey.F2:
+                            {
+                                args.Handled = true;
+
+                                Rename_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.F5:
+                            {
+                                args.Handled = true;
+
+                                Refresh_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
+                            {
+                                args.Handled = true;
+
+                                await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                                break;
+                            }
+                        case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
+                            {
+                                args.Handled = true;
+
+                                await Container.ExecuteGoBackActionIfAvailable();
+                                break;
+                            }
+                        case VirtualKey.L when CtrlDown:
+                            {
+                                args.Handled = true;
+
+                                Container.AddressBox.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.V when CtrlDown:
+                            {
+                                args.Handled = true;
+
+                                Paste_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.A when CtrlDown:
+                            {
+                                args.Handled = true;
+
+                                ItemPresenter.SelectAll();
+                                break;
+                            }
+                        case VirtualKey.C when CtrlDown && ShiftDown:
+                            {
+                                args.Handled = true;
+
+                                Clipboard.Clear();
+
+                                DataPackage Package = new DataPackage
+                                {
+                                    RequestedOperation = DataPackageOperation.Copy
+                                };
+
+                                Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
+
+                                Clipboard.SetContent(Package);
+                                break;
+                            }
+                        case VirtualKey.C when CtrlDown && SelectedItems.Count > 0:
+                            {
+                                args.Handled = true;
+
+                                Copy_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.X when CtrlDown && SelectedItems.Count > 0:
+                            {
+                                args.Handled = true;
+
+                                Cut_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Delete when SelectedItems.Count > 0:
+                        case VirtualKey.D when CtrlDown && SelectedItems.Count > 0:
+                            {
+                                args.Handled = true;
+
+                                Delete_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.F when CtrlDown:
+                            {
+                                args.Handled = true;
+
+                                Container.GlobeSearch.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.N when CtrlDown && ShiftDown:
+                            {
+                                args.Handled = true;
+
+                                CreateFolder_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
+                            {
+                                args.Handled = true;
+
+                                await ExecuteUndoAsync();
+                                break;
+                            }
+                        case VirtualKey.E when ShiftDown && CurrentFolder != null:
+                            {
+                                args.Handled = true;
+
+                                await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                break;
+                            }
+                        case VirtualKey.T when ShiftDown:
+                            {
+                                args.Handled = true;
+
+                                OpenInTerminal_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.T when CtrlDown && SelectedItems.Count <= 1:
+                            {
+                                args.Handled = true;
+
+                                CloseAllFlyout();
+
+                                if (SelectedItem is FileSystemStorageFolder)
+                                {
+                                    await TabViewContainer.Current.CreateNewTabAsync(SelectedItem.Path);
                                 }
-                            case VirtualKey.F5:
+                                else
                                 {
-                                    args.Handled = true;
-
-                                    Refresh_Click(null, null);
-                                    break;
+                                    await TabViewContainer.Current.CreateNewTabAsync();
                                 }
-                            case VirtualKey.Enter when ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
+
+                                break;
+                            }
+                        case VirtualKey.Q when CtrlDown && SelectedItems.Count == 1:
+                            {
+                                args.Handled = true;
+
+                                OpenFolderInNewWindow_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Up when SelectedItem == null:
+                        case VirtualKey.Down when SelectedItem == null:
+                            {
+                                args.Handled = true;
+
+                                SelectedItem = FileCollection.FirstOrDefault();
+                                break;
+                            }
+                        case VirtualKey.B when CtrlDown:
+                            {
+                                args.Handled = true;
+
+                                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                                 {
-                                    args.Handled = true;
-
-                                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
-                                    break;
-                                }
-                            case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
-                                {
-                                    args.Handled = true;
-
-                                    Container.GoBackRecord_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.L when CtrlDown:
-                                {
-                                    args.Handled = true;
-
-                                    Container.AddressBox.Focus(FocusState.Programmatic);
-                                    break;
-                                }
-                            case VirtualKey.V when CtrlDown:
-                                {
-                                    args.Handled = true;
-
-                                    Paste_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.A when CtrlDown:
-                                {
-                                    args.Handled = true;
-
-                                    ItemPresenter.SelectAll();
-                                    break;
-                                }
-                            case VirtualKey.C when CtrlDown && ShiftDown:
-                                {
-                                    args.Handled = true;
-
-                                    Clipboard.Clear();
-
-                                    DataPackage Package = new DataPackage
+                                    if (SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
                                     {
-                                        RequestedOperation = DataPackageOperation.Copy
-                                    };
-
-                                    Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
-
-                                    Clipboard.SetContent(Package);
-                                    break;
-                                }
-                            case VirtualKey.C when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                                {
-                                    args.Handled = true;
-
-                                    Copy_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.X when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                                {
-                                    args.Handled = true;
-
-                                    Cut_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Delete when ItemPresenter.SelectedItems.Count > 0:
-                            case VirtualKey.D when CtrlDown && ItemPresenter.SelectedItems.Count > 0:
-                                {
-                                    args.Handled = true;
-
-                                    Delete_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.F when CtrlDown:
-                                {
-                                    args.Handled = true;
-
-                                    Container.GlobeSearch.Focus(FocusState.Programmatic);
-                                    break;
-                                }
-                            case VirtualKey.N when CtrlDown && ShiftDown:
-                                {
-                                    args.Handled = true;
-
-                                    CreateFolder_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Z when CtrlDown && OperationRecorder.Current.IsNotEmpty:
-                                {
-                                    args.Handled = true;
-
-                                    await ExecuteUndoAsync();
-                                    break;
-                                }
-                            case VirtualKey.E when ShiftDown && CurrentFolder != null:
-                                {
-                                    args.Handled = true;
-
-                                    await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                    break;
-                                }
-                            case VirtualKey.T when ShiftDown:
-                                {
-                                    args.Handled = true;
-
-                                    OpenInTerminal_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.T when CtrlDown && ItemPresenter.SelectedItems.Count <= 1:
-                                {
-                                    args.Handled = true;
-
-                                    CloseAllFlyout();
-
-                                    if (SelectedItem is FileSystemStorageFolder)
-                                    {
-                                        await TabViewContainer.Current.CreateNewTabAsync(SelectedItem.Path);
+                                        await Container.CreateNewBladeAsync(Folder.Path);
                                     }
                                     else
                                     {
-                                        await TabViewContainer.Current.CreateNewTabAsync();
+                                        await Container.CreateNewBladeAsync(CurrentFolder.Path);
                                     }
-
-                                    break;
                                 }
-                            case VirtualKey.Q when CtrlDown && ItemPresenter.SelectedItems.Count == 1:
-                                {
-                                    args.Handled = true;
 
-                                    OpenFolderInNewWindow_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Up when SelectedItem == null:
-                            case VirtualKey.Down when SelectedItem == null:
-                                {
-                                    args.Handled = true;
-
-                                    SelectedItem = FileCollection.FirstOrDefault();
-                                    break;
-                                }
-                            case VirtualKey.B when CtrlDown:
-                                {
-                                    args.Handled = true;
-
-                                    if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                                    {
-                                        if (ItemPresenter.SelectedItems.Count == 1 && SelectedItem is FileSystemStorageFolder Folder)
-                                        {
-                                            await Container.CreateNewBladeAsync(Folder.Path);
-                                        }
-                                        else
-                                        {
-                                            await Container.CreateNewBladeAsync(CurrentFolder.Path);
-                                        }
-                                    }
-
-                                    break;
-                                }
-                        }
+                                break;
+                            }
                     }
                 }
             }
@@ -3256,7 +3211,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -3333,7 +3288,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -3367,10 +3322,10 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (ItemPresenter.SelectedItems.Count > 0)
+            if (SelectedItems.Count > 0)
             {
                 //We should take the path of what we want to delete first. Or we might delete some items incorrectly
-                string[] PathList = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
+                string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
 
                 bool ExecuteDelete = false;
                 bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
@@ -3449,7 +3404,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
 
             if (SelectedItemsCopy.Count > 0)
             {
@@ -3600,19 +3555,19 @@ namespace RX_Explorer
             {
                 DelayRenameCancellation?.Cancel();
 
-                IReadOnlyList<FileSystemStorageItemBase> SelectedItems = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
+                IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
 
                 string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
 
-                if (SelectedItems.Count > 0)
+                if (SelectedItemsCopy.Count > 0)
                 {
                     string SizeInfo = string.Empty;
 
-                    if (SelectedItems.All((Item) => Item is FileSystemStorageFile))
+                    if (SelectedItemsCopy.All((Item) => Item is FileSystemStorageFile))
                     {
                         ulong TotalSize = 0;
 
-                        foreach (ulong Size in SelectedItems.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
+                        foreach (ulong Size in SelectedItemsCopy.Cast<FileSystemStorageFile>().Select((Item) => Item.Size).ToArray())
                         {
                             TotalSize += Size;
                         }
@@ -3622,11 +3577,11 @@ namespace RX_Explorer
 
                     if (StatusTipsSplit.Length > 0)
                     {
-                        StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                        StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
                     }
                     else
                     {
-                        StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                        StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
                     }
                 }
                 else
@@ -3637,7 +3592,7 @@ namespace RX_Explorer
                     }
                 }
 
-                if (SelectedItems.Count == 1 && SelectedItems.First() is FileSystemStorageItemBase Item)
+                if (SelectedItemsCopy.Count == 1 && SelectedItemsCopy.First() is FileSystemStorageItemBase Item)
                 {
                     if (Item is FileSystemStorageFile)
                     {
@@ -3749,7 +3704,7 @@ namespace RX_Explorer
                         {
                             if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                             {
-                                if (ItemPresenter.SelectedItems.Contains(Item))
+                                if (SelectedItems.Contains(Item))
                                 {
                                     SelectionExtension.Disable();
 
@@ -3895,7 +3850,7 @@ namespace RX_Explorer
             {
                 if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Item)
                 {
-                    CoreWindow CWindow = CoreWindow.GetForCurrentThread();
+                    CoreWindow CWindow = CoreApplication.MainView.CoreWindow;
 
                     if (CWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
                     {
@@ -3919,7 +3874,37 @@ namespace RX_Explorer
                     }
                     else if (Container.GoParentFolder.IsEnabled)
                     {
-                        Container.GoParentFolder_Click(null, null);
+                        string CurrentFolderPath = CurrentFolder?.Path;
+
+                        if (!string.IsNullOrEmpty(CurrentFolderPath))
+                        {
+                            string DirectoryPath = Path.GetDirectoryName(CurrentFolderPath);
+
+                            if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
+                            {
+                                DirectoryPath = RootStorageFolder.Instance.Path;
+                            }
+
+                            if (await DisplayItemsInFolder(DirectoryPath))
+                            {
+                                if (FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
+                                {
+                                    SelectedItem = Folder;
+                                    ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{DirectoryPath}\"",
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                                };
+
+                                await Dialog.ShowAsync();
+                            }
+                        }
                     }
                 }
             }
@@ -5381,17 +5366,15 @@ namespace RX_Explorer
             {
                 DelayRenameCancellation?.Cancel();
 
-                IReadOnlyList<FileSystemStorageItemBase> DragList = ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().ToList();
-
-                foreach (FileSystemStorageItemBase Item in DragList)
+                foreach (TextBox NameEditBox in SelectedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item))
+                                                             .OfType<SelectorItem>()
+                                                             .Select((Item) => Item.ContentTemplateRoot.FindChildOfType<TextBox>())
+                                                             .OfType<TextBox>())
                 {
-                    if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
-                    {
-                        NameEditBox.Visibility = Visibility.Collapsed;
-                    }
+                    NameEditBox.Visibility = Visibility.Collapsed;
                 }
 
-                await args.Data.SetupDataPackageAsync(DragList);
+                await args.Data.SetupDataPackageAsync(SelectedItems);
             }
             catch (Exception ex)
             {
@@ -5499,7 +5482,7 @@ namespace RX_Explorer
                 if (!SettingPage.IsDoubleClickEnabled
                     && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
                     && !Container.ShouldNotAcceptShortcutKeyInput
-                    && !ItemPresenter.SelectedItems.Contains(Item)
+                    && !SelectedItems.Contains(Item)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
                     && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift))
                 {
@@ -5625,7 +5608,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -5638,16 +5621,16 @@ namespace RX_Explorer
             }
             else
             {
-                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
+                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
                 }
             }
         }
@@ -5656,7 +5639,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -5674,7 +5657,7 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
             }
         }
 
@@ -6026,7 +6009,7 @@ namespace RX_Explorer
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
 
-            if (ItemPresenter.SelectedItems.Count > 1)
+            if (SelectedItems.Count > 1)
             {
                 AppBarButton CopyButton = new AppBarButton
                 {
@@ -6370,14 +6353,14 @@ namespace RX_Explorer
                 }
 
 
-                if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+                if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
                     DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
 
@@ -6410,7 +6393,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (ItemPresenter.SelectedItems.Any((Item) => Item is LinkStorageFile))
+            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -6425,20 +6408,20 @@ namespace RX_Explorer
             }
 
 
-            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
                 DecompressDialog Dialog = new DecompressDialog(CurrentFolder.Path);
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueDecompressionOpeartion(ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
+                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
                 }
             }
         }
@@ -6455,7 +6438,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
                 Item.ColorTag = ColorTag.Transparent;
             }
@@ -6522,7 +6505,7 @@ namespace RX_Explorer
 
             if (sender is AppBarButton Btn)
             {
-                foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
+                foreach (FileSystemStorageItemBase Item in SelectedItems)
                 {
                     Item.ColorTag = Enum.Parse<ColorTag>(Convert.ToString(Btn.Tag));
                 }
@@ -6533,9 +6516,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (ItemPresenter.SelectedItems.Count > 0)
+            if (SelectedItems.Count > 0)
             {
-                foreach (FileSystemStorageItemBase Item in ItemPresenter.SelectedItems)
+                foreach (FileSystemStorageItemBase Item in SelectedItems)
                 {
                     switch (Item)
                     {
@@ -6914,7 +6897,37 @@ namespace RX_Explorer
             }
             else if (Container.GoParentFolder.IsEnabled)
             {
-                Container.GoParentFolder_Click(null, null);
+                string CurrentFolderPath = CurrentFolder?.Path;
+
+                if (!string.IsNullOrEmpty(CurrentFolderPath))
+                {
+                    string DirectoryPath = Path.GetDirectoryName(CurrentFolderPath);
+
+                    if (string.IsNullOrEmpty(DirectoryPath) && !CurrentFolderPath.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase))
+                    {
+                        DirectoryPath = RootStorageFolder.Instance.Path;
+                    }
+
+                    if (await DisplayItemsInFolder(DirectoryPath))
+                    {
+                        if (FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
+                        {
+                            SelectedItem = Folder;
+                            ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{DirectoryPath}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
+
+                        await Dialog.ShowAsync();
+                    }
+                }
             }
         }
 
@@ -7084,14 +7097,14 @@ namespace RX_Explorer
         {
             AppBarButton Decompression = FileFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "Decompression");
 
-            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
                 Decompression.Visibility = Visibility.Visible;
             }
@@ -7105,14 +7118,14 @@ namespace RX_Explorer
         {
             AppBarButton MixedDecompression = MixedFlyout.SecondaryCommands.OfType<AppBarButton>().First((Btn) => Btn.Name == "MixedDecompression");
 
-            if (ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>().All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
-                                                                                        || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
+            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Type.Equals(".rar", StringComparison.OrdinalIgnoreCase)))
             {
                 MixedDecompression.Visibility = Visibility.Visible;
             }
@@ -7144,7 +7157,7 @@ namespace RX_Explorer
                     {
                         if (Element.FindParentOfType<SelectorItem>()?.Content is FileSystemStorageItemBase Context)
                         {
-                            if (ItemPresenter.SelectedItems.Count > 1 && ItemPresenter.SelectedItems.Contains(Context))
+                            if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                             {
                                 for (int RetryCount = 0; RetryCount < 3; RetryCount++)
                                 {
@@ -7153,9 +7166,7 @@ namespace RX_Explorer
                                         await MixedFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                         Position,
                                                                                                         ContextMenuCancellation.Token,
-                                                                                                        ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
-                                                                                                                                   .Select((Item) => Item.Path)
-                                                                                                                                   .ToArray());
+                                                                                                        SelectedItems.Select((Item) => Item.Path).ToArray());
                                         break;
                                     }
                                     catch (Exception)
@@ -7185,9 +7196,7 @@ namespace RX_Explorer
                                             await ContextFlyout.ShowCommandBarFlyoutWithExtraContextMenuItems(ItemPresenter,
                                                                                                               Position,
                                                                                                               ContextMenuCancellation.Token,
-                                                                                                              ItemPresenter.SelectedItems.Cast<FileSystemStorageItemBase>()
-                                                                                                                                         .Select((Item) => Item.Path)
-                                                                                                                                         .ToArray());
+                                                                                                              SelectedItems.Select((Item) => Item.Path).ToArray());
                                             break;
                                         }
                                         catch (Exception)
@@ -7300,15 +7309,12 @@ namespace RX_Explorer
             ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
             RootFolderControl.EnterActionRequested -= RootFolderControl_EnterActionRequested;
 
-            CoreWindow Window = CoreWindow.GetForCurrentThread();
-            Window.KeyDown -= FilePresenter_KeyDown;
-            Window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
-
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.SortConfigChanged -= Current_SortConfigChanged;
             GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged -= Current_ViewModeChanged;
+            CoreApplication.MainView.CoreWindow.KeyDown -= FilePresenter_KeyDown;
         }
     }
 }
