@@ -425,6 +425,7 @@ namespace RX_Explorer
 
             AppBarElementContainer TagBar = new AppBarElementContainer
             {
+                Name = "TagBar",
                 Content = TagBarPanel
             };
             TagBar.SetBinding(VisibilityProperty, new Binding
@@ -897,6 +898,7 @@ namespace RX_Explorer
 
             AppBarElementContainer TagBar = new AppBarElementContainer
             {
+                Name = "TagBar",
                 Content = TagBarPanel
             };
             TagBar.SetBinding(VisibilityProperty, new Binding
@@ -1263,6 +1265,7 @@ namespace RX_Explorer
 
             AppBarElementContainer TagBar = new AppBarElementContainer
             {
+                Name = "TagBar",
                 Content = TagBarPanel
             };
             TagBar.SetBinding(VisibilityProperty, new Binding
@@ -1492,6 +1495,7 @@ namespace RX_Explorer
 
             AppBarElementContainer TagBar = new AppBarElementContainer
             {
+                Name = "TagBar",
                 Content = TagBarPanel
             };
             TagBar.SetBinding(VisibilityProperty, new Binding
@@ -4322,9 +4326,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    DataPackageView Package = Clipboard.GetContent();
-
-                    if (await Package.CheckIfContainsAvailableDataAsync())
+                    if (await Clipboard.GetContent().CheckIfContainsAvailableDataAsync())
                     {
                         PasteButton.IsEnabled = true;
                     }
@@ -5179,7 +5181,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_DragOver)}");
             }
             finally
             {
@@ -6482,7 +6484,7 @@ namespace RX_Explorer
             {
                 if (Flyout.PrimaryCommands.OfType<AppBarElementContainer>().FirstOrDefault((Container) => !string.IsNullOrEmpty(Container.Name)) is AppBarElementContainer Container)
                 {
-                    Container.Visibility = Visibility.Visible;
+                    Container.Visibility = Visibility.Collapsed;
                 }
             }
         }

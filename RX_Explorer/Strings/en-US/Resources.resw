@@ -3551,4 +3551,16 @@ Invalid names include
   <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
     <value>Add to Quick Access</value>
   </data>
+  <data name="QueueDialog_CloseOnInnerViewerRemember_Content" xml:space="preserve">
+    <value>Remember my choice and don't remind me next time</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_Content" xml:space="preserve">
+    <value>Trying to close the application, do you want to do this?</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_PrimaryButton" xml:space="preserve">
+    <value>Close the application</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
+    <value>Close the viewer</value>
+  </data>
 </root>

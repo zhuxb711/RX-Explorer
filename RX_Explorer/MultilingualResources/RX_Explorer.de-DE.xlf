@@ -4575,6 +4575,22 @@ Inkorrekte Namen sind
           <source>Add to Quick Access</source>
           <target state="translated">Zu Schnellzugriff hinzufügen</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewerRemember_Content" translate="yes" xml:space="preserve">
+          <source>Remember my choice and don't remind me next time</source>
+          <target state="translated">Erinnere dich an meine Wahl und erinnere mich beim nächsten Mal nicht daran</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_Content" translate="yes" xml:space="preserve">
+          <source>Trying to close the application, do you want to do this?</source>
+          <target state="translated">Versuchen Sie, die Anwendung zu schließen, möchten Sie dies tun?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Close the application</source>
+          <target state="translated">Schließen Sie die Anwendung</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_SencondaryButton" translate="yes" xml:space="preserve">
+          <source>Close the viewer</source>
+          <target state="translated">Schließen Sie den Viewer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

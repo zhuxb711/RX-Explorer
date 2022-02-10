@@ -134,22 +134,20 @@ namespace RX_Explorer.Class
 
                         SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(7)
                         {
-                            new LibraryFolderRecord(LibraryType.Downloads, DataPath.Downloads),
-                            new LibraryFolderRecord(LibraryType.Desktop, DataPath.Desktop),
-                            new LibraryFolderRecord(LibraryType.Videos, DataPath.Videos),
-                            new LibraryFolderRecord(LibraryType.Pictures, DataPath.Pictures),
-                            new LibraryFolderRecord(LibraryType.Document, DataPath.Documents),
-                            new LibraryFolderRecord(LibraryType.Music, DataPath.Music),
+                            new LibraryFolderRecord(LibraryType.Downloads, string.IsNullOrWhiteSpace(DataPath.Downloads) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads") : DataPath.Downloads),
+                            new LibraryFolderRecord(LibraryType.Desktop, string.IsNullOrWhiteSpace(DataPath.Desktop) ? Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) : DataPath.Desktop),
+                            new LibraryFolderRecord(LibraryType.Videos, string.IsNullOrWhiteSpace(DataPath.Videos) ? Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) : DataPath.Videos),
+                            new LibraryFolderRecord(LibraryType.Pictures, string.IsNullOrWhiteSpace(DataPath.Pictures) ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : DataPath.Pictures),
+                            new LibraryFolderRecord(LibraryType.Document, string.IsNullOrWhiteSpace(DataPath.Documents) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : DataPath.Documents),
+                            new LibraryFolderRecord(LibraryType.Music, string.IsNullOrWhiteSpace(DataPath.Music) ? Environment.GetFolderPath(Environment.SpecialFolder.MyMusic) : DataPath.Music),
                             new LibraryFolderRecord(LibraryType.OneDrive, Environment.GetEnvironmentVariable("OneDrive"))
                         });
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
-
                         SQLite.Current.UpdateLibraryFolder(new List<LibraryFolderRecord>(6)
                         {
-                            new LibraryFolderRecord( LibraryType.Desktop, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)),
+                            new LibraryFolderRecord(LibraryType.Desktop, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)),
                             new LibraryFolderRecord(LibraryType.Videos, Environment.GetFolderPath(Environment.SpecialFolder.MyVideos)),
                             new LibraryFolderRecord(LibraryType.Pictures, Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
                             new LibraryFolderRecord(LibraryType.Document, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)),

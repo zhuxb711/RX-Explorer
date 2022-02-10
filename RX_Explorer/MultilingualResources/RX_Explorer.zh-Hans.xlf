@@ -4577,6 +4577,22 @@ Invalid names include
           <source>Add to Quick Access</source>
           <target state="translated">添加到快速访问</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewerRemember_Content" translate="yes" xml:space="preserve">
+          <source>Remember my choice and don't remind me next time</source>
+          <target state="translated">记住我的选择，下次不再提示</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_Content" translate="yes" xml:space="preserve">
+          <source>Trying to close the application, do you want to do this?</source>
+          <target state="translated">正在尝试关闭应用，您是否希望执行此操作?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Close the application</source>
+          <target state="translated">关闭应用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_SencondaryButton" translate="yes" xml:space="preserve">
+          <source>Close the viewer</source>
+          <target state="translated">关闭查看器</target>
+        </trans-unit>
       </group>
     </body>
   </file>

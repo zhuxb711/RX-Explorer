@@ -106,15 +106,14 @@ namespace RX_Explorer.Class
             private set
             {
                 status = value;
+                ProgressPause = false;
+                ProgressError = false;
+                ProgressIndeterminate = true;
 
                 switch (status)
                 {
                     case OperationStatus.Waiting:
                         {
-                            ProgressIndeterminate = true;
-                            ProgressPause = false;
-                            ProgressError = false;
-
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
                             ActionButtonAreaVisibility = Visibility.Collapsed;
@@ -122,10 +121,6 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Preparing:
                         {
-                            ProgressIndeterminate = true;
-                            ProgressPause = false;
-                            ProgressError = false;
-
                             CancelButtonVisibility = CanBeCancelled ? Visibility.Visible : Visibility.Collapsed;
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Collapsed;
@@ -134,10 +129,6 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Processing:
                         {
-                            ProgressIndeterminate = false;
-                            ProgressPause = false;
-                            ProgressError = false;
-
                             CancelButtonVisibility = CanBeCancelled ? Visibility.Visible : Visibility.Collapsed;
                             RemoveButtonVisibility = Visibility.Collapsed;
                             SpeedAndTimeVisibility = Visibility.Visible;
@@ -146,9 +137,7 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.NeedAttention:
                         {
-                            ProgressIndeterminate = true;
                             ProgressPause = true;
-                            ProgressError = false;
 
                             ActionButton1Content = Globalization.GetString("NameCollision_Override");
                             ActionButton2Content = Globalization.GetString("NameCollision_Rename");
@@ -161,8 +150,6 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Error:
                         {
-                            ProgressIndeterminate = true;
-                            ProgressPause = false;
                             ProgressError = true;
 
                             RemoveButtonVisibility = Visibility.Visible;
@@ -175,9 +162,7 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Cancelling:
                         {
-                            ProgressIndeterminate = true;
                             ProgressPause = true;
-                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
@@ -189,9 +174,7 @@ namespace RX_Explorer.Class
                         }
                     case OperationStatus.Cancelled:
                         {
-                            ProgressIndeterminate = true;
                             ProgressPause = true;
-                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
@@ -204,8 +187,6 @@ namespace RX_Explorer.Class
                     case OperationStatus.Completed:
                         {
                             ProgressIndeterminate = false;
-                            ProgressPause = false;
-                            ProgressError = false;
 
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
@@ -261,9 +242,15 @@ namespace RX_Explorer.Class
 
             if (Calculator != null)
             {
-                Calculator.SetProgressValue(NewProgress);
+                Calculator.SetProgressValue(Progress);
                 ProgressSpeed = Calculator.GetSpeed();
                 RemainingTime = Calculator.GetRemainingTime().ConvertTimeSpanToString();
+            }
+
+            if (Progress > 0 && ProgressIndeterminate)
+            {
+                ProgressIndeterminate = false;
+                OnPropertyChanged(nameof(ProgressIndeterminate));
             }
 
             OnPropertyChanged(nameof(Progress));

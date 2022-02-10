@@ -4575,6 +4575,22 @@ Las denominaciones no válidas son:
           <source>Add to Quick Access</source>
           <target state="translated">Añadir a Acceso Rápido</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewerRemember_Content" translate="yes" xml:space="preserve">
+          <source>Remember my choice and don't remind me next time</source>
+          <target state="translated">Recuerda mi elección y no me lo recuerdes la próxima vez</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_Content" translate="yes" xml:space="preserve">
+          <source>Trying to close the application, do you want to do this?</source>
+          <target state="translated">Intentando cerrar la aplicación, ¿quieres hacer esto?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Close the application</source>
+          <target state="translated">Cierra la aplicación</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CloseOnInnerViewer_SencondaryButton" translate="yes" xml:space="preserve">
+          <source>Close the viewer</source>
+          <target state="translated">Cierra el visor.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -2142,7 +2142,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, $"An exception was threw in {nameof(AddressButton_DragOver)}");
                 e.AcceptedOperation = DataPackageOperation.None;
             }
             finally

@@ -328,6 +328,83 @@ namespace RX_Explorer
 
             try
             {
+                Frame CurrentFram = TabViewContainer.CurrentNavigationControl;
+
+                if (CurrentFram.SourcePageType != typeof(FileControl))
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
+                    {
+                        if (!IsAlwaysCloseApp)
+                        {
+                            e.Handled = true;
+
+                            while (CurrentFram.CanGoBack)
+                            {
+                                CurrentFram.GoBack();
+                            }
+
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        StackPanel Panel = new StackPanel
+                        {
+                            MinWidth = 300,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
+                        };
+
+                        TextBlock Text = new TextBlock
+                        {
+                            Text = Globalization.GetString("QueueDialog_CloseOnInnerViewer_Content"),
+                            TextWrapping = TextWrapping.WrapWholeWords
+                        };
+
+                        CheckBox Box = new CheckBox
+                        {
+                            Content = Globalization.GetString("QueueDialog_CloseOnInnerViewerRemember_Content"),
+                            Margin = new Thickness(0, 10, 0, 0)
+                        };
+
+                        Panel.Children.Add(Text);
+                        Panel.Children.Add(Box);
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                            Content = Panel,
+                            PrimaryButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_PrimaryButton"),
+                            CloseButtonText = Globalization.GetString("QueueDialog_CloseOnInnerViewer_SencondaryButton")
+                        };
+
+                        ContentDialogResult Result = await Dialog.ShowAsync();
+
+                        if (Box.IsChecked.GetValueOrDefault())
+                        {
+                            if (Result == ContentDialogResult.Primary)
+                            {
+                                ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = true;
+                            }
+                            else
+                            {
+                                ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] = false;
+                            }
+                        }
+
+                        if (Result != ContentDialogResult.Primary)
+                        {
+                            e.Handled = true;
+
+                            while (CurrentFram.CanGoBack)
+                            {
+                                CurrentFram.GoBack();
+                            }
+
+                            return;
+                        }
+                    }
+                }
+
                 if (GeneralTransformer.IsAnyTransformTaskRunning
                     || FullTrustProcessController.IsAnyActionExcutingInAllControllers
                     || QueueTaskController.IsAnyTaskRunningInController)
@@ -371,9 +448,9 @@ namespace RX_Explorer
 
                 if (ShouldPopKeepClipboardTip)
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] is bool IsFlush)
+                    if (ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] is bool IsAlwaysFlush)
                     {
-                        if (IsFlush)
+                        if (IsAlwaysFlush)
                         {
                             Clipboard.Flush();
                         }
@@ -382,6 +459,7 @@ namespace RX_Explorer
                     {
                         StackPanel Panel = new StackPanel
                         {
+                            MinWidth = 300,
                             HorizontalAlignment = HorizontalAlignment.Stretch
                         };
 
@@ -410,11 +488,6 @@ namespace RX_Explorer
 
                         ContentDialogResult Result = await Dialog.ShowAsync();
 
-                        if (Result == ContentDialogResult.Primary)
-                        {
-                            Clipboard.Flush();
-                        }
-
                         if (Box.IsChecked.GetValueOrDefault())
                         {
                             if (Result == ContentDialogResult.Primary)
@@ -425,6 +498,11 @@ namespace RX_Explorer
                             {
                                 ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] = false;
                             }
+                        }
+
+                        if (Result == ContentDialogResult.Primary)
+                        {
+                            Clipboard.Flush();
                         }
                     }
                 }

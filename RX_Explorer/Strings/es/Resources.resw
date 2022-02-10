@@ -3446,4 +3446,16 @@ Las denominaciones no válidas son:
   <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
     <value>Añadir a Acceso Rápido</value>
   </data>
+  <data name="QueueDialog_CloseOnInnerViewerRemember_Content" xml:space="preserve">
+    <value>Recuerda mi elección y no me lo recuerdes la próxima vez</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_Content" xml:space="preserve">
+    <value>Intentando cerrar la aplicación, ¿quieres hacer esto?</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_PrimaryButton" xml:space="preserve">
+    <value>Cierra la aplicación</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
+    <value>Cierra el visor.</value>
+  </data>
 </root>

@@ -3446,4 +3446,16 @@ Les noms non valides incluent
   <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
     <value>Ajouter à Accès rapide</value>
   </data>
+  <data name="QueueDialog_CloseOnInnerViewerRemember_Content" xml:space="preserve">
+    <value>Souviens-toi de mon choix et ne me le rappelle pas la prochaine fois</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_Content" xml:space="preserve">
+    <value>Essayer de fermer l'application, voulez-vous faire cela ?</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_PrimaryButton" xml:space="preserve">
+    <value>Fermer l'application</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
+    <value>Fermer la visionneuse</value>
+  </data>
 </root>

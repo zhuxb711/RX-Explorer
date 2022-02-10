@@ -3446,4 +3446,16 @@ Inkorrekte Namen sind
   <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
     <value>Zu Schnellzugriff hinzufügen</value>
   </data>
+  <data name="QueueDialog_CloseOnInnerViewerRemember_Content" xml:space="preserve">
+    <value>Erinnere dich an meine Wahl und erinnere mich beim nächsten Mal nicht daran</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_Content" xml:space="preserve">
+    <value>Versuchen Sie, die Anwendung zu schließen, möchten Sie dies tun?</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_PrimaryButton" xml:space="preserve">
+    <value>Schließen Sie die Anwendung</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
+    <value>Schließen Sie den Viewer</value>
+  </data>
 </root>

@@ -82,6 +82,14 @@ namespace RX_Explorer.Class
             {
                 Builder.Clear();
 
+                Builder.Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Downloads)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Desktop)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Videos)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Pictures)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Document)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.Music)}');")
+                       .Append($"Insert Or Replace Into Library Values ('{Guid.NewGuid():N}', '{Enum.GetName(typeof(LibraryType), LibraryType.OneDrive)}');");
+
                 foreach (int Index in Enumerable.Range(1, 15))
                 {
                     Builder.Append($"Insert Or Replace Into BackgroundPicture Values ('ms-appx:///CustomImage/Picture{Index}.jpg');");
@@ -624,7 +632,7 @@ namespace RX_Explorer.Class
         public void UpdateLibraryFolder(IEnumerable<LibraryFolderRecord> Records)
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand("Insert Or Replace Into Library Values (@Path, @Type)", Connection, Transaction);
+            using SqliteCommand Command = new SqliteCommand("Update Or Ignore Library Set Path = @Path Where Type = @Type", Connection, Transaction);
 
             foreach (LibraryFolderRecord Record in Records.Where((Pair) => !string.IsNullOrEmpty(Pair.Path)))
             {

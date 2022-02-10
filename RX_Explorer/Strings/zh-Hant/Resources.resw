@@ -3446,4 +3446,16 @@
   <data name="Operate_Text_SetAsQuickAccess" xml:space="preserve">
     <value>添加到快速訪問</value>
   </data>
+  <data name="QueueDialog_CloseOnInnerViewerRemember_Content" xml:space="preserve">
+    <value>記住我的選擇，下次不要提醒我</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_Content" xml:space="preserve">
+    <value>試圖關閉應用程序，您要這樣做嗎？</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_PrimaryButton" xml:space="preserve">
+    <value>關閉應用程序</value>
+  </data>
+  <data name="QueueDialog_CloseOnInnerViewer_SencondaryButton" xml:space="preserve">
+    <value>關閉查看器</value>
+  </data>
 </root>
