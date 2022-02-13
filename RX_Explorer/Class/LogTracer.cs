@@ -134,13 +134,15 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(Ex.Message))
+                    string ExceptionMessageRaw = Ex.Message;
+
+                    if (string.IsNullOrWhiteSpace(ExceptionMessageRaw))
                     {
                         MessageSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        MessageSplit = ExceptionMessageRaw.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -152,13 +154,15 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (string.IsNullOrEmpty(Ex.StackTrace))
+                    string ExceptionStackTraceRaw = Ex.StackTrace;
+
+                    if (string.IsNullOrEmpty(ExceptionStackTraceRaw))
                     {
                         StackTraceSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        StackTraceSplit = ExceptionStackTraceRaw.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -293,14 +297,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static void MakeSureLogIsFlushed(int TimeoutMilliseconds)
+        public static bool MakeSureLogIsFlushed(int TimeoutMilliseconds)
         {
-            if (!BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                && !BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped))
-            {
-                SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                                         || BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped), Math.Max(0, TimeoutMilliseconds));
-            }
+            ProcessSleepLocker.Set();
+            return SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin), Math.Max(0, TimeoutMilliseconds));
         }
     }
 }

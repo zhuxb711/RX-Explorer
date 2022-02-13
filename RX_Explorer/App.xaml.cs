@@ -26,7 +26,7 @@ namespace RX_Explorer
 {
     sealed partial class App : Application
     {
-        bool IsInBackgroundMode;
+        private bool IsInBackgroundMode;
 
         public App()
         {
@@ -43,6 +43,7 @@ namespace RX_Explorer
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
             PowerManager.EnergySaverStatusChanged += PowerManager_EnergySaverStatusChanged;
             PowerManager.PowerSupplyStatusChanged += PowerManager_PowerSupplyStatusChanged;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
 
         private void PowerManager_PowerSupplyStatusChanged(object sender, object e)
@@ -114,15 +115,6 @@ namespace RX_Explorer
             }
         }
 
-        private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
-        {
-            if (e.ExceptionObject is Exception ex)
-            {
-                LogTracer.Log(ex, "UnhandleException");
-                LogTracer.MakeSureLogIsFlushed(1000);
-            }
-        }
-
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, AppMemoryUsageLimitChangingEventArgs e)
         {
             if (IsInBackgroundMode)
@@ -163,7 +155,30 @@ namespace RX_Explorer
         private async void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
-            await LeadToBlueScreen(e.Exception);
+
+            Exception UnhandledException = e.Exception;
+            LogTracer.Log(UnhandledException, "UnhandledException");
+            LogTracer.MakeSureLogIsFlushed(2000);
+
+            await LeadToBlueScreen(UnhandledException);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                LogTracer.Log(ex, "UnhandledException");
+                LogTracer.MakeSureLogIsFlushed(2000);
+            }
+        }
+
+        private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            e.SetObserved();
+
+            Exception UnhandledException = e.Exception;
+            LogTracer.Log(UnhandledException, "UnobservedException");
+            LogTracer.MakeSureLogIsFlushed(2000);
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
@@ -429,8 +444,6 @@ namespace RX_Explorer
                     Frame.Navigate(typeof(BlueScreen), Builder.ToString());
                 }
             });
-
-            LogTracer.Log(Ex, "UnhandleException");
         }
     }
 }

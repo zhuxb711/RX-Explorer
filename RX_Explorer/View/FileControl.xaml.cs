@@ -2021,18 +2021,18 @@ namespace RX_Explorer
         {
             AddressExtensionFlyout.Hide();
 
-            if (e.ClickedItem is AddressBlock TargetBlock)
+            if (e.ClickedItem is FileSystemStorageFolder TargetFolder)
             {
-                if (!await CurrentPresenter.DisplayItemsInFolder(TargetBlock.Path))
+                if (!await CurrentPresenter.DisplayItemsInFolder(TargetFolder))
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{TargetBlock.Path}\"",
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} {Environment.NewLine}\"{TargetFolder.Path}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
-                    await dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
             }
         }

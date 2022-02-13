@@ -22,7 +22,7 @@ namespace FullTrustProcess
             Priority = ThreadPriority.BelowNormal
         };
 
-        private static readonly AutoResetEvent ProcessLock = new AutoResetEvent(false);
+        private static readonly AutoResetEvent ProcessSleepLocker = new AutoResetEvent(false);
 
         static LogTracer()
         {
@@ -48,13 +48,15 @@ namespace FullTrustProcess
 
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(Ex.Message))
+                    string ExceptionMessageRaw = Ex.Message;
+
+                    if (string.IsNullOrWhiteSpace(ExceptionMessageRaw))
                     {
                         MessageSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        MessageSplit = Ex.Message.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        MessageSplit = ExceptionMessageRaw.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -66,13 +68,15 @@ namespace FullTrustProcess
 
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                    string ExceptionStackTraceRaw = Ex.StackTrace;
+
+                    if (string.IsNullOrEmpty(ExceptionStackTraceRaw))
                     {
                         StackTraceSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        StackTraceSplit = Ex.StackTrace.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                        StackTraceSplit = ExceptionStackTraceRaw.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -164,7 +168,7 @@ namespace FullTrustProcess
         private static void LogInternal(string Message)
         {
             LogQueue.Enqueue(Message + Environment.NewLine);
-            ProcessLock.Set();
+            ProcessSleepLocker.Set();
         }
 
         private static void LogProcessThread()
@@ -175,7 +179,7 @@ namespace FullTrustProcess
                 {
                     if (LogQueue.IsEmpty)
                     {
-                        ProcessLock.WaitOne();
+                        ProcessSleepLocker.WaitOne();
                     }
 
                     using (FileStream LogFileStream = File.Open(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
@@ -201,14 +205,10 @@ namespace FullTrustProcess
             }
         }
 
-        public static void MakeSureLogIsFlushed(int TimeoutMilliseconds)
+        public static bool MakeSureLogIsFlushed(int TimeoutMilliseconds)
         {
-            if (!BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                && !BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped))
-            {
-                SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin)
-                                         || BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.Stopped), Math.Max(0, TimeoutMilliseconds));
-            }
+            ProcessSleepLocker.Set();
+            return SpinWait.SpinUntil(() => BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin), Math.Max(0, TimeoutMilliseconds));
         }
     }
 }
