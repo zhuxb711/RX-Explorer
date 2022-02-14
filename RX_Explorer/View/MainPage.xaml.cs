@@ -229,6 +229,8 @@ namespace RX_Explorer
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
+            await FileSystemStorageItemBase.SpecialPath.InitializeAsync();
+
             if (SQLite.Current.GetAllTerminalProfile().All((Profile) => !Path.GetFileName(Profile.Path).Equals("wt.exe", StringComparison.OrdinalIgnoreCase)))
             {
                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
@@ -330,7 +332,7 @@ namespace RX_Explorer
             {
                 Frame CurrentFram = TabViewContainer.CurrentNavigationControl;
 
-                if (CurrentFram.SourcePageType != typeof(FileControl))
+                if (CurrentFram.SourcePageType != typeof(FileControl) && CurrentFram.SourcePageType != typeof(SearchPage))
                 {
                     if (ApplicationData.Current.LocalSettings.Values["CloseAppOnInnerViewerAlways"] is bool IsAlwaysCloseApp)
                     {

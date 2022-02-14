@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -539,17 +540,22 @@ namespace RX_Explorer.Class
                         using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> SharedRegion = await FullTrustProcessController.GetProcessSharedRegionAsync())
                         using (DisposableNotification Disposable = SetProcessRefShareRegion(SharedRegion))
                         {
-                            await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync());
+                            await Task.WhenAll(LoadCoreAsync(false), GetStorageItemAsync(), GetThumbnailOverlayAsync());
+
+                            List<Task> ParallelLoadTasks = new List<Task>(2);
 
                             if (ShouldGenerateThumbnail)
                             {
-                                await Task.WhenAll(GetThumbnailAsync(ThumbnailMode), GetThumbnailOverlayAsync());
+                                ParallelLoadTasks.Add(GetThumbnailAsync(ThumbnailMode));
                             }
 
-                            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+                            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive)
+                                || SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.Dropbox))
                             {
-                                await GetSyncStatusAsync();
+                                ParallelLoadTasks.Add(GetSyncStatusAsync());
                             }
+
+                            await Task.WhenAll(ParallelLoadTasks);
                         }
                     }
                     catch (Exception ex)
@@ -679,10 +685,8 @@ namespace RX_Explorer.Class
                         return Overlay;
                     }
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
 
             using (RefSharedRegion<FullTrustProcessController.ExclusiveUsage> ControllerRef = GetProcessSharedRegion())
@@ -871,7 +875,7 @@ namespace RX_Explorer.Class
 
                     if (MissingKeys.Count > 0)
                     {
-                        Result.AddRange(await GetPropertiesTask(DistinctProperties));
+                        Result.AddRange(await GetPropertiesTask(MissingKeys));
                     }
 
                     return Result;
@@ -1041,16 +1045,75 @@ namespace RX_Explorer.Class
 
         public static class SpecialPath
         {
-            public static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>
+            private static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>(3)
             {
                 Environment.GetEnvironmentVariable("OneDriveConsumer"),
                 Environment.GetEnvironmentVariable("OneDriveCommercial"),
                 Environment.GetEnvironmentVariable("OneDrive")
             };
 
+            private static IReadOnlyList<string> DropboxPathCollection { get; set; } = new List<string>(0);
+
             public enum SpecialPathEnum
             {
-                OneDrive
+                OneDrive,
+                Dropbox
+            }
+
+            public static async Task InitializeAsync()
+            {
+                static async Task<IReadOnlyList<string>> LocalLoadJsonAsync(string JsonPath)
+                {
+                    List<string> DropboxPathResult = new List<string>(2);
+
+                    try
+                    {
+                        if (await OpenAsync(JsonPath) is FileSystemStorageFile JsonFile)
+                        {
+                            using (FileStream Stream = await JsonFile.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential))
+                            using (StreamReader Reader = new StreamReader(Stream, true))
+                            {
+                                var JsonObject = JsonSerializer.Deserialize<IDictionary<string, IDictionary<string, object>>>(Reader.ReadToEnd());
+
+                                if (JsonObject.TryGetValue("personal", out IDictionary<string, object> PersonalSubDic))
+                                {
+                                    DropboxPathResult.Add(Convert.ToString(PersonalSubDic["path"]));
+                                }
+
+                                if (JsonObject.TryGetValue("business", out IDictionary<string, object> BusinessSubDic))
+                                {
+                                    DropboxPathResult.Add(Convert.ToString(BusinessSubDic["path"]));
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Could not get the configuration from Dropbox info.json");
+                    }
+
+                    return DropboxPathResult;
+                }
+
+                string JsonPath1 = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(@"%APPDATA%\Dropbox\info.json");
+                string JsonPath2 = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(@"%LOCALAPPDATA%\Dropbox\info.json");
+
+                if (await CheckExistsAsync(JsonPath1))
+                {
+                    DropboxPathCollection = await LocalLoadJsonAsync(JsonPath1);
+                }
+                else if (await CheckExistsAsync(JsonPath2))
+                {
+                    DropboxPathCollection = await LocalLoadJsonAsync(JsonPath2);
+                }
+
+                if (DropboxPathCollection.Count == 0)
+                {
+                    DropboxPathCollection = new List<string>(1)
+                    {
+                        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Dropbox")
+                    };
+                }
             }
 
             public static bool IsPathIncluded(string Path, SpecialPathEnum Enum)
@@ -1060,6 +1123,10 @@ namespace RX_Explorer.Class
                     case SpecialPathEnum.OneDrive:
                         {
                             return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(OneDrivePath, StringComparison.OrdinalIgnoreCase));
+                        }
+                    case SpecialPathEnum.Dropbox:
+                        {
+                            return DropboxPathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((DropboxPath) => Path.StartsWith(DropboxPath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(DropboxPath, StringComparison.OrdinalIgnoreCase));
                         }
                     default:
                         {

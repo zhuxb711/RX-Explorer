@@ -354,7 +354,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return new GridLength(5, GridUnitType.Pixel);
+                    return new GridLength(8, GridUnitType.Pixel);
                 }
             }
             else

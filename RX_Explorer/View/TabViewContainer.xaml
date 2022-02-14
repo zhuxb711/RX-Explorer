@@ -258,7 +258,7 @@
                           Margin="0,5,0,0"
                           SelectionMode="None"
                           ItemsSource="{x:Bind Cls:QueueTaskController.ListItemSource}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions, Mode=OneWay}">
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
@@ -285,7 +285,7 @@
                                             Padding="2"
                                             Name="CancelTaskButton"
                                             Click="CancelTaskButton_Click"
-                                            Visibility="{x:Bind CancelButtonVisibility, Mode=OneWay}"
+                                            Visibility="{x:Bind CancelButtonVisibility,Mode=OneWay}"
                                             Style="{ThemeResource ButtonRevealStyle}"
                                             Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                                         <Button.Content>
@@ -316,45 +316,55 @@
                                 </RelativePanel>
                                 <TextBlock Margin="0,5,0,0"
                                            FontSize="12"
+                                           Name="FromDescriptionLabel"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind FromDescription, Converter={StaticResource VisibilityConverter}}"
-                                           ToolTipService.ToolTip="{x:Bind FromDescription}"
-                                           Text="{x:Bind FromDescription}" />
+                                           Visibility="{x:Bind FromDescription,Converter={StaticResource VisibilityConverter}}"
+                                           Text="{x:Bind FromDescription}" >
+                                    <ToolTipService.ToolTip>
+                                        <TextBlock Text="{x:Bind FromDescription}"
+                                                   Visibility="{Binding ElementName=FromDescriptionLabel,Path=IsTextTrimmed}"/>
+                                    </ToolTipService.ToolTip>
+                                </TextBlock>
                                 <TextBlock Margin="0,5,0,0"
                                            FontSize="12"
+                                           Name="ToDescriptionLabel"
                                            TextTrimming="CharacterEllipsis"
-                                           Visibility="{x:Bind ToDescription, Converter={StaticResource VisibilityConverter}}"
-                                           ToolTipService.ToolTip="{x:Bind ToDescription}"
-                                           Text="{x:Bind ToDescription}" />
+                                           Visibility="{x:Bind ToDescription,Converter={StaticResource VisibilityConverter}}"
+                                           Text="{x:Bind ToDescription}" >
+                                     <ToolTipService.ToolTip>
+                                        <TextBlock Text="{x:Bind ToDescription}"
+                                                   Visibility="{Binding ElementName=ToDescriptionLabel,Path=IsTextTrimmed}"/>
+                                    </ToolTipService.ToolTip>
+                                </TextBlock>
                                 <RelativePanel Margin="0,5,0,0">
                                     <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
                                                       RelativePanel.LeftOf="ProgressText"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
                                                       Minimum="0"
                                                       Maximum="100"
-                                                      ShowPaused="{x:Bind ProgressPause, Mode=OneWay}"
-                                                      ShowError="{x:Bind ProgressError, Mode=OneWay}"
-                                                      IsIndeterminate="{x:Bind ProgressIndeterminate, Mode=OneWay}"
+                                                      ShowPaused="{x:Bind ProgressPause,Mode=OneWay}"
+                                                      ShowError="{x:Bind ProgressError,Mode=OneWay}"
+                                                      IsIndeterminate="{x:Bind ProgressIndeterminate,Mode=OneWay}"
                                                       Value="{x:Bind Progress, Mode=OneWay}" />
                                     <TextBlock x:Name="ProgressText"
                                                FontSize="12"
-                                               Text="{x:Bind sys:String.Format('{0}%', Progress), Mode=OneWay}"
+                                               Text="{x:Bind sys:String.Format('{0}%', Progress),Mode=OneWay}"
                                                Margin="5,0,0,0"
                                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                                RelativePanel.AlignRightWithPanel="True" />
                                 </RelativePanel>
-                                <RelativePanel Visibility="{x:Bind SpeedAndTimeVisibility, Mode=OneWay}">
-                                    <TextBlock Text="{x:Bind ProgressSpeed, Mode=OneWay}"
+                                <RelativePanel Visibility="{x:Bind SpeedAndTimeVisibility,Mode=OneWay}">
+                                    <TextBlock Text="{x:Bind ProgressSpeed,Mode=OneWay}"
                                                TextWrapping="Wrap"
                                                FontSize="12"
                                                RelativePanel.AlignLeftWithPanel="True"
                                                RelativePanel.AlignVerticalCenterWithPanel="True" />
                                     <TextBlock FontSize="12"
-                                               Text="{x:Bind RemainingTime, Mode=OneWay}"
+                                               Text="{x:Bind RemainingTime,Mode=OneWay}"
                                                RelativePanel.AlignRightWithPanel="True"
                                                RelativePanel.AlignVerticalCenterWithPanel="True" />
                                 </RelativePanel>
-                                <TextBlock Text="{x:Bind StatusText, Mode=OneWay}"
+                                <TextBlock Text="{x:Bind StatusText,Mode=OneWay}"
                                            TextWrapping="Wrap"
                                            Margin="0,5,0,0"
                                            FontSize="12"
@@ -389,8 +399,8 @@
                             VerticalAlignment="Bottom">
                     <CheckBox Content="允许并行执行任务"
                               x:Uid="TaskListAllowParalledTask"
-                              IsChecked="{x:Bind Cls:QueueTaskController.AllowParalledExecution, Mode=TwoWay}" />
-                    <CheckBox IsChecked="{x:Bind Cls:QueueTaskController.OpenPanelWhenTaskIsCreated, Mode=TwoWay}">
+                              IsChecked="{x:Bind Cls:QueueTaskController.AllowParalledExecution,Mode=TwoWay}" />
+                    <CheckBox IsChecked="{x:Bind Cls:QueueTaskController.OpenPanelWhenTaskIsCreated,Mode=TwoWay}">
                         <TextBlock TextWrapping="WrapWholeWords"
                                    VerticalAlignment="Center"
                                    x:Uid="TaskListAlwaysOpenPanel" />

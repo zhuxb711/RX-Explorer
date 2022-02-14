@@ -944,7 +944,7 @@ namespace FullTrustProcess
                                         }
                                         catch (Exception ex)
                                         {
-                                            LogTracer.Log(ex, $"Could not get the property value: \"{Property}\"");
+                                            LogTracer.Log(ex, $"Could not get the property from path: \"{Path}\", value: \"{Property}\"");
                                             Result.Add(Property, string.Empty);
                                         }
                                     }
@@ -3015,9 +3015,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetThumbnailOverlay:
                         {
-                            string Path = CommandValue["Path"];
-
-                            Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetThumbnailOverlay(Path)));
+                            Value.Add("Success", JsonSerializer.Serialize(StorageItemController.GetThumbnailOverlay(CommandValue["Path"])));
 
                             break;
                         }

@@ -88,7 +88,7 @@
                        Margin="0,2,0,0"
                        Name="Icon"
                        x:Phase="1"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"/>
+                       Source="{x:Bind Thumbnail,Mode=OneWay}" />
                 <StackPanel Margin="5,0,0,0"
                             RelativePanel.AlignRightWithPanel="True"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -176,8 +176,8 @@
                                    x:Phase="1"
                                    RelativePanel.AlignLeftWithPanel="True"
                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                   Source="{x:Bind Thumbnail,Mode=OneWay}"/>
-                            <TextBlock Text="{x:Bind DisplayName}"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}" />
+                            <TextBlock Text="{x:Bind DisplayName,Mode=OneWay}"
                                        Name="NameLabel"
                                        Margin="5,0,0,0"
                                        RelativePanel.AlignRightWithPanel="True"
@@ -186,7 +186,7 @@
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis">
                                 <ToolTipService.ToolTip>
-                                    <ToolTip Content="{x:Bind DisplayName}"
+                                    <ToolTip Content="{x:Bind DisplayName,Mode=OneWay}"
                                              Visibility="{Binding ElementName=NameLabel,Path=IsTextTrimmed}" />
                                 </ToolTipService.ToolTip>
                             </TextBlock>
@@ -633,9 +633,10 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TreeViewGridCol"
                                   x:FieldModifier="public"
-                                  Width="2*" />
-                <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
-                <ColumnDefinition Width="6.5*" />
+                                  Width="1*" />
+                <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}"
+                                  d:Width="8" />
+                <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
             <controls:BladeView Grid.Column="2"
                                 BladeMode="Normal"
@@ -695,15 +696,27 @@
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>
             </muxc:TreeView>
-            <controls:GridSplitter Background="LightSlateGray"
-                                   HorizontalAlignment="Center"
+            <Border HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Grid.Column="1"
+                    Width="1.5"
+                    Margin="0,2"
+                    Background="{ThemeResource SystemControlBackgroundBaseMediumRevealBorderBrush}" />
+            <controls:GridSplitter Background="Transparent"
+                                   Grid.Column="1"
                                    ResizeBehavior="BasedOnAlignment"
                                    ResizeDirection="Auto"
                                    IsTabStop="False"
-                                   Grid.Column="1"
+                                   Name="Splitter"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"
                                    PointerCaptureLost="GridSplitter_PointerCaptureLost"
                                    PointerPressed="GridSplitter_PointerPressed"
-                                   PointerReleased="GridSplitter_PointerReleased" />
+                                   PointerReleased="GridSplitter_PointerReleased">
+                <controls:GridSplitter.Element>
+                    <StackPanel />
+                </controls:GridSplitter.Element>
+            </controls:GridSplitter>
         </Grid>
     </Grid>
 </Page>

@@ -186,8 +186,8 @@
                                                            Grid.Column="1"
                                                            x:Phase="1" />
                                                     <Image x:Name="ThumbnailOverlay"
-                                                           Width="30"
-                                                           Height="30"
+                                                           Width="35"
+                                                           Height="35"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Bottom"
                                                            Grid.Column="1"
@@ -199,6 +199,7 @@
                                                                 VerticalAlignment="Top"
                                                                 Margin="5,0,0,0">
                                                         <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                    HorizontalTextAlignment="Left"
                                                                    HorizontalAlignment="Stretch"
                                                                    TextTrimming="CharacterEllipsis"
@@ -210,7 +211,7 @@
                                                             </ToolTipService.ToolTip>
                                                         </TextBlock>
                                                         <TextBox x:Name="NameEditBox"
-                                                                 x:Load="False"
+                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                                  IsSpellCheckEnabled="False"
                                                                  Visibility="Collapsed"
                                                                  HorizontalAlignment="Stretch"
@@ -345,8 +346,8 @@
                                                            PointerPressed="GetFocus_PointerPressed" />
                                                     <Image x:Name="ThumbnailOverlay"
                                                            Margin="2,0,0,0"
-                                                           Width="20"
-                                                           Height="20"
+                                                           Width="25"
+                                                           Height="25"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Bottom"
                                                            Grid.Column="1"
@@ -356,6 +357,7 @@
                                                     <TextBlock VerticalAlignment="Center"
                                                                HorizontalAlignment="Left"
                                                                Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                               Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Grid.Column="2"
                                                                PointerPressed="NameLabel_PointerPressed"
@@ -368,10 +370,10 @@
                                                     <TextBox VerticalAlignment="Center"
                                                              HorizontalAlignment="Stretch"
                                                              x:Name="NameEditBox"
+                                                             Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                              Grid.Column="2"
                                                              IsSpellCheckEnabled="False"
-                                                             Visibility="Collapsed"
-                                                             x:Load="False" />
+                                                             Visibility="Collapsed" />
                                                     <Border Grid.Column="3"
                                                             CornerRadius="2"
                                                             Margin="0,5"
@@ -493,6 +495,7 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
@@ -505,10 +508,10 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
+                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed"
-                                                                 x:Load="False" />
+                                                                 Visibility="Collapsed" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -631,6 +634,7 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
@@ -643,10 +647,10 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
+                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed"
-                                                                 x:Load="False" />
+                                                                 Visibility="Collapsed" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -769,6 +773,7 @@
                                                             </Viewbox>
                                                         </Border>
                                                         <TextBlock Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                    Grid.Column="1"
                                                                    x:Name="NameLabel"
                                                                    HorizontalTextAlignment="Center"
@@ -781,10 +786,10 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
+                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                                  Grid.Column="1"
                                                                  IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed"
-                                                                 x:Load="False" />
+                                                                 Visibility="Collapsed" />
                                                     </Grid>
                                                     <Border Grid.Row="2"
                                                             CornerRadius="2"
@@ -899,8 +904,8 @@
                                                                PointerPressed="GetFocus_PointerPressed" />
                                                         <Image x:Name="ThumbnailOverlay"
                                                                Margin="5,0,0,0"
-                                                               Width="20"
-                                                               Height="20"
+                                                               Width="25"
+                                                               Height="25"
                                                                HorizontalAlignment="Left"
                                                                VerticalAlignment="Bottom"
                                                                x:Phase="1"
@@ -911,6 +916,7 @@
                                                                    HorizontalAlignment="Left"
                                                                    Grid.Column="1"
                                                                    Text="{x:Bind DisplayName,Mode=OneWay,Converter={StaticResource NameExtensionsConverter}}"
+                                                                   Visibility="{Binding ElementName=NameEditBox,Path=Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    PointerPressed="NameLabel_PointerPressed"
                                                                    x:Name="NameLabel">
@@ -922,11 +928,11 @@
                                                         <TextBox VerticalAlignment="Center"
                                                                  HorizontalAlignment="Stretch"
                                                                  x:Name="NameEditBox"
+                                                                 Text="{Binding ElementName=NameLabel,Path=Text,Mode=OneWay}"
                                                                  Grid.Column="1"
                                                                  Grid.ColumnSpan="2"
                                                                  IsSpellCheckEnabled="False"
-                                                                 Visibility="Collapsed"
-                                                                 x:Load="False" />
+                                                                 Visibility="Collapsed" />
                                                         <Border Padding="5,0"
                                                                 Grid.Column="2"
                                                                 Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}"

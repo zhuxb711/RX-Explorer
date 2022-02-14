@@ -8,18 +8,16 @@ namespace RX_Explorer.Class
     public sealed class ExtendedExecutionController : IDisposable
     {
         private static ExtendedExecutionSession Session;
-
-        private static bool IsRequestExtensionSent;
-        private static volatile int CurrentExtendedExecutionNum;
+        private static int CurrentExtendedExecutionNum;
         private static readonly SemaphoreSlim SlimLocker = new SemaphoreSlim(1, 1);
 
-        public static async Task<ExtendedExecutionController> TryCreateExtendedExecutionAsync()
+        public static async Task<ExtendedExecutionController> CreateExtendedExecutionAsync()
         {
             await SlimLocker.WaitAsync();
 
             try
             {
-                if (IsRequestExtensionSent)
+                if (CurrentExtendedExecutionNum > 0)
                 {
                     return new ExtendedExecutionController();
                 }
@@ -41,12 +39,10 @@ namespace RX_Explorer.Class
                     {
                         case ExtendedExecutionResult.Allowed:
                             {
-                                IsRequestExtensionSent = true;
                                 return new ExtendedExecutionController();
                             }
                         default:
                             {
-                                IsRequestExtensionSent = false;
                                 LogTracer.Log($"Extension execution was rejected by system, reason: \"{Enum.GetName(typeof(ExtendedExecutionResult), Result)}\"");
                                 return null;
                             }
@@ -56,7 +52,6 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when creating the extended execution");
-                IsRequestExtensionSent = false;
                 return null;
             }
             finally
@@ -67,13 +62,15 @@ namespace RX_Explorer.Class
 
         private static void Session_Revoked(object sender, ExtendedExecutionRevokedEventArgs args)
         {
-            if (Session != null)
-            {
-                IsRequestExtensionSent = false;
+            LogTracer.Log($"Extension execution was revoked by system, reason: \"{Enum.GetName(typeof(ExtendedExecutionRevokedReason), args.Reason)}\"");
 
-                Session.Revoked -= Session_Revoked;
-                Session.Dispose();
-                Session = null;
+            if (Interlocked.Exchange(ref CurrentExtendedExecutionNum, 0) > 0)
+            {
+                if (Interlocked.Exchange(ref Session, null) is ExtendedExecutionSession LocalSession)
+                {
+                    LocalSession.Revoked -= Session_Revoked;
+                    LocalSession.Dispose();
+                }
             }
         }
 
@@ -81,13 +78,13 @@ namespace RX_Explorer.Class
         {
             GC.SuppressFinalize(this);
 
-            if (Interlocked.Decrement(ref CurrentExtendedExecutionNum) == 0 && Session != null)
+            if (Interlocked.Decrement(ref CurrentExtendedExecutionNum) == 0)
             {
-                IsRequestExtensionSent = false;
-
-                Session.Revoked -= Session_Revoked;
-                Session.Dispose();
-                Session = null;
+                if (Interlocked.Exchange(ref Session, null) is ExtendedExecutionSession LocalSession)
+                {
+                    LocalSession.Revoked -= Session_Revoked;
+                    LocalSession.Dispose();
+                }
             }
         }
 

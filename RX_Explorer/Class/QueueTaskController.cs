@@ -963,7 +963,7 @@ namespace RX_Explorer.Class
                                         {
                                             CompressionUtil.SetEncoding(Encoding.Default);
 
-                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
+                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                             {
                                                 switch (CModel.Type)
                                                 {
@@ -1081,7 +1081,7 @@ namespace RX_Explorer.Class
                                         {
                                             CompressionUtil.SetEncoding(DModel.Encoding);
 
-                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result)
+                                            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.CreateExtendedExecutionAsync().Result)
                                             {
                                                 CompressionUtil.ExtractAllAsync(DModel.DecompressionFrom, DModel.DecompressionTo, DModel.ShouldCreateFolder, Cancellation.Token, (s, e) =>
                                                 {

@@ -698,6 +698,8 @@ namespace RX_Explorer
                     TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
                 }
 
+                await Task.Delay(100);
+
                 TabViewControl.SelectedIndex = 0;
             }
             catch (Exception ex)
@@ -711,7 +713,10 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
-                TabViewControl.SelectedItem = TabCollection.LastOrDefault();
+
+                await Task.Delay(100);
+
+                TabViewControl.SelectedIndex = TabCollection.Count - 1;
             }
             catch (Exception ex)
             {
@@ -726,6 +731,9 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray));
+
+                await Task.Delay(100);
+
                 TabViewControl.SelectedIndex = Index;
             }
             catch (Exception ex)

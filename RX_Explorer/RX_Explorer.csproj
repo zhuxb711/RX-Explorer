@@ -122,7 +122,7 @@
     <Compile Include="Class\BluetoothDeivceData.cs" />
     <Compile Include="Class\AppThemeController.cs" />
     <Compile Include="Class\CommonAccessCollection.cs" />
-    <Compile Include="Class\CommonEnvironmentVariables.cs" />
+    <Compile Include="Class\EnvironmentVariables.cs" />
     <Compile Include="Class\CompressionFile.cs" />
     <Compile Include="Class\CompressionFolder.cs" />
     <Compile Include="Class\CompressionItemBase.cs" />

@@ -58,6 +58,12 @@ namespace RX_Explorer
 
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
         {
+            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+            TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+
             FullTrustProcessController.RequestResizeController(1);
         }
 
@@ -195,15 +201,7 @@ namespace RX_Explorer
         {
             Globalization.Initialize();
             FontFamilyController.Initialize();
-
             SystemInformation.Instance.TrackAppUse(args);
-
-            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-            TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
-
-            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
             switch (args)
             {

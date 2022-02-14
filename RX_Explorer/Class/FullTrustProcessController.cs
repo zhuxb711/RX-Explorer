@@ -52,6 +52,8 @@ namespace RX_Explorer.Class
 
         private NamedPipeWriteController PipeCancellationWriteController;
 
+        private readonly ConcurrentQueue<Command> CommandQueue = new ConcurrentQueue<Command>();
+
         private readonly NamedPipeCommunicationBaseController PipeCommunicationBaseController;
 
         private static readonly SynchronizedCollection<FullTrustProcessController> AllControllerList = new SynchronizedCollection<FullTrustProcessController>();
@@ -127,7 +129,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.TryCreateExtendedExecutionAsync().Result));
+                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.CreateExtendedExecutionAsync().Result));
                                 break;
                             }
                         }
@@ -275,6 +277,16 @@ namespace RX_Explorer.Class
                         PipeProgressReadController?.Dispose();
                         PipeCancellationWriteController?.Dispose();
 
+                        if (PipeCommandReadController != null)
+                        {
+                            PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
+                        }
+
+                        if (PipeProgressReadController != null)
+                        {
+                            PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
+                        }
+
                         Dictionary<string, string> Command = new Dictionary<string, string>
                         {
                             { "ProcessId", Convert.ToString(CurrentProcessId) }
@@ -307,6 +319,8 @@ namespace RX_Explorer.Class
                                                                            && (PipeProgressReadController?.IsConnected).GetValueOrDefault()
                                                                            && (PipeCancellationWriteController?.IsConnected).GetValueOrDefault(), 3000)))
                         {
+                            PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
+                            PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
                             return true;
                         }
                         else
@@ -332,6 +346,46 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        private void PipeProgressReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            if (CommandQueue.TryPeek(out Command CommandObject))
+            {
+                if (e.ExtraException == null)
+                {
+                    CommandObject.ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
+                }
+            }
+        }
+
+        private void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
+        {
+            if (CommandQueue.TryDequeue(out Command CommandObject))
+            {
+                bool ResponseSet;
+
+                if (e.ExtraException is Exception Ex)
+                {
+                    ResponseSet = CommandObject.ResultSetter.TrySetException(Ex);
+                }
+                else
+                {
+                    try
+                    {
+                        ResponseSet = CommandObject.ResultSetter.TrySetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
+                    }
+                    catch (Exception ex)
+                    {
+                        ResponseSet = CommandObject.ResultSetter.TrySetException(ex);
+                    }
+                }
+
+                if (!ResponseSet && !CommandObject.ResultSetter.TrySetCanceled())
+                {
+                    LogTracer.Log("FullTrustProcessController could not set the response properly");
+                }
+            }
+        }
+
         private async Task<IDictionary<string, string>> SendCommandAsync(CommandType Type, params (string, string)[] Arguments)
         {
             IsAnyActionExcutingInCurrentController = true;
@@ -352,37 +406,10 @@ namespace RX_Explorer.Class
 
                     TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
 
-                    void PipeReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                    {
-                        if (e.ExtraException is Exception Ex)
-                        {
-                            CompletionSource.SetException(Ex);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
-                            }
-                            catch (Exception ex)
-                            {
-                                CompletionSource.SetException(ex);
-                            }
-                        }
-                    }
+                    CommandQueue.Enqueue(new Command(CompletionSource));
+                    PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
-                    try
-                    {
-                        PipeCommandReadController.OnDataReceived += PipeReadController_OnDataReceived;
-
-                        PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
-
-                        return await CompletionSource.Task;
-                    }
-                    finally
-                    {
-                        PipeCommandReadController.OnDataReceived -= PipeReadController_OnDataReceived;
-                    }
+                    return await CompletionSource.Task;
                 }
             }
             catch (Exception ex)
@@ -403,14 +430,6 @@ namespace RX_Explorer.Class
 
             try
             {
-                void PipeProgressReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                {
-                    if (e.ExtraException == null)
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(e.Data), null));
-                    }
-                }
-
                 if (await ConnectRemoteAsync())
                 {
                     Dictionary<string, string> Command = new Dictionary<string, string>
@@ -425,40 +444,10 @@ namespace RX_Explorer.Class
 
                     TaskCompletionSource<IDictionary<string, string>> CompletionSource = new TaskCompletionSource<IDictionary<string, string>>();
 
-                    void PipeCommandReadController_OnDataReceived(object sender, NamedPipeDataReceivedArgs e)
-                    {
-                        if (e.ExtraException is Exception Ex)
-                        {
-                            CompletionSource.SetException(Ex);
-                        }
-                        else
-                        {
-                            try
-                            {
-                                CompletionSource.SetResult(JsonSerializer.Deserialize<IDictionary<string, string>>(e.Data));
-                            }
-                            catch (Exception ex)
-                            {
-                                CompletionSource.SetException(ex);
-                            }
-                        }
-                    }
+                    CommandQueue.Enqueue(new Command(CompletionSource, ProgressHandler));
+                    PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
 
-                    PipeProgressReadController.OnDataReceived += PipeProgressReadController_OnDataReceived;
-
-                    try
-                    {
-                        PipeCommandReadController.OnDataReceived += PipeCommandReadController_OnDataReceived;
-
-                        PipeCommandWriteController.SendData(JsonSerializer.Serialize(Command));
-
-                        return await CompletionSource.Task;
-                    }
-                    finally
-                    {
-                        PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
-                        PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
-                    }
+                    return await CompletionSource.Task;
                 }
             }
             catch (Exception ex)
@@ -2092,6 +2081,18 @@ namespace RX_Explorer.Class
                     PipeProgressReadController?.Dispose();
                     PipeCancellationWriteController?.Dispose();
                     PipeCommunicationBaseController?.Dispose();
+
+                    CommandQueue.Clear();
+
+                    if (PipeCommandReadController != null)
+                    {
+                        PipeCommandReadController.OnDataReceived -= PipeCommandReadController_OnDataReceived;
+                    }
+
+                    if (PipeProgressReadController != null)
+                    {
+                        PipeProgressReadController.OnDataReceived -= PipeProgressReadController_OnDataReceived;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -2107,6 +2108,23 @@ namespace RX_Explorer.Class
         ~FullTrustProcessController()
         {
             Dispose();
+        }
+
+        private sealed class Command
+        {
+            public ProgressChangedEventHandler ProgressHandler { get; }
+
+            public TaskCompletionSource<IDictionary<string, string>> ResultSetter { get; }
+
+            public Command(TaskCompletionSource<IDictionary<string, string>> ResultSetter)
+            {
+                this.ResultSetter = ResultSetter;
+            }
+
+            public Command(TaskCompletionSource<IDictionary<string, string>> ResultSetter, ProgressChangedEventHandler ProgressHandler) : this(ResultSetter)
+            {
+                this.ProgressHandler = ProgressHandler;
+            }
         }
 
         public sealed class ExclusiveUsage : IDisposable

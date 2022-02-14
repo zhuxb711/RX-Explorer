@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public static class CommonEnvironmentVariables
+    public static class EnvironmentVariables
     {
         public static bool CheckIfContainsVariable(string Path)
         {

@@ -1617,9 +1617,9 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
+                    if (EnvironmentVariables.CheckIfContainsVariable(QueryText))
                     {
-                        QueryText = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
+                        QueryText = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(QueryText);
                     }
 
                     if (await FileSystemStorageItemBase.CheckExistsAsync(QueryText))
@@ -1800,7 +1800,7 @@ namespace RX_Explorer
                         else
                         {
                             string InputPath = sender.Text.Replace('/', '\\');
-                            string ActualPath = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
+                            string ActualPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(InputPath);
 
                             if (await FileSystemStorageItemBase.CheckExistsAsync(ActualPath))
                             {
@@ -1817,10 +1817,10 @@ namespace RX_Explorer
 
                                     if (args.CheckCurrent())
                                     {
-                                        if (CommonEnvironmentVariables.CheckIfContainsVariable(InputPath))
+                                        if (EnvironmentVariables.CheckIfContainsVariable(InputPath))
                                         {
-                                            string Variable = CommonEnvironmentVariables.GetVariableInPath(InputPath);
-                                            string VariableMapPath = await CommonEnvironmentVariables.ReplaceVariableWithActualPathAsync(Variable);
+                                            string Variable = EnvironmentVariables.GetVariableInPath(InputPath);
+                                            string VariableMapPath = await EnvironmentVariables.ReplaceVariableWithActualPathAsync(Variable);
                                             AddressSuggestionList.AddRange(Result.Select((Item) => new AddressSuggestionItem(Item.Path.Replace(VariableMapPath, Variable), Visibility.Collapsed)));
                                         }
                                         else
@@ -1832,7 +1832,7 @@ namespace RX_Explorer
                             }
                             else if (InputPath.IndexOf('%') == 0 && InputPath.LastIndexOf('%') == 0)
                             {
-                                IEnumerable<VariableDataPackage> VarSuggestionList = await CommonEnvironmentVariables.GetVariablePathSuggestionAsync(InputPath);
+                                IEnumerable<VariableDataPackage> VarSuggestionList = await EnvironmentVariables.GetVariablePathSuggestionAsync(InputPath);
 
                                 if (args.CheckCurrent() && VarSuggestionList.Any())
                                 {

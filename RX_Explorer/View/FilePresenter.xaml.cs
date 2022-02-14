@@ -251,6 +251,7 @@ namespace RX_Explorer
             EmptyFlyout = CreateNewEmptyContextMenu();
 
             RootFolderControl.EnterActionRequested += RootFolderControl_EnterActionRequested;
+            Unloaded += FilePresenter_Unloaded;
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
@@ -258,6 +259,17 @@ namespace RX_Explorer
             GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             LayoutModeController.ViewModeChanged += Current_ViewModeChanged;
             CoreApplication.MainView.CoreWindow.KeyDown += FilePresenter_KeyDown;
+        }
+
+        private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
+        {
+            foreach (TextBox NameEditBox in SelectedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item))
+                                                         .OfType<SelectorItem>()
+                                                         .Select((Item) => Item.ContentTemplateRoot.FindChildOfType<TextBox>())
+                                                         .OfType<TextBox>())
+            {
+                NameEditBox.Visibility = Visibility.Collapsed;
+            }
         }
 
         private CommandBarFlyout CreateNewFileContextMenu()
@@ -2753,14 +2765,14 @@ namespace RX_Explorer
             try
             {
                 await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
+                return true;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"Could not display items in folder: \"{Folder.Path}\"");
-                return false;
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
@@ -2768,6 +2780,7 @@ namespace RX_Explorer
             if (RootStorageFolder.Instance.Path.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
             {
                 await DisplayItemsInFolderCore(RootStorageFolder.Instance, ForceRefresh, SkipNavigationRecord);
+                return true;
             }
             else
             {
@@ -2776,16 +2789,16 @@ namespace RX_Explorer
                     try
                     {
                         await DisplayItemsInFolderCore(Folder, ForceRefresh, SkipNavigationRecord);
+                        return true;
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, $"Could not display items in folder: \"{FolderPath}\"");
-                        return false;
                     }
                 }
             }
 
-            return true;
+            return false;
         }
 
         private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -4258,12 +4271,7 @@ namespace RX_Explorer
 
                             if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
                             {
-                                if (Element.FindName("NameLabel") is TextBlock NameLabel)
-                                {
-                                    NameLabel.Visibility = Visibility.Collapsed;
-                                }
-
-                                if (Element.FindName("NameEditBox") is TextBox EditBox)
+                                if (Element.FindChildOfName<TextBox>("NameEditBox") is TextBox EditBox)
                                 {
                                     EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                     EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
@@ -5059,12 +5067,7 @@ namespace RX_Explorer
 
                                 if ((ItemPresenter.ContainerFromItem(TargetItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
                                 {
-                                    if (Element.FindName("NameLabel") is TextBlock NameLabel)
-                                    {
-                                        NameLabel.Visibility = Visibility.Collapsed;
-                                    }
-
-                                    if (Element.FindName("NameEditBox") is TextBox EditBox)
+                                    if (Element.FindChildOfName<TextBox>("NameEditBox") is TextBox EditBox)
                                     {
                                         EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                         EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
@@ -5721,14 +5724,11 @@ namespace RX_Explorer
                         {
                             if (input is CancellationToken Token && !Token.IsCancellationRequested)
                             {
-                                NameLabel.Visibility = Visibility.Collapsed;
-
-                                if ((NameLabel.Parent as FrameworkElement)?.FindName("NameEditBox") is TextBox EditBox)
+                                if ((NameLabel.Parent as FrameworkElement)?.FindChildOfName<TextBox>("NameEditBox") is TextBox EditBox)
                                 {
                                     EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                     EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
                                     EditBox.LostFocus += EditBox_LostFocus;
-                                    EditBox.Text = NameLabel.Text;
                                     EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
@@ -5760,7 +5760,7 @@ namespace RX_Explorer
             {
                 args.Cancel = true;
 
-                if ((sender.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
+                if ((sender.Parent as FrameworkElement).FindChildOfName<TextBlock>("NameLabel") is TextBlock NameLabel)
                 {
                     InvalidCharTip.Target = NameLabel;
                     InvalidCharTip.IsOpen = true;
@@ -5776,7 +5776,7 @@ namespace RX_Explorer
             NameEditBox.PreviewKeyDown -= EditBox_PreviewKeyDown;
             NameEditBox.BeforeTextChanging -= EditBox_BeforeTextChanging;
 
-            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.DataContext is FileSystemStorageItemBase CurrentEditItem)
+            if ((NameEditBox?.Parent as FrameworkElement)?.FindChildOfName<TextBlock>("NameLabel") is TextBlock NameLabel && NameEditBox.DataContext is FileSystemStorageItemBase CurrentEditItem)
             {
                 try
                 {
@@ -5869,8 +5869,6 @@ namespace RX_Explorer
                 finally
                 {
                     NameEditBox.Visibility = Visibility.Collapsed;
-                    NameLabel.Visibility = Visibility.Visible;
-
                     Container.ShouldNotAcceptShortcutKeyInput = false;
                 }
             }
