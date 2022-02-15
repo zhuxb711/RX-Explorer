@@ -3228,16 +3228,22 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
-
-            if (SelectedItemsCopy.Count > 0)
+            if (SelectedItems.Count > 0)
             {
                 try
                 {
                     Clipboard.Clear();
-                    Clipboard.SetContent(await SelectedItemsCopy.GetAsDataPackageAsync(DataPackageOperation.Copy));
 
-                    FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+                    DataPackage Package = new DataPackage
+                    {
+                        RequestedOperation = DataPackageOperation.Copy
+                    };
+
+                    await Package.SetupDataPackageAsync(SelectedItems.ToArray());
+
+                    Clipboard.SetContent(Package);
+
+                    FileCollection.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
                 }
                 catch
                 {
@@ -3305,21 +3311,23 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            IReadOnlyList<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
-
-            if (SelectedItemsCopy.Count > 0)
+            if (SelectedItems.Count > 0)
             {
                 try
                 {
                     Clipboard.Clear();
-                    Clipboard.SetContent(await SelectedItemsCopy.GetAsDataPackageAsync(DataPackageOperation.Move));
 
-                    FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
-
-                    foreach (FileSystemStorageItemBase Item in SelectedItemsCopy)
+                    DataPackage Package = new DataPackage
                     {
-                        Item.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
-                    }
+                        RequestedOperation = DataPackageOperation.Move
+                    };
+
+                    await Package.SetupDataPackageAsync(SelectedItems.ToArray());
+
+                    Clipboard.SetContent(Package);
+
+                    FileCollection.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+                    SelectedItems.ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity));
                 }
                 catch
                 {
@@ -4315,7 +4323,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void EmptyFlyout_Opening(object sender, object e)
+        private void EmptyFlyout_Opening(object sender, object e)
         {
             if (sender is CommandBarFlyout EmptyFlyout)
             {
@@ -4334,7 +4342,7 @@ namespace RX_Explorer
 
                 try
                 {
-                    if (await Clipboard.GetContent().CheckIfContainsAvailableDataAsync())
+                    if (Clipboard.GetContent().CheckIfContainsAvailableData())
                     {
                         PasteButton.IsEnabled = true;
                     }
@@ -5133,13 +5141,12 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_DragOver(object sender, DragEventArgs e)
+        private void ViewControl_DragOver(object sender, DragEventArgs e)
         {
-            DragOperationDeferral Deferral = e.GetDeferral();
-
             try
             {
                 e.Handled = true;
+                e.AcceptedOperation = DataPackageOperation.None;
 
                 if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
                 {
@@ -5160,7 +5167,7 @@ namespace RX_Explorer
 
                 Container.CurrentPresenter = this;
 
-                if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                if (e.DataView.CheckIfContainsAvailableData())
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
@@ -5177,18 +5184,10 @@ namespace RX_Explorer
                     e.DragUIOverride.IsCaptionVisible = true;
                     e.DragUIOverride.IsGlyphVisible = true;
                 }
-                else
-                {
-                    e.AcceptedOperation = DataPackageOperation.None;
-                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(ViewControl_DragOver)}");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -5379,7 +5378,7 @@ namespace RX_Explorer
                     NameEditBox.Visibility = Visibility.Collapsed;
                 }
 
-                await args.Data.SetupDataPackageAsync(SelectedItems);
+                await args.Data.SetupDataPackageAsync(SelectedItems.ToArray());
             }
             catch (Exception ex)
             {
@@ -5398,6 +5397,7 @@ namespace RX_Explorer
             try
             {
                 e.Handled = true;
+                e.AcceptedOperation = DataPackageOperation.None;
 
                 if (Container.BladeViewer.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
                 {
@@ -5415,11 +5415,11 @@ namespace RX_Explorer
                     }
                 }
 
-                switch ((sender as SelectorItem)?.Content)
+                if (e.DataView.CheckIfContainsAvailableData())
                 {
-                    case FileSystemStorageFolder Folder:
-                        {
-                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                    switch ((sender as SelectorItem)?.Content)
+                    {
+                        case FileSystemStorageFolder Folder:
                             {
                                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
@@ -5435,39 +5435,26 @@ namespace RX_Explorer
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
                                 e.DragUIOverride.IsGlyphVisible = true;
+
+                                break;
                             }
-                            else
+                        case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                e.AcceptedOperation = DataPackageOperation.None;
+                                IReadOnlyList<string> PathArray = await e.DataView.GetAsPathListAsync();
+
+                                if (PathArray.Any() && PathArray.All((Path) => !Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Link;
+                                    e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
+
+                                    e.DragUIOverride.IsContentVisible = true;
+                                    e.DragUIOverride.IsCaptionVisible = true;
+                                    e.DragUIOverride.IsGlyphVisible = true;
+                                }
+
+                                break;
                             }
-
-                            break;
-                        }
-                    case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
-                        {
-                            IReadOnlyList<string> PathArray = await e.DataView.GetAsPathListAsync();
-
-                            if (PathArray.Any() && PathArray.All((Path) => !Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                e.AcceptedOperation = DataPackageOperation.Link;
-                                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
-
-                                e.DragUIOverride.IsContentVisible = true;
-                                e.DragUIOverride.IsCaptionVisible = true;
-                                e.DragUIOverride.IsGlyphVisible = true;
-                            }
-                            else
-                            {
-                                e.AcceptedOperation = DataPackageOperation.None;
-                            }
-
-                            break;
-                        }
-                    default:
-                        {
-                            e.AcceptedOperation = DataPackageOperation.None;
-                            break;
-                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -5575,7 +5562,7 @@ namespace RX_Explorer
 
                 if (PathList.Count > 0)
                 {
-                    if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
+                    if (e.DataView.RequestedOperation.HasFlag(DataPackageOperation.Move))
                     {
                         if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
                         {
@@ -6004,7 +5991,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void BottomCommandBar_Opening(object sender, object e)
+        private void BottomCommandBar_Opening(object sender, object e)
         {
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
@@ -6093,7 +6080,7 @@ namespace RX_Explorer
 
                     try
                     {
-                        EnablePasteButton = await Clipboard.GetContent().CheckIfContainsAvailableDataAsync();
+                        EnablePasteButton = Clipboard.GetContent().CheckIfContainsAvailableData();
                     }
                     catch
                     {

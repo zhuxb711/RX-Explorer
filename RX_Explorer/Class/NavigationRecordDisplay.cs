@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -18,34 +19,48 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int IsContentLoaded;
+
         public async Task LoadAsync()
         {
-            if (RootStorageFolder.Instance.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
-                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
-            }
-            else
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                try
                 {
-                    if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                    if (RootStorageFolder.Instance.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
                     {
-                        DisplayName = InnerFolder.DisplayName;
+                        Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/ThisPC.png"));
                     }
-
-                    Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
-
-                    if (Thumbnail == null)
+                    else
                     {
-                        Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                        {
+                            if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                            {
+                                DisplayName = InnerFolder.DisplayName;
+                            }
+
+                            Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView);
+
+                            if (Thumbnail == null)
+                            {
+                                Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                                ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                                : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                            }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the NavigationRecordDisplay on path: {Path}");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(Thumbnail));
+                    OnPropertyChanged(nameof(DisplayName));
+                }
             }
-
-            OnPropertyChanged(nameof(Thumbnail));
-            OnPropertyChanged(nameof(DisplayName));
         }
 
         public NavigationRecordDisplay(string Path)

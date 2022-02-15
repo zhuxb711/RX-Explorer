@@ -14,6 +14,8 @@ namespace RX_Explorer.Class
 
         public override string Type => Globalization.GetString("Folder_Admin_DisplayType");
 
+        public override string DisplayType => Globalization.GetString("Folder_Admin_DisplayType");
+
         public override string SizeDescription => string.Empty;
 
         public override string CompressionRateDescription => string.Empty;

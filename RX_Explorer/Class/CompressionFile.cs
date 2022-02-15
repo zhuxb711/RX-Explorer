@@ -11,13 +11,9 @@ namespace RX_Explorer.Class
 
         private static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-        public override BitmapImage Thumbnail
-        {
-            get
-            {
-                return new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
-            }
-        }
+        public override BitmapImage Thumbnail => new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
+
+        public override string DisplayType => string.IsNullOrEmpty(base.DisplayType) ? Type : base.DisplayType;
 
         public CompressionFile(ZipEntry Entry) : base(Entry)
         {

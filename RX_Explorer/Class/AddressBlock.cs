@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -16,6 +17,8 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int IsContentLoaded;
+
         public void SetBlockType(AddressBlockType BlockType)
         {
             this.BlockType = BlockType;
@@ -24,15 +27,28 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            if (!RootStorageFolder.Instance.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                try
                 {
-                    if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                    if (!RootStorageFolder.Instance.DisplayName.Equals(DisplayName, StringComparison.OrdinalIgnoreCase))
                     {
-                        DisplayName = InnerFolder.DisplayName;
-                        OnPropertyChanged(nameof(DisplayName));
+                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
+                        {
+                            if (await Folder.GetStorageItemAsync() is StorageFolder InnerFolder)
+                            {
+                                DisplayName = InnerFolder.DisplayName;
+                            }
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the AddressBlock on path: {Path}");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(DisplayName));
                 }
             }
         }

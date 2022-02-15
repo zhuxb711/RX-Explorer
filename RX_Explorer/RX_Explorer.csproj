@@ -110,6 +110,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
+    <Compile Include="Class\ExtendedDataFormats.cs" />
     <Compile Include="Class\LibraryFolderRecord.cs" />
     <Compile Include="Class\NavigationRecordDisplay.cs" />
     <Compile Include="Class\AddressSuggestionItem.cs" />

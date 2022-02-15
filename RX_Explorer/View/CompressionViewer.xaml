@@ -128,12 +128,12 @@
                   Grid.Row="1"
                   SelectionMode="Extended"
                   CanDrag="False"
-                  CanDragItems="False"
                   CanReorderItems="False"
                   AllowDrop="True"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   ShowsScrollingPlaceholders="False"
+                  ContainerContentChanging="ListViewControl_ContainerContentChanging"
                   ContextRequested="ListViewControl_ContextRequested"
                   ContextCanceled="ListViewControl_ContextCanceled"
                   DoubleTapped="ListViewControl_DoubleTapped"
@@ -192,12 +192,12 @@
                         <TextBlock VerticalAlignment="Center"
                                    Padding="10,0,0,0"
                                    HorizontalAlignment="Left"
-                                   Text="{x:Bind Type}"
+                                   Text="{x:Bind DisplayType,Mode=OneWay}"
                                    Grid.Column="2"
                                    Name="TypeLabel"
                                    TextTrimming="CharacterEllipsis">
                             <ToolTipService.ToolTip>
-                                <ToolTip Content="{x:Bind Type}"
+                                <ToolTip Content="{x:Bind DisplayType,Mode=OneWay}"
                                          Visibility="{Binding ElementName=TypeLabel,Path=IsTextTrimmed}" />
                             </ToolTipService.ToolTip>
                         </TextBlock>

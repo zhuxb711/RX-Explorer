@@ -1,11 +1,15 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
 using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public abstract class CompressionItemBase
+    public abstract class CompressionItemBase : INotifyPropertyChanged
     {
         public string Name => Path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
 
@@ -22,7 +26,7 @@ namespace RX_Explorer.Class
             {
                 if (Size > 0)
                 {
-                    return 100 - Convert.ToSingle(CompressedSize * 100d / Size);
+                    return 1 - Convert.ToSingle(Convert.ToDouble(CompressedSize) / Size);
                 }
                 else
                 {
@@ -36,6 +40,8 @@ namespace RX_Explorer.Class
         public DateTimeOffset ModifiedTime { get; private set; }
 
         public virtual string Type => System.IO.Path.GetExtension(Name).ToUpper();
+
+        public virtual string DisplayType { get; private set; }
 
         public virtual string SizeDescription => Size.GetFileSizeDescription();
 
@@ -55,9 +61,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual string CompressionRateDescription => $"{CompressionRate:##.#}%";
+        public virtual string CompressionRateDescription => CompressionRate.ToString("P1");
 
         public virtual string CompressedSizeDescription => CompressedSize.GetFileSizeDescription();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private int IsContentLoaded;
 
         public void UpdateFromNewEntry(ZipEntry Entry)
         {
@@ -65,6 +75,37 @@ namespace RX_Explorer.Class
             Size = Entry.Size;
             ModifiedTime = Entry.DateTime;
             CompressedSize = Entry.CompressedSize;
+        }
+
+        public async Task LoadAsync()
+        {
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
+            {
+                try
+                {
+                    if (this is CompressionFile)
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                        {
+                            DisplayType = await Exclusive.Controller.GetFriendlyTypeNameAsync(Type);
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the CompressionItemBase on path: {Path}");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(DisplayType));
+                }
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string PropertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
         protected CompressionItemBase(ZipEntry Entry)

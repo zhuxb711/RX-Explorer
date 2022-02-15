@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -24,6 +25,8 @@ namespace RX_Explorer.Class
         private readonly FileSystemStorageFolder InnerFolder;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private int IsContentLoaded;
 
         public async static Task<TreeViewNodeContent> CreateAsync(string Path)
         {
@@ -51,38 +54,41 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            try
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
-                if (Thumbnail == null)
+                try
                 {
-                    if (InnerFolder != null 
-                        && SettingPage.ContentLoadMode == LoadMode.All)
-                    {
-                        Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
-                    }
-
                     if (Thumbnail == null)
                     {
-                        Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
-                                                        ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
-                                                        : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                        if (InnerFolder != null
+                            && SettingPage.ContentLoadMode == LoadMode.All)
+                        {
+                            Thumbnail = await InnerFolder.GetThumbnailAsync(ThumbnailMode.ListView);
+                        }
+
+                        if (Thumbnail == null)
+                        {
+                            Thumbnail = new BitmapImage(WindowsVersionChecker.IsNewerOrEqual(Version.Windows11)
+                                                            ? new Uri("ms-appx:///Assets/FolderIcon_Win11.png")
+                                                            : new Uri("ms-appx:///Assets/FolderIcon_Win10.png"));
+                        }
+                    }
+
+                    if (InnerFolder != null
+                        && await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
+                    {
+                        DisplayName = Folder.DisplayName;
                     }
                 }
-
-                if (InnerFolder != null
-                    && await InnerFolder.GetStorageItemAsync() is StorageFolder Folder)
+                catch (Exception ex)
                 {
-                    DisplayName = Folder.DisplayName;
+                    LogTracer.Log(ex, $"Could not load the TreeViewNodeContent on path: {Path}");
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Could not load the TreeViewNodeContent on path: {Path}");
-            }
-            finally
-            {
-                OnPropertyChanged(nameof(Thumbnail));
-                OnPropertyChanged(nameof(DisplayName));
+                finally
+                {
+                    OnPropertyChanged(nameof(Thumbnail));
+                    OnPropertyChanged(nameof(DisplayName));
+                }
             }
         }
 

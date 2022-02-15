@@ -720,7 +720,7 @@ namespace FullTrustProcess
                 {
                     case CommandType.ConvertToLongPath:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (Directory.Exists(Path) || File.Exists(Path))
                             {
@@ -735,31 +735,23 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetFriendlyTypeName:
                         {
-                            string[] ExtensionArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(CommandValue["ExtensionArray"]));
+                            string Extension = CommandValue["Extension"];
+                            string FriendlyName = ExtensionAssociation.GetFriendlyTypeNameFromExtension(Extension);
 
-                            List<string> Result = new List<string>(ExtensionArray.Length);
-
-                            foreach (string Extension in ExtensionArray)
+                            if (string.IsNullOrEmpty(FriendlyName))
                             {
-                                string FriendlyName = ExtensionAssociation.GetFriendlyTypeNameFromExtension(Extension);
-
-                                if (string.IsNullOrEmpty(FriendlyName))
-                                {
-                                    Result.Add(Extension);
-                                }
-                                else
-                                {
-                                    Result.Add(FriendlyName);
-                                }
+                                Value.Add("Success", Extension);
                             }
-
-                            Value.Add("Success", JsonSerializer.Serialize(Result));
+                            else
+                            {
+                                Value.Add("Success", FriendlyName);
+                            }
 
                             break;
                         }
                     case CommandType.GetPermissions:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (Directory.Exists(Path) || File.Exists(Path))
                             {
@@ -774,8 +766,8 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetDriveLabel:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
-                            string DriveLabelName = Convert.ToString(CommandValue["DriveLabelName"]);
+                            string Path = CommandValue["Path"];
+                            string DriveLabelName = CommandValue["DriveLabelName"];
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -795,7 +787,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetDriveIndexStatus:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
                             bool ApplyToSubItems = Convert.ToBoolean(CommandValue["ApplyToSubItems"]);
                             bool AllowIndex = Convert.ToBoolean(CommandValue["AllowIndex"]);
 
@@ -817,7 +809,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetDriveIndexStatus:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -832,7 +824,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.SetDriveCompressionStatus:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
                             bool ApplyToSubItems = Convert.ToBoolean(CommandValue["ApplyToSubItems"]);
                             bool IsSetCompressionStatus = Convert.ToBoolean(CommandValue["IsSetCompressionStatus"]);
 
@@ -854,7 +846,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetDriveCompressionStatus:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             if (System.IO.Path.GetPathRoot(Path).Equals(Path, StringComparison.OrdinalIgnoreCase))
                             {
@@ -889,7 +881,7 @@ namespace FullTrustProcess
                         }
                     case CommandType.DetectEncoding:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
                             DetectionResult Detection = CharsetDetector.DetectFromFile(Path);
                             DetectionDetail Details = Detection.Detected;
@@ -917,9 +909,9 @@ namespace FullTrustProcess
                         }
                     case CommandType.GetProperties:
                         {
-                            string Path = Convert.ToString(CommandValue["Path"]);
+                            string Path = CommandValue["Path"];
 
-                            IReadOnlyList<string> Properties = JsonSerializer.Deserialize<IReadOnlyList<string>>(Convert.ToString(CommandValue["Properties"]));
+                            IReadOnlyList<string> Properties = JsonSerializer.Deserialize<IReadOnlyList<string>>(CommandValue["Properties"]);
 
                             if (File.Exists(Path) || Directory.Exists(Path))
                             {

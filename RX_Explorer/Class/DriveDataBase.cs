@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Portable;
@@ -167,6 +168,8 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int IsContentLoaded;
+
         public static async Task<DriveDataBase> CreateAsync(DriveType DriveType, string DriveId)
         {
             return await CreateAsync(DriveType, await Task.Run(() => new FileSystemStorageFolder(StorageDevice.FromId(DriveId))), DriveId);
@@ -231,20 +234,30 @@ namespace RX_Explorer.Class
 
         public async Task LoadAsync()
         {
-            async void LocalLoadFunction()
+            if (Interlocked.CompareExchange(ref IsContentLoaded, 1, 0) == 0)
             {
-                Thumbnail = await GetThumbnailAsync();
-
-                OnPropertyChanged(nameof(Thumbnail));
-            }
-
-            if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
-            {
-                LocalLoadFunction();
-            }
-            else
-            {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, LocalLoadFunction);
+                try
+                {
+                    if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                    {
+                        Thumbnail = await GetThumbnailAsync();
+                    }
+                    else
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            Thumbnail = await GetThumbnailAsync();
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Could not load the DriveDataBase on path: {Path}");
+                }
+                finally
+                {
+                    OnPropertyChanged(nameof(Thumbnail));
+                }
             }
         }
 

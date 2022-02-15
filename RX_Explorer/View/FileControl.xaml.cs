@@ -1942,12 +1942,13 @@ namespace RX_Explorer
             if (AddressBox.Tag is bool IsOpen && IsOpen)
             {
                 AddressBox.Tag = false;
-                return;
             }
-
-            AddressBox.Text = string.Empty;
-            AddressButtonContainer.Visibility = Visibility.Visible;
-            ShouldNotAcceptShortcutKeyInput = false;
+            else
+            {
+                AddressBox.Text = string.Empty;
+                AddressButtonContainer.Visibility = Visibility.Visible;
+                ShouldNotAcceptShortcutKeyInput = false;
+            }
         }
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
@@ -2092,15 +2093,16 @@ namespace RX_Explorer
             }
         }
 
-        private async void AddressButton_DragOver(object sender, DragEventArgs e)
+        private void AddressButton_DragOver(object sender, DragEventArgs e)
         {
-            DragOperationDeferral Deferral = e.GetDeferral();
-
             try
             {
+                e.Handled = true;
+                e.AcceptedOperation = DataPackageOperation.None;
+
                 if (e.OriginalSource is Button Btn)
                 {
-                    if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                    if (e.DataView.CheckIfContainsAvailableData())
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
@@ -2134,20 +2136,11 @@ namespace RX_Explorer
                         e.DragUIOverride.IsContentVisible = true;
                         e.DragUIOverride.IsGlyphVisible = true;
                     }
-                    else
-                    {
-                        e.AcceptedOperation = DataPackageOperation.None;
-                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(AddressButton_DragOver)}");
-                e.AcceptedOperation = DataPackageOperation.None;
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -2162,7 +2155,15 @@ namespace RX_Explorer
                 try
                 {
                     Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Folder }.GetAsDataPackageAsync(DataPackageOperation.Move));
+
+                    DataPackage Package = new DataPackage
+                    {
+                        RequestedOperation = DataPackageOperation.Move
+                    };
+
+                    await Package.SetupDataPackageAsync(Folder);
+
+                    Clipboard.SetContent(Package);
                 }
                 catch (Exception ex)
                 {
@@ -2197,12 +2198,20 @@ namespace RX_Explorer
 
             string Path = (FolderTree.SelectedNode?.Content as TreeViewNodeContent)?.Path;
 
-            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Item)
+            if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFolder Folder)
             {
                 try
                 {
                     Clipboard.Clear();
-                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { Item }.GetAsDataPackageAsync(DataPackageOperation.Copy));
+
+                    DataPackage Package = new DataPackage
+                    {
+                        RequestedOperation = DataPackageOperation.Copy
+                    };
+
+                    await Package.SetupDataPackageAsync(Folder);
+
+                    Clipboard.SetContent(Package);
                 }
                 catch (Exception ex)
                 {

@@ -12,12 +12,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -63,30 +63,15 @@ namespace RX_Explorer.Class
                              .Select((ChunkIndex) => OriginString.Substring(ChunkIndex * ChunkSize, ChunkSize));
         }
 
-        public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
+        public static bool CheckIfContainsAvailableData(this DataPackageView View)
         {
             try
             {
-                if (View.Contains(StandardDataFormats.StorageItems))
+                if (View.Contains(StandardDataFormats.StorageItems)
+                    || View.Contains(ExtendedDataFormats.CompressionItems)
+                    || View.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                 {
                     return true;
-                }
-                else if (View.Contains(StandardDataFormats.Text))
-                {
-                    string XmlText = await View.GetTextAsync();
-
-                    if (XmlText.Contains("RX-Explorer"))
-                    {
-                        XmlDocument Document = new XmlDocument();
-                        Document.LoadXml(XmlText);
-
-                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                        {
-                            return true;
-                        }
-                    }
                 }
             }
             catch (Exception ex)
@@ -179,20 +164,13 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                if (View.Contains(StandardDataFormats.Text))
+                if (View.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                 {
-                    string XmlText = await View.GetTextAsync();
-
-                    if (XmlText.Contains("RX-Explorer"))
+                    if (await View.GetDataAsync(ExtendedDataFormats.NotSupportedStorageItem) is IRandomAccessStream RandomStream)
                     {
-                        XmlDocument Document = new XmlDocument();
-                        Document.LoadXml(XmlText);
-
-                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
                         {
-                            PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                            PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
                         }
                     }
                 }
@@ -205,14 +183,14 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        public static async Task SetupDataPackageAsync(this DataPackage Package, IEnumerable<FileSystemStorageItemBase> Collection)
+        public static async Task SetupDataPackageAsync(this DataPackage Package, params FileSystemStorageItemBase[] Collection)
         {
             try
             {
                 Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
 
-                FileSystemStorageItemBase[] StorageItems = Collection.Where((Item) => Item is not IUnsupportedStorageItem).ToArray();
-                FileSystemStorageItemBase[] NotStorageItems = Collection.Where((Item) => Item is IUnsupportedStorageItem).ToArray();
+                IEnumerable<FileSystemStorageItemBase> StorageItems = Collection.Where((Item) => Item is not IUnsupportedStorageItem);
+                IEnumerable<FileSystemStorageItemBase> NotStorageItems = Collection.Where((Item) => Item is IUnsupportedStorageItem);
 
                 if (StorageItems.Any())
                 {
@@ -234,83 +212,13 @@ namespace RX_Explorer.Class
 
                 if (NotStorageItems.Any())
                 {
-                    XmlDocument Document = new XmlDocument();
-
-                    XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
-                    Document.AppendChild(RootElemnt);
-
-                    XmlElement KindElement = Document.CreateElement("Kind");
-                    KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
-                    RootElemnt.AppendChild(KindElement);
-
-                    foreach (FileSystemStorageItemBase Item in NotStorageItems)
-                    {
-                        XmlElement InnerElement = Document.CreateElement("Item");
-                        InnerElement.InnerText = Item.Path;
-                        RootElemnt.AppendChild(InnerElement);
-                    }
-
-                    Package.SetText(Document.GetXml());
+                    Package.SetData(ExtendedDataFormats.NotSupportedStorageItem, new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(NotStorageItems.Select((Item) => Item.Path)))).AsRandomAccessStream());
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not check the clipboard data");
             }
-        }
-
-        public static async Task<DataPackage> GetAsDataPackageAsync(this IEnumerable<FileSystemStorageItemBase> Collection, DataPackageOperation Operation)
-        {
-            DataPackage Package = new DataPackage
-            {
-                RequestedOperation = Operation
-            };
-
-            Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
-
-            FileSystemStorageItemBase[] StorageItems = Collection.Where((Item) => Item is not IUnsupportedStorageItem).ToArray();
-            FileSystemStorageItemBase[] NotStorageItems = Collection.Where((Item) => Item is IUnsupportedStorageItem).ToArray();
-
-            if (StorageItems.Any())
-            {
-                List<IStorageItem> TempItemList = new List<IStorageItem>();
-
-                foreach (FileSystemStorageItemBase Item in StorageItems)
-                {
-                    if (await Item.GetStorageItemAsync() is IStorageItem It)
-                    {
-                        TempItemList.Add(It);
-                    }
-                }
-
-                if (TempItemList.Count > 0)
-                {
-                    Package.SetStorageItems(TempItemList, false);
-                }
-            }
-
-            if (NotStorageItems.Any())
-            {
-                XmlDocument Document = new XmlDocument();
-
-                XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
-                Document.AppendChild(RootElemnt);
-
-                XmlElement KindElement = Document.CreateElement("Kind");
-                KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
-                RootElemnt.AppendChild(KindElement);
-
-                foreach (FileSystemStorageItemBase Item in NotStorageItems)
-                {
-                    XmlElement InnerElement = Document.CreateElement("Item");
-                    InnerElement.InnerText = Item.Path;
-                    RootElemnt.AppendChild(InnerElement);
-                }
-
-                Package.SetText(Document.GetXml());
-            }
-
-            return Package;
         }
 
         public static void AddRange<T>(this ICollection<T> Collection, IEnumerable<T> InputCollection)

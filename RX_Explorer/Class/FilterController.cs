@@ -726,23 +726,23 @@ namespace RX_Explorer.Class
             OriginCopy.Clear();
             OriginCopy.AddRange(DataSource);
 
+            DisplayTypeList.Clear();
+
+            if (OriginCopy.OfType<FileSystemStorageFolder>().Any())
+            {
+                DisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
+            }
+
+            string[] ExtensionArray = OriginCopy.OfType<FileSystemStorageFile>()
+                                                .Select((Source) => Source.Type)
+                                                .Where((Type) => !string.IsNullOrWhiteSpace(Type))
+                                                .OrderByLikeFileSystem((Type) => Type, SortDirection.Ascending)
+                                                .Distinct()
+                                                .ToArray();
+
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
             {
-                DisplayTypeList.Clear();
-
-                if (OriginCopy.OfType<FileSystemStorageFolder>().Any())
-                {
-                    DisplayTypeList.Add(Globalization.GetString("Folder_Admin_DisplayType"), Globalization.GetString("Folder_Admin_DisplayType"));
-                }
-
-                string[] ExtensionArray = OriginCopy.OfType<FileSystemStorageFile>()
-                                                    .Select((Source) => Source.Type)
-                                                    .Where((Type) => !string.IsNullOrWhiteSpace(Type))
-                                                    .OrderByLikeFileSystem((Type) => Type, SortDirection.Ascending)
-                                                    .Distinct()
-                                                    .ToArray();
-
-                string[] FriendlyNameArray = await Exclusive.Controller.GetFriendlyTypeNameAsync(ExtensionArray);
+                string[] FriendlyNameArray = await Task.WhenAll(ExtensionArray.Select((Ext) => Exclusive.Controller.GetFriendlyTypeNameAsync(Ext)));
 
                 for (int Index = 0; Index < Math.Min(ExtensionArray.Length, FriendlyNameArray.Length); Index++)
                 {

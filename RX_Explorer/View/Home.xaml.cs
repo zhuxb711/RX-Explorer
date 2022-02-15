@@ -714,17 +714,18 @@ namespace RX_Explorer
             }
         }
 
-        private async void ItemContainer_DragOver(object sender, DragEventArgs e)
+        private void ItemContainer_DragOver(object sender, DragEventArgs e)
         {
-            DragOperationDeferral Deferral = e.GetDeferral();
-
             try
             {
-                switch ((sender as SelectorItem)?.Content)
+                e.Handled = true;
+                e.AcceptedOperation = DataPackageOperation.None;
+
+                if (e.DataView.CheckIfContainsAvailableData())
                 {
-                    case LibraryStorageFolder Folder:
-                        {
-                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                    switch ((sender as SelectorItem)?.Content)
+                    {
+                        case LibraryStorageFolder Folder:
                             {
                                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
@@ -740,17 +741,10 @@ namespace RX_Explorer
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
                                 e.DragUIOverride.IsGlyphVisible = true;
-                            }
-                            else
-                            {
-                                e.AcceptedOperation = DataPackageOperation.None;
-                            }
 
-                            break;
-                        }
-                    case DriveDataBase Drive when Drive is not LockedDriveData:
-                        {
-                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                                break;
+                            }
+                        case DriveDataBase Drive when Drive is not LockedDriveData:
                             {
                                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                                 {
@@ -766,28 +760,15 @@ namespace RX_Explorer
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
                                 e.DragUIOverride.IsGlyphVisible = true;
-                            }
-                            else
-                            {
-                                e.AcceptedOperation = DataPackageOperation.None;
-                            }
 
-                            break;
-                        }
-                    default:
-                        {
-                            e.AcceptedOperation = DataPackageOperation.None;
-                            break;
-                        }
+                                break;
+                            }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -1456,7 +1437,15 @@ namespace RX_Explorer
                 try
                 {
                     Clipboard.Clear();
-                    Clipboard.SetContent(await LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().GetAsDataPackageAsync(DataPackageOperation.Copy));
+
+                    DataPackage Package = new DataPackage
+                    {
+                        RequestedOperation = DataPackageOperation.Copy
+                    };
+
+                    await Package.SetupDataPackageAsync(LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().ToArray());
+
+                    Clipboard.SetContent(Package);
                 }
                 catch
                 {

@@ -9,9 +9,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
+using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
@@ -35,6 +37,8 @@ namespace RX_Explorer
 
         private ZipFile ZipObj;
         private FileSystemStorageFile ZipFile;
+        private CancellationTokenSource DelayDragCancellation;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private bool isReadonlyMode;
@@ -242,13 +246,35 @@ namespace RX_Explorer
                 {
                     PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                    if (Element.FindParentOfType<SelectorItem>() is SelectorItem)
+                    if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
                     {
                         if (e.KeyModifiers == VirtualKeyModifiers.None)
                         {
                             if (ListViewControl.SelectedItems.Contains(Item))
                             {
                                 SelectionExtension.Disable();
+
+                                if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                {
+                                    DelayDragCancellation?.Cancel();
+                                    DelayDragCancellation?.Dispose();
+                                    DelayDragCancellation = new CancellationTokenSource();
+
+                                    Task.Delay(300).ContinueWith(async (task, input) =>
+                                    {
+                                        try
+                                        {
+                                            if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
+                                            {
+                                                await Item.StartDragAsync(Point);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            LogTracer.Log(ex, "Could not start drag item");
+                                        }
+                                    }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                }
                             }
                             else
                             {
@@ -268,6 +294,29 @@ namespace RX_Explorer
                                     default:
                                         {
                                             SelectionExtension.Disable();
+
+                                            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+                                            {
+                                                DelayDragCancellation?.Cancel();
+                                                DelayDragCancellation?.Dispose();
+                                                DelayDragCancellation = new CancellationTokenSource();
+
+                                                Task.Delay(300).ContinueWith(async (task, input) =>
+                                                {
+                                                    try
+                                                    {
+                                                        if (input is (CancellationToken Token, UIElement Item, PointerPoint Point) && !Token.IsCancellationRequested)
+                                                        {
+                                                            await Item.StartDragAsync(Point);
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        LogTracer.Log(ex, "Could not start drag item");
+                                                    }
+                                                }, (DelayDragCancellation.Token, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                            }
+
                                             break;
                                         }
                                 }
@@ -327,6 +376,10 @@ namespace RX_Explorer
 
             SelectionExtension.Dispose();
             SelectionExtension = null;
+
+            DelayDragCancellation?.Cancel();
+            DelayDragCancellation?.Dispose();
+            DelayDragCancellation = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;
@@ -693,7 +746,7 @@ namespace RX_Explorer
                 {
                     ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                    await ExtractCore(Dialog.ExtractLocation, EntryList, async (s, e) =>
+                    await ExtractCore(Dialog.ExtractLocation, EntryList, ProgressHandler: async (s, e) =>
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                         {
@@ -704,7 +757,7 @@ namespace RX_Explorer
             }
             catch (UnauthorizedAccessException ex)
             {
-                LogTracer.Log(ex, "Decompression error");
+                LogTracer.Log(ex, "Decompression failed for unauthorized access");
 
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -717,7 +770,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Decompression error");
+                LogTracer.Log(ex, "Decompression failed for unknown exception");
 
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -734,7 +787,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ExtractCore(string ExtractLocation, IEnumerable<CompressionItemBase> ItemList, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task ExtractCore(string ExtractLocation, IEnumerable<CompressionItemBase> ItemList, CancellationToken Token = default, ProgressChangedEventHandler ProgressHandler = null)
         {
             IReadOnlyList<ZipEntry> ExtractEntryList = ItemList.SelectMany((Item) => ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path))).ToList();
 
@@ -743,6 +796,11 @@ namespace RX_Explorer
 
             foreach (ZipEntry Entry in ExtractEntryList)
             {
+                if (Token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 string TargetPath = Path.Combine(ExtractLocation, (CurrentPath == "/" ? Entry.Name : Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty)).Trim('/').Replace("/", @"\"));
 
                 if (Entry.IsDirectory)
@@ -761,7 +819,7 @@ namespace RX_Explorer
                             using (FileStream Stream = await TargetFile.GetStreamFromFileAsync(AccessMode.Write, OptimizeOption.Sequential))
                             using (Stream ZipStream = ZipObj.GetInputStream(Entry))
                             {
-                                await ZipStream.CopyToAsync(Stream, Entry.Size, ProgressHandler: (s, e) =>
+                                await ZipStream.CopyToAsync(Stream, Entry.Size, Token, (s, e) =>
                                 {
                                     ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / TotalSize), null));
                                 });
@@ -876,7 +934,7 @@ namespace RX_Explorer
                     {
                         ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                        await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), async (s, e) =>
+                        await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), ProgressHandler: async (s, e) =>
                         {
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
@@ -887,7 +945,7 @@ namespace RX_Explorer
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    LogTracer.Log(ex, "Decompression error");
+                    LogTracer.Log(ex, "Decompression failed for unauthorized access");
 
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -900,7 +958,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Decompression error");
+                    LogTracer.Log(ex, "Decompression failed for unknown exception");
 
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -1026,7 +1084,7 @@ namespace RX_Explorer
             {
                 e.Handled = true;
 
-                if (IsReadonlyMode)
+                if (IsReadonlyMode || (e.DataView.Properties.TryGetValue("Source", out object Source) && Convert.ToString(Source) == "InnerCompressionViewer"))
                 {
                     e.AcceptedOperation = DataPackageOperation.None;
                 }
@@ -1221,6 +1279,81 @@ namespace RX_Explorer
         private void ListViewControl_ContextCanceled(UIElement sender, RoutedEventArgs args)
         {
             CloseAllFlyout();
+        }
+
+        private async void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue)
+            {
+                args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
+            }
+            else
+            {
+                args.ItemContainer.DragStarting += ItemContainer_DragStarting;
+
+                if (args.Item is CompressionItemBase Item)
+                {
+                    await Item.LoadAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+        private void ItemContainer_DragStarting(UIElement sender, DragStartingEventArgs args)
+        {
+            args.Data.RequestedOperation = DataPackageOperation.Move;
+            args.Data.Properties.Add("Source", "InnerCompressionViewer");
+
+            if (sender is SelectorItem Item)
+            {
+                CompressionItemBase[] SelectedItems = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray();
+
+                if (SelectedItems.Length > 0)
+                {
+                    args.Data.SetDataProvider(ExtendedDataFormats.CompressionItems, async (Request) =>
+                    {
+                        DataProviderDeferral Deferral = Request.GetDeferral();
+
+                        try
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+                            });
+
+                            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
+                            {
+                                await ExtractCore(ExtractionFolder.Path, SelectedItems, ProgressHandler: async (s, e) =>
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        ProBar.Value = e.ProgressPercentage;
+                                    });
+                                });
+
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await ExtractionFolder.GetChildItemsAsync(true, true);
+
+                                if (ChildItems.Count > 0)
+                                {
+                                    Request.SetData(await Task.WhenAll(ChildItems.Select((Item) => Item.GetStorageItemAsync())));
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Decompression failed for unknown exception");
+                        }
+                        finally
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                ControlLoading(false);
+                            });
+
+                            Deferral.Complete();
+                        }
+                    });
+                }
+            }
         }
     }
 }

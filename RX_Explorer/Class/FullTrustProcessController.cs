@@ -471,16 +471,13 @@ namespace RX_Explorer.Class
                     PipeCancellationWriteController.SendData("Cancel");
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"An exception was threw in {nameof(TryCancelCurrentOperation)}");
-                return false;
             }
+
+            return false;
         }
 
         public async Task<string> ConvertShortPathToLongPathAsync(string Path)
@@ -500,15 +497,15 @@ namespace RX_Explorer.Class
             return Path;
         }
 
-        public async Task<string[]> GetFriendlyTypeNameAsync(params string[] ExtensionArray)
+        public async Task<string> GetFriendlyTypeNameAsync(string Extension)
         {
-            if (ExtensionArray.Length > 0)
+            if (!string.IsNullOrWhiteSpace(Extension))
             {
-                if (await SendCommandAsync(CommandType.GetFriendlyTypeName, ("ExtensionArray", JsonSerializer.Serialize(ExtensionArray))) is IDictionary<string, string> Response)
+                if (await SendCommandAsync(CommandType.GetFriendlyTypeName, ("Extension", Extension)) is IDictionary<string, string> Response)
                 {
                     if (Response.TryGetValue("Success", out string TypeText))
                     {
-                        return JsonSerializer.Deserialize<string[]>(TypeText);
+                        return TypeText;
                     }
                     else if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
@@ -517,7 +514,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return Array.Empty<string>();
+            return Extension;
         }
 
         public async Task<IReadOnlyList<PermissionDataPackage>> GetPermissionsAsync(string Path)
