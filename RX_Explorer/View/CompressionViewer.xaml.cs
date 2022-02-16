@@ -40,6 +40,7 @@ namespace RX_Explorer
         private ZipFile ZipObj;
         private FileSystemStorageFile ZipFile;
         private CancellationTokenSource DelayDragCancellation;
+        private CancellationTokenSource TaskCancellation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -382,6 +383,10 @@ namespace RX_Explorer
             DelayDragCancellation?.Cancel();
             DelayDragCancellation?.Dispose();
             DelayDragCancellation = null;
+
+            TaskCancellation?.Cancel();
+            TaskCancellation?.Dispose();
+            TaskCancellation = null;
 
             EntryList.Clear();
             AddressBox.Text = string.Empty;
@@ -748,7 +753,11 @@ namespace RX_Explorer
                 {
                     await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                    await ExtractCore(Dialog.ExtractLocation, EntryList, ProgressHandler: async (s, e) =>
+                    TaskCancellation?.Cancel();
+                    TaskCancellation?.Dispose();
+                    TaskCancellation = new CancellationTokenSource();
+
+                    await ExtractCore(Dialog.ExtractLocation, EntryList, TaskCancellation.Token, async (s, e) =>
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                         {
@@ -756,6 +765,10 @@ namespace RX_Explorer
                         });
                     });
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                //No need to handle this exception
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -798,11 +811,6 @@ namespace RX_Explorer
 
             foreach (ZipEntry Entry in ExtractEntryList)
             {
-                if (Token.IsCancellationRequested)
-                {
-                    break;
-                }
-
                 string TargetPath = Path.Combine(ExtractLocation, (CurrentPath == "/" ? Entry.Name : Entry.Name.Replace(CurrentPath.TrimStart('/'), string.Empty)).Trim('/').Replace("/", @"\"));
 
                 if (Entry.IsDirectory)
@@ -840,6 +848,8 @@ namespace RX_Explorer
                         throw new UnauthorizedAccessException();
                     }
                 }
+
+                Token.ThrowIfCancellationRequested();
             }
         }
 
@@ -936,7 +946,11 @@ namespace RX_Explorer
                     {
                         await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
-                        await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), ProgressHandler: async (s, e) =>
+                        TaskCancellation?.Cancel();
+                        TaskCancellation?.Dispose();
+                        TaskCancellation = new CancellationTokenSource();
+
+                        await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), TaskCancellation.Token, async (s, e) =>
                         {
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
@@ -944,6 +958,10 @@ namespace RX_Explorer
                             });
                         });
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    //No need to handle this exception
                 }
                 catch (UnauthorizedAccessException ex)
                 {
@@ -1006,14 +1024,9 @@ namespace RX_Explorer
 
                             Parallel.ForEach(DeleteList.OfType<CompressionFolder>(), (Item) =>
                             {
-                                for (int Index = 0; Index < ZipObj.Count; Index++)
+                                foreach (ZipEntry Entry in ZipObj.OfType<ZipEntry>().Where((Entry) => Entry.Name.StartsWith(Item.Path)))
                                 {
-                                    ZipEntry Entry = ZipObj[Index];
-
-                                    if (Entry.Name.StartsWith(Item.Path))
-                                    {
-                                        DeleteEntryList.Add(Entry);
-                                    }
+                                    DeleteEntryList.Add(Entry);
                                 }
                             });
 
@@ -1159,20 +1172,39 @@ namespace RX_Explorer
 
                         try
                         {
-                            await Task.Factory.StartNew(() =>
-                            {
-                                ZipObj.BeginUpdate();
+                            TaskCancellation?.Cancel();
+                            TaskCancellation?.Dispose();
+                            TaskCancellation = new CancellationTokenSource();
 
-                                foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
+                            await Task.Factory.StartNew((Input) =>
+                            {
+                                if (Input is CancellationToken Token)
                                 {
-                                    using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential).Result)
+                                    ZipObj.BeginUpdate();
+
+                                    foreach (FileSystemStorageFile Item in FileSystemStorageItemBase.OpenInBatchAsync(PathList).Result.OfType<FileSystemStorageFile>())
                                     {
-                                        ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath.TrimEnd('/')}/{Item.Name}");
+                                        if (Token.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+
+                                        using (Stream FStream = Item.GetStreamFromFileAsync(AccessMode.Read, OptimizeOption.Sequential).Result)
+                                        {
+                                            ZipObj.Add(new CustomStaticDataSource(FStream), $"{CurrentPath.TrimEnd('/')}/{Item.Name}");
+                                        }
+                                    }
+
+                                    if (Token.IsCancellationRequested)
+                                    {
+                                        ZipObj.AbortUpdate();
+                                    }
+                                    else
+                                    {
+                                        ZipObj.CommitUpdate();
                                     }
                                 }
-
-                                ZipObj.CommitUpdate();
-                            }, TaskCreationOptions.LongRunning);
+                            }, TaskCancellation.Token, TaskCreationOptions.LongRunning);
 
                             DisplayItemsInFolderEntry(CurrentPath);
                         }
@@ -1302,29 +1334,34 @@ namespace RX_Explorer
 
         private void ItemContainer_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
-            args.Data.RequestedOperation = DataPackageOperation.Move;
-            args.Data.Properties.Add("Source", "InnerCompressionViewer");
+            CompressionItemBase[] SelectedItems = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray();
 
-            if (sender is SelectorItem Item)
+            if (SelectedItems.Length > 0)
             {
-                CompressionItemBase[] SelectedItems = ListViewControl.SelectedItems.Cast<CompressionItemBase>().ToArray();
+                TaskCancellation?.Cancel();
+                TaskCancellation?.Dispose();
+                TaskCancellation = new CancellationTokenSource();
 
-                if (SelectedItems.Length > 0)
+                CancellationToken CancelToken = TaskCancellation.Token;
+
+                args.Data.RequestedOperation = DataPackageOperation.Move;
+                args.Data.Properties.Add("Source", "InnerCompressionViewer");
+                args.Data.SetDataProvider(ExtendedDataFormats.CompressionItems, async (Request) =>
                 {
-                    args.Data.SetDataProvider(ExtendedDataFormats.CompressionItems, async (Request) =>
+                    DataProviderDeferral Deferral = Request.GetDeferral();
+
+                    try
                     {
-                        DataProviderDeferral Deferral = Request.GetDeferral();
-
-                        try
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
-                            });
+                            await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+                        });
 
-                            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
+                        if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
+                        {
+                            try
                             {
-                                await ExtractCore(ExtractionFolder.Path, SelectedItems, ProgressHandler: async (s, e) =>
+                                await ExtractCore(ExtractionFolder.Path, SelectedItems, CancelToken, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
@@ -1332,34 +1369,52 @@ namespace RX_Explorer
                                     });
                                 });
 
-                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await ExtractionFolder.GetChildItemsAsync(true, true);
+                                IReadOnlyList<FileSystemStorageItemBase> ChildItems = await ExtractionFolder.GetChildItemsAsync(true, true, CancelToken: CancelToken);
 
-                                if (ChildItems.Count > 0)
+                                if (CancelToken.IsCancellationRequested)
+                                {
+                                    CancelToken.ThrowIfCancellationRequested();
+                                }
+                                else if (ChildItems.Count > 0)
                                 {
                                     Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItems.Select((Item) => Item.Path)))).AsRandomAccessStream());
                                     return;
                                 }
                             }
-
-                            throw new Exception("Compression items are not found and nothing was set to clipboard");
+                            catch (OperationCanceledException)
+                            {
+                                await ExtractionFolder.DeleteAsync(true);
+                                throw;
+                            }
                         }
-                        catch (Exception ex)
+
+                        throw new Exception("Compression items are not found and nothing was set to clipboard");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is not OperationCanceledException)
                         {
                             LogTracer.Log(ex, "Decompression failed for unknown exception");
-                            Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
                         }
-                        finally
-                        {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                await ControlLoading(false);
-                            });
 
-                            Deferral.Complete();
-                        }
-                    });
-                }
+                        Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
+                    }
+                    finally
+                    {
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            await ControlLoading(false);
+                        });
+
+                        Deferral.Complete();
+                    }
+                });
             }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            TaskCancellation?.Cancel();
         }
     }
 }

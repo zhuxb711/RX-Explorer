@@ -400,9 +400,16 @@
                            VerticalAlignment="Center"
                            TextAlignment="Center"
                            Name="ProgressInfo" />
-                <muxc:ProgressBar Width="180"
+                <muxc:ProgressBar Width="200"
                                   Name="ProBar"
                                   Margin="0,10,0,0" />
+                <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
+                        Margin="0,10,0,0"
+                        Name="CancelButton"
+                        FontSize="12"
+                        HorizontalAlignment="Stretch"
+                        Click="CancelButton_Click"
+                        Style="{ThemeResource ButtonRevealStyle}" />
             </StackPanel>
         </controls:Loading>
     </Grid>

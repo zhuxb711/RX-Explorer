@@ -78,7 +78,7 @@
                           TabItemsSource="{x:Bind TabCollection}"
                           AllowDrop="True"
                           CanDragTabs="True"
-                          CanReorderTabs="True"
+                          CanReorderTabs="False"
                           AllowDropTabs="True"
                           PreviewKeyDown="TabViewControl_PreviewKeyDown"
                           RightTapped="TabViewControl_RightTapped"

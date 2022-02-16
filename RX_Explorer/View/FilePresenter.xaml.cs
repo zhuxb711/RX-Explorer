@@ -5441,17 +5441,12 @@ namespace RX_Explorer
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                IReadOnlyList<string> PathArray = await e.DataView.GetAsStorageItemPathListAsync();
+                                e.AcceptedOperation = DataPackageOperation.Link;
+                                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
 
-                                if (PathArray.Any() && PathArray.All((Path) => !Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Link;
-                                    e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
-
-                                    e.DragUIOverride.IsContentVisible = true;
-                                    e.DragUIOverride.IsCaptionVisible = true;
-                                    e.DragUIOverride.IsGlyphVisible = true;
-                                }
+                                e.DragUIOverride.IsContentVisible = true;
+                                e.DragUIOverride.IsCaptionVisible = true;
+                                e.DragUIOverride.IsGlyphVisible = true;
 
                                 break;
                             }

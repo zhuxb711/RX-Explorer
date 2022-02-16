@@ -3457,8 +3457,6 @@ namespace RX_Explorer
             DelayGoBackHoldCancel = null;
             DelayGoForwardHoldCancel = null;
             ContextMenuCancellation = null;
-
-            TaskBarController.SetText(null);
         }
     }
 }

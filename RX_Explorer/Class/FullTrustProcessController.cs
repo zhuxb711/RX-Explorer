@@ -38,7 +38,7 @@ namespace RX_Explorer.Class
 
         public static int AvailableControllersNum => AvailableControllers.Count;
 
-        private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
+        private readonly static Thread DispatcherThread = new Thread(DispatcherCore)
         {
             IsBackground = true,
             Priority = ThreadPriority.Normal
@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static void DispatcherMethod()
+        private static void DispatcherCore()
         {
             while (true)
             {
@@ -694,7 +694,7 @@ namespace RX_Explorer.Class
             return new Dictionary<string, string>(Properties.Select((Item) => new KeyValuePair<string, string>(Item, string.Empty)));
         }
 
-        public async Task<bool> SetTaskBarInfoAsync(int ProgressValue)
+        public async Task<bool> SetTaskBarProgressAsync(int ProgressValue)
         {
             if (await SendCommandAsync(CommandType.SetTaskBarProgress, ("ProgressValue", Convert.ToString(ProgressValue))) is IDictionary<string, string> Response)
             {
@@ -706,7 +706,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.TryGetValue("Error", out string ErrorMessage))
                     {
-                        LogTracer.Log($"An unexpected error was threw in {nameof(SetTaskBarInfoAsync)}, message: {ErrorMessage}");
+                        LogTracer.Log($"An unexpected error was threw in {nameof(SetTaskBarProgressAsync)}, message: {ErrorMessage}");
                     }
                 }
             }

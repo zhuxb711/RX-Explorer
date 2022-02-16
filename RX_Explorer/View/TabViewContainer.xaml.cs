@@ -54,7 +54,6 @@ namespace RX_Explorer
 
         public readonly LayoutModeController LayoutModeControl = new LayoutModeController();
         private CancellationTokenSource DelayPreviewCancel;
-        private DateTimeOffset LastTaskBarUpdatedTime = DateTimeOffset.Now;
 
         public TabViewContainer()
         {
@@ -188,6 +187,8 @@ namespace RX_Explorer
 
             try
             {
+                await TaskBarController.SetTaskBarProgressAsync(e.ProgressValue);
+
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
                     TaskListProgress.Value = e.ProgressValue;
@@ -202,16 +203,6 @@ namespace RX_Explorer
                         TaskListBadge.Value = QueueTaskController.ListItemSource.Count((Item) => Item.Status is OperationStatus.Preparing or OperationStatus.Processing or OperationStatus.Waiting or OperationStatus.NeedAttention);
                     }
                 });
-
-                if ((DateTimeOffset.Now - LastTaskBarUpdatedTime).TotalMilliseconds >= 1000 || e.ProgressValue is 100 or 0)
-                {
-                    LastTaskBarUpdatedTime = DateTimeOffset.Now;
-
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
-                    {
-                        await Exclusive.Controller.SetTaskBarInfoAsync(e.ProgressValue);
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -697,14 +688,14 @@ namespace RX_Explorer
                 {
                     TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
                 }
-
-                await Task.Delay(100);
-
-                TabViewControl.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Error happened when try to create a new tab");
+                LogTracer.Log(ex, "An exception was threw when trying to create a new tab");
+            }
+            finally
+            {
+                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -713,14 +704,14 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
-
-                await Task.Delay(100);
-
-                TabViewControl.SelectedIndex = TabCollection.Count - 1;
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Error happened when try to create a new tab");
+                LogTracer.Log(ex, "An exception was threw when trying to create a new tab");
+            }
+            finally
+            {
+                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = TabCollection.Count - 1, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -731,14 +722,14 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray));
-
-                await Task.Delay(100);
-
-                TabViewControl.SelectedIndex = Index;
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Error happened when try to create a new tab");
+                LogTracer.Log(ex, "An exception was threw when trying to create a new tab");
+            }
+            finally
+            {
+                await Task.Delay(200).ContinueWith((_) => TabViewControl.SelectedIndex = Index, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -799,7 +790,7 @@ namespace RX_Explorer
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                 HeaderTemplate = TabViewItemHeaderTemplate
             };
-            Tab.DragOver += Tab_DragOver;
+            Tab.DragEnter += Tab_DragEnter;
             Tab.PointerEntered += Tab_PointerEntered;
             Tab.PointerExited += Tab_PointerExited;
             Tab.PointerPressed += Tab_PointerPressed;
@@ -872,7 +863,7 @@ namespace RX_Explorer
             return Tab;
         }
 
-        private void Tab_DragOver(object sender, DragEventArgs e)
+        private void Tab_DragEnter(object sender, DragEventArgs e)
         {
             try
             {
@@ -1142,7 +1133,7 @@ namespace RX_Explorer
                         Control.Dispose();
                     }
 
-                    Tab.DragOver -= Tab_DragOver;
+                    Tab.DragEnter -= Tab_DragEnter;
                     Tab.PointerEntered -= Tab_PointerEntered;
                     Tab.PointerExited -= Tab_PointerExited;
                     Tab.PointerPressed -= Tab_PointerPressed;

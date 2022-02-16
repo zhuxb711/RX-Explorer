@@ -309,7 +309,7 @@
                                     BlurAmount="3" />
             </control:Loading.Background>
             <StackPanel Padding="12"
-                        Width="230">
+                        Width="200">
                 <TextBlock Name="LoadingText"
                            FontSize="15"
                            TextAlignment="Center" />

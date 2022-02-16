@@ -1,11 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
@@ -16,131 +13,88 @@ namespace MaintenanceTask
 {
     public sealed class MaintenanceTask : IBackgroundTask
     {
-        private CancellationTokenSource Cancellation = new CancellationTokenSource();
-
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             BackgroundTaskDeferral Deferral = taskInstance.GetDeferral();
-            taskInstance.Canceled += TaskInstance_Canceled;
 
             try
             {
-                UpdateSQLite();
-
-                await ClearUselessLogAsync(Cancellation.Token);
-
-                //The following code is used to update the globalization problem of the ContextMenu in the old version
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("GlobalizationStringForContextMenu"))
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["LanguageOverride"] is int LanguageIndex)
+                    taskInstance.Canceled += (s, e) =>
                     {
-                        switch (LanguageIndex)
-                        {
-                            case 0:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打开";
-                                    break;
-                                }
-                            case 1:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer";
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer";
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打開";
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer";
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer";
-                                    break;
-                                }
-                        }
-                    }
-                }
+                        Cancellation.Cancel();
+                    };
 
-                //To-Do: Do more things as needed when users update the app to newer version
+                    await Task.WhenAll(UpdateSQLiteAsync(Cancellation.Token), ClearTemporaryFolderAsync(Cancellation.Token));
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An exception threw in MaintenanceTask, message: {ex.Message}");
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
+#endif
+
+                Debug.WriteLine($"An exception threw in {nameof(MaintenanceTask)}, message: {ex.Message}");
             }
             finally
             {
-                taskInstance.Canceled -= TaskInstance_Canceled;
-                Cancellation?.Dispose();
-                Cancellation = null;
                 Deferral.Complete();
             }
         }
 
-        private async Task ClearUselessLogAsync(CancellationToken CancelToken = default)
+        private async Task ClearTemporaryFolderAsync(CancellationToken CancelToken = default)
         {
             try
             {
-                StorageFileQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(new QueryOptions(CommonFileQuery.DefaultQuery, new string[] { ".txt" })
+                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
+            }
+            catch (Exception)
+            {
+                StorageItemQueryResult Query = ApplicationData.Current.TemporaryFolder.CreateItemQueryWithOptions(new QueryOptions
                 {
                     IndexerOption = IndexerOption.DoNotUseIndexer,
-                    FolderDepth = FolderDepth.Shallow,
-                    ApplicationSearchFilter = "System.FileName:~<\"Log_GeneratedTime\" AND System.Size:>0"
+                    FolderDepth = FolderDepth.Shallow
                 });
 
-                foreach (StorageFile File in from StorageFile File in await Query.GetFilesAsync()
-                                             let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                             where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)
-                                             select File)
+                foreach (IStorageItem Item in await Query.GetItemsAsync())
                 {
-                    await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
                     if (CancelToken.IsCancellationRequested)
                     {
                         break;
                     }
+
+                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An exception was threw in {nameof(ClearUselessLogAsync)}, message: {ex.Message}");
             }
         }
 
         private SqliteConnection GetSQLConnection()
         {
-            try
+            SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
             {
-                SqliteConnectionStringBuilder Builder = new SqliteConnectionStringBuilder
-                {
-                    DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
-                    Mode = SqliteOpenMode.ReadWrite,
-                    Cache = SqliteCacheMode.Default
-                };
+                DataSource = Path.Combine(ApplicationData.Current.LocalFolder.Path, "RX_Sqlite.db"),
+                Mode = SqliteOpenMode.ReadWrite,
+                Cache = SqliteCacheMode.Default
+            };
 
-                SqliteConnection Connection = new SqliteConnection(Builder.ToString());
-                
-                Connection.Open();
+            SqliteConnection Connection = new SqliteConnection(Builder.ToString());
 
-                return Connection;
-            }
-            catch
-            {
-                return null;
-            }
+            Connection.Open();
+
+            return Connection;
         }
 
-        private void UpdateSQLite()
+        private Task UpdateSQLiteAsync(CancellationToken CancelToken = default)
         {
-            try
+            return Task.Run(() =>
             {
                 using SqliteConnection Connection = GetSQLConnection();
                 using SqliteTransaction Transaction = Connection.BeginTransaction();
@@ -215,22 +169,16 @@ namespace MaintenanceTask
                     Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection, Transaction))
+                if (!CancelToken.IsCancellationRequested)
                 {
-                    Command.ExecuteNonQuery();
+                    using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection, Transaction))
+                    {
+                        Command.ExecuteNonQuery();
+                    }
+
+                    Transaction.Commit();
                 }
-
-                Transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLite)}, message: {ex.Message}");
-            }
-        }
-
-        private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
-        {
-            Cancellation?.Cancel();
+            });
         }
     }
 }

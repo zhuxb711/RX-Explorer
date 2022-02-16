@@ -1183,7 +1183,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    CurrentProgressValue = -1;
+                    Interlocked.Exchange(ref CurrentProgressValue, -1);
                     await ProgressChanged?.InvokeAsync(null, new ProgressChangedDeferredArgs(100));
                 }
             }
