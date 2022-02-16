@@ -63,26 +63,7 @@ namespace RX_Explorer.Class
                              .Select((ChunkIndex) => OriginString.Substring(ChunkIndex * ChunkSize, ChunkSize));
         }
 
-        public static bool CheckIfContainsAvailableData(this DataPackageView View)
-        {
-            try
-            {
-                if (View.Contains(StandardDataFormats.StorageItems)
-                    || View.Contains(ExtendedDataFormats.CompressionItems)
-                    || View.Contains(ExtendedDataFormats.NotSupportedStorageItem))
-                {
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "Could not check the clipboard data");
-            }
-
-            return false;
-        }
-
-        public static async Task<IReadOnlyList<string>> GetAsPathListAsync(this DataPackageView View)
+        public static async Task<IReadOnlyList<string>> GetAsStorageItemPathListAsync(this DataPackageView View)
         {
             List<string> PathList = new List<string>();
 
@@ -174,6 +155,17 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+
+                if (View.Contains(ExtendedDataFormats.CompressionItems))
+                {
+                    if (await View.GetDataAsync(ExtendedDataFormats.CompressionItems) is IRandomAccessStream RandomStream)
+                    {
+                        using (StreamReader Reader = new StreamReader(RandomStream.AsStreamForRead(), Encoding.Unicode, true, 512, true))
+                        {
+                            PathList.AddRange(JsonSerializer.Deserialize<IEnumerable<string>>(Reader.ReadToEnd()).Where((Path) => !string.IsNullOrWhiteSpace(Path)));
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -183,7 +175,7 @@ namespace RX_Explorer.Class
             return PathList;
         }
 
-        public static async Task SetupDataPackageAsync(this DataPackage Package, params FileSystemStorageItemBase[] Collection)
+        public static async Task SetStorageItemDataAsync(this DataPackage Package, params FileSystemStorageItemBase[] Collection)
         {
             try
             {

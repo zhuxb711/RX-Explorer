@@ -1393,7 +1393,7 @@ namespace FullTrustProcess
 
                             if ((Package.Arguments?.Length).GetValueOrDefault() > 0)
                             {
-                                Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(" ") ? $"\"{Para.Trim('\"')}\"" : Para));
+                                Arguments = string.Join(" ", Package.Arguments.Select((Para) => Para.Contains(' ') ? $"\"{Para.Trim('\"')}\"" : Para));
                             }
 
                             using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Arguments))
@@ -1670,13 +1670,14 @@ namespace FullTrustProcess
                     case CommandType.SetFileAttribute:
                         {
                             string ExecutePath = CommandValue["ExecutePath"];
-                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(CommandValue["Attributes"]);
+
+                            KeyValuePair<ModifyAttributeAction, FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, FileAttributes>[]>(CommandValue["Attributes"]);
 
                             if (File.Exists(ExecutePath))
                             {
                                 FileInfo File = new FileInfo(ExecutePath);
 
-                                foreach (KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes> AttributePair in AttributeGourp)
+                                foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeGourp)
                                 {
                                     if (AttributePair.Key == ModifyAttributeAction.Add)
                                     {
@@ -1694,11 +1695,11 @@ namespace FullTrustProcess
                             {
                                 DirectoryInfo Dir = new DirectoryInfo(ExecutePath);
 
-                                foreach (KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes> AttributePair in AttributeGourp)
+                                foreach (KeyValuePair<ModifyAttributeAction, FileAttributes> AttributePair in AttributeGourp)
                                 {
                                     if (AttributePair.Key == ModifyAttributeAction.Add)
                                     {
-                                        if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
+                                        if (AttributePair.Value == FileAttributes.ReadOnly)
                                         {
                                             foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {
@@ -1712,7 +1713,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
+                                        if (AttributePair.Value == FileAttributes.ReadOnly)
                                         {
                                             foreach (string SubPath in Directory.GetFiles(ExecutePath, "*", SearchOption.AllDirectories))
                                             {

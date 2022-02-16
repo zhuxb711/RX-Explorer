@@ -2052,7 +2052,7 @@ namespace RX_Explorer
 
                     DelayEnterCancel?.Cancel();
 
-                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                     if (PathList.Count > 0)
                     {
@@ -2102,7 +2102,9 @@ namespace RX_Explorer
 
                 if (e.OriginalSource is Button Btn)
                 {
-                    if (e.DataView.CheckIfContainsAvailableData())
+                    if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                        || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                        || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
@@ -2161,7 +2163,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Move
                     };
 
-                    await Package.SetupDataPackageAsync(Folder);
+                    await Package.SetStorageItemDataAsync(Folder);
 
                     Clipboard.SetContent(Package);
                 }
@@ -2209,7 +2211,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
-                    await Package.SetupDataPackageAsync(Folder);
+                    await Package.SetStorageItemDataAsync(Folder);
 
                     Clipboard.SetContent(Package);
                 }

@@ -721,7 +721,9 @@ namespace RX_Explorer
                 e.Handled = true;
                 e.AcceptedOperation = DataPackageOperation.None;
 
-                if (e.DataView.CheckIfContainsAvailableData())
+                if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                    || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                 {
                     switch ((sender as SelectorItem)?.Content)
                     {
@@ -782,7 +784,7 @@ namespace RX_Explorer
 
                 DelayEnterCancellation?.Cancel();
 
-                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                 if (PathList.Count > 0)
                 {
@@ -1443,7 +1445,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
-                    await Package.SetupDataPackageAsync(LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().ToArray());
+                    await Package.SetStorageItemDataAsync(LibraryGrid.SelectedItems.Cast<LibraryStorageFolder>().ToArray());
 
                     Clipboard.SetContent(Package);
                 }

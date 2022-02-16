@@ -440,7 +440,9 @@ namespace RX_Explorer
 
                     if (Package.Properties.PackageFamilyName == Windows.ApplicationModel.Package.Current.Id.FamilyName)
                     {
-                        ShouldPopKeepClipboardTip = Package.CheckIfContainsAvailableData();
+                        ShouldPopKeepClipboardTip = Package.Contains(StandardDataFormats.StorageItems)
+                                                    || Package.Contains(ExtendedDataFormats.CompressionItems)
+                                                    || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
                     }
                 }
                 catch

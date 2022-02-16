@@ -3239,7 +3239,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
-                    await Package.SetupDataPackageAsync(SelectedItems.ToArray());
+                    await Package.SetStorageItemDataAsync(SelectedItems.ToArray());
 
                     Clipboard.SetContent(Package);
 
@@ -3267,7 +3267,7 @@ namespace RX_Explorer
             {
                 DataPackageView Package = Clipboard.GetContent();
 
-                IReadOnlyList<string> PathList = await Package.GetAsPathListAsync();
+                IReadOnlyList<string> PathList = await Package.GetAsStorageItemPathListAsync();
 
                 if (PathList.Count > 0)
                 {
@@ -3322,7 +3322,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Move
                     };
 
-                    await Package.SetupDataPackageAsync(SelectedItems.ToArray());
+                    await Package.SetStorageItemDataAsync(SelectedItems.ToArray());
 
                     Clipboard.SetContent(Package);
 
@@ -4342,14 +4342,11 @@ namespace RX_Explorer
 
                 try
                 {
-                    if (Clipboard.GetContent().CheckIfContainsAvailableData())
-                    {
-                        PasteButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        PasteButton.IsEnabled = false;
-                    }
+                    DataPackageView Package = Clipboard.GetContent();
+
+                    PasteButton.IsEnabled = Package.Contains(StandardDataFormats.StorageItems)
+                                            || Package.Contains(ExtendedDataFormats.CompressionItems)
+                                            || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
                 }
                 catch
                 {
@@ -5167,7 +5164,9 @@ namespace RX_Explorer
 
                 Container.CurrentPresenter = this;
 
-                if (e.DataView.CheckIfContainsAvailableData())
+                if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                    || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
@@ -5201,7 +5200,7 @@ namespace RX_Explorer
 
                 DelayEnterCancellation?.Cancel();
 
-                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                 if (PathList.Count > 0)
                 {
@@ -5378,7 +5377,7 @@ namespace RX_Explorer
                     NameEditBox.Visibility = Visibility.Collapsed;
                 }
 
-                await args.Data.SetupDataPackageAsync(SelectedItems.ToArray());
+                await args.Data.SetStorageItemDataAsync(SelectedItems.ToArray());
             }
             catch (Exception ex)
             {
@@ -5415,7 +5414,9 @@ namespace RX_Explorer
                     }
                 }
 
-                if (e.DataView.CheckIfContainsAvailableData())
+                if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                    || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                 {
                     switch ((sender as SelectorItem)?.Content)
                     {
@@ -5440,7 +5441,7 @@ namespace RX_Explorer
                             }
                         case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                             {
-                                IReadOnlyList<string> PathArray = await e.DataView.GetAsPathListAsync();
+                                IReadOnlyList<string> PathArray = await e.DataView.GetAsStorageItemPathListAsync();
 
                                 if (PathArray.Any() && PathArray.All((Path) => !Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)))
                                 {
@@ -5558,13 +5559,13 @@ namespace RX_Explorer
             {
                 e.Handled = true;
 
-                IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                 if (PathList.Count > 0)
                 {
-                    if (e.DataView.RequestedOperation.HasFlag(DataPackageOperation.Move))
+                    if (e.AcceptedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
+                        if (PathList.All((Item) => !Path.GetDirectoryName(Item).Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
                             QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                         }
@@ -6080,7 +6081,11 @@ namespace RX_Explorer
 
                     try
                     {
-                        EnablePasteButton = Clipboard.GetContent().CheckIfContainsAvailableData();
+                        DataPackageView Package = Clipboard.GetContent();
+
+                        EnablePasteButton = Package.Contains(StandardDataFormats.StorageItems)
+                                            || Package.Contains(ExtendedDataFormats.CompressionItems)
+                                            || Package.Contains(ExtendedDataFormats.NotSupportedStorageItem);
                     }
                     catch
                     {

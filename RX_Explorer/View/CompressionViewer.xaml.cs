@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -210,7 +212,7 @@ namespace RX_Explorer
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
         }
 
-        private async void ControlLoading(bool IsLoading, bool IsIndeterminate = false, string Message = null)
+        private async Task ControlLoading(bool IsLoading, bool IsIndeterminate = false, string Message = null)
         {
             if (IsLoading)
             {
@@ -744,7 +746,7 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+                    await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
                     await ExtractCore(Dialog.ExtractLocation, EntryList, ProgressHandler: async (s, e) =>
                     {
@@ -783,7 +785,7 @@ namespace RX_Explorer
             }
             finally
             {
-                ControlLoading(false);
+                await ControlLoading(false);
             }
         }
 
@@ -847,7 +849,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+                await ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
 
                 try
                 {
@@ -878,7 +880,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    ControlLoading(false);
+                    await ControlLoading(false);
                 }
             }
         }
@@ -889,7 +891,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+                await ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
 
                 try
                 {
@@ -917,7 +919,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    ControlLoading(false);
+                    await ControlLoading(false);
                 }
             }
         }
@@ -932,7 +934,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+                        await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
 
                         await ExtractCore(Dialog.ExtractLocation, ListViewControl.SelectedItems.Cast<CompressionItemBase>(), ProgressHandler: async (s, e) =>
                         {
@@ -971,7 +973,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    ControlLoading(false);
+                    await ControlLoading(false);
                 }
             }
         }
@@ -990,7 +992,7 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+                    await ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
 
                     try
                     {
@@ -1045,7 +1047,7 @@ namespace RX_Explorer
                     }
                     finally
                     {
-                        ControlLoading(false);
+                        await ControlLoading(false);
                     }
                 }
             }
@@ -1090,7 +1092,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                     if (PathList.Count > 0)
                     {
@@ -1149,11 +1151,11 @@ namespace RX_Explorer
                 {
                     e.Handled = true;
 
-                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsStorageItemPathListAsync();
 
                     if (PathList.Count > 0)
                     {
-                        ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
+                        await ControlLoading(true, true, Globalization.GetString("Progress_Tip_Processing"));
 
                         try
                         {
@@ -1189,7 +1191,7 @@ namespace RX_Explorer
                         }
                         finally
                         {
-                            ControlLoading(false);
+                            await ControlLoading(false);
                         }
                     }
                 }
@@ -1315,9 +1317,9 @@ namespace RX_Explorer
 
                         try
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
-                                ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
+                                await ControlLoading(true, false, Globalization.GetString("Progress_Tip_Extracting"));
                             });
 
                             if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, Guid.NewGuid().ToString("N")), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder ExtractionFolder)
@@ -1334,19 +1336,23 @@ namespace RX_Explorer
 
                                 if (ChildItems.Count > 0)
                                 {
-                                    Request.SetData(await Task.WhenAll(ChildItems.Select((Item) => Item.GetStorageItemAsync())));
+                                    Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(ChildItems.Select((Item) => Item.Path)))).AsRandomAccessStream());
+                                    return;
                                 }
                             }
+
+                            throw new Exception("Compression items are not found and nothing was set to clipboard");
                         }
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, "Decompression failed for unknown exception");
+                            Request.SetData(new MemoryStream(Encoding.Unicode.GetBytes(JsonSerializer.Serialize(Array.Empty<string>()))).AsRandomAccessStream());
                         }
                         finally
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
-                                ControlLoading(false);
+                                await ControlLoading(false);
                             });
 
                             Deferral.Complete();

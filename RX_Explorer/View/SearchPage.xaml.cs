@@ -641,7 +641,7 @@ namespace RX_Explorer
 
             try
             {
-                await args.Data.SetupDataPackageAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
+                await args.Data.SetStorageItemDataAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
             }
             catch (Exception ex)
             {
@@ -1123,7 +1123,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
-                    await Package.SetupDataPackageAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
+                    await Package.SetStorageItemDataAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
 
                     Clipboard.SetContent(Package);
                 }
@@ -1158,7 +1158,7 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Move
                     };
 
-                    await Package.SetupDataPackageAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
+                    await Package.SetStorageItemDataAsync(SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().ToArray());
 
                     Clipboard.SetContent(Package);
                 }
