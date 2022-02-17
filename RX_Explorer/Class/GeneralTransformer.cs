@@ -232,7 +232,18 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await DestinationFile.DeleteAsync(true);
+                try
+                {
+                    if (await FileSystemStorageItemBase.CheckExistsAsync(DestinationFile.Path))
+                    {
+                        await DestinationFile.DeleteAsync(true);
+                    }
+                }
+                catch (Exception)
+                {
+                    //No need to handle this exception
+                }
+
                 LogTracer.Log(ex, "Could not transcode the image");
             }
             finally

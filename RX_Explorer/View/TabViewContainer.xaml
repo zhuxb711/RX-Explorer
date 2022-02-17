@@ -97,14 +97,14 @@
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
+                                CornerRadius="4,4,0,0"
+                                Height="32"
                                 Background="{ThemeResource ElementCustomAcrylicBrush}">
-                        <Button HorizontalAlignment="Stretch"
+                        <Button Width="40"
+                                Padding="0"
                                 VerticalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
-                                Margin="1,0,0,0"
-                                Width="42"
-                                Height="30"
-                                Padding="0"
+                                VerticalContentAlignment="Center"
                                 Click="VerticalSplitViewButton_Click"
                                 x:Name="VerticalSplitViewButton"
                                 x:Uid="VerticalSplitViewButton"
@@ -119,10 +119,11 @@
                         </Button>
                         <Button Name="TaskListPanelButton"
                                 ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('TaskListPanelTitle/Text')}"
-                                Margin="1,0,0,0"
-                                Width="42"
-                                Height="30"
+                                Margin="1,0"
+                                Width="40"
                                 Padding="0"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
                                 Click="TaskListPanelButton_Click">
                             <Grid ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
@@ -154,13 +155,14 @@
                                                    VerticalAlignment="Center" />
                             </Grid>
                         </Button>
-                        <muxc:SplitButton Width="70"
-                                          Height="30"
-                                          Padding="0"
-                                          VerticalAlignment="Stretch"
-                                          x:Uid="ViewModeControl"
-                                          Click="ViewModeControlButton_Click"
-                                          IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}">
+                        <Button Width="40"
+                                Padding="0"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                x:Uid="ViewModeControl"
+                                Click="ViewModeControlButton_Click"
+                                IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}">
                             <Viewbox VerticalAlignment="Center"
                                      HorizontalAlignment="Center"
                                      Width="20"
@@ -168,7 +170,7 @@
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                           Glyph="&#xF246;" />
                             </Viewbox>
-                            <muxc:SplitButton.Flyout>
+                            <Button.Flyout>
                                 <Flyout Placement="BottomEdgeAlignedRight"
                                         x:Name="ViewModeFlyout">
                                     <Flyout.FlyoutPresenterStyle>
@@ -210,8 +212,8 @@
                                         </ListView>
                                     </Grid>
                                 </Flyout>
-                            </muxc:SplitButton.Flyout>
-                        </muxc:SplitButton>
+                            </Button.Flyout>
+                        </Button>
                     </StackPanel>
                 </muxc:TabView.TabStripFooter>
             </muxc:TabView>

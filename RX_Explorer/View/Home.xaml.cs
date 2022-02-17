@@ -636,6 +636,55 @@ namespace RX_Explorer
             }
         }
 
+        private void ItemContainer_DragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+            e.AcceptedOperation = DataPackageOperation.None;
+            e.DragUIOverride.IsContentVisible = true;
+            e.DragUIOverride.IsCaptionVisible = true;
+            e.DragUIOverride.IsGlyphVisible = true;
+
+            if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
+                || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
+            {
+                switch ((sender as SelectorItem)?.Content)
+                {
+                    case LibraryStorageFolder Folder:
+                        {
+                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
+                            }
+
+
+                            break;
+                        }
+                    case DriveDataBase Drive when Drive is not LockedDriveData:
+                        {
+                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.Name}\"";
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.Name}\"";
+                            }
+
+                            break;
+                        }
+                }
+            }
+        }
+
         private void ItemContainer_DragLeave(object sender, DragEventArgs e)
         {
             DelayEnterCancellation?.Cancel();
@@ -649,13 +698,13 @@ namespace RX_Explorer
                 DelayEnterCancellation?.Dispose();
                 DelayEnterCancellation = new CancellationTokenSource();
 
-                Task.Delay(2000).ContinueWith((task, input) =>
+                Task.Delay(1500).ContinueWith((task, input) =>
                 {
                     try
                     {
-                        if (input is CancellationToken Token && !Token.IsCancellationRequested)
+                        if (input is (SelectorItem Item, CancellationToken Token) && !Token.IsCancellationRequested)
                         {
-                            switch (Selector.Content)
+                            switch (Item.Content)
                             {
                                 case DriveDataBase Drive when Drive is not LockedDriveData:
                                     {
@@ -674,7 +723,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, DelayEnterCancellation.Token, TaskScheduler.FromCurrentSynchronizationContext());
+                }, (Selector, DelayEnterCancellation.Token), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -711,66 +760,6 @@ namespace RX_Explorer
                         await Item.LoadAsync().ConfigureAwait(false);
                     }
                 });
-            }
-        }
-
-        private void ItemContainer_DragOver(object sender, DragEventArgs e)
-        {
-            try
-            {
-                e.Handled = true;
-                e.AcceptedOperation = DataPackageOperation.None;
-
-                if (e.DataView.Contains(StandardDataFormats.StorageItems)
-                    || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
-                    || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
-                {
-                    switch ((sender as SelectorItem)?.Content)
-                    {
-                        case LibraryStorageFolder Folder:
-                            {
-                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
-                                }
-                                else
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
-                                }
-
-                                e.DragUIOverride.IsContentVisible = true;
-                                e.DragUIOverride.IsCaptionVisible = true;
-                                e.DragUIOverride.IsGlyphVisible = true;
-
-                                break;
-                            }
-                        case DriveDataBase Drive when Drive is not LockedDriveData:
-                            {
-                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Drive.Name}\"";
-                                }
-                                else
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Drive.Name}\"";
-                                }
-
-                                e.DragUIOverride.IsContentVisible = true;
-                                e.DragUIOverride.IsCaptionVisible = true;
-                                e.DragUIOverride.IsGlyphVisible = true;
-
-                                break;
-                            }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
             }
         }
 

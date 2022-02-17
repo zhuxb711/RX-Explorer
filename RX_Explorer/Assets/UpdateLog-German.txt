@@ -1,15 +1,39 @@
-﻿###Was ist neu in Ver.7.4.8.0
+﻿###Was ist neu in Ver.7.5.0.0
 
-#####UI aktualisiert
+#####Funktion aktualisiert
 
->#####Glimmerhintergrund ist jetzt als Untermodi im benutzerdefinierten Modus verfügbar
+>#####Der Mechanismus zum Einfügen von Daten in die Zwischenablage wurde verbessert, um unnötigen Inhalt der Zwischenablage zu vermeiden
+
+>#####Der eingebaute Viewer für komprimierte Dateien unterstützt das Dekomprimieren von Dateien durch Ziehen und Ablegen
+
+>#####Der eingebaute Viewer für komprimierte Dateien unterstützt das Abbrechen von Komprimierungs- und Dekomprimierungsaufgaben
+
+#####Benutzeroberfläche aktualisiert
+
+>#####Der Fortschrittsbalken der Aufgabe in der Aufgabenliste bleibt bis zur ersten Fortschrittsaktualisierung "Unbestimmt".
+
+>#####Eine doppelte Bestätigungsaufforderung erscheint, wenn die Anwendung direkt im integrierten Viewer geschlossen wird
+
+>#####Der integrierte Archiv-Viewer zeigt den lokalisierten Namen in der Spalte „Typ“ an
+
+>#####Das Erscheinungsbild einiger Komponenten wurde verfeinert
 
 #####Fehlerbehebung
 
->#####Ein Problem wurde behoben, das dazu führen kann, dass die App beendet wird oder andere anormale Zustände auftreten, wenn die Tastatur zum Bedienen des Kontextdialogs verwendet wird
+>#####Problem behoben, bei dem Ordner in Bibliotheken nicht gelöscht werden konnten
 
->#####Das Problem, dass einige Tastenkombinationen immer noch verfügbar sind, wenn der Kontextdialog erscheint, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem die Datei-Tag-Leiste nicht automatisch ausgeblendet wurde, wenn das Menü geschlossen wurde
 
->#####Das Problem, dass Tastenkombinationen für Alt auf der Startseite ungültig sind, wurde behoben
+>#####Es wurde ein Problem behoben, bei dem das Klicken auf Unterordner von Ordnern in der Adressleiste nicht reagierte
 
->#####Es wurde ein Problem behoben, das dazu führen konnte, dass UI-Elemente der Einstellungsseite beim Wechseln des Hintergrundmodus in einem falschen Zustand waren
+>#####Das Problem der Datenkorruption bei der gleichzeitigen Ausführung von Aufgaben auf einem einzelnen Hilfsprozess wurde behoben
+
+>#####Es wurde ein Problem behoben, bei dem das Untermenü der Adressleiste den lokalisierten Namen des Ordners nicht laden würde
+
+>#####Es wurde ein Problem behoben, bei dem die Eingabeaufforderung nicht angezeigt wird, selbst wenn der entsprechende Ordner in einigen Fällen nicht gefunden werden kann
+
+>#####Ein Problem wurde behoben, bei dem das Eingabefeld zum Umbenennen in einigen Fällen möglicherweise nicht verschwand
+
+>#####Ein Problem wurde behoben, das einen Absturz verursachen konnte, wenn direkt von der Suchseite zu einem Ordner in den Suchergebnissen gesprungen wurde
+
+>#####Einige andere Probleme behoben, die zu Abstürzen führen konnten

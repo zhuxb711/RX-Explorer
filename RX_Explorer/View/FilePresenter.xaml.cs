@@ -5344,7 +5344,7 @@ namespace RX_Explorer
                 DelayEnterCancellation?.Dispose();
                 DelayEnterCancellation = new CancellationTokenSource();
 
-                Task.Delay(2000).ContinueWith(async (task, input) =>
+                Task.Delay(1500).ContinueWith(async (task, input) =>
                 {
                     try
                     {
@@ -5389,10 +5389,8 @@ namespace RX_Explorer
             }
         }
 
-        private async void ItemContainer_DragOver(object sender, DragEventArgs e)
+        private void ItemContainer_DragOver(object sender, DragEventArgs e)
         {
-            DragOperationDeferral Deferral = e.GetDeferral();
-
             try
             {
                 e.Handled = true;
@@ -5456,10 +5454,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 

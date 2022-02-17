@@ -1,15 +1,39 @@
-﻿###Quoi de neuf dans la version 7.4.8.0
+﻿###Quoi de neuf dans la version 7.5.0.0
+
+#####Fonctionnalité mise à jour
+
+>#####Le mécanisme de mise des données dans le presse-papiers a été amélioré pour éviter le contenu inutile du presse-papiers
+
+>#####La visionneuse de fichiers compressés intégrée prend en charge la décompression des fichiers par glisser-déposer
+
+>#####La visionneuse de fichiers compressés intégrée prend en charge l'annulation des tâches de compression et de décompression
 
 #####UI mise à jour
 
->#####Mica Background est désormais disponible en sous-modes en mode personnalisé
+>#####La barre de progression de la tâche dans la liste des tâches restera "Indéterminée" jusqu'à la première mise à jour de la progression
+
+>#####Une double invite de confirmation apparaîtra lorsque l'application est fermée directement dans la visionneuse intégrée
+
+>#####La visionneuse d'archives intégrée affichera le nom localisé dans la colonne "Type"
+
+>#####Ajustement de l'apparence de certains composants
 
 #####Corrections de bogues
 
->#####Correction d'un problème pouvant entraîner la fermeture de l'application ou d'autres états anormaux lors de l'utilisation du clavier pour utiliser la boîte de dialogue contextuelle
+>#####Correction d'un problème où les dossiers dans les bibliothèques ne pouvaient pas être supprimés
 
->#####Correction du problème que certains raccourcis clavier sont toujours disponibles lorsque la boîte de dialogue contextuelle apparaît
+>#####Correction d'un problème où la barre de balises de fichier n'était pas automatiquement masquée lorsque le menu était fermé
 
->#####Correction du problème d'invalidité des touches de raccourci liées à Alt dans la page d'accueil
+>#####Correction d'un problème où cliquer sur les sous-dossiers des dossiers dans la barre d'adresse ne répondait pas
 
->#####Correction d'un problème qui pouvait entraîner un état incorrect des éléments de l'interface utilisateur de la page des paramètres lors du changement de mode d'arrière-plan
+>#####Correction du problème de corruption des données lors de l'exécution simultanée de tâches sur un seul processus auxiliaire
+
+>#####Correction d'un problème où le sous-menu de la barre d'adresse ne chargeait pas le nom localisé du dossier
+
+>#####Correction d'un problème où l'invite ne s'affiche pas même si le dossier correspondant est introuvable dans certains cas
+
+>#####Correction d'un problème où la zone de saisie pour renommer pouvait ne pas disparaître dans certains cas
+
+>#####Correction d'un problème qui pouvait provoquer un plantage lors du passage direct de la page de recherche à un dossier dans les résultats de la recherche
+
+>#####Correction d'autres problèmes pouvant provoquer des plantages

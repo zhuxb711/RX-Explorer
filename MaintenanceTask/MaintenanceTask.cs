@@ -99,14 +99,20 @@ namespace MaintenanceTask
                 using SqliteConnection Connection = GetSQLConnection();
                 using SqliteTransaction Transaction = Connection.BeginTransaction();
 
-                StringBuilder Builder = new StringBuilder()
-                                        .Append("Delete From ProgramPicker Where FileType = '.*';")
-                                        .Append("Insert Or Ignore Into FileTag (Path, ColorTag) Select Path, Color From FileColor;")
-                                        .Append("Update FileTag Set ColorTag = 'Blue' Where ColorTag = '#FF42C5FF';")
-                                        .Append("Update FileTag Set ColorTag = 'Green' Where ColorTag = '#FF22B324';")
-                                        .Append("Update FileTag Set ColorTag = 'Orange' Where ColorTag = '#FFFFA500';")
-                                        .Append("Update FileTag Set ColorTag = 'Purple' Where ColorTag = '#FFCC6EFF';")
-                                        .Append("Drop Table FileColor;");
+                StringBuilder Builder = new StringBuilder("Delete From ProgramPicker Where FileType = '.*';");
+
+                using (SqliteCommand Command = new SqliteCommand("Select Count(*) From sqlite_master Where type = \"table\" And name = \"FileColor\"", Connection, Transaction))
+                {
+                    if (Convert.ToInt32(Command.ExecuteScalar()) > 0)
+                    {
+                        Builder.Append("Insert Or Ignore Into FileTag (Path, ColorTag) Select Path, Color From FileColor;")
+                               .Append("Update FileTag Set ColorTag = 'Blue' Where ColorTag = '#FF42C5FF';")
+                               .Append("Update FileTag Set ColorTag = 'Green' Where ColorTag = '#FF22B324';")
+                               .Append("Update FileTag Set ColorTag = 'Orange' Where ColorTag = '#FFFFA500';")
+                               .Append("Update FileTag Set ColorTag = 'Purple' Where ColorTag = '#FFCC6EFF';")
+                               .Append("Drop Table FileColor;");
+                    }
+                }
 
                 bool HasGroupColumnColumn = false;
                 bool HasGroupDirectionColumn = false;

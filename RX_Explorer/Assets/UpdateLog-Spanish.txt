@@ -1,15 +1,39 @@
-﻿###Novedades de la versión 7.4.8.0
+﻿###Novedades de la versión 7.5.0.0
 
-#####UI actualizada
+#####Característica actualizada
 
->#####Mica Background ahora está disponible como submodos en el modo personalizado
+>#####El mecanismo para colocar datos en el portapapeles se ha mejorado para evitar contenido innecesario en el portapapeles
+
+>#####El visor de archivos comprimidos incorporado admite la descompresión de archivos arrastrando y soltando
+
+>#####El visor de archivos comprimidos incorporado admite la cancelación de tareas de compresión y descompresión
+
+#####IU actualizada
+
+>#####La barra de progreso de la tarea en la lista de tareas permanecerá "Indeterminada" hasta la primera actualización de progreso
+
+>#####Aparecerá un mensaje de doble confirmación cuando la aplicación se cierre directamente en el visor incorporado
+
+>#####El visor de archivos integrado mostrará el nombre localizado en la columna "Tipo"
+
+>#####Perfeccionamos la apariencia de algunos componentes
 
 #####Corrección de errores
 
->#####Se solucionó un problema que podía causar que la aplicación terminara u otros estados anormales al usar el teclado para operar el cuadro de diálogo contextual
+>#####Se solucionó un problema por el cual las carpetas en las bibliotecas no se podían eliminar
 
->#####Se solucionó el problema de que algunos atajos de teclado aún estaban disponibles cuando aparece el cuadro de diálogo contextual
+>#####Se solucionó un problema por el cual la barra de etiquetas de archivos no se ocultaba automáticamente cuando se cerraba el menú
 
->#####Se solucionó el problema de que las teclas de acceso directo relacionadas con Alt no son válidas en la página de inicio
+>#####Se solucionó un problema por el que al hacer clic en subcarpetas de carpetas en la barra de direcciones no respondía
 
->#####Se solucionó un problema que podía causar que los elementos de la interfaz de usuario de la página de configuración estuvieran en un estado incorrecto al cambiar los modos de fondo
+>#####Se solucionó el problema de corrupción de datos al ejecutar tareas simultáneamente en un solo proceso auxiliar
+
+>#####Se solucionó un problema por el cual el submenú de la barra de direcciones no cargaba el nombre localizado de la carpeta
+
+>#####Se solucionó un problema por el cual el indicador no aparecía incluso si la carpeta correspondiente no se podía encontrar en algunos casos
+
+>#####Se solucionó un problema por el cual el cuadro de entrada para cambiar el nombre podría no desaparecer en algunos casos
+
+>#####Se solucionó un problema que podía causar un bloqueo al saltar directamente de la página de búsqueda a una carpeta en los resultados de búsqueda
+
+>#####Se corrigieron algunos otros problemas que podrían causar fallas

@@ -1,15 +1,39 @@
-﻿###What's new in Ver.7.4.8.0
+﻿###What's new in Ver.7.5.0.0
+
+#####Feature updated
+
+>#####The mechanism on putting data into the clipboard has been improved to avoid unnecessary clipboard content
+
+>#####Built-in compressed file viewer supports decompressing files by dragging and dropping
+
+>#####Built-in compressed file viewer supports canceling compression and decompression tasks
 
 #####UI updated
 
->#####Mica Background is now available as sub-modes in Custom Mode
+>#####The progress bar of task in the task list will remain "Indeterminate" until the first progress update
+
+>#####A double confirmation prompt will pop up when the application is closed directly in the built-in viewer
+
+>#####Built-in archive viewer will show localized name in "Type" column
+
+>#####Fine-tuned the appearance of some components
 
 #####Bug Fixes
 
->#####Fixed an issue that may cause the app terminated or other abnormal states when using the keyboard to operate the context dialog
+>#####Fixed an issue where folders in Libraries could not be deleted
 
->#####Fixed the problem that some keyboard shortcuts are still available when the context dialog pops up
+>#####Fixed an issue where the file tag bar would not be automatically hidden when the menu was closed
 
->#####Fixed the problem that Alt-related shortcut keys are invalid in the home page
+>#####Fixed an issue where clicking on subfolders of folders in the address bar would not respond
 
->#####Fixed an issue that could cause UI elements of the settings page to be in an incorrect state when switching background modes
+>#####Fixed the problem of data corruption when executing tasks concurrently on a single auxiliary process
+
+>#####Fixed an issue where the submenu of the address bar would not load the localized name of the folder
+
+>#####Fixed an issue that the prompt will not pop up even if the corresponding folder cannot be found in some cases
+
+>#####Fixed an issue where the input box for renaming might not disappear in some cases
+
+>#####Fixed an issue that could cause a crash when jumping directly from the search page to a folder in the search results
+
+>#####Fixed some other issues that could cause crashes

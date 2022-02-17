@@ -2099,44 +2099,29 @@ namespace RX_Explorer
             {
                 e.Handled = true;
                 e.AcceptedOperation = DataPackageOperation.None;
+                e.DragUIOverride.IsContentVisible = true;
+                e.DragUIOverride.IsGlyphVisible = true;
+                e.DragUIOverride.IsCaptionVisible = true;
 
-                if (e.OriginalSource is Button Btn)
+                if (sender is Button Btn && Btn.DataContext is AddressBlock Block)
                 {
                     if (e.DataView.Contains(StandardDataFormats.StorageItems)
                         || e.DataView.Contains(ExtendedDataFormats.CompressionItems)
                         || e.DataView.Contains(ExtendedDataFormats.NotSupportedStorageItem))
                     {
-                        if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                        if (!Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                         {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-
-                            if (Btn.DataContext is AddressBlock Block && Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
-                                e.DragUIOverride.IsCaptionVisible = false;
-                            }
-                            else
-                            {
+                                e.AcceptedOperation = DataPackageOperation.Copy;
                                 e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
-                                e.DragUIOverride.IsCaptionVisible = true;
-                            }
-                        }
-                        else
-                        {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-
-                            if (Btn.DataContext is AddressBlock Block && Block.Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
-                            {
-                                e.DragUIOverride.IsCaptionVisible = false;
                             }
                             else
                             {
+                                e.AcceptedOperation = DataPackageOperation.Move;
                                 e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
-                                e.DragUIOverride.IsCaptionVisible = true;
                             }
                         }
-
-                        e.DragUIOverride.IsContentVisible = true;
-                        e.DragUIOverride.IsGlyphVisible = true;
                     }
                 }
             }
@@ -2800,15 +2785,15 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1800).ContinueWith(async (task, obj) =>
+                Task.Delay(1500).ContinueWith(async (task, obj) =>
                 {
                     try
                     {
-                        if (obj is ValueTuple<CancellationToken, AddressBlock> Tuple)
+                        if (obj is (AddressBlock Block, CancellationToken Token))
                         {
-                            if (!Tuple.Item1.IsCancellationRequested)
+                            if (!Token.IsCancellationRequested)
                             {
-                                await CurrentPresenter.EnterSelectedItemAsync(Tuple.Item2.Path);
+                                await CurrentPresenter.EnterSelectedItemAsync(Block.Path);
                             }
                         }
                     }
@@ -2816,7 +2801,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, new ValueTuple<CancellationToken, AddressBlock>(DelayEnterCancel.Token, Item), TaskScheduler.FromCurrentSynchronizationContext());
+                }, (Item, DelayEnterCancel.Token), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 

@@ -1399,9 +1399,12 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewModeControlButton_Click(Microsoft.UI.Xaml.Controls.SplitButton sender, Microsoft.UI.Xaml.Controls.SplitButtonClickEventArgs args)
+        private void ViewModeControlButton_Click(object sender, RoutedEventArgs e)
         {
-            sender.Flyout.ShowAt(sender);
+            //if (sender is Button Btn)
+            //{
+            //    Btn.Flyout.ShowAt(Btn);
+            //}
         }
     }
 }
