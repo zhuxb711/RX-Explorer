@@ -1914,7 +1914,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
                         }
 
                         if (TreeViewDetach.IsOn)

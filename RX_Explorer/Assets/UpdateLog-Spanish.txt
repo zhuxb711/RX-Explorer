@@ -1,4 +1,4 @@
-﻿###Novedades de la versión 7.5.0.0
+﻿###Novedades de la versión 7.5.1.0
 
 #####Característica actualizada
 

@@ -359,7 +359,7 @@ namespace RX_Explorer
             }
             else
             {
-                TreeViewGridCol.Width = SettingPage.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+                TreeViewGridCol.Width = SettingPage.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
             }
         }
 
