@@ -94,12 +94,13 @@
                                      Color="Transparent" />
                 </muxc:TabView.Resources>
                 <muxc:TabView.TabStripFooter>
-                    <StackPanel Orientation="Horizontal"
+                    <StackPanel Orientation="Horizontal" 
+                                Margin="0,0,0,5"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
                                 CornerRadius="4,4,0,0"
                                 Height="32"
-                                Background="{ThemeResource ElementCustomAcrylicBrush}">
+                               >
                         <Button Width="40"
                                 Padding="0"
                                 VerticalAlignment="Stretch"
@@ -108,7 +109,10 @@
                                 Click="VerticalSplitViewButton_Click"
                                 x:Name="VerticalSplitViewButton"
                                 x:Uid="VerticalSplitViewButton"
-                                ToolTipService.ToolTip="创建新的垂直拆分视图">
+                                ToolTipService.ToolTip="创建新的垂直拆分视图" 
+                                Background="Transparent"
+                                BorderThickness="0">
+                            
                             <Viewbox VerticalAlignment="Center"
                                      HorizontalAlignment="Center"
                                      Width="20"
@@ -125,7 +129,10 @@
                                 VerticalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Click="TaskListPanelButton_Click">
+                                Click="TaskListPanelButton_Click" 
+                                Background="Transparent"
+                                BorderThickness="0">
+                           
                             <Grid ChildrenTransitions="{x:Bind Cls:AnimationController.Current.ContentTransitions,Mode=OneWay}">
                                 <Viewbox Visibility="{x:Bind TaskListProgress.Visibility,Mode=OneWay,Converter={StaticResource InverseConverter}}"
                                          VerticalAlignment="Center"
@@ -162,7 +169,10 @@
                                 VerticalContentAlignment="Center"
                                 x:Uid="ViewModeControl"
                                 Click="ViewModeControlButton_Click"
-                                IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}">
+                                IsEnabled="{x:Bind LayoutModeControl.IsEnabled,Mode=OneWay}" 
+                                Background="Transparent"
+                                BorderThickness="0">
+                            
                             <Viewbox VerticalAlignment="Center"
                                      HorizontalAlignment="Center"
                                      Width="20"

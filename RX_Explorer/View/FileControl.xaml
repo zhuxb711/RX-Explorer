@@ -273,7 +273,10 @@
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
                     IsEnabled="False"
-                    Margin="1,0,0,0">
+                    Margin="1,0,0,0" 
+                    Background="Transparent"
+                    BorderThickness="0">
+                 
                 <Viewbox>
                     <SymbolIcon Symbol="Back" />
                 </Viewbox>
@@ -288,7 +291,10 @@
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0,0,0">
+                    Margin="1,0,0,0" 
+                    Background="Transparent"
+                    BorderThickness="0">
+                
                 <Viewbox>
                     <SymbolIcon Symbol="Forward" />
                 </Viewbox>
@@ -303,7 +309,10 @@
                     Click="GoParentFolder_Click"
                     ToolTipService.ToolTip="返回上级"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0,0,0">
+                    Margin="1,0,0,0" 
+                    Background="Transparent"
+                    BorderThickness="0">
+                 
                 <Viewbox>
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
@@ -316,7 +325,10 @@
                     Click="GoHome_Click"
                     ToolTipService.ToolTip="回到主页"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0">
+                    Margin="1,0" 
+                    Background="Transparent"
+                    BorderThickness="0">
+                
                 <Viewbox>
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
