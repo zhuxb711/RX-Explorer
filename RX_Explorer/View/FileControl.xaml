@@ -250,10 +250,10 @@
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="36" />
+            <RowDefinition Height="38" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Padding="0,2,0,0"
+        <Grid Padding="0,2"
               Background="{ThemeResource ElementCustomAcrylicBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35" />
@@ -273,10 +273,7 @@
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
                     IsEnabled="False"
-                    Margin="1,0,0,0" 
-                    Background="Transparent"
-                    BorderThickness="0">
-                 
+                    Margin="1,0,0,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Back" />
                 </Viewbox>
@@ -291,10 +288,7 @@
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0,0,0" 
-                    Background="Transparent"
-                    BorderThickness="0">
-                
+                    Margin="1,0,0,0" >
                 <Viewbox>
                     <SymbolIcon Symbol="Forward" />
                 </Viewbox>
@@ -309,10 +303,7 @@
                     Click="GoParentFolder_Click"
                     ToolTipService.ToolTip="返回上级"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0,0,0" 
-                    Background="Transparent"
-                    BorderThickness="0">
-                 
+                    Margin="1,0,0,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
@@ -358,7 +349,7 @@
             </AutoSuggestBox>
             <ListView HorizontalAlignment="Left"
                       VerticalAlignment="Stretch"
-                      Margin="0,1"
+                      Margin="0,0,0,2"
                       Padding="5,0,0,0"
                       SelectionMode="None"
                       Grid.Column="4"
