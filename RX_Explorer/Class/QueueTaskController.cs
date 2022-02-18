@@ -1146,7 +1146,7 @@ namespace RX_Explorer.Class
 
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
-                    if (Model.Status is not OperationStatus.Error and not OperationStatus.Cancelled)
+                    if (Model.Status is not (OperationStatus.Error or OperationStatus.Cancelled))
                     {
                         Model.UpdateProgress(100);
                         Model.UpdateStatus(OperationStatus.Completed);
@@ -1168,7 +1168,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IReadOnlyList<OperationListBaseModel> Models = ListItemSource.Where((Model) => Model.Status is not OperationStatus.Error and not OperationStatus.Cancelled and not OperationStatus.Completed).ToList();
+                IReadOnlyList<OperationListBaseModel> Models = ListItemSource.Where((Model) => Model.Status is not (OperationStatus.Error or OperationStatus.Cancelled or OperationStatus.Completed)).ToList();
 
                 if (Models.Count > 0)
                 {

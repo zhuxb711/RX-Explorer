@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.Storage;
@@ -400,14 +399,9 @@ namespace RX_Explorer.Class
 
                     if (Analysis.HasNextLevel)
                     {
-                        if (!CheckExists(NextPath))
+                        if (!CheckExists(NextPath) && !CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                         {
-                            if (!CreateDirectoryFromApp(NextPath, IntPtr.Zero))
-                            {
-                                NewFolderPath = string.Empty;
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
-                                return false;
-                            }
+                            break;
                         }
                     }
                     else
@@ -423,49 +417,38 @@ namespace RX_Explorer.Class
                                         NewFolderPath = UniquePath;
                                         return true;
                                     }
-                                    else
-                                    {
-                                        NewFolderPath = string.Empty;
-                                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
-                                        return false;
-                                    }
+
+                                    break;
                                 }
                             case CreateOption.OpenIfExist:
                                 {
-                                    if (CheckExists(NextPath))
+                                    if (CheckExists(NextPath) || CreateDirectoryFromApp(NextPath, IntPtr.Zero))
                                     {
                                         NewFolderPath = NextPath;
                                         return true;
                                     }
-                                    else
-                                    {
-                                        if (CreateDirectoryFromApp(NextPath, IntPtr.Zero))
-                                        {
-                                            NewFolderPath = NextPath;
-                                            return true;
-                                        }
-                                        else
-                                        {
-                                            NewFolderPath = string.Empty;
-                                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), $"An exception was threw when create directory, Path: \"{Path}\"");
-                                            return false;
-                                        }
-                                    }
+
+                                    break;
                                 }
                             default:
                                 {
-                                    throw new ArgumentException("Argument is invalid", nameof(Option));
+                                    break;
                                 }
                         }
+
+                        break;
                     }
                 }
+
+                throw new Win32Exception(Marshal.GetLastWin32Error());
             }
             catch (Exception ex)
             {
                 NewFolderPath = string.Empty;
                 LogTracer.Log(ex, $"An exception was threw when create directory, Path: \"{Path}\"");
-                return false;
             }
+
+            return false;
         }
 
         public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewPath)

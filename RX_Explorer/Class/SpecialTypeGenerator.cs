@@ -41,9 +41,9 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task<FileSystemStorageFile> CreateZipFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateZipFile(FileSystemStorageFolder TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
@@ -83,9 +83,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<FileSystemStorageFile> CreateRtfFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateRtfFile(FileSystemStorageFolder TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {
@@ -131,9 +131,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<FileSystemStorageFile> CreateExcelFile(string TargetFolder, string Name)
+        public async Task<FileSystemStorageFile> CreateExcelFile(FileSystemStorageFolder TargetFolder, string Name)
         {
-            if (string.IsNullOrEmpty(TargetFolder))
+            if (TargetFolder == null)
             {
                 throw new ArgumentNullException(nameof(TargetFolder), "Argument could not be null");
             }
@@ -148,7 +148,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+            if (await TargetFolder.CreateNewSubItemAsync(Name, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
             {
                 try
                 {

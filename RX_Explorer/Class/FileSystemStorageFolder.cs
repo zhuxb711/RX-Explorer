@@ -105,14 +105,14 @@ namespace RX_Explorer.Class
         }
 
         public virtual Task<IReadOnlyList<FileSystemStorageItemBase>> SearchAsync(string SearchWord,
-                                                                                        bool SearchInSubFolders = false,
-                                                                                        bool IncludeHiddenItems = false,
-                                                                                        bool IncludeSystemItems = false,
-                                                                                        bool IsRegexExpression = false,
-                                                                                        bool IsAQSExpression = false,
-                                                                                        bool UseIndexerOnly = false,
-                                                                                        bool IgnoreCase = true,
-                                                                                        CancellationToken CancelToken = default)
+                                                                                  bool SearchInSubFolders = false,
+                                                                                  bool IncludeHiddenItems = false,
+                                                                                  bool IncludeSystemItems = false,
+                                                                                  bool IsRegexExpression = false,
+                                                                                  bool IsAQSExpression = false,
+                                                                                  bool UseIndexerOnly = false,
+                                                                                  bool IgnoreCase = true,
+                                                                                  CancellationToken CancelToken = default)
         {
             if (IsRegexExpression && IsAQSExpression)
             {
@@ -266,6 +266,127 @@ namespace RX_Explorer.Class
             {
                 return SearchCoreAsync(Path);
             }
+        }
+
+        public virtual async Task<FileSystemStorageItemBase> CreateNewSubItemAsync(string Name, StorageItemTypes ItemTypes, CreateOption Option)
+        {
+            string SubItemPath = System.IO.Path.Combine(Path, Name);
+
+            try
+            {
+                switch (ItemTypes)
+                {
+                    case StorageItemTypes.File:
+                        {
+                            try
+                            {
+                                if (Win32_Native_API.CreateFileFromPath(SubItemPath, Option, out string NewPath))
+                                {
+                                    return await OpenAsync(NewPath);
+                                }
+                                else if (await GetStorageItemAsync() is StorageFolder Folder)
+                                {
+                                    switch (Option)
+                                    {
+                                        case CreateOption.GenerateUniqueName:
+                                            {
+                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName));
+                                            }
+                                        case CreateOption.OpenIfExist:
+                                            {
+                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.OpenIfExists));
+                                            }
+                                        case CreateOption.ReplaceExisting:
+                                            {
+                                                return new FileSystemStorageFile(await Folder.CreateFileAsync(Name, CreationCollisionOption.ReplaceExisting));
+                                            }
+                                        default:
+                                            {
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.File, SubItemPath);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{SubItemPath}\"");
+                                    }
+                                    else
+                                    {
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case StorageItemTypes.Folder:
+                        {
+                            try
+                            {
+                                if (Win32_Native_API.CreateDirectoryFromPath(SubItemPath, Option, out string NewPath))
+                                {
+                                    return await OpenAsync(NewPath);
+                                }
+                                else if (await GetStorageItemAsync() is StorageFolder Folder)
+                                {
+                                    switch (Option)
+                                    {
+                                        case CreateOption.GenerateUniqueName:
+                                            {
+                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.GenerateUniqueName);
+                                                return new FileSystemStorageFolder(NewFolder);
+                                            }
+                                        case CreateOption.OpenIfExist:
+                                            {
+                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.OpenIfExists);
+                                                return new FileSystemStorageFolder(NewFolder);
+                                            }
+                                        case CreateOption.ReplaceExisting:
+                                            {
+                                                StorageFolder NewFolder = await Folder.CreateFolderAsync(Name, CreationCollisionOption.ReplaceExisting);
+                                                return new FileSystemStorageFolder(NewFolder);
+                                            }
+                                        default:
+                                            {
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableControllerAsync())
+                                {
+                                    string NewItemPath = await Exclusive.Controller.CreateNewAsync(CreateType.Folder, SubItemPath);
+
+                                    if (string.IsNullOrEmpty(NewItemPath))
+                                    {
+                                        LogTracer.Log($"Could not use full trust process to create the storage item, path: \"{SubItemPath}\"");
+                                    }
+                                    else
+                                    {
+                                        return await OpenAsync(NewItemPath);
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(CreateNewSubItemAsync)} failed and could not create the storage item, path:\"{SubItemPath}\"");
+            }
+
+            return null;
         }
 
         public virtual Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems = false,

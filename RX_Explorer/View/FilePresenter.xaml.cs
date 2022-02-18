@@ -4258,7 +4258,7 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistsAsync(CurrentFolder.Path))
             {
-                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                if (await CurrentFolder.CreateNewSubItemAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
                     OperationRecorder.Current.Push(new string[] { $"{NewFolder.Path}||New" });
 
@@ -5001,17 +5001,17 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder, NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder, NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, NewFileName);
+                                NewFile = await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder, NewFileName);
                                 break;
                             }
                         case ".lnk":
@@ -5042,7 +5042,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (await FileSystemStorageItemBase.CreateNewAsync(Path.Combine(CurrentFolder.Path, NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
+                                if (await CurrentFolder.CreateNewSubItemAsync(NewFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile File)
                                 {
                                     NewFile = File;
                                 }
