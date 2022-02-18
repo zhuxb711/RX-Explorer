@@ -1355,6 +1355,8 @@ namespace RX_Explorer
         {
             try
             {
+                UIModeExpander.IsExpanded = true;
+
                 switch (UIMode.SelectedIndex)
                 {
                     case 0:

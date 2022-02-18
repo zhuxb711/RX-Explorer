@@ -316,10 +316,7 @@
                     Click="GoHome_Click"
                     ToolTipService.ToolTip="回到主页"
                     AllowFocusWhenDisabled="True"
-                    Margin="1,0" 
-                    Background="Transparent"
-                    BorderThickness="0">
-                
+                    Margin="1,0">
                 <Viewbox>
                     <SymbolIcon Symbol="Home" />
                 </Viewbox>
