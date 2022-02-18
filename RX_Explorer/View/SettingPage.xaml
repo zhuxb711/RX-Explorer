@@ -1509,7 +1509,8 @@
                                                    Padding="0"
                                                    MinHeight="60"
                                                    Background="Transparent"
-                                                   CornerRadius="4,4,0,0">
+                                                   CornerRadius="4,4,0,0"
+                                                   Name="UIModeExpander">
                                         <muxc:Expander.Header>
                                             <RelativePanel Padding="4,10,0,10">
                                                 <StackPanel RelativePanel.AlignVerticalCenterWithPanel="True"
